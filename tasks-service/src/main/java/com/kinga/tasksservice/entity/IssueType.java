@@ -23,7 +23,7 @@ public class IssueType {
     private List<Issue> issues;
     @ManyToMany
     private List<CostumField> costumFields;
-    @ManyToMany
-    private List<State> states;
+    @ManyToOne
+    private WorkFlow workFlow;
 
 }

@@ -20,9 +20,9 @@ public class State {
     @ManyToMany
     private List<IssueType> types;
     @OneToMany(mappedBy = "fin")
-    private List<CrossngState> fromeStates;
+    private List<CrossingState> fromeStates;
     @OneToMany(mappedBy = "detut")
-    private List<CrossngState> acctionPossible;
+    private List<CrossingState> acctionPossible;
 
 }
 

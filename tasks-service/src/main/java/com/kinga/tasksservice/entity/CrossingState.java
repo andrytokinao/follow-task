@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CrossngState {
+public class CrossingState {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

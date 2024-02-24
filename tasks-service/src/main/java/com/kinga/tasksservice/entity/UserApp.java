@@ -15,6 +15,12 @@ public class UserApp {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String username;
+    private String firstName;
+    private String lastName;
+    private String contact;
+    private String email;
+    private String cin;
     @OneToMany(mappedBy = "userApp")
     private List<Operation> operations;
     @OneToMany(mappedBy = "reporter")
