@@ -31,12 +31,11 @@ public class Issue {
     @ManyToOne
     @JoinColumn(name = "reporter")
     private UserApp reporter;
+    @OneToMany
+    private List<PasseTime> passeTime;
     @ManyToOne
-    @JoinColumn(name = "passe_time")
-    private PasseTime passeTime;
-    @ManyToOne
-    private Issue parrent;
-    @OneToMany(mappedBy = "parrent")
+    private Issue parent;
+    @OneToMany(mappedBy = "parent")
     private List<Issue> children;
 
 }

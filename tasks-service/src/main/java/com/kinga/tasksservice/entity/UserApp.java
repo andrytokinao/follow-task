@@ -23,6 +23,9 @@ public class UserApp {
     private String contact;
     private String email;
     private String cin;
+    private String photo;
+    @ManyToMany
+    private List<GroupeUser> groupes;
     @OneToMany(mappedBy = "userApp")
     private List<Operation> operations;
     @OneToMany(mappedBy = "reporter")

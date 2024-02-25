@@ -20,6 +20,8 @@ public class PasseTime {
     @ManyToOne
     @JoinColumn(name = "user_app")
     private UserApp userApp;
+    @ManyToOne
+    private Issue issue;
 
 
 }

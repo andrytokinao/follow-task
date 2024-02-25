@@ -13,10 +13,12 @@ public class CrossingState {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String name;
+    private String description;
     @ManyToOne
-    private State detut;
+    private State from;
     @ManyToOne
-    private State fin;
+    private State to;
     @ManyToOne
     private Credential credential;
 

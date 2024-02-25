@@ -18,7 +18,4 @@ public class CostumField {
     private String name;
     @ManyToMany
     private List<IssueType> issueTypes;
-    @ManyToMany
-    private List<State> states;
-
 }

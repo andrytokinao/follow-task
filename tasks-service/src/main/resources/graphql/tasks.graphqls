@@ -1,0 +1,235 @@
+type CostumField {
+    id:Int
+    name:String
+    issueTypes:[IssueType]
+}
+type Credential{
+    id:Int
+    name:String
+    roles:[RoleApp]
+}
+
+type CrossingState {
+    id:Int
+    name:String
+    description:String
+    from:State
+    to:State
+    credential:Credential
+}
+type GroupeUser {
+    id:Int!
+    name:String
+    mamber:[UserApp]
+    roles:[RoleApp]
+}
+type  Issue {
+    id:Int
+    summary:String
+    description : String
+    type:IssueType
+    assigne:UserApp
+    reporter:UserApp
+    passeTime:[PasseTime]
+    parent:Issue,
+    children:[Issue]
+}
+type IssueType{
+    id:Int
+    name:String
+    projects:[Project]
+    issues:[Issue]
+    curentWorkFlow:WorkFlow
+}
+
+type Operation{
+    id:Int
+    date:String
+    initial:String
+    finale:String
+    issue:Issue
+    costumField:CostumField
+    userApp:UserApp
+}
+
+type PasseTime {
+    id:Int,
+    time:Float,
+    date:String,
+    userApp:UserApp
+    issue:Issue
+}
+type Project{
+    id:Int
+    name:String
+    prefix:String
+    issueTypes:[IssueType]
+}
+
+type RoleApp{
+    id:Int
+    groupeUsers:[UserApp]
+    credentials:[Credential]
+}
+
+type State{
+    id:Int
+    name:String
+    iconeFile:String
+    types:[IssueType]
+    fromeStates:[CrossingState]
+    acctionPossible:[CrossingState]
+
+}
+
+type UserApp{
+    id:Int
+    username:String
+    firstName:String
+    lastName:String
+    contact:String
+    email:String
+    adress:String
+    cin:String
+    groupes:[GroupeUser]
+    operations:[Operation]
+    repotrers:[Issue]
+    passeTimes:[PasseTime]
+}
+
+type Value {
+    id:Int,
+    valueType:ValueType
+    value:String
+    costumField:CostumField
+
+}
+
+enum ValueType {
+    DATE
+    NUMBER
+    STRING
+    USER
+}
+
+type WorkFlow {
+    id:Int,
+    name:String,
+    active :Boolean,
+    states :[State],
+    issueTypes :[IssueType],
+    crossingStates :[CrossingState],
+
+}
+
+
+
+input CostumFieldImputInput {
+    id:Int
+    name:String
+    issueTypes:[Int]
+}
+input CredentialInput{
+    id:Int
+    name:String
+    roles:[Int]
+}
+
+input CrossingStateInput{
+    id:Int
+    name:String
+    description:String
+    from:Int
+    to:Int
+    credential:Int
+}
+input GroupeUserInput {
+    id:Int!
+    name:String
+    mamber:[Int]
+    roles:[Int]
+}
+input  IssueInput {
+    id:Int
+    summary:String
+    description : String
+    type:Int
+    parent:Int,
+}
+input IssueTypeInput{
+    id:Int
+    name:String
+    projects:[Int]
+    curentWorkFlow:Int
+}
+
+input OperationInput{
+    id:Int
+    date:String
+    initial:String
+    finale:String
+    issue:Int
+    costumField:Int
+    userApp:Int
+}
+
+input PasseTimeInput {
+    id:Int,
+    time:Float,
+    date:String,
+    userApp:Int
+    issue:Int
+}
+input ProjectInput{
+    id:Int
+    name:String
+    prefix:String
+    issueTypes:[Int]
+}
+
+input RoleAppInput{
+    id:Int
+    groupeUsers:[Int]
+    credentials:[Int]
+}
+
+input StateInput{
+    id:Int
+    name:String
+    iconeFile:String
+    types:[Int]
+    fromeStates:[Int]
+    acctionPossible:[Int]
+
+}
+
+input UserAppInput{
+    id:Int
+    username:String
+    firstName:String
+    lastName:String
+    contact:String
+    email:String
+    adress:String
+    cin:String
+    groupes:[Int]
+}
+
+input ValueInput {
+    id:Int,
+    valueType:ValueType
+    value:String
+    costumField:Int
+
+}
+
+
+input WorkFlowInput {
+    id:Int,
+    name:String,
+    active :Boolean,
+    states :[Int],
+    issueTypes :[Int],
+    crossingStates :[Int],
+
+}

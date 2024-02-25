@@ -17,13 +17,13 @@ public class IssueType {
     private Integer id;
     private String name;
     @ManyToMany
-    private List<Project> project;
+    private List<Project> projects;
 
     @OneToMany(mappedBy = "type")
     private List<Issue> issues;
     @ManyToMany
     private List<CostumField> costumFields;
     @ManyToOne
-    private WorkFlow workFlow;
+    private WorkFlow curentWorkFlow;
 
 }

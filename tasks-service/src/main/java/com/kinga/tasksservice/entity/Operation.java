@@ -18,12 +18,12 @@ public class Operation {
     private Long id;
     private Date date ;
     private String string;
-    @ManyToOne
-    private Value inital;
-    @ManyToOne
-    private Value finale;
+    private String inital;
+    private String finale;
     @ManyToOne
     private Issue issue;
+    @ManyToOne
+    private CostumField costumField;
     @ManyToOne
     private UserApp userApp;
 

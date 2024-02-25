@@ -19,9 +19,9 @@ public class State {
     private String iconeFile;
     @ManyToMany
     private List<IssueType> types;
-    @OneToMany(mappedBy = "fin")
+    @OneToMany(mappedBy = "to")
     private List<CrossingState> fromeStates;
-    @OneToMany(mappedBy = "detut")
+    @OneToMany(mappedBy = "from")
     private List<CrossingState> acctionPossible;
 
 }
