@@ -6,9 +6,10 @@ import {IssueListeComponent} from "./issue-liste/issue-liste.component";
 import {ProjectComponent} from "./project.component";
 import {ProjectRoutingModule} from "./project-routing.module";
 import {GanttChartComponent} from "./gantt-chart/gantt-chart.component";
+import {BoardComponent} from "./board/board.component";
 
 @NgModule({
-  declarations: [StatusComponent, RepartitionComponent, IssueListeComponent, ProjectComponent,GanttChartComponent],
+  declarations: [StatusComponent, RepartitionComponent, IssueListeComponent, ProjectComponent,GanttChartComponent,BoardComponent],
   exports: [
      StatusComponent, RepartitionComponent, IssueListeComponent,ProjectComponent
   ],
