@@ -1,0 +1,14 @@
+<div class="gantt-chart">
+  <div class="gantt-header">
+    <div class="header-cell" *ngFor="let day of days" >
+      {{ day }}
+    </div>
+  </div>
+  <div class="gantt-tasks">
+    <div *ngFor="let task of tasks" class="gantt-task" [style.width]="calculateTaskWidth(task)">
+      <div class="task-title">{{ task.name }}</div>
+      <div class="task-duration">{{ task.startDate | date }} - {{ task.endDate | date }}</div>
+    </div>
+
+  </div>
+</div>
