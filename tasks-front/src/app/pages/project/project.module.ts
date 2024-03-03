@@ -7,9 +7,16 @@ import {ProjectComponent} from "./project.component";
 import {ProjectRoutingModule} from "./project-routing.module";
 import {GanttChartComponent} from "./gantt-chart/gantt-chart.component";
 import {BoardComponent} from "./board/board.component";
+import {NewIssueComponent} from "./modal/new-issue/new-issue.component";
+import {MatTabsModule} from "@angular/material/tabs";
+import {MatCardModule} from "@angular/material/card";
+import {MatDialogModule} from "@angular/material/dialog";
+import {MatToolbarModule} from "@angular/material/toolbar";
+import {MatFormFieldModule} from "@angular/material/form-field";
+import {FormsModule} from "@angular/forms";
 
 @NgModule({
-  declarations: [StatusComponent, RepartitionComponent, IssueListeComponent, ProjectComponent,GanttChartComponent,BoardComponent],
+  declarations: [StatusComponent, RepartitionComponent, IssueListeComponent, ProjectComponent,GanttChartComponent,BoardComponent,NewIssueComponent],
   exports: [
      StatusComponent, RepartitionComponent, IssueListeComponent,ProjectComponent
   ],
@@ -17,6 +24,12 @@ import {BoardComponent} from "./board/board.component";
     CommonModule,
     ProjectRoutingModule,
     CommonModule,
+    MatTabsModule,
+    MatCardModule,
+    MatDialogModule,
+    MatToolbarModule,
+    MatFormFieldModule,
+    FormsModule
   ]
 })
 export class ProjectModule { }

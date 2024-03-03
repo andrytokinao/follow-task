@@ -1,6 +1,6 @@
 .board {
-  display: flex;
-  flex-flow: row;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(20px, 1fr));
   -moz-box-pack: start;
   justify-content: flex-start;
   -moz-box-align: stretch;
@@ -65,3 +65,4 @@ h3 {
   height: auto;
   border-radius: 4px;
 }
+

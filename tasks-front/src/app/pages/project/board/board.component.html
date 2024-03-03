@@ -1,186 +1,22 @@
 <div class="board">
-  <div class="column">
-    <div class="entete">En attent </div>
-    <div class="issie-board">
+  <div class="column" *ngFor='let issueTuple of issuesBoard'>
+    <div class="entete">{{ issueTuple[0].displayName }} </div>
+    <div class="issie-board" *ngFor='let s of issueTuple[1]'>
       <div class="card">
-        <div class="content">
-          <h3>Titre de la carte</h3>
-          <p>Contenu variable de la carte...</p>
+        <div class="content details">
+          <h3>{{s.summary}}</h3>
+          <p>{{s.description}}</p>
         </div>
         <img src="/assets/user.png" alt="Image" class="image">
       </div>
     </div>
-    <div class="issie-board">
+    <div  class="issie-board new " (click)="newIssue( issueTuple[0])" >
       <div class="card">
-        <div class="content">
-          <h3>Titre de la carte</h3>
-          <p>Contenu variable de la carte...</p>
-        </div>
-        <img src="/assets/user.png" alt="Image" class="image">
-      </div>
-    </div>
-    <div class="issie-board">
-      <div class="card">
-        <div class="content">
-          <h3>Titre de la carte</h3>
-          <p>Contenu variable de la carte...</p>
-        </div>
-        <img src="/assets/user.png" alt="Image" class="image">
-      </div>
-    </div>
-    <div class="issie-board">
-      <div class="card">
-        <div class="content">
-          <h3>Titre de la carte</h3>
-          <p>Contenu variable de la carte...</p>
-        </div>
-        <img src="/assets/user.png" alt="Image" class="image">
-      </div>
-    </div>
-    <div  class="issie-board new ">
-      <div class="card">
-        <div class="content">
+        <div class="content details">
           <p><i class="fas fa-plus"></i> Creer un nouveau demande </p>
         </div>
       </div>
     </div>
   </div>
-  <div class="column">
-    <div class="entete">En attent </div>
-    <div class="issie-board">
-      <div class="card">
-        <div class="content">
-          <h3>Titre de la carte</h3>
-          <p>Contenu variable de la carte...</p>
-        </div>
-        <img src="/assets/user.png" alt="Image" class="image">
-      </div>
-    </div>
-    <div class="issie-board">
-      <div class="card">
-        <div class="content">
-          <h3>Titre de la carte</h3>
-          <p>Contenu variable de la carte...</p>
-        </div>
-        <img src="/assets/user.png" alt="Image" class="image">
-      </div>
-    </div>
-    <div class="issie-board">
-      <div class="card">
-        <div class="content">
-          <h3>Titre de la carte</h3>
-          <p>Contenu variable de la carte...</p>
-        </div>
-        <img src="/assets/user.png" alt="Image" class="image">
-      </div>
-    </div>
-    <div class="issie-board">
-      <div class="card">
-        <div class="content">
-          <h3>Titre de la carte</h3>
-          <p>Contenu variable de la carte...</p>
-        </div>
-        <img src="/assets/user.png" alt="Image" class="image">
-      </div>
-    </div>
-  </div>
-  <div class="column">
-    <div class="entete">En attent </div>
-    <div class="issie-board">
-      <div class="card">
-        <div class="content">
-          <h3>Titre de la carte</h3>
-          <p>Contenu variable de la carte...</p>
-        </div>
-        <img src="/assets/user.png" alt="Image" class="image">
-      </div>
-    </div>
-    <div class="issie-board">
-      <div class="card">
-        <div class="content">
-          <h3>Titre de la carte</h3>
-          <p>Contenu variable de la carte...</p>
-        </div>
-        <img src="/assets/user.png" alt="Image" class="image">
-      </div>
-    </div>
-    <div class="issie-board">
-      <div class="card">
-        <div class="content">
-          <h3>Titre de la carte</h3>
-          <p>Contenu variable de la carte...</p>
-        </div>
-        <img src="/assets/user.png" alt="Image" class="image">
-      </div>
-    </div>
-  </div>
-  <div class="column">
-    <div class="entete">En attent </div>
-    <div class="issie-board">
-      <div class="card">
-        <div class="content">
-          <h3>Titre de la carte</h3>
-          <p>Contenu variable de la carte...</p>
-        </div>
-        <img src="/assets/user.png" alt="Image" class="image">
-      </div>
-    </div>
-    <div class="issie-board">
-      <div class="card">
-        <div class="content">
-          <h3>Titre de la carte</h3>
-          <p>Contenu variable de la carte...</p>
-        </div>
-        <img src="/assets/user.png" alt="Image" class="image">
-      </div>
-    </div>
-    <div class="issie-board">
-      <div class="card">
-        <div class="content">
-          <h3>Titre de la carte</h3>
-          <p>Contenu variable de la carte...</p>
-        </div>
-        <img src="/assets/user.png" alt="Image" class="image">
-      </div>
-    </div>
-  </div>
-  <div class="column">
-    <div class="entete">En attent </div>
-    <div class="issie-board">
-      <div class="card">
-        <div class="content">
-          <h3>Titre de la carte</h3>
-          <p>Contenu variable de la carte...</p>
-        </div>
-        <img src="/assets/user.png" alt="Image" class="image">
-      </div>
-    </div>
-    <div class="issie-board">
-      <div class="card">
-        <div class="content">
-          <h3>Titre de la carte</h3>
-          <p>Contenu variable de la carte...</p>
-        </div>
-        <img src="/assets/user.png" alt="Image" class="image">
-      </div>
-    </div>
-    <div class="issie-board">
-      <div class="card">
-        <div class="content">
-          <h3>Titre de la carte</h3>
-          <p>Contenu variable de la carte...</p>
-        </div>
-        <img src="/assets/user.png" alt="Image" class="image">
-      </div>
-    </div>
-    <div class="issie-board">
-      <div class="card">
-        <div class="content">
-          <h3>Titre de la carte</h3>
-          <p>Contenu variable de la carte...</p>
-        </div>
-        <img src="/assets/user.png" alt="Image" class="image">
-      </div>
-    </div>
-  </div>
+
 </div>

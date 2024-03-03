@@ -18,10 +18,10 @@ public class WorkFlow {
     private String name;
     private boolean active;
     @ManyToMany
-    private List<State> states;
+    private List<Status> states;
     @OneToMany(mappedBy = "curentWorkFlow")
     private List<IssueType> issueTypes;
     @ManyToMany
-    private List<CrossingState> crossingStates;
+    private List<CrossingStatus> crossingStates;
 
 }
