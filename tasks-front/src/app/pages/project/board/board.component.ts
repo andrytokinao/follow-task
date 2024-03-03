@@ -2,8 +2,10 @@ import {Component, OnInit} from '@angular/core';
 import {NewIssueComponent} from "../modal/new-issue/new-issue.component";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {IssueService} from "../../../services/issue.service";
-import {Issue, Status} from "../../../type/issue";
+import {Issue, Status, User} from "../../../type/issue";
 import {groupBy, mergeMap, of, toArray, zip} from "rxjs";
+import {MatMenuTrigger} from "@angular/material/menu";
+import {UserService} from "../../../services/user.service";
 
 @Component({
   selector: 'app-board',
@@ -14,11 +16,13 @@ export class BoardComponent implements OnInit{
   public essueService:IssueService
   public issuesBoard: [any , Issue[]][]= [];
   public issues :Issue[]= [];
+  public users :User[]=[];
   public currentIssue : Issue| null = null;
   workflow: Status[]=[];
   constructor(
     private modalService: NgbModal,
-    essueService:IssueService
+    essueService:IssueService,
+    public userService:UserService
   ) {
     this.essueService = essueService;
     this.essueService.getIsses().subscribe( res => {
@@ -28,6 +32,9 @@ export class BoardComponent implements OnInit{
         this.workflow = res;
       }
     )
+    this.userService.getUsers().subscribe(us=>{
+       this.users = us;
+    })
   }
 
 
@@ -49,6 +56,12 @@ export class BoardComponent implements OnInit{
     return false;
   }
   ngOnInit(): void {
+  }
+  isActive(user:User) : boolean{
+    if(this.currentIssue != null )  {
+      return this.currentIssue.assigne.id == user.id;
+    }
+    return false;
   }
 
   onDragStart($event: DragEvent, issue: Issue) {
@@ -72,4 +85,15 @@ export class BoardComponent implements OnInit{
      let flows : number[] = [0,1,2,3,4];
       return this.workflow.filter(wf => flows.indexOf(wf.id)!= -1);
    }
+
+  assigne(issue: Issue) {
+    this.currentIssue = issue;
+  }
+
+  assigneToUser(user: User) {
+    if(this.currentIssue != null) {
+      this.currentIssue.assigne= user;
+    }
+
+  }
 }

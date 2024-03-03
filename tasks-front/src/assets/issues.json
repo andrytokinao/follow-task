@@ -13,16 +13,8 @@
       "index": 1,
       "displayName": "TODO"
     },
-    "assign": {
-      "id": 1,
-      "username": "tandriamahefasoa",
-      "name": "Andry Tokiniaina"
-    },
-    "raporter": {
-      "id": 1,
-      "username": "tandriamahefasoa",
-      "name": "Andry Tokiniaina"
-    }
+    "assigne": {},
+    "raporter": {}
   },
   {
     "id": 1,
@@ -38,16 +30,8 @@
       "index": 2,
       "displayName": "En cours ..."
     },
-    "assign": {
-      "id": 1,
-      "username": "tandriamahefasoa",
-      "name": "Andry Tokiniaina"
-    },
-    "raporter": {
-      "id": 1,
-      "username": "tandriamahefasoa",
-      "name": "Andry Tokiniaina"
-    }
+    "assigne": {},
+    "raporter": {}
   },
   {
     "id": 1,
@@ -63,16 +47,8 @@
       "index": 3,
       "displayName": "Validation "
     },
-    "assign": {
-      "id": 1,
-      "username": "tandriamahefasoa",
-      "name": "Andry Tokiniaina"
-    },
-    "raporter": {
-      "id": 1,
-      "username": "tandriamahefasoa",
-      "name": "Andry Tokiniaina"
-    }
+    "assigne": {},
+    "raporter": {}
   },
   {
     "id": 1,
@@ -88,16 +64,8 @@
       "index": 5,
       "displayName": "Validé /  "
     },
-    "assign": {
-      "id": 1,
-      "username": "tandriamahefasoa",
-      "name": "Andry Tokiniaina"
-    },
-    "raporter": {
-      "id": 1,
-      "username": "tandriamahefasoa",
-      "name": "Andry Tokiniaina"
-    }
+    "assigne": {},
+    "raporter": {}
   },
   {
     "id": 1,
@@ -113,15 +81,7 @@
       "index": 4,
       "displayName": "Livré "
     },
-    "assign": {
-      "id": 1,
-      "username": "tandriamahefasoa",
-      "name": "Andry Tokiniaina"
-    },
-    "raporter": {
-      "id": 1,
-      "username": "tandriamahefasoa",
-      "name": "Andry Tokiniaina"
-    }
+    "assigne": {},
+    "raporter": {}
   }
 ]

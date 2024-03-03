@@ -7,7 +7,7 @@
           <h3>{{issue.summary}}</h3>
           <p>{{issue.description}}</p>
         </div>
-        <img src="/assets/user.png" alt="Image" class="image">
+        <img [src] = "issue.assigne.photo" src="/assets/user.png" alt="Image" class="image"  mat-icon-button [matMenuTriggerFor]="menu2" (click)="assigne(issue)" >
       </div>
     </div>
     <div  class="issie-board new " (click)="newIssue( status)" *ngIf = "canCreate(status)">
@@ -18,5 +18,11 @@
       </div>
     </div>
   </div>
-
+  <mat-menu #menu2="matMenu">
+    <h4> Assigner a </h4>
+    <button mat-menu-item *ngFor="let user of users" (click)="assigneToUser(user)" [ngClass]="{'active': isActive(user)}" >
+      <img [src]="user.photo" alt="Image"  width="30px"  >
+      <span>{{user.firstname}} {{user.lastname}}</span>
+    </button>
+  </mat-menu>
 </div>

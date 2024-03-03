@@ -9,7 +9,16 @@ export class Issue {
   type: string= "";
   description: String ="";
   status: Status | null = null;
+  assigne:User = new User();
+  reporter:User = new User();
   constructor() {
 
   }
+}
+export class User {
+  id:number =0;
+  username:string="";
+  firstname:string="";
+  lastname:string="";
+  photo:string ="";
 }

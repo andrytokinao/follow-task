@@ -65,4 +65,6 @@ h3 {
   height: auto;
   border-radius: 4px;
 }
-
+.active {
+  background-color: #e0e0e0; /* Exemple de couleur de fond pour l'élément actif */
+}

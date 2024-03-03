@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import {ChangeDetectorRef, NgModule} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {StatusComponent} from "./status/status.component";
 import {RepartitionComponent} from "./repartition/repartition.component";
@@ -14,9 +14,20 @@ import {MatDialogModule} from "@angular/material/dialog";
 import {MatToolbarModule} from "@angular/material/toolbar";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {FormsModule} from "@angular/forms";
+import {MatMenuModule, MatMenu, MatMenuTrigger} from "@angular/material/menu";
+import {BrowserModule} from "@angular/platform-browser";
+import {MatIconModule} from "@angular/material/icon";
+import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 
 @NgModule({
-  declarations: [StatusComponent, RepartitionComponent, IssueListeComponent, ProjectComponent,GanttChartComponent,BoardComponent,NewIssueComponent],
+  declarations: [
+    StatusComponent,
+    RepartitionComponent,
+    IssueListeComponent,
+    ProjectComponent,
+    GanttChartComponent,
+    BoardComponent,
+    NewIssueComponent,],
   exports: [
      StatusComponent, RepartitionComponent, IssueListeComponent,ProjectComponent
   ],
@@ -29,7 +40,10 @@ import {FormsModule} from "@angular/forms";
     MatDialogModule,
     MatToolbarModule,
     MatFormFieldModule,
-    FormsModule
+    FormsModule,
+    MatMenuModule,
+    MatMenuModule,
+    MatIconModule,
   ]
 })
 export class ProjectModule { }

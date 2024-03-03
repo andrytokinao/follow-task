@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
-import {Issue, Status} from "../type/issue";
+import {Issue, Status, User} from "../type/issue";
 
 @Injectable({
   providedIn: 'root',
 })
-export class IssueService {
+export class UserService {
+
   constructor(private http: HttpClient) {}
 
   httpOptions = {
@@ -16,16 +17,10 @@ export class IssueService {
     }),
   };
 
-  getIsses(): Observable<Issue[]> {
-    let url = "assets/issues.json";
+  getUsers(): Observable<User[]> {
+    let url = "assets/users.json";
     return this.http
-      .get<Issue[]>(url)
-      .pipe(retry(1), catchError(this.handleError));
-  }
-  getWorkFlow(project:string): Observable<Status[]> {
-    let url = "assets/workflow-prj1.json";
-    return this.http
-      .get<Status[]>(url)
+      .get<User[]>(url)
       .pipe(retry(1), catchError(this.handleError));
   }
 
@@ -40,18 +35,4 @@ export class IssueService {
       return errorMessage;
     });
   }
-  ajouterAuGroupe(liste: [any, Issue[]][], groupe: any, issue: Issue): void {
-    let groupeExiste = false;
-    for (let i = 0; i < liste.length; i++) {
-      if (liste[i][0].id === groupe.id) {
-        liste[i][1].push(issue);
-        groupeExiste = true;
-        break;
-      }
-    }
-    if (!groupeExiste) {
-      liste.push([groupe, [issue]]);
-    }
-  }
-
 }
