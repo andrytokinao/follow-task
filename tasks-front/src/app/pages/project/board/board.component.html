@@ -1,16 +1,16 @@
 <div class="board">
-  <div class="column" *ngFor='let issueTuple of issuesBoard'>
-    <div class="entete">{{ issueTuple[0].displayName }} </div>
-    <div class="issie-board" *ngFor='let s of issueTuple[1]'>
+  <div class="column" *ngFor='let status of workflow' (dragover)="onDragOver($event)" (drop)= "onDrop($event, status)" >
+    <div class="entete">{{ status.displayName }} </div>
+    <div class="issie-board" *ngFor="let issue of filterByStatus(status)" draggable="true" (dragstart)="onDragStart($event,issue)"  >
       <div class="card">
         <div class="content details">
-          <h3>{{s.summary}}</h3>
-          <p>{{s.description}}</p>
+          <h3>{{issue.summary}}</h3>
+          <p>{{issue.description}}</p>
         </div>
         <img src="/assets/user.png" alt="Image" class="image">
       </div>
     </div>
-    <div  class="issie-board new " (click)="newIssue( issueTuple[0])" *ngIf = "canCreate( issueTuple[0])">
+    <div  class="issie-board new " (click)="newIssue( status)" *ngIf = "canCreate(status)">
       <div class="card">
         <div class="content details">
           <p><i class="fas fa-plus"></i> Creer un nouveau demande </p>

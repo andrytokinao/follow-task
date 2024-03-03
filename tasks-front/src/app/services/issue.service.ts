@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
-import {Issue} from "../type/issue";
+import {Issue, Status} from "../type/issue";
 
 @Injectable({
   providedIn: 'root',
@@ -21,6 +21,12 @@ export class IssueService {
     let url = "assets/issues.json";
     return this.http
       .get<Issue[]>(url)
+      .pipe(retry(1), catchError(this.handleError));
+  }
+  getWorkFlow(project:string): Observable<Status[]> {
+    let url = "assets/workflow-prj1.json";
+    return this.http
+      .get<Status[]>(url)
       .pipe(retry(1), catchError(this.handleError));
   }
 
@@ -48,4 +54,5 @@ export class IssueService {
       liste.push([groupe, [issue]]);
     }
   }
+
 }

@@ -1,0 +1,27 @@
+[
+  {
+    "id" : 0,
+    "displayName":" En attente ",
+    "icone" : "standby.ico"
+  },
+  {
+    "id" : 1,
+    "displayName":"En progression ",
+    "icone" : "inprogress.ico"
+  },
+  {
+    "id" : 2,
+    "displayName":"A Verifier  ",
+    "icone" : "verification.ico"
+  },
+  {
+    "id" : 3,
+    "displayName":" A Livré  ",
+    "icone" : "tolivre.ico"
+  },
+  {
+    "id" : 4,
+    "displayName":" Archiver ",
+    "icone" : "archive.ico"
+  }
+]

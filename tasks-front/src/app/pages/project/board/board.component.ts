@@ -14,27 +14,20 @@ export class BoardComponent implements OnInit{
   public essueService:IssueService
   public issuesBoard: [any , Issue[]][]= [];
   public issues :Issue[]= [];
+  public currentIssue : Issue| null = null;
+  workflow: Status[]=[];
   constructor(
     private modalService: NgbModal,
     essueService:IssueService
   ) {
     this.essueService = essueService;
-    this.essueService.getIsses().pipe(
-        mergeMap(res=> res),
-        groupBy(issue => issue.status , s => s),
-        mergeMap(groupe => zip(of(groupe.key), groupe.pipe(toArray())))
-      ).subscribe(r=>{
-        this.issuesBoard.push( r);
-        this.issuesBoard.sort((a,b)=>{
-          if (a[0].index < b[0].index) {
-            return -1;
-          } else if (a[0].index > b[0].index) {
-            return 1;
-          } else {
-            return 0;
-          }
-        })
+    this.essueService.getIsses().subscribe( res => {
+        this.issues = res;
     })
+    this.essueService.getWorkFlow("prj-1").subscribe( res => {
+        this.workflow = res;
+      }
+    )
   }
 
 
@@ -57,4 +50,24 @@ export class BoardComponent implements OnInit{
   }
   ngOnInit(): void {
   }
+
+  onDragStart($event: DragEvent, issue: Issue) {
+    this.currentIssue = issue;
+    console.log("onDragStart --> "+ issue.summary);
+  }
+
+  onDrop($event: DragEvent, status:any) {
+    if(this.currentIssue!= null ) {
+      this.currentIssue.status = status;
+    }
+
+  }
+
+  onDragOver($event: DragEvent) {
+    $event.preventDefault();
+  }
+  filterByStatus(status:any): Issue[] {
+     return this.issues.filter(is=> is.status!=null && is.status.id == status.id);
+   }
+
 }
