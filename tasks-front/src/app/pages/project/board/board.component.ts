@@ -43,24 +43,17 @@ export class BoardComponent implements OnInit{
     dialogRef.componentInstance.status = status;
     dialogRef.result.then((result) => {
       this.issues.push(result.issue);
-      this.ajouterAuGroupe(this.issuesBoard,result.issue.status,result.issue);
+      this.essueService.ajouterAuGroupe(this.issuesBoard,result.issue.status,result.issue);
     }).
     catch((reason) => {
       console.log('modal cancelled'+reason.message);
     });
   }
-  ajouterAuGroupe(liste: [any, Issue[]][], groupe: any, issue: Issue): void {
-    let groupeExiste = false;
-    for (let i = 0; i < liste.length; i++) {
-      if (liste[i][0].id === groupe.id) {
-        liste[i][1].push(issue);
-        groupeExiste = true;
-        break;
-      }
-    }
-    if (!groupeExiste) {
-      liste.push([groupe, [issue]]);
-    }
+  canCreate(status : Status): boolean {
+    // TODO : return false if user can not create
+    if(status.id ===0)
+      return true;
+    return false;
   }
   ngOnInit(): void {
   }

@@ -35,4 +35,17 @@ export class IssueService {
       return errorMessage;
     });
   }
+  ajouterAuGroupe(liste: [any, Issue[]][], groupe: any, issue: Issue): void {
+    let groupeExiste = false;
+    for (let i = 0; i < liste.length; i++) {
+      if (liste[i][0].id === groupe.id) {
+        liste[i][1].push(issue);
+        groupeExiste = true;
+        break;
+      }
+    }
+    if (!groupeExiste) {
+      liste.push([groupe, [issue]]);
+    }
+  }
 }

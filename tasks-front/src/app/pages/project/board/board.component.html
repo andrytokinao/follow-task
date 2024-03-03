@@ -10,7 +10,7 @@
         <img src="/assets/user.png" alt="Image" class="image">
       </div>
     </div>
-    <div  class="issie-board new " (click)="newIssue( issueTuple[0])" >
+    <div  class="issie-board new " (click)="newIssue( issueTuple[0])" *ngIf = "canCreate( issueTuple[0])">
       <div class="card">
         <div class="content details">
           <p><i class="fas fa-plus"></i> Creer un nouveau demande </p>
