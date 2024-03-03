@@ -53,14 +53,12 @@ export class BoardComponent implements OnInit{
 
   onDragStart($event: DragEvent, issue: Issue) {
     this.currentIssue = issue;
-    console.log("onDragStart --> "+ issue.summary);
   }
 
   onDrop($event: DragEvent, status:any) {
     if(this.currentIssue!= null ) {
       this.currentIssue.status = status;
     }
-
   }
 
   onDragOver($event: DragEvent) {
