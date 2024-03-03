@@ -67,5 +67,9 @@ export class BoardComponent implements OnInit{
   filterByStatus(status:any): Issue[] {
      return this.issues.filter(is=> is.status!=null && is.status.id == status.id);
    }
-
+   filerWorkFlow():Status[]{
+    // TODO : Filtrer l'affichage de workflow selon le role de l'utilisateur
+     let flows : number[] = [0,1,2,3,4];
+      return this.workflow.filter(wf => flows.indexOf(wf.id)!= -1);
+   }
 }

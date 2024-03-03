@@ -1,5 +1,5 @@
 <div class="board">
-  <div class="column" *ngFor='let status of workflow' (dragover)="onDragOver($event)" (drop)= "onDrop($event, status)" >
+  <div class="column" *ngFor='let status of filerWorkFlow()' (dragover)="onDragOver($event)" (drop)= "onDrop($event, status)" >
     <div class="entete">{{ status.displayName }} </div>
     <div class="issie-board" *ngFor="let issue of filterByStatus(status)" draggable="true" (dragstart)="onDragStart($event,issue)"  >
       <div class="card">
