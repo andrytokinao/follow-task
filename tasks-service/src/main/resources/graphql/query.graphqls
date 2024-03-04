@@ -1,4 +1,6 @@
 type Query {
     getUser(username: String!): UserApp,
-
+    allUsers : [UserApp],
+    allIssue :[Issue]
+    findIssueByUserId(id:Int):[Issue]
 }
