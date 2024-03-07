@@ -24,6 +24,8 @@ public class Status {
     private List<CrossingStatus> fromeStatus;
     @OneToMany(mappedBy = "from")
     private List<CrossingStatus> acctionPossible;
+    @OneToMany
+    private List<Issue> issues;
 
 }
 

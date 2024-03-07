@@ -6,6 +6,7 @@ import {Issue, Status, User} from "../../../type/issue";
 import {groupBy, mergeMap, of, toArray, zip} from "rxjs";
 import {MatMenuTrigger} from "@angular/material/menu";
 import {UserService} from "../../../services/user.service";
+import {stripTypename} from "@apollo/client/utilities";
 
 @Component({
   selector: 'app-board',
@@ -21,15 +22,17 @@ export class BoardComponent implements OnInit{
   workflow: Status[]=[];
   constructor(
     private modalService: NgbModal,
+    private issueService :IssueService,
     essueService:IssueService,
     public userService:UserService
   ) {
     this.essueService = essueService;
-    this.essueService.getIsses().subscribe( res => {
-        this.issues = res;
+    this.essueService.getWorkFlow("projet").subscribe( (res:any) => {
+        this.workflow = stripTypename(res.data.findAllStatus);
+        console.log(this.workflow);
     })
-    this.essueService.getWorkFlow("prj-1").subscribe( res => {
-        this.workflow = res;
+    this.essueService.getIssues("prj-1").subscribe( (res:any) => {
+      this.issues = stripTypename(res.data.allIssue);
       }
     )
     this.userService.getUsers().subscribe(us=>{
@@ -38,7 +41,7 @@ export class BoardComponent implements OnInit{
   }
 
 
-  newIssue(status:Status) {
+  newIssueTest(status:Status) {
     const dialogRef = this.modalService.open(NewIssueComponent);
     dialogRef.componentInstance.status = status;
     dialogRef.result.then((result) => {
@@ -49,9 +52,15 @@ export class BoardComponent implements OnInit{
       console.log('modal cancelled'+reason.message);
     });
   }
+  newIssue(status:Status){
+    const dialogRef = this.modalService.open(NewIssueComponent);
+    dialogRef.result.then((result)=>{
+      this.issues.push(result.issue);
+    })
+  }
   canCreate(status : Status): boolean {
     // TODO : return false if user can not create
-    if(status.id ===0)
+    if(status.id ===1)
       return true;
     return false;
   }
@@ -82,8 +91,10 @@ export class BoardComponent implements OnInit{
    }
    filerWorkFlow():Status[]{
     // TODO : Filtrer l'affichage de workflow selon le role de l'utilisateur
-     let flows : number[] = [0,1,2,3,4];
-      return this.workflow.filter(wf => flows.indexOf(wf.id)!= -1);
+     let flows : number[] = [0,1,2,3,4,5];
+     if(this.workflow != null)
+       return this.workflow.filter(wf => flows.indexOf(wf.id)!= -1);
+     return [];
    }
 
   assigne(issue: Issue) {

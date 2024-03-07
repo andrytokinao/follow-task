@@ -2,12 +2,14 @@
   <div class="column" *ngFor='let status of filerWorkFlow()' (dragover)="onDragOver($event)" (drop)= "onDrop($event, status)" >
     <div class="entete">{{ status.displayName }} </div>
     <div class="issie-board" *ngFor="let issue of filterByStatus(status)" draggable="true" (dragstart)="onDragStart($event,issue)"  >
-      <div class="card">
+      <div class="myCard">
         <div class="content details">
           <h3>{{issue.summary}}</h3>
           <p>{{issue.description}}</p>
         </div>
-        <img [src] = "issue.assigne.photo" src="/assets/user.png" alt="Image" class="image"  mat-icon-button [matMenuTriggerFor]="menu2" (click)="assigne(issue)" >
+        <img *ngIf="issue.assigne && issue.assigne.photo !== null" [src]="issue.assigne.photo" class="image" alt="l'assigné a" mat-icon-button [matMenuTriggerFor]="menu2" (click)="assigne(issue)" />
+        <img *ngIf="issue.assigne && issue.assigne.photo === null" src="/assets/user.png" alt="Image sans photo" class="image" mat-icon-button [matMenuTriggerFor]="menu2" (click)="assigne(issue)" />
+        <img *ngIf="!issue.assigne" src="/assets/nonAssigner.jpg" alt="non assigner" mat-icon-button class="image"[matMenuTriggerFor]="menu2" (click)="assigne(issue)" />
       </div>
     </div>
     <div  class="issie-board new " (click)="newIssue( status)" *ngIf = "canCreate(status)">

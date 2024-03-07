@@ -10,6 +10,7 @@ import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {NgbModal, NgbModule} from "@ng-bootstrap/ng-bootstrap";
 import {HttpClientModule} from "@angular/common/http";
 import {MatMenuModule} from "@angular/material/menu";
+import {GraphQLModule} from "./type/graphql.module";
 
 
 
@@ -27,6 +28,8 @@ import {MatMenuModule} from "@angular/material/menu";
     BrowserAnimationsModule,
     NgbModule,
     HttpClientModule,
+    GraphQLModule,
+
   ],
   bootstrap: [AppComponent]
 

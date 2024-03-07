@@ -13,8 +13,8 @@ type CrossingState {
     id:Int
     name:String
     description:String
-    from:State
-    to:State
+    from:Status
+    to:Status
     credential:Credential
 }
 type GroupeUser {
@@ -29,6 +29,7 @@ type  Issue {
     description : String
     type:IssueType
     assigne:UserApp
+    status:Status
     reporter:UserApp
     passeTime:[PasseTime]
     parent:Issue,
@@ -72,9 +73,10 @@ type RoleApp{
     credentials:[Credential]
 }
 
-type State{
+type Status{
     id:Int
     name:String
+    displayName:String
     iconeFile:String
     types:[IssueType]
     fromeStates:[CrossingState]
@@ -116,7 +118,7 @@ type WorkFlow {
     id:Int,
     name:String,
     active :Boolean,
-    states :[State],
+    states :[Status],
     issueTypes :[IssueType],
     crossingStates :[CrossingState],
 

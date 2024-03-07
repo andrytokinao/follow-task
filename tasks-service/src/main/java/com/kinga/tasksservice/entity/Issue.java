@@ -19,6 +19,8 @@ public class Issue {
     private String description;
     @ManyToMany
     private List<UserApp> observers;
+    @ManyToOne
+    private Status status;
 
 
     @ManyToOne

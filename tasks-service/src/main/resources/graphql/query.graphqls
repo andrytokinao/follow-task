@@ -3,4 +3,5 @@ type Query {
     allUsers : [UserApp],
     allIssue :[Issue]
     findIssueByUserId(id:Int):[Issue]
+    findAllStatus:[Status]
 }

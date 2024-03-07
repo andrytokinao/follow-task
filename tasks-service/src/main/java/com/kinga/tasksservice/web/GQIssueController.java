@@ -1,7 +1,10 @@
 package com.kinga.tasksservice.web;
 
+import com.kinga.tasksservice.dto.IssueInput;
 import com.kinga.tasksservice.entity.Issue;
+import com.kinga.tasksservice.entity.Status;
 import com.kinga.tasksservice.service.IssueService;
+import com.kinga.tasksservice.service.StatusService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
@@ -14,6 +17,8 @@ import java.util.List;
 public class GQIssueController {
     @Autowired
     IssueService issueService;
+    @Autowired
+    StatusService statusService;
     @QueryMapping
     public List<Issue> allIssue(){
         return issueService.findAllIssue();
@@ -24,6 +29,10 @@ public class GQIssueController {
     }
     @MutationMapping
     public Issue saveIssue(@Argument Issue issue){
-        return issueService.save(issue);
+        return issueService.save((Issue) issue);
+    }
+    @QueryMapping
+    public List<Status> findAllStatus(){
+        return statusService.findAll();
     }
 }

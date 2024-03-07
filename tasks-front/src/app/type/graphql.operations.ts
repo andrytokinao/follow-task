@@ -40,12 +40,17 @@ const ADD_ISSUE = gql`
     saveIssue(issue: $issue) {
       id
       summary
-      description
+      summary
       assigne {
         id
         username
-        lastName
         firstName
+        username
+      }
+      status {
+        id
+        displayName
+        iconeFile
       }
     }
   }
@@ -55,12 +60,17 @@ const ALL_ISSUE = gql`
     allIssue {
       id
       summary
-      summary
+      description
       assigne {
         id
         username
         firstName
         username
+      }
+      status {
+        id
+        displayName
+        iconeFile
       }
     }
   }
@@ -80,10 +90,23 @@ const  GET_ISSUE_BY_ASSIGN = gql`
     }
   }
 `;
+
+const  ALL_STATUS = gql`
+  query allStatus {
+    findAllStatus{
+      id
+      displayName
+      iconeFile
+      }
+    }
+`;
+
 export {
   ADD_USER,
   GET_USER,
   ALL_USER,
   ADD_ISSUE,
-  GET_ISSUE_BY_ASSIGN
+  GET_ISSUE_BY_ASSIGN,
+  ALL_ISSUE,
+  ALL_STATUS
 }
