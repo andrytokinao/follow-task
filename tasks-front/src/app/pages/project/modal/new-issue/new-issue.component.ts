@@ -30,7 +30,7 @@ export class NewIssueComponent {
     issue.summary = this.summary;
     issue.description = this.description;
 
-      this.issueService.createIssue(issue).subscribe((res:any)=>{
+      this.issueService.saveIssue(issue).subscribe((res:any)=>{
         this.activeModal.close({ issue: res.data.saveIssue });
       });
     }

@@ -2,8 +2,10 @@ package com.kinga.tasksservice;
 
 import com.kinga.tasksservice.entity.Issue;
 import com.kinga.tasksservice.entity.Status;
+import com.kinga.tasksservice.entity.UserApp;
 import com.kinga.tasksservice.service.IssueService;
 import com.kinga.tasksservice.service.StatusService;
+import com.kinga.tasksservice.service.UserService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -18,8 +20,9 @@ public class Application {
         ConfigurableApplicationContext ctx = SpringApplication.run(Application.class, args);
         StatusService statusService = (StatusService) ctx.getBean(StatusService.class);
         IssueService issueService = (IssueService) ctx.getBean(IssueService.class);
+        UserService userService = (UserService) ctx.getBean(UserService.class);
         // Initialiser status
-        if(CollectionUtils.isEmpty(statusService.findAll())) {
+        if (CollectionUtils.isEmpty(statusService.findAll())) {
             Status enAttete = new Status();
             enAttete.setDisplayName("En Attente");
             enAttete.setIconeFile("/assets/stendby.ico");
@@ -46,11 +49,22 @@ public class Application {
             done.setIconeFile("/assets/done.ico");
             statusService.save(done);
         }
-       /* if(CollectionUtils.isEmpty(issueService.findAllIssue())){
-            Issue issue = new Issue();
-            issue.setSummary("New Task");
-            issueService.save(issue);
-        }*/
+        if (CollectionUtils.isEmpty(userService.findAll())) {
+            UserApp u1 =  new UserApp();
+            u1.setFirstName("Jean");
+            u1.setLastName("Dupont");
+            u1.setPhoto("/assets/user1.jpeg");
+            u1.setContact("0325698745");
+            UserApp u2 = new UserApp();
+            u2.setFirstName("Marie");
+            u2.setLastName("Dubois");
+            u2.setContact("0345698756");
+            u2.setPhoto("/assets/user2.jpeg");
+            userService.save(u1);
+            userService.save(u2);
+        }
+
+
     }
 
 }

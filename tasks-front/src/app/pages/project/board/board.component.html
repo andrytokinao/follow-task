@@ -7,9 +7,9 @@
           <h3>{{issue.summary}}</h3>
           <p>{{issue.description}}</p>
         </div>
-        <img *ngIf="issue.assigne && issue.assigne.photo !== null" [src]="issue.assigne.photo" class="image" alt="l'assigné a" mat-icon-button [matMenuTriggerFor]="menu2" (click)="assigne(issue)" />
-        <img *ngIf="issue.assigne && issue.assigne.photo === null" src="/assets/user.png" alt="Image sans photo" class="image" mat-icon-button [matMenuTriggerFor]="menu2" (click)="assigne(issue)" />
-        <img *ngIf="!issue.assigne" src="/assets/nonAssigner.jpg" alt="non assigner" mat-icon-button class="image"[matMenuTriggerFor]="menu2" (click)="assigne(issue)" />
+        <img *ngIf="issue.assigne && issue.assigne.photo !== null" [src]="issue.assigne.photo" class="image" alt="l'assigné a" mat-icon-button [matMenuTriggerFor]="menu2" (click)="assign(issue)" />
+        <img *ngIf="issue.assigne && issue.assigne.photo === null" src="/assets/user.png" alt="Image sans photo" class="image" mat-icon-button [matMenuTriggerFor]="menu2" (click)="assign(issue)" />
+        <img *ngIf="!issue.assigne" src="/assets/nonAssigner.jpg" alt="non assigner" mat-icon-button class="image"[matMenuTriggerFor]="menu2" (click)="assign(issue)" />
       </div>
     </div>
     <div  class="issie-board new " (click)="newIssue( status)" *ngIf = "canCreate(status)">
@@ -24,7 +24,7 @@
     <h4> Assigner a </h4>
     <button mat-menu-item *ngFor="let user of users" (click)="assigneToUser(user)" [ngClass]="{'active': isActive(user)}" >
       <img [src]="user.photo" alt="Image"  width="30px"  >
-      <span>{{user.firstname}} {{user.lastname}}</span>
+      <span>{{user.firstName}} {{user.lastName}}</span>
     </button>
   </mat-menu>
 </div>

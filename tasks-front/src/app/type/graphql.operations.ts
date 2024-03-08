@@ -13,10 +13,10 @@ const ADD_USER = gql`
     }
   }
 `;
-const ALL_USER = gql`
+const ALL_USERS = gql`
   query{
     allUsers{
-      id, username, firstName, lastName,contact,email,adress,cin
+      id, username, firstName, lastName,contact,email,adress,cin,photo
     }
   }
 `;
@@ -35,7 +35,7 @@ const GET_USER = gql`
   }
 `;
 
-const ADD_ISSUE = gql`
+const SAVE_ISSUE = gql`
   mutation saveIssue($issue:IssueInput) {
     saveIssue(issue: $issue) {
       id
@@ -52,6 +52,12 @@ const ADD_ISSUE = gql`
         displayName
         iconeFile
       }
+      reporter {
+        id
+        firstName
+        lastName
+        photo
+      }
     }
   }
 `;
@@ -66,11 +72,18 @@ const ALL_ISSUE = gql`
         username
         firstName
         username
+        photo
       }
       status {
         id
         displayName
         iconeFile
+      }
+      reporter {
+        id
+        firstName
+        lastName
+        photo
       }
     }
   }
@@ -87,6 +100,14 @@ const  GET_ISSUE_BY_ASSIGN = gql`
         firstName
         username
       }
+       reporter {
+         id
+       }
+       status {
+         id
+         displayName
+         iconeFile
+       }
     }
   }
 `;
@@ -104,8 +125,8 @@ const  ALL_STATUS = gql`
 export {
   ADD_USER,
   GET_USER,
-  ALL_USER,
-  ADD_ISSUE,
+  ALL_USERS,
+  SAVE_ISSUE,
   GET_ISSUE_BY_ASSIGN,
   ALL_ISSUE,
   ALL_STATUS

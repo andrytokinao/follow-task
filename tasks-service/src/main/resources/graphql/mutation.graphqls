@@ -3,6 +3,8 @@ type Mutation {
     saveUser(userApp:UserAppInput):UserApp
 
     saveIssue(issue:IssueInput) :Issue
+
+    updateIssue(issue:IssueInput) : Issue
 }
 
 

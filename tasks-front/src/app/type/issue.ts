@@ -18,7 +18,7 @@ export class Issue {
 export class User {
   id:number =0;
   username:string="";
-  firstname:string="";
-  lastname:string="";
+  firstName:string="";
+  lastName:string="";
   photo:string ="";
 }

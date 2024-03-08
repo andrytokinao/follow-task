@@ -3,13 +3,16 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import {Issue, Status, User} from "../type/issue";
+import {ALL_ISSUE, ALL_USERS} from "../type/graphql.operations";
+import {Apollo} from "apollo-angular";
 
 @Injectable({
   providedIn: 'root',
 })
 export class UserService {
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private apollo: Apollo) {
+  }
 
   httpOptions = {
     headers: new HttpHeaders({
@@ -17,13 +20,18 @@ export class UserService {
     }),
   };
 
-  getUsers(): Observable<User[]> {
+  getUsersTest(): Observable<User[]> {
     let url = "assets/users.json";
     return this.http
       .get<User[]>(url)
       .pipe(retry(1), catchError(this.handleError));
   }
-
+  getUsers(projet:string) {
+    return this.apollo
+      .query({
+        query: ALL_USERS ,
+      });
+  }
   handleError(error: any) {
     let errorMessage = '';
     if (error.error instanceof ErrorEvent) {

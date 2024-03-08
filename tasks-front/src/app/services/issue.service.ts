@@ -2,10 +2,12 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
-import {Issue, Status} from "../type/issue";
+import {Issue, Status, User} from "../type/issue";
 import {Apollo} from "apollo-angular";
-import {ADD_ISSUE, ALL_ISSUE, ALL_STATUS} from "../type/graphql.operations";
 import {useMutation} from "@apollo/client";
+import _default from "chart.js/dist/plugins/plugin.tooltip";
+import numbers = _default.defaults.animations.numbers;
+import {SAVE_ISSUE, ALL_ISSUE, ALL_STATUS} from "../type/graphql.operations";
 
 @Injectable({
   providedIn: 'root',
@@ -42,10 +44,10 @@ export class IssueService {
         query: ALL_ISSUE ,
       });
   }
-  createIssue(issue:any){
+  saveIssue(issue:any){
     return this.apollo
       .mutate({
-        mutation:ADD_ISSUE,
+        mutation:SAVE_ISSUE,
         variables:{issue}
         }
       );

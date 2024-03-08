@@ -37,7 +37,7 @@ type  Issue {
 }
 type IssueType{
     id:Int
-    name:String
+    displayName:String
     projects:[Project]
     issues:[Issue]
     curentWorkFlow:WorkFlow
@@ -97,6 +97,7 @@ type UserApp{
     operations:[Operation]
     repotrers:[Issue]
     passeTimes:[PasseTime]
+    photo:String
 }
 
 type Value {
@@ -155,12 +156,15 @@ input  IssueInput {
     id:Int
     summary:String
     description : String
-    type:Int
     parent:Int,
+    type:IssueTypeInput
+    assigne:UserAppInput
+    status:StatusInput
+    reporter:StatusInput
 }
 input IssueTypeInput{
     id:Int
-    name:String
+    displayName:String
     projects:[Int]
     curentWorkFlow:Int
 }
@@ -195,9 +199,9 @@ input RoleAppInput{
     credentials:[Int]
 }
 
-input StateInput{
+input StatusInput{
     id:Int
-    name:String
+    displayName:String
     iconeFile:String
     types:[Int]
     fromeStates:[Int]
@@ -214,7 +218,7 @@ input UserAppInput{
     email:String
     adress:String
     cin:String
-    groupes:[Int]
+    photo:String
 }
 
 input ValueInput {

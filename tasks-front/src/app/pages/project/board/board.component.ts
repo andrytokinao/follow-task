@@ -20,6 +20,10 @@ export class BoardComponent implements OnInit{
   public users :User[]=[];
   public currentIssue : Issue| null = null;
   workflow: Status[]=[];
+  description: string ="";
+  summary: string ="";
+  nom: any;
+  email: any;
   constructor(
     private modalService: NgbModal,
     private issueService :IssueService,
@@ -35,8 +39,8 @@ export class BoardComponent implements OnInit{
       this.issues = stripTypename(res.data.allIssue);
       }
     )
-    this.userService.getUsers().subscribe(us=>{
-       this.users = us;
+    this.userService.getUsers("projet").subscribe((res:any)=>{
+       this.users =  stripTypename(res.data.allUsers);
     })
   }
 
@@ -80,6 +84,16 @@ export class BoardComponent implements OnInit{
   onDrop($event: DragEvent, status:any) {
     if(this.currentIssue!= null ) {
       this.currentIssue.status = status;
+      this.issueService.saveIssue(this.currentIssue).subscribe({
+          next:(result:any)=>{
+            this.currentIssue = (result.data.saveIssue)
+          },
+          error:(err)=>{
+            alert(JSON.stringify(err));
+          }
+        }
+      );
+
     }
   }
 
@@ -97,14 +111,25 @@ export class BoardComponent implements OnInit{
      return [];
    }
 
-  assigne(issue: Issue) {
+  assign(issue: Issue) {
     this.currentIssue = issue;
   }
 
   assigneToUser(user: User) {
     if(this.currentIssue != null) {
-      this.currentIssue.assigne= user;
+      this.currentIssue.assigne =user;
+      this.issueService.saveIssue(this.currentIssue).subscribe({
+        next:(result:any)=>{
+          this.currentIssue = (result.data.saveIssue)
+        },
+        error:(err)=>{
+          alert(JSON.stringify(err));
+        }
+        }
+      );
     }
+  }
+  submitForm() {
 
   }
 }
