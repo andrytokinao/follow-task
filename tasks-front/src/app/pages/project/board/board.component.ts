@@ -7,6 +7,7 @@ import {groupBy, mergeMap, of, toArray, zip} from "rxjs";
 import {MatMenuTrigger} from "@angular/material/menu";
 import {UserService} from "../../../services/user.service";
 import {stripTypename} from "@apollo/client/utilities";
+import {ViewEditIssueComponent} from "../modal/view-edit-issue/view-edit-issue.component";
 
 @Component({
   selector: 'app-board',
@@ -131,5 +132,13 @@ export class BoardComponent implements OnInit{
   }
   submitForm() {
 
+  }
+
+  viewIssue(issue: Issue) {
+    const dialogRef = this.modalService.open(ViewEditIssueComponent,{windowClass:"xlModal"});
+    dialogRef.componentInstance.issue = issue;
+    dialogRef.result.then((result)=>{
+     this.currentIssue = null;
+    })
   }
 }

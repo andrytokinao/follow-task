@@ -2,3 +2,7 @@ h4{
   width: 100%;
   text-align: center;
 }
+.wi100{
+  grid-template-columns: [linename] 100px;
+  display: grid;
+}

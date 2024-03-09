@@ -1,0 +1,195 @@
+<div class="modal-header">
+  <b class="modal-title">{{issue.summary}}  </b>
+  <span type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+    <i class="fas fa-close"></i>  <span aria-hidden="true"></span>
+  </span>
+</div>
+<div class="modal-body content-issue">
+  <div class="desc">
+    <div class="item left-item">
+      <div class="col-form-label">
+        description
+      </div>
+      <div class="container" >
+        <p class="w-100" (click)="editDescription()" *ngIf="!editingDescription">{{ issue.description }}</p>
+        <p>
+          <textarea class="w-100 border-0" *ngIf="editingDescription" [(ngModel)]="issue.description"></textarea>
+        </p>
+        <p>
+          <span *ngIf="editingDescription" (click)="editDescription()" class="bouton">Save</span>
+          <span *ngIf="editingDescription" (click)="editDescription()">Annuler</span>
+        </p>
+      </div>
+      <div class="mini-menu">
+        <span id="comment" class="menu-btn active" (click)="toggleMenu('comment')"
+              [class.active]="activeMenuItem === 'comment'">Comment</span>
+        <span id="history" class="menu-btn" (click)="toggleMenu('history')"
+              [class.active]="activeMenuItem === 'history'">History</span>
+      </div>
+      <div class="wi100" *ngIf="activeMenuItem=='comment'">
+        <div class="comment-form">
+          <textarea [(ngModel)]="newComment" placeholder="Ajouter un commentaire"></textarea>
+          <button (click)="addComment()">Ajouter</button>
+        </div>
+
+        <div class="comment-list">
+          <div class="comment-item">
+            <img src="assets/user.png" class="user-avatar" alt="Avatar">
+            <div class="comment-content">
+              <p class="comment-text">Cette tache est plus difficile ets , pourquoi vous aves </p>
+              <p class="comment-user">tandriamahefasoa</p>
+            </div>
+          </div>
+          <div class="comment-item">
+            <img src="assets/user.png" class="user-avatar" alt="Avatar">
+            <div class="comment-content">
+              <p class="comment-text">Cette tache est plus difficile ets , pourquoi vous aves </p>
+              <p class="comment-user">tandriamahefasoa 24 Jan 2024</p>
+            </div>
+          </div>
+          <div class="comment-item">
+            <img src="assets/user.png" class="user-avatar" alt="Avatar">
+            <div class="comment-content">
+              <p class="comment-text">Cette tache est plus difficile ets , pourquoi vous aves </p>
+              <p class="comment-user">tandriamahefasoa</p>
+            </div>
+          </div>
+          <div class="comment-item">
+            <img src="assets/user.png" class="user-avatar" alt="Avatar">
+            <div class="comment-content">
+              <p class="comment-text">Cette tache est plus difficile ets , pourquoi vous aves </p>
+              <p class="comment-user">tandriamahefasoa</p>
+            </div>
+          </div>
+          <div class="comment-item">
+            <img src="assets/user.png" class="user-avatar" alt="Avatar">
+            <div class="comment-content">
+              <p class="comment-text">Cette tache est plus difficile ets , pourquoi vous aves </p>
+              <p class="comment-user">tandriamahefasoa</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="wi100" *ngIf="activeMenuItem=='history'">
+        <div class="comment-item w-100">
+          History item
+        </div>
+      </div>
+    </div>
+    <div class="item-right">
+      <div> Details</div>
+      <div class="details-content" >
+        <div class="header">
+          <h1 class="folder-title"><i class="fa fa-universal-access" aria-hidden="true"></i> Creer par : <i>Tokiniaina Andriamahefasoa </i></h1>
+          <h1 class="folder-title"><i class="fa fa-hashtag" aria-hidden="true"></i> Assigné  a : <i>Tokiniaina Andriamahefasoa </i></h1>
+          <h1 class="folder-title"> <i class="fa fa-folder" aria-hidden="true"></i> Dossier : Nom du dossier</h1>
+          <div class="tnz-file-tree">
+            <label class="tnz-file-tree-item year">
+              <input class="tnz-file-tree-cb" type="checkbox">
+
+              <span class="tnz-file-tree-label">2015</span>
+
+              <div class="tnz-file-tree-branches">
+
+                <label class="tnz-file-tree-item month">
+                  <input class="tnz-file-tree-cb" type="checkbox">
+
+                  <span class="tnz-file-tree-label">January</span>
+                  <div class="tnz-file-tree-branches">
+                    <label class="tnz-file-tree-item day">
+
+                      <input class="tnz-file-tree-cb" type="checkbox">
+                      <span class="tnz-file-tree-label">01</span>
+                      <div class="tnz-file-tree-branches">
+                        <label class="tnz-file-tree-item hour">
+
+                          <input class="tnz-file-tree-cb" type="radio" name="day">
+                          <span class="tnz-file-tree-label">00:15 - 06:30</span>
+
+                        </label>
+                        <label class="tnz-file-tree-item hour">
+
+                          <input class="tnz-file-tree-cb" type="radio" name="day">
+                          <span class="tnz-file-tree-label">07:15 - 07:45</span>
+
+                        </label>
+
+                      </div>
+                    </label>
+                  </div>
+                </label>
+
+
+              </div>
+            </label>
+            <label class="" for="fileInput">
+              <input class="tnz-file-tree-cb" type="checkbox">
+              <input type="file" id="fileInput" name="addFile" style="width: 0px;" multiple>
+              <span class=" "> <i class="fa fa-plus" aria-hidden="true"></i>  Ajouter </span>
+            </label>
+          </div>
+          <h1 class="folder-title"> <i class="fa fa-check-square" aria-hidden="true"> </i> Parametre </h1>
+          <div class="tnz-file-tree">
+            <label class="" (click)="addCostumFieldValu()" >
+              <span class=" "> <i class="fa fa-calendar-day" aria-hidden="true"></i>  Date livraison  : 25 Avril 2024</span>
+            </label>
+            <label class="" (click)="addCostumFieldValu()" >
+              <input class="tnz-file-tree-cb" type="checkbox">
+              <span class=" "> <i class="fa fa-plus" aria-hidden="true"></i>  Ajouter </span>
+            </label>
+          </div>
+          <h1> <i class="fa fa-calendar-minus" aria-hidden="true"></i> Temp passé : 20 heurs </h1>
+          <div class="tnz-file-tree">
+            <label class="" (click)="addCostumFieldValu()" >
+              <span class=" "> <i class="fa fa-calendar-check" aria-hidden="true"></i> 25 Avril 2024 : 5 heurs</span>
+            </label>
+          </div>
+          <div class="tnz-file-tree">
+            <label class="" (click)="addCostumFieldValu()" >
+              <span class=" "> <i class="fa fa-calendar-check" aria-hidden="true"></i> 25 Avril 2024 : 5 heurs</span>
+            </label>
+          </div>
+          <div class="tnz-file-tree">
+            <label class="" (click)="addCostumFieldValu()" >
+              <span class=" "> <i class="fa fa-calendar-check" aria-hidden="true"></i> 25 Avril 2024 : 5 heurs</span>
+            </label>
+          </div>
+          <div class="tnz-file-tree">
+            <label class="" (click)="addCostumFieldValu()" >
+              <span class=" "> <i class="fa fa-calendar-check" aria-hidden="true"></i> 25 Avril 2024 : 5 heurs</span>
+            </label>
+          </div>
+          <div class="tnz-file-tree">
+            <label class="" (click)="addCostumFieldValu()" >
+              <span class=" "> <i class="fa fa-calendar-check" aria-hidden="true"></i> 25 Avril 2024 : 5 heurs</span>
+            </label>
+          </div>
+          <div class="tnz-file-tree">
+            <label class="" (click)="addCostumFieldValu()" >
+              <span class=" "> <i class="fa fa-calendar-check" aria-hidden="true"></i> 25 Avril 2024 : 5 heurs</span>
+            </label>
+          </div>
+          <div class="tnz-file-tree">
+            <label class="" (click)="addCostumFieldValu()" >
+              <span class=" "> <i class="fa fa-calendar-check" aria-hidden="true"></i> 25 Avril 2024 : 5 heurs</span>
+            </label>
+          </div>
+          <div class="tnz-file-tree">
+            <label class="" (click)="addCostumFieldValu()" >
+              <span class=" "> <i class="fa fa-calendar-check" aria-hidden="true"></i> 25 Avril 2024 : 5 heurs</span>
+            </label>
+          </div>
+          <label class="" (click)="addCostumFieldValu()" >
+            <input class="tnz-file-tree-cb" type="checkbox">
+            <span class=" "> <i class="fa fa-plus" aria-hidden="true"></i>  Ajouter </span>
+          </label>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+
+</div>
+

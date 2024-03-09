@@ -15,7 +15,7 @@ export class NewIssueComponent {
     description :"description ",
   };
   status : Status|null = null ;
-  summary: string = '';
+  summary: string = 'essai';
   description: string = '';
   type: string = 'type1';
 

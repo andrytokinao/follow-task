@@ -18,6 +18,7 @@ import {MatMenuModule, MatMenu, MatMenuTrigger} from "@angular/material/menu";
 import {BrowserModule} from "@angular/platform-browser";
 import {MatIconModule} from "@angular/material/icon";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
+import {ViewEditIssueComponent} from "./modal/view-edit-issue/view-edit-issue.component";
 
 @NgModule({
   declarations: [
@@ -27,7 +28,8 @@ import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
     ProjectComponent,
     GanttChartComponent,
     BoardComponent,
-    NewIssueComponent,],
+    NewIssueComponent,
+    ViewEditIssueComponent],
   exports: [
      StatusComponent, RepartitionComponent, IssueListeComponent,ProjectComponent
   ],
