@@ -21,8 +21,6 @@ public class Issue {
     private List<UserApp> observers;
     @ManyToOne
     private Status status;
-
-
     @ManyToOne
     @JoinColumn(name = "type")
     private IssueType type;
@@ -34,10 +32,12 @@ public class Issue {
     @JoinColumn(name = "reporter")
     private UserApp reporter;
     @OneToMany
-    private List<PasseTime> passeTime;
+    private List<EntryTime> entryTime;
     @ManyToOne
     private Issue parent;
     @OneToMany(mappedBy = "parent")
     private List<Issue> children;
+    @OneToMany(mappedBy = "issue")
+    private List<Comment> comments;
 
 }

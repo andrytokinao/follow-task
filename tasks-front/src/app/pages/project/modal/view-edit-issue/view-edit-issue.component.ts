@@ -2,7 +2,7 @@ import {Component, Inject, Input} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {FormsModule} from "@angular/forms";
-import {Issue, Status} from "../../../../type/issue";
+import {Issue, Status,Comment} from "../../../../type/issue";
 import {IssueService} from "../../../../services/issue.service";
 @Component({
   selector: 'app-view-edit-issue',
@@ -10,12 +10,17 @@ import {IssueService} from "../../../../services/issue.service";
   styleUrl: './view-edit-issue.component.css'
 })
 export class ViewEditIssueComponent {
-  issue : any = new Issue();
   type: string = 'type1';
+  comment:any = {
+    issue:{},
+    user:{}
+  };
 
   editingDescription: boolean = false;
   activeMenuItem: string="comment";
   newComment: string = '';
+  issue: Issue = new Issue();
+
 
 
   constructor(
@@ -35,10 +40,36 @@ export class ViewEditIssueComponent {
   }
 
   addComment() {
+    this.comment.user.id = this.issue.assigne.id;// TODO: Change to user connected
+    this.comment.issue.id = this.issue.id;
 
+    this.issueService.addComment(this.comment).subscribe(
+      {
+        next:(result:any)=>{
+          console.info("--- Loadin adding comment ---> "+JSON.stringify(result));
+          this.issue.comments = result.data.addComment as Comment[];
+          this.comment.text="";
+        },
+          error:(err)=>{
+        alert(JSON.stringify(err));
+      }
+    });
   }
-
-  addCostumFieldValu() {
+  loadComments(){
+    console.info("--- Loading  comment ---")
+    this.issueService.allComment(this.issue.id).subscribe(
+      {
+        next:(res:any)=>{
+          this.issue.comments =res.data.allComment as Comment[];
+          console.info("--- Loadin comment ---> "+JSON.stringify(this.issue.comments));
+        },
+        error:(err:any)=>{
+          alert(JSON.stringify(err))
+        }
+      }
+    );
+  }
+  addCustomFieldValue() {
 
   }
 }

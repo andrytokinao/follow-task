@@ -5,17 +5,23 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.util.Date;
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CostumField {
+public class EntryTime {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
-    @ManyToMany
-    private List<IssueType> issueTypes;
+    private Float time;
+    private Date date;
+    @ManyToOne
+    @JoinColumn(name = "user_app")
+    private UserApp userApp;
+    @ManyToOne
+    private Issue issue;
+
+
 }

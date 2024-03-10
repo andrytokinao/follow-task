@@ -28,43 +28,15 @@
       </div>
       <div class="wi100" *ngIf="activeMenuItem=='comment'">
         <div class="comment-form">
-          <textarea [(ngModel)]="newComment" placeholder="Ajouter un commentaire"></textarea>
+          <textarea [(ngModel)]="comment.text" placeholder="Ajouter un commentaire"></textarea>
           <button (click)="addComment()">Ajouter</button>
         </div>
 
         <div class="comment-list">
-          <div class="comment-item">
+          <div class="comment-item" *ngFor="let comment of issue.comments">
             <img src="assets/user.png" class="user-avatar" alt="Avatar">
             <div class="comment-content">
-              <p class="comment-text">Cette tache est plus difficile ets , pourquoi vous aves </p>
-              <p class="comment-user">tandriamahefasoa</p>
-            </div>
-          </div>
-          <div class="comment-item">
-            <img src="assets/user.png" class="user-avatar" alt="Avatar">
-            <div class="comment-content">
-              <p class="comment-text">Cette tache est plus difficile ets , pourquoi vous aves </p>
-              <p class="comment-user">tandriamahefasoa 24 Jan 2024</p>
-            </div>
-          </div>
-          <div class="comment-item">
-            <img src="assets/user.png" class="user-avatar" alt="Avatar">
-            <div class="comment-content">
-              <p class="comment-text">Cette tache est plus difficile ets , pourquoi vous aves </p>
-              <p class="comment-user">tandriamahefasoa</p>
-            </div>
-          </div>
-          <div class="comment-item">
-            <img src="assets/user.png" class="user-avatar" alt="Avatar">
-            <div class="comment-content">
-              <p class="comment-text">Cette tache est plus difficile ets , pourquoi vous aves </p>
-              <p class="comment-user">tandriamahefasoa</p>
-            </div>
-          </div>
-          <div class="comment-item">
-            <img src="assets/user.png" class="user-avatar" alt="Avatar">
-            <div class="comment-content">
-              <p class="comment-text">Cette tache est plus difficile ets , pourquoi vous aves </p>
+              <p class="comment-text">{{comment.text}} </p>
               <p class="comment-user">tandriamahefasoa</p>
             </div>
           </div>
@@ -130,56 +102,56 @@
           </div>
           <h1 class="folder-title"> <i class="fa fa-check-square" aria-hidden="true"> </i> Parametre </h1>
           <div class="tnz-file-tree">
-            <label class="" (click)="addCostumFieldValu()" >
+            <label class="" (click)="addCustomFieldValue()" >
               <span class=" "> <i class="fa fa-calendar-day" aria-hidden="true"></i>  Date livraison  : 25 Avril 2024</span>
             </label>
-            <label class="" (click)="addCostumFieldValu()" >
+            <label class="" (click)="addCustomFieldValue()" >
               <input class="tnz-file-tree-cb" type="checkbox">
               <span class=" "> <i class="fa fa-plus" aria-hidden="true"></i>  Ajouter </span>
             </label>
           </div>
           <h1> <i class="fa fa-calendar-minus" aria-hidden="true"></i> Temp passé : 20 heurs </h1>
           <div class="tnz-file-tree">
-            <label class="" (click)="addCostumFieldValu()" >
+            <label class="" (click)="addCustomFieldValue()" >
               <span class=" "> <i class="fa fa-calendar-check" aria-hidden="true"></i> 25 Avril 2024 : 5 heurs</span>
             </label>
           </div>
           <div class="tnz-file-tree">
-            <label class="" (click)="addCostumFieldValu()" >
+            <label class="" (click)="addCustomFieldValue()" >
               <span class=" "> <i class="fa fa-calendar-check" aria-hidden="true"></i> 25 Avril 2024 : 5 heurs</span>
             </label>
           </div>
           <div class="tnz-file-tree">
-            <label class="" (click)="addCostumFieldValu()" >
+            <label class="" (click)="addCustomFieldValue()" >
               <span class=" "> <i class="fa fa-calendar-check" aria-hidden="true"></i> 25 Avril 2024 : 5 heurs</span>
             </label>
           </div>
           <div class="tnz-file-tree">
-            <label class="" (click)="addCostumFieldValu()" >
+            <label class="" (click)="addCustomFieldValue()" >
               <span class=" "> <i class="fa fa-calendar-check" aria-hidden="true"></i> 25 Avril 2024 : 5 heurs</span>
             </label>
           </div>
           <div class="tnz-file-tree">
-            <label class="" (click)="addCostumFieldValu()" >
+            <label class="" (click)="addCustomFieldValue()" >
               <span class=" "> <i class="fa fa-calendar-check" aria-hidden="true"></i> 25 Avril 2024 : 5 heurs</span>
             </label>
           </div>
           <div class="tnz-file-tree">
-            <label class="" (click)="addCostumFieldValu()" >
+            <label class="" (click)="addCustomFieldValue()" >
               <span class=" "> <i class="fa fa-calendar-check" aria-hidden="true"></i> 25 Avril 2024 : 5 heurs</span>
             </label>
           </div>
           <div class="tnz-file-tree">
-            <label class="" (click)="addCostumFieldValu()" >
+            <label class="" (click)="addCustomFieldValue()" >
               <span class=" "> <i class="fa fa-calendar-check" aria-hidden="true"></i> 25 Avril 2024 : 5 heurs</span>
             </label>
           </div>
           <div class="tnz-file-tree">
-            <label class="" (click)="addCostumFieldValu()" >
+            <label class="" (click)="addCustomFieldValue()" >
               <span class=" "> <i class="fa fa-calendar-check" aria-hidden="true"></i> 25 Avril 2024 : 5 heurs</span>
             </label>
           </div>
-          <label class="" (click)="addCostumFieldValu()" >
+          <label class="" (click)="addCustomFieldValue()" >
             <input class="tnz-file-tree-cb" type="checkbox">
             <span class=" "> <i class="fa fa-plus" aria-hidden="true"></i>  Ajouter </span>
           </label>

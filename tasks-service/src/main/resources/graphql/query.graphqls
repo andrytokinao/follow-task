@@ -2,6 +2,10 @@ type Query {
     getUser(username: String!): UserApp,
     allUsers : [UserApp],
     allIssue :[Issue]
-    findIssueByUserId(id:Int):[Issue]
+    findIssueById(id:Int) :[Issue]
+    findIssueByUserId(id:String):[Issue]
     findAllStatus:[Status]
+    allComment(issueId:Int):[Comment]
+    allFiles(issueId:Int):[File]
+    allCustomField(issueId:Int):[CustomField]
 }

@@ -1,7 +1,6 @@
 package com.kinga.tasksservice.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,20 +9,14 @@ import java.util.Date;
 @Entity
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
-public class Operation {
+public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Date date ;
-    private String string;
-    private String inital;
-    private String finale;
+    private String text;
+    @ManyToOne
+    private UserApp user;
     @ManyToOne
     private Issue issue;
-    @ManyToOne
-    private CustomField customField;
-    @ManyToOne
-    private UserApp userApp;
-
+    private Date date;
 }

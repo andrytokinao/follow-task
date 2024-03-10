@@ -7,22 +7,31 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class Value {
+@DiscriminatorColumn(name="type", discriminatorType = DiscriminatorType.STRING)
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE )
+public abstract class Value {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private ValueType valueType;
-    private String value;
     @ManyToOne
-    private CostumField costumField;
-    public Object getValueObject() throws Exception {
-        return valueType.toObject(this.value);
+    private CustomField customField;
+    @ManyToOne
+    private Issue issue;
+
+    public abstract String getStrinValue() ;
+    public abstract Value setValue(Object value) ;
+    public abstract Object getObject();
+    public static Value getInstanceWith(Type type) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+        String className = type.getName();
+        Class<Value> clazz = (Class<Value>) Class.forName(className);
+        return clazz.newInstance();
     }
-    public void setValueObject(Object value) throws Exception {
-        this.value = valueType.toString(value);
+    public static Value getInstanceWith(String type) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+        Class<Value> clazz = (Class<Value>) Class.forName(type);
+        return clazz.newInstance();
     }
 
 
-}
+
+
+    }

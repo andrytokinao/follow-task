@@ -1,7 +1,19 @@
-type CostumField {
+type CustomField {
     id:Int
     name:String
     issueTypes:[IssueType]
+}
+type Comment {
+    id:Int
+    text:String
+    date:String
+    issue:Issue
+    user:UserApp
+}
+type File {
+    name:String
+    type:String
+    files:[File]
 }
 type Credential{
     id:Int
@@ -31,9 +43,11 @@ type  Issue {
     assigne:UserApp
     status:Status
     reporter:UserApp
-    passeTime:[PasseTime]
+    passeTime:[EntryTime]
     parent:Issue,
     children:[Issue]
+    comments:[Comment]
+    files:[File]
 }
 type IssueType{
     id:Int
@@ -49,11 +63,11 @@ type Operation{
     initial:String
     finale:String
     issue:Issue
-    costumField:CostumField
+    customField:CustomField
     userApp:UserApp
 }
 
-type PasseTime {
+type EntryTime {
     id:Int,
     time:Float,
     date:String,
@@ -85,7 +99,7 @@ type Status{
 }
 
 type UserApp{
-    id:Int
+    id:String
     username:String
     firstName:String
     lastName:String
@@ -96,7 +110,7 @@ type UserApp{
     groupes:[GroupeUser]
     operations:[Operation]
     repotrers:[Issue]
-    passeTimes:[PasseTime]
+    entryTime:[EntryTime]
     photo:String
 }
 
@@ -104,8 +118,7 @@ type Value {
     id:Int,
     valueType:ValueType
     value:String
-    costumField:CostumField
-
+    customField:CustomField
 }
 
 enum ValueType {
@@ -122,12 +135,11 @@ type WorkFlow {
     states :[Status],
     issueTypes :[IssueType],
     crossingStates :[CrossingState],
-
 }
 
 
 
-input CostumFieldImputInput {
+input CostumFieldImput {
     id:Int
     name:String
     issueTypes:[Int]
@@ -183,7 +195,7 @@ input PasseTimeInput {
     id:Int,
     time:Float,
     date:String,
-    userApp:Int
+    userApp:UserAppInput
     issue:Int
 }
 input ProjectInput{
@@ -210,7 +222,7 @@ input StatusInput{
 }
 
 input UserAppInput{
-    id:Int
+    id:String
     username:String
     firstName:String
     lastName:String
@@ -237,5 +249,11 @@ input WorkFlowInput {
     states :[Int],
     issueTypes :[Int],
     crossingStates :[Int],
-
+}
+input CommentInput {
+    id:Int
+    text:String
+    date:String
+    issue:IssueInput
+    user:UserAppInput
 }

@@ -78,6 +78,11 @@ public class UserService {
 
 
     public UserApp save(UserApp entity) {
+        if(StringUtils.isEmpty(entity.getId())){
+            UUID uuid = UUID.randomUUID();
+            entity.setId(uuid.toString());
+        }
+
         if (!StringUtils.isEmpty(entity.getUsername())) {
             UserApp userApp = userRepository.findByUsername(entity.getUsername());
             if (userApp != null && ((entity.getId() == userApp.getId())))

@@ -5,6 +5,8 @@ type Mutation {
     saveIssue(issue:IssueInput) :Issue
 
     updateIssue(issue:IssueInput) : Issue
+    saveCustomField(customField:CostumFieldImput):CustomField
+    addComment(comment:CommentInput):[Comment]
 }
 
 

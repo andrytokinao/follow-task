@@ -13,8 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 public class UserApp {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
     private String username;
     private String password;
     private String pass;
@@ -31,6 +30,8 @@ public class UserApp {
     @OneToMany(mappedBy = "reporter")
     private List<Issue> repotrers;
     @OneToMany(mappedBy = "userApp")
-    private List<PasseTime> passeTimes;
+    private List<EntryTime> entryTimes;
+    @OneToMany
+    private List<UserValue> userValues;
 
 }

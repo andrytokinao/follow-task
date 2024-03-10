@@ -22,7 +22,7 @@ public class IssueType {
     @OneToMany(mappedBy = "type")
     private List<Issue> issues;
     @ManyToMany
-    private List<CostumField> costumFields;
+    private List<CustomField> customFields;
     @ManyToOne
     private WorkFlow curentWorkFlow;
 

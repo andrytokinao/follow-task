@@ -1,6 +1,7 @@
 package com.kinga.tasksservice.web;
 
 import com.kinga.tasksservice.dto.IssueInput;
+import com.kinga.tasksservice.entity.Comment;
 import com.kinga.tasksservice.entity.Issue;
 import com.kinga.tasksservice.entity.Status;
 import com.kinga.tasksservice.service.IssueService;
@@ -24,7 +25,7 @@ public class GQIssueController {
         return issueService.findAllIssue();
     }
     @QueryMapping
-    public List<Issue> findIssueByUserId(@Argument Long id){
+    public List<Issue> findIssueByUserId(@Argument String id){
         return issueService.findByAssigneId(id);
     }
     @MutationMapping
@@ -35,4 +36,14 @@ public class GQIssueController {
     public List<Status> findAllStatus(){
         return statusService.findAll();
     }
+    // comment
+    @MutationMapping
+    public List<Comment> addComment(@Argument Comment comment){
+        return issueService.addComment(comment);
+    }
+    @QueryMapping
+    public List<Comment> allComment(@Argument Long issueId){
+        return issueService.allComment(issueId);
+    }
+
 }

@@ -61,6 +61,25 @@ const SAVE_ISSUE = gql`
     }
   }
 `;
+const ADD_COMMENT = gql`
+  mutation addComment($comment:CommentInput) {
+    addComment(comment: $comment) {
+      id
+      text
+      date
+      issue {
+        id
+      }
+      user {
+        id
+        username
+        lastName
+        firstName
+        photo
+      }
+    }
+  }
+`;
 const ALL_ISSUE = gql`
   query allIssues {
     allIssue {
@@ -88,8 +107,28 @@ const ALL_ISSUE = gql`
     }
   }
 `;
+const  ALL_COMMENT = gql`
+  query allComment ($issueId:Int!) {
+    allComment(issueId: $issueId){
+      id
+      text
+      user {
+        id
+        username
+        lastName
+        firstName
+        photo
+      }
+      issue {
+        id
+      }
+
+    }
+  }
+`;
+
 const  GET_ISSUE_BY_ASSIGN = gql`
-  query getByAssign ($assignId:Int!) {
+  query getByAssign ($assignId:String!) {
      findIssueByUserId(id: $assignId){
       id
       summary
@@ -129,5 +168,7 @@ export {
   SAVE_ISSUE,
   GET_ISSUE_BY_ASSIGN,
   ALL_ISSUE,
-  ALL_STATUS
+  ALL_STATUS,
+  ADD_COMMENT,
+  ALL_COMMENT
 }
