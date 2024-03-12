@@ -7,11 +7,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@DiscriminatorValue("NumberValue")
+@DiscriminatorValue("NumericValue")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class NumberValue extends Value {
+public class NumericValue extends Value {
     private Integer numeric;
 
     @Override

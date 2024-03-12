@@ -1,8 +1,8 @@
 package com.kinga.tasksservice;
 
-import com.kinga.tasksservice.entity.Issue;
-import com.kinga.tasksservice.entity.Status;
-import com.kinga.tasksservice.entity.UserApp;
+import com.kinga.tasksservice.dto.ValueDto;
+import com.kinga.tasksservice.entity.*;
+import com.kinga.tasksservice.repository.CustomFieldRepository;
 import com.kinga.tasksservice.service.IssueService;
 import com.kinga.tasksservice.service.StatusService;
 import com.kinga.tasksservice.service.UserService;
@@ -21,6 +21,7 @@ public class Application {
         StatusService statusService = (StatusService) ctx.getBean(StatusService.class);
         IssueService issueService = (IssueService) ctx.getBean(IssueService.class);
         UserService userService = (UserService) ctx.getBean(UserService.class);
+        CustomFieldRepository customFieldRepository = (CustomFieldRepository) ctx.getBean(CustomFieldRepository.class);
         // Initialiser status
         if (CollectionUtils.isEmpty(statusService.findAll())) {
             Status enAttete = new Status();
@@ -63,6 +64,47 @@ public class Application {
             userService.save(u1);
             userService.save(u2);
         }
+        //
+            // Test date value
+            CustomField dateField = new CustomField();
+            dateField.setType(TypeField.DateValue.getType());
+            dateField.setName("Date test");
+            dateField = customFieldRepository.save(dateField);
+            ValueDto dateValue = new ValueDto();
+            dateValue.setDate("2024-01-01");
+            dateValue.setCustomField(dateField);
+            try {
+                issueService.saveValue(dateValue);
+
+            }catch (Exception e) {
+                throw  new RuntimeException(e);
+            }
+
+            // Test user value
+            CustomField userField = new CustomField();
+            userField.setType(TypeField.UserValue.getType());
+            userField.setName("User field test");
+            userField = customFieldRepository.save(userField);
+            UserApp userApp = new UserApp();
+            userApp.setFirstName("First name test ");
+            userApp.setLastName("Last name test ");
+            userApp = userService.save(userApp);
+            ValueDto userValue = new ValueDto();
+            userValue.setUser(userApp);
+            userValue.setCustomField(userField);
+
+            // Test String value
+            CustomField stringField = new CustomField();
+            stringField.setType(TypeField.StringValue.getType());
+            stringField.setName("String field test ");
+            stringField = customFieldRepository.save(stringField);
+
+
+            // Test numeric value
+            CustomField numericField = new CustomField();
+            numericField.setType(TypeField.NumberValue.getType());
+            numericField.setName(" numeric field test");
+            numericField = customFieldRepository.save(numericField);
 
 
     }

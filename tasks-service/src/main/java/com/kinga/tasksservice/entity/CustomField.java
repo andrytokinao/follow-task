@@ -20,4 +20,5 @@ public class CustomField {
     private List<IssueType> issueTypes;
     @OneToMany
     private List<Value> values;
+    private String type;
 }

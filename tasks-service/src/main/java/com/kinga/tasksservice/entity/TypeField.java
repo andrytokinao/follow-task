@@ -1,19 +1,14 @@
 package com.kinga.tasksservice.entity;
 
-import lombok.Data;
-
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-public enum Type {
+public enum TypeField {
     StringValue("String","StringValue"),
     DateValue("Date","DateValue"),
-    NumberValue("Number","NumberValue"),
+    NumberValue("Number","NumericValue"),
     UserValue("User","UserValue");
     private String name;
     private  String type;
 
-    Type(String type, String name){
+    TypeField(String type, String name){
         this.name = name;
         this.type = type;
     }
@@ -34,8 +29,8 @@ public enum Type {
         this.type = type;
     }
 
-    public static Type fromType(String type) {
-        for (Type e : Type.values()) {
+    public static TypeField fromType(String type) {
+        for (TypeField e : TypeField.values()) {
             if (e.getType().equals(type)) {
                 return e;
             }

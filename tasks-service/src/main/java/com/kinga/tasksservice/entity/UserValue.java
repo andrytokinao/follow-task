@@ -7,7 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@DiscriminatorValue("User")
+@DiscriminatorValue("UserValue")
+
 @NoArgsConstructor
 @Data
 public class UserValue extends Value {

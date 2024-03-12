@@ -139,7 +139,7 @@ type WorkFlow {
 
 
 
-input CostumFieldImput {
+input CustomFieldImput {
     id:Int
     name:String
     issueTypes:[Int]
@@ -235,10 +235,12 @@ input UserAppInput{
 
 input ValueInput {
     id:Int,
-    valueType:ValueType
-    value:String
-    costumField:Int
-
+    customField:CommentInput
+    issue:IssueInput
+    date:String
+    string:String
+    user:UserAppInput
+    numeric:Int
 }
 
 
