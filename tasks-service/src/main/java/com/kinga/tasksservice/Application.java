@@ -1,6 +1,7 @@
 package com.kinga.tasksservice;
 
 import com.kinga.tasksservice.dto.ValueDto;
+import com.kinga.tasksservice.entity.CustomFieldValue;
 import com.kinga.tasksservice.entity.*;
 import com.kinga.tasksservice.repository.CustomFieldRepository;
 import com.kinga.tasksservice.service.IssueService;
@@ -11,12 +12,14 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Collection;
+import java.text.ParseException;
+import java.util.Date;
+import java.util.List;
 
 @SpringBootApplication
 public class Application {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ParseException, ClassNotFoundException, InstantiationException, IllegalAccessException {
         ConfigurableApplicationContext ctx = SpringApplication.run(Application.class, args);
         StatusService statusService = (StatusService) ctx.getBean(StatusService.class);
         IssueService issueService = (IssueService) ctx.getBean(IssueService.class);
@@ -65,46 +68,7 @@ public class Application {
             userService.save(u2);
         }
         //
-            // Test date value
-            CustomField dateField = new CustomField();
-            dateField.setType(TypeField.DateValue.getType());
-            dateField.setName("Date test");
-            dateField = customFieldRepository.save(dateField);
-            ValueDto dateValue = new ValueDto();
-            dateValue.setDate("2024-01-01");
-            dateValue.setCustomField(dateField);
-            try {
-                issueService.saveValue(dateValue);
 
-            }catch (Exception e) {
-                throw  new RuntimeException(e);
-            }
-
-            // Test user value
-            CustomField userField = new CustomField();
-            userField.setType(TypeField.UserValue.getType());
-            userField.setName("User field test");
-            userField = customFieldRepository.save(userField);
-            UserApp userApp = new UserApp();
-            userApp.setFirstName("First name test ");
-            userApp.setLastName("Last name test ");
-            userApp = userService.save(userApp);
-            ValueDto userValue = new ValueDto();
-            userValue.setUser(userApp);
-            userValue.setCustomField(userField);
-
-            // Test String value
-            CustomField stringField = new CustomField();
-            stringField.setType(TypeField.StringValue.getType());
-            stringField.setName("String field test ");
-            stringField = customFieldRepository.save(stringField);
-
-
-            // Test numeric value
-            CustomField numericField = new CustomField();
-            numericField.setType(TypeField.NumberValue.getType());
-            numericField.setName(" numeric field test");
-            numericField = customFieldRepository.save(numericField);
 
 
     }

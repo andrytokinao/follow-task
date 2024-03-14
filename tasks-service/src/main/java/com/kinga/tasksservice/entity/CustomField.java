@@ -18,7 +18,5 @@ public class CustomField {
     private String name;
     @ManyToMany
     private List<IssueType> issueTypes;
-    @OneToMany
-    private List<Value> values;
     private String type;
 }

@@ -2,18 +2,15 @@ package com.kinga.tasksservice.entity;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToOne;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@DiscriminatorValue("UserValue")
+@DiscriminatorValue("UserCustomFieldValue")
 
 @NoArgsConstructor
 @Data
-public class UserValue extends Value {
-    @ManyToOne
-    private UserApp user;
+public class UserCustomFieldValue extends CustomFieldValue {
 
     @Override
     public String getStrinValue() {
@@ -21,12 +18,12 @@ public class UserValue extends Value {
     }
 
     @Override
-    public Value setValue(Object value) {
-        this.user =(UserApp) value;
+    public CustomFieldValue setValue(Object value) {
+        this.setUser((UserApp) value);
         return this;
     }
     @Override
     public Object getObject() {
-        return this.user;
+        return this.getUser();
     }
 }

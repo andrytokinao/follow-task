@@ -1,11 +1,9 @@
 package com.kinga.tasksservice.service;
 
 import com.kinga.tasksservice.dto.ValueDto;
+import com.kinga.tasksservice.entity.CustomFieldValue;
 import com.kinga.tasksservice.entity.*;
-import com.kinga.tasksservice.repository.CommentRepository;
-import com.kinga.tasksservice.repository.CustomFieldRepository;
-import com.kinga.tasksservice.repository.IssueRepository;
-import com.kinga.tasksservice.repository.ValueRepository;
+import com.kinga.tasksservice.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -18,9 +16,9 @@ public class IssueService {
     @Autowired
     public IssueRepository issueRepository;
     @Autowired
-    public CommentRepository commentRepository;
+    public ValueDeoRepository valueDeoRepository;
     @Autowired
-    private ValueRepository valueRepository;
+    public CommentRepository commentRepository;
     @Autowired
     CustomFieldRepository customFieldRepository;
     @Autowired
@@ -47,23 +45,25 @@ public class IssueService {
        commentRepository.save(comment);
        return commentRepository.findByIssueId(comment.getIssue().getId());
     }
-    public List<Value> saveValue(ValueDto v) throws ClassNotFoundException, InstantiationException, IllegalAccessException, ParseException {
+    public List<CustomFieldValue> saveValue(ValueDto v) throws ClassNotFoundException, InstantiationException, IllegalAccessException, ParseException {
         if(v.getCustomField() == null || StringUtils.isEmpty(v.getCustomField().getType()))
-            throw new RuntimeException("Invalid value ");
-        Value value = Value.getInstanceWith("Date");
-        if(value instanceof StringValue)
+            throw new RuntimeException("Invalid valueNew ");
+        CustomFieldValue value = CustomFieldValue.getInstanceWith(v.getCustomField().getType());
+        value.setId(v.getId());
+        value.setIssue(v.getIssue());
+        if(value instanceof StringCustomFieldValue)
             value.setValue(v.getString());
-        else if(value instanceof  DateValue)
+        else if(value instanceof DateCustomFieldValue) {
             value.setValue(v.getDate());
-        else if(value instanceof UserValue)
+        }
+        else if(value instanceof UserCustomFieldValue)
             value.setValue(v.getUser());
-        else if(value instanceof NumericValue)
+        else if(value instanceof NumericCustomFieldValue)
             value.setValue(v.getNumeric());
-        valueRepository.save(value);
-        return valueRepository.findByIssueId(v.getIssue().getId());
+        valueDeoRepository.save(value);
+        return valueDeoRepository.findCustomFieldValueByIssueId(value.getIssue().getId());
     }
-    public List<Value> allCustomField(Long id){
-        /*return valueRepository.findByIssueId(id);*/
+    public List<CustomField> allCustomField(Long id){
         return null;
     }
 }

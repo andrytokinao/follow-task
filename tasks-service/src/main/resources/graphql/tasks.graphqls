@@ -117,7 +117,7 @@ type UserApp{
 type Value {
     id:Int,
     valueType:ValueType
-    value:String
+    valueNew:String
     customField:CustomField
 }
 

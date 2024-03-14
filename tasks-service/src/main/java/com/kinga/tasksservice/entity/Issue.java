@@ -39,7 +39,7 @@ public class Issue {
     private List<Issue> children;
     @OneToMany(mappedBy = "issue")
     private List<Comment> comments;
-    @OneToMany
-    private List<Value> values;
+    @OneToMany(mappedBy = "issue")
+    private List<CustomFieldValue> values;
 
 }

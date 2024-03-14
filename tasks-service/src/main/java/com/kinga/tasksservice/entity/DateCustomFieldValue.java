@@ -2,40 +2,37 @@ package com.kinga.tasksservice.entity;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Transient;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.scheduling.support.SimpleTriggerContext;
 
-import java.sql.Date;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 
 @Entity
-@DiscriminatorValue("DateValue")
+@DiscriminatorValue("DateCustomFieldValue")
 @NoArgsConstructor
 @Data
-public class DateValue extends Value {
-    Long id= 1L;
-    private String date ;
+public class DateCustomFieldValue extends CustomFieldValue {
     public static DateFormat sdf = new SimpleDateFormat("YYYY-MM-dd");
     public static DateFormat sdfH = new SimpleDateFormat("YYYY-MM-dd hh:mm");
     @Override
     public String getStrinValue() {
-        return sdf.format(this.date);
+        return sdf.format(this.getDate());
     }
 
     @Override
-    public Value setValue(Object value) throws ParseException {
-        if(value instanceof String) {
-            this.setDate((String)value);
-        }
+    public CustomFieldValue setValue(Object value) throws ParseException {
+        if(value instanceof Date) {
+            this.setDate((Date)value);
+        }else if(value instanceof  String)
+            this.setDate(sdf.parse((String)value));
        return this;
     }
     @Override
     public Object getObject() throws ParseException {
-        return sdf.format(this.date);
+        return this.getDate();
     }
 }

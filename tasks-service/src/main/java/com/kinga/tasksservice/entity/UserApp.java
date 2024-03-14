@@ -32,6 +32,6 @@ public class UserApp {
     @OneToMany(mappedBy = "userApp")
     private List<EntryTime> entryTimes;
     @OneToMany
-    private List<UserValue> userValues;
+    private List<UserCustomFieldValue> userValues;
 
 }

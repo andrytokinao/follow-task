@@ -1,10 +1,10 @@
 package com.kinga.tasksservice.entity;
 
 public enum TypeField {
-    StringValue("String","StringValue"),
-    DateValue("Date","DateValue"),
-    NumberValue("Number","NumericValue"),
-    UserValue("User","UserValue");
+    StringValue("String","StringCustomFieldValue"),
+    DateValue("Date","DateCustomFieldValue"),
+    NumberValue("Number","NumericCustomFieldValue"),
+    UserValue("User","UserCustomFieldValue");
     private String name;
     private  String type;
 
