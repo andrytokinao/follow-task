@@ -1,6 +1,7 @@
 package com.kinga.tasksservice.service;
 
 import com.kinga.tasksservice.dto.ValueDto;
+import com.kinga.tasksservice.entity.CustomFieldValue;
 import com.kinga.tasksservice.entity.*;
 import com.kinga.tasksservice.repository.CustomFieldRepository;
 import org.junit.jupiter.api.Test;
@@ -9,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
 class IssueServiceTest {

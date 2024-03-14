@@ -68,8 +68,64 @@ public class Application {
             userService.save(u2);
         }
         //
+/*
+            Issue issue = new Issue();
+            issue.setSummary("Test summary ");
+            issue.setDescription(" Test de creation custom field ");
+            issueService.save(issue);
 
+            // Test date value
+            CustomField dateField = new CustomField();
+            dateField.setType(TypeField.DateValue.getType());
+            dateField.setName("Date test");
+            dateField = customFieldRepository.save(dateField);
+            ValueDto dateValue = new ValueDto();
+            dateValue.setDate("2024-01-01");
+            dateValue.setCustomField(dateField);
+            dateValue.setIssue(issue);
+            try {
+                issueService.saveValue(dateValue);
 
+            }catch (Exception e) {
+                throw  new RuntimeException(e);
+            }
+
+            // Test user value
+            CustomField userField = new CustomField();
+            userField.setType(TypeField.UserValue.getType());
+            userField.setName("User field test");
+            userField = customFieldRepository.save(userField);
+            UserApp userApp = new UserApp();
+            userApp.setFirstName("First name test ");
+            userApp.setLastName("Last name test ");
+            userApp = userService.save(userApp);
+            ValueDto userValue =  new ValueDto();
+            userValue.setUser(userApp);
+            userValue.setCustomField(userField);
+            userValue.setIssue(issue);
+            issueService.saveValue(userValue);
+            // Test String value
+            CustomField stringField = new CustomField();
+            stringField.setType(TypeField.StringValue.getType());
+            stringField.setName("String field test ");
+            stringField = customFieldRepository.save(stringField);
+            ValueDto stringValue = new ValueDto();
+            stringValue.setString("Value de tring");
+            stringValue.setCustomField(stringField);
+            stringValue.setIssue(issue);
+            issueService.saveValue(stringValue);
+
+            // Test numeric value
+            CustomField numericField = new CustomField();
+            numericField.setType(TypeField.NumberValue.getType());
+            numericField.setName(" numeric field test");
+            numericField = customFieldRepository.save(numericField);
+            ValueDto numericValue = new ValueDto();
+            numericValue.setNumeric(10000);
+            numericValue.setIssue(issue);
+            numericValue.setCustomField(numericField);
+            List<CustomFieldValue> values = issueService.saveValue(numericValue);
+            System.out.println("Value size ="+values.size());*/
 
     }
 
