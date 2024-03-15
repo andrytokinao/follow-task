@@ -138,6 +138,7 @@ export class BoardComponent implements OnInit{
     const dialogRef = this.modalService.open(ViewEditIssueComponent,{windowClass:"xlModal"});
     dialogRef.componentInstance.issue = issue;
     dialogRef.componentInstance.loadComments();
+    dialogRef.componentInstance.loadValues();
     dialogRef.result.then((result)=>{
      this.currentIssue = null;
     })

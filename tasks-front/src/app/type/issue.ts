@@ -29,3 +29,20 @@ export class Comment {
   date : String ="";
   issue : Issue = new Issue();
 }
+
+export interface CustomField {
+  id:number;
+  name:String;
+  type:String;
+}
+
+export interface CustomFieldValue {
+  id: number;
+  date:String;
+  string:String;
+  numeric:number;
+  user:User
+  issue:Issue
+  customField:CustomField
+
+}

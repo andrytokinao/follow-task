@@ -49,6 +49,10 @@ public class GQIssueController {
         return issueService.saveValue(value);
     }
     @QueryMapping
+    public List<CustomFieldValue> getValues(@Argument Long issueId) throws ParseException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+        return issueService.getValues(issueId);
+    }
+    @QueryMapping
     public List<CustomField> allCustomField(@Argument Long id) {
         return issueService.allCustomField(id);
     }

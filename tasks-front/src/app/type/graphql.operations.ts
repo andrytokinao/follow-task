@@ -126,6 +126,35 @@ const  ALL_COMMENT = gql`
     }
   }
 `;
+const  GET_VALUES = gql`
+  query getValues ($issueId:Int!) {
+    getValues(issueId: $issueId){
+      id
+      string
+      date
+      numeric
+      issue {
+        id
+      }
+      user {
+        id
+        username
+        lastName
+        firstName
+        photo
+      }
+      customField {
+        id
+        type
+        name
+      }
+      issue {
+        id
+      }
+
+    }
+  }
+`;
 
 const  GET_ISSUE_BY_ASSIGN = gql`
   query getByAssign ($assignId:String!) {
@@ -170,5 +199,6 @@ export {
   ALL_ISSUE,
   ALL_STATUS,
   ADD_COMMENT,
-  ALL_COMMENT
+  ALL_COMMENT,
+  GET_VALUES
 }

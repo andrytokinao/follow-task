@@ -33,7 +33,7 @@
         </div>
 
         <div class="comment-list">
-          <div class="comment-item" *ngFor="let comment of issue.comments">
+          <div class="comment-item" *ngFor="let comment of comments">
             <img src="assets/user.png" class="user-avatar" alt="Avatar">
             <div class="comment-content">
               <p class="comment-text">{{comment.text}} </p>
@@ -102,13 +102,23 @@
           </div>
           <h1 class="folder-title"> <i class="fa fa-check-square" aria-hidden="true"> </i> Parametre </h1>
           <div class="tnz-file-tree">
-            <label class="" (click)="addCustomFieldValue()" >
-              <span class=" "> <i class="fa fa-calendar-day" aria-hidden="true"></i>  Date livraison  : 25 Avril 2024</span>
+            <label class="" (click)="addCustomFieldValue()"  *ngFor = "let value of customFieldValues">
+              <span class=" " *ngIf = "value.customField.type === 'Date'"> {{value.customField.name}} {{value.date}} </span>
+              <span class=" " *ngIf = "value.customField.type === 'String'"> {{value.customField.name}} {{value.string}} </span>
+              <span class=" " *ngIf = "value.customField.type === 'User'">{{value.customField.name}}  {{value.user.lastName}} </span>
+
             </label>
             <label class="" (click)="addCustomFieldValue()" >
               <input class="tnz-file-tree-cb" typeField="checkbox">
               <span class=" "> <i class="fa fa-plus" aria-hidden="true"></i>  Ajouter </span>
             </label>
+            <mat-menu #menu2="matMenu">
+              <h4> Assigner a </h4>
+              <button mat-menu-item *ngFor="let user of users" (click)="assigneToUser(user)" [ngClass]="{'active': isActive(user)}" >
+                <img [src]="user.photo" alt="Image"  width="30px"  >
+                <span>{{user.firstName}} {{user.lastName}}</span>
+              </button>
+            </mat-menu>
           </div>
           <h1> <i class="fa fa-calendar-minus" aria-hidden="true"></i> Temp passé : 20 heurs </h1>
           <div class="tnz-file-tree">

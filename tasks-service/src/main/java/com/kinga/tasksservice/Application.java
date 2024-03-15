@@ -68,16 +68,16 @@ public class Application {
             userService.save(u2);
         }
         //
-/*
+
             Issue issue = new Issue();
-            issue.setSummary("Test summary ");
-            issue.setDescription(" Test de creation custom field ");
+            issue.setSummary("Etude ");
+            issue.setDescription("Voici quelque description");
             issueService.save(issue);
 
             // Test date value
             CustomField dateField = new CustomField();
             dateField.setType(TypeField.DateValue.getType());
-            dateField.setName("Date test");
+            dateField.setName("Date livraison");
             dateField = customFieldRepository.save(dateField);
             ValueDto dateValue = new ValueDto();
             dateValue.setDate("2024-01-01");
@@ -93,11 +93,11 @@ public class Application {
             // Test user value
             CustomField userField = new CustomField();
             userField.setType(TypeField.UserValue.getType());
-            userField.setName("User field test");
+            userField.setName("Controlleur");
             userField = customFieldRepository.save(userField);
             UserApp userApp = new UserApp();
-            userApp.setFirstName("First name test ");
-            userApp.setLastName("Last name test ");
+            userApp.setFirstName("Baptiste");
+            userApp.setLastName("Jean  ");
             userApp = userService.save(userApp);
             ValueDto userValue =  new ValueDto();
             userValue.setUser(userApp);
@@ -107,10 +107,10 @@ public class Application {
             // Test String value
             CustomField stringField = new CustomField();
             stringField.setType(TypeField.StringValue.getType());
-            stringField.setName("String field test ");
+            stringField.setName("Code ");
             stringField = customFieldRepository.save(stringField);
             ValueDto stringValue = new ValueDto();
-            stringValue.setString("Value de tring");
+            stringValue.setString("FRES25133");
             stringValue.setCustomField(stringField);
             stringValue.setIssue(issue);
             issueService.saveValue(stringValue);
@@ -125,7 +125,7 @@ public class Application {
             numericValue.setIssue(issue);
             numericValue.setCustomField(numericField);
             List<CustomFieldValue> values = issueService.saveValue(numericValue);
-            System.out.println("Value size ="+values.size());*/
+            System.out.println("Value size ="+values.size());
 
     }
 

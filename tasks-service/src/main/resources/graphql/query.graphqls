@@ -8,4 +8,5 @@ type Query {
     allComment(issueId:Int):[Comment]
     allFiles(issueId:Int):[File]
     allCustomField(issueId:Int):[CustomField]
+    getValues(issueId:Int):[CustomFieldValue]
 }

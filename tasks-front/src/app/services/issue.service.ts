@@ -7,7 +7,7 @@ import {Apollo} from "apollo-angular";
 import {useMutation} from "@apollo/client";
 import _default from "chart.js/dist/plugins/plugin.tooltip";
 import numbers = _default.defaults.animations.numbers;
-import {SAVE_ISSUE, ALL_ISSUE, ALL_STATUS, ADD_COMMENT, ALL_COMMENT} from "../type/graphql.operations";
+import {SAVE_ISSUE, ALL_ISSUE, ALL_STATUS, ADD_COMMENT, ALL_COMMENT, GET_VALUES} from "../type/graphql.operations";
 
 @Injectable({
   providedIn: 'root',
@@ -67,6 +67,15 @@ export class IssueService {
         variables:{issueId}
       });
   }
+
+  getValues(issueId:number){
+    return this.apollo
+      .query({
+        query: GET_VALUES ,
+        variables:{issueId}
+      });
+  }
+
   handleError(error: any) {
     let errorMessage = '';
     if (error.error instanceof ErrorEvent) {

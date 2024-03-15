@@ -51,6 +51,7 @@ public class IssueService {
         CustomFieldValue value = CustomFieldValue.getInstanceWith(v.getCustomField().getType());
         value.setId(v.getId());
         value.setIssue(v.getIssue());
+        value.setCustomField(v.getCustomField());
         if(value instanceof StringCustomFieldValue)
             value.setValue(v.getString());
         else if(value instanceof DateCustomFieldValue) {
@@ -65,5 +66,8 @@ public class IssueService {
     }
     public List<CustomField> allCustomField(Long id){
         return null;
+    }
+    public List<CustomFieldValue> getValues(Long id) {
+        return valueDeoRepository.findCustomFieldValueByIssueId(id);
     }
 }

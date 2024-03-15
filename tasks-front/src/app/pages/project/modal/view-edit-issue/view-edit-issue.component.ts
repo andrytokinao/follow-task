@@ -2,7 +2,7 @@ import {Component, Inject, Input} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {FormsModule} from "@angular/forms";
-import {Issue, Status,Comment} from "../../../../type/issue";
+import {Issue, Status, Comment, CustomFieldValue, CustomField} from "../../../../type/issue";
 import {IssueService} from "../../../../services/issue.service";
 @Component({
   selector: 'app-view-edit-issue',
@@ -15,7 +15,9 @@ export class ViewEditIssueComponent {
     issue:{},
     user:{}
   };
-
+  comments :Comment[] = [];
+  customFieldValues :CustomFieldValue[] = [];
+  customFields :CustomField[] = [];
   editingDescription: boolean = false;
   activeMenuItem: string="comment";
   newComment: string = '';
@@ -47,7 +49,7 @@ export class ViewEditIssueComponent {
       {
         next:(result:any)=>{
           console.info("--- Loadin adding comment ---> "+JSON.stringify(result));
-          this.issue.comments = result.data.addComment as Comment[];
+          this.comments = result.data.addComment as Comment[];
           this.comment.text="";
         },
           error:(err)=>{
@@ -60,8 +62,22 @@ export class ViewEditIssueComponent {
     this.issueService.allComment(this.issue.id).subscribe(
       {
         next:(res:any)=>{
-          this.issue.comments =res.data.allComment as Comment[];
-          console.info("--- Loadin comment ---> "+JSON.stringify(this.issue.comments));
+          this.comments =res.data.allComment as Comment[];
+          console.info("--- Loadin comment ---> "+JSON.stringify(this.comments));
+        },
+        error:(err:any)=>{
+          alert(JSON.stringify(err))
+        }
+      }
+    );
+  }
+  loadValues(){
+    console.info("--- Loading  values ---")
+    this.issueService.getValues(this.issue.id).subscribe(
+      {
+        next:(res:any)=>{
+          this.customFieldValues =res.data.getValues as CustomFieldValue[];
+          console.info("--- Loadin customField values ---> "+JSON.stringify(this.customFieldValues));
         },
         error:(err:any)=>{
           alert(JSON.stringify(err))

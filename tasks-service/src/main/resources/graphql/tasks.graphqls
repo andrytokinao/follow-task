@@ -1,7 +1,7 @@
 type CustomField {
     id:Int
     name:String
-    issueTypes:[IssueType]
+    type:String
 }
 type Comment {
     id:Int
@@ -114,11 +114,14 @@ type UserApp{
     photo:String
 }
 
-type Value {
+type CustomFieldValue {
     id:Int,
-    valueType:ValueType
-    valueNew:String
     customField:CustomField
+    issue:Issue
+    date:String
+    string:String
+    user:UserApp
+    numeric:Float
 }
 
 enum ValueType {
@@ -235,7 +238,7 @@ input UserAppInput{
 
 input ValueInput {
     id:Int,
-    customField:CommentInput
+    customField:CustomFieldImput
     issue:IssueInput
     date:String
     string:String
