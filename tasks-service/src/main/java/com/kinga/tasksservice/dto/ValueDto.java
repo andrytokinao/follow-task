@@ -19,4 +19,5 @@ public class ValueDto {
     private String string;
     private UserApp user;
     private Integer numeric;
+    private String text;
 }

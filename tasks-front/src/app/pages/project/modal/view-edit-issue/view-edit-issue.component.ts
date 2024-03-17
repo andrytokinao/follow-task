@@ -1,9 +1,10 @@
 import {Component, Inject, Input} from '@angular/core';
-import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
-import {FormsModule} from "@angular/forms";
-import {Issue, Status, Comment, CustomFieldValue, CustomField} from "../../../../type/issue";
+import {Issue, Status, Comment, CustomFieldValue, CustomField, User} from "../../../../type/issue";
 import {IssueService} from "../../../../services/issue.service";
+import {UserService} from "../../../../services/user.service";
+import {supprimerTypename} from "../../../../type/graphql.operations";
+import {stripTypename} from "@apollo/client/utilities";
 @Component({
   selector: 'app-view-edit-issue',
   templateUrl: './view-edit-issue.component.html',
@@ -22,12 +23,16 @@ export class ViewEditIssueComponent {
   activeMenuItem: string="comment";
   newComment: string = '';
   issue: Issue = new Issue();
-
+  curentCustomField?: CustomField;
+  currentCustomFieldValue:any = null ;
+  users: User[] = [];
+  string: String = "tay be ";
 
 
   constructor(
     public activeModal: NgbActiveModal,
     public issueService:IssueService,
+    public userService:UserService
   ) {}
   editDescription(){
     this.editingDescription =!this.editingDescription;
@@ -85,7 +90,47 @@ export class ViewEditIssueComponent {
       }
     );
   }
-  addCustomFieldValue() {
+  allCustomField(){
+    console.info("--- Loading all customFields ---")
+    this.issueService.allCustomField(this.issue.id).subscribe(
+      {
+        next:(res:any)=>{
+          this.customFields =res.data.allCustomField as CustomField[];
+          console.info("--- Loadin all customFields resule =  "+JSON.stringify(this.customFields));
+        },
+        error:(err:any)=>{
+          alert(JSON.stringify(err))
+        }
+      }
+    );
+  }
+  addCustomFieldValue(customField:CustomField) {
+    this.currentCustomFieldValue = {};
+    this.currentCustomFieldValue.customField = customField;
+  }
+  saveValue() {
+    this.currentCustomFieldValue.issue = this.issue;
+    let value = supprimerTypename(this.currentCustomFieldValue);
+    this.issueService.saveValues(value).subscribe({
+      next:((res:any)=>{
+        alert('Saving saccessful  ');
+        this.customFieldValues= stripTypename(res.data.saveValue);
+      }),
+      error:(err=>{
+        console.error(' error  '+JSON.stringify(err))
+      })
+      }
+    )
+    this.currentCustomFieldValue = null;
+  }
 
+  valueIsValid() :boolean{
+    if(this.currentCustomFieldValue == null)
+      return false;
+    return this.currentCustomFieldValue.text!=null ||
+      this.currentCustomFieldValue.numeric !=null ||
+      this.currentCustomFieldValue.string !=null ||
+      this.currentCustomFieldValue.date !=null ||
+      this.currentCustomFieldValue.user !=null;
   }
 }

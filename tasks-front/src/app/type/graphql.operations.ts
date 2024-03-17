@@ -155,7 +155,36 @@ const  GET_VALUES = gql`
     }
   }
 `;
+const  SAVE_VALUE = gql`
+  mutation saveValue ($value:ValueInput!) {
+    saveValue(value: $value){
+      id
+      string
+      date
+      numeric
+      text
+      issue {
+        id
+      }
+      user {
+        id
+        username
+        lastName
+        firstName
+        photo
+      }
+      customField {
+        id
+        type
+        name
+      }
+      issue {
+        id
+      }
 
+    }
+  }
+`;
 const  GET_ISSUE_BY_ASSIGN = gql`
   query getByAssign ($assignId:String!) {
      findIssueByUserId(id: $assignId){
@@ -189,8 +218,17 @@ const  ALL_STATUS = gql`
       }
     }
 `;
-
+const ALL_CUSTOMFIELD = gql`
+  query allCustomField ($issueId:Int!) {
+    allCustomField(issueId:$issueId){
+      id
+      name
+      type
+    }
+  }
+`;
 export {
+  supprimerTypename,
   ADD_USER,
   GET_USER,
   ALL_USERS,
@@ -200,5 +238,22 @@ export {
   ALL_STATUS,
   ADD_COMMENT,
   ALL_COMMENT,
-  GET_VALUES
+  GET_VALUES,
+  ALL_CUSTOMFIELD,
+  SAVE_VALUE
+}
+function  supprimerTypename<T>(objet: T): T {
+  if (!objet || typeof objet !== 'object') {
+    return objet;
+  }
+  if (Array.isArray(objet)) {
+    return objet.map((item) => supprimerTypename(item)) as T;
+  }
+  const nouvelObjet: any = {};
+  for (const prop in objet) {
+    if (objet.hasOwnProperty(prop) && prop !== '__typename') {
+      nouvelObjet[prop] = supprimerTypename(objet[prop]);
+    }
+  }
+  return nouvelObjet as T;
 }

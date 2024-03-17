@@ -16,8 +16,8 @@ import java.util.Date;
 @NoArgsConstructor
 @Data
 public class DateCustomFieldValue extends CustomFieldValue {
-    public static DateFormat sdf = new SimpleDateFormat("YYYY-MM-dd");
-    public static DateFormat sdfH = new SimpleDateFormat("YYYY-MM-dd hh:mm");
+    public static DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    public static DateFormat sdfH = new SimpleDateFormat("yyyy-MM-dd hh:mm");
     @Override
     public String getStrinValue() {
         return sdf.format(this.getDate());

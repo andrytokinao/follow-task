@@ -61,11 +61,13 @@ public class IssueService {
             value.setValue(v.getUser());
         else if(value instanceof NumericCustomFieldValue)
             value.setValue(v.getNumeric());
+        else if(value instanceof TextCustomFieldValue)
+            value.setValue(v.getText());
         valueDeoRepository.save(value);
         return valueDeoRepository.findCustomFieldValueByIssueId(value.getIssue().getId());
     }
     public List<CustomField> allCustomField(Long id){
-        return null;
+        return customFieldRepository.findAll();
     }
     public List<CustomFieldValue> getValues(Long id) {
         return valueDeoRepository.findCustomFieldValueByIssueId(id);

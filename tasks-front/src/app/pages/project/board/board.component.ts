@@ -139,6 +139,8 @@ export class BoardComponent implements OnInit{
     dialogRef.componentInstance.issue = issue;
     dialogRef.componentInstance.loadComments();
     dialogRef.componentInstance.loadValues();
+    dialogRef.componentInstance.allCustomField();
+    dialogRef.componentInstance.users = this.users;
     dialogRef.result.then((result)=>{
      this.currentIssue = null;
     })

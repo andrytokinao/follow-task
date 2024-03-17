@@ -7,7 +7,16 @@ import {Apollo} from "apollo-angular";
 import {useMutation} from "@apollo/client";
 import _default from "chart.js/dist/plugins/plugin.tooltip";
 import numbers = _default.defaults.animations.numbers;
-import {SAVE_ISSUE, ALL_ISSUE, ALL_STATUS, ADD_COMMENT, ALL_COMMENT, GET_VALUES} from "../type/graphql.operations";
+import {
+  SAVE_ISSUE,
+  ALL_ISSUE,
+  ALL_STATUS,
+  ADD_COMMENT,
+  ALL_COMMENT,
+  GET_VALUES,
+  ALL_CUSTOMFIELD, SAVE_VALUE
+} from "../type/graphql.operations";
+import {stripTypename} from "@apollo/client/utilities";
 
 @Injectable({
   providedIn: 'root',
@@ -67,6 +76,13 @@ export class IssueService {
         variables:{issueId}
       });
   }
+  allCustomField(issueId:number){
+    return this.apollo
+      .query({
+        query: ALL_CUSTOMFIELD ,
+        variables:{issueId}
+      });
+  }
 
   getValues(issueId:number){
     return this.apollo
@@ -75,6 +91,14 @@ export class IssueService {
         variables:{issueId}
       });
   }
+  saveValues(value:any){
+    return this.apollo
+      .mutate({
+        mutation: SAVE_VALUE,
+        variables:{value}
+      });
+  }
+
 
   handleError(error: any) {
     let errorMessage = '';

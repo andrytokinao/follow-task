@@ -40,6 +40,7 @@ export interface CustomFieldValue {
   id: number;
   date:String;
   string:String;
+  text:String;
   numeric:number;
   user:User
   issue:Issue

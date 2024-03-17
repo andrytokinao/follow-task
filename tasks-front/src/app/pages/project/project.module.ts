@@ -19,6 +19,7 @@ import {BrowserModule} from "@angular/platform-browser";
 import {MatIconModule} from "@angular/material/icon";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {ViewEditIssueComponent} from "./modal/view-edit-issue/view-edit-issue.component";
+import {MatSelectModule} from "@angular/material/select";
 
 @NgModule({
   declarations: [
@@ -33,19 +34,20 @@ import {ViewEditIssueComponent} from "./modal/view-edit-issue/view-edit-issue.co
   exports: [
      StatusComponent, RepartitionComponent, IssueListeComponent,ProjectComponent
   ],
-  imports: [
-    CommonModule,
-    ProjectRoutingModule,
-    CommonModule,
-    MatTabsModule,
-    MatCardModule,
-    MatDialogModule,
-    MatToolbarModule,
-    MatFormFieldModule,
-    FormsModule,
-    MatMenuModule,
-    MatMenuModule,
-    MatIconModule,
-  ]
+    imports: [
+        CommonModule,
+        ProjectRoutingModule,
+        CommonModule,
+        MatTabsModule,
+        MatCardModule,
+        MatDialogModule,
+        MatToolbarModule,
+        MatFormFieldModule,
+        FormsModule,
+        MatMenuModule,
+        MatMenuModule,
+        MatIconModule,
+        MatSelectModule,
+    ]
 })
 export class ProjectModule { }

@@ -22,6 +22,7 @@ public abstract class CustomFieldValue {
     private Issue issue;
     private Date date;
     private String string;
+    private String text;
     @ManyToOne
     private UserApp user;
     private Integer numeric;

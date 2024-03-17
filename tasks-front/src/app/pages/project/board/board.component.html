@@ -20,6 +20,7 @@
       </div>
     </div>
   </div>
+
   <mat-menu #menu2="matMenu">
     <h4> Assigner a </h4>
     <button mat-menu-item *ngFor="let user of users" (click)="assigneToUser(user)" [ngClass]="{'active': isActive(user)}" >
