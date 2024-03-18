@@ -20,6 +20,7 @@ import {MatIconModule} from "@angular/material/icon";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {ViewEditIssueComponent} from "./modal/view-edit-issue/view-edit-issue.component";
 import {MatSelectModule} from "@angular/material/select";
+import {MyCommonModule} from "../../common/common.module";
 
 @NgModule({
   declarations: [
@@ -34,20 +35,20 @@ import {MatSelectModule} from "@angular/material/select";
   exports: [
      StatusComponent, RepartitionComponent, IssueListeComponent,ProjectComponent
   ],
-    imports: [
-        CommonModule,
-        ProjectRoutingModule,
-        CommonModule,
-        MatTabsModule,
-        MatCardModule,
-        MatDialogModule,
-        MatToolbarModule,
-        MatFormFieldModule,
-        FormsModule,
-        MatMenuModule,
-        MatMenuModule,
-        MatIconModule,
-        MatSelectModule,
-    ]
+  imports: [
+    ProjectRoutingModule,
+    MatTabsModule,
+    MatCardModule,
+    MatDialogModule,
+    MatToolbarModule,
+    MatFormFieldModule,
+    FormsModule,
+    MatMenuModule,
+    MatMenuModule,
+    MatIconModule,
+    MatSelectModule,
+    CommonModule,
+    MyCommonModule
+  ]
 })
 export class ProjectModule { }

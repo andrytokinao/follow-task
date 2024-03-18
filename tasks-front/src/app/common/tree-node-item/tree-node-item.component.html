@@ -1,0 +1,11 @@
+<div>
+  <label class="tnz-file-tree-item" [class]="node.type">
+    <input class="tnz-file-tree-cb" typeField="checkbox">
+    <span class="tnz-file-tree-label">{{ node.fileName }}</span>
+    <div class="tnz-file-tree-branches" *ngIf="node.children && node.children.length > 0" >
+      <div  *ngFor="let child of node.children">
+        <app-tree-node-item [node]="child"></app-tree-node-item>
+      </div>
+    </div>
+  </label>
+</div>

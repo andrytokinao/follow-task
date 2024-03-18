@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
-import {Issue, Status, User,Comment} from "../type/issue";
+import {Issue, Status, User,Comment,Node} from "../type/issue";
 import {Apollo} from "apollo-angular";
 import {useMutation} from "@apollo/client";
 import _default from "chart.js/dist/plugins/plugin.tooltip";
@@ -98,7 +98,15 @@ export class IssueService {
         variables:{value}
       });
   }
+  loadDirectory(issueId:number){
 
+  }
+  loadDirectoryTest(issueId:number): Observable<Node[]> {
+    let url = "assets/data-test/directory.json";
+    return this.http
+      .get<Node[]>(url)
+      .pipe(retry(1), catchError(this.handleError));
+  }
 
   handleError(error: any) {
     let errorMessage = '';

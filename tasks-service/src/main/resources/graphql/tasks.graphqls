@@ -124,7 +124,12 @@ type CustomFieldValue {
     numeric:Float
     text:String
 }
-
+type Node{
+    path:String
+    fileName:String
+    type:String
+    children:[Node]
+}
 enum ValueType {
     DATE
     NUMBER
@@ -247,7 +252,12 @@ input ValueInput {
     numeric:Int
     text:String
 }
-
+input NodeInput {
+    path:String
+    fileName:String
+    type:String
+    children:[NodeInput]
+}
 
 input WorkFlowInput {
     id:Int,

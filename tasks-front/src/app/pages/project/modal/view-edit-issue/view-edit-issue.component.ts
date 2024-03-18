@@ -1,6 +1,6 @@
 import {Component, Inject, Input} from '@angular/core';
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
-import {Issue, Status, Comment, CustomFieldValue, CustomField, User} from "../../../../type/issue";
+import {Issue, Status, Comment, CustomFieldValue, CustomField, User,Node} from "../../../../type/issue";
 import {IssueService} from "../../../../services/issue.service";
 import {UserService} from "../../../../services/user.service";
 import {supprimerTypename} from "../../../../type/graphql.operations";
@@ -12,6 +12,7 @@ import {stripTypename} from "@apollo/client/utilities";
 })
 export class ViewEditIssueComponent {
   type: string = 'type1';
+  nodes:Node[] = [];
   comment:any = {
     issue:{},
     user:{}
@@ -122,6 +123,11 @@ export class ViewEditIssueComponent {
       }
     )
     this.currentCustomFieldValue = null;
+  }
+  loadDirectory(){
+    this.issueService.loadDirectoryTest(this.issue.id).subscribe((res:any)=>{
+      this.nodes = res;
+    })
   }
 
   valueIsValid() :boolean{

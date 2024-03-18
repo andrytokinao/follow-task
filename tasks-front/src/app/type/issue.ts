@@ -45,5 +45,10 @@ export interface CustomFieldValue {
   user:User
   issue:Issue
   customField:CustomField
-
+}
+export interface Node {
+  path:String;
+  fileName:String;
+  type:String;
+  children:Node[]
 }

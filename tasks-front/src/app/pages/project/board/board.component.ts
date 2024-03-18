@@ -140,6 +140,7 @@ export class BoardComponent implements OnInit{
     dialogRef.componentInstance.loadComments();
     dialogRef.componentInstance.loadValues();
     dialogRef.componentInstance.allCustomField();
+    dialogRef.componentInstance.loadDirectory();
     dialogRef.componentInstance.users = this.users;
     dialogRef.result.then((result)=>{
      this.currentIssue = null;

@@ -80,6 +80,25 @@ const ADD_COMMENT = gql`
     }
   }
 `;
+const LOAD_DIRECTORY = gql`
+  query addComment($issueId:Int) {
+    addComment(comment: $comment) {
+      id
+      text
+      date
+      issue {
+        id
+      }
+      user {
+        id
+        username
+        lastName
+        firstName
+        photo
+      }
+    }
+  }
+`;
 const ALL_ISSUE = gql`
   query allIssues {
     allIssue {
@@ -240,7 +259,8 @@ export {
   ALL_COMMENT,
   GET_VALUES,
   ALL_CUSTOMFIELD,
-  SAVE_VALUE
+  SAVE_VALUE,
+  LOAD_DIRECTORY
 }
 function  supprimerTypename<T>(objet: T): T {
   if (!objet || typeof objet !== 'object') {

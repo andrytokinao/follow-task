@@ -9,4 +9,5 @@ type Query {
     allFiles(issueId:Int):[File]
     allCustomField(issueId:Int):[CustomField]
     getValues(issueId:Int):[CustomFieldValue]
+    loadDirectory(issueId:Int):[Node]
 }
