@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
-import {Issue, Status, User,Comment,Node} from "../type/issue";
+import {Issue, Status, User,Comment,Repertoire} from "../type/issue";
 import {Apollo} from "apollo-angular";
 import {useMutation} from "@apollo/client";
 import _default from "chart.js/dist/plugins/plugin.tooltip";
@@ -98,13 +98,11 @@ export class IssueService {
         variables:{value}
       });
   }
-  loadDirectory(issueId:number){
-
-  }
-  loadDirectoryTest(issueId:number): Observable<Node[]> {
-    let url = "assets/data-test/directory.json";
+  loadDirectory(issueId:number): Observable<Repertoire> {
+    let url = "http://localhost:8081/api/load-directory";
+    let params = new HttpParams().set('issueId', issueId);
     return this.http
-      .get<Node[]>(url)
+      .get<Repertoire>(url,{params})
       .pipe(retry(1), catchError(this.handleError));
   }
 

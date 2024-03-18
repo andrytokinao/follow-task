@@ -60,7 +60,7 @@ export class BoardComponent implements OnInit{
   newIssue(status:Status){
     const dialogRef = this.modalService.open(NewIssueComponent);
     dialogRef.result.then((result)=>{
-      this.issues.push(result.issue);
+      this.issues.push( stripTypename(result.issue));
     })
   }
   canCreate(status : Status): boolean {

@@ -4,7 +4,7 @@
     <div class="issie-board" *ngFor="let issue of filterByStatus(status)" draggable="true" (dragstart)="onDragStart($event,issue)"  >
       <div class="myCard"  >
         <div class="content details" (click)="viewIssue(issue)">
-          <b>{{issue.summary}}</b>
+          <b>{{issue.issueKey+' '+issue.summary}}</b>
           <p>{{issue.description}}</p>
         </div>
         <img *ngIf="issue.assigne && issue.assigne.photo !== null" [src]="issue.assigne.photo" class="image" alt="l'assigné a" mat-icon-button [matMenuTriggerFor]="menu2" (click)="assign(issue)" />

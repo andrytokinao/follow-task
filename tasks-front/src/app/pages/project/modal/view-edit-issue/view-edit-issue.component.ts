@@ -1,6 +1,6 @@
 import {Component, Inject, Input} from '@angular/core';
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
-import {Issue, Status, Comment, CustomFieldValue, CustomField, User,Node} from "../../../../type/issue";
+import {Issue, Status, Comment, CustomFieldValue, CustomField, User,Repertoire} from "../../../../type/issue";
 import {IssueService} from "../../../../services/issue.service";
 import {UserService} from "../../../../services/user.service";
 import {supprimerTypename} from "../../../../type/graphql.operations";
@@ -12,7 +12,12 @@ import {stripTypename} from "@apollo/client/utilities";
 })
 export class ViewEditIssueComponent {
   type: string = 'type1';
-  nodes:Node[] = [];
+  repertoire:Repertoire = new class implements Repertoire {
+    fileName: String="No directory";
+    path: String ="no";
+    repertoires: Repertoire[] =[];
+    type: String = "none";
+  };
   comment:any = {
     issue:{},
     user:{}
@@ -39,9 +44,16 @@ export class ViewEditIssueComponent {
     this.editingDescription =!this.editingDescription;
   }
   save() {
-    this.issueService.saveIssue(this.issue).subscribe((res:any)=>{
-      this.activeModal.close({ issue: res.data.saveIssue });
-    });
+    this.issueService.saveIssue(this.issue).subscribe(
+      {
+        next: (res: any) => {
+          this.activeModal.close({issue: stripTypename(res.data.saveIssue) as Issue});
+        },
+        error :(err)=>{
+          alert(JSON.stringify(err))
+        }
+      }
+    );
   }
   toggleMenu(menu:string) {
     this.activeMenuItem = menu;
@@ -125,8 +137,8 @@ export class ViewEditIssueComponent {
     this.currentCustomFieldValue = null;
   }
   loadDirectory(){
-    this.issueService.loadDirectoryTest(this.issue.id).subscribe((res:any)=>{
-      this.nodes = res;
+    this.issueService.loadDirectory(this.issue.id).subscribe((res:any)=>{
+      this.repertoire = res;
     })
   }
 

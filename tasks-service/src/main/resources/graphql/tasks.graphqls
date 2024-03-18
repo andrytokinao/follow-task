@@ -43,6 +43,8 @@ type  Issue {
     assigne:UserApp
     status:Status
     reporter:UserApp
+    directory:String
+    issueKey:String
     passeTime:[EntryTime]
     parent:Issue,
     children:[Issue]
@@ -124,11 +126,12 @@ type CustomFieldValue {
     numeric:Float
     text:String
 }
-type Node{
+type Repertoire{
     path:String
     fileName:String
     type:String
-    children:[Node]
+    icone:String
+    repertoires:[Repertoire]
 }
 enum ValueType {
     DATE
@@ -176,7 +179,9 @@ input GroupeUserInput {
 input  IssueInput {
     id:Int
     summary:String
+    issueKey:String
     description : String
+    directory:String
     parent:Int,
     type:IssueTypeInput
     assigne:UserAppInput
@@ -252,11 +257,12 @@ input ValueInput {
     numeric:Int
     text:String
 }
-input NodeInput {
+input RepertoireInput {
     path:String
     fileName:String
     type:String
-    children:[NodeInput]
+    icone:String
+    repertoires:[RepertoireInput]
 }
 
 input WorkFlowInput {

@@ -1,7 +1,6 @@
 package com.kinga.tasksservice.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,13 +9,14 @@ import java.util.List;
 @Entity
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class Issue {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String summary;
+    private String issueKey;
     private String description;
+    private String directory;
     @ManyToMany
     private List<UserApp> observers;
     @ManyToOne

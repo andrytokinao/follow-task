@@ -12,12 +12,18 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Project {
+
+    public static String BASE_DIRECTORY = "FOLOW_TASK";
+    public static String DEFAULT_PREFIX = "TASK";
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
     private String prefix;
-    @ManyToMany
+    private Integer dernierNumero ;
+    private String path;
+    @OneToMany(mappedBy = "project")
     private List<IssueType> issueTypes;
 
 }

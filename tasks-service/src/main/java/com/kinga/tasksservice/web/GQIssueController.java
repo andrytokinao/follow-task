@@ -1,5 +1,7 @@
 package com.kinga.tasksservice.web;
 
+import com.kinga.tasksservice.dto.Dossier;
+import com.kinga.tasksservice.dto.Repertoire;
 import com.kinga.tasksservice.dto.ValueDto;
 import com.kinga.tasksservice.entity.*;
 import com.kinga.tasksservice.service.IssueService;
@@ -9,7 +11,11 @@ import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
 
@@ -28,7 +34,7 @@ public class GQIssueController {
         return issueService.findByAssigneId(id);
     }
     @MutationMapping
-    public Issue saveIssue(@Argument Issue issue){
+    public Issue saveIssue(@Argument Issue issue) throws IOException {
         return issueService.save((Issue) issue);
     }
     @QueryMapping
@@ -55,6 +61,11 @@ public class GQIssueController {
     @QueryMapping
     public List<CustomField> allCustomField(@Argument Long id) {
         return issueService.allCustomField(id);
+    }
+    @GetMapping(path = "/api/load-directory")
+    @ResponseBody
+    public Repertoire loadDirectory(@RequestParam(required = true) Long issueId){
+        return issueService.loadDirectory(issueId);
     }
 
 }

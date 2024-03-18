@@ -54,10 +54,10 @@
         <div class="header">
           <h1 class="folder-title"><i class="fa fa-universal-access" aria-hidden="true"></i> Creer par : <i>Tokiniaina Andriamahefasoa </i></h1>
           <h1 class="folder-title"><i class="fa fa-hashtag" aria-hidden="true"></i> Assigné  a : <i>Tokiniaina Andriamahefasoa </i></h1>
-          <h1 class="folder-title"> <i class="fa fa-folder" aria-hidden="true"></i> Dossier : Nom du dossier</h1>
+          <h1 class="folder-title"> <i class="fa fa-folder" aria-hidden="true"></i> Dossier : {{repertoire.fileName}}</h1>
           <div class="tnz-file-tree">
-            <div *ngFor="let node of nodes">
-              <app-tree-node-item [node]="node"></app-tree-node-item>
+            <div *ngFor="let r of repertoire.repertoires">
+              <app-tree-node-item [repertoire]="r"></app-tree-node-item>
             </div>
           </div>
           <h1 class="folder-title"> <i class="fa fa-check-square" aria-hidden="true"> </i> Parametre </h1>
@@ -92,12 +92,6 @@
                       <span>{{user.firstName}} {{user.lastName}}</span>
                     </option>
                   </select>
-                  <!--<mat-form-field appearance="outline">
-                    <mat-label>{{currentCustomFieldValue.customField.name}}</mat-label>
-                    <mat-select >
-                      <mat-option *ngFor="let u of users" [value]="u">{{'u.lastName'}}</mat-option>
-                    </mat-select>
-                  </mat-form-field>-->
                 </div>
                 <div class="form-group" *ngIf = "currentCustomFieldValue.customField.type == 'text'">
                   <label for="exampleFormControlTextarea1">Example textarea</label>
@@ -127,7 +121,6 @@
 
     </div>
   </div>
-
 
 </div>
 

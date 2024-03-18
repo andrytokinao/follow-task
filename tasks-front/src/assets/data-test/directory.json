@@ -1,7 +1,7 @@
 [{
   "fileName": "folder1",
   "type": "directory",
-  "children": [
+  "repertoires": [
     {
       "fileName": "file1.txt",
       "type": "file"
@@ -9,7 +9,7 @@
     {
       "fileName": "subfolder1",
       "type": "directory",
-      "children": [
+      "repertoires": [
         {
           "fileName": "file2.txt",
           "type": "file"

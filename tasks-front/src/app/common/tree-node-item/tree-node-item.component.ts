@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import {Node} from "../../type/issue";
+import {Repertoire} from "../../type/issue";
 import {CommonModule} from "@angular/common";
 
 @Component({
@@ -8,11 +8,12 @@ import {CommonModule} from "@angular/common";
   styleUrls: ['./tree-node-item.component.css']
 })
 export class TreeNodeItemComponent {
-  @Input() node: Node = new class implements Node {
-    children: Node[]=[];
+  @Input() repertoire : Repertoire = new class implements Repertoire {
+    repertoires: Repertoire[]=[];
     fileName: String='';
     path: String='';
     type: String='';
+    icone:String =''
   } ;
 
   constructor() { }

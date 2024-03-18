@@ -8,6 +8,7 @@ export class Issue {
   summary: String= "";
   type: number= 0;
   description: String ="";
+  issueKey:String ="";
   status: Status | null = null;
   assigne:User = new User();
   reporter:User = new User();
@@ -46,9 +47,9 @@ export interface CustomFieldValue {
   issue:Issue
   customField:CustomField
 }
-export interface Node {
+export interface Repertoire {
   path:String;
   fileName:String;
   type:String;
-  children:Node[]
+  repertoires:Repertoire[]
 }

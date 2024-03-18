@@ -40,12 +40,14 @@ const SAVE_ISSUE = gql`
     saveIssue(issue: $issue) {
       id
       summary
-      summary
+      description
+      issueKey
       assigne {
         id
         username
         firstName
         username
+        photo
       }
       status {
         id
@@ -80,31 +82,13 @@ const ADD_COMMENT = gql`
     }
   }
 `;
-const LOAD_DIRECTORY = gql`
-  query addComment($issueId:Int) {
-    addComment(comment: $comment) {
-      id
-      text
-      date
-      issue {
-        id
-      }
-      user {
-        id
-        username
-        lastName
-        firstName
-        photo
-      }
-    }
-  }
-`;
 const ALL_ISSUE = gql`
   query allIssues {
     allIssue {
       id
       summary
       description
+      issueKey
       assigne {
         id
         username
@@ -259,8 +243,8 @@ export {
   ALL_COMMENT,
   GET_VALUES,
   ALL_CUSTOMFIELD,
-  SAVE_VALUE,
-  LOAD_DIRECTORY
+  SAVE_VALUE
+
 }
 function  supprimerTypename<T>(objet: T): T {
   if (!objet || typeof objet !== 'object') {
