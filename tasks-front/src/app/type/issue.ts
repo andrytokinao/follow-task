@@ -52,4 +52,6 @@ export interface Repertoire {
   fileName:String;
   type:String;
   repertoires:Repertoire[]
+  selected:boolean;
+  open : boolean;
 }

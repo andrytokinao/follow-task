@@ -54,10 +54,13 @@
         <div class="header">
           <h1 class="folder-title"><i class="fa fa-universal-access" aria-hidden="true"></i> Creer par : <i>Tokiniaina Andriamahefasoa </i></h1>
           <h1 class="folder-title"><i class="fa fa-hashtag" aria-hidden="true"></i> Assigné  a : <i>Tokiniaina Andriamahefasoa </i></h1>
-          <h1 class="folder-title"> <i class="fa fa-folder" aria-hidden="true"></i> Dossier : {{repertoire.fileName}}</h1>
+          <h1 class="folder-title"> <i class="fa fa-folder" aria-hidden="true"></i> Dossier : {{repertoire.fileName}}
+            <span *ngIf ="selected> 0" class="btn btn-group download" style="float: right"> <i class="fa fa-download" aria-hidden="true"></i>- Download({{selected}}) </span>
+            <span class="btn btn-group " style="float: right"> <i class="fa fa-plus-square" aria-hidden="true"> </i>  Ajouter </span>
+          </h1>
           <div class="tnz-file-tree">
             <div *ngFor="let r of repertoire.repertoires">
-              <app-tree-node-item [repertoire]="r"></app-tree-node-item>
+              <app-tree-node-item [repertoire]="r" (fileSelected)="onFileSelected($event)"></app-tree-node-item>
             </div>
           </div>
           <h1 class="folder-title"> <i class="fa fa-check-square" aria-hidden="true"> </i> Parametre </h1>

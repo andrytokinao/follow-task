@@ -17,11 +17,28 @@ export class ViewEditIssueComponent {
     path: String ="no";
     repertoires: Repertoire[] =[];
     type: String = "none";
+    selected :boolean = false;
+    open : boolean = false;
   };
   comment:any = {
     issue:{},
     user:{}
   };
+  selected :number = 0;
+  selectedFiles:Repertoire[] = [];
+  onFileSelected(repertoire: any) {
+    if (repertoire.selected) {
+      this.selectedFiles.push(repertoire);
+    } else {
+      const index = this.selectedFiles.findIndex(file => file === repertoire);
+      if (index !== -1) {
+        this.selectedFiles.splice(index, 1);
+      }
+    }
+    this.selected = this.selectedFiles.length;
+
+    console.log('Fichiers sélectionnés :', this.selectedFiles);
+  }
   comments :Comment[] = [];
   customFieldValues :CustomFieldValue[] = [];
   customFields :CustomField[] = [];

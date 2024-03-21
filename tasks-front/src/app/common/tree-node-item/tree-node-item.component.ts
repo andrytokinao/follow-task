@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {Repertoire} from "../../type/issue";
 import {CommonModule} from "@angular/common";
 
@@ -13,8 +13,24 @@ export class TreeNodeItemComponent {
     fileName: String='';
     path: String='';
     type: String='';
-    icone:String =''
+    icone:String ='';
+    selected :boolean = false;
+    open :boolean = false;
   } ;
-
+  @Output() fileSelected: EventEmitter<any> = new EventEmitter<any>();
   constructor() { }
+
+  onFileSelected($event: any) {
+    this.fileSelected.emit($event);
+  }
+
+  onClick() {
+    if (this.repertoire.type === 'directory') {
+      this.repertoire.open = !this.repertoire.open;
+    } else if (this.repertoire.type === 'file') {
+      this.repertoire.selected = !this.repertoire.selected;
+      this.fileSelected.emit(this.repertoire);
+    }
+
+  }
 }

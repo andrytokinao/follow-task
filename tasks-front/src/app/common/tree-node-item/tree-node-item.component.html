@@ -1,10 +1,9 @@
-<div>
-  <label class="tnz-file-tree-item" [class]="repertoire.type">
-    <input class="tnz-file-tree-cb" typeField="checkbox">
-    <span class="tnz-file-tree-label">{{ repertoire.fileName }}</span>
+<div >
+  <label class="tnz-file-tree-item selected" [ngClass]="{'file':repertoire.type==='file','selected':repertoire.selected}">
+    <span class="tnz-file-tree-label" (click)="onClick()"  [ngClass]="{'open-icone': repertoire.open, 'close-icone': !repertoire.open}">{{ repertoire.fileName }}</span>
     <div class="tnz-file-tree-branches" *ngIf="repertoire.repertoires && repertoire.repertoires.length > 0" >
-      <div  *ngFor="let r of repertoire.repertoires">
-        <app-tree-node-item [repertoire]="r"></app-tree-node-item>
+      <div  *ngFor="let r of repertoire.repertoires" [ngClass]="{'open-child': repertoire.open, 'close-child': !repertoire.open}" >
+        <app-tree-node-item [repertoire]="r" (fileSelected)="onFileSelected($event)"></app-tree-node-item>
       </div>
     </div>
   </label>
