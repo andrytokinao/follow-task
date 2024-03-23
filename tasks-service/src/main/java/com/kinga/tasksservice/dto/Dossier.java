@@ -14,7 +14,7 @@ public  class Dossier extends Repertoire {
     }
     public Dossier(File file){
         super(file.getAbsolutePath(),file.getName());
-        listDirectory( absolutePath);
+        listDirectory( file.getAbsolutePath());
         setType("directory");
     }
     private void listDirectory(String dir) {

@@ -55,7 +55,7 @@
           <h1 class="folder-title"><i class="fa fa-universal-access" aria-hidden="true"></i> Creer par : <i>Tokiniaina Andriamahefasoa </i></h1>
           <h1 class="folder-title"><i class="fa fa-hashtag" aria-hidden="true"></i> Assigné  a : <i>Tokiniaina Andriamahefasoa </i></h1>
           <h1 class="folder-title"> <i class="fa fa-folder" aria-hidden="true"></i> Dossier : {{repertoire.fileName}}
-            <span *ngIf ="selected> 0" class="btn btn-group download" style="float: right"> <i class="fa fa-download" aria-hidden="true"></i>- Download({{selected}}) </span>
+            <a [href]="downloadUrl()"    *ngIf ="selected> 0" class="btn btn-group download" style="float: right"> <i class="fa fa-download" aria-hidden="true"></i>- Download({{selected}}) </a>
             <span class="btn btn-group " style="float: right"> <i class="fa fa-plus-square" aria-hidden="true"> </i>  Ajouter </span>
           </h1>
           <div class="tnz-file-tree">

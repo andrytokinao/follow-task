@@ -6,21 +6,34 @@ import com.kinga.tasksservice.dto.ValueDto;
 import com.kinga.tasksservice.entity.CustomFieldValue;
 import com.kinga.tasksservice.entity.*;
 import com.kinga.tasksservice.repository.*;
+import com.kinga.utils.KingaUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @Service
 public class IssueService {
@@ -244,4 +257,65 @@ public class IssueService {
         return valueDeoRepository.findCustomFieldValueByIssueId(id);
     }
 
+    public ResponseEntity<Resource> downloadFiles(List<String> fileNames, String directory) throws MalformedURLException {
+        if (CollectionUtils.isEmpty(fileNames)) {
+            return null;
+        }
+        if (fileNames.size() == 1) {
+            Path zipFilePath = Paths.get(KingaUtils.decodeText(fileNames.get(0)));
+            Resource singleResource = new UrlResource(zipFilePath.toUri());
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + singleResource.getFilename() + "\"")
+                    .body(singleResource);
+        }
+
+        try {
+            String zipFileName = directory + ".zip";
+            Path zipFilePath = Paths.get(zipFileName);
+            ZipOutputStream zipOutputStream = new ZipOutputStream(Files.newOutputStream(zipFilePath));
+
+            for (String fileName : fileNames) {
+                Path filePath = Paths.get(KingaUtils.decodeText(fileName));
+                Resource resource = new UrlResource(filePath.toUri());
+                if (!resource.exists()) {
+                    throw new RuntimeException("File not found: " + fileName);
+                }
+                ZipEntry zipEntry = new ZipEntry(resource.getFilename());
+                zipOutputStream.putNextEntry(zipEntry);
+                zipOutputStream.write(resource.getInputStream().readAllBytes());
+                zipOutputStream.closeEntry();
+            }
+            zipOutputStream.close();
+
+            Resource zipResource = new UrlResource(zipFilePath.toUri());
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + zipResource.getFilename() + "\"")
+                    .body(zipResource);
+
+        } catch (IOException ex) {
+            throw new RuntimeException("Error downloading files", ex);
+        }
+    }
+
+    public ResponseEntity<Resource> downloadFiles(String encryptedFileNames) {
+        String dechifre = decryptFileNames(encryptedFileNames);
+        return null;
+    }
+
+    private String decryptFileNames(String encryptedFileNames) {
+        try {
+            String secretKey = "kinga-digital";
+            SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes(), "AES");
+            byte[] encryptedBytes = Base64.getDecoder().decode(encryptedFileNames);
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            cipher.init(Cipher.DECRYPT_MODE, secretKeySpec);
+            byte[] decryptedBytes = cipher.doFinal(encryptedBytes);
+            return new String(decryptedBytes, StandardCharsets.UTF_8);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return "";
+        }
+    }
 }

@@ -4,9 +4,6 @@ import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import {Issue, Status, User,Comment,Repertoire} from "../type/issue";
 import {Apollo} from "apollo-angular";
-import {useMutation} from "@apollo/client";
-import _default from "chart.js/dist/plugins/plugin.tooltip";
-import numbers = _default.defaults.animations.numbers;
 import {
   SAVE_ISSUE,
   ALL_ISSUE,
@@ -131,4 +128,12 @@ export class IssueService {
     }
   }
 
+  generateDownloadUrl(files: any[], directory: String): string {
+    let fileNames: string[] = [];
+    files.forEach(fn => {
+      fileNames.push(fn.absolutePath);
+    })
+    const queryString = `?fileNames=${fileNames.join(',')}` + "&directory=" + directory;
+    return `http://localhost:8081/api/download${queryString}`;
+  }
 }

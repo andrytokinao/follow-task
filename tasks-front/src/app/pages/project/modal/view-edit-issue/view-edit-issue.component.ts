@@ -168,4 +168,8 @@ export class ViewEditIssueComponent {
       this.currentCustomFieldValue.date !=null ||
       this.currentCustomFieldValue.user !=null;
   }
+
+  downloadUrl(): string {
+    return this.issueService.generateDownloadUrl(this.selectedFiles, this.repertoire.fileName);
+  }
 }
