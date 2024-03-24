@@ -50,8 +50,14 @@ export interface CustomFieldValue {
 export interface Repertoire {
   path:String;
   fileName:String;
+  absolutePath:string
   type:String;
   repertoires:Repertoire[]
   selected:boolean;
   open : boolean;
+}
+export interface Uploading {
+  file:File
+  status:string ;
+  progression:number ;
 }

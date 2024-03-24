@@ -1,10 +1,21 @@
 import {Component, Inject, Input} from '@angular/core';
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
-import {Issue, Status, Comment, CustomFieldValue, CustomField, User,Repertoire} from "../../../../type/issue";
+import {
+  Issue,
+  Status,
+  Comment,
+  CustomFieldValue,
+  CustomField,
+  User,
+  Repertoire,
+  Uploading
+} from "../../../../type/issue";
 import {IssueService} from "../../../../services/issue.service";
 import {UserService} from "../../../../services/user.service";
 import {supprimerTypename} from "../../../../type/graphql.operations";
 import {stripTypename} from "@apollo/client/utilities";
+import {HttpEventType, HttpResponse} from "@angular/common/http";
+import {concatMap, Observable} from "rxjs";
 @Component({
   selector: 'app-view-edit-issue',
   templateUrl: './view-edit-issue.component.html',
@@ -14,6 +25,7 @@ export class ViewEditIssueComponent {
   type: string = 'type1';
   repertoire:Repertoire = new class implements Repertoire {
     fileName: String="No directory";
+    absolutePath:string = 'no';
     path: String ="no";
     repertoires: Repertoire[] =[];
     type: String = "none";
@@ -26,6 +38,10 @@ export class ViewEditIssueComponent {
   };
   selected :number = 0;
   selectedFiles:Repertoire[] = [];
+  uploading:Uploading[] =[];
+  filesToUpload?: FileList;
+  progress = 0;
+  message = '';
   onFileSelected(repertoire: any) {
     if (repertoire.selected) {
       this.selectedFiles.push(repertoire);
@@ -171,5 +187,59 @@ export class ViewEditIssueComponent {
 
   downloadUrl(): string {
     return this.issueService.generateDownloadUrl(this.selectedFiles, this.repertoire.fileName);
+  }
+
+  selectFile(event: any): void {
+    this.filesToUpload = event.target.files;
+    const files: FileList = event.target.files;
+    for (let i = 0; i < files.length; i++) {
+      let uploading: Uploading = new class implements Uploading {
+        file: File = files.item(i)!;
+        progression: number = 0;
+        status: string = '';
+      }
+      this.uploading.push(uploading);
+    }
+  }
+
+  removeFile(index: number) {
+    this.uploading.splice(index, 1);
+  }
+
+  upload() {
+    this.sendSequentialUpload(this.uploading,this.repertoire.absolutePath)
+      .subscribe(
+        () => {
+        },
+        error => {
+          console.error('Error:', error);
+        }
+    )
+  }
+
+  removeElementAtIndex(array: any[], index: number): void {
+    if (index > -1) {
+      array.splice(index, 1);
+    }
+  }
+
+  sendSequentialUpload(ups: Uploading[], directory: string): Observable<any> {
+    if (ups.length === 0) {
+      this.loadDirectory();
+      return new Observable(observer => {
+        observer.complete();
+      });
+    }
+    const up = ups.shift();
+    if(up) {
+      return this.issueService.upload(up.file, directory).pipe(
+        concatMap(() => {
+          this.removeElementAtIndex(ups, 0);
+          return this.sendSequentialUpload(ups, directory);
+        })
+      );
+    } else {
+      return this.sendSequentialUpload(ups,directory);
+    }
   }
 }

@@ -12,6 +12,7 @@ export class TreeNodeItemComponent {
     repertoires: Repertoire[]=[];
     fileName: String='';
     path: String='';
+    absolutePath:string ='';
     type: String='';
     icone:String ='';
     selected :boolean = false;

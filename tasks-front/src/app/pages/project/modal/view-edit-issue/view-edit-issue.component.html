@@ -29,7 +29,9 @@
       <div class="wi100" *ngIf="activeMenuItem=='comment'">
         <div class="comment-form">
           <textarea [(ngModel)]="comment.text" placeholder="Ajouter un commentaire"></textarea>
+
           <button (click)="addComment()">Ajouter</button>
+
         </div>
 
         <div class="comment-list">
@@ -56,9 +58,23 @@
           <h1 class="folder-title"><i class="fa fa-hashtag" aria-hidden="true"></i> Assigné  a : <i>Tokiniaina Andriamahefasoa </i></h1>
           <h1 class="folder-title"> <i class="fa fa-folder" aria-hidden="true"></i> Dossier : {{repertoire.fileName}}
             <a [href]="downloadUrl()"    *ngIf ="selected> 0" class="btn btn-group download" style="float: right"> <i class="fa fa-download" aria-hidden="true"></i>- Download({{selected}}) </a>
-            <span class="btn btn-group " style="float: right"> <i class="fa fa-plus-square" aria-hidden="true"> </i>  Ajouter </span>
+            <span class="btn btn-group " style="float: right">
+                 <label class="btn btn-default p-0" for="selectFile" *ngIf = "uploading.length === 0"> <i class="fa fa-plus-square" aria-hidden="true"> </i>Ajouter  </label>
+                  <input style="display: none" id = "selectFile" type="file" multiple (change)="selectFile($event)"/>
+            </span>
+            <span *ngIf = "uploading.length > 0" style="float: right;cursor: pointer" (click)="upload()"> <i class="fa fa-upload"> </i> Upload ({{uploading.length}})</span>
           </h1>
           <div class="tnz-file-tree">
+            <div>
+              <ul *ngIf="filesToUpload">
+                <div *ngFor="let up of uploading; let i = index" class="file" [ngClass]="up.status">
+                  <label class="file"> <i class="fa fa-file-text"> </i>
+                    {{ up.file.name}}
+                  </label>
+                  <span (click)="removeFile(i)" style="float: right;"> {{ up.status }} <i class="fa fa-remove"></i></span>
+                </div>
+              </ul>
+            </div>
             <div *ngFor="let r of repertoire.repertoires">
               <app-tree-node-item [repertoire]="r" (fileSelected)="onFileSelected($event)"></app-tree-node-item>
             </div>

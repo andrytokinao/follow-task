@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
+import {HttpClient, HttpEvent, HttpHeaders, HttpParams, HttpRequest} from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import {Issue, Status, User,Comment,Repertoire} from "../type/issue";
@@ -19,6 +19,7 @@ import {stripTypename} from "@apollo/client/utilities";
   providedIn: 'root',
 })
 export class IssueService {
+  baseUrl:string = "http://localhost:8081";
   constructor(private http: HttpClient, private apollo: Apollo) {}
   httpOptions = {
     headers: new HttpHeaders({
@@ -135,5 +136,15 @@ export class IssueService {
     })
     const queryString = `?fileNames=${fileNames.join(',')}` + "&directory=" + directory;
     return `http://localhost:8081/api/download${queryString}`;
+  }
+  upload(file: File, dir:string): Observable<HttpEvent<any>> {
+    const formData: FormData = new FormData();
+    formData.append('file', file);
+    const req = new HttpRequest('POST', `${this.baseUrl}/api/upload?directory=`+dir, formData, {
+      reportProgress: true,
+      responseType: 'text'
+    });
+
+    return this.http.request(req);
   }
 }

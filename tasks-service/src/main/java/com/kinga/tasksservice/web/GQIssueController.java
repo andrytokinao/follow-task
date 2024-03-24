@@ -6,20 +6,23 @@ import com.kinga.tasksservice.dto.ValueDto;
 import com.kinga.tasksservice.entity.*;
 import com.kinga.tasksservice.service.IssueService;
 import com.kinga.tasksservice.service.StatusService;
+import com.kinga.utils.KingaUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.List;
 
@@ -76,4 +79,23 @@ public class GQIssueController {
     public ResponseEntity<Resource> downloadFiles(@RequestParam List<String> fileNames, @RequestParam String directory) throws MalformedURLException {
         return issueService.downloadFiles(fileNames,directory);
     }
+    @PostMapping("/api/upload")
+    public ResponseEntity<String> uploadFile(@RequestPart("file") MultipartFile file,@RequestParam String directory) {
+        if (file.isEmpty()) {
+            return ResponseEntity.badRequest().body("Le fichier est vide.");
+        }
+
+        try {
+            String fileName = file.getOriginalFilename();
+            String uploadDir = KingaUtils.decodeText(directory);
+            Files.createDirectories(Paths.get(uploadDir));
+            Path filePath = Paths.get(uploadDir , fileName);
+            Files.write(filePath, file.getBytes());
+
+            return ResponseEntity.ok().body("Le fichier a été téléchargé avec succès : " + fileName);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Une erreur s'est produite lors du téléchargement du fichier.");
+        }
     }
+}

@@ -6,9 +6,19 @@ body, html {
   height: 100%;
   font-size: 1em;
   line-height: 1.714;
+  margin-left: 20px;
+  min-width: 100px;
+  vertical-align: 2px;
+  font-size: 14px;
   font-weight: normal;
   letter-spacing: -0.005em;
   line-height: 28px;  letter-spacing: -.02em;
+}
+.faild{
+  color: #702930;
+}
+.success{
+  color: #4f8a5c;
 }
 .xlModal > .modal-dialog {
   max-width: 1090px !important;

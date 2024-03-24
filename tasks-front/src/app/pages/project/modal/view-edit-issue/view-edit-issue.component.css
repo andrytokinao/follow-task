@@ -100,9 +100,6 @@ h1{
 }
 
 
-.tnz-file-tree {
-}
-
 /**/
 .download-icon {
   text-decoration: none;
@@ -120,4 +117,10 @@ h1{
   color: white;
   border: none;
   cursor: pointer;
+}
+.file {
+  margin-left: 20px;
+  min-width: 100px;
+  vertical-align: 2px;
+  font-size: 13px;
 }
