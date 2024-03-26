@@ -1,32 +1,25 @@
 import { NgModule } from '@angular/core';
-import {RouterModule, Routes,provideRouter,withComponentInputBinding} from "@angular/router";
+import {RouterModule, Routes} from "@angular/router";
 import {BrowserModule} from "@angular/platform-browser";
-import {ProjectComponent} from "./pages/project/project.component";
-import {DashboardComponent} from "./pages/dashboard/dashboard.component";
-import {HomeComponent} from "./pages/public/home/home.component";
+import {PublicComponent} from "./pages/public/public.component";
+import {PrivateComponent} from "./pages/private/private.component";
+import {NotFoundComponent} from "./pages/not-found/not-found.component";
 
 
 const appRoutes: Routes = [
-  { path: '',   redirectTo: 'index.html', pathMatch: 'full' ,data: { num: 0 }},
-  { path: 'home',   redirectTo: 'index.html', pathMatch: 'full' ,data: { num: 0 } },
-  { path: 'index',   redirectTo: 'index.html', pathMatch: 'full'  ,data: { num: 0 }},
-  { path: 'project', component: ProjectComponent, outlet: 'project'  ,data: { num: 1 }}, {
-    path: 'project',
-    loadChildren: () => import('./pages/project/project.module').then(m => m.ProjectModule),
-  //  canMatch: [userProject]
-  },
-  {path: 'dashboard', component: DashboardComponent, outlet: 'dashboard'  ,data: { num: 2 }}, {
-    path: 'dashboard',
-    loadChildren: () => import('./pages/dashboard/dashboard.module').then(m => m.DashboardModule),
-    //  canMatch: [userDashoard]
-  },
-  {path: 'admin', component: DashboardComponent, outlet: 'admin'  ,data: { num: 4 }}, {
-    path: 'admin',
-    loadChildren: () => import('./pages/admin/admin.module').then(m => m.AdminModule),
+  { path: '',   redirectTo: 'public', pathMatch: 'full' ,data: { num: 0 } },
+  {path: 'public', component: PublicComponent, outlet: 'public'  ,data: { num: 4 }}, {
+    path: 'public',
+    loadChildren: () => import('./pages/public/public.module').then(m => m.PublicModule),
     //  canMatch: [userAdmin]
   },
+  {path: 'private', component: PrivateComponent, outlet: 'private'  ,data: { num: 0 }}, {
+    path: 'private',
+    loadChildren: () => import('./pages/private/private.module').then(m => m.PrivateModule),
+    //  canMatch: [userAdmin]
+  },
+  { path: '**',   component: NotFoundComponent ,data: { num: 0 } },
 
-  {path: 'index.html', component: HomeComponent ,data: { num: 0 }},
 ];
 
 @NgModule({

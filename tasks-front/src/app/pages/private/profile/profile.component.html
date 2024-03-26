@@ -1,0 +1,71 @@
+<div class="modal-header">
+  <b class="modal-title">{{issue.summary}}  </b>
+  <span typeField="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+    <i class="fas fa-close"></i>  <span aria-hidden="true"></span>
+  </span>
+</div>
+<div class="modal-body content-issue">
+  <div class="profile">
+    <div class="item left-item">
+
+      <form action="" class="sign-up-form">
+        <h2 class="title" > Information</h2>
+        <div class="input-field">
+          <i class="fas fa-user"></i>
+          <input type="text" placeholder="Username" />
+        </div>
+        <div class="input-field">
+          <i class="fas fa-phone"></i>
+          <input type="text" placeholder="Numero telephone" />
+        </div>
+        <div class="input-field">
+          <i class="fas fa-map-location"></i>
+          <input type="text" placeholder="Adresse" />
+        </div>
+        <div class="input-field">
+          <i class="fas fa-envelope"></i>
+          <input type="email" placeholder="Email" />
+        </div>
+        <div class="input-field">
+          <i class="fas fa-lock"></i>
+          <input type="text" placeholder="Password" />
+        </div>
+      </form>
+      <div class="photo">
+        <img width="150px" src="assets/photo.png">
+      </div>
+      <span type="submit" value="Save" class="btn solid save" style="float: right" > <i class="fa fa-save"></i> Save</span>
+
+    </div>
+    <div class="item-right">
+      <div action="" class="groupe-list">
+        <h2 class="title" >Gerer l'accessibilité  </h2>
+        <div class="groupe-item">
+          <span class="name"> Groupe </span>
+          <span class="access"> Accessibilité    </span>
+        </div>
+
+        <div class="groupe-item">
+          <span class="name"><i class="fas fa-people-group"></i> Default groupe  </span>
+          <span class="delete"> <i class="fas fa-trash-alt"></i>  Delete </span>
+          <span class="access"> <i class="fas fa-user-cog"></i> Admin    </span>
+        </div>
+        <div class="groupe-item">
+          <span class="name"><i class="fas fa-people-group"></i> Default groupe  </span>
+          <span class="delete"> <i class="fas fa-trash-alt"></i>  Delete </span>
+          <span class="access"> <i class="fas fa-user"></i> Peut assigné    </span>
+        </div>
+        <div class="groupe-item">
+          <span class="name"><i class="fas fa-people-group"></i> Default groupe  </span>
+          <span class="delete"> <i class="fas fa-trash-alt"></i>  Delete </span>
+          <span class="access"> <i class="fas fa-eye"></i> Visiter    </span>
+        </div>
+
+    </div>
+      <div>
+        <div class="groupe-item">
+        <span class="access"> <i class="fas fa-plus-square"></i>  Ajouter </span>
+      </div></div>
+  </div>
+
+
