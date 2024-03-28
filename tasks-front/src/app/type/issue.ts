@@ -25,31 +25,31 @@ export class User {
   photo:string ="";
   cin :string ="";
   contact:string='';
-  groupes:[MemberGroupe] =[];
+  groupes:MemberGroupe[] =[];
 
 }
 export class GroupeUser {
-  id:number;
-  name:string;
+  id:number| null = null;
+  name:string = '';
   members:MemberGroupe[] = [];
 }
 export class MemberGroupe{
-  id:number;
-  groupe :GroupeUser;
-  user :User;
-  roles :Role[]
+  id:number | null = null;
+  groupe :GroupeUser| null = null;
+  user :User | null = null;
+  roles :Role[] =[];
 }
 export class Role {
-  id:number
-  memberGroupes:[MemberGroupe]
-  credentials:Credential[]
+  id:number | null = null;
+  memberGroupes:MemberGroupe[] =[];
+  credentials:Credential[] =[];
 }
 export class Credential{
-  id:number
-  name:String
+  id:number | null =null;
+  name:String ="";
 }
 export class Comment {
-  id:number;
+  id:number|null=null;
   user : User = new User();
   text : String ="";
   date : String ="";
