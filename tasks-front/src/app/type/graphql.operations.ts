@@ -29,7 +29,16 @@ const GET_USER = gql`
       firstName
       groupes {
         id
-        name
+        groupe {
+          name
+          id
+          members {
+            roles {
+              id
+              name
+            }
+          }
+        }
       }
     }
   }

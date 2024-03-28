@@ -7,68 +7,17 @@
     <div class="status-item "> <h3>Adresse</h3> </div>
     <div class="item"> <h3>Numero telephone</h3> </div>
   </li>
-  <li>
-    <div class="item" (click)="editProfile()">
-      <img src="assets/user.png" alt="Photo">
-      <div class="details">
-        <h3>Andry Tokiniaina </h3>
-        <p>Chef de projet </p>
-      </div>
-    </div>
-    <div class="item">PROJ-00001</div>
-    <div class="item">Le titre de tache </div>
-    <div class="status-item pending">Statut En Attente</div>
-    <div class="item">20 Juin 2024</div>
-  </li>
-  <li>
+
+  <li *ngFor =" let user of users">
     <div class="item">
-      <img src="assets/user.png" alt="Photo">
+      <img [src] ="user.photo" alt="Photo">
       <div class="details">
-        <h3>Andry Tokiniaina </h3>
+        <h3> {{user.lastName}}  {{user.firstName}}</h3>
         <p>Chef de projet </p>
       </div>
     </div>
-    <div class="item">PROJ-00001</div>
-    <div class="item">Le titre de tache </div>
-    <div class="status-item pending">Statut En Attente</div>
-    <div class="item">20 Juin 2024</div>
-  </li>
-  <li>
-    <div class="item">
-      <img src="assets/user.png" alt="Photo">
-      <div class="details">
-        <h3>Andry Tokiniaina </h3>
-        <p>Chef de projet </p>
-      </div>
-    </div>
-    <div class="item">PROJ-00001</div>
-    <div class="item">Le titre de tache </div>
-    <div class="status-item pending">Statut En Attente</div>
-    <div class="item">20 Juin 2024</div>
-  </li>
-  <li>
-    <div class="item">
-      <img src="assets/user.png" alt="Photo">
-      <div class="details">
-        <h3>Andry Tokiniaina </h3>
-        <p>Chef de projet </p>
-      </div>
-    </div>
-    <div class="item">PROJ-00001</div>
-    <div class="item">Le titre de tache </div>
-    <div class="status-item pending">Statut En Attente</div>
-    <div class="item">20 Juin 2024</div>
-  </li>
-  <li>
-    <div class="item">
-      <img src="assets/user.png" alt="Photo">
-      <div class="details">
-        <h3>Andry Tokiniaina </h3>
-        <p>Chef de projet </p>
-      </div>
-    </div>
-    <div class="item">PROJ-00001</div>
-    <div class="item">Le titre de tache </div>
+    <div class="item">{{user.username}}</div>
+    <div class="item">{{user.cin}} </div>
     <div class="status-item pending">Statut En Attente</div>
     <div class="item">20 Juin 2024</div>
   </li>

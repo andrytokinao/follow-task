@@ -23,8 +23,33 @@ export class User {
   firstName:string="";
   lastName:string="";
   photo:string ="";
+  cin :string ="";
+  contact:string='';
+  groupes:[MemberGroupe] =[];
+
+}
+export class GroupeUser {
+  id:number;
+  name:string;
+  members:MemberGroupe[] = [];
+}
+export class MemberGroupe{
+  id:number;
+  groupe :GroupeUser;
+  user :User;
+  roles :Role[]
+}
+export class Role {
+  id:number
+  memberGroupes:[MemberGroupe]
+  credentials:Credential[]
+}
+export class Credential{
+  id:number
+  name:String
 }
 export class Comment {
+  id:number;
   user : User = new User();
   text : String ="";
   date : String ="";

@@ -11,11 +11,14 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class GroupeUser {
+public class MemberGroupe {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
-    @OneToMany
-    private List<MemberGroupe> members;
+    @ManyToOne
+    private UserApp user;
+    @ManyToOne
+    private GroupeUser groupe;
+    @ManyToMany
+    private List<RoleApp> roles;
 }

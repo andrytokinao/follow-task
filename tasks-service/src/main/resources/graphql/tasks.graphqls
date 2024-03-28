@@ -32,8 +32,14 @@ type CrossingState {
 type GroupeUser {
     id:Int!
     name:String
-    mamber:[UserApp]
+    members:[MemberGroupe]
+}
+type MemberGroupe{
+    id:Int!
+    user:UserApp
+    groupe:GroupeUser
     roles:[RoleApp]
+
 }
 type  Issue {
     id:Int
@@ -85,7 +91,8 @@ type Project{
 
 type RoleApp{
     id:Int
-    groupeUsers:[UserApp]
+    name:String
+    memberGroupes:[MemberGroupe]
     credentials:[Credential]
 }
 
@@ -109,7 +116,7 @@ type UserApp{
     email:String
     adress:String
     cin:String
-    groupes:[GroupeUser]
+    groupes:[MemberGroupe]
     operations:[Operation]
     repotrers:[Issue]
     entryTime:[EntryTime]
@@ -159,7 +166,7 @@ input CustomFieldImput {
 input CredentialInput{
     id:Int
     name:String
-    roles:[Int]
+    roles:[RoleAppInput]
 }
 
 input CrossingStateInput{
@@ -173,9 +180,15 @@ input CrossingStateInput{
 input GroupeUserInput {
     id:Int!
     name:String
-    mamber:[Int]
-    roles:[Int]
+    mambers:[MemberGroupeInput]
 }
+input MemberGroupeInput{
+    d:Int!
+    user:UserAppInput
+    groupe:GroupeUserInput
+    roles:[RoleAppInput]
+}
+
 input  IssueInput {
     id:Int
     summary:String
@@ -221,7 +234,8 @@ input ProjectInput{
 
 input RoleAppInput{
     id:Int
-    groupeUsers:[Int]
+    name:String
+    memberGroupes:[MemberGroupeInput]
     credentials:[Int]
 }
 
@@ -245,6 +259,7 @@ input UserAppInput{
     adress:String
     cin:String
     photo:String
+    groupes:[MemberGroupeInput]
 }
 
 input ValueInput {
