@@ -16,9 +16,10 @@ public class CorsConfig {
     public CorsFilter corsFilter() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.setAllowedOrigins(Collections.singletonList("http://localhost:4200"));
-        corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
+        corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE","OPTIONS"));
         corsConfiguration.setAllowedHeaders(Collections.singletonList("*"));
         corsConfiguration.setAllowCredentials(true);
+        corsConfiguration.addExposedHeader("Set-Cookie");
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", corsConfiguration);
 

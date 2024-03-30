@@ -26,10 +26,12 @@ public class ParameService {
             UserApp u1 = new UserApp();
             u1.setFirstName("Jean");
             u1.setLastName("Dupont");
+            u1.setPassword("123");
             u1.setPhoto("/assets/user1.jpeg");
             u1.setContact("0325698745");
             UserApp u2 = new UserApp();
             u2.setFirstName("Marie");
+            u2.setPassword("123");
             u2.setLastName("Dubois");
             u2.setContact("0345698756");
             u2.setPhoto("/assets/user2.jpeg");
@@ -66,6 +68,7 @@ public class ParameService {
         UserApp userApp = new UserApp();
         userApp.setFirstName("Baptiste");
         userApp.setLastName("Jean  ");
+        userApp.setPassword("123");
         userApp = userService.save(userApp);
         ValueDto userValue = new ValueDto();
         userValue.setUser(userApp);

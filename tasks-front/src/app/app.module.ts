@@ -24,6 +24,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import {BrowserModule} from "@angular/platform-browser";
+import {CookieService} from "ngx-cookie-service";
 
 
 @NgModule({
@@ -60,7 +61,8 @@ import {BrowserModule} from "@angular/platform-browser";
 
   ],
   bootstrap: [AppComponent],
-  schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
+  schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
+  providers :[CookieService]
 
 })
 export class AppModule { }

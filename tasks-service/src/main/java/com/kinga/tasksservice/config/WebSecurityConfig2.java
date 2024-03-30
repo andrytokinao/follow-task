@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
@@ -18,6 +19,10 @@ import org.springframework.security.config.annotation.web.configurers.CsrfConfig
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
@@ -38,11 +43,19 @@ public class WebSecurityConfig2 {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers(new AntPathRequestMatcher("/graphql")).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher("/api/**")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/api/**")).authenticated()
+                        .requestMatchers(new AntPathRequestMatcher("/")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/public/**")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/private/**")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher( "/**",HttpMethod.OPTIONS.name())).permitAll()
                         .anyRequest().permitAll())
-                .formLogin(d -> {
-                    d.permitAll();
-                })
+                .formLogin(form-> form
+                        .permitAll()
+                        .failureHandler(failureHandler())
+                        .successHandler(successHandler())
+                )
+                .logout()
+                .permitAll()
         ;
         return http.build();
     }
@@ -74,6 +87,15 @@ public class WebSecurityConfig2 {
         return authConfig.getAuthenticationManager();
     }
 
+    public AuthenticationSuccessHandler successHandler() {
+        SimpleUrlAuthenticationSuccessHandler handler = new SimpleUrlAuthenticationSuccessHandler();
+        handler.setDefaultTargetUrl("/auth-success");
+        return handler;
+    }
+    public AuthenticationFailureHandler failureHandler() {
+        AuthenticationFailureHandler handler = new SimpleUrlAuthenticationFailureHandler("/auth-failed");
+        return handler;
+    }
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

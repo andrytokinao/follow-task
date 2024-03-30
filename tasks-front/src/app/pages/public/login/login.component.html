@@ -6,11 +6,11 @@
         <h2 class="title">Sign In</h2>
         <div class="input-field">
           <i class="fas fa-user"></i>
-          <input type="text" placeholder="Username" />
+          <input type="text" [(ngModel)]= "username" placeholder="Username"  [ngModelOptions]="{standalone: true}" />
         </div>
         <div class="input-field">
           <i class="fas fa-lock"></i>
-          <input type="password" placeholder="Password" />
+          <input type="password" [(ngModel)]= "password" placeholder="Password"  [ngModelOptions]="{standalone: true}" />
         </div>
         <input type="submit" (click)="login()" value="Login" class="btn solid" />
 

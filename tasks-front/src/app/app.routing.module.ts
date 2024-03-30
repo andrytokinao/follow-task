@@ -4,16 +4,18 @@ import {BrowserModule} from "@angular/platform-browser";
 import {PublicComponent} from "./pages/public/public.component";
 import {PrivateComponent} from "./pages/private/private.component";
 import {NotFoundComponent} from "./pages/not-found/not-found.component";
+import {AuthGuard} from "./services/authorization.service.ts";
 
 
 const appRoutes: Routes = [
-  { path: '',   redirectTo: 'public', pathMatch: 'full' ,data: { num: 0 } },
-  {path: 'public', component: PublicComponent, outlet: 'public'  ,data: { num: 4 }}, {
+  { path: '',   redirectTo: 'public/home', pathMatch: 'full'  },
+  { path: 'login',   redirectTo: 'public/login', pathMatch: 'full'  },
+  {path: 'public', component: PublicComponent}, {
     path: 'public',
     loadChildren: () => import('./pages/public/public.module').then(m => m.PublicModule),
     //  canMatch: [userAdmin]
   },
-  {path: 'private', component: PrivateComponent, outlet: 'private'  ,data: { num: 0 }}, {
+  {path: 'private', component: PrivateComponent ,canActivate:[AuthGuard]}, {
     path: 'private',
     loadChildren: () => import('./pages/private/private.module').then(m => m.PrivateModule),
     //  canMatch: [userAdmin]

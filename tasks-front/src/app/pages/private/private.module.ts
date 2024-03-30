@@ -13,12 +13,14 @@ import {MatSelectModule} from "@angular/material/select";
 import {CommonModule} from "@angular/common";
 import {MyCommonModule} from "../../common/common.module";
 import {ProfileComponent} from "./profile/profile.component";
+import {AccessDeniedComponent} from "./access-denied/access-denied.component";
 
 
 @NgModule({
   declarations: [
     PrivateComponent,
-    ProfileComponent
+    ProfileComponent,
+    AccessDeniedComponent
   ],
   imports: [
     PrivateRoutingModule,

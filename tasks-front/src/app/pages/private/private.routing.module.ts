@@ -5,6 +5,8 @@ import {PrivateComponent} from "./private.component";
 import {ProjectComponent} from "./project/project.component";
 import {AdminComponent} from "./admin/admin.component";
 import {ProfileComponent} from "./profile/profile.component";
+import {AccessDeniedComponent} from "./access-denied/access-denied.component";
+import {AdminnGuard} from "../../services/authorization.service.ts";
 
 const privateRoute: Routes = [
   {
@@ -14,13 +16,14 @@ const privateRoute: Routes = [
       {
         path: '',
         children: [
-          { path: 'profile', component: ProfileComponent  ,data: { num: 4 }},
-          { path: 'project', component: ProjectComponent ,data: { num: 4 }}, {
+          { path: 'profile', component: ProfileComponent  },
+          { path: 'access-denied', component: AccessDeniedComponent },
+          { path: 'project', component: ProjectComponent } ,{
             path: 'project',
             loadChildren: () => import('./project/project.module').then(m => m.ProjectModule),
             //  canMatch: [userProject]
           },
-          {path: 'admin', component: AdminComponent  ,data: { num: 4 }}, {
+          {path: 'admin', component: AdminComponent  , canActivate :[AdminnGuard]}, {
             path: 'admin',
             loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule),
             //  canMatch: [userAdmin]

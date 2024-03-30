@@ -8,12 +8,12 @@
     </ul>
     <div class="user-section">
       <div class="user-dropdown">
-        <img src="/assets/user.png" alt="User Avatar">
-        <span class="username">Andry Tokiniaina</span>
+        <img [src]="profile.photo" alt="P">
+        <span class="username">{{profile.firstName}} {{profile.lastName}}</span>
         <div class="user-dropdown-content">
           <a routerLink="private" >Profile</a>
           <a href="#">Settings</a>
-          <a href="#">Logout</a>
+          <a  (click)="logout()" >Logout</a>
         </div>
       </div>
     </div>

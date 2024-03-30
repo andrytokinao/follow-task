@@ -78,9 +78,11 @@ public class UserService {
 
 
     public UserApp save(UserApp entity) {
+        boolean isNew = false;
         if(StringUtils.isEmpty(entity.getId())){
             UUID uuid = UUID.randomUUID();
             entity.setId(uuid.toString());
+            isNew = true;
         }
 
         if (!StringUtils.isEmpty(entity.getUsername())) {
@@ -106,23 +108,24 @@ public class UserService {
         userApp = null;
         if (!StringUtils.isEmpty(entity.getContact())) {
             userApp = userRepository.findByContact(entity.getContact().trim());
-            if (userApp != null && !(entity.getId() == userApp.getId()))
+            if (userApp != null && (isNew))
                 throw new RuntimeException("Contact  " + entity.getContact() + " is alredy in used");
         }
         userApp = null;
         if (!StringUtils.isEmpty(entity.getCin())) {
             entity.setCin(entity.getCin().trim());
             userApp = userRepository.findByContact(entity.getCin().trim());
-            if (userApp != null)
+            if (userApp != null && isNew)
                 throw new RuntimeException("Email  " + entity.getContact() + " is alredy in used");
         }
 
 
-        if (StringUtils.isEmpty(entity.getPassword())) {
-            if (StringUtils.isEmpty(entity.getPass())) {
-                entity.setPass(UUID.randomUUID().toString());
-            }
-            entity.setPassword(encodePassword(entity.getPass()));
+        if (isNew) {
+           if(StringUtils.isEmpty(entity.getPassword())) {
+               throw new RuntimeException("Password requered");
+           }
+            entity.setPassword(encodePassword(entity.getPassword()));
+            entity.setPass(encodeText(entity.getPassword()));
         } else {
             if (!StringUtils.isEmpty(entity.getPass())) {
                 //TODO   Prise en charge le changement de mot de pass
@@ -165,12 +168,12 @@ public class UserService {
             return null;
         Set<String> roleApps = new HashSet<>();
         if (CollectionUtils.isEmpty(roleApps))
-            return new UserDetailsDeto(userApp.getUsername(), userApp.getPassword(), permissionNames);
+            return new UserDetailsDeto(userApp.getId(),userApp.getUsername(), userApp.getPassword(),userApp.getFirstName(),userApp.getLastName(), userApp.getPhoto(),permissionNames);
 
         permissionNames = roleApps.stream()
                 .flatMap(roleApp -> (ConfigAutorities.getAutorities(roleApp).stream()))
                 .collect(Collectors.toSet());
-        return new UserDetailsDeto(userApp.getUsername(), userApp.getPassword(), permissionNames);
+        return new UserDetailsDeto(userApp.getId(),userApp.getUsername(), userApp.getPassword(),userApp.getFirstName(),userApp.getLastName(), userApp.getPhoto(),permissionNames);
     }
 
     public Set<String> getAutorities(String username) {

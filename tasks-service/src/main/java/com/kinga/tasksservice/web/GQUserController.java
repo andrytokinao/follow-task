@@ -1,6 +1,7 @@
 package com.kinga.tasksservice.web;
 
 
+import com.kinga.tasksservice.dto.UserDetailsDeto;
 import com.kinga.tasksservice.entity.UserApp;
 import com.kinga.tasksservice.service.UserService;
 import org.slf4j.Logger;
@@ -11,6 +12,8 @@ import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
@@ -33,7 +36,7 @@ public class GQUserController {
     public List<UserApp> allUsers(){
        return userService.findAll();
     }
-    @GetMapping({"/", "/compte/**", "/etudiants/**","/comptable/**","/admin/**"})
+    @GetMapping({"/", "/public/**", "/private/**"})
     public String publicRedirection(){
         logger.info("loading page frontend  ");
         return "/index.html";

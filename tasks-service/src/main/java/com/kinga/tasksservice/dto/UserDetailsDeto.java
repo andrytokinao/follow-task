@@ -11,7 +11,11 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserDetailsDeto {
+    private String id;
     private String username;
     private String password;
+    private String firstName ;
+    private String lastName;
+    private String photo;
     private Set<String> permissions = new HashSet<>();
 }
