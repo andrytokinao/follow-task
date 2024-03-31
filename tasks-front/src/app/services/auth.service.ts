@@ -38,6 +38,7 @@ export class AuthService {
   getProfile() {
     return new Observable((observer) => {
         if (this.profile) {
+          console.log(this.profile);
           observer.next(this.profile);
           observer.complete();
         } else {
@@ -47,6 +48,7 @@ export class AuthService {
             if (JSON.stringify(res).localeCompare('login') === -1) {
               localStorage.setItem("user", res);
               this.profile = res;
+              console.log(this.profile);
               observer.next(this.profile);
               observer.complete();
             } else {

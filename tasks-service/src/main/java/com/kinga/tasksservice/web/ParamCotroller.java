@@ -15,7 +15,7 @@ public class ParamCotroller {
     ParameService parameService;
     @GetMapping("/api/init-data")
     public Issue initialiseData() throws ParseException, ClassNotFoundException, InstantiationException, IllegalAccessException, IOException {
-        return parameService.initialiseData();
+        return parameService.initalizeData();
     }
 
 

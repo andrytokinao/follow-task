@@ -19,7 +19,6 @@ public class CrossingStatus {
     private Status from;
     @ManyToOne
     private Status to;
-    @ManyToOne
-    private Credential credential;
+
 
 }

@@ -1,0 +1,69 @@
+system-authorization:
+  roles:
+    - name: "SYSTEM_ADMIN"
+      description: "Administrateur du système"
+      accessibilities:
+        - "CAN_CREATE_USER"
+        - "CAN_DELETE_USER"
+        - "CAN_MANAGE_ROLES"
+        - "CAN_CONFIGURE_SYSTEM"
+        - "CAN_MANAGE_BACKUPS"
+        - "CAN_MANAGE_SECURITY"
+    - name: "PROJECT_ADMIN"
+      description: "Administrateur de projet"
+      accessibilities:
+        - "CAN_CREATE_PROJECT"
+        - "CAN_DELETE_PROJECT"
+        - "CAN_ASSIGN_TEAM_MEMBERS"
+        - "CAN_DEFINE_PRIORITIES"
+        - "CAN_SET_DEADLINES"
+    - name: "STANDARD_USER"
+      description: "Utilisateur standard"
+      accessibilities:
+        - "CAN_VIEW_PROJECTS"
+        - "CAN_VIEW_TASKS"
+        - "CAN_EDIT_OWN_TASKS"
+        - "CAN_COMMENT_ON_TASKS"
+    - name: "ACCOUNT_ADMIN"
+      description: "Administrateur de compte"
+      accessibilities:
+        - "CAN_MANAGE_USERS"
+        - "CAN_MANAGE_ROLES"
+        - "CAN_CONFIGURE_ACCOUNT"
+        - "CAN_VIEW_BILLING_INFORMATION"
+
+task-authorization:
+  roles:
+    - name: "ADMIN"
+      description: "Administrateur"
+      accessibilities:
+        - "CAN_EDIT_ALL"
+    - name: "PROJECT_MANAGER"
+      description: "Gestionnaire de projet"
+      accessibilities:
+        - "CAN_EDIT_PROJECT"
+        - "CAN_ASSIGN_TASK"
+        - "CAN_CLOSE_TASK"
+        - "CAN_APPROVE_TASK"
+        - "CAN_SET_PRIORITY"
+        - "CAN_SET_DEADLINE"
+        - "CAN_TRACK_TIME"
+        - "CAN_ATTACH_FILES_SOURCE"
+    - name: "TEAM_MEMBER"
+      description: "Membre de l'équipe"
+      accessibilities:
+        - "CAN_EDIT_TASK"
+        - "CAN_COMMENT_TASK"
+        - "CAN_CLOSE_TASK"
+        - "CAN_TRACK_TIME"
+        - "CAN_ATTACH_FILES_RESULT"
+        - "CAN_SELF_ASSIGN_TASK"
+    - name: "OBSERVER"
+      description: "Observateur externe"
+      accessibilities:
+        - "CAN_VIEW_ONLY"
+    - name: "EXTERNAL_USER"
+      description: "Client/Utilisateur externe"
+      accessibilities:
+        - "CAN_VIEW_TASKS"
+        - "CAN_COMMENT_ON_TASKS"

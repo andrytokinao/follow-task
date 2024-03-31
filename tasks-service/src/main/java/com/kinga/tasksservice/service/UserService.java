@@ -1,18 +1,17 @@
 package com.kinga.tasksservice.service;
 
 
-import com.kinga.tasksservice.config.ConfigAutorities;
 import com.kinga.tasksservice.dto.UserDetailsDeto;
 import com.kinga.tasksservice.entity.UserApp;
+import com.kinga.tasksservice.repository.GroupeUserRepository;
+import com.kinga.tasksservice.repository.MemberGroupeRepository;
 import com.kinga.tasksservice.repository.UserRepository;
-import com.kinga.utils.KingaUtils;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -23,10 +22,13 @@ import static com.kinga.utils.KingaUtils.*;
 
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
-    @Autowired
-    UserRepository userRepository;
 
+   private final UserRepository userRepository;
+   private final MemberGroupeRepository memberGroupeRepository;
+   private final GroupeUserRepository groupeUserRepository;
+   private final AuthorizationService authorizationService;
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
 
@@ -124,16 +126,19 @@ public class UserService {
            if(StringUtils.isEmpty(entity.getPassword())) {
                throw new RuntimeException("Password requered");
            }
-            entity.setPassword(encodePassword(entity.getPassword()));
             entity.setPass(encodeText(entity.getPassword()));
+            entity.setPassword(encodePassword(entity.getPassword()));
         } else {
             if (!StringUtils.isEmpty(entity.getPass())) {
                 //TODO   Prise en charge le changement de mot de pass
                 entity.setPassword(encodePassword(entity.getPass()));
             }
         }
-        return userRepository.save(entity);
-
+        entity = userRepository.save(entity);
+        if(isNew){
+            this.authorizationService.addStandarUser(entity);
+        }
+        return entity;
     }
 
     public UserApp findByUsernamOrContactOrCinOrEmail(String login) {
@@ -167,24 +172,9 @@ public class UserService {
         if (userApp == null)
             return null;
         Set<String> roleApps = new HashSet<>();
-        if (CollectionUtils.isEmpty(roleApps))
-            return new UserDetailsDeto(userApp.getId(),userApp.getUsername(), userApp.getPassword(),userApp.getFirstName(),userApp.getLastName(), userApp.getPhoto(),permissionNames);
-
-        permissionNames = roleApps.stream()
-                .flatMap(roleApp -> (ConfigAutorities.getAutorities(roleApp).stream()))
-                .collect(Collectors.toSet());
+        permissionNames =  authorizationService.getAccessibilities(userApp);
         return new UserDetailsDeto(userApp.getId(),userApp.getUsername(), userApp.getPassword(),userApp.getFirstName(),userApp.getLastName(), userApp.getPhoto(),permissionNames);
+
     }
 
-    public Set<String> getAutorities(String username) {
-        UserApp userApp = userRepository.findByUsername(username);
-        if (userApp == null)
-            return new HashSet<>();
-        Set<String> roleApps = new HashSet<>();
-        if (CollectionUtils.isEmpty(roleApps))
-            return new HashSet<>();
-        return roleApps.stream()
-                .flatMap(roleApp -> (ConfigAutorities.getAutorities(roleApp).stream()))
-                .collect(Collectors.toSet());
-    }
 }

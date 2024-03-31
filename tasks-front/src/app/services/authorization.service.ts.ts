@@ -69,7 +69,7 @@ export class AdminnGuard implements CanActivate {
   constructor(private authService: AuthService, private router: Router, private hasRole:AuthorizeRoleGuard) {
   }
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
-    return this.hasRole.canActivate(['admin']);
+    return this.hasRole.canActivate(['CAN_CREATE_USER','CAN_DELETE_USER','CAN_MANAGE_ROLES','CAN_CONFIGURE_SYSTEM','CAN_MANAGE_SECURITY','CAN_MANAGE_BACKUPS']);
   }
 }
 

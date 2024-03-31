@@ -15,6 +15,8 @@ public class GroupeUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String prefix;// TODO : generer le prefix
+    private String type;
     private String name;
     @OneToMany
     private List<MemberGroupe> members;

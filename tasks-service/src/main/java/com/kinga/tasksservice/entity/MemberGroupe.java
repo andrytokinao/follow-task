@@ -19,6 +19,5 @@ public class MemberGroupe {
     private UserApp user;
     @ManyToOne
     private GroupeUser groupe;
-    @ManyToMany
-    private List<RoleApp> roles;
+    private String role;
 }

@@ -2,24 +2,32 @@ package com.kinga.tasksservice.service;
 
 import com.kinga.tasksservice.dto.ValueDto;
 import com.kinga.tasksservice.entity.*;
+import com.kinga.tasksservice.repository.ConfigRepository;
 import com.kinga.tasksservice.repository.CustomFieldRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.kinga.tasksservice.repository.GroupeUserRepository;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.Date;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ParameService {
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private IssueService issueService ;
-    @Autowired
-    public CustomFieldRepository customFieldRepository;
-    public Issue initialiseData() throws ParseException, ClassNotFoundException, InstantiationException, IllegalAccessException, IOException {
+    private static final Logger logger = LoggerFactory.getLogger(ParameService.class);
+    private final ConfigRepository configRepository;
+    private final UserService userService;
+    private final GroupeUserRepository groupeUserRepository;
+    private final IssueService issueService ;
+    public final CustomFieldRepository customFieldRepository;
+    public final AuthorizationService authorizationService;
+
+    private List<UserApp> initUser() throws ParseException, ClassNotFoundException, InstantiationException, IllegalAccessException, IOException {
         // Initialiser status
 
         if (CollectionUtils.isEmpty(userService.findAll())) {
@@ -37,7 +45,22 @@ public class ParameService {
             u2.setPhoto("/assets/user2.jpeg");
             userService.save(u1);
             userService.save(u2);
+            authorizationService.addUserToAdminSystem(u1);
         }
+        return userService.findAll();
+    }
+    public Issue initalizeData() throws ParseException, ClassNotFoundException, InstantiationException, IllegalAccessException, IOException {
+        List<ConfigEntry> configEntrys = configRepository.findByType("init-data");
+        if (!CollectionUtils.isEmpty(configEntrys)) {
+            ConfigEntry c = configEntrys.get(0);
+            logger.info("Data is alredy initialize at "+c.getDeteEntry());
+            return null;
+        }
+        ConfigEntry configEntry = new ConfigEntry();
+        configEntry.setDeteEntry(new Date());
+        configEntry.setVersion("test");
+        configEntry.setType("init-data");
+        configRepository.save(configEntry);
 
         Issue issue = new Issue();
         issue.setSummary("Etude ");
@@ -65,11 +88,15 @@ public class ParameService {
         userField.setType(TypeField.UserValue.getType());
         userField.setName("Controlleur");
         userField = customFieldRepository.save(userField);
-        UserApp userApp = new UserApp();
-        userApp.setFirstName("Baptiste");
-        userApp.setLastName("Jean  ");
-        userApp.setPassword("123");
-        userApp = userService.save(userApp);
+
+
+        UserApp userApp = null;
+        List<UserApp> users = initUser();
+        if (CollectionUtils.isEmpty(users)) {
+
+
+        }
+        userApp = users.get(0);
         ValueDto userValue = new ValueDto();
         userValue.setUser(userApp);
         userValue.setCustomField(userField);
