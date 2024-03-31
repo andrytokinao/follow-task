@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import {Issue, Status, User} from "../type/issue";
-import {ALL_ISSUE, ALL_USERS} from "../type/graphql.operations";
+import {ALL_ISSUE, ALL_USERS, LOAD_GROUPE_MEMBER} from "../type/graphql.operations";
 import {Apollo} from "apollo-angular";
 
 @Injectable({
@@ -42,5 +42,12 @@ export class UserService {
     return throwError(() => {
       return errorMessage;
     });
+  }
+  loadGroupeMember(userId:number){
+    return this.apollo
+      .query({
+        query: LOAD_GROUPE_MEMBER,
+        variables:{userId}
+      });
   }
 }

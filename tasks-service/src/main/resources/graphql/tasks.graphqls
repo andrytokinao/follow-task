@@ -38,7 +38,7 @@ type MemberGroupe{
     id:Int!
     user:UserApp
     groupe:GroupeUser
-    roles:[RoleApp]
+    role:String
 
 }
 type  Issue {

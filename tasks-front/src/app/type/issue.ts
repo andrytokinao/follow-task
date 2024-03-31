@@ -23,7 +23,9 @@ export class User {
   firstName:string="";
   lastName:string="";
   photo:string ="";
+  email:string ="";
   cin :string ="";
+  address :string ="";
   contact:string='';
   groupes:MemberGroupe[] =[];
 
@@ -35,9 +37,9 @@ export class GroupeUser {
 }
 export class MemberGroupe{
   id:number | null = null;
-  groupe :GroupeUser| null = null;
+  groupe :GroupeUser| any = {};
   user :User | null = null;
-  roles :Role[] =[];
+  role : string = '';
 }
 export class Role {
   id:number | null = null;

@@ -4,9 +4,11 @@ import com.kinga.tasksservice.dto.Dossier;
 import com.kinga.tasksservice.dto.Repertoire;
 import com.kinga.tasksservice.dto.ValueDto;
 import com.kinga.tasksservice.entity.*;
+import com.kinga.tasksservice.service.AuthorizationService;
 import com.kinga.tasksservice.service.IssueService;
 import com.kinga.tasksservice.service.StatusService;
 import com.kinga.utils.KingaUtils;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -27,11 +29,13 @@ import java.text.ParseException;
 import java.util.List;
 
 @Controller
+@AllArgsConstructor
 public class GQIssueController {
     @Autowired
     IssueService issueService;
     @Autowired
     StatusService statusService;
+    final AuthorizationService authorizationService;
     @QueryMapping
     public List<Issue> allIssue(){
         return issueService.findAllIssue();
@@ -68,6 +72,10 @@ public class GQIssueController {
     @QueryMapping
     public List<CustomField> allCustomField(@Argument Long id) {
         return issueService.allCustomField(id);
+    }
+    @QueryMapping
+    public List<MemberGroupe> loadGroupeMember(@Argument String userId) {
+        return authorizationService.loadGroupeMember(userId);
     }
     @GetMapping(path = "/api/load-directory")
     @ResponseBody

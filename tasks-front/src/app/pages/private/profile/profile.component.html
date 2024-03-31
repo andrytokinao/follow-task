@@ -1,5 +1,5 @@
 <div class="modal-header">
-  <b class="modal-title">{{issue.summary}}  </b>
+  <b class="modal-title">{{action}}  </b>
   <span typeField="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
     <i class="fas fa-close"></i>  <span aria-hidden="true"></span>
   </span>
@@ -12,29 +12,42 @@
         <h2 class="title" > Information</h2>
         <div class="input-field">
           <i class="fas fa-user"></i>
-          <input type="text" placeholder="Username" />
+          <input type="text"  placeholder="Username" [(ngModel)]="user.username" [ngModelOptions]="{standalone: true}" />
+        </div>
+        <div class="input-field">
+          <i class="fa fa-address-book"></i>
+          <input type="text" placeholder="Nom" [(ngModel)]="user.firstName" [ngModelOptions]="{standalone: true}" />
+        </div>
+        <div class="input-field">
+          <i class="fa fa-address-book"></i>
+          <input type="text" placeholder="Prénom" [(ngModel)]="user.lastName" [ngModelOptions]="{standalone: true}" />
         </div>
         <div class="input-field">
           <i class="fas fa-phone"></i>
-          <input type="text" placeholder="Numero telephone" />
+          <input type="text" placeholder="Numero telephone" [(ngModel)]="user.contact" [ngModelOptions]="{standalone: true}" />
         </div>
         <div class="input-field">
-          <i class="fas fa-map-location"></i>
-          <input type="text" placeholder="Adresse" />
+          <i class="fas fa fa-map-marker"></i>
+          <input type="text" placeholder="Adresse" [(ngModel)]="user.address" [ngModelOptions]="{standalone: true}" />
         </div>
         <div class="input-field">
           <i class="fas fa-envelope"></i>
-          <input type="email" placeholder="Email" />
+          <input type="email" placeholder="Email" [(ngModel)]="user.email" [ngModelOptions]="{standalone: true}" />
+        </div>
+        <div class="input-field">
+          <i class="fa fa-address-card"></i>
+          <input type="text" placeholder="CIN" [(ngModel)]="user.cin" [ngModelOptions]="{standalone: true}" />
         </div>
         <div class="input-field">
           <i class="fas fa-lock"></i>
-          <input type="text" placeholder="Password" />
+          <input type="text" placeholder="Password" [(ngModel)]="user.password" [ngModelOptions]="{standalone: true}" />
         </div>
       </form>
       <div class="photo">
-        <img width="150px" src="assets/photo.png">
+        <img width="150px" [src]="photoUrl()">
+        <span  *ngIf ="tempPhoto"  type="submit" value="Save" class="btn solid save controle" style="float: right" >  <i class="fa fa-check color" style="color:#4f8a5c"></i>  Save</span>
       </div>
-      <span type="submit" value="Save" class="btn solid save" style="float: right" > <i class="fa fa-save"></i> Save</span>
+      <span type="submit" value="Save" class="btn solid save controle" style="float: right" > <i class="fa fa-save"></i> Save</span>
 
     </div>
     <div class="item-right">
@@ -45,10 +58,10 @@
           <span class="access"> Accessibilité    </span>
         </div>
 
-        <div class="groupe-item">
-          <span class="name"><i class="fas fa-people-group"></i> Default groupe  </span>
+        <div class="groupe-item" *ngFor ="let memberGroupe of memberGroupes">
+          <span class="name"><i class="fas fa-people-group"></i> {{memberGroupe.groupe.name}}  <br> ({{memberGroupe.role}} ) </span>
           <span class="delete"> <i class="fas fa-trash-alt"></i>  Delete </span>
-          <span class="access"> <i class="fas fa-user-cog"></i> Admin    </span>
+          <span class="access"> <i class="fas fa-user-cog"></i>    </span>
         </div>
         <div class="groupe-item">
           <span class="name"><i class="fas fa-people-group"></i> Default groupe  </span>

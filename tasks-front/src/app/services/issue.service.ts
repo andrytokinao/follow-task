@@ -11,7 +11,8 @@ import {
   ADD_COMMENT,
   ALL_COMMENT,
   GET_VALUES,
-  ALL_CUSTOMFIELD, SAVE_VALUE
+  ALL_CUSTOMFIELD, SAVE_VALUE,
+  LOAD_GROUPE_MEMBER
 } from "../type/graphql.operations";
 import {stripTypename} from "@apollo/client/utilities";
 

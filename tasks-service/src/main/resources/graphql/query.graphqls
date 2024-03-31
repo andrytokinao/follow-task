@@ -10,4 +10,5 @@ type Query {
     allCustomField(issueId:Int):[CustomField]
     getValues(issueId:Int):[CustomFieldValue]
     loadDirectory(issueId:Int):Repertoire
+    loadGroupeMember(userId:String):[MemberGroupe]
 }

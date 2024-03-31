@@ -230,6 +230,19 @@ const  ALL_STATUS = gql`
       }
     }
 `;
+
+const  LOAD_GROUPE_MEMBER = gql`
+  query loadGroupeMember($userId:String!) {
+    loadGroupeMember(userId: $userId){
+      id
+      groupe {
+        id
+        name
+      }
+      role
+    }
+  }
+`;
 const ALL_CUSTOMFIELD = gql`
   query allCustomField ($issueId:Int!) {
     allCustomField(issueId:$issueId){
@@ -252,7 +265,8 @@ export {
   ALL_COMMENT,
   GET_VALUES,
   ALL_CUSTOMFIELD,
-  SAVE_VALUE
+  SAVE_VALUE,
+  LOAD_GROUPE_MEMBER
 
 }
 function  supprimerTypename<T>(objet: T): T {

@@ -18,12 +18,11 @@ export class UsersComponent {
     this.loadList();
   }
 
-  editProfile() {
+  editProfile(user:User) {
     const dialogRef = this.modalService.open(ProfileComponent, {windowClass: "xlModal"});
-    dialogRef.componentInstance.loadComments();
-    dialogRef.componentInstance.loadValues();
-    dialogRef.componentInstance.allCustomField();
-    dialogRef.componentInstance.loadDirectory();
+    dialogRef.componentInstance.user = user;
+    dialogRef.componentInstance.action ="Edition d'un utilisateur";
+    dialogRef.componentInstance.loadGroupeMember();
     dialogRef.result.then((result) => {
       this.currentUser = null;
     })
@@ -34,4 +33,13 @@ export class UsersComponent {
       this.users = stripTypename(res.data.allUsers);
     });
   }
+
+  create() {
+    const dialogRef = this.modalService.open(ProfileComponent, {windowClass: "xlModal"});
+    dialogRef.componentInstance.action ="Nouvel utilisateur"
+    dialogRef.result.then((result) => {
+      this.currentUser = null;
+    })
+  }
+
 }

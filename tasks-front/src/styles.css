@@ -17,6 +17,12 @@ body, html {
 }
 h1,h2,h3,h4 {
   font-size: 14px;
+  font-weight: bold;
+  color: #5a5a5a;
+}
+.controle:hover{
+  background-color: #d4d4d4;
+  cursor: pointer;
 }
 .faild{
   color: #702930;
@@ -151,15 +157,16 @@ h1,h2,h3,h4 {
   z-index: 1;
 }
 
-.user-dropdown-content a {
+.user-dropdown-content .item {
   color: #333;
   padding: 10px;
   text-decoration: none;
   display: block;
 }
 
-.user-dropdown-content a:hover {
+.user-dropdown-content .item :hover {
   background-color: #ddd;
+  cursor: pointer;
 }
 
 .user-dropdown:hover .user-dropdown-content {

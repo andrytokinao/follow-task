@@ -120,4 +120,8 @@ public class AuthorizationService {
                 .filter(role -> role.getName().equals(roleName))
                 .findFirst();
     }
+
+    public List<MemberGroupe> loadGroupeMember(String userId) {
+        return  memberGroupeRepository.findByUserId(userId);
+    }
 }

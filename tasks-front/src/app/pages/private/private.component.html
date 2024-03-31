@@ -11,9 +11,9 @@
         <img [src]="profile.photo" alt="P">
         <span class="username">{{profile.firstName}} {{profile.lastName}}</span>
         <div class="user-dropdown-content">
-          <a routerLink="private" >Profile</a>
-          <a href="#">Settings</a>
-          <a  (click)="logout()" >Logout</a>
+          <div class="item controle" (click)="myProfile()" >Profile</div>
+          <div class="item controle" href="#">Settings</div>
+          <div class="item controle" (click)="logout()" >Logout</div>
         </div>
       </div>
     </div>
