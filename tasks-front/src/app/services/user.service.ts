@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import {Issue, Status, User} from "../type/issue";
-import {ALL_ISSUE, ALL_USERS, LOAD_GROUPE_MEMBER} from "../type/graphql.operations";
+import {ALL_ISSUE, ALL_USERS, LOAD_GROUPE_MEMBER, SAVE_USER} from "../type/graphql.operations";
 import {Apollo} from "apollo-angular";
 
 @Injectable({
@@ -49,5 +49,13 @@ export class UserService {
         query: LOAD_GROUPE_MEMBER,
         variables:{userId}
       });
+  }
+  saveUser(userApp:User) {
+    return this.apollo.mutate(
+      {
+        mutation : SAVE_USER,
+        variables :{userApp}
+      }
+    )
   }
 }

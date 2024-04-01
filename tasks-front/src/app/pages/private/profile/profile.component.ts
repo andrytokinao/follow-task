@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import {MemberGroupe, User} from "../../../type/issue";
 import {UserService} from "../../../services/user.service";
+import {supprimerTypename} from "../../../type/graphql.operations";
 
 @Component({
   selector: 'app-profile',
@@ -11,15 +12,15 @@ export class ProfileComponent  {
 
   constructor(private userService:UserService) {
   }
-  tempPhoto:string | null = null;
+  savingStatus:string ='';
+  tempPhoto:string | ArrayBuffer | null = null;
   editingName: boolean = true;
   user : User | any ={} ;
-  activeMenuItem: string ='';
-  comment: any;
   activeModal: any;
-  issue: any;
   action: string ="";
   memberGroupes:MemberGroupe[] =[];
+  selectedPhoto: File | null = null;
+  isCreate: boolean = false;
   editName() {
 
   }
@@ -32,20 +33,40 @@ export class ProfileComponent  {
       return 'assets/photo.png';
     }
   }
-  toggleMenu(comment: string) {
-
-  }
   loadGroupeMember(){
     this.userService.loadGroupeMember(this.user.id).subscribe(
       (res:any)=>{
-        this.memberGroupes = res.data.loadGroupeMember;
-        alert(JSON.stringify(this.memberGroupes));
+        this.memberGroupes = supprimerTypename(res.data.loadGroupeMember);
       },(err)=>{
-        alert(JSON.stringify(err));
+        console.error("loadGroupeMember" +err);
       }
     )
   }
-  addComment() {
 
+  saveUser() {
+    this.userService.saveUser(this.user).subscribe(res => {
+      this.savingStatus = 'success';
+    }, error => {
+      this.savingStatus = 'error';
+      console.error("saveUser ==> " + error);
+    })
+  }
+
+  selectPhoto($event: any) {
+      const file: File = $event!.target.files[0];
+      if (file) {
+        this.selectedPhoto = file;
+        this.previewImage(file);
+      }
+  }
+  previewImage(file: File): void {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      this.tempPhoto = reader.result;
+    };
+  }
+  openPhotoInput(): void {
+    document.getElementById('photoInput')?.click();
   }
 }

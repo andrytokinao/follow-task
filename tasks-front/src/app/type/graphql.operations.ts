@@ -2,7 +2,7 @@ import {Apollo, gql} from "apollo-angular";
 
 export type Maybe<T> = T | null;
 
-const ADD_USER = gql`
+const SAVE_USER = gql`
   mutation saveUser($userApp:UserAppInput) {
     saveUser(userApp: $userApp) {
       id
@@ -16,7 +16,16 @@ const ADD_USER = gql`
 const ALL_USERS = gql`
   query{
     allUsers{
-      id, username, firstName, lastName,contact,email,adress,cin,photo
+      id,
+      username,
+      firstName,
+      password,
+      lastName,
+      contact,
+      email,
+      address,
+      cin,
+      photo
     }
   }
 `;
@@ -25,15 +34,22 @@ const GET_USER = gql`
     getUser(username: $username) {
       id
       username
+      password
       lastName
       firstName
+      cin
+      photo
+      address
+      email
       groupes {
         id
         groupe {
           name
           id
           members {
-            roles {
+            role
+            id
+            groupe {
               id
               name
             }
@@ -254,7 +270,7 @@ const ALL_CUSTOMFIELD = gql`
 `;
 export {
   supprimerTypename,
-  ADD_USER,
+  SAVE_USER,
   GET_USER,
   ALL_USERS,
   SAVE_ISSUE,

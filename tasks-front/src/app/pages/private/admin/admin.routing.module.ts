@@ -14,11 +14,11 @@ const adminRoute: Routes = [
       {
         path: '',
         children: [
-          { path: 'users', component: UsersComponent ,data: { num: 4 }},
-          { path: 'groups', component: GroupsComponent  ,data: { num: 4 }},
-          { path: 'parameters', component: ParametersComponent  ,data: { num: 4 }},
-          { path: '**',   component: NotFoundComponent ,data: { num: 0 } },
-
+          { path: '',   redirectTo: 'users', pathMatch: 'full' },
+          { path: 'users', component: UsersComponent},
+          { path: 'groups', component: GroupsComponent },
+          { path: 'parameters', component: ParametersComponent  },
+          { path: '**',   component: NotFoundComponent },
         ]
       }
     ]

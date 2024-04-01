@@ -6,6 +6,8 @@ import {RepartitionComponent} from "./repartition/repartition.component";
 import {StatusComponent} from "./status/status.component";
 import {GanttChartComponent} from "./gantt-chart/gantt-chart.component";
 import {BoardComponent} from "./board/board.component";
+import {CalendarComponent} from "./calendar/calendar.component";
+import {RapportComponent} from "./rapport/rapport.component";
 
 const projectRoute: Routes = [
   {
@@ -18,6 +20,8 @@ const projectRoute: Routes = [
           { path: 'liste', component: IssueListeComponent },
           { path: 'gantt-chart', component: GanttChartComponent },
           { path: 'board', component: BoardComponent },
+          { path: 'rapport', component: RapportComponent },
+          { path: 'calendar', component: CalendarComponent},
 
         ]
       }

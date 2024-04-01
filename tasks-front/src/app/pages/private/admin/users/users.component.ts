@@ -36,7 +36,8 @@ export class UsersComponent {
 
   create() {
     const dialogRef = this.modalService.open(ProfileComponent, {windowClass: "xlModal"});
-    dialogRef.componentInstance.action ="Nouvel utilisateur"
+    dialogRef.componentInstance.action ="Nouvel utilisateur";
+    dialogRef.componentInstance.isCreate = true;
     dialogRef.result.then((result) => {
       this.currentUser = null;
     })

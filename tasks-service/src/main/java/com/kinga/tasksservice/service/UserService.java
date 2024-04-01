@@ -87,13 +87,15 @@ public class UserService {
             isNew = true;
         }
 
-        if (!StringUtils.isEmpty(entity.getUsername())) {
+        if (!StringUtils.isEmpty(entity.getUsername()) && isNew) {
             UserApp userApp = userRepository.findByUsername(entity.getUsername());
             if (userApp != null && ((entity.getId() == userApp.getId())))
                 throw new RuntimeException("Usename " + entity.getUsername() + " is alredy in used");
-        } else {
+        }
+        if (StringUtils.isEmpty(entity.getUsername())){
             entity.setUsername(generateUsername(entity.getFirstName(), entity.getLastName()));
         }
+
         if (StringUtils.isEmpty(entity.getContact())) {
             // TODO   throw new RuntimeException("Contact is requered");
         }
@@ -102,22 +104,22 @@ public class UserService {
         }
         entity.setContact(cleanPhonNumber(entity.getContact()));
         UserApp userApp = null;
-        if (!StringUtils.isEmpty(entity.getEmail())) {
+        if (!StringUtils.isEmpty(entity.getEmail()) && isNew) {
             userApp = userRepository.findByEmail(entity.getEmail().trim());
-            if (userApp != null && !(entity.getId() ==userApp.getId()))
+            if (userApp != null && !(entity.getId().equalsIgnoreCase(userApp.getId())))
                 throw new RuntimeException("Email  " + entity.getEmail() + " is alredy in used");
         }
         userApp = null;
         if (!StringUtils.isEmpty(entity.getContact())) {
             userApp = userRepository.findByContact(entity.getContact().trim());
-            if (userApp != null && (isNew))
+            if (userApp != null && !entity.getId().equalsIgnoreCase(userApp.getId()))
                 throw new RuntimeException("Contact  " + entity.getContact() + " is alredy in used");
         }
         userApp = null;
         if (!StringUtils.isEmpty(entity.getCin())) {
             entity.setCin(entity.getCin().trim());
             userApp = userRepository.findByContact(entity.getCin().trim());
-            if (userApp != null && isNew)
+            if (userApp != null && !entity.getId().equalsIgnoreCase(userApp.getId()))
                 throw new RuntimeException("Email  " + entity.getContact() + " is alredy in used");
         }
 
@@ -129,11 +131,10 @@ public class UserService {
             entity.setPass(encodeText(entity.getPassword()));
             entity.setPassword(encodePassword(entity.getPassword()));
         } else {
-            if (!StringUtils.isEmpty(entity.getPass())) {
                 //TODO   Prise en charge le changement de mot de pass
-                entity.setPassword(encodePassword(entity.getPass()));
-            }
         }
+        if (StringUtils.isEmpty(entity.getPassword()))
+            throw new RuntimeException("Password null");
         entity = userRepository.save(entity);
         if(isNew){
             this.authorizationService.addStandarUser(entity);

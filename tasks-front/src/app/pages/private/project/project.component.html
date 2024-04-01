@@ -2,28 +2,29 @@
   <div class="menu">
     <h3>Planing </h3>
     <ul>
-      <li class="menu-item active"  routerLink ="liste">
+      <li class="menu-item controle" routerLinkActive="active" routerLink="liste">
         <i class="fas fa-tasks"></i> Liste des tâches
       </li>
-      <li class="menu-item ">
+      <li class="menu-item controle" routerLinkActive="active" routerLink="board">
+        <i class="fas fa-chart-bar"></i> Tableau de bord
+      </li>
+      <li class="menu-item controle " routerLinkActive="active">
         <i class="fas fa-calendar"></i> Planning
       </li>
-      <li class="menu-item" routerLink ="gantt-chart">
+      <li class="menu-item controle" routerLinkActive="active" routerLink="gantt-chart">
         <i class="fas fa-chart-line"></i> Diagramme de Gantt
       </li>
-      <li class="menu-item" routerLink ="board">
-        <i class="fas fa-chart-bar" ></i> Tableau de bord
-      </li>
-      <li class="menu-item">
+
+      <li class="menu-item controle" routerLinkActive="active" routerLink="rapport">
         <i class="fas fa-chart-pie"></i> Rapports
       </li>
-      <li class="menu-item">
+      <li class="menu-item controle" routerLinkActive="active" routerLink="calendar">
         <i class="fas fa-calendar-alt"></i> Calendrier des ressources
       </li>
     </ul>
   </div>
 
-  <div class="project-content" >
+  <div class="project-content">
     <router-outlet></router-outlet>
   </div>
 </div>

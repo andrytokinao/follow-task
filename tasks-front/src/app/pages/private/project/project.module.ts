@@ -21,6 +21,8 @@ import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {ViewEditIssueComponent} from "./modal/view-edit-issue/view-edit-issue.component";
 import {MatSelectModule} from "@angular/material/select";
 import {MyCommonModule} from "../../../common/common.module";
+import {CalendarComponent} from "./calendar/calendar.component";
+import {RapportComponent} from "./rapport/rapport.component";
 
 @NgModule({
   declarations: [
@@ -30,6 +32,8 @@ import {MyCommonModule} from "../../../common/common.module";
     ProjectComponent,
     GanttChartComponent,
     BoardComponent,
+    CalendarComponent,
+    RapportComponent,
     NewIssueComponent,
     ViewEditIssueComponent],
   exports: [

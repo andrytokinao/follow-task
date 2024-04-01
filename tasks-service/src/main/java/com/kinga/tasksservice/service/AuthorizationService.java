@@ -37,7 +37,7 @@ public class AuthorizationService {
 
     public List<MemberGroupe> addUserToAdminSystem(UserApp userApp) {
         MemberGroupe memberGroupe = null;
-        List<MemberGroupe> memberGroupes = memberGroupeRepository.findByUserIdAndGroupeType(userApp.getId(), "SYSTEM_ADMIN");
+        List<MemberGroupe> memberGroupes = memberGroupeRepository.findByUserIdAndGroupeType(userApp.getId(), "SYSTEM_GROUPE");
         if (!CollectionUtils.isEmpty(memberGroupes)) {
             memberGroupe = memberGroupes.get(0);
         } else {

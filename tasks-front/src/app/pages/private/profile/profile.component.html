@@ -38,16 +38,17 @@
           <i class="fa fa-address-card"></i>
           <input type="text" placeholder="CIN" [(ngModel)]="user.cin" [ngModelOptions]="{standalone: true}" />
         </div>
-        <div class="input-field">
+        <div class="input-field" *ngIf ="isCreate">
           <i class="fas fa-lock"></i>
           <input type="text" placeholder="Password" [(ngModel)]="user.password" [ngModelOptions]="{standalone: true}" />
         </div>
       </form>
       <div class="photo">
-        <img width="150px" [src]="photoUrl()">
+        <input style="display: none" type="file" id="photoInput" (change)="selectPhoto($event)"   accept="image/*"/>
+        <img width="150px" [src]="photoUrl()" (click)=" openPhotoInput()">
         <span  *ngIf ="tempPhoto"  type="submit" value="Save" class="btn solid save controle" style="float: right" >  <i class="fa fa-check color" style="color:#4f8a5c"></i>  Save</span>
       </div>
-      <span type="submit" value="Save" class="btn solid save controle" style="float: right" > <i class="fa fa-save"></i> Save</span>
+      <span (click)="saveUser()" type="submit" value="Save" class="btn solid save controle" style="float: right" > <i class="fa fa-save"></i> Save</span>
 
     </div>
     <div class="item-right">

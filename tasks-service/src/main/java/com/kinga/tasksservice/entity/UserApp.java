@@ -21,6 +21,7 @@ public class UserApp {
     private String lastName;
     private String contact;
     private String email;
+    private String address;
     private String cin;
     private String photo;
     @ManyToMany

@@ -111,10 +111,12 @@ type UserApp{
     id:String
     username:String
     firstName:String
+    password:String
+    pass:String
     lastName:String
     contact:String
     email:String
-    adress:String
+    address:String
     cin:String
     groupes:[MemberGroupe]
     operations:[Operation]
@@ -253,10 +255,12 @@ input UserAppInput{
     id:String
     username:String
     firstName:String
+    password:String
+    pass:String
     lastName:String
     contact:String
     email:String
-    adress:String
+    address:String
     cin:String
     photo:String
     groupes:[MemberGroupeInput]

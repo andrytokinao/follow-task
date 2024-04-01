@@ -33,6 +33,7 @@ export class GanttChartComponent {
     return totalDays * 40 + 'px';
   }
   days: string[] = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  maintenance: boolean = true;
 }
 
 

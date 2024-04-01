@@ -42,6 +42,7 @@
   height: 180px;
   border: #5a5a5a 0.1px solid;
   border-radius: 50%;
+  overflow: visible;
 }
 .photo img{
   width: 100%;

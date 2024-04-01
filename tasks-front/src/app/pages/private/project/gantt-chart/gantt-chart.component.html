@@ -1,4 +1,4 @@
-<div class="gantt-chart">
+<div class="gantt-chart" *ngIf="!maintenance">
   <div class="gantt-header">
     <div class="header-cell" *ngFor="let day of days" >
       {{ day }}
@@ -12,3 +12,4 @@
 
   </div>
 </div>
+<app-maintenance></app-maintenance>,

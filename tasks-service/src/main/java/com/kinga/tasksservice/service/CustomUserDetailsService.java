@@ -36,6 +36,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         );
     }
 
+
     private Collection<? extends GrantedAuthority> getAuthorities(Set<String> permitions) {
         return permitions.stream()
                 .map(permission -> new SimpleGrantedAuthority(permission))

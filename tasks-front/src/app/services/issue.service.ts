@@ -98,10 +98,10 @@ export class IssueService {
       });
   }
   loadDirectory(issueId:number): Observable<Repertoire> {
-    let url = "http://localhost:8081/api/load-directory";
     let params = new HttpParams().set('issueId', issueId);
-    return this.http
-      .get<Repertoire>(url,{params})
+    let url = "http://localhost:8081/api/load-directory?"+params.toString();
+     return this.http
+      .get<Repertoire>(url,{withCredentials:true },)
       .pipe(retry(1), catchError(this.handleError));
   }
 

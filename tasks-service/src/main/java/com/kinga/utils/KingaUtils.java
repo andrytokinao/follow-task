@@ -12,7 +12,7 @@ public class KingaUtils {
     private static String SUFFLE_STRING ="tLR4hpeTaQjvGHC0S2zogWPkyq5d3cuMKXlm7FDfiI-BAEJ_Uns/6ZO9YVb1wxrN8";
     private static String NORMAL_STRING = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/-_";
     public static boolean isValidPhoneNumber(String phoneNumber) {
-        if(phoneNumber== null || phoneNumber.length()==0)
+        if (StringUtils.isEmpty(phoneNumber))
             return true;
         String cleanedPhoneNumber = phoneNumber.replaceAll("\\s+", "").replaceAll("\\+", "");
         String regex = "^(261|0)(32|33|34|38)\\d{2}\\d{3}\\d{2}$";
@@ -22,7 +22,7 @@ public class KingaUtils {
     }
 
     public static String cleanPhonNumber(String phoneNumber){
-        if (phoneNumber == null || phoneNumber.length() == 0) {
+        if (StringUtils.isEmpty(phoneNumber)) {
             return "";
         }
         String cleanedPhoneNumber = phoneNumber.replaceAll("\\s+", "");
