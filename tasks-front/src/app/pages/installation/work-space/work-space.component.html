@@ -1,0 +1,17 @@
+<div class="container">
+  <h1>Choix de l'Espace de Travail</h1>
+
+  <p>Sélectionnez un espace de stockage suffisamment grand pour répondre aux besoins de votre application et éviter les problèmes d'espace insuffisant à l'avenir.</p>
+ <p *ngIf="lastSelected"> {{this.lastSelected.path}}</p>
+  <div *ngFor="let r of repertoire.repertoires">
+    <app-dossier-node-item [repertoire]="r" [lastSelectedPath] = "pathSelected" (fileSelected)="onFileSelected($event)"></app-dossier-node-item>
+  </div>
+  <div *ngIf ="pathSelected ===''" class="button-container">
+    <button   class="btn disabled">Enregistrer</button>
+  </div>
+  <div class="button-container" *ngIf ="pathSelected !=''">
+    <button (click)="saveConfig()">Enregistrer</button>
+  </div>
+</div>
+
+

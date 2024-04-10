@@ -1,20 +1,32 @@
 package com.kinga.tasksservice.service;
 
 
+import com.kinga.tasksservice.config.ConfigSystem;
 import com.kinga.tasksservice.dto.UserDetailsDeto;
 import com.kinga.tasksservice.entity.UserApp;
 import com.kinga.tasksservice.repository.GroupeUserRepository;
 import com.kinga.tasksservice.repository.MemberGroupeRepository;
 import com.kinga.tasksservice.repository.UserRepository;
+import com.kinga.utils.KingaUtils;
 import lombok.RequiredArgsConstructor;
+import org.apache.catalina.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -29,6 +41,8 @@ public class UserService {
    private final MemberGroupeRepository memberGroupeRepository;
    private final GroupeUserRepository groupeUserRepository;
    private final AuthorizationService authorizationService;
+
+   private final ConfigSystem  configSystem;
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
 
@@ -78,7 +92,6 @@ public class UserService {
         return userRepository.findAll();
     }
 
-
     public UserApp save(UserApp entity) {
         boolean isNew = false;
         if(StringUtils.isEmpty(entity.getId())){
@@ -89,7 +102,7 @@ public class UserService {
 
         if (!StringUtils.isEmpty(entity.getUsername()) && isNew) {
             UserApp userApp = userRepository.findByUsername(entity.getUsername());
-            if (userApp != null && ((entity.getId() == userApp.getId())))
+            if (userApp != null && (!(entity.getId().equalsIgnoreCase(userApp.getId()))))
                 throw new RuntimeException("Usename " + entity.getUsername() + " is alredy in used");
         }
         if (StringUtils.isEmpty(entity.getUsername())){
@@ -177,5 +190,26 @@ public class UserService {
         return new UserDetailsDeto(userApp.getId(),userApp.getUsername(), userApp.getPassword(),userApp.getFirstName(),userApp.getLastName(), userApp.getPhoto(),permissionNames);
 
     }
+    public ResponseEntity<String> addPhoto(MultipartFile file , String userId) {
+        if (!userRepository.existsById(userId))
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("User #"+userId+" non trouver");
 
+        if (file.isEmpty()) {
+            return ResponseEntity.badRequest().body("Le fichier est vide.");
+        }
+        try {
+            String fileName = file.getOriginalFilename();
+            String uploadDir = configSystem.getProfileDirectories();
+            Files.createDirectories(Paths.get(uploadDir));
+            Path filePath = Paths.get(uploadDir, fileName);
+            Files.write(filePath, file.getBytes());
+            UserApp userApp = userRepository.getById(userId);
+            userApp.setPhoto(KingaUtils.encodeText(filePath.toString()));
+            userRepository.save(userApp);
+            return ResponseEntity.ok().body("Le fichier a été téléchargé avec succès : " + fileName);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Une erreur s'est produite lors du téléchargement du fichier.");
+        }
+    }
 }

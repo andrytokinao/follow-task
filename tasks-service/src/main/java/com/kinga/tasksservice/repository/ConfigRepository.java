@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface ConfigRepository extends JpaRepository<ConfigEntry , Long> {
-    public List<ConfigEntry> findByType(String type);
+    public ConfigEntry getByActiveIs(boolean active);
 }

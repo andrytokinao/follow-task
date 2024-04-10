@@ -5,10 +5,12 @@ import com.kinga.tasksservice.dto.Repertoire;
 import com.kinga.tasksservice.dto.ValueDto;
 import com.kinga.tasksservice.entity.*;
 import com.kinga.tasksservice.service.AuthorizationService;
+import com.kinga.tasksservice.service.ConfigService;
 import com.kinga.tasksservice.service.IssueService;
 import com.kinga.tasksservice.service.StatusService;
 import com.kinga.utils.KingaUtils;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -29,13 +31,14 @@ import java.text.ParseException;
 import java.util.List;
 
 @Controller
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class GQIssueController {
     @Autowired
     IssueService issueService;
     @Autowired
     StatusService statusService;
     final AuthorizationService authorizationService;
+    final ConfigService configService;
     @QueryMapping
     public List<Issue> allIssue(){
         return issueService.findAllIssue();
@@ -77,11 +80,7 @@ public class GQIssueController {
     public List<MemberGroupe> loadGroupeMember(@Argument String userId) {
         return authorizationService.loadGroupeMember(userId);
     }
-    @GetMapping(path = "/api/load-directory")
-    @ResponseBody
-    public Repertoire loadDirectory(@RequestParam(required = true) Long issueId){
-        return issueService.loadDirectory(issueId);
-    }
+
     @GetMapping("/api/download")
     @ResponseBody
     public ResponseEntity<Resource> downloadFiles(@RequestParam List<String> fileNames, @RequestParam String directory) throws MalformedURLException {

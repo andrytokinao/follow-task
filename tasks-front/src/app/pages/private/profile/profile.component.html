@@ -46,7 +46,7 @@
       <div class="photo">
         <input style="display: none" type="file" id="photoInput" (change)="selectPhoto($event)"   accept="image/*"/>
         <img width="150px" [src]="photoUrl()" (click)=" openPhotoInput()">
-        <span  *ngIf ="tempPhoto"  type="submit" value="Save" class="btn solid save controle" style="float: right" >  <i class="fa fa-check color" style="color:#4f8a5c"></i>  Save</span>
+        <span  *ngIf ="tempPhoto" (click)="uploadPhoto()" type="submit" value="Save" class="btn solid save controle" style="float: right" >  <i class="fa fa-check color" style="color:#4f8a5c"></i>  Save</span>
       </div>
       <span (click)="saveUser()" type="submit" value="Save" class="btn solid save controle" style="float: right" > <i class="fa fa-save"></i> Save</span>
 

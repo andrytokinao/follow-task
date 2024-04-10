@@ -19,7 +19,7 @@ export class ProfileComponent  {
   activeModal: any;
   action: string ="";
   memberGroupes:MemberGroupe[] =[];
-  selectedPhoto: File | null = null;
+  selectedPhoto: File | any = {};
   isCreate: boolean = false;
   editName() {
 
@@ -68,5 +68,14 @@ export class ProfileComponent  {
   }
   openPhotoInput(): void {
     document.getElementById('photoInput')?.click();
+  }
+  uploadPhoto() {
+    this.userService.upload(this.selectedPhoto,this.user.id).subscribe(res=>{
+      alert(JSON.stringify(res))
+    },
+      error => {
+      alert('ERROR' + JSON.stringify(error));
+      }
+      )
   }
 }

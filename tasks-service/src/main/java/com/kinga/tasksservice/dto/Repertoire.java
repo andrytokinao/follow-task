@@ -14,4 +14,12 @@ public abstract class Repertoire {
         this.absolutePath = KingaUtils.encodeText(absolutePath);
         this.fileName = name;
     }
+
+    public void setAbsolutePath(String absolutePath) {
+        this.absolutePath = KingaUtils.encodeText(absolutePath);
+    }
+
+    public Repertoire(){
+
+    }
 }

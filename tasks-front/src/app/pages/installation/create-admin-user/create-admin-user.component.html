@@ -1,0 +1,56 @@
+
+<div class="container">
+  <!-- Titre -->
+  <h1>Création d'utilisateur admin</h1>
+  <p>Le code de confirmation est situé dans le fichier <b>{{codePath.path}}</b>    <p>
+
+  <div class="input-field">
+    <i class="fas fa-laptop-code"></i>
+    <input type="text"  placeholder="CODE" [(ngModel)]="user.codeValidation" [ngModelOptions]="{standalone: true}" />
+  </div>
+
+  <form action="" class="sign-up-form" (ngSubmit)="creer()">
+    <h2 class="title" > Information</h2>
+    <div class="input-field">
+      <i class="fas fa-user"></i>
+      <input type="text"  placeholder="Username" [(ngModel)]="user.username" [ngModelOptions]="{standalone: true}" required/>
+    </div>
+    <div class="input-field">
+      <i class="fa fa-address-book"></i>
+      <input type="text" placeholder="Nom" [(ngModel)]="user.firstName" [ngModelOptions]="{standalone: true}" required/>
+    </div>
+    <div class="input-field">
+      <i class="fa fa-address-book"></i>
+      <input type="text" placeholder="Prénom" [(ngModel)]="user.lastName" [ngModelOptions]="{standalone: true}" />
+    </div>
+    <div class="input-field">
+      <i class="fas fa-phone"></i>
+      <input type="text" placeholder="Numero telephone" [(ngModel)]="user.contact" [ngModelOptions]="{standalone: true}" required />
+    </div>
+    <div class="input-field">
+      <i class="fas fa fa-map-marker"></i>
+      <input type="text" placeholder="Adresse" [(ngModel)]="user.address" [ngModelOptions]="{standalone: true}" />
+    </div>
+    <div class="input-field">
+      <i class="fas fa-envelope"></i>
+      <input type="email" placeholder="Email" [(ngModel)]="user.email" [ngModelOptions]="{standalone: true}" required/>
+    </div>
+    <div class="input-field">
+      <i class="fa fa-address-card"></i>
+      <input type="text" placeholder="CIN" [(ngModel)]="user.cin" [ngModelOptions]="{standalone: true}" />
+    </div>
+    <div class="input-field" >
+      <i class="fas fa-lock"></i>
+      <input type="password" placeholder="Password" [(ngModel)]="user.password" [ngModelOptions]="{standalone: true}" required />
+    </div>
+  <div class="input-field" >
+    <i class="fas fa-lock"></i>
+    <input type="password" placeholder="Confirm" [(ngModel)]="user.confirm" [ngModelOptions]="{standalone: true}" required/>
+  </div>
+    <div class="btn controle input-field" style="width: 200px;">
+      <i class="fas fa-save"></i>
+      <input class="btn controle" value="Créer" type="submit">
+    </div>
+  </form>
+</div>
+

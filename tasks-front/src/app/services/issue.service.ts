@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import {HttpClient, HttpEvent, HttpHeaders, HttpParams, HttpRequest} from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
-import {Issue, Status, User,Comment,Repertoire} from "../type/issue";
+import {Issue, Status, User, Comment, Repertoire, ConfigEntry} from "../type/issue";
 import {Apollo} from "apollo-angular";
 import {
   SAVE_ISSUE,
@@ -12,7 +12,7 @@ import {
   ALL_COMMENT,
   GET_VALUES,
   ALL_CUSTOMFIELD, SAVE_VALUE,
-  LOAD_GROUPE_MEMBER
+  LOAD_GROUPE_MEMBER, SAVE_CONFIG
 } from "../type/graphql.operations";
 import {stripTypename} from "@apollo/client/utilities";
 

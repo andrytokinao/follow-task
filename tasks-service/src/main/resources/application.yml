@@ -67,3 +67,6 @@ task-authorization:
       accessibilities:
         - "CAN_VIEW_TASKS"
         - "CAN_COMMENT_ON_TASKS"
+configuration-system:
+  - profileDirectories : "${user.home}/.taskManager/profile"
+  - defaultTaskDirectories : "${user.home}/task_manager/"

@@ -157,7 +157,17 @@ type WorkFlow {
     issueTypes :[IssueType],
     crossingStates :[CrossingState],
 }
-
+type ConfigEntry{
+    id:Int  ,
+    version:String ,
+    acive : Boolean,
+    creation : String,
+    workDirectory:String ,
+    mediaDirectory :String ,
+    dataDirectory :String,
+    configDirectory :String,
+    repertoireCodeValidation:String
+}
 
 
 input CustomFieldImput {
@@ -253,6 +263,8 @@ input StatusInput{
 
 input UserAppInput{
     id:String
+    codeValidation:String
+    confirm:String
     username:String
     firstName:String
     password:String
@@ -298,4 +310,15 @@ input CommentInput {
     date:String
     issue:IssueInput
     user:UserAppInput
+}
+input ConfigEntryInput{
+    id:Int
+    version:String
+    acive : Boolean
+    creation : String
+    workDirectory:String
+    mediaDirectory :String
+    dataDirectory :String
+    configDirectory :String
+    repertoireCodeValidation:String
 }

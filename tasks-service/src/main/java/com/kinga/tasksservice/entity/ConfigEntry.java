@@ -14,12 +14,16 @@ import java.util.Date;
 @NoArgsConstructor
 @Entity
 public class ConfigEntry {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String type;
-    private String entry;
     private String version;
-    private Date deteEntry;
+    private boolean active ;
+    private Date creation;
+    private String workDirectory;
+    private String mediaDirectory;
+    private String dataDirectory;
+    private String configDirectory;
+    private String codeValidation;
+    private String repertoireCodeValidation;
 }

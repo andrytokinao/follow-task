@@ -14,8 +14,12 @@ import java.util.List;
 public class UserApp {
     @Id
     private String id;
+    @Transient
+    private String codeValidation;
     private String username;
     private String password;
+    @Transient
+    private String confirm;
     private String pass;
     private String firstName;
     private String lastName;

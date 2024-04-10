@@ -5,6 +5,7 @@ import {PublicComponent} from "./pages/public/public.component";
 import {PrivateComponent} from "./pages/private/private.component";
 import {NotFoundComponent} from "./pages/not-found/not-found.component";
 import {AuthGuard} from "./services/authorization.service.ts";
+import {InstallationComponent} from "./pages/installation/installation.component";
 
 
 const appRoutes: Routes = [
@@ -18,6 +19,11 @@ const appRoutes: Routes = [
   {path: 'private', component: PrivateComponent ,canActivate:[AuthGuard]}, {
     path: 'private',
     loadChildren: () => import('./pages/private/private.module').then(m => m.PrivateModule),
+    //  canMatch: [userAdmin]
+  },
+  {path: 'installation', component: InstallationComponent }, {
+    path: 'installation',
+    loadChildren: () => import('./pages/installation/installation.module').then(m => m.InstallationModule),
     //  canMatch: [userAdmin]
   },
   { path: '**',   component: NotFoundComponent ,data: { num: 0 } },

@@ -13,6 +13,17 @@ const SAVE_USER = gql`
     }
   }
 `;
+const INIT_USER = gql`
+  mutation initUser($userApp:UserAppInput) {
+    initUser(userApp: $userApp) {
+      id
+      username
+      firstName
+      lastName
+      cin
+    }
+  }
+`;
 const ALL_USERS = gql`
   query{
     allUsers{
@@ -268,6 +279,38 @@ const ALL_CUSTOMFIELD = gql`
     }
   }
 `;
+const SAVE_CONFIG = gql`
+  mutation saveConfig($configEntry:ConfigEntryInput) {
+    saveConfig( configEntry: $configEntry) {
+      id
+      dateEntry
+      version
+      typeEntry
+    }
+  }
+`;
+const GET_CONFIG = gql`
+  query allCustomField ($typeEntry:String!) {
+    getConfig(typeEntry:$typeEntry){
+      id
+      typeEntry
+      entry
+      version
+      dateEntry
+    }
+  }
+`;
+const ALL_CONFIG = gql`
+  query allConfig  {
+    allConfig {
+      id
+      typeEntry
+      entry
+      version
+      dateEntry
+    }
+  }
+`;
 export {
   supprimerTypename,
   SAVE_USER,
@@ -282,8 +325,11 @@ export {
   GET_VALUES,
   ALL_CUSTOMFIELD,
   SAVE_VALUE,
-  LOAD_GROUPE_MEMBER
-
+  LOAD_GROUPE_MEMBER,
+  ALL_CONFIG,
+  GET_CONFIG,
+  SAVE_CONFIG,
+  INIT_USER
 }
 function  supprimerTypename<T>(objet: T): T {
   if (!objet || typeof objet !== 'object') {

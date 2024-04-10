@@ -2,11 +2,42 @@ package com.kinga.tasksservice.dto;
 
 
 
+import com.kinga.utils.KingaUtils;
+import org.springframework.util.StringUtils;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 public  class Dossier extends Repertoire {
+    public static List<Dossier> getSousDossier(String path) {
+        File dossier = new File(KingaUtils.decodeText(path));
+        if(dossier == null || !dossier.isDirectory()){
+            throw new RuntimeException("Invalid path");
+        }
+        List<Dossier> dossiers = new ArrayList<>();
+        for(File file : dossier.listFiles()) {
+            if (file.isDirectory()) {
+                Dossier d = new Dossier(file.getName());
+                d.setAbsolutePath(file.getAbsolutePath());
+                d.setPath(file.getAbsolutePath());
+                dossiers.add(d);
+            }
+        }
+        return dossiers;
+
+    }
+    public static List<Dossier> loadRootDirectory(){
+        List<Dossier> dossiers = new ArrayList<>();
+        for(File route : File.listRoots()) {
+            if (route.isDirectory()) {
+                Dossier dossier = new Dossier(route.getName());
+                dossier.setAbsolutePath(route.getAbsolutePath());
+                dossiers.add(dossier);
+            }
+        }
+        return dossiers;
+    }
     public Dossier(String absolutePath, String name){
         super(absolutePath,name);
         listDirectory( absolutePath);
@@ -16,6 +47,11 @@ public  class Dossier extends Repertoire {
         super(file.getAbsolutePath(),file.getName());
         listDirectory( file.getAbsolutePath());
         setType("directory");
+    }
+    public Dossier(String fileName){
+        super();
+        String fn = StringUtils.isEmpty(fileName) ? "/" : fileName;
+        super.setFileName(fn);
     }
     private void listDirectory(String dir) {
         File file = new File(dir);

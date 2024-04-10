@@ -4,7 +4,6 @@ import {AdminComponent} from "./admin.component";
 import {GroupsComponent} from "./groups/groups.component";
 import {ParametersComponent} from "./parameters/parameters.component";
 import {UsersComponent} from "./users/users.component";
-import {ProjectRoutingModule} from "../project/project-routing.module";
 import {MatTabsModule} from "@angular/material/tabs";
 import {MatCardModule} from "@angular/material/card";
 import {MatDialogModule} from "@angular/material/dialog";

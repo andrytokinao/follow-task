@@ -1,0 +1,11 @@
+<div >
+  <label class="tnz-file-tree-item " [ngClass]="{'file':repertoire.type==='file'}">
+    <span class="tnz-file-tree-label" (click)="openDossier()"  [ngClass]="{'open-icone': repertoire.open, 'close-icone': !repertoire.open ,'selected':isLastSelected()}"></span>
+    <span [ngClass]="{'selected':isLastSelected()}" (click)="onClick()" >{{repertoire.fileName}} </span>
+    <div class="tnz-file-tree-branches" *ngIf="repertoire.repertoires && repertoire.repertoires.length > 0" >
+      <div  *ngFor="let r of repertoire.repertoires" [ngClass]="{'file':repertoire.type==='file' ,'open-child': repertoire.open, 'close-child': !repertoire.open}" >
+        <app-dossier-node-item [repertoire]="r" [lastSelectedPath]="lastSelectedPath"  (fileSelected)="onFileSelected($event)"></app-dossier-node-item>
+      </div>
+    </div>
+  </label>
+</div>

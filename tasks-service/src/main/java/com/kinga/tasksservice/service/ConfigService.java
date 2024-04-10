@@ -1,7 +1,9 @@
 package com.kinga.tasksservice.service;
 
+import com.kinga.tasksservice.dto.ConfigBuilder;
 import com.kinga.tasksservice.dto.ValueDto;
 import com.kinga.tasksservice.entity.*;
+import com.kinga.tasksservice.entity.enumapp.TypeConfig;
 import com.kinga.tasksservice.repository.ConfigRepository;
 import com.kinga.tasksservice.repository.CustomFieldRepository;
 import com.kinga.tasksservice.repository.GroupeUserRepository;
@@ -10,16 +12,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
+import java.beans.IntrospectionException;
+import java.beans.PropertyDescriptor;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.ParseException;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
-public class ParameService {
-    private static final Logger logger = LoggerFactory.getLogger(ParameService.class);
+public class ConfigService {
+    private static final Logger logger = LoggerFactory.getLogger(ConfigService.class);
     private final ConfigRepository configRepository;
     private final UserService userService;
     private final GroupeUserRepository groupeUserRepository;
@@ -50,17 +60,6 @@ public class ParameService {
         return userService.findAll();
     }
     public Issue initalizeData() throws ParseException, ClassNotFoundException, InstantiationException, IllegalAccessException, IOException {
-        List<ConfigEntry> configEntrys = configRepository.findByType("init-data");
-        if (!CollectionUtils.isEmpty(configEntrys)) {
-            ConfigEntry c = configEntrys.get(0);
-            logger.info("Data is alredy initialize at "+c.getDeteEntry());
-            return null;
-        }
-        ConfigEntry configEntry = new ConfigEntry();
-        configEntry.setDeteEntry(new Date());
-        configEntry.setVersion("test");
-        configEntry.setType("init-data");
-        configRepository.save(configEntry);
 
         Issue issue = new Issue();
         issue.setSummary("Etude ");
@@ -125,5 +124,47 @@ public class ParameService {
         List<CustomFieldValue> values = issueService.saveValue(numericValue);
         System.out.println("Value size =" + values.size());
         return issue;
+    }
+    public List<ConfigEntry> save(ConfigEntry configEntry){
+      return Arrays.asList(configRepository.save(configEntry));
+    }
+    public ConfigEntry saveEntry(String type, String value, Long configId) throws ClassNotFoundException, InstantiationException, IllegalAccessException, IntrospectionException, InvocationTargetException {
+        if (configId == null || !configRepository.existsById(configId) ) {
+            throw new RuntimeException("id not valid");
+        }
+        ConfigEntry configEntry = configRepository.getById(configId);
+        configEntry = TypeConfig.setValue(configEntry,type,value);
+        return configRepository.save(configEntry);
+     }
+    public ConfigEntry getCurrentConfig() throws IOException {
+        ConfigEntry configEntry = configRepository.getByActiveIs(true);
+        if (configEntry != null)
+            return configEntry;
+        configEntry = new ConfigEntry();
+        configEntry.setActive(true);
+        configEntry.setCreation(new Date());
+        String secrete =UUID.randomUUID().toString();
+        Path baseDirectory = Paths.get( System.getProperty("user.home"), Project.BASE_DIRECTORY);
+        if (!Files.exists(baseDirectory)) {
+            Files.createDirectory(baseDirectory);
+        }
+        PrintWriter writer = new PrintWriter(baseDirectory.toString()+"/code-instalation.txt", "UTF-8");
+        writer.println("code validation ="+secrete);
+        writer.close();
+        configEntry.setRepertoireCodeValidation(baseDirectory.toString()+"/code-instalation.txt");
+        configEntry.setCodeValidation(secrete);
+        return configRepository.save(configEntry);
+    }
+    public UserApp initUser(UserApp userApp) throws IOException {
+        String codeValidation = userApp.getCodeValidation();
+        if (StringUtils.isEmpty(codeValidation)) {
+            throw new RuntimeException("Code obligatoire ");
+        }
+        if (!codeValidation.equalsIgnoreCase(getCurrentConfig().getCodeValidation())) {
+            throw new RuntimeException("Code code invalid ");
+        }
+        userApp = userService.save(userApp);
+        authorizationService.addUserToAdminSystem(userApp);
+        return userApp;
     }
 }

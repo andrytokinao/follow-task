@@ -1,12 +1,14 @@
 
 type Mutation {
     saveUser(userApp:UserAppInput):UserApp
+    initUser(userApp:UserAppInput):UserApp
 
     saveIssue(issue:IssueInput) :Issue
 
     updateIssue(issue:IssueInput) : Issue
     saveValue(value:ValueInput):[CustomFieldValue]
     addComment(comment:CommentInput):[Comment]
+    saveConfigWithQG(configEntry:ConfigEntryInput):[ConfigEntry]
 }
 
 

@@ -88,3 +88,14 @@ export interface Uploading {
   status:string ;
   progression:number ;
 }
+export interface ConfigEntry{
+  id:Number  ;
+  version:String ;
+  acive : Boolean;
+  creation : String,
+  workDirectory:String ;
+  mediaDirectory :String ;
+  dataDirectory :String ;
+  configDirectory :String;
+  repertoireCodeValidation:String
+}

@@ -11,4 +11,6 @@ type Query {
     getValues(issueId:Int):[CustomFieldValue]
     loadDirectory(issueId:Int):Repertoire
     loadGroupeMember(userId:String):[MemberGroupe]
+    getConfig(typeEntry:String):[ConfigEntry]
+    allConfig:[ConfigEntry]
 }

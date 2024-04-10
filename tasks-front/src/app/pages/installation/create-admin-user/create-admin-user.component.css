@@ -1,0 +1,99 @@
+.container{
+  margin-bottom: 50px;
+}
+.profile {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  grid-gap: 10px;
+  max-height: 80%;
+  min-height: 500%;
+}
+
+.item {
+  padding: 20px;
+  border: 1px solid #ccc;
+  max-height: 90vh;
+  min-height: 60vh;
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+}
+.left-item{
+  max-height: 80vh;
+  overflow: scroll;
+  border: none;
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+
+}
+.item-right {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.xlModal > .modal-dialog {
+  max-width: 1490px !important;
+  min-width: 971px !important;
+}
+.sign-in-form{
+  width: 200px;
+  background-color: #5a5a5a;
+}
+.input-field {
+  margin: 1px 0;
+  height: 55px;
+  border-radius: 55px;
+  display: grid;
+  grid-template-columns: 15% 85%;
+  padding: 0 0.4rem;
+  position: relative;
+}
+.save{
+  grid-column-start:2;
+  grid-column-end:3;
+}
+.groupe-list{
+  margin: 2px;
+}
+.groupe-list .groupe-item{
+  background: none;
+  outline: none;
+  border: none;
+  line-height: 1;
+  font-weight: 200;
+  font-size: 1.1rem;
+  color: #333;
+  margin: 20px;
+}
+.groupe-item .access{
+  float: right;
+  min-width: 120px;
+}
+.controle , .delete{
+  float: right;
+}
+.input-field i {
+  text-align: center;
+  line-height: 55px;
+  color: #acacac;
+  transition: 0.5s;
+  font-size: 1.1rem;
+}
+.input-field input {
+  background: none;
+  outline: none;
+  border: none;
+  line-height: 1;
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.input-field input::placeholder {
+  color: #aaa;
+  font-weight: 500;
+}
