@@ -24,7 +24,7 @@ export class LoginComponent {
               private modalService: NgbModal,
   ) {
     this.authService.getProfile().subscribe(profile=>{
-      this.router.navigate(["private/"])
+      this.router.navigate(['/private/project']);
     });
     this.configService.nextIntallation().subscribe(path=>{
 
@@ -39,11 +39,11 @@ export class LoginComponent {
     this.loginService.login(this.username, this.password).pipe().subscribe(
       (res:any)=>{
         if(res == 'success') {
-          this.router.navigate(['/private']);
+          this.router.navigate(['/private/project']);
         }
       },(res2:any) => {
         if(res2 == 'success') {
-          this.router.navigate(['/private']);
+          this.router.navigate(['/private/project']);
         }
       }
     )

@@ -53,7 +53,6 @@ public class ProjectService {
         ConfigEntry configEntry = configRepository.getByActiveIs(true);
         String installation = configEntry.getInstalationState();
 
-
         if (StringUtils.isEmpty(project.getName()) || StringUtils.isEmpty(project.getPrefix())) {
             throw new RuntimeException("Name and prefix are required");
         }
@@ -63,11 +62,16 @@ public class ProjectService {
             }
         }
         if (StringUtils.isEmpty(project.getPath())) {
+            if (StringUtils.isEmpty(configEntry.getWorkDirectory())){
+                configEntry.setInstalationState("private/admin/config/work-space");
+                configRepository.save(configEntry);
+                throw new RuntimeException("configuration work space not completed");
+            }
             project.setPath(KingaUtils.encodeText(KingaUtils.decodeText(configEntry.getWorkDirectory()) + "/" + project.getPrefix()));
         }
         project = projectRepository.save(project);
         if (!"complete".equalsIgnoreCase(installation)) {
-            configEntry.setInstalationState("create-project/issue-type?project=" + project.getPrefix());
+            configEntry.setInstalationState("private/admin/project/issue-type?project=" + project.getPrefix());
             configEntry.setProjectPrefix(project.getPrefix());
             configRepository.save(configEntry);
         }
@@ -79,13 +83,13 @@ public class ProjectService {
         ConfigEntry configEntry = configRepository.getByActiveIs(true);
         String installation = configEntry.getInstalationState();
         issueType = issueTypeRepository.save(issueType);
-        if (!"complete".equalsIgnoreCase(installation)) {
-            configEntry.setInstalationState("create-project/work-flow?issueType=" + issueType.getId());
-        }
+
         if (issueType.getProject() == null)
             throw new RuntimeException("Type doit etre affecté au projet ");
         Project project = issueType.getProject();
-
+        if (!"complete".equalsIgnoreCase(installation)) {
+            configEntry.setInstalationState("rivate/admin/project/choose-groupe?project=" + project.getPrefix());
+        }
         if (Project.CONFIG_STATE1.equalsIgnoreCase(project.getStatusConfig())) {
             project.setStatusConfig(Project.CONFIG_STATE2);
         }

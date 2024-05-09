@@ -16,6 +16,7 @@ const privateRoute: Routes = [
       {
         path: '',
         children: [
+          { path: '',   redirectTo: 'project', pathMatch: 'full' },
           { path: 'profile', component: ProfileComponent  },
           { path: 'access-denied', component: AccessDeniedComponent },
           { path: 'project', component: ProjectComponent } ,

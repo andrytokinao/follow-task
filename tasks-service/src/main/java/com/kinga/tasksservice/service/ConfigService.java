@@ -135,6 +135,14 @@ public class ConfigService {
         }
         ConfigEntry configEntry = configRepository.getById(configId);
         configEntry = TypeConfig.setValue(configEntry,type,value);
+        configEntry.getMediaDirectory();
+        if (StringUtils.isEmpty(configEntry.getMediaDirectory())) {
+            configEntry.setInstalationState("private/admin/config/media-space");
+        } else if (StringUtils.isEmpty(configEntry.getWorkDirectory())) {
+            configEntry.setInstalationState("private/admin/config/work-space");
+        } else if(!"completed".equalsIgnoreCase(configEntry.getInstalationState())) {
+            configEntry.setInstalationState("private/admin/project/create");
+        }
         return configRepository.save(configEntry);
      }
     public ConfigEntry getCurrentConfig() throws IOException {
@@ -169,7 +177,7 @@ public class ConfigService {
         }
         userApp = userService.save(userApp);
         authorizationService.addUserToAdminSystem(userApp);
-        configEntry.setInstalationState("work-space");
+        configEntry.setInstalationState("private/admin/config/media-space");
         configRepository.save(configEntry);
         return userApp;
     }

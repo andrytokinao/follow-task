@@ -15,6 +15,7 @@ import {MatDialogModule} from "@angular/material/dialog";
 import {MatToolbarModule} from "@angular/material/toolbar";
 import  {FormsModule,ReactiveFormsModule} from "@angular/forms";
 import {MatInputModule} from "@angular/material/input";
+import {InstallationComponent} from "./installation/installation.component";
 
 @NgModule({
   declarations: [
@@ -23,6 +24,7 @@ import {MatInputModule} from "@angular/material/input";
     TreeDossierItemComponent,
     TextFieldComponent,
     TelFieldComponent,
+    InstallationComponent
 
   ],
   imports: [
@@ -49,6 +51,7 @@ import {MatInputModule} from "@angular/material/input";
     TreeDossierItemComponent,
     TextFieldComponent,
     TelFieldComponent,
+    InstallationComponent
   ]
 })
 export class MyCommonModule { }
