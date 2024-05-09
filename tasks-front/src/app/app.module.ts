@@ -23,7 +23,6 @@ import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import {BrowserModule} from "@angular/platform-browser";
 import {CookieService} from "ngx-cookie-service";
 
 
@@ -35,7 +34,6 @@ import {CookieService} from "ngx-cookie-service";
     CommonModule,
     AppRoutingModule,
     ProjectModule,
-    BrowserModule,
     BrowserAnimationsModule,
     NgbModule,
     HttpClientModule,

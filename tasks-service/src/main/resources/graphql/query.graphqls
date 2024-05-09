@@ -13,4 +13,8 @@ type Query {
     loadGroupeMember(userId:String):[MemberGroupe]
     getConfig(typeEntry:String):[ConfigEntry]
     allConfig:[ConfigEntry]
+    allProjects:[Project]
+    allWorkFlow:[WorkFlow]
+    getProject(prefix:String):Project
+    getIssueType(issueTypeId:Int):IssueType
 }

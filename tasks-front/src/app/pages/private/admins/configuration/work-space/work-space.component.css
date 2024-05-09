@@ -1,0 +1,46 @@
+.container {
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  margin: 50px;
+  max-width: 80%;
+}
+
+h1 {
+  font-size: 24px;
+  margin-bottom: 15px;
+}
+
+p {
+  margin-bottom: 20px;
+}
+
+form {
+  margin-bottom: 30px;
+}
+
+.button-container {
+  text-align: center;
+}
+
+button {
+  padding: 10px 20px;
+  margin: 0 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #333333;
+  color: #fff;
+  font-size: 16px;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+.file-content{
+  max-height: 500px;
+  overflow-y: scroll;
+  border-bottom: solid #5a5a5a 1px;
+}

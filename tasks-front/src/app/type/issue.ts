@@ -98,4 +98,52 @@ export interface ConfigEntry{
   dataDirectory :String ;
   configDirectory :String;
   repertoireCodeValidation:String
+  projectPrefix:String
+}
+export interface Project {
+  id:Number;
+  name:String;
+  prefix:String;
+  issuTypes : IssueType[];
+  workFlows : WorkFlow[];
+}
+export interface IssueType{
+  id:number
+  name:String
+  prefix:String
+  project:Project
+ curentWorkFlow:WorkFlow;
+
+}
+export interface WorkFlow {
+  id:Number,
+  name:String,
+  active :Boolean,
+  states :Status[],
+  issueTypes :IssueType[],
+  project:Project
+  crossingStates :CrossingState[],
+}
+interface CrossingState {
+  id:Number
+  name:String
+  description:String
+  from:Status
+  to:Status
+  credential:Credential
+}
+export interface Menu {
+  label :string
+  path : string
+  route : string
+  credancials: string[];
+}
+export interface Accessibility {
+  routes : Set<string>
+  moduleMenues : Map<string,ModuleMenu>
+}
+export interface ModuleMenu {
+  route:string
+  menues:Menu[];
+
 }

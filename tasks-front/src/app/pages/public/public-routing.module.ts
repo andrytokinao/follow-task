@@ -4,7 +4,6 @@ import {HomeComponent} from "./home/home.component";
 import {HelpComponent} from "./help/help.component";
 import {LoginComponent} from "./login/login.component";
 import {PublicComponent} from "./public.component";
-import {LoginGuard, NotLogIn} from "../../services/authorization.service.ts";
 
 const publicRoute: Routes = [
   {
@@ -17,7 +16,7 @@ const publicRoute: Routes = [
           { path: '',   redirectTo: 'home', pathMatch: 'full' },
           { path: 'home', component: HomeComponent },
           { path: 'help', component: HelpComponent },
-          { path: 'login', component: LoginComponent,canActivate:[LoginGuard]},
+          { path: 'login', component: LoginComponent},
         ]
       }
     ]

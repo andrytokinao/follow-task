@@ -20,6 +20,15 @@ h1,h2,h3,h4 {
   font-weight: bold;
   color: #5a5a5a;
 }
+.save,.fa-edit {
+  cursor: pointer;
+  color: #4f8a5c;
+}
+.save:hover {
+  cursor: pointer;
+  color: #0568ae;
+  font-weight: bolder;
+}
 .controle:hover{
   background-color: #d4d4d4;
   cursor: pointer;

@@ -26,4 +26,6 @@ public class ConfigEntry {
     private String configDirectory;
     private String codeValidation;
     private String repertoireCodeValidation;
+    private String instalationState;
+    private String projectPrefix;
 }

@@ -1,8 +1,8 @@
 package com.kinga.tasksservice.service;
 
-import com.kinga.tasksservice.config.PermissionSystem;
-import com.kinga.tasksservice.config.PermissionTask;
-import com.kinga.tasksservice.config.RoleApp;
+import com.kinga.tasksservice.config.*;
+import com.kinga.tasksservice.dto.Accessibility;
+import com.kinga.tasksservice.dto.UserDetailsDeto;
 import com.kinga.tasksservice.entity.GroupeUser;
 import com.kinga.tasksservice.entity.MemberGroupe;
 import com.kinga.tasksservice.entity.UserApp;
@@ -12,11 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import javax.management.relation.Role;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,7 +22,7 @@ public class AuthorizationService {
     final PermissionTask permissionTask;
     final MemberGroupeRepository memberGroupeRepository;
     final GroupeUserRepository groupeUserRepository;
-
+    private final ConfigMenue configMenue;
     public List<MemberGroupe> addStandarUser(UserApp userApp) {
         MemberGroupe memberGroupe = new MemberGroupe();
         memberGroupe.setGroupe(systemGroupe());
@@ -123,5 +120,49 @@ public class AuthorizationService {
 
     public List<MemberGroupe> loadGroupeMember(String userId) {
         return  memberGroupeRepository.findByUserId(userId);
+    }
+    public Accessibility getAccessibility( UserDetailsDeto userDetails){
+        Accessibility accessibility = new Accessibility();
+        Set<String> routes = new HashSet<>();
+        Map<String , ModuleMenue> moduleMenue = new HashMap<>();
+        ModuleMenue installation = filterAccessible(configMenue.getInstallations(),userDetails);
+        ModuleMenue privateMenue = filterAccessible(configMenue.getPrivateMenue(), userDetails);
+        ModuleMenue creationProjet = filterAccessible(configMenue.getCreationProject(), userDetails);
+        if (installation !=null) {
+            moduleMenue.put(installation.getRoute(),installation);
+            installation.getMenues().forEach( menuApp -> {
+                routes.add(installation.getRoute()+menuApp.getPath());
+            });
+        }
+
+        if(creationProjet !=null) {
+            moduleMenue.put(creationProjet.getRoute(),creationProjet);
+            creationProjet.getMenues().forEach( menuApp -> {
+                routes.add(creationProjet.getRoute()+menuApp.getPath());
+            });
+        }
+        if(creationProjet !=null) {
+            moduleMenue.put(privateMenue.getRoute(),privateMenue);
+            privateMenue.getMenues().forEach( menuApp -> {
+                routes.add(privateMenue.getRoute()+menuApp.getPath());
+                routes.add(installation.getRoute()+menuApp.getPath());
+            });
+        }
+        accessibility.setRoutes(routes);
+        accessibility.setModuleMenues(moduleMenue);
+        return accessibility;
+    }
+    public ModuleMenue filterAccessible(ModuleMenue moduleMenue, UserDetailsDeto userDetails){
+        List<MenuApp> menus = moduleMenue.getMenues().stream().filter( menuApp -> {
+            return menuApp.getCredancials().stream()
+                    .anyMatch(userDetails.getPermissions()::contains);
+        }).collect(Collectors.toList());
+        ModuleMenue newModule = new ModuleMenue();
+        if (CollectionUtils.isEmpty(menus)) {
+            return null;
+        }
+        newModule.setMenues(menus);
+        newModule.setRoute(moduleMenue.getRoute());
+     return newModule;
     }
 }

@@ -1,0 +1,23 @@
+<div class="modal-header">
+  <h4 class="modal-title"> Nouveau projet </h4>
+  <span typeField="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+    <i class="fas fa-close"></i>  <span aria-hidden="true"></span>
+  </span>
+</div>
+<div class="modal-body">
+  <form #f="ngForm">
+    <div class="form-group">
+      <label for="summary">Titre</label>
+      <input [(ngModel)]="project.name" [ngModelOptions]="{standalone: true}" class="form-control" id="summary" name="summary"
+             typeField="text" >
+    </div>
+    <div class="form-group">
+      <label >Prefix</label>
+      <input [(ngModel)]="project.prefix" [ngModelOptions]="{standalone: true}" class="form-control" id="summary" name="summary"
+             typeField="text">
+    </div>
+  </form>
+</div>
+<div class="modal-footer">
+  <button typeField="button" class="btn btn-primary" (click)="save()">Enregistrer</button>
+</div>

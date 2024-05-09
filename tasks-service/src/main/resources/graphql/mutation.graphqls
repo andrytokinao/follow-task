@@ -9,6 +9,10 @@ type Mutation {
     saveValue(value:ValueInput):[CustomFieldValue]
     addComment(comment:CommentInput):[Comment]
     saveConfigWithQG(configEntry:ConfigEntryInput):[ConfigEntry]
+    createProjectOrSave(project:ProjectInput):Project
+    saveIssueType(issueType:IssueTypeInput):[IssueType]
+    affectWorkFlow(issueType:IssueTypeInput):WorkFlow
+    addStatus(status:StatusInput, workFlow:WorkFlowInput, project:ProjectInput):WorkFlow
 }
 
 

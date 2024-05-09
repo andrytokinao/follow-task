@@ -1,15 +1,12 @@
 package com.kinga.tasksservice.web;
 
-import com.kinga.tasksservice.dto.Dossier;
-import com.kinga.tasksservice.dto.Repertoire;
 import com.kinga.tasksservice.dto.ValueDto;
 import com.kinga.tasksservice.entity.*;
 import com.kinga.tasksservice.service.AuthorizationService;
 import com.kinga.tasksservice.service.ConfigService;
 import com.kinga.tasksservice.service.IssueService;
-import com.kinga.tasksservice.service.StatusService;
+import com.kinga.tasksservice.service.ProjectService;
 import com.kinga.utils.KingaUtils;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -28,7 +25,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
@@ -36,7 +35,7 @@ public class GQIssueController {
     @Autowired
     IssueService issueService;
     @Autowired
-    StatusService statusService;
+    ProjectService projectService;
     final AuthorizationService authorizationService;
     final ConfigService configService;
     @QueryMapping
@@ -53,7 +52,7 @@ public class GQIssueController {
     }
     @QueryMapping
     public List<Status> findAllStatus(){
-        return statusService.findAll();
+        return projectService.findAll();
     }
     // comment
     @MutationMapping
@@ -105,4 +104,38 @@ public class GQIssueController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Une erreur s'est produite lors du téléchargement du fichier.");
         }
     }
+    @QueryMapping
+    public List<Project> allProjects(){
+       return projectService.allProjects();
+    }
+    @QueryMapping
+    public Project getProject(@Argument String prefix){
+        return projectService.getByPrefix(prefix);
+    }
+    @MutationMapping
+    public Project createProjectOrSave(@Argument  Project project){
+        return projectService.createProjectOrSave(project);
+    }
+    @MutationMapping
+    public List<IssueType> saveIssueType(@Argument IssueType issueType){
+        return projectService.saveIssueType(issueType);
+    }
+    @MutationMapping
+    public WorkFlow affectWorkFlow(@Argument IssueType issueType){
+        return projectService.affectWorkFlow(issueType);
+    }
+    @MutationMapping
+    public WorkFlow addStatus(@Argument  Status status, @Argument  WorkFlow workFlow, @Argument Integer issueTypeId){
+        return projectService.addStatus(status, workFlow, issueTypeId);
+    }
+    @QueryMapping
+    public List<WorkFlow> allWorkFlow(){
+        return projectService.allWorkFlow();
+    }
+    @QueryMapping
+    public IssueType getIssueType(@Argument Long issueTypeId){
+        return projectService.getIssueType(issueTypeId);
+    }
+
+
 }

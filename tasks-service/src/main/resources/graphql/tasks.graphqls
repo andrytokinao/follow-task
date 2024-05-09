@@ -59,9 +59,9 @@ type  Issue {
 }
 type IssueType{
     id:Int
-    displayName:String
-    projects:[Project]
-    issues:[Issue]
+    name:String
+    prefix:String
+    project:Project
     curentWorkFlow:WorkFlow
 }
 
@@ -86,7 +86,8 @@ type Project{
     id:Int
     name:String
     prefix:String
-    issueTypes:[IssueType]
+    issueTypes:[IssueType] !
+    workFlows :[WorkFlow] !
 }
 
 type RoleApp{
@@ -155,6 +156,7 @@ type WorkFlow {
     active :Boolean,
     states :[Status],
     issueTypes :[IssueType],
+    project:Project
     crossingStates :[CrossingState],
 }
 type ConfigEntry{
@@ -215,9 +217,10 @@ input  IssueInput {
 }
 input IssueTypeInput{
     id:Int
-    displayName:String
-    projects:[Int]
-    curentWorkFlow:Int
+    name:String
+    prefix:String
+    project:ProjectInput!
+    curentWorkFlow:WorkFlowInput
 }
 
 input OperationInput{
@@ -241,7 +244,7 @@ input ProjectInput{
     id:Int
     name:String
     prefix:String
-    issueTypes:[Int]
+    issueTypes:[IssueTypeInput]
 }
 
 input RoleAppInput{
@@ -299,10 +302,8 @@ input RepertoireInput {
 input WorkFlowInput {
     id:Int,
     name:String,
+    project:ProjectInput
     active :Boolean,
-    states :[Int],
-    issueTypes :[Int],
-    crossingStates :[Int],
 }
 input CommentInput {
     id:Int

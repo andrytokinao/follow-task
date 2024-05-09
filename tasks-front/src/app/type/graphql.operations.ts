@@ -293,10 +293,11 @@ const GET_CONFIG = gql`
   query allCustomField ($typeEntry:String!) {
     getConfig(typeEntry:$typeEntry){
       id
-      typeEntry
-      entry
-      version
-      dateEntry
+      acive
+      configDirectory
+      dataDirectory
+      mediaDirectory
+      workDirectory
     }
   }
 `;
@@ -304,13 +305,187 @@ const ALL_CONFIG = gql`
   query allConfig  {
     allConfig {
       id
-      typeEntry
-      entry
+      acive
       version
-      dateEntry
     }
   }
 `;
+
+const  SAVE_PROJECT = gql`
+  mutation saveProject ($project:ProjectInput!) {
+    createProjectOrSave(project: $project){
+      id
+      name
+      prefix
+      issueTypes {
+        id
+        name
+        curentWorkFlow {
+          id
+          name
+          states {
+            id
+            name
+            displayName
+            iconeFile
+          }
+        }
+      }
+
+    }
+  }
+`;
+
+const  SAVE_ISSUE_TYPE = gql`
+  mutation saveIssueType ($issueType:IssueTypeInput!) {
+    saveIssueType(issueType: $issueType){
+      id
+      name
+      curentWorkFlow {
+        id
+        name
+        states {
+          id
+          name
+          displayName
+          iconeFile
+        }
+      }
+
+    }
+  }
+`;
+const  GET_ISSUE_TYPE = gql`
+   query ($issueTypeId:Int!) {
+    getIssueType(issueTypeId: $issueTypeId){
+      id
+      name
+      prefix
+      curentWorkFlow {
+        id
+        name
+        states {
+          id
+          name
+          displayName
+          iconeFile
+        }
+      }
+
+    }
+  }
+`;
+const  AFFECT_WORKFLOW = gql`
+  mutation affectWorkFlow ($issueType:IssueTypeInput!) {
+    affectWorkFlow(issueType: $issueType){
+      id
+      name
+      states {
+        id
+        name
+        iconeFile
+      }
+
+    }
+  }
+`;
+const  ADD_STATUS = gql`
+  mutation addStatus ($status:StatusInput ,$workFlow:WorkFlowInput, $project:ProjectInput!) {
+    addStatus(workFlow: $workFlow, status: $status, project: $project){
+      id
+      name
+      states {
+        id
+        name
+        iconeFile
+      }
+    }
+  }
+`;
+const ALL_PROJECT = gql`
+  query allProjects  {
+    allProjects {
+      id
+      name
+      prefix
+      statusConfig
+      issueTypes {
+        id
+        displayName
+        curentWorkFlow {
+          id
+          name
+          crossingStates {
+            id
+            name
+            description
+            credential {
+              id
+              name
+            }
+          }
+          states {
+            id
+            name
+            displayName
+            iconeFile
+            acctionPossible {
+              id
+              name
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+const GET_PROJECT = gql`
+  query getProject($prefix:String)  {
+    getProject (prefix:$prefix){
+      id
+      name
+      prefix
+      issueTypes {
+        id
+        name
+        curentWorkFlow {
+          id
+          name
+          crossingStates {
+            id
+            name
+            description
+            credential {
+              id
+              name
+            }
+          }
+          states {
+            id
+            name
+            displayName
+            iconeFile
+            acctionPossible {
+              id
+              name
+            }
+          }
+        }
+      },
+      workFlows {
+        id
+        name
+        states {
+          id
+          name
+          displayName
+        }
+      }
+    }
+  }
+`;
+
 export {
   supprimerTypename,
   SAVE_USER,
@@ -329,7 +504,13 @@ export {
   ALL_CONFIG,
   GET_CONFIG,
   SAVE_CONFIG,
-  INIT_USER
+  INIT_USER,
+  SAVE_PROJECT,
+  SAVE_ISSUE_TYPE,
+  AFFECT_WORKFLOW,
+  ALL_PROJECT,
+  GET_PROJECT,
+  GET_ISSUE_TYPE
 }
 function  supprimerTypename<T>(objet: T): T {
   if (!objet || typeof objet !== 'object') {

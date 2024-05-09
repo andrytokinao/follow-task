@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.LinkedList;
 import java.util.List;
 
 @Entity
@@ -16,9 +17,12 @@ public class WorkFlow {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String name;
+    @ManyToOne
+    private Project project;
     private boolean active;
+    private String statesIds;
     @ManyToMany
-    private List<Status> states;
+    private List<Status> statuses;
     @OneToMany(mappedBy = "curentWorkFlow")
     private List<IssueType> issueTypes;
     @ManyToMany

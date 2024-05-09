@@ -1,0 +1,12 @@
+<div class="my-field">
+  <mat-form-field class="my-full-width" *ngIf ="editing">
+    <mat-label>{{label}}</mat-label>
+    <i class="mat-icon float-end fa fa-times save"  (click)="cancel()" ></i>
+    <input matInput [placeholder]="'Ex. '+exemple" [(ngModel)] = "text"  style="width: 95%;display: block;float: start">
+    <i class="mat-icon float-end fa fa-check save"  (click)="save()" *ngIf ="isValid()"></i>
+  </mat-form-field>
+  <div class="my-width" *ngIf ="!editing"  [ngClass] ="isSelected()">
+    <i class="mat-icon float-end fa fa-edit" (click)="edit()"></i>
+    <span (click)="select()" style="width: 95%;display: block;float: start">{{inputModel == null ? label : inputModel}}</span>
+  </div>
+</div>

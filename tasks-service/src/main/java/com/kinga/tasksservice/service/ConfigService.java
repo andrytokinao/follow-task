@@ -29,6 +29,7 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class ConfigService {
+    private List<String> installations = Arrays.asList("","create-user-admin","work-space","media-space","create-project/create","create-project/issue-type","create-project/work-flow","create-project/work-flow-status","create-project/complete","complete");
     private static final Logger logger = LoggerFactory.getLogger(ConfigService.class);
     private final ConfigRepository configRepository;
     private final UserService userService;
@@ -155,16 +156,29 @@ public class ConfigService {
         configEntry.setCodeValidation(secrete);
         return configRepository.save(configEntry);
     }
+    // Create user ==> work-space
     public UserApp initUser(UserApp userApp) throws IOException {
+        ConfigEntry configEntry = getCurrentConfig();
         String codeValidation = userApp.getCodeValidation();
         if (StringUtils.isEmpty(codeValidation)) {
             throw new RuntimeException("Code obligatoire ");
         }
-        if (!codeValidation.equalsIgnoreCase(getCurrentConfig().getCodeValidation())) {
+        if (!codeValidation.equalsIgnoreCase(configEntry.getCodeValidation())) {
             throw new RuntimeException("Code code invalid ");
         }
         userApp = userService.save(userApp);
         authorizationService.addUserToAdminSystem(userApp);
+        configEntry.setInstalationState("work-space");
+        configRepository.save(configEntry);
         return userApp;
+    }
+    public String nextInstallation() {
+        ConfigEntry configEntry = configRepository.getByActiveIs(true);
+        String installation = configEntry.getInstalationState() == null ? "" : configEntry.getInstalationState();
+        return installation;
+    }
+    public String currentInstallation(){
+        ConfigEntry configEntry = configRepository.getByActiveIs(true);
+        return configEntry.getInstalationState();
     }
 }

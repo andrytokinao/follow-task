@@ -59,4 +59,10 @@ public class ConfigCotroller {
     public UserApp initUser(@Argument UserApp userApp) throws IOException {
         return configService.initUser(userApp);
     }
+    @GetMapping("next-installation-path")
+    public Map<String,String> getNextInstallationPath(){
+        HashMap<String, String> path = new HashMap<String, String>();
+        path.put("path",configService.nextInstallation());
+        return path;
+    }
 }

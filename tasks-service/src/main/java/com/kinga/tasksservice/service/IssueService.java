@@ -16,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
@@ -54,13 +53,15 @@ public class IssueService {
     @Autowired
     CustomFieldRepository customFieldRepository;
     @Autowired
-    public StatusService statusService;
+    public ProjectService projectService;
+    @Autowired
+    public ConfigRepository configRepository;
     public Issue save(Issue issue) throws IOException {
         issue.setReporter(getCurrentUser());
         if (issue.getType() == null)
             issue.setType(getDefaultIssueType());
         if (issue.getStatus() == null) {
-            issue.setStatus(issue.getType().getCurentWorkFlow().getStates().get(0));
+            issue.setStatus(issue.getType().getCurentWorkFlow().getStatuses().get(0));
         }
         if (StringUtils.isEmpty(issue.getIssueKey())) {
             issue.setIssueKey(getKeySuivente(issue.getType()));
@@ -118,29 +119,6 @@ public class IssueService {
         return valueDeoRepository.findCustomFieldValueByIssueId(value.getIssue().getId());
     }
 
-    public Project saveProject(Project project) throws IOException {
-        if (StringUtils.isEmpty(project.getName()) || StringUtils.isEmpty(project.getPrefix())) {
-            throw new RuntimeException("Name and prefix are required");
-        }
-        if (project.getId() == null) {
-            if (!CollectionUtils.isEmpty(projectRepository.findByPrefix(project.getPrefix()))) {
-                throw new RuntimeException("Prefix " + project.getPrefix() + " is alredy in use");
-            }
-        }
-        if (StringUtils.isEmpty(project.getPath())) {
-            String homeDirectory = System.getProperty("user.home");
-            Path baseDirectory = Paths.get(homeDirectory, Project.BASE_DIRECTORY);
-            if (!Files.exists(baseDirectory)) {
-                Files.createDirectory(baseDirectory);
-            }
-            Path projectDirectory = Paths.get(baseDirectory.toString(), project.getPrefix());
-            if (!Files.exists(projectDirectory)) {
-                Files.createDirectory(projectDirectory);
-            }
-            project.setPath(projectDirectory.toString());
-        }
-        return projectRepository.save(project);
-    }
     public Project getDefaultProject() throws IOException {
         if(projectRepository.existsById(1L))
             return projectRepository.getById(1L);
@@ -172,12 +150,12 @@ public class IssueService {
          if(workFlowRepository.existsById(1L))
              return workFlowRepository.getById(1L);
          WorkFlow workFlow = new WorkFlow();
-         if(CollectionUtils.isEmpty(workFlow.getStates())) {
-             workFlow.setStates(defalutStatusList());
+         if(CollectionUtils.isEmpty(workFlow.getStatuses())) {
+             workFlow.setStatuses(defalutStatusList());
          }
          workFlow.setName("Default WorkFlow ");
          workFlow.setActive(true);
-         workFlow.setCrossingStates(defalutConfigurationCrossingState(workFlow.getStates()));
+         workFlow.setCrossingStates(defalutConfigurationCrossingState(workFlow.getStatuses()));
         return workFlowRepository.save(workFlow);
     }
 

@@ -9,6 +9,8 @@ system-authorization:
         - "CAN_CONFIGURE_SYSTEM"
         - "CAN_MANAGE_BACKUPS"
         - "CAN_MANAGE_SECURITY"
+        - "CAN_ACCESS_ALL"
+        - "USER"
     - name: "PROJECT_ADMIN"
       description: "Administrateur de projet"
       accessibilities:
@@ -17,6 +19,15 @@ system-authorization:
         - "CAN_ASSIGN_TEAM_MEMBERS"
         - "CAN_DEFINE_PRIORITIES"
         - "CAN_SET_DEADLINES"
+        - "CAN_VIEW_PROJECTS"
+        - "CAN_VIEW_TASKS"
+        - "CAN_EDIT_OWN_TASKS"
+        - "CAN_COMMENT_ON_TASKS"
+        - "CAN_MANAGE_USERS"
+        - "CAN_MANAGE_ROLES"
+        - "CAN_CONFIGURE_ACCOUNT"
+        - "CAN_VIEW_BILLING_INFORMATION"
+        -  "USER"
     - name: "STANDARD_USER"
       description: "Utilisateur standard"
       accessibilities:
@@ -24,6 +35,7 @@ system-authorization:
         - "CAN_VIEW_TASKS"
         - "CAN_EDIT_OWN_TASKS"
         - "CAN_COMMENT_ON_TASKS"
+        - "USER"
     - name: "ACCOUNT_ADMIN"
       description: "Administrateur de compte"
       accessibilities:
@@ -31,16 +43,19 @@ system-authorization:
         - "CAN_MANAGE_ROLES"
         - "CAN_CONFIGURE_ACCOUNT"
         - "CAN_VIEW_BILLING_INFORMATION"
+        - "USER"
 
 task-authorization:
   roles:
     - name: "ADMIN"
       description: "Administrateur"
       accessibilities:
+        - "USER"
         - "CAN_EDIT_ALL"
     - name: "PROJECT_MANAGER"
       description: "Gestionnaire de projet"
       accessibilities:
+        - "USER"
         - "CAN_EDIT_PROJECT"
         - "CAN_ASSIGN_TASK"
         - "CAN_CLOSE_TASK"
@@ -49,9 +64,16 @@ task-authorization:
         - "CAN_SET_DEADLINE"
         - "CAN_TRACK_TIME"
         - "CAN_ATTACH_FILES_SOURCE"
+        - "CAN_EDIT_TASK"
+        - "CAN_COMMENT_TASK"
+        - "CAN_CLOSE_TASK"
+        - "CAN_TRACK_TIME"
+        - "CAN_ATTACH_FILES_RESULT"
+        - "CAN_SELF_ASSIGN_TASK"
     - name: "TEAM_MEMBER"
       description: "Membre de l'équipe"
       accessibilities:
+        - "USER"
         - "CAN_EDIT_TASK"
         - "CAN_COMMENT_TASK"
         - "CAN_CLOSE_TASK"
@@ -61,12 +83,88 @@ task-authorization:
     - name: "OBSERVER"
       description: "Observateur externe"
       accessibilities:
+        - "USER"
         - "CAN_VIEW_ONLY"
     - name: "EXTERNAL_USER"
       description: "Client/Utilisateur externe"
       accessibilities:
+        - "USER"
         - "CAN_VIEW_TASKS"
         - "CAN_COMMENT_ON_TASKS"
 configuration-system:
   - profileDirectories : "${user.home}/.taskManager/profile"
   - defaultTaskDirectories : "${user.home}/task_manager/"
+
+application-menue:
+  installations:
+     route  : "installation"
+     menues :
+        - label : "Utilisateur admin"
+          path  : "/create-user-admin"
+          credancials :
+            - "CAN_CONFIGURE_SYSTEM"
+            - "CAN_MANAGE_SECURITY"
+            - "CAN_EDIT_ALL"
+            - "CAN_ACCESS_ALL"
+
+        - label: "Configuration espace de travail"
+          path: "/work-space"
+          credancials:
+            - "CAN_CONFIGURE_SYSTEM"
+            - "CAN_MANAGE_SECURITY"
+            - "CAN_EDIT_ALL"
+            - "CAN_ACCESS_ALL"
+        - label: "Espace de multimedia"
+          path: "/media-space"
+          credancials:
+            - "CAN_CONFIGURE_SYSTEM"
+            - "CAN_MANAGE_SECURITY"
+            - "CAN_EDIT_ALL"
+            - "CAN_ACCESS_ALL"
+        - label: "Creation project "
+          path: "/create-project"
+          credancials:
+            - "CAN_CONFIGURE_SYSTEM"
+            - "CAN_MANAGE_SECURITY"
+            - "CAN_EDIT_ALL"
+            - "CAN_ACCESS_ALL"
+  creation-project:
+      route  : "create-project"
+      menues :
+          - label : "New project"
+            path  : "/create"
+            credancials :
+              - "CAN_CREATE_PROJECT"
+              - "CAN_EDIT_ALL"
+              - "CAN_ACCESS_ALL"
+          - label: "Type de tache"
+            path: "/issue-type"
+            credancials:
+              - "CAN_CREATE_PROJECT"
+              - "CAN_EDIT_ALL"
+              - "CAN_ACCESS_ALL"
+          - label: "Flux de travail "
+            path: "/work-flow"
+            credancials:
+              - "CAN_CREATE_PROJECT"
+              - "CAN_EDIT_ALL"
+              - "CAN_ACCESS_ALL"
+          - label: "Les different status dans un flux de travail"
+            path: "/work-flow-status"
+            credancials:
+              - "CAN_CREATE_PROJECT"
+              - "CAN_EDIT_ALL"
+              - "CAN_ACCESS_ALL"
+  private-menue:
+    route  : "/private"
+    menues :
+      - label : "Profile"
+        path  : "/profile"
+        credancials :
+          - "USER"
+      - label: "Project"
+        path: "/project"
+        credancials:
+          - "CAN_EDIT_ALL"
+          - "CAN_ACCESS_ALL"
+          - "CAN_VIEW_TASKS"
