@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
-import {UserService} from "../../../../../services/user.service";
-import {ConfigEntry, User} from "../../../../../type/issue";
-import {ConfigService} from "../../../../../services/config.service";
+import {UserService} from "../../../services/user.service";
+import {ConfigEntry, User} from "../../../type/issue";
+import {ConfigService} from "../../../services/config.service";
 
 @Component({
   selector: 'app-create-admin-user',

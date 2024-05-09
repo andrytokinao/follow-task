@@ -35,8 +35,7 @@ export class AuthService {
     return new Observable<any>((observer)=>{
       this.http.post('http://localhost:8081/login', body, {observe: 'response',withCredentials:true}).subscribe(
         (res:any)=>{
-          alert(JSON.stringify(res));
-          if(res.result === 'success') {
+          if(res.body.result == 'success') {
             observer.next("success");
             observer.complete();
           } else {
@@ -44,8 +43,14 @@ export class AuthService {
             observer.complete();
           }
         },
-        error => {
-          alert(JSON.stringify(error));
+        (error :any)=> {
+          if(error.body.result == 'success') {
+            observer.next("success");
+            observer.complete();
+          } else {
+            observer.next("failed");
+            observer.complete();
+          }
         }
       );
 

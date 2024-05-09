@@ -14,12 +14,12 @@ import {MatIconModule} from "@angular/material/icon";
 import {MatSelectModule} from "@angular/material/select";
 import {MyCommonModule} from "../../../common/common.module";
 import {AdminRoutingModule} from "./admin.routing.module";
-import {CreateAdminUserComponent} from "./users/create-admin-user/create-admin-user.component";
+import {CreateAdminUserComponent} from "../../public/create-admin-user/create-admin-user.component";
 
 
 
 @NgModule({
-  declarations: [AdminComponent,GroupsComponent,UsersComponent,CreateAdminUserComponent],
+  declarations: [AdminComponent,GroupsComponent,UsersComponent],
   imports: [
     AdminRoutingModule,
     MatTabsModule,

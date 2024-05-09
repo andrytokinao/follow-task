@@ -16,6 +16,7 @@ import {CommonModule} from "@angular/common";
 import {MyCommonModule} from "../../common/common.module";
 import {PublicComponent} from "./public.component";
 import {PublicRoutingModule} from "./public-routing.module";
+import {CreateAdminUserComponent} from "./create-admin-user/create-admin-user.component";
 
 
 
@@ -25,7 +26,8 @@ import {PublicRoutingModule} from "./public-routing.module";
     HelpComponent,
     HomeComponent,
     LoginComponent,
-    PublicComponent
+    PublicComponent,
+    CreateAdminUserComponent
   ],
   exports: [
 

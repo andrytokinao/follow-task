@@ -144,6 +144,7 @@ public class ConfigService {
         configEntry = new ConfigEntry();
         configEntry.setActive(true);
         configEntry.setCreation(new Date());
+        configEntry.setInstalationState("create-admin-user");
         String secrete =UUID.randomUUID().toString();
         Path baseDirectory = Paths.get( System.getProperty("user.home"), Project.BASE_DIRECTORY);
         if (!Files.exists(baseDirectory)) {
@@ -172,8 +173,8 @@ public class ConfigService {
         configRepository.save(configEntry);
         return userApp;
     }
-    public String nextInstallation() {
-        ConfigEntry configEntry = configRepository.getByActiveIs(true);
+    public String nextInstallation() throws IOException {
+        ConfigEntry configEntry =  getCurrentConfig();
         String installation = configEntry.getInstalationState() == null ? "" : configEntry.getInstalationState();
         return installation;
     }

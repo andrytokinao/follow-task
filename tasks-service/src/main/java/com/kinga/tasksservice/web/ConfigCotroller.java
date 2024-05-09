@@ -60,7 +60,7 @@ public class ConfigCotroller {
         return configService.initUser(userApp);
     }
     @GetMapping("next-installation-path")
-    public Map<String,String> getNextInstallationPath(){
+    public Map<String,String> getNextInstallationPath() throws IOException {
         HashMap<String, String> path = new HashMap<String, String>();
         path.put("path",configService.nextInstallation());
         return path;
