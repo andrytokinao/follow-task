@@ -178,7 +178,7 @@ export class IssueService {
         variables: {issueType}
       }).subscribe((res:any)=>{
        if(this.project){
-         this.project.issuTypes.push(res.data.saveIssueType);
+         this.project.issueTypes.push(res.data.saveIssueType);
        }else {
          this.project = issueType.project;
        }

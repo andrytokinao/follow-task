@@ -20,6 +20,7 @@ public class ProjectService {
     final IssueTypeRepository issueTypeRepository;
     final WorkFlowRepository workFlowRepository;
     final ConfigRepository configRepository;
+    final IconeRepository iconeRepository;
 
     public Status saveStatus(Status status) {
         return statusRepository.save(status);
@@ -82,6 +83,8 @@ public class ProjectService {
     public List<IssueType> saveIssueType(IssueType issueType) {
         ConfigEntry configEntry = configRepository.getByActiveIs(true);
         String installation = configEntry.getInstalationState();
+        if(issueType.getIcone() != null)
+            issueType.setIcone(iconeRepository.save(issueType.getIcone()));
         issueType = issueTypeRepository.save(issueType);
 
         if (issueType.getProject() == null)

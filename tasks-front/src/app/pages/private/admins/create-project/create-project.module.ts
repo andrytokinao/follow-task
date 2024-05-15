@@ -16,6 +16,7 @@ import {CreateProjectRoutingModule} from "./create-project.routing.module";
 import {WorkFlowStatusComponent} from "./work-flow-status/work-flow-status.component";
 import {DialogOverviewComponent} from "./dialog-overview/dialog-overview.component";
 import {IssueTypeComponent} from "./issue-type/issue-type.component";
+import {IssuetypeFormComponent} from "../../../../common/issuetype-form/issuetype-form.component";
 
 @NgModule({
   declarations: [
@@ -26,19 +27,20 @@ import {IssueTypeComponent} from "./issue-type/issue-type.component";
     WorkFlowStatusComponent,
     IssueTypeComponent
   ],
-  imports: [
-    MatTabsModule,
-    MatCardModule,
-    MatDialogModule,
-    MatToolbarModule,
-    MatFormFieldModule,
-    FormsModule,
-    MatMenuModule,
-    MatIconModule,
-    MatSelectModule,
-    CommonModule,
-    MyCommonModule,
-    CreateProjectRoutingModule
-  ]
+    imports: [
+        MatTabsModule,
+        MatCardModule,
+        MatDialogModule,
+        MatToolbarModule,
+        MatFormFieldModule,
+        FormsModule,
+        MatMenuModule,
+        MatIconModule,
+        MatSelectModule,
+        CommonModule,
+        MyCommonModule,
+        CreateProjectRoutingModule,
+        IssuetypeFormComponent
+    ]
 })
 export class CreateProjectModule { }

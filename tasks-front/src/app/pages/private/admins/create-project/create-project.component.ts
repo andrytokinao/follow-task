@@ -42,7 +42,7 @@ export class CreateProjectComponent {
         this.project.prefix = stripTypename(result.prefix);
         this.project.id = stripTypename(result.id);
       })
-    }else if(router.url.includes('private/admin/project/issue-type')) {
+    }else  {
       this.route.queryParams
         .subscribe((params:any) => {
             if(this.project.prefix != params.project) {
@@ -59,24 +59,6 @@ export class CreateProjectComponent {
             }
           }
         );
-    } else if(router.url.includes('/work-flow')) {
-      this.route.queryParams
-        .subscribe((params:any) => {
-            if( params.issueType) {
-              this.issueService.getIssueType(params.issueType).subscribe(
-                (issueType:IssueType)=>{
-                  const dialogRef = this.modalService.open(IssueTypeComponent,{windowClass: "xlModal"});
-                  alert(JSON.stringify(issueType));
-                  dialogRef.componentInstance.issueType = issueType;
-                }
-              )
-            } else {
-              alert("Issue type obligatoire");
-            }
-          }
-        );
-    }else if(router.url.includes('/work-flow-status')) {
-      alert("OPEN CREATE STATUS");
     }
 
   }

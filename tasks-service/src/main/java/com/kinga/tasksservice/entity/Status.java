@@ -16,7 +16,8 @@ public class Status {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String displayName;
-    private String iconeFile;
+    @ManyToOne
+    Icone icone;
     @ManyToMany
     private List<IssueType> types;
     @OneToMany(mappedBy = "to")

@@ -18,6 +18,8 @@ public class IssueType {
     private String name;
     private String prefix;
     @ManyToOne
+    private Icone icone;
+    @ManyToOne
     private Project project;
 
     @OneToMany(mappedBy = "type")

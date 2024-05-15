@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import {ConfigService} from "../../../../../services/config.service";
 import {IssueService} from "../../../../../services/issue.service";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 
@@ -14,17 +13,19 @@ export class ProjectNameComponent {
     id: null,
     name: "",
     prefix:  "",
-    issueTypes : []
   };
   constructor(  public activeModal: NgbActiveModal,
                 public issueService:IssueService,) {
   }
 
   save() {
-    this.issueService.saveProject(this.project).subscribe(
+    let project:any = {};
+    project.id = this.project.id;
+    project.name = this.project.name;
+    project.prefix = this.project.prefix;
+    this.issueService.saveProject(project).subscribe(
       (res:any)=>{
         this.activeModal.close({ issue: res.data.saveProject });
-
       },
       (error)=>{
         console.error(error);

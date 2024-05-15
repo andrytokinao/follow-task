@@ -60,6 +60,7 @@ type  Issue {
 type IssueType{
     id:Int
     name:String
+    icone:Icone
     prefix:String
     project:Project
     curentWorkFlow:WorkFlow
@@ -86,6 +87,7 @@ type Project{
     id:Int
     name:String
     prefix:String
+    statusConfig:String
     issueTypes:[IssueType] !
     workFlows :[WorkFlow] !
 }
@@ -101,7 +103,7 @@ type Status{
     id:Int
     name:String
     displayName:String
-    iconeFile:String
+    icone:Icone
     types:[IssueType]
     fromeStates:[CrossingState]
     acctionPossible:[CrossingState]
@@ -140,7 +142,7 @@ type Repertoire{
     path:String
     fileName:String
     type:String
-    icone:String
+    icone:Icone
     repertoires:[Repertoire]
 }
 enum ValueType {
@@ -170,7 +172,11 @@ type ConfigEntry{
     configDirectory :String,
     repertoireCodeValidation:String
 }
-
+type Icone{
+    id:String
+    typeIcone:String
+    value:String
+}
 
 input CustomFieldImput {
     id:Int
@@ -219,6 +225,7 @@ input IssueTypeInput{
     id:Int
     name:String
     prefix:String
+    icone:IconeInput!
     project:ProjectInput!
     curentWorkFlow:WorkFlowInput
 }
@@ -244,7 +251,6 @@ input ProjectInput{
     id:Int
     name:String
     prefix:String
-    issueTypes:[IssueTypeInput]
 }
 
 input RoleAppInput{
@@ -257,7 +263,7 @@ input RoleAppInput{
 input StatusInput{
     id:Int
     displayName:String
-    iconeFile:String
+    icone:IconeInput
     types:[Int]
     fromeStates:[Int]
     acctionPossible:[Int]
@@ -295,7 +301,7 @@ input RepertoireInput {
     path:String
     fileName:String
     type:String
-    icone:String
+    icone:IconeInput
     repertoires:[RepertoireInput]
 }
 
@@ -322,4 +328,9 @@ input ConfigEntryInput{
     dataDirectory :String
     configDirectory :String
     repertoireCodeValidation:String
+}
+input IconeInput{
+    id:String
+    typeIcone:String
+    value:String
 }

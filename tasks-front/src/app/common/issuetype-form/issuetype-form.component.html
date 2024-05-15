@@ -1,0 +1,21 @@
+<div class="my-width" [ngClass]="isSelected()">
+  <div class="my-field"  *ngIf="editing">
+    <mat-form-field class="my-full-width" >
+      <mat-label>Type de tache</mat-label>
+      <input matInput [placeholder]="'Ex. Etude et conception'" [(ngModel)] = "name"  style="width: 95%;display: block;float: start">
+    </mat-form-field>
+    <mat-form-field class="my-full-width">
+      <mat-label>Prefix</mat-label>
+      <input matInput [placeholder]="'Ex. E-C '" [(ngModel)] = "prefix"  style="width: 95%;display: block;float: start">
+    </mat-form-field>
+    <app-icone-field (iconSelected) = "selectIcon($event)"></app-icone-field>
+  </div>
+  <div class="my-field"  >
+    <i class="mat-icon float-end fa fa-edit" (click)="edit()" *ngIf="!editing"> </i>
+    <i class="mat-icon float-end fa fa-save" (click)="save()" *ngIf="editing"> </i>
+    <span (click)="select()"
+          style="width: 95%;display: block;float:end" *ngIf="!editing"> <app-icone-view  [icon]="inputIssueType.icone" [width]="'fa-lg'"></app-icone-view> {{ inputIssueType == null ? 'Nouveau type de tache' : inputIssueType.name }}</span>
+  </div>
+
+</div>
+

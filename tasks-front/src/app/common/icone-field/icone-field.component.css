@@ -1,0 +1,40 @@
+
+.dropbtn:hover, .dropbtn:focus {
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+.icon-list {
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 400px;
+  overflow-y: scroll;
+}
+.icon-item {
+  padding: 20px;
+  text-align: center;
+  margin: 3px;
+  color: #333333;
+  cursor: pointer;
+}
+.icon-item:hover{
+  color: #ffffff;
+  background-color: #aaaaaa;
+}
+
+
+
+
+.dropdown-content a:hover {background-color: #f1f1f1}
+
+
+.dropdown:hover .dropbtn {
+  background-color: #c1cec1;
+}

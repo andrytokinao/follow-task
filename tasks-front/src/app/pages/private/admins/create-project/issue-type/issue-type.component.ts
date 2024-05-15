@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {IssueType, Project} from "../../../../../type/issue";
+import {Icone, IssueType, Project} from "../../../../../type/issue";
 import {ConfigService} from "../../../../../services/config.service";
 import {IssueService} from "../../../../../services/issue.service";
 import {supprimerTypename} from "../../../../../type/graphql.operations";
@@ -20,20 +20,18 @@ export class IssueTypeComponent {
   selected: boolean = false;
   isNewIssueType:boolean = false;
   isNewWorkFlow: boolean = false;
+  iconSelected: Icone | undefined ;
   constructor(private configService:ConfigService, private issueService :IssueService) {
 
   }
 
-  saveIssueType(name:String,issueType:IssueType | any) {
+  saveIssueType(issueType:IssueType | any) {
     this.isNewIssueType = false ;
-    if(name == issueType.name)
-      return;
     if(issueType == null) {
       issueType = {};
     }
     let project :any = {} ;
     project.id = this.project.id;
-    issueType.name = name;
     issueType.project = project;
     this.issueService.saveIssueType(issueType).subscribe(
       (issueTypes: any) => {
@@ -68,8 +66,8 @@ export class IssueTypeComponent {
 
   }
 
-  select(issueType: any) {
-    console.log('select this.'+issueType.name);
+  selectIssueType(issueType: any) {
+    console.info('select .'+issueType.name);
     this.issueType = issueType;
   }
 
@@ -86,18 +84,20 @@ export class IssueTypeComponent {
 
   }
   isSelectedIssueType(issueType:any):boolean{
-    console.info("TODO:/ IDI");
-    if (issueType == null || issueType.id == null) {
+    if (issueType == null || issueType.id == null || issueType.id == undefined) {
       return false;
     }
-    if (this.issueType == null || this.issueType.id == null) {
+    if (this.issueType == null || this.issueType.id == null ||  this.issueType == undefined || this.issueType.id == undefined ) {
       return false;
     }
-
+    console.info("is selected = "+this.issueType.id == issueType.id);
     return this.issueType.id == issueType.id;
   }
   createWorkFlow() {
     this.isNewWorkFlow = true;
   }
 
+  selectWorkFlow(workFlow: any) {
+    this.workFlow = workFlow;
+  }
 }

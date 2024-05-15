@@ -165,7 +165,7 @@ public class IssueService {
     }
 
     private List<Status> defalutStatusList() {
-        if (CollectionUtils.isEmpty(statusRepository.findAll())) {
+        /*if (CollectionUtils.isEmpty(statusRepository.findAll())) {
             Status standBy = new Status();
             standBy.setDisplayName("En attente");
             standBy.setIconeFile("/assets/standby.png");
@@ -197,7 +197,8 @@ public class IssueService {
             statusRepository.save(archive);
             return statusRepository.findAll();
         }
-        return statusRepository.findAllById(Arrays.asList(0L, 1L, 2L, 3L, 4L, 5L));
+        return statusRepository.findAllById(Arrays.asList(0L, 1L, 2L, 3L, 4L, 5L));*/
+        return null;
     }
 
     public IssueType getDefaultIssueType() throws IOException {

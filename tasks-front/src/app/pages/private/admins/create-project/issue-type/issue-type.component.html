@@ -10,25 +10,22 @@
       <div class="lefts-item">
         <h1> Type des taches </h1>
         <div style="margin-bottom: 5px" *ngFor = "let itype of project.issueTypes">
-          <app-text-field  [inputModel]="itype.name" label="Nom de type des tache "
-                          [editing] = "false" exemple="Etude et conception"
-                          class="field-item" [selected] = "isSelectedIssueType(itype)"
-                          (onClickIt) = "select(itype)"
-                          (onComplete) ="saveIssueType($event,itype)"
+          <app-issuetype-form  [inputIssueType]="itype"  [label]="'Titre de flux '"
+                               [editing] = "false" [exemple]="'Flux de traveau '"
+                               class="field-item" [selected] = "isSelectedIssueType(itype)"
+                               (onClickIt) = "selectIssueType(itype)"
+                               (onComplete) ="saveIssueType($event)"
           >
-          </app-text-field>
-        </div>
-
-        <app-text-field  [inputModel]="newIssueType.name" label=" Nouveau type de tache "
-                         [editing] = "true" exemple="Etude et conception"
-                         class="field-item" [selected] = " isSelectedIssueType(newIssueType)"
-                         (onClickIt) = "select(newIssueType)"
-                         (onComplete) ="saveIssueType($event,newIssueType)"
-                         *ngIf ="isNewIssueType"
+          </app-issuetype-form>
+      </div>
+        <app-issuetype-form  [inputIssueType]="issueType"  [label]="'Titre de flux '"
+                             [editing] = "true" [exemple]="'Flux de traveau '"
+                             class="field-item" [selected] = "isSelectedIssueType(issueType)"
+                             (onComplete) ="saveIssueType($event)"
+                             *ngIf ="isNewIssueType"
         >
-
-        </app-text-field>
-        <div (click)="createIssueType()" *ngIf ="!isNewIssueType"> Add </div>
+        </app-issuetype-form>
+        <div (click)="createIssueType()" *ngIf="!isNewIssueType"> Create </div>
       </div>
       <div class="item items-right">
         <h1> Flux des travaux </h1>
@@ -36,25 +33,17 @@
           <app-text-field  [inputModel]="this.issueType.curentWorkFlow.name" label="Titre de flux "
                            [editing] = "false" exemple="Flux de traveau "
                            class="field-item" [selected] = "isSelectedWorkFlow(workFlow)"
-                           (onClickIt) = "select(workFlow)"
+                           (onClickIt) = "selectWorkFlow(workFlow)"
                            (onComplete) ="saveWorkFlow($event,workFlow)"
                            (onCancel) = "isNewWorkFlow =false"
                            *ngIf ="this.issueType.curentWorkFlow"
           >
           </app-text-field>
           </div>
-          <app-text-field  [inputModel]="workFlow.name" label="Titre de flux "
-                           [editing] = "true" exemple="Flux de traveau "
-                           class="field-item" [selected] = "isSelectedWorkFlow(workFlow)"
-                           (onClickIt) = "select(workFlow)"
-                           (onComplete) ="saveWorkFlow($event,workFlow)"
-                           (onCancel) = "isNewWorkFlow =false"
-                           *ngIf ="isNewWorkFlow"
-          >
-          </app-text-field>
+
           <div (click)="createWorkFlow()" *ngIf ="!isNewWorkFlow"> Nouveau flux de travail </div>
 
-
+      <app-icone-view *ngIf="iconSelected" [icon] ="iconSelected" [width]="'fa-2x'" ></app-icone-view>
 
       </div>
     </div>

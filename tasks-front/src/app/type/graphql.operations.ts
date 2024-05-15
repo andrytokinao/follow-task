@@ -88,7 +88,11 @@ const SAVE_ISSUE = gql`
       status {
         id
         displayName
-        iconeFile
+        icone {
+          id
+          typeIcone
+          value
+        }
       }
       reporter {
         id
@@ -135,7 +139,11 @@ const ALL_ISSUE = gql`
       status {
         id
         displayName
-        iconeFile
+        icone {
+          id
+          typeIcone
+          value
+        }
       }
       reporter {
         id
@@ -242,7 +250,11 @@ const  GET_ISSUE_BY_ASSIGN = gql`
        status {
          id
          displayName
-         iconeFile
+         icone {
+           id
+           typeIcone
+           value
+         }
        }
     }
   }
@@ -253,7 +265,11 @@ const  ALL_STATUS = gql`
     findAllStatus{
       id
       displayName
-      iconeFile
+      icone {
+        id
+        typeIcone
+        value
+      }
       }
     }
 `;
@@ -320,6 +336,12 @@ const  SAVE_PROJECT = gql`
       issueTypes {
         id
         name
+        prefix
+        icone {
+          id
+          value
+          typeIcone
+        }
         curentWorkFlow {
           id
           name
@@ -327,7 +349,11 @@ const  SAVE_PROJECT = gql`
             id
             name
             displayName
-            iconeFile
+            icone {
+              id
+              typeIcone
+              value
+            }
           }
         }
       }
@@ -341,6 +367,12 @@ const  SAVE_ISSUE_TYPE = gql`
     saveIssueType(issueType: $issueType){
       id
       name
+      prefix
+      icone {
+        id
+        value
+        typeIcone
+      }
       curentWorkFlow {
         id
         name
@@ -348,7 +380,11 @@ const  SAVE_ISSUE_TYPE = gql`
           id
           name
           displayName
-          iconeFile
+          icone {
+            id
+            typeIcone
+            value
+          }
         }
       }
 
@@ -368,7 +404,11 @@ const  GET_ISSUE_TYPE = gql`
           id
           name
           displayName
-          iconeFile
+          icone {
+            id
+            typeIcone
+            value
+          }
         }
       }
 
@@ -383,7 +423,11 @@ const  AFFECT_WORKFLOW = gql`
       states {
         id
         name
-        iconeFile
+        icone {
+          id
+          typeIcone
+          value
+        }
       }
 
     }
@@ -397,7 +441,11 @@ const  ADD_STATUS = gql`
       states {
         id
         name
-        iconeFile
+        icone {
+          id
+          typeIcone
+          value
+        }
       }
     }
   }
@@ -411,7 +459,7 @@ const ALL_PROJECT = gql`
       statusConfig
       issueTypes {
         id
-        displayName
+        name
         curentWorkFlow {
           id
           name
@@ -428,7 +476,11 @@ const ALL_PROJECT = gql`
             id
             name
             displayName
-            iconeFile
+            icone {
+              id
+              typeIcone
+              value
+            }
             acctionPossible {
               id
               name
@@ -449,6 +501,12 @@ const GET_PROJECT = gql`
       issueTypes {
         id
         name
+        prefix
+        icone {
+          id
+          value
+          typeIcone
+        }
         curentWorkFlow {
           id
           name
@@ -465,7 +523,6 @@ const GET_PROJECT = gql`
             id
             name
             displayName
-            iconeFile
             acctionPossible {
               id
               name

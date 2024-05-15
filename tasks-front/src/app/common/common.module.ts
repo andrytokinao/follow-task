@@ -16,6 +16,11 @@ import {MatToolbarModule} from "@angular/material/toolbar";
 import  {FormsModule,ReactiveFormsModule} from "@angular/forms";
 import {MatInputModule} from "@angular/material/input";
 import {InstallationComponent} from "./installation/installation.component";
+import {IconeFieldComponent} from "./icone-field/icone-field.component";
+import {IconeViewComponent} from "./icone-view/icone-view.component";
+import {MatButtonModule} from "@angular/material/button";
+import {CustomfieldFormComponent} from "./form/customfield-form/customfield-form.component";
+import {GroupeFormComponent} from "./form/groupe-form/groupe-form.component";
 
 @NgModule({
   declarations: [
@@ -24,12 +29,15 @@ import {InstallationComponent} from "./installation/installation.component";
     TreeDossierItemComponent,
     TextFieldComponent,
     TelFieldComponent,
-    InstallationComponent
+    InstallationComponent,
+    IconeFieldComponent,
+    IconeViewComponent,
+    GroupeFormComponent,
+    CustomfieldFormComponent
 
   ],
   imports: [
     CommonModule,
-    MatMenuModule,
     MatMenuModule,
     MatIconModule,
     MatSelectModule,
@@ -40,7 +48,8 @@ import {InstallationComponent} from "./installation/installation.component";
     MatSelectModule,
     FormsModule,
     MatFormFieldModule,
-    MatInputModule
+    MatInputModule,
+    MatButtonModule
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA
@@ -51,7 +60,11 @@ import {InstallationComponent} from "./installation/installation.component";
     TreeDossierItemComponent,
     TextFieldComponent,
     TelFieldComponent,
-    InstallationComponent
+    InstallationComponent,
+    IconeFieldComponent,
+    IconeViewComponent,
+    GroupeFormComponent,
+    CustomfieldFormComponent
   ]
 })
 export class MyCommonModule { }

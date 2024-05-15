@@ -104,7 +104,7 @@ export interface Project {
   id:Number;
   name:String;
   prefix:String;
-  issuTypes : IssueType[];
+  issueTypes : IssueType[];
   workFlows : WorkFlow[];
 }
 export interface IssueType{
@@ -146,4 +146,9 @@ export interface ModuleMenu {
   route:string
   menues:Menu[];
 
+}
+export interface Icone {
+  id:Number
+  typeIcone:String
+  value:String
 }

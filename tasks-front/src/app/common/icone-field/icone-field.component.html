@@ -1,0 +1,10 @@
+<div class="dropdown">
+
+  <span class="dropbtn"  (click)="toggleDropdownPosition($event)" >  Select an Icon  <i *ngIf="selectedIcon" class="{{selectedIcon.value}} " aria-hidden="true"></i></span>
+  <div class="icon-list"  *ngIf="show" #dropdownContent>
+    <a *ngFor="let icon of icons" (click)="selectIcon(icon)" class="icon-item" >
+      <i class="{{icon.value}} fa-2x" aria-hidden="true"></i>
+    </a>
+  </div>
+
+</div>
