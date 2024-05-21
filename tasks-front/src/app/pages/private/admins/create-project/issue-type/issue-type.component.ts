@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {Icone, IssueType, Project} from "../../../../../type/issue";
+import {Icone, Issue, IssueType, Project, WorkFlow} from "../../../../../type/issue";
 import {ConfigService} from "../../../../../services/config.service";
 import {IssueService} from "../../../../../services/issue.service";
 import {supprimerTypename} from "../../../../../type/graphql.operations";
@@ -21,6 +21,7 @@ export class IssueTypeComponent {
   isNewIssueType:boolean = false;
   isNewWorkFlow: boolean = false;
   iconSelected: Icone | undefined ;
+  newWorkflowName: string= "";
   constructor(private configService:ConfigService, private issueService :IssueService) {
 
   }
@@ -44,8 +45,6 @@ export class IssueTypeComponent {
   }
   saveWorkFlow(name:String,workFlow:any) {
     this.isNewIssueType = false;
-    if(name == workFlow.name)
-        return;
     workFlow.name = name;
     let issueType : any = {};
     let project : any = {};
@@ -65,6 +64,32 @@ export class IssueTypeComponent {
     )
 
   }
+  affectWorkFlow(workFlow:WorkFlow){
+    let project : any = {};
+    project.id = this.project.id;
+    project.name = this.project.name;
+    project.prefix = this.project.prefix;
+
+    workFlow.project = project;
+    this.issueType.curentWorkFlow = workFlow;
+    this.issueType.project = project;
+
+    let issueType:IssueType | any = {};
+    issueType.id = this.issueType.id;
+    issueType.prefix = this.issueType.prefix;
+    issueType.name = this.issueType.name;
+    issueType.icone = this.issueType.icone;
+    issueType.project = project;
+    issueType.curentWorkFlow = workFlow;
+    alert( "affect"+JSON.stringify(issueType));
+    this.issueService.affectWorkFlow(issueType).subscribe( (workFlow)=>{
+        this.issueType.curentWorkFlow  = workFlow;
+      },
+      err=>{
+        alert("ERROR "+JSON.stringify(err));
+      }
+    )
+  }
 
   selectIssueType(issueType: any) {
     console.info('select .'+issueType.name);
@@ -76,11 +101,12 @@ export class IssueTypeComponent {
   }
 
   isSelectedWorkFlow(workFlow:any):boolean{
+    console.info("is workFlow "+workFlow.id + " current work flow ="+this.workFlow.id);
      if (workFlow == null || workFlow.id == null)
        return false;
-    if (this.workFlow == null || this.workFlow.id == null)
+    if (this.issueType.curentWorkFlow == null || this.issueType.curentWorkFlow.id == null)
       return false;
-    return this.workFlow == workFlow.id;
+    return this.issueType.curentWorkFlow.id == workFlow.id;
 
   }
   isSelectedIssueType(issueType:any):boolean{
@@ -90,7 +116,6 @@ export class IssueTypeComponent {
     if (this.issueType == null || this.issueType.id == null ||  this.issueType == undefined || this.issueType.id == undefined ) {
       return false;
     }
-    console.info("is selected = "+this.issueType.id == issueType.id);
     return this.issueType.id == issueType.id;
   }
   createWorkFlow() {
@@ -98,6 +123,6 @@ export class IssueTypeComponent {
   }
 
   selectWorkFlow(workFlow: any) {
-    this.workFlow = workFlow;
+    this.affectWorkFlow(workFlow);
   }
 }

@@ -61,16 +61,17 @@ export class IssuetypeFormComponent {
 
   save() {
     let issueType:any = {};
-    alert(this.name);
     issueType.name = this.name;
     issueType.prefix = this.prefix;
     if(this.icon)
       issueType.icone = this.icon;
     if(this.inputIssueType != null) {
-      this.issutType.id = this.inputIssueType.id;
+      issueType.id = this.inputIssueType.id;
     }
+    this.editing = false;
     // after save
     this.inputIssueType = issueType;
+    alert("okaaay "+JSON.stringify(this.inputIssueType));
     this.onComplete.emit(this.inputIssueType);
 
 

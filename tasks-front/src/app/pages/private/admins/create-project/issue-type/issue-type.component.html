@@ -7,9 +7,10 @@
   </div>
   <div class="modal-body ">
     <div class="work-flow">
-      <div class="lefts-item">
+      <div >
         <h1> Type des taches </h1>
-        <div style="margin-bottom: 5px" *ngFor = "let itype of project.issueTypes">
+        <div class="issuetype-liste">
+          <div style="margin-bottom: 5px" *ngFor = "let itype of project.issueTypes">
           <app-issuetype-form  [inputIssueType]="itype"  [label]="'Titre de flux '"
                                [editing] = "false" [exemple]="'Flux de traveau '"
                                class="field-item" [selected] = "isSelectedIssueType(itype)"
@@ -17,6 +18,8 @@
                                (onComplete) ="saveIssueType($event)"
           >
           </app-issuetype-form>
+        </div>
+
       </div>
         <app-issuetype-form  [inputIssueType]="issueType"  [label]="'Titre de flux '"
                              [editing] = "true" [exemple]="'Flux de traveau '"
@@ -28,18 +31,52 @@
         <div (click)="createIssueType()" *ngIf="!isNewIssueType"> Create </div>
       </div>
       <div class="item items-right">
-        <h1> Flux des travaux </h1>
-        <div *ngFor = "let workFlow of project.workFlows">
-          <app-text-field  [inputModel]="this.issueType.curentWorkFlow.name" label="Titre de flux "
-                           [editing] = "false" exemple="Flux de traveau "
+        <div *ngIf="issueType.id" >
+          <h1> Flux des travaux </h1>
+          <div *ngFor = "let wf of project.workFlows">
+            <app-text-field  [inputModel]="wf.name" label="Titre de flux "
+                             [editing] = "false" exemple="Flux de traveau "
+                             class="field-item" [selected] = "isSelectedWorkFlow(wf)"
+                             (onClickIt) = "selectWorkFlow(wf)"
+                             (onComplete) ="saveWorkFlow($event,wf)"
+                             (onCancel) = "isNewWorkFlow =false"
+            >
+            </app-text-field>
+          </div>
+          <app-text-field  [inputModel]="newWorkflowName" label="Titre de flux "
+                           [editing] = "isNewWorkFlow" exemple="Flux de traveau "
                            class="field-item" [selected] = "isSelectedWorkFlow(workFlow)"
                            (onClickIt) = "selectWorkFlow(workFlow)"
                            (onComplete) ="saveWorkFlow($event,workFlow)"
                            (onCancel) = "isNewWorkFlow =false"
-                           *ngIf ="this.issueType.curentWorkFlow"
+                           *ngIf="isNewWorkFlow"
           >
           </app-text-field>
+
+          <div (click)="createWorkFlow()" *ngIf ="!isNewWorkFlow"> Nouveau flux de travail </div>
+
+          <app-icone-view *ngIf="iconSelected" [icon] ="iconSelected" [width]="'fa-2x'" ></app-icone-view>
+        </div>
+        <div *ngIf="issueType.id && issueType.curentWorkFlow" >
+          <h1> Liste des etat possible  </h1>
+          <div *ngFor = "let stats of issueType.curentWorkFlow.states" >
+            <app-text-field  [inputModel]="stats.name" label="Titre de flux "
+                             [editing] = "false" exemple="Flux de traveau "
+                             class="field-item" [selected] = "isSelectedWorkFlow(stats)"
+                             (onClickIt) = "selectWorkFlow(stats)"
+                             (onComplete) ="saveWorkFlow($event,stats)"
+            >
+            </app-text-field>
           </div>
+          <app-text-field  [inputModel]="newWorkflowName" label="Titre de flux "
+                           [editing] = "isNewWorkFlow" exemple="Flux de traveau "
+                           class="field-item" [selected] = "isSelectedWorkFlow(workFlow)"
+                           (onClickIt) = "selectWorkFlow(workFlow)"
+                           (onComplete) ="saveWorkFlow($event,workFlow)"
+                           (onCancel) = "isNewWorkFlow =false"
+                           *ngIf="isNewWorkFlow"
+          >
+          </app-text-field>
 
           <div (click)="createWorkFlow()" *ngIf ="!isNewWorkFlow"> Nouveau flux de travail </div>
 

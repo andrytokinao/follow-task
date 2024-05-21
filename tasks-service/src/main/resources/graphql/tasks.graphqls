@@ -225,7 +225,7 @@ input IssueTypeInput{
     id:Int
     name:String
     prefix:String
-    icone:IconeInput!
+    icone:IconeInput
     project:ProjectInput!
     curentWorkFlow:WorkFlowInput
 }
@@ -310,6 +310,9 @@ input WorkFlowInput {
     name:String,
     project:ProjectInput
     active :Boolean,
+    states :[StatusInput],
+    issueTypes :[IssueTypeInput],
+    crossingStates :[CrossingStateInput],
 }
 input CommentInput {
     id:Int
