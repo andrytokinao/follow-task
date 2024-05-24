@@ -345,9 +345,8 @@ const  SAVE_PROJECT = gql`
         curentWorkFlow {
           id
           name
-          states {
+          statuses {
             id
-            name
             displayName
             icone {
               id
@@ -376,9 +375,8 @@ const  SAVE_ISSUE_TYPE = gql`
       curentWorkFlow {
         id
         name
-        states {
+        statuses {
           id
-          name
           displayName
           icone {
             id
@@ -400,9 +398,8 @@ const  GET_ISSUE_TYPE = gql`
       curentWorkFlow {
         id
         name
-        states {
+        statuses {
           id
-          name
           displayName
           icone {
             id
@@ -420,9 +417,9 @@ const  AFFECT_WORKFLOW = gql`
     affectWorkFlow(issueType: $issueType){
       id
       name
-      states {
+      statuses {
         id
-        name
+        displayName
         icone {
           id
           typeIcone
@@ -434,13 +431,13 @@ const  AFFECT_WORKFLOW = gql`
   }
 `;
 const  ADD_STATUS = gql`
-  mutation addStatus ($status:StatusInput ,$workFlow:WorkFlowInput, $project:ProjectInput!) {
-    addStatus(workFlow: $workFlow, status: $status, project: $project){
+  mutation addStatus ($status:StatusInput ,$workFlow:WorkFlowInput, $issueTypeId:Int!) {
+    addStatus(workFlow: $workFlow, status: $status, issueTypeId: $issueTypeId){
       id
       name
-      states {
+      statuses {
         id
-        name
+        displayName
         icone {
           id
           typeIcone
@@ -472,9 +469,8 @@ const ALL_PROJECT = gql`
               name
             }
           }
-          states {
+          statuses {
             id
-            name
             displayName
             icone {
               id
@@ -519,13 +515,13 @@ const GET_PROJECT = gql`
               name
             }
           }
-          states {
+          statuses {
             id
-            name
             displayName
-            acctionPossible {
+            icone {
               id
-              name
+              typeIcone
+              value
             }
           }
         }
@@ -533,10 +529,14 @@ const GET_PROJECT = gql`
       workFlows {
         id
         name
-        states {
+        statuses {
           id
-          name
           displayName
+          icone {
+            id
+            typeIcone
+            value
+          }
         }
       }
     }
@@ -565,6 +565,7 @@ export {
   SAVE_PROJECT,
   SAVE_ISSUE_TYPE,
   AFFECT_WORKFLOW,
+  ADD_STATUS,
   ALL_PROJECT,
   GET_PROJECT,
   GET_ISSUE_TYPE

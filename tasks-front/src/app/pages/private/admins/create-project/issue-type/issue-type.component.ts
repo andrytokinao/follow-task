@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {Icone, Issue, IssueType, Project, WorkFlow} from "../../../../../type/issue";
+import {Icone, Issue, IssueType, Project, Status, WorkFlow} from "../../../../../type/issue";
 import {ConfigService} from "../../../../../services/config.service";
 import {IssueService} from "../../../../../services/issue.service";
 import {supprimerTypename} from "../../../../../type/graphql.operations";
@@ -22,6 +22,7 @@ export class IssueTypeComponent {
   isNewWorkFlow: boolean = false;
   iconSelected: Icone | undefined ;
   newWorkflowName: string= "";
+  isCreateState: boolean=false;
   constructor(private configService:ConfigService, private issueService :IssueService) {
 
   }
@@ -54,12 +55,8 @@ export class IssueTypeComponent {
     issueType = issueType;
     issueType.project = project;
     workFlow.project = project;
-    alert(JSON.stringify(this.issueType));
     this.issueService.affectWorkFlow(issueType).subscribe( (workFlow)=>{
         this.issueType.curentWorkFlow  = workFlow;
-      },
-      err=>{
-        alert("ERROR "+JSON.stringify(err));
       }
     )
 
@@ -81,12 +78,8 @@ export class IssueTypeComponent {
     issueType.icone = this.issueType.icone;
     issueType.project = project;
     issueType.curentWorkFlow = workFlow;
-    alert( "affect"+JSON.stringify(issueType));
     this.issueService.affectWorkFlow(issueType).subscribe( (workFlow)=>{
         this.issueType.curentWorkFlow  = workFlow;
-      },
-      err=>{
-        alert("ERROR "+JSON.stringify(err));
       }
     )
   }
@@ -124,5 +117,21 @@ export class IssueTypeComponent {
 
   selectWorkFlow(workFlow: any) {
     this.affectWorkFlow(workFlow);
+  }
+
+  createState() {
+    this.isCreateState = true;
+  }
+
+  addStatus(status: Status) {
+    let project:any = {};
+    project.id = this.project.id;
+    this.issueType.curentWorkFlow.project = project;
+    this.issueService.addStatus(status,this.issueType.curentWorkFlow,this.issueType.id).subscribe(
+      workFlow=>{
+        this.isCreateState = false;
+      this.issueType.curentWorkFlow = workFlow;
+    }
+    )
   }
 }

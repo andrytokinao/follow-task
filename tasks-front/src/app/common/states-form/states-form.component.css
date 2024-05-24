@@ -1,0 +1,23 @@
+.my-form {
+  min-width: 300px;
+  max-width: 500px;
+  width: 100%;
+}
+
+.my-full-width {
+  width: 100%;
+}
+.my-width{
+  padding: 10px;
+  background-color: #eeeeee;
+  border-radius: 5px;
+  cursor: pointer;
+  min-width: 300px;
+  max-width: 500px;
+  width: 100%;
+
+}
+.selected{
+  background-color: #aaaaaa;
+  color: white;
+}

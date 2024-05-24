@@ -40,7 +40,6 @@ import {IssuetypeFormComponent} from "../../../../common/issuetype-form/issuetyp
         CommonModule,
         MyCommonModule,
         CreateProjectRoutingModule,
-        IssuetypeFormComponent
     ]
 })
 export class CreateProjectModule { }

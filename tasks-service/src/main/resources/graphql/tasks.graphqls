@@ -101,7 +101,6 @@ type RoleApp{
 
 type Status{
     id:Int
-    name:String
     displayName:String
     icone:Icone
     types:[IssueType]
@@ -156,7 +155,7 @@ type WorkFlow {
     id:Int,
     name:String,
     active :Boolean,
-    states :[Status],
+    statuses :[Status],
     issueTypes :[IssueType],
     project:Project
     crossingStates :[CrossingState],
@@ -310,7 +309,7 @@ input WorkFlowInput {
     name:String,
     project:ProjectInput
     active :Boolean,
-    states :[StatusInput],
+    statuses :[StatusInput],
     issueTypes :[IssueTypeInput],
     crossingStates :[CrossingStateInput],
 }

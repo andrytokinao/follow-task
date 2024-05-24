@@ -52,7 +52,7 @@ import {RapportComponent} from "./rapport/rapport.component";
     MatIconModule,
     MatSelectModule,
     CommonModule,
-    MyCommonModule,
+    MyCommonModule
   ]
 })
 export class ProjectModule { }

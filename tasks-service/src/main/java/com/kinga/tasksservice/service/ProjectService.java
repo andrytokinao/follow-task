@@ -131,10 +131,12 @@ public class ProjectService {
         if (!"complete".equalsIgnoreCase(installation)) {
             configEntry.setInstalationState("create-project/groupe-for-issueType?issueType=" + issueTypeId);
         }
+        if(status.getIcone() != null)
+            iconeRepository.save(status.getIcone());
         status = statusRepository.save(status);
         workFlow.getStatuses().add(status);
         String statusIds = workFlow.getStatesIds();
-        statusIds += StringUtils.isEmpty(statusIds) ? "" : "," + status.getId();
+        statusIds += (StringUtils.isEmpty(statusIds) ? "" : ",") + status.getId();
         workFlow.setStatesIds(statusIds);
         configRepository.save(configEntry);
         return workFlowRepository.save(workFlow);

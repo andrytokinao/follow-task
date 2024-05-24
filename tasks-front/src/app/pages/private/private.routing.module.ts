@@ -19,9 +19,9 @@ const privateRoute: Routes = [
           { path: '',   redirectTo: 'project', pathMatch: 'full' },
           { path: 'profile', component: ProfileComponent  },
           { path: 'access-denied', component: AccessDeniedComponent },
-          { path: 'project', component: ProjectComponent } ,
+          { path: 'project/:project', component: ProjectComponent } ,
           {
-            path: 'project',
+            path: 'project/:project',
             loadChildren: () => import('./project/project.module').then(m => m.ProjectModule),
             //  canMatch: [userProject]
           },

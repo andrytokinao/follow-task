@@ -8,16 +8,6 @@ import {Icone, IssueType} from "../../type/issue";
 
 @Component({
   selector: 'app-issuetype-form',
-  standalone: true,
-  imports: [
-    FormsModule,
-    MatFormField,
-    MatInput,
-    MatLabel,
-    NgIf,
-    NgClass,
-    MyCommonModule
-  ],
   templateUrl: './issuetype-form.component.html',
   styleUrl: './issuetype-form.component.css'
 })

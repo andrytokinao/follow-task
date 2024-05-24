@@ -44,8 +44,8 @@ import {CreateAdminUserComponent} from "./create-admin-user/create-admin-user.co
     MatMenuModule,
     MatIconModule,
     MatSelectModule,
-    CommonModule,
     MyCommonModule,
+    CommonModule
   ]
 })
 export class PublicModule { }

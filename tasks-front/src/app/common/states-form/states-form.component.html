@@ -1,0 +1,19 @@
+<div class="my-width" [ngClass]="isSelected()">
+  <div class="my-field edit"  *ngIf="editing">
+    <mat-form-field class="my-full-width" >
+      <mat-label>Etat</mat-label>
+      <input matInput [placeholder]="'Ex. Resolue'" [(ngModel)] = "displayName"  style="width: 95%;display: block;float: start">
+    </mat-form-field>
+    <app-icone-field (iconSelected) = "selectIcon($event)"></app-icone-field>
+  </div>
+  <div class="my-field"  >
+    <i class="mat-icon float-end fa fa-edit" (click)="edit()" *ngIf="!editing"> </i>
+    <span class="float-md-end pointer-event" (click)="save()" *ngIf="editing"> Save
+        <i class="mat-icon  fa fa-save"  > </i>
+      </span>
+    <span (click)="select()"
+          style="width: 95%;display: block;float:end" *ngIf="!editing"> <app-icone-view  [icon]="inputState.icone" [width]="'fa-lg'"></app-icone-view> {{ inputState == null ? 'Nouveau etats' : inputState.displayName }}</span>
+  </div>
+
+</div>
+

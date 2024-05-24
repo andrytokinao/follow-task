@@ -21,9 +21,9 @@
         </div>
 
       </div>
-        <app-issuetype-form  [inputIssueType]="issueType"  [label]="'Titre de flux '"
+        <app-issuetype-form  [inputIssueType]="null"  [label]="'Titre de flux '"
                              [editing] = "true" [exemple]="'Flux de traveau '"
-                             class="field-item" [selected] = "isSelectedIssueType(issueType)"
+                             class="field-item"
                              (onComplete) ="saveIssueType($event)"
                              *ngIf ="isNewIssueType"
         >
@@ -57,28 +57,27 @@
 
           <app-icone-view *ngIf="iconSelected" [icon] ="iconSelected" [width]="'fa-2x'" ></app-icone-view>
         </div>
-        <div *ngIf="issueType.id && issueType.curentWorkFlow" >
+        <div *ngIf="issueType.id && issueType.curentWorkFlow " >
+          <div *ngIf="issueType.curentWorkFlow.statuses!=undefined " >
           <h1> Liste des etat possible  </h1>
-          <div *ngFor = "let stats of issueType.curentWorkFlow.states" >
-            <app-text-field  [inputModel]="stats.name" label="Titre de flux "
-                             [editing] = "false" exemple="Flux de traveau "
-                             class="field-item" [selected] = "isSelectedWorkFlow(stats)"
-                             (onClickIt) = "selectWorkFlow(stats)"
-                             (onComplete) ="saveWorkFlow($event,stats)"
+          <div *ngFor = "let state of issueType.curentWorkFlow.statuses"  >
+            <app-states-form  [inputState]="state"
+                                 [editing] = "false" [exemple]="'Flux de traveau '"
+                                 class="field-item"
+                                 (onComplete) ="addStatus($event)"
             >
-            </app-text-field>
+            </app-states-form>
           </div>
-          <app-text-field  [inputModel]="newWorkflowName" label="Titre de flux "
-                           [editing] = "isNewWorkFlow" exemple="Flux de traveau "
-                           class="field-item" [selected] = "isSelectedWorkFlow(workFlow)"
-                           (onClickIt) = "selectWorkFlow(workFlow)"
-                           (onComplete) ="saveWorkFlow($event,workFlow)"
-                           (onCancel) = "isNewWorkFlow =false"
-                           *ngIf="isNewWorkFlow"
+          </div>
+          <app-states-form  [inputState]="null"
+                            [editing] = "true" [exemple]="' Todo'"
+                            class="field-item"
+                            (onComplete) ="addStatus($event)"
+                            *ngIf="isCreateState"
           >
-          </app-text-field>
+          </app-states-form>
 
-          <div (click)="createWorkFlow()" *ngIf ="!isNewWorkFlow"> Nouveau flux de travail </div>
+          <div (click)="createState()" *ngIf ="!isCreateState"> Ajouter une etats </div>
 
       <app-icone-view *ngIf="iconSelected" [icon] ="iconSelected" [width]="'fa-2x'" ></app-icone-view>
 

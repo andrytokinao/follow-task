@@ -7,6 +7,7 @@ import {Apollo} from "apollo-angular";
 import * as operation from "../type/graphql.operations";
 import {stripTypename} from "@apollo/client/utilities";
 import {error} from "@angular/compiler-cli/src/transformers/util";
+import {supprimerTypename} from "../type/graphql.operations";
 
 @Injectable({
   providedIn: 'root',
@@ -178,7 +179,7 @@ export class IssueService {
         variables: {issueType}
       }).subscribe((res:any)=>{
        if(this.project){
-         this.project.issueTypes.push(res.data.saveIssueType);
+         this.project.issueTypes.push(supprimerTypename(res.data.saveIssueType));
        }else {
          this.project = issueType.project;
        }
@@ -207,20 +208,35 @@ export class IssueService {
     })
   }
   affectWorkFlow(issueType: IssueType) {
-    return new Observable<WorkFlow>((observer)=>{
+    return new Observable<WorkFlow|any>((observer)=>{
       this.apollo.mutate({
         mutation: operation.AFFECT_WORKFLOW,
         variables: {issueType}
       }).subscribe((res:any)=>{
-        observer.next(res.data.affectWorkFlow);
+        observer.next(stripTypename(res.data.affectWorkFlow));
         observer.complete();
       },(err)=>{
+        console.error(err);
         observer.error(err);
         observer.complete();
       })
     });
   }
-
+  addStatus(status: Status, workFlow:WorkFlow, issueTypeId:number) {
+    return new Observable<WorkFlow|any>((observer)=>{
+      this.apollo.mutate({
+        mutation: operation.ADD_STATUS,
+        variables: {status,workFlow,issueTypeId}
+      }).subscribe((res:any)=>{
+        observer.next(stripTypename(res.data.addStatus));
+        observer.complete();
+      },(err)=>{
+        console.error(err);
+        observer.error(err);
+        observer.complete();
+      })
+    });
+  }
   loadAllProject() {
     return this.apollo.query({
       query: operation.ALL_PROJECT

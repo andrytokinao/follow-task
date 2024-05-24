@@ -12,7 +12,7 @@ type Mutation {
     createProjectOrSave(project:ProjectInput):Project
     saveIssueType(issueType:IssueTypeInput):[IssueType]
     affectWorkFlow(issueType:IssueTypeInput):WorkFlow
-    addStatus(status:StatusInput, workFlow:WorkFlowInput, project:ProjectInput):WorkFlow
+    addStatus(status:StatusInput, workFlow:WorkFlowInput, issueTypeId:Int):WorkFlow
 }
 
 
