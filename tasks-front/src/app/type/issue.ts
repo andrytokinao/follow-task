@@ -1,7 +1,7 @@
 export class Status {
   id: number =0;
   displayName: String  ="";
-  iconeFile:String = "";
+  icone :Icone | undefined;
 }
 export class Issue {
   id: number = 0;

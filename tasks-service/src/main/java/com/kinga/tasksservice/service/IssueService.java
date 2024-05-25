@@ -58,15 +58,15 @@ public class IssueService {
     public ConfigRepository configRepository;
     public Issue save(Issue issue) throws IOException {
         issue.setReporter(getCurrentUser());
-        if (issue.getType() == null)
-            issue.setType(getDefaultIssueType());
+        if (issue.getIssueType() == null)
+            throw new RuntimeException("type mast bee renseign");
         if (issue.getStatus() == null) {
-            issue.setStatus(issue.getType().getCurentWorkFlow().getStatuses().get(0));
+            issue.setStatus(issue.getIssueType().getCurentWorkFlow().getStatuses().get(0));
         }
         if (StringUtils.isEmpty(issue.getIssueKey())) {
-            issue.setIssueKey(getKeySuivente(issue.getType()));
+            issue.setIssueKey(getKeySuivente(issue.getIssueType()));
         }
-        String homeDirectory = issue.getType().getProject().getPath();
+        String homeDirectory = KingaUtils.decodeText(issue.getIssueType().getProject().getPath());
         Path dossier = Paths.get(homeDirectory, issue.getIssueKey());
 
         if (!Files.exists(dossier)) {

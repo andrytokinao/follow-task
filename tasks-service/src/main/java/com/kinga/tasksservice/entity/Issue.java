@@ -23,7 +23,7 @@ public class Issue {
     private Status status;
     @ManyToOne
     @JoinColumn(name = "type")
-    private IssueType type;
+    private IssueType issueType;
 
     @ManyToOne
     @JoinColumn(name = "assigne")

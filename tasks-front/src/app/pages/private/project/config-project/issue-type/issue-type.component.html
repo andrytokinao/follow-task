@@ -1,0 +1,90 @@
+<div class="">
+  <div class="modal-header">
+    <b class="modal-title"> Confituration du projet '{{project.name}}'</b>
+    <span typeField="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+    <i class="fas fa-close"></i>  <span aria-hidden="true"></span>
+  </span>
+  </div>
+  <div class="modal-body ">
+    <div class="work-flow">
+      <div >
+        <h1> Type des taches </h1>
+        <div class="issuetype-liste">
+          <div style="margin-bottom: 5px" *ngFor = "let itype of project.issueTypes">
+          <app-issuetype-form  [inputIssueType]="itype"  [label]="'Titre de flux '"
+                               [editing] = "false" [exemple]="'Flux de traveau '"
+                               class="field-item" [selected] = "isSelectedIssueType(itype)"
+                               (onClickIt) = "selectIssueType(itype)"
+                               (onComplete) ="saveIssueType($event)"
+          >
+          </app-issuetype-form>
+        </div>
+
+      </div>
+        <app-issuetype-form  [inputIssueType]="null"  [label]="'Titre de flux '"
+                             [editing] = "true" [exemple]="'Flux de traveau '"
+                             class="field-item"
+                             (onComplete) ="saveIssueType($event)"
+                             *ngIf ="isNewIssueType"
+        >
+        </app-issuetype-form>
+        <div (click)="createIssueType()" *ngIf="!isNewIssueType"> Create </div>
+      </div>
+      <div class="item items-right">
+        <div *ngIf="issueType.id" >
+          <h1> Flux des travaux </h1>
+          <div *ngFor = "let wf of project.workFlows">
+            <app-text-field  [inputModel]="wf.name" label="Titre de flux "
+                             [editing] = "false" exemple="Flux de traveau "
+                             class="field-item" [selected] = "isSelectedWorkFlow(wf)"
+                             (onClickIt) = "selectWorkFlow(wf)"
+                             (onComplete) ="saveWorkFlow($event,wf)"
+                             (onCancel) = "isNewWorkFlow =false"
+            >
+            </app-text-field>
+          </div>
+          <app-text-field  [inputModel]="newWorkflowName" label="Titre de flux "
+                           [editing] = "isNewWorkFlow" exemple="Flux de traveau "
+                           class="field-item" [selected] = "isSelectedWorkFlow(workFlow)"
+                           (onClickIt) = "selectWorkFlow(workFlow)"
+                           (onComplete) ="saveWorkFlow($event,workFlow)"
+                           (onCancel) = "isNewWorkFlow =false"
+                           *ngIf="isNewWorkFlow"
+          >
+          </app-text-field>
+
+          <div (click)="createWorkFlow()" *ngIf ="!isNewWorkFlow"> Nouveau flux de travail </div>
+
+          <app-icone-view *ngIf="iconSelected" [icon] ="iconSelected" [width]="'fa-2x'" ></app-icone-view>
+        </div>
+        <div *ngIf="issueType.id && issueType.curentWorkFlow " >
+          <div *ngIf="issueType.curentWorkFlow.statuses!=undefined " >
+          <h1> Liste des etat possible  </h1>
+          <div *ngFor = "let state of issueType.curentWorkFlow.statuses"  >
+            <app-states-form  [inputState]="state"
+                                 [editing] = "false" [exemple]="'Flux de traveau '"
+                                 class="field-item"
+                                 (onComplete) ="addStatus($event)"
+            >
+            </app-states-form>
+          </div>
+          </div>
+          <app-states-form  [inputState]="null"
+                            [editing] = "true" [exemple]="' Todo'"
+                            class="field-item"
+                            (onComplete) ="addStatus($event)"
+                            *ngIf="isCreateState"
+          >
+          </app-states-form>
+
+          <div (click)="createState()" *ngIf ="!isCreateState"> Ajouter une etats </div>
+
+      <app-icone-view *ngIf="iconSelected" [icon] ="iconSelected" [width]="'fa-2x'" ></app-icone-view>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+

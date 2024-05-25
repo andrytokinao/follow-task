@@ -23,6 +23,8 @@ import {MatSelectModule} from "@angular/material/select";
 import {MyCommonModule} from "../../../common/common.module";
 import {CalendarComponent} from "./calendar/calendar.component";
 import {RapportComponent} from "./rapport/rapport.component";
+import {CdkTextareaAutosize} from "@angular/cdk/text-field";
+import {MatInputModule} from "@angular/material/input";
 
 @NgModule({
   declarations: [
@@ -39,20 +41,22 @@ import {RapportComponent} from "./rapport/rapport.component";
   exports: [
      StatusComponent, RepartitionComponent, IssueListeComponent,ProjectComponent
   ],
-  imports: [
-    ProjectRoutingModule,
-    MatTabsModule,
-    MatCardModule,
-    MatDialogModule,
-    MatToolbarModule,
-    MatFormFieldModule,
-    FormsModule,
-    MatMenuModule,
-    MatMenuModule,
-    MatIconModule,
-    MatSelectModule,
-    CommonModule,
-    MyCommonModule
-  ]
+    imports: [
+        ProjectRoutingModule,
+        MatTabsModule,
+        MatCardModule,
+        MatDialogModule,
+        MatToolbarModule,
+        MatFormFieldModule,
+        FormsModule,
+        MatMenuModule,
+        MatMenuModule,
+        MatIconModule,
+        MatSelectModule,
+        CommonModule,
+        MyCommonModule,
+        CdkTextareaAutosize,
+      MatInputModule
+    ]
 })
 export class ProjectModule { }

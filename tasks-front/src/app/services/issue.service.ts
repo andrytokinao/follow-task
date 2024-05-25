@@ -42,7 +42,7 @@ export class IssueService {
         query: operation.ALL_STATUS ,
       });
   }
-  getIssues(projet:string) {
+  getIssues(projet:String | undefined) {
     return this.apollo
       .query({
         query: operation.ALL_ISSUE ,
@@ -150,7 +150,7 @@ export class IssueService {
       variables: {project}
     })
   }
-  getProject(prefix:String){
+  getProject(prefix:string){
     return new Observable<any>((observer)=>{
       if(this.project == null || this.project.prefix==prefix) {
         this.apollo.query({
@@ -237,14 +237,10 @@ export class IssueService {
       })
     });
   }
-  loadAllProject() {
-    return this.apollo.query({
-      query: operation.ALL_PROJECT
-    });
-  }
 
-  getAllProject() {
-    return new Observable((observable) => {
+
+  allProjects() {
+    return new Observable<Project[]>((observable) => {
       this.apollo.query({
         query: operation.ALL_PROJECT
       }).subscribe(
@@ -256,6 +252,25 @@ export class IssueService {
           console.error(error());
           observable.error();
           observable.complete();
+        }
+      );
+    })
+  }
+
+  saveWorkFlow(workFlow: WorkFlow) {
+    return new Observable<WorkFlow>((observer)=> {
+      console.info("saving workflow");
+      this.apollo.mutate({
+        mutation: operation.SAVE_WORK_FLOW,
+        variables:{workFlow}
+      }).subscribe(
+        (res: any) => {
+          observer.next(res.data.saveWorkFlow);
+          observer.complete();
+        }, (error: any) => {
+          console.error(error);
+          observer.error(error);
+          observer.complete();
         }
       );
     })

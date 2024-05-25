@@ -1,0 +1,12 @@
+<div  *ngFor ="let ty of project.issueTypes">
+  <span>  {{ty.name}}</span>
+</div>
+<form action="" class="sign-up-form" (ngSubmit)="create()">
+  <div class="input-field">
+    <i class="fas fa-laptop"></i>
+    <input type="text"  placeholder="Nom de flux de travail"  [(ngModel)]="workFlow.name" [ngModelOptions]="{standalone: true}"  required/>
+  </div>
+  <div class="input-field">
+    <input type="submit" value="Enregistrer" class="controle"   required/>
+  </div>
+</form>

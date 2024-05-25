@@ -7,6 +7,7 @@ import {AdminComponent} from "./admins/admin.component";
 import {ProfileComponent} from "./profile/profile.component";
 import {AccessDeniedComponent} from "./access-denied/access-denied.component";
 import {AuthGuard} from "../../services/authorization.service.ts";
+import {ProjectResolverService} from "../../services/resolvers/project-resolver.service";
 
 const privateRoute: Routes = [
   {
@@ -19,9 +20,9 @@ const privateRoute: Routes = [
           { path: '',   redirectTo: 'project', pathMatch: 'full' },
           { path: 'profile', component: ProfileComponent  },
           { path: 'access-denied', component: AccessDeniedComponent },
-          { path: 'project/:project', component: ProjectComponent } ,
+          { path: 'project/:project', component: ProjectComponent,resolve:{project:ProjectResolverService} } ,
           {
-            path: 'project/:project',
+            path: 'project/:project',resolve:{project:ProjectResolverService},
             loadChildren: () => import('./project/project.module').then(m => m.ProjectModule),
             //  canMatch: [userProject]
           },

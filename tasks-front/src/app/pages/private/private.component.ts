@@ -4,7 +4,8 @@ import {AuthService} from "../../services/auth.service";
 import {LocalStorageService} from "../../services/local-storage.service";
 import {ProfileComponent} from "./profile/profile.component";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
-import {User} from "../../type/issue";
+import {Project, User} from "../../type/issue";
+import {IssueService} from "../../services/issue.service";
 
 @Component({
   selector: 'private-root',
@@ -14,10 +15,17 @@ import {User} from "../../type/issue";
 export class PrivateComponent {
   profile:any  = {};
   title = 'tasks-front';
-  constructor(private router: Router, private authService: AuthService,private modalService: NgbModal) {
+  projects:Project[] = [];
+  project:Project | undefined;
+  constructor(private router: Router,
+              private authService: AuthService,
+              private modalService: NgbModal,
+              private issueService:IssueService
+  ) {
     this.authService.getProfile().subscribe(profile=>{
       this.profile = profile;
-    })
+    });
+    this.allProjects();
   }
   logout(){
     this.authService.logout().subscribe(
@@ -36,5 +44,15 @@ export class PrivateComponent {
     dialogRef.componentInstance.loadDirectory();
     dialogRef.result.then((result) => {
     })
+  }
+  allProjects(){
+    this.issueService.allProjects().subscribe(projects=>{
+      this.projects = projects;
+    })
+  }
+
+  selectProject(project: Project) {
+    this.project = project;
+    this.router.navigate(["/private/project/"+project.prefix+"/liste"])
   }
 }

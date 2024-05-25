@@ -1,9 +1,10 @@
-import {Component, Inject, Input} from '@angular/core';
+import {Component, inject, Inject, Injector, Input, ViewChild,afterNextRender} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {FormsModule} from "@angular/forms";
-import {Issue, Status} from "../../../../../type/issue";
+import {Issue, IssueType, Project, Status} from "../../../../../type/issue";
 import {IssueService} from "../../../../../services/issue.service";
+import {CdkTextareaAutosize} from "@angular/cdk/text-field";
 @Component({
   selector: 'app-edit-issue',
   templateUrl: './new-issue.component.html',
@@ -18,20 +19,34 @@ export class NewIssueComponent {
   summary: string = 'essai';
   description: string = '';
   type: string = 'type1';
-
-
+  issueType: IssueType | any = {};
+  issueTypes: IssueType[] = [];
+  project:Project | undefined;
+  @ViewChild('autosize') autosize: CdkTextareaAutosize | undefined;
+  private _injector = inject(Injector);
   constructor(
     public activeModal: NgbActiveModal,
     public issueService:IssueService,
   ) {}
 
   save() {
-    let issue = {summary:"",description: ""};
+    let issue:any = {};
+    let project :any ={};
     issue.summary = this.summary;
     issue.description = this.description;
+     project.id = this.project?.id;
+    project.name = this.project?.name;
+     this.issueType.project = project;
 
+    issue.issueType = this.issueType;
+  alert(JSON.stringify(issue));
       this.issueService.saveIssue(issue).subscribe((res:any)=>{
         this.activeModal.close({ issue: res.data.saveIssue });
       });
     }
+
+  change() {
+    alert(JSON.stringify(this.issueType));
+
+  }
 }

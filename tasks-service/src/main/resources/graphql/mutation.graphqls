@@ -11,6 +11,7 @@ type Mutation {
     saveConfigWithQG(configEntry:ConfigEntryInput):[ConfigEntry]
     createProjectOrSave(project:ProjectInput):Project
     saveIssueType(issueType:IssueTypeInput):[IssueType]
+    saveWorkFlow(workFlow:WorkFlowInput):WorkFlow
     affectWorkFlow(issueType:IssueTypeInput):WorkFlow
     addStatus(status:StatusInput, workFlow:WorkFlowInput, issueTypeId:Int):WorkFlow
 }

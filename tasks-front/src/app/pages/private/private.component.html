@@ -3,7 +3,14 @@
     <div class="logo">Logo</div>
     <ul class="navigation">
       <li><a routerLink="" ariaCurrentWhenActive="page">Home</a></li>
-      <li><a routerLink="project" routerLinkActive="active" ariaCurrentWhenActive="page">Project</a></li>
+      <li>
+        <div class="user-dropdown">
+          <span class="username">Projet</span>
+          <div class="user-dropdown-content">
+            <div class="item controle"  *ngFor="let project of projects" (click)="selectProject(project)">{{project.name}}</div>
+          </div>
+        </div>
+      </li>
       <li><a routerLink="admin/users" routerLinkActive="active" ariaCurrentWhenActive="page">Admin</a></li>
     </ul>
     <div class="user-section">

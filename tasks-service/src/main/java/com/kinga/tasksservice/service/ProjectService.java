@@ -4,6 +4,8 @@ import com.kinga.tasksservice.entity.*;
 import com.kinga.tasksservice.repository.*;
 import com.kinga.utils.KingaUtils;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -21,6 +23,7 @@ public class ProjectService {
     final WorkFlowRepository workFlowRepository;
     final ConfigRepository configRepository;
     final IconeRepository iconeRepository;
+    static Logger logger = LoggerFactory.getLogger(ProjectService.class);
 
     public Status saveStatus(Status status) {
         return statusRepository.save(status);
@@ -114,13 +117,14 @@ public class ProjectService {
             throw new RuntimeException("IssueType#" + issueType.getId() + " not found");
         }
         issueType = issueTypeRepository.getById(issueType.getId());
-        workFlow = workFlowRepository.save(workFlow);
+        workFlow = workFlowRepository.getById(workFlow.getId());
         if (!"complete".equalsIgnoreCase(installation)) {
             configEntry.setInstalationState("create-project/work-flow-status?work-flow=" + workFlow.getId());
         }
         issueType.setCurentWorkFlow(workFlow);
         configRepository.save(configEntry);
         issueTypeRepository.save(issueType);
+        logger.info("affect type "+issueType.getName() +" workflow "+workFlow.getName());
         return workFlow;
     }
 
@@ -139,6 +143,7 @@ public class ProjectService {
         statusIds += (StringUtils.isEmpty(statusIds) ? "" : ",") + status.getId();
         workFlow.setStatesIds(statusIds);
         configRepository.save(configEntry);
+        logger.debug("add status "+status.toString() +" " + workFlow.toString() + " "+workFlow.getProject().toString());
         return workFlowRepository.save(workFlow);
     }
 
@@ -148,5 +153,9 @@ public class ProjectService {
 
     public IssueType getIssueType(Long issueTypeId) {
         return this.issueTypeRepository.getReferenceById(issueTypeId);
+    }
+
+    public WorkFlow saveWorkFlow(WorkFlow workFlow) {
+        return workFlowRepository.save(workFlow);
     }
 }

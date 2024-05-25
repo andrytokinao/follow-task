@@ -1,2 +1,5 @@
-<i [class]="icon.value + ' '+width" *ngIf="icon !=null && icon.typeIcone == 'class'"></i>
-<img [src]="icon.value" *ngIf="icon !=null && icon.iconeType =='image'">
+<span style="padding: 10px">
+  <i [class]="icon.value + ' '+width" *ngIf="icon !=null && icon.typeIcone == 'class'"></i>
+  <img [src]="icon.value" *ngIf="icon !=null && icon.iconeType =='image'">
+</span>
+

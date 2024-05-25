@@ -33,7 +33,7 @@
   flex-direction: column;
   align-self: auto;
   flex: 1 1 auto;
-  min-width: 282px;
+  min-width: 182px;
   max-width: 282px;
   transition: min-width 300ms ease 0s, max-width 300ms ease-in 0s;
 }

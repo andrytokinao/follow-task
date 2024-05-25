@@ -45,7 +45,7 @@ type  Issue {
     id:Int
     summary:String
     description : String
-    type:IssueType
+    issueType:IssueType
     assigne:UserApp
     status:Status
     reporter:UserApp
@@ -215,7 +215,7 @@ input  IssueInput {
     description : String
     directory:String
     parent:Int,
-    type:IssueTypeInput
+    issueType:IssueTypeInput
     assigne:UserAppInput
     status:StatusInput
     reporter:StatusInput

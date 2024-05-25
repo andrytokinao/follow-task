@@ -129,6 +129,15 @@ const ALL_ISSUE = gql`
       summary
       description
       issueKey
+      issueType {
+        id
+        name
+        icone {
+          id
+          typeIcone
+          value
+        }
+      }
       assigne {
         id
         username
@@ -238,6 +247,15 @@ const  GET_ISSUE_BY_ASSIGN = gql`
       id
       summary
       summary
+       issueType {
+         id
+         name
+         icone {
+           id
+           value
+           typeIcone
+         }
+       }
       assigne {
         id
         username
@@ -412,6 +430,23 @@ const  GET_ISSUE_TYPE = gql`
     }
   }
 `;
+const SAVE_WORK_FLOW = gql`
+    mutation saveWorkFlow($workFlow:WorkFlowInput) {
+      saveWorkFlow(workFlow: $workFlow) {
+        id
+        name
+        statuses {
+          id
+          displayName
+          icone {
+            id
+            typeIcone
+            value
+          }
+        }
+      }
+    }
+`
 const  AFFECT_WORKFLOW = gql`
   mutation affectWorkFlow ($issueType:IssueTypeInput!) {
     affectWorkFlow(issueType: $issueType){
@@ -454,36 +489,6 @@ const ALL_PROJECT = gql`
       name
       prefix
       statusConfig
-      issueTypes {
-        id
-        name
-        curentWorkFlow {
-          id
-          name
-          crossingStates {
-            id
-            name
-            description
-            credential {
-              id
-              name
-            }
-          }
-          statuses {
-            id
-            displayName
-            icone {
-              id
-              typeIcone
-              value
-            }
-            acctionPossible {
-              id
-              name
-            }
-          }
-        }
-      }
     }
   }
 `;
@@ -538,6 +543,15 @@ const GET_PROJECT = gql`
             value
           }
         }
+        issueTypes {
+          id
+          name
+          icone {
+            id
+            value
+            typeIcone
+          }
+        }
       }
     }
   }
@@ -568,7 +582,8 @@ export {
   ADD_STATUS,
   ALL_PROJECT,
   GET_PROJECT,
-  GET_ISSUE_TYPE
+  GET_ISSUE_TYPE,
+  SAVE_WORK_FLOW
 }
 function  supprimerTypename<T>(objet: T): T {
   if (!objet || typeof objet !== 'object') {

@@ -136,6 +136,8 @@ public class GQIssueController {
     public IssueType getIssueType(@Argument Long issueTypeId){
         return projectService.getIssueType(issueTypeId);
     }
-
-
+     @MutationMapping
+     public WorkFlow saveWorkFlow(@Argument WorkFlow workFlow) {
+        return projectService.saveWorkFlow(workFlow);
+     }
 }

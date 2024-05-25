@@ -31,7 +31,6 @@ import {AccessDeniedComponent} from "./access-denied/access-denied.component";
     MatFormFieldModule,
     FormsModule,
     MatMenuModule,
-    MatMenuModule,
     MatIconModule,
     MatSelectModule,
     CommonModule,

@@ -8,6 +8,7 @@ import {GanttChartComponent} from "./gantt-chart/gantt-chart.component";
 import {BoardComponent} from "./board/board.component";
 import {CalendarComponent} from "./calendar/calendar.component";
 import {RapportComponent} from "./rapport/rapport.component";
+import {ConfigProjectComponent} from "./config-project/config-project.component";
 
 const projectRoute: Routes = [
   {
@@ -22,6 +23,8 @@ const projectRoute: Routes = [
           { path: 'board', component: BoardComponent },
           { path: 'rapport', component: RapportComponent },
           { path: 'calendar', component: CalendarComponent},
+          { path: 'config', component: ConfigProjectComponent},
+          { path: 'config', loadChildren:()=> import("./config-project/config-project.module") .then(m=>m.ConfigProjectModule)},
 
         ]
       }

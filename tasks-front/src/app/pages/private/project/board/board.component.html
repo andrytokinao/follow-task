@@ -1,6 +1,16 @@
-<div class="board">
-  <div class="column" *ngFor='let status of filerWorkFlow()' (dragover)="onDragOver($event)" (drop)= "onDrop($event, status)" >
-    <div class="entete">{{ status.displayName }} </div>
+<mat-form-field>
+  <mat-label>Work flow </mat-label>
+  <mat-select [(value)]="currentWorkflow" *ngIf="project">
+    <mat-option *ngFor="let wf of project?.workFlows" [value]="wf">{{wf.name}}</mat-option>
+  </mat-select>
+</mat-form-field>
+
+
+
+<div class="board" >
+  <div class="column" *ngFor='let status of currentWorkflow?.statuses' (dragover)="onDragOver($event)" (drop)= "onDrop($event, status)" >
+
+    <div class="entete"> <app-icone-view [icon]="status.icone"></app-icone-view>{{ status.displayName }} </div>
     <div class="issie-board" *ngFor="let issue of filterByStatus(status)" draggable="true" (dragstart)="onDragStart($event,issue)"  >
       <div class="myCard"  >
         <div class="content details" (click)="viewIssue(issue)">
