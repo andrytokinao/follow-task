@@ -1,5 +1,6 @@
 package com.kinga.tasksservice.service;
 
+import com.kinga.tasksservice.dto.Criteria;
 import com.kinga.tasksservice.entity.*;
 import com.kinga.tasksservice.repository.*;
 import com.kinga.utils.KingaUtils;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -20,6 +22,7 @@ public class ProjectService {
     public StatusRepository statusRepository;
     final ProjectRepository projectRepository;
     final IssueTypeRepository issueTypeRepository;
+    final IssueRepository issueRepository;
     final WorkFlowRepository workFlowRepository;
     final ConfigRepository configRepository;
     final IconeRepository iconeRepository;
@@ -157,5 +160,22 @@ public class ProjectService {
 
     public WorkFlow saveWorkFlow(WorkFlow workFlow) {
         return workFlowRepository.save(workFlow);
+    }
+
+    public List<Issue> issueByCriteria(List<Criteria> criterias) {
+        List<Criteria> typeCriterias = Criteria.findByField(criterias,"issueTypeId");
+        List<Long> issueTypeIds  = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(typeCriterias)) {
+           String issueTypeIdS = typeCriterias.get(0).getValue();
+           try {
+               issueTypeIds.add(Long.valueOf(issueTypeIdS));
+           }catch (Exception e){
+               logger.error(e.getMessage(),e);
+           }
+        }
+        if (!CollectionUtils.isEmpty(issueTypeIds)) {
+            return issueRepository.findByIssueTypeIdIn(issueTypeIds);
+        }
+        return new ArrayList<>();
     }
 }

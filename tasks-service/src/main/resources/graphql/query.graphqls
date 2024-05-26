@@ -17,4 +17,5 @@ type Query {
     allWorkFlow:[WorkFlow]
     getProject(prefix:String):Project
     getIssueType(issueTypeId:Int):IssueType
+    issueByCriteria(criterias:[CriteriaInput]):[Issue]
 }

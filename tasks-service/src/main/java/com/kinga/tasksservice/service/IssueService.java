@@ -26,11 +26,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.rmi.RemoteException;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.List;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -56,17 +54,38 @@ public class IssueService {
     public ProjectService projectService;
     @Autowired
     public ConfigRepository configRepository;
-    public Issue save(Issue issue) throws IOException {
+    public List<Issue> saveIssue(Issue issue) throws IOException {
+        if(issue.getId() ==null) {
+            issue.setCreationDate(new Date());
+        } else {
+            issue.setUpdateDate( new Date());
+        }
+
         issue.setReporter(getCurrentUser());
-        if (issue.getIssueType() == null)
+        if (issue.getIssueType() == null) {
             throw new RuntimeException("type mast bee renseign");
-        if (issue.getStatus() == null) {
-            issue.setStatus(issue.getIssueType().getCurentWorkFlow().getStatuses().get(0));
         }
-        if (StringUtils.isEmpty(issue.getIssueKey())) {
-            issue.setIssueKey(getKeySuivente(issue.getIssueType()));
+
+        IssueType issueType = issueTypeRepository.getById(issue.getIssueType().getId());
+         if (StringUtils.isEmpty(issue.getIssueKey()))
+             issue.setIssueKey(getKeySuivente(issueType));
+        Project project = issueType.getProject();
+        if (StringUtils.isEmpty(project.getPath())) {
+            throw new RemoteException(" Config non terminer ");
         }
-        String homeDirectory = KingaUtils.decodeText(issue.getIssueType().getProject().getPath());
+        WorkFlow workFlow = issueType.getCurentWorkFlow();
+        List<Long> issueTypeIds = new ArrayList<>();
+        if (workFlow != null) {
+            List<IssueType> issueTypes = workFlow.getIssueTypes();
+            for (IssueType it : issueTypes){
+                issueTypeIds.add(it.getId());
+            }
+        }
+        String homeDirectory = KingaUtils.decodeText(project.getPath());
+        File projectDirectory = new File(homeDirectory);
+        if (!Files.exists(projectDirectory.toPath())) {
+            Files.createDirectory(projectDirectory.toPath());
+        }
         Path dossier = Paths.get(homeDirectory, issue.getIssueKey());
 
         if (!Files.exists(dossier)) {
@@ -75,9 +94,13 @@ public class IssueService {
             System.out.println("Le répertoire '" + dossier + "' existe déjà.");
         }
         issue.setDirectory(dossier.toString());
-        return issueRepository.save(issue);
+        issueRepository.save(issue);
+        if (!CollectionUtils.isEmpty(issueTypeIds)) {
+            return issueRepository.findByIssueTypeIdIn(issueTypeIds);
+        } else {
+            return issueRepository.findAll();
+        }
     }
-
     private UserApp getCurrentUser() {
         // TODO : Get connected user
         return null;

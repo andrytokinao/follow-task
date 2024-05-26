@@ -1,6 +1,5 @@
 package com.kinga.tasksservice.service;
 
-import com.kinga.tasksservice.dto.ConfigBuilder;
 import com.kinga.tasksservice.dto.ValueDto;
 import com.kinga.tasksservice.entity.*;
 import com.kinga.tasksservice.entity.enumapp.TypeConfig;
@@ -15,11 +14,9 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.beans.IntrospectionException;
-import java.beans.PropertyDescriptor;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -65,7 +62,7 @@ public class ConfigService {
         Issue issue = new Issue();
         issue.setSummary("Etude ");
         issue.setDescription("Voici quelque description");
-        issueService.save(issue);
+        issueService.saveIssue(issue);
 
         // Test date value
         CustomField dateField = new CustomField();

@@ -336,3 +336,9 @@ input IconeInput{
     typeIcone:String
     value:String
 }
+input CriteriaInput {
+    field:String
+    value:String
+    operator:String
+    sousCriteria:[CriteriaInput]
+}

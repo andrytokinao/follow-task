@@ -100,6 +100,15 @@ const SAVE_ISSUE = gql`
         lastName
         photo
       }
+      issueType {
+        id
+        name
+        icone {
+          id
+          typeIcone
+          value
+        }
+      }
     }
   }
 `;
@@ -556,7 +565,60 @@ const GET_PROJECT = gql`
     }
   }
 `;
-
+ const ISSUE_BY_CRITERIA=gql`
+   query issueByCriteria($criterias:[CriteriaInput]){
+     issueByCriteria(criterias: $criterias){
+       id
+       issueKey
+       summary
+       comments {
+         id
+         date
+         text
+         user {
+           id
+           username
+           lastName
+           lastName
+           photo
+         }
+       }
+       assigne {
+         id
+         firstName
+         lastName
+         username
+         photo
+       }
+       issueType {
+         id
+         name
+         prefix
+         icone {
+           id
+           value
+           typeIcone
+         }
+       }
+       reporter {
+         id
+         photo
+         username
+         lastName
+         firstName
+       }
+       status {
+         id
+         displayName
+         icone {
+           id
+           value
+           typeIcone
+         }
+       }
+     }
+   }
+ `
 export {
   supprimerTypename,
   SAVE_USER,
@@ -583,7 +645,8 @@ export {
   ALL_PROJECT,
   GET_PROJECT,
   GET_ISSUE_TYPE,
-  SAVE_WORK_FLOW
+  SAVE_WORK_FLOW,
+  ISSUE_BY_CRITERIA
 }
 function  supprimerTypename<T>(objet: T): T {
   if (!objet || typeof objet !== 'object') {

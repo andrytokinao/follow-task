@@ -7,4 +7,7 @@ import java.util.List;
 
 public interface IssueRepository extends JpaRepository<Issue,Long> {
     public List<Issue> findByAssigneId(String id);
+
+    List<Issue> findByIssueTypeIdIn(List<Long> issueT);
+
 }

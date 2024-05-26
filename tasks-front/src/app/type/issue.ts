@@ -12,6 +12,7 @@ export class Issue {
   status: Status | null = null;
   assigne:User = new User();
   reporter:User = new User();
+  issueType:IssueType | any = {};
   comments :Comment[] = [];
   constructor() {
 
@@ -151,4 +152,10 @@ export interface Icone {
   id:Number
   typeIcone:String
   value:String
+}
+export interface Criteria {
+  field:String
+  value:String
+  operator:Status
+  sousCriteria:Criteria[]
 }

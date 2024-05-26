@@ -1,5 +1,6 @@
 package com.kinga.tasksservice.web;
 
+import com.kinga.tasksservice.dto.Criteria;
 import com.kinga.tasksservice.dto.ValueDto;
 import com.kinga.tasksservice.entity.*;
 import com.kinga.tasksservice.service.AuthorizationService;
@@ -25,9 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
@@ -47,8 +46,8 @@ public class GQIssueController {
         return issueService.findByAssigneId(id);
     }
     @MutationMapping
-    public Issue saveIssue(@Argument Issue issue) throws IOException {
-        return issueService.save((Issue) issue);
+    public List<Issue> saveIssue(@Argument Issue issue) throws IOException {
+        return issueService.saveIssue((Issue) issue);
     }
     @QueryMapping
     public List<Status> findAllStatus(){
@@ -139,5 +138,9 @@ public class GQIssueController {
      @MutationMapping
      public WorkFlow saveWorkFlow(@Argument WorkFlow workFlow) {
         return projectService.saveWorkFlow(workFlow);
+     }
+     @QueryMapping
+     public List<Issue> issueByCriteria(@Argument List<Criteria> criterias){
+        return projectService.issueByCriteria(criterias);
      }
 }

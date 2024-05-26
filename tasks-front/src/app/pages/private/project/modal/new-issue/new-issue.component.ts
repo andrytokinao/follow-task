@@ -32,16 +32,17 @@ export class NewIssueComponent {
   save() {
     let issue:any = {};
     let project :any ={};
+    let status :any ={};
+    status.id = this.status?.id;
     issue.summary = this.summary;
     issue.description = this.description;
      project.id = this.project?.id;
-    project.name = this.project?.name;
      this.issueType.project = project;
 
     issue.issueType = this.issueType;
-  alert(JSON.stringify(issue));
+    issue.status = this.status;
       this.issueService.saveIssue(issue).subscribe((res:any)=>{
-        this.activeModal.close({ issue: res.data.saveIssue });
+        this.activeModal.close({ issues: res.data.saveIssue });
       });
     }
 

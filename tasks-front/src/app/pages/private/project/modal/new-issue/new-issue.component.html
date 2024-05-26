@@ -9,7 +9,7 @@
     <div class="form-group">
       <mat-form-field style="width: 100%" >
         <mat-label>Type </mat-label>
-        <mat-select [(value)]="issueType" (selectionChange)="change()">
+        <mat-select [(value)]="issueType" >
           <mat-option *ngFor="let type of issueTypes" [value]="type" style="z-index: 1060">{{type.name}}</mat-option>
         </mat-select>
       </mat-form-field>

@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {NewIssueComponent} from "../modal/new-issue/new-issue.component";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {IssueService} from "../../../../services/issue.service";
-import {Issue, IssueType, Project, Status, User, WorkFlow} from "../../../../type/issue";
+import {Criteria, Issue, IssueType, Project, Status, User, WorkFlow} from "../../../../type/issue";
 import {groupBy, mergeMap, of, toArray, zip} from "rxjs";
 import {MatMenuTrigger} from "@angular/material/menu";
 import {UserService} from "../../../../services/user.service";
@@ -57,8 +57,10 @@ export class BoardComponent implements OnInit {
   newIssue(status: Status) {
     const dialogRef = this.modalService.open(NewIssueComponent);
     dialogRef.componentInstance.issueTypes = this.currentWorkflow.issueTypes;
+    dialogRef.componentInstance.status = status;
     dialogRef.result.then((result) => {
-      this.issues.push(<Issue>stripTypename(result.issue));
+      this.issues = <Issue[]>stripTypename(result.issues)
+
     })
   }
 

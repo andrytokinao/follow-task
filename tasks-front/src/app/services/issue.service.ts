@@ -2,12 +2,23 @@ import { Injectable } from '@angular/core';
 import {HttpClient, HttpEvent, HttpHeaders, HttpParams, HttpRequest} from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
-import {Issue, Status, User, Comment, Repertoire, ConfigEntry, Project, IssueType, WorkFlow} from "../type/issue";
+import {
+  Issue,
+  Status,
+  User,
+  Comment,
+  Repertoire,
+  ConfigEntry,
+  Project,
+  IssueType,
+  WorkFlow,
+  Criteria
+} from "../type/issue";
 import {Apollo} from "apollo-angular";
 import * as operation from "../type/graphql.operations";
 import {stripTypename} from "@apollo/client/utilities";
 import {error} from "@angular/compiler-cli/src/transformers/util";
-import {supprimerTypename} from "../type/graphql.operations";
+import {ISSUE_BY_CRITERIA, supprimerTypename} from "../type/graphql.operations";
 
 @Injectable({
   providedIn: 'root',
@@ -273,6 +284,22 @@ export class IssueService {
           observer.complete();
         }
       );
+    })
+  }
+  issueByCriteria(criterias:Criteria[]) {
+    alert("excecution ");
+    return new Observable<Issue[]>(observer =>{
+      this.apollo.query({
+        query:ISSUE_BY_CRITERIA,
+        variables:{criterias}
+      }).subscribe((res:any) =>{
+        observer.next(supprimerTypename(res.data.issueByCriteria));
+        observer.complete();
+      },err =>{
+         observer.error(err);
+         observer.complete();
+        }
+        );
     })
   }
 }
