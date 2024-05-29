@@ -165,4 +165,18 @@ export class BoardComponent implements OnInit {
       }}
     });
   }
+
+  loadByWorkFlow(currentWorkflow:WorkFlow) {
+    let criterias: Criteria[] =[];
+    for (let type of currentWorkflow.issueTypes){
+      let criteria:Criteria | any = {};
+      criteria.field ="issueTypeId";
+      criteria.value = type.id;
+      criteria.operator ="eq";
+    }
+    this.issueService.issueByCriteria(criterias).subscribe(issues => {
+      this.issues = issues;
+    });
+  }
+
 }

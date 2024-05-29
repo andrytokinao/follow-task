@@ -1,7 +1,7 @@
 <mat-form-field>
   <mat-label>Work flow </mat-label>
-  <mat-select [(value)]="currentWorkflow" *ngIf="project">
-    <mat-option *ngFor="let wf of project?.workFlows" [value]="wf"> <app-icone-view ></app-icone-view>{{wf.name}}</mat-option>
+  <mat-select [(value)]="currentWorkflow" *ngIf="project" >
+    <mat-option *ngFor="let wf of project?.workFlows" [value]="wf" (select)="loadByWorkFlow(wf)"> <app-icone-view ></app-icone-view>{{wf.name}}</mat-option>
   </mat-select>
 </mat-form-field>
 

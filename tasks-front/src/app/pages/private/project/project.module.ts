@@ -15,9 +15,7 @@ import {MatToolbarModule} from "@angular/material/toolbar";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {FormsModule} from "@angular/forms";
 import {MatMenuModule, MatMenu, MatMenuTrigger} from "@angular/material/menu";
-import {BrowserModule} from "@angular/platform-browser";
 import {MatIconModule} from "@angular/material/icon";
-import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {ViewEditIssueComponent} from "./modal/view-edit-issue/view-edit-issue.component";
 import {MatSelectModule} from "@angular/material/select";
 import {MyCommonModule} from "../../../common/common.module";
@@ -25,38 +23,59 @@ import {CalendarComponent} from "./calendar/calendar.component";
 import {RapportComponent} from "./rapport/rapport.component";
 import {CdkTextareaAutosize} from "@angular/cdk/text-field";
 import {MatInputModule} from "@angular/material/input";
+import {
+  MatCell,
+  MatCellDef,
+  MatColumnDef, MatHeaderCell,
+  MatHeaderCellDef, MatHeaderRow,
+  MatHeaderRowDef, MatRow,
+  MatRowDef,
+  MatTable
+} from "@angular/material/table";
+import {MatPaginatorModule} from "@angular/material/paginator";
 
 @NgModule({
   declarations: [
     StatusComponent,
     RepartitionComponent,
-    IssueListeComponent,
     ProjectComponent,
     GanttChartComponent,
     BoardComponent,
     CalendarComponent,
     RapportComponent,
     NewIssueComponent,
-    ViewEditIssueComponent],
-  exports: [
-     StatusComponent, RepartitionComponent, IssueListeComponent,ProjectComponent
+    ViewEditIssueComponent
   ],
-    imports: [
-        ProjectRoutingModule,
-        MatTabsModule,
-        MatCardModule,
-        MatDialogModule,
-        MatToolbarModule,
-        MatFormFieldModule,
-        FormsModule,
-        MatMenuModule,
-        MatMenuModule,
-        MatIconModule,
-        MatSelectModule,
-        CommonModule,
-        MyCommonModule,
-        CdkTextareaAutosize,
-      MatInputModule
-    ]
+  exports: [
+     StatusComponent, RepartitionComponent,ProjectComponent
+  ],
+  imports: [
+    ProjectRoutingModule,
+    MatTabsModule,
+    MatCardModule,
+    MatDialogModule,
+    MatToolbarModule,
+    MatFormFieldModule,
+    FormsModule,
+    MatMenuModule,
+    MatMenuModule,
+    MatIconModule,
+    MatSelectModule,
+    CommonModule,
+    MyCommonModule,
+    CdkTextareaAutosize,
+    MatInputModule,
+    MatTable,
+    MatHeaderRowDef,
+    MatRowDef,
+    MatCellDef,
+    MatHeaderCellDef,
+    MatColumnDef,
+    MatPaginatorModule,
+    MatCell,
+    MatHeaderCell,
+    MatHeaderRow,
+    MatRow
+  ]
 })
 export class ProjectModule { }

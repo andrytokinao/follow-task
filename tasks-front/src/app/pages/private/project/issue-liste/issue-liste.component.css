@@ -1,3 +1,7 @@
+.issue-list{
+  display: grid;
+  grid-row-gap: 20px;
+}
 .card-list {
   display: flex;
   justify-content: space-between;

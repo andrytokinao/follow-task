@@ -27,7 +27,7 @@ export class UserService {
       .get<User[]>(url)
       .pipe(retry(1), catchError(this.handleError));
   }
-  getUsers(projet:string) {
+  getUsers(projet:String) {
     return this.apollo
       .query({
         query: ALL_USERS ,
