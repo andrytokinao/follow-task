@@ -3,6 +3,7 @@ import {RouterModule, Routes,provideRouter,withComponentInputBinding} from "@ang
 import {ConfigProjectComponent} from "./config-project.component";
 import {DialogOverviewComponent} from "./dialog-overview/dialog-overview.component";
 import {AuthGuard} from "../../../../services/authorization.service.ts";
+import {CustomFieldComponent} from "./custom-field/custom-field.component";
 
 
 const createProject: Routes = [
@@ -16,7 +17,7 @@ const createProject: Routes = [
           { path: '', redirectTo: "create", pathMatch : "prefix"  },
           { path: 'create', component: DialogOverviewComponent ,canActivate:[AuthGuard], data: { roles: ['CAN_CREATE_PROJECT','CAN_ACCESS_ALL']} },
           { path: 'issue-type', component: DialogOverviewComponent ,canActivate:[AuthGuard] , data: { roles: ['CAN_CREATE_PROJECT','CAN_ACCESS_ALL']}},
-          { path: 'work-flow', component: DialogOverviewComponent ,canActivate:[AuthGuard] , data: { roles: ['CAN_CREATE_PROJECT','CAN_ACCESS_ALL']}},
+          { path: 'custom-field', component: CustomFieldComponent ,canActivate:[AuthGuard] , data: { roles: ['CAN_CREATE_PROJECT','CAN_ACCESS_ALL']}},
           { path: 'work-flow-status', component: DialogOverviewComponent , canActivate:[AuthGuard] , data: { roles: ['CAN_CREATE_PROJECT','CAN_ACCESS_ALL']}},
         ]
       }

@@ -71,7 +71,7 @@ public class GQIssueController {
         return issueService.getValues(issueId);
     }
     @QueryMapping
-    public List<CustomField> allCustomField(@Argument Long id) {
+    public List<CustomField> allCustomFieldByIssue(@Argument Long id) {
         return issueService.allCustomField(id);
     }
     @QueryMapping
@@ -143,4 +143,13 @@ public class GQIssueController {
      public List<Issue> issueByCriteria(@Argument List<Criteria> criterias){
         return projectService.issueByCriteria(criterias);
      }
+     @MutationMapping
+     public List<CustomField> saveCustomField(@Argument CustomField customField){
+        return projectService.saveCustomField (customField);
+     }
+     @QueryMapping
+     public List<CustomField> allCustomField(){
+        return projectService.allCustomField();
+     }
+
 }

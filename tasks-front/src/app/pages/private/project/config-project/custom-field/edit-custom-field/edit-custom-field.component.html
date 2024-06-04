@@ -1,0 +1,28 @@
+<div class="modal-header">
+  <h4 class="modal-title"> Nouveau champ personnalise </h4>
+  <span typeField="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+    <i class="fas fa-close"></i>  <span aria-hidden="true"></span>
+  </span>
+</div>
+<div class="modal-body">
+  <form #f="ngForm">
+    <div class="form-group">
+      <label for="name">Nom</label>
+      <input [(ngModel)]="customField.name" [ngModelOptions]="{standalone: true}" class="form-control" id="name" name="name"
+             typeField="text" >
+    </div>
+    <div class="form-group">
+      <label >Description</label>
+      <input [(ngModel)]="customField.description" [ngModelOptions]="{standalone: true}" class="form-control" id="description" name="description"
+             typeField="text">
+    </div>
+  </form>
+  <div class="form-group">
+    <label ></label>
+    <input [(ngModel)]="customField.type" [ngModelOptions]="{standalone: true}" class="form-control" id="type" name="type"
+           typeField="text">
+  </div>
+</div>
+<div class="modal-footer">
+  <button typeField="button" (click)="  save()" class="btn btn-primary">Enregistrer</button>
+</div>

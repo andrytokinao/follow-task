@@ -1,0 +1,41 @@
+<div class="">
+  <div class="modal-header">
+    <b class="modal-title"> Confituration du projet '{{project.name}}'</b>
+    <span typeField="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+  </span>
+  </div>
+  <div class="modal-body ">
+    <div class="custom-field">
+      <div>
+        <h1> Type des taches </h1>
+        <div class="issuetype-liste" >
+            <div style="margin-bottom: 5px" *ngFor = "let itype of project.issueTypes">
+              <app-issuetype-form  [inputIssueType]="itype"  [label]="'Titre de flux '"
+                                   [editing] = "false" [exemple]="'Flux de traveau '"
+                                   class="field-item" [selected] = "isSelectedIssueType(itype)"
+                                   (onClickIt) = "selectIssueType(itype)"
+                                   (onComplete) ="saveIssueType($event)"
+              >
+              </app-issuetype-form>
+            </div>
+        </div>
+      </div>
+      <div class="item items-right">
+        <div>
+          <h1> Champ personnalisé disponible </h1>
+          <div *ngFor="let cf of customFields">{{cf.name}}</div>
+
+          <div (click)="newCustomField()" class="controle border-3">  <i class="fas fa-plus-square"></i>  Creer nouveau </div>
+        </div>
+        <div>
+          <div>
+            <h1> Champ personnalisé selectionnées </h1>
+          </div>
+          <div> Ajouter une etats </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+

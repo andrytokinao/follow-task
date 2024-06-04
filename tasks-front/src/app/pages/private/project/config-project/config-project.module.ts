@@ -16,6 +16,9 @@ import {WorkFlowStatusComponent} from "./work-flow-status/work-flow-status.compo
 import {DialogOverviewComponent} from "./dialog-overview/dialog-overview.component";
 import {IssueTypeComponent} from "./issue-type/issue-type.component";
 import {ConfigProjectRoutingModule} from "./config-project.routing.module";
+import {CustomFieldComponent} from "./custom-field/custom-field.component";
+import {DataRowOutlet} from "@angular/cdk/table";
+import {EditCustomFieldComponent} from "./custom-field/edit-custom-field/edit-custom-field.component";
 
 @NgModule({
   declarations: [
@@ -25,20 +28,23 @@ import {ConfigProjectRoutingModule} from "./config-project.routing.module";
     DialogOverviewComponent,
     WorkFlowStatusComponent,
     IssueTypeComponent,
+    CustomFieldComponent,
+    EditCustomFieldComponent
   ],
-    imports: [
-        MatTabsModule,
-        MatCardModule,
-        MatDialogModule,
-        MatToolbarModule,
-        MatFormFieldModule,
-        FormsModule,
-        MatMenuModule,
-        MatIconModule,
-        MatSelectModule,
-        CommonModule,
-        MyCommonModule,
-        ConfigProjectRoutingModule,
-    ]
+  imports: [
+    MatTabsModule,
+    MatCardModule,
+    MatDialogModule,
+    MatToolbarModule,
+    MatFormFieldModule,
+    FormsModule,
+    MatMenuModule,
+    MatIconModule,
+    MatSelectModule,
+    CommonModule,
+    MyCommonModule,
+    ConfigProjectRoutingModule,
+    DataRowOutlet,
+  ]
 })
 export class ConfigProjectModule { }

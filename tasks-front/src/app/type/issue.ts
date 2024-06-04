@@ -1,3 +1,5 @@
+import {EventEmitter} from "@angular/core";
+
 export class Status {
   id: number =0;
   displayName: String  ="";
@@ -158,4 +160,9 @@ export interface Criteria {
   value:String
   operator:Status
   sousCriteria:Criteria[]
+}
+export interface DisplayCustomField {
+  setCustomFieldValue(value: any): void;
+  edit: EventEmitter<any>;
+  save: EventEmitter<any>;
 }

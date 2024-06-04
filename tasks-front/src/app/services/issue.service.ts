@@ -12,13 +12,13 @@ import {
   Project,
   IssueType,
   WorkFlow,
-  Criteria
+  Criteria, CustomField
 } from "../type/issue";
 import {Apollo} from "apollo-angular";
 import * as operation from "../type/graphql.operations";
 import {stripTypename} from "@apollo/client/utilities";
 import {error} from "@angular/compiler-cli/src/transformers/util";
-import {ISSUE_BY_CRITERIA, supprimerTypename} from "../type/graphql.operations";
+import {ALL_CUSTOM_FIELD, ISSUE_BY_CRITERIA, SAVE_CONFIG, supprimerTypename} from "../type/graphql.operations";
 
 @Injectable({
   providedIn: 'root',
@@ -82,7 +82,7 @@ export class IssueService {
         variables:{issueId}
       });
   }
-  allCustomField(issueId:number){
+  allCustomFieldByIssue(issueId:number){
     return this.apollo
       .query({
         query: operation.ALL_CUSTOMFIELD ,
@@ -287,7 +287,6 @@ export class IssueService {
     })
   }
   issueByCriteria(criterias:Criteria[]) {
-    alert("excecution ");
     return new Observable<Issue[]>(observer =>{
       this.apollo.query({
         query:ISSUE_BY_CRITERIA,
@@ -301,5 +300,38 @@ export class IssueService {
         }
         );
     })
+  };
+  saveCustomField(customField:CustomField) {
+    return new Observable<CustomField[]>(observer => {
+      this.apollo.mutate(
+        {
+           mutation:operation.SEVE_CUSTOM_FIELD,
+           variables:{customField}
+        }
+      ).subscribe((res:any) => {
+          observer.next(res.data.saveCustomField);
+          observer.complete();
+        },
+        error1 => {
+          observer.error(error1);
+          observer.complete;
+        })
+    });
+  }
+  allCustomField(){
+    return new Observable<CustomField[]>(observer =>{
+      this.apollo.query({
+        query:ALL_CUSTOM_FIELD
+      }).subscribe((res:any) =>{
+        observer.next(res.data.allCustomField);
+        observer.complete();
+      },
+        error=>{
+        console.error(error);
+        observer.error(error);
+        observer.complete();
+        })
+    })
+
   }
 }

@@ -138,7 +138,7 @@ export class ViewEditIssueComponent {
   }
   allCustomField(){
     console.info("--- Loading all customFields ---")
-    this.issueService.allCustomField(this.issue.id).subscribe(
+    this.issueService.allCustomFieldByIssue(this.issue.id).subscribe(
       {
         next:(res:any)=>{
           this.customFields =res.data.allCustomField as CustomField[];

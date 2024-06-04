@@ -26,6 +26,8 @@ public class ProjectService {
     final WorkFlowRepository workFlowRepository;
     final ConfigRepository configRepository;
     final IconeRepository iconeRepository;
+    public final CustomFieldRepository customFieldRepository;
+
     static Logger logger = LoggerFactory.getLogger(ProjectService.class);
 
     public Status saveStatus(Status status) {
@@ -177,5 +179,13 @@ public class ProjectService {
             return issueRepository.findByIssueTypeIdIn(issueTypeIds);
         }
         return new ArrayList<>();
+    }
+    public List<CustomField> saveCustomField(CustomField customField){
+        customFieldRepository.save (customField);
+        return customFieldRepository.findAll ();
+    }
+
+    public List<CustomField> allCustomField () {
+       return customFieldRepository.findAll ();
     }
 }

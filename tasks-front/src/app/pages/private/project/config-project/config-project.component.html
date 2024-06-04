@@ -1,27 +1,15 @@
 <div class="card-list">
   <div class="card">
     <div class="card-content" (click)="configWorkFlow()">
-      <h3> <i class="fas fa-hourglass-half fa-1x"></i> Confirg Type de tache et flux de travailx </h3>
-      <p></p>
+      <h3> <i class="fas fa-hourglass-half fa-1x"></i> Work flow </h3>
+      <p>Configurer les types et flux de traveaux</p>
     </div>
   </div>
-
-  <div class="card">
+  <div class="card" routerLinkActive="active" routerLink="custom-field">
     <div class="card-content">
-      <h3> <i class="fas fa-hourglass-half fa-1x"></i> Titre de la carte</h3>
-      <p>Description de la carte</p>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-content">
-      <h3> <i class="fas fa-hourglass-half fa-1x"></i> Titre de la carte</h3>
-      <p>Description de la carte</p>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-content">
-      <h3>Titre de la carte</h3>
-      <p>Description de la carte</p>
+      <h3> <i class="fas fa-hourglass-half fa-1x"></i> Custom field </h3>
+      <p>Configurer des champ personnalisé</p>
     </div>
   </div>
 </div>
+<router-outlet></router-outlet>

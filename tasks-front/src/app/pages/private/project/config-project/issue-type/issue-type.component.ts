@@ -39,8 +39,6 @@ export class IssueTypeComponent {
       (issueTypes: any) => {
         this.project.issueTypes = [];
         this.project.issueTypes = supprimerTypename(issueTypes)
-      }, error => {
-        alert("error" + JSON.stringify(error));
       }
     );
   }

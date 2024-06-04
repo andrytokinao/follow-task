@@ -619,6 +619,39 @@ const GET_PROJECT = gql`
      }
    }
  `
+const SEVE_CUSTOM_FIELD = gql`
+    mutation saveCustomField($customField:CustomFieldImput!) {
+      saveCustomField(customField:$customField) {
+        name
+        id
+        type
+        issueTypes {
+          id
+          name
+          icone {
+            id
+            value
+            typeIcone
+          }
+        }
+      }
+    }
+`
+
+const ALL_CUSTOM_FIELD = gql`
+   query allCustomField{
+     allCustomField{
+       id
+       name
+       issueTypes {
+         id
+         name
+         prefix
+       }
+       type
+     }
+   }
+`
 export {
   supprimerTypename,
   SAVE_USER,
@@ -646,7 +679,9 @@ export {
   GET_PROJECT,
   GET_ISSUE_TYPE,
   SAVE_WORK_FLOW,
-  ISSUE_BY_CRITERIA
+  ISSUE_BY_CRITERIA,
+  SEVE_CUSTOM_FIELD,
+  ALL_CUSTOM_FIELD
 }
 function  supprimerTypename<T>(objet: T): T {
   if (!objet || typeof objet !== 'object') {

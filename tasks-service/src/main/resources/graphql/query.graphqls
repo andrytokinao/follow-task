@@ -7,7 +7,7 @@ type Query {
     findAllStatus:[Status]
     allComment(issueId:Int):[Comment]
     allFiles(issueId:Int):[File]
-    allCustomField(issueId:Int):[CustomField]
+    allCustomFieldByIssue(issueId:Int):[CustomField]
     getValues(issueId:Int):[CustomFieldValue]
     loadDirectory(issueId:Int):Repertoire
     loadGroupeMember(userId:String):[MemberGroupe]
@@ -18,4 +18,5 @@ type Query {
     getProject(prefix:String):Project
     getIssueType(issueTypeId:Int):IssueType
     issueByCriteria(criterias:[CriteriaInput]):[Issue]
+    allCustomField:[CustomField]
 }

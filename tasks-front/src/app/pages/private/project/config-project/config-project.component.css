@@ -1,8 +1,7 @@
 .card-list {
   display: flex;
-  justify-content: space-between;
   flex-wrap: wrap;
-  flex-direction: column;
+  gap: 12px;
 }
 .icon-container {
   background-color: #ccc;
@@ -10,13 +9,11 @@
   display: flex;
 }
 .card {
-  width: 650px;
-  height:100px;
   background-color: #f8f8f8;
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-
+  padding: 10px;
   display: flex;
   flex-direction: column;
   justify-content: center;
