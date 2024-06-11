@@ -116,6 +116,7 @@ export interface IssueType{
   prefix:String
   project:Project
  curentWorkFlow:WorkFlow;
+  usingCustomFields : UsingCustomField[]
 
 }
 export interface WorkFlow {
@@ -160,6 +161,11 @@ export interface Criteria {
   value:String
   operator:Status
   sousCriteria:Criteria[]
+}
+export interface  UsingCustomField {
+  id:number
+  customField:CustomField
+  issueType:IssueType
 }
 export interface DisplayCustomField {
   setCustomFieldValue(value: any): void;

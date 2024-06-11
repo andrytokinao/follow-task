@@ -4,6 +4,7 @@ import {ConfigProjectComponent} from "./config-project.component";
 import {DialogOverviewComponent} from "./dialog-overview/dialog-overview.component";
 import {AuthGuard} from "../../../../services/authorization.service.ts";
 import {CustomFieldComponent} from "./custom-field/custom-field.component";
+import {IssueTypeComponent} from "./issue-type/issue-type.component";
 
 
 const createProject: Routes = [
@@ -16,7 +17,7 @@ const createProject: Routes = [
         children: [
           { path: '', redirectTo: "create", pathMatch : "prefix"  },
           { path: 'create', component: DialogOverviewComponent ,canActivate:[AuthGuard], data: { roles: ['CAN_CREATE_PROJECT','CAN_ACCESS_ALL']} },
-          { path: 'issue-type', component: DialogOverviewComponent ,canActivate:[AuthGuard] , data: { roles: ['CAN_CREATE_PROJECT','CAN_ACCESS_ALL']}},
+          { path: 'issue-type', component: IssueTypeComponent ,canActivate:[AuthGuard] , data: { roles: ['CAN_CREATE_PROJECT','CAN_ACCESS_ALL']}},
           { path: 'custom-field', component: CustomFieldComponent ,canActivate:[AuthGuard] , data: { roles: ['CAN_CREATE_PROJECT','CAN_ACCESS_ALL']}},
           { path: 'work-flow-status', component: DialogOverviewComponent , canActivate:[AuthGuard] , data: { roles: ['CAN_CREATE_PROJECT','CAN_ACCESS_ALL']}},
         ]

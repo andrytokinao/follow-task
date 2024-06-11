@@ -8,6 +8,7 @@
           <span class="username">Projet</span>
           <div class="user-dropdown-content">
             <div class="item controle"  *ngFor="let project of projects" (click)="selectProject(project)">{{project.name}}</div>
+            <div class="item controle"  routerLink="admin/project/create"> Creer </div>
           </div>
         </div>
       </li>

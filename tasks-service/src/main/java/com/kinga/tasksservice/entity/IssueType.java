@@ -25,8 +25,8 @@ public class IssueType {
 
     @OneToMany(mappedBy = "issueType")
     private List<Issue> issues;
-    @ManyToMany
-    private List<CustomField> customFields;
+    @OneToMany(mappedBy = "issueType")
+    private List<UsingCustomField> usingCustomFields;
     @ManyToOne
     private WorkFlow curentWorkFlow;
 

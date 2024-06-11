@@ -539,6 +539,17 @@ const GET_PROJECT = gql`
             }
           }
         }
+        usingCustomFields {
+          id
+          issueType {
+            id
+          }
+          customField {
+            id
+            type
+            name
+          }
+        }
       },
       workFlows {
         id
@@ -652,6 +663,65 @@ const ALL_CUSTOM_FIELD = gql`
      }
    }
 `
+const USE_CUSTOM_FIELD = gql`
+    mutation useCustomField($usingCustomField:UsingCustomFieldInput!) {
+      useCustomField(usingCustomField: $usingCustomField) {
+        customField {
+          id
+          type
+          name
+        }
+        issueType {
+          id
+          name
+          prefix
+          icone {
+            id
+            typeIcone
+            value
+          }
+        }
+      }
+    }
+`
+const UN_USE_CUSTOM_FIELD = gql`
+    mutation unUseCustomField($usingCustomField:UsingCustomFieldInput!) {
+       unUseCustomField(usingCustomField: $usingCustomField) {
+        customField {
+          id
+          type
+          name
+        }
+        issueType {
+          id
+          name
+          prefix
+          icone {
+            id
+            typeIcone
+            value
+          }
+        }
+      }
+    }`
+
+const CUSTOM_FIELD_BY_ISSUE_TYPE = gql`
+   query customFieldsByIssueType($issueTypeId:Int) {
+     customFieldsByIssueType (issueTypeId: $issueTypeId) {
+       id
+       customField {
+         id
+         name
+         type
+       }
+       issueType {
+         id
+         name
+       }
+     }
+   }
+
+`
 export {
   supprimerTypename,
   SAVE_USER,
@@ -681,7 +751,10 @@ export {
   SAVE_WORK_FLOW,
   ISSUE_BY_CRITERIA,
   SEVE_CUSTOM_FIELD,
-  ALL_CUSTOM_FIELD
+  ALL_CUSTOM_FIELD,
+  USE_CUSTOM_FIELD,
+  UN_USE_CUSTOM_FIELD,
+  CUSTOM_FIELD_BY_ISSUE_TYPE
 }
 function  supprimerTypename<T>(objet: T): T {
   if (!objet || typeof objet !== 'object') {

@@ -3,6 +3,7 @@ import {Icone, Issue, IssueType, Project, Status, WorkFlow} from "../../../../..
 import {ConfigService} from "../../../../../services/config.service";
 import {IssueService} from "../../../../../services/issue.service";
 import {supprimerTypename} from "../../../../../type/graphql.operations";
+import {ActivatedRoute} from "@angular/router";
 
 @Component({
   selector: 'app-issue-type',
@@ -23,7 +24,11 @@ export class IssueTypeComponent {
   iconSelected: Icone | undefined ;
   newWorkflowName: string= "";
   isCreateState: boolean=false;
-  constructor(private configService:ConfigService, private issueService :IssueService) {
+  constructor(private configService:ConfigService,
+              private issueService :IssueService,
+              private route: ActivatedRoute
+
+  ) {
 
   }
 
@@ -122,4 +127,9 @@ export class IssueTypeComponent {
     }
     )
   }
+  ngOnInit(): void {
+    this.route.data.subscribe(data => {
+      this.project = data['project'];
+    });
+}
 }

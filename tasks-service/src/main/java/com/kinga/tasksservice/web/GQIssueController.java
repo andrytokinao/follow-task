@@ -89,14 +89,12 @@ public class GQIssueController {
         if (file.isEmpty()) {
             return ResponseEntity.badRequest().body("Le fichier est vide.");
         }
-
         try {
             String fileName = file.getOriginalFilename();
             String uploadDir = KingaUtils.decodeText(directory);
             Files.createDirectories(Paths.get(uploadDir));
             Path filePath = Paths.get(uploadDir , fileName);
             Files.write(filePath, file.getBytes());
-
             return ResponseEntity.ok().body("Le fichier a été téléchargé avec succès : " + fileName);
         } catch (IOException e) {
             e.printStackTrace();
@@ -147,6 +145,18 @@ public class GQIssueController {
      public List<CustomField> saveCustomField(@Argument CustomField customField){
         return projectService.saveCustomField (customField);
      }
+    @MutationMapping
+    public List<UsingCustomField> useCustomField(@Argument UsingCustomField usingCustomField){
+        return projectService.useCustomField (usingCustomField);
+    }
+    @MutationMapping
+    public List<UsingCustomField> unUseCustomField(@Argument UsingCustomField usingCustomField){
+        return projectService.unUseCustomField (usingCustomField);
+    }
+    @QueryMapping
+    public List<UsingCustomField> customFieldsByIssueType(@Argument Long issueTypeId){
+        return projectService.customFieldsByIssueType (issueTypeId);
+    }
      @QueryMapping
      public List<CustomField> allCustomField(){
         return projectService.allCustomField();

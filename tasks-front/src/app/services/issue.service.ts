@@ -12,13 +12,19 @@ import {
   Project,
   IssueType,
   WorkFlow,
-  Criteria, CustomField
+  Criteria, CustomField, UsingCustomField
 } from "../type/issue";
 import {Apollo} from "apollo-angular";
 import * as operation from "../type/graphql.operations";
 import {stripTypename} from "@apollo/client/utilities";
 import {error} from "@angular/compiler-cli/src/transformers/util";
-import {ALL_CUSTOM_FIELD, ISSUE_BY_CRITERIA, SAVE_CONFIG, supprimerTypename} from "../type/graphql.operations";
+import {
+  ALL_CUSTOM_FIELD, CUSTOM_FIELD_BY_ISSUE_TYPE,
+  ISSUE_BY_CRITERIA,
+  SAVE_CONFIG,
+  supprimerTypename, UN_USE_CUSTOM_FIELD,
+  USE_CUSTOM_FIELD
+} from "../type/graphql.operations";
 
 @Injectable({
   providedIn: 'root',
@@ -333,5 +339,53 @@ export class IssueService {
         })
     })
 
+  }
+  useCustomField(usingCustomField:UsingCustomField) {
+    return new Observable<UsingCustomField[]>(observer => {
+      this.apollo.mutate({
+        mutation:USE_CUSTOM_FIELD,
+        variables:{usingCustomField}
+      }).subscribe((res:any)=>{
+        observer.next(res.data.useCustomField);
+        observer.complete();
+      },error => {
+          console.error(error);
+          observer.error(error);
+          observer.complete();
+        }
+        )
+    })
+  }
+  unUseCustomField(usingCustomField:UsingCustomField) {
+    return new Observable<UsingCustomField[]>(observer => {
+      this.apollo.mutate({
+        mutation:UN_USE_CUSTOM_FIELD,
+        variables:{usingCustomField}
+      }).subscribe((res:any)=>{
+          observer.next(res.data.unUseCustomField);
+          observer.complete();
+        },error => {
+          console.error(error);
+          observer.error(error);
+          observer.complete();
+        }
+      )
+    })
+  }
+  customFieldsByIssueType(issueTypeId:Number) {
+    return new Observable<UsingCustomField[]>(observer => {
+      this.apollo.query({
+        query:CUSTOM_FIELD_BY_ISSUE_TYPE,
+        variables:{issueTypeId}
+      }).subscribe((res:any)=>{
+          observer.next(res.data.customFieldsByIssueType);
+          observer.complete();
+        },error => {
+          console.error(error);
+          observer.error(error);
+          observer.complete();
+        }
+      )
+    })
   }
 }

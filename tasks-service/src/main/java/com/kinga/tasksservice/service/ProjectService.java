@@ -26,6 +26,7 @@ public class ProjectService {
     final WorkFlowRepository workFlowRepository;
     final ConfigRepository configRepository;
     final IconeRepository iconeRepository;
+    final UsingCustomFieldRepository usingCustomFieldRepository;
     public final CustomFieldRepository customFieldRepository;
 
     static Logger logger = LoggerFactory.getLogger(ProjectService.class);
@@ -187,5 +188,37 @@ public class ProjectService {
 
     public List<CustomField> allCustomField () {
        return customFieldRepository.findAll ();
+    }
+
+    public List<UsingCustomField> useCustomField (UsingCustomField usingCustomField) {
+        if (usingCustomField.getCustomField () == null ||
+                usingCustomField.getCustomField ().getId () == null ||
+                usingCustomField.getIssueType () == null ||
+                usingCustomField.getIssueType ().getId () == null ) {
+            throw new RuntimeException ("Invalid data ");
+        }
+        List<UsingCustomField> existing = usingCustomFieldRepository.findByCustomFieldIdAndIssueTypeId (usingCustomField.getCustomField ().getId (), usingCustomField.getIssueType ().getId ());
+        if (CollectionUtils.isEmpty (existing)) {
+            usingCustomFieldRepository.save (usingCustomField);
+        }
+        return usingCustomFieldRepository.findByIssueTypeId (usingCustomField.getIssueType ().getId ());
+    }
+
+    public List<UsingCustomField> unUseCustomField (UsingCustomField usingCustomField) {
+        if (usingCustomField.getCustomField () == null ||
+                usingCustomField.getCustomField ().getId () == null ||
+                usingCustomField.getIssueType () == null ||
+                usingCustomField.getIssueType ().getId () == null ) {
+            throw new RuntimeException ("Invalid data ");
+        }
+        List<UsingCustomField> existing = usingCustomFieldRepository.findByCustomFieldIdAndIssueTypeId (usingCustomField.getCustomField ().getId (), usingCustomField.getIssueType ().getId ());
+        if (!CollectionUtils.isEmpty (existing)) {
+            existing.forEach (e -> usingCustomFieldRepository.delete (e));
+        }
+        return usingCustomFieldRepository.findByIssueTypeId (usingCustomField.getIssueType ().getId ());
+    }
+
+    public List<UsingCustomField> customFieldsByIssueType (Long issueTypeId) {
+        return usingCustomFieldRepository.findByIssueTypeId (issueTypeId);
     }
 }

@@ -65,6 +65,7 @@ type IssueType{
     prefix:String
     project:Project
     curentWorkFlow:WorkFlow
+    usingCustomFields:[UsingCustomField]
 }
 
 type Operation{
@@ -177,7 +178,11 @@ type Icone{
     typeIcone:String
     value:String
 }
-
+type UsingCustomField {
+    id:Int
+    customField:CustomField
+    issueType:IssueType
+}
 input CustomFieldImput {
     id:Int
     name:String
@@ -228,7 +233,7 @@ input IssueTypeInput{
     name:String
     prefix:String
     icone:IconeInput
-    project:ProjectInput!
+    project:ProjectInput
     curentWorkFlow:WorkFlowInput
 }
 
@@ -344,4 +349,9 @@ input CriteriaInput {
     value:String
     operator:String
     sousCriteria:[CriteriaInput]
+}
+input UsingCustomFieldInput {
+    id:Int
+    customField:CustomFieldImput
+    issueType:IssueTypeInput
 }

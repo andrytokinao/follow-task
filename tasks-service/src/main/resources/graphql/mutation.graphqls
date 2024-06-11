@@ -15,6 +15,8 @@ type Mutation {
     affectWorkFlow(issueType:IssueTypeInput):WorkFlow
     addStatus(status:StatusInput, workFlow:WorkFlowInput, issueTypeId:Int):WorkFlow
     saveCustomField(customField:CustomFieldImput):[CustomField]
+    useCustomField(usingCustomField:UsingCustomFieldInput):[UsingCustomField]
+    unUseCustomField(usingCustomField:UsingCustomFieldInput):[UsingCustomField]
 }
 
 

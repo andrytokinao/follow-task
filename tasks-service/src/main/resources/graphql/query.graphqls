@@ -19,4 +19,5 @@ type Query {
     getIssueType(issueTypeId:Int):IssueType
     issueByCriteria(criterias:[CriteriaInput]):[Issue]
     allCustomField:[CustomField]
+    customFieldsByIssueType(issueTypeId:Int):[UsingCustomField]
 }

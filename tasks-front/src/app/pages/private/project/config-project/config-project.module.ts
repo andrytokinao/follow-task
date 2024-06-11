@@ -19,6 +19,8 @@ import {ConfigProjectRoutingModule} from "./config-project.routing.module";
 import {CustomFieldComponent} from "./custom-field/custom-field.component";
 import {DataRowOutlet} from "@angular/cdk/table";
 import {EditCustomFieldComponent} from "./custom-field/edit-custom-field/edit-custom-field.component";
+import {MatListOption, MatSelectionList} from "@angular/material/list";
+import {CdkDropList} from "@angular/cdk/drag-drop";
 
 @NgModule({
   declarations: [
@@ -28,23 +30,25 @@ import {EditCustomFieldComponent} from "./custom-field/edit-custom-field/edit-cu
     DialogOverviewComponent,
     WorkFlowStatusComponent,
     IssueTypeComponent,
-    CustomFieldComponent,
     EditCustomFieldComponent
   ],
-  imports: [
-    MatTabsModule,
-    MatCardModule,
-    MatDialogModule,
-    MatToolbarModule,
-    MatFormFieldModule,
-    FormsModule,
-    MatMenuModule,
-    MatIconModule,
-    MatSelectModule,
-    CommonModule,
-    MyCommonModule,
-    ConfigProjectRoutingModule,
-    DataRowOutlet,
-  ]
+    imports: [
+        MatTabsModule,
+        MatCardModule,
+        MatDialogModule,
+        MatToolbarModule,
+        MatFormFieldModule,
+        FormsModule,
+        MatMenuModule,
+        MatIconModule,
+        MatSelectModule,
+        CommonModule,
+        MyCommonModule,
+        ConfigProjectRoutingModule,
+        DataRowOutlet,
+        MatSelectionList,
+        MatListOption,
+        CdkDropList,
+    ]
 })
 export class ConfigProjectModule { }

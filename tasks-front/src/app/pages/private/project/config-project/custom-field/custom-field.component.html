@@ -1,6 +1,6 @@
 <div class="">
   <div class="modal-header">
-    <b class="modal-title"> Confituration du projet '{{project.name}}'</b>
+    <b class="modal-title"> Confituration des champ personnalisé pour le projet '{{project.name}}'</b>
     <span typeField="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
   </span>
   </div>
@@ -20,10 +20,42 @@
             </div>
         </div>
       </div>
-      <div class="item items-right">
+      <div class="item items-right" *ngIf="issueType != null  ">
         <div>
-          <h1> Champ personnalisé disponible </h1>
-          <div *ngFor="let cf of customFields">{{cf.name}}</div>
+          <div class="example-container">
+            <h1> Champ personnalisé disponible </h1>
+
+            <div
+              cdkDropList
+              #dispoList="cdkDropList"
+              [cdkDropListData]="customFields"
+              [cdkDropListConnectedTo]="[userList]"
+              class="example-list"
+              (cdkDropListDropped)="unUse($event)">
+              @for (item of customFields; track item) {
+                <div class="example-box" cdkDrag>{{item.name}}</div>
+              }
+            </div>
+          </div>
+
+          <div class="example-container" >
+            <h1> Champ personnalisé selectionnées </h1>
+
+            <div
+              cdkDropList
+              #userList="cdkDropList"
+              [cdkDropListData]="customFieldsSelected"
+              [cdkDropListConnectedTo]="[dispoList]"
+              class="example-list"
+              (cdkDropListDropped)="use($event)">
+              @for (item of customFieldsSelected; track item) {
+                <div class="example-box" cdkDrag>{{item.customField.name}}</div>
+              }
+            </div>
+          </div>
+
+
+
 
           <div (click)="newCustomField()" class="controle border-3">  <i class="fas fa-plus-square"></i>  Creer nouveau </div>
         </div>
