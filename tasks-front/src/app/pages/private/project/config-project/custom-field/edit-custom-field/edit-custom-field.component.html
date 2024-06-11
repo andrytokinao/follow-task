@@ -5,23 +5,28 @@
   </span>
 </div>
 <div class="modal-body">
-  <form #f="ngForm">
-    <div class="form-group">
-      <label for="name">Nom</label>
-      <input [(ngModel)]="customField.name" [ngModelOptions]="{standalone: true}" class="form-control" id="name" name="name"
-             typeField="text" >
-    </div>
-    <div class="form-group">
-      <label >Description</label>
-      <input [(ngModel)]="customField.description" [ngModelOptions]="{standalone: true}" class="form-control" id="description" name="description"
-             typeField="text">
-    </div>
-  </form>
-  <div class="form-group">
-    <label ></label>
-    <input [(ngModel)]="customField.type" [ngModelOptions]="{standalone: true}" class="form-control" id="type" name="type"
-           typeField="text">
-  </div>
+    <mat-form-field style="width: 100%">
+      <mat-label>Titre </mat-label>
+      <input
+        matInput
+        [(ngModel)]="customField.name"
+        typeField="text">
+    </mat-form-field>
+    <mat-form-field style="width: 100%">
+      <mat-label>Titre </mat-label>
+      <input
+        matInput
+        [(ngModel)]="customField.description"
+        typeField="text">
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Type du champ</mat-label>
+      <mat-select [(value)]="customField.type">
+        @for (field of fields; track field) {
+        <mat-option [value]="field.value">{{field.viewValue}}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
 </div>
 <div class="modal-footer">
   <button typeField="button" (click)="  save()" class="btn btn-primary">Enregistrer</button>

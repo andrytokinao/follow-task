@@ -29,8 +29,7 @@ import {CdkDropList} from "@angular/cdk/drag-drop";
     WorkFlowStatusComponent,
     DialogOverviewComponent,
     WorkFlowStatusComponent,
-    IssueTypeComponent,
-    EditCustomFieldComponent
+    IssueTypeComponent
   ],
     imports: [
         MatTabsModule,
