@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { CustomFieldComponent } from './custom-field.component';
+import { ConfigCustomFieldComponent } from './config-custom-field.component';
 
 describe('CustomFieldComponent', () => {
-  let component: CustomFieldComponent;
-  let fixture: ComponentFixture<CustomFieldComponent>;
+  let component: ConfigCustomFieldComponent;
+  let fixture: ComponentFixture<ConfigCustomFieldComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CustomFieldComponent]
+      imports: [ConfigCustomFieldComponent]
     })
     .compileComponents();
-    
-    fixture = TestBed.createComponent(CustomFieldComponent);
+
+    fixture = TestBed.createComponent(ConfigCustomFieldComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

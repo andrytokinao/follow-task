@@ -12,13 +12,13 @@ import {NgForOf, NgIf} from "@angular/common";
 import {supprimerTypename} from "../../../../../type/graphql.operations";
 
 @Component({
-  selector: 'app-custom-field',
-  templateUrl: './custom-field.component.html',
-  styleUrl: './custom-field.component.css',
+  selector: 'config-app-custom-field',
+  templateUrl: './config-custom-field.component.html',
+  styleUrl: './config-custom-field.component.css',
   standalone: true,
   imports: [CdkDropList, CdkDrag, MyCommonModule, NgForOf, NgIf],
 })
-export class CustomFieldComponent implements OnInit{
+export class ConfigCustomFieldComponent implements OnInit{
   activeModal: any;
   project: Project | any ={};
   customFields :CustomField[] =[];

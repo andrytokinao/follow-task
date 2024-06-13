@@ -16,9 +16,9 @@ import {WorkFlowStatusComponent} from "./work-flow-status/work-flow-status.compo
 import {DialogOverviewComponent} from "./dialog-overview/dialog-overview.component";
 import {IssueTypeComponent} from "./issue-type/issue-type.component";
 import {ConfigProjectRoutingModule} from "./config-project.routing.module";
-import {CustomFieldComponent} from "./custom-field/custom-field.component";
+import {ConfigCustomFieldComponent} from "./config-custom-field/config-custom-field.component";
 import {DataRowOutlet} from "@angular/cdk/table";
-import {EditCustomFieldComponent} from "./custom-field/edit-custom-field/edit-custom-field.component";
+import {EditCustomFieldComponent} from "./config-custom-field/edit-custom-field/edit-custom-field.component";
 import {MatListOption, MatSelectionList} from "@angular/material/list";
 import {CdkDropList} from "@angular/cdk/drag-drop";
 
