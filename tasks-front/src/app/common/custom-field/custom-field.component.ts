@@ -11,11 +11,12 @@ import {CustomFieldValue, DisplayCustomField} from "../../type/issue";
 })
 export class CustomFieldComponent implements OnInit{
   @Input() customFieldValue: CustomFieldValue;
-  @Input() type: string;
   @ViewChild('container', { read: ViewContainerRef, static: true }) container: ViewContainerRef;
 
   ngOnInit(): void {
-    const componentType:DisplayCustomField =  this.factory.getComponent(this.type);
+
+    const componentType = this.factory.getComponent(this.customFieldValue.customField.type);
+    alert(JSON.stringify(componentType));
     const factory = this.resolver.resolveComponentFactory(componentType);
     const componentRef = this.container.createComponent(factory);
 

@@ -1,4 +1,4 @@
-import {Component, EventEmitter} from '@angular/core';
+import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {DisplayCustomField} from "../../../type/issue";
 
 @Component({
@@ -9,10 +9,11 @@ import {DisplayCustomField} from "../../../type/issue";
   styleUrl: './issue-field.component.css'
 })
 export class IssueFieldComponent implements DisplayCustomField{
-  setCustomFieldValue(value: any): void {
-  }
+  @Output() edit = new EventEmitter<any>();
+  @Output() save = new EventEmitter<any>();
 
-  edit: EventEmitter<any>;
-  save: EventEmitter<any>;
+  setCustomFieldValue(value: any): void {
+    // Implement your logic here
+  }
 
 }

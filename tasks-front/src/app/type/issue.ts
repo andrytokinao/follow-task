@@ -64,7 +64,7 @@ export class Comment {
 export interface CustomField {
   id:number;
   name:String;
-  type:String;
+  type:string;
 }
 
 export interface CustomFieldValue {

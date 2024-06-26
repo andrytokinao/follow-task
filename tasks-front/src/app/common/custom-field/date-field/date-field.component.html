@@ -1,1 +1,7 @@
-<p>date-field works!</p>
+<div>
+  <ng-container *ngIf="!isEditing">{{ data | date }}</ng-container>
+  <ng-container *ngIf="isEditing">
+    <input [(ngModel)]="data" type="date">
+  </ng-container>
+  <button (click)="toggleEdit()">{{ isEditing ? 'Save' : 'Edit' }}</button>
+</div>

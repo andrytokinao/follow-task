@@ -33,6 +33,7 @@ import {
   MatTable
 } from "@angular/material/table";
 import {MatPaginatorModule} from "@angular/material/paginator";
+import {CustomFieldComponent} from "../../../common/custom-field/custom-field.component";
 
 @NgModule({
   declarations: [
@@ -49,33 +50,34 @@ import {MatPaginatorModule} from "@angular/material/paginator";
   exports: [
      StatusComponent, RepartitionComponent,ProjectComponent
   ],
-  imports: [
-    ProjectRoutingModule,
-    MatTabsModule,
-    MatCardModule,
-    MatDialogModule,
-    MatToolbarModule,
-    MatFormFieldModule,
-    FormsModule,
-    MatMenuModule,
-    MatMenuModule,
-    MatIconModule,
-    MatSelectModule,
-    CommonModule,
-    MyCommonModule,
-    CdkTextareaAutosize,
-    MatInputModule,
-    MatTable,
-    MatHeaderRowDef,
-    MatRowDef,
-    MatCellDef,
-    MatHeaderCellDef,
-    MatColumnDef,
-    MatPaginatorModule,
-    MatCell,
-    MatHeaderCell,
-    MatHeaderRow,
-    MatRow
-  ]
+    imports: [
+        ProjectRoutingModule,
+        MatTabsModule,
+        MatCardModule,
+        MatDialogModule,
+        MatToolbarModule,
+        MatFormFieldModule,
+        FormsModule,
+        MatMenuModule,
+        MatMenuModule,
+        MatIconModule,
+        MatSelectModule,
+        CommonModule,
+        MyCommonModule,
+        CdkTextareaAutosize,
+        MatInputModule,
+        MatTable,
+        MatHeaderRowDef,
+        MatRowDef,
+        MatCellDef,
+        MatHeaderCellDef,
+        MatColumnDef,
+        MatPaginatorModule,
+        MatCell,
+        MatHeaderCell,
+        MatHeaderRow,
+        MatRow,
+        CustomFieldComponent
+    ]
 })
 export class ProjectModule { }

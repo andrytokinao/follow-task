@@ -1,4 +1,4 @@
-import {Component, Inject, Input} from '@angular/core';
+import {Component, Inject, Input, OnInit} from '@angular/core';
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {
   Issue,
@@ -16,12 +16,14 @@ import {supprimerTypename} from "../../../../../type/graphql.operations";
 import {stripTypename} from "@apollo/client/utilities";
 import {HttpEventType, HttpResponse} from "@angular/common/http";
 import {concatMap, Observable} from "rxjs";
+
+import {error} from "@angular/compiler-cli/src/transformers/util";
 @Component({
   selector: 'app-view-edit-issue',
   templateUrl: './view-edit-issue.component.html',
   styleUrl: './view-edit-issue.component.css'
 })
-export class ViewEditIssueComponent {
+export class ViewEditIssueComponent implements OnInit{
   type: string = 'type1';
   repertoire:Repertoire = new class implements Repertoire {
     fileName: String="No directory";
@@ -56,6 +58,7 @@ export class ViewEditIssueComponent {
     console.log('Fichiers sélectionnés :', this.selectedFiles);
   }
   comments :Comment[] = [];
+  customFieldValue:CustomFieldValue |any= {}
   customFieldValues :CustomFieldValue[] = [];
   customFields :CustomField[] = [];
   editingDescription: boolean = false;
@@ -241,5 +244,14 @@ export class ViewEditIssueComponent {
     } else {
       return this.sendSequentialUpload(ups,directory);
     }
+  }
+
+  ngOnInit(): void {
+    this.customFieldValue.id = 0;
+    this.customFieldValue.issue = {}
+    let customField : CustomField | any = {};
+    customField.name = "Test ";
+    customField.type = "Date";
+    this.customFieldValue. customField = customField;
   }
 }
