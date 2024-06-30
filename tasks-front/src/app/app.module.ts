@@ -18,12 +18,13 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import {CookieService} from "ngx-cookie-service";
+import {HttpInterceptorService} from "./services/http.service";
 
 
 @NgModule({
@@ -60,7 +61,15 @@ import {CookieService} from "ngx-cookie-service";
   ],
   bootstrap: [AppComponent],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
-  providers :[CookieService]
+  providers :[
+    CookieService,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: HttpInterceptorService,
+      multi: true
+    }
+  ]
+
 
 })
 export class AppModule { }
