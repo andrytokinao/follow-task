@@ -12,14 +12,15 @@ import {
   Project,
   IssueType,
   WorkFlow,
-  Criteria, CustomField, UsingCustomField
+  Criteria, CustomField, UsingCustomField, CustomFieldValue
 } from "../type/issue";
 import {Apollo} from "apollo-angular";
 import * as operation from "../type/graphql.operations";
 import {stripTypename} from "@apollo/client/utilities";
 import {error} from "@angular/compiler-cli/src/transformers/util";
 import {
-  ALL_CUSTOM_FIELD, CUSTOM_FIELD_BY_ISSUE_TYPE,
+  ALL_CUSTOM_FIELD,
+   CUSTOM_FIELD_BY_ISSUE_TYPE,
   ISSUE_BY_CRITERIA,
   SAVE_CONFIG,
   supprimerTypename, UN_USE_CUSTOM_FIELD,
@@ -88,13 +89,7 @@ export class IssueService {
         variables:{issueId}
       });
   }
-  allCustomFieldByIssue(issueId:number){
-    return this.apollo
-      .query({
-        query: operation.ALL_CUSTOMFIELD ,
-        variables:{issueId}
-      });
-  }
+
 
   getValues(issueId:number){
     return this.apollo
@@ -103,12 +98,21 @@ export class IssueService {
         variables:{issueId}
       });
   }
-  saveValues(value:any){
-    return this.apollo
-      .mutate({
-        mutation: operation.SAVE_VALUE,
-        variables:{value}
+  saveValues(v:any){
+    let value = supprimerTypename(v);
+    return new Observable<CustomFieldValue[]>(observer=> {
+      this.apollo
+        .mutate({
+          mutation: operation.SAVE_VALUE,
+          variables:{value}
+        }).subscribe((res:any)=>{
+            observer.next(res.data.saveValue());
+            observer.complete();
+        }, error => {
+          observer.error(error);
+          observer.complete();
       });
+    });
   }
   loadDirectory(issueId:number): Observable<Repertoire> {
     let params = new HttpParams().set('issueId', issueId);

@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
-import {DisplayCustomField} from "../../../type/issue";
+import {CustomFieldValue, DisplayCustomField} from "../../../type/issue";
 
 @Component({
   selector: 'app-issue-field',
@@ -14,6 +14,13 @@ export class IssueFieldComponent implements DisplayCustomField{
 
   setCustomFieldValue(value: any): void {
     // Implement your logic here
+  }
+
+  customFieldValue: CustomFieldValue;
+  isEditable: boolean;
+  isEditing: boolean;
+
+  saveValue(): void {
   }
 
 }

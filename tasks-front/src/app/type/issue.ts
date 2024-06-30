@@ -1,4 +1,4 @@
-import {EventEmitter} from "@angular/core";
+import {EventEmitter, Input} from "@angular/core";
 
 export class Status {
   id: number =0;
@@ -69,7 +69,7 @@ export interface CustomField {
 
 export interface CustomFieldValue {
   id: number;
-  date:String;
+  date:string;
   string:String;
   text:String;
   numeric:number;
@@ -169,6 +169,11 @@ export interface  UsingCustomField {
 }
 export interface DisplayCustomField {
   setCustomFieldValue(value: any): void;
+  saveValue():void;
   edit: EventEmitter<any>;
   save: EventEmitter<any>;
+  isEditable? : boolean ;
+  isEditing?: boolean;
+  customFieldValue:CustomFieldValue
+
 }

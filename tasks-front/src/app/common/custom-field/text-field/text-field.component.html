@@ -1,1 +1,4 @@
-<p>text-field works!</p>
+ <ng-container *ngIf="!isEditing">{{ text }}</ng-container>
+<ng-container *ngIf="isEditing">
+  <input [(ngModel)]="text" type="text">
+</ng-container>

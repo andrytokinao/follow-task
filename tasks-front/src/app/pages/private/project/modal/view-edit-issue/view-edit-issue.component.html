@@ -84,50 +84,25 @@
           </div>
           <h1 class="folder-title"> <i class="fa fa-check-square" aria-hidden="true"> </i> Parametre </h1>
           <div class="tnz-file-tree">
-            <label class=""   *ngFor = "let value of customFieldValues">
-              <span class=" " *ngIf = "value.customField.type === 'Date'"> {{value.customField.name}} : {{value.date.toString() </span>
-              <span class=" " *ngIf = "value.customField.type === 'String'"> {{value.customField.name}} {{value.string}} </span>
-              <span class=" " *ngIf = "value.customField.type === 'User'">{{value.customField.name}}  {{value.user.lastName}} </span>
+            <div class="" ng *ngFor="let cvalue  of customFieldValues" style="margin: 10px">
+              <app-custom-field
+                [customFieldValue]="cvalue" (save)="saveCustomFieldValue($event)"
+              > </app-custom-field>
+            </div>
 
-            </label>
             <div class="btn-group" ng *ngIf = "currentCustomFieldValue == null">
               <span class="btn-lg  me-2" type="button" data-bs-toggle="dropdown"
                     aria-expanded="false">
                   <i class="fa fa-plus" aria-hidden="true"></i> Ajouter
               </span>
               <ul class="dropdown-menu" >
-                <li (click)="addCustomFieldValue(customField)" *ngFor = "let customField of customFields"><a class="dropdown-item" > {{customField.name}}</a></li>
+                <li (click)="addCustomFieldValue(usingCustomField)" *ngFor = "let usingCustomField of usingCustomFields"><a class="dropdown-item" > {{usingCustomField.customField.name}}</a></li>
               </ul>
             </div>
             <div class="" ng *ngIf="currentCustomFieldValue  != null" style="margin: 10px">
-              <div>
-                <div class="form-group" *ngIf = "currentCustomFieldValue.customField.type == 'String'">
-                  <label for="string-form">{{currentCustomFieldValue.customField.name}}</label>
-                  <input type="text" class="form-control" id="string-form" [(ngModel)]="currentCustomFieldValue.string"  [placeholder]="currentCustomFieldValue.customField.name">
-                </div>
-                <div class="form-group" *ngIf="currentCustomFieldValue.customField.type =='User'">
-                  <label [for]="'user-'+currentCustomFieldValue.customField.name" >{{currentCustomFieldValue.customField.name}}</label>
-                  <select class="form-control" [id]="'user-'+currentCustomFieldValue.customField.name" [(ngModel)]="currentCustomFieldValue.user">
-                    <option > Choie de {{currentCustomFieldValue.customField.name}}</option>
-                    <option *ngFor="let user of users" [value]="user" >
-                      <img [src]="user.photo" alt="Image"  width="30px"> <br>
-                      <span>{{user.firstName}} {{user.lastName}}</span>
-                    </option>
-                  </select>
-                </div>
-                <div class="form-group" *ngIf = "currentCustomFieldValue.customField.type == 'text'">
-                  <label for="exampleFormControlTextarea1">Example textarea</label>
-                  <textarea class="form-control" id="exampleFormControlTextarea1"  [(ngModel)]="currentCustomFieldValue.numeric" rows="3" [placeholder]="currentCustomFieldValue.customField.name"></textarea>
-                </div>
-                <div class="form-group" *ngIf = "currentCustomFieldValue.customField.type == 'Number'">
-                  <label for="numeric-value">{{currentCustomFieldValue.customField.name}}</label>
-                  <input class="form-control" id="numeric-value" type="number"  [(ngModel)]="currentCustomFieldValue.numeric" [placeholder]  ="currentCustomFieldValue.customField.name">
-                </div>
-                <div class="form-group" *ngIf = "currentCustomFieldValue.customField.type == 'Date'">
-                  <label for="numeric-value">{{currentCustomFieldValue.customField.name}}</label>
-                  <input class="form-control" id="numeric-value" type="date"  [(ngModel)]="currentCustomFieldValue.date" [placeholder]  ="currentCustomFieldValue.customField.name">
-                </div>
-                <button (click)="saveValue()"> Save</button>
+              <app-custom-field
+                [customFieldValue]="currentCustomFieldValue" (save)="saveCustomFieldValue($event)"
+              > </app-custom-field>
               </div>
             </div>
           </div>
@@ -142,7 +117,6 @@
       </div>
 
     </div>
-  </div>
 
 </div>
 

@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
-import {DisplayCustomField} from "../../../type/issue";
+import {CustomFieldValue, DisplayCustomField} from "../../../type/issue";
 
 @Component({
   selector: 'app-multi-select-field',
@@ -26,5 +26,11 @@ export class MultiSelectFieldComponent implements DisplayCustomField{
     } else {
       this.save.emit(this.data);
     }
+  }
+
+  customFieldValue: CustomFieldValue;
+  isEditable: boolean;
+
+  saveValue(): void {
   }
 }

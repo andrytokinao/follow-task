@@ -314,8 +314,17 @@ const  LOAD_GROUPE_MEMBER = gql`
   }
 `;
 const ALL_CUSTOMFIELD = gql`
+  query allCustomField  {
+    allCustomField{
+      id
+      name
+      type
+    }
+  }
+`;
+const ALL_CUSTOMFIELD_BY_ISSUE = gql`
   query allCustomField ($issueId:Int!) {
-    allCustomField(issueId:$issueId){
+    allCustomFieldByIssue(issueId:$issueId){
       id
       name
       type

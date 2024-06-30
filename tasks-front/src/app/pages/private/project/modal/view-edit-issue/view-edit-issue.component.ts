@@ -8,7 +8,7 @@ import {
   CustomField,
   User,
   Repertoire,
-  Uploading
+  Uploading, UsingCustomField
 } from "../../../../../type/issue";
 import {IssueService} from "../../../../../services/issue.service";
 import {UserService} from "../../../../../services/user.service";
@@ -60,7 +60,7 @@ export class ViewEditIssueComponent implements OnInit{
   comments :Comment[] = [];
   customFieldValue:CustomFieldValue |any= {}
   customFieldValues :CustomFieldValue[] = [];
-  customFields :CustomField[] = [];
+  usingCustomFields :UsingCustomField[] = [];
   editingDescription: boolean = false;
   activeMenuItem: string="comment";
   newComment: string = '';
@@ -139,23 +139,22 @@ export class ViewEditIssueComponent implements OnInit{
       }
     );
   }
-  allCustomField(){
-    console.info("--- Loading all customFields ---")
-    this.issueService.allCustomFieldByIssue(this.issue.id).subscribe(
+  customFieldsByIssueType(){
+    console.info("--- Loading all customFields ---");
+    this.issueService.customFieldsByIssueType(this.issue.issueType.id).subscribe(
       {
-        next:(res:any)=>{
-          this.customFields =res.data.allCustomField as CustomField[];
-          console.info("--- Loadin all customFields resule =  "+JSON.stringify(this.customFields));
-        },
-        error:(err:any)=>{
-          alert(JSON.stringify(err))
+        next:(usingCustomFields)=>{
+          this.usingCustomFields =usingCustomFields;
         }
       }
     );
   }
-  addCustomFieldValue(customField:CustomField) {
+  addCustomFieldValue(usingCustomField:UsingCustomField) {
     this.currentCustomFieldValue = {};
-    this.currentCustomFieldValue.customField = customField;
+    let issue:any = {};
+    issue.id = this.issue.id;
+    this.currentCustomFieldValue.customField = usingCustomField.customField;
+    this.currentCustomFieldValue.issue = issue;
   }
   saveValue() {
     this.currentCustomFieldValue.issue = this.issue;
@@ -253,5 +252,19 @@ export class ViewEditIssueComponent implements OnInit{
     customField.name = "Test ";
     customField.type = "Date";
     this.customFieldValue. customField = customField;
+    this.loadComments();
+    this.loadValues();
+    this.customFieldsByIssueType();
+    this.loadDirectory();
+  }
+
+    protected readonly event = event;
+
+  saveCustomFieldValue(event: CustomFieldValue) {
+    this.issueService.saveValues(event).subscribe(value =>
+      (values:CustomFieldValue[]) => {
+         this.customFieldValues = values;
+      }
+    );
   }
 }

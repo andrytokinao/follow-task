@@ -1,1 +1,4 @@
+<b > <i>{{customFieldValue.customField.name}} : </i></b>
 <ng-container #container></ng-container>
+<span class="controle mat-icon float-end " (click)="toggleEdit()" *ngIf="!instance.isEditing"><i class="mat-icon fa fa-edit save"  ></i>Edit</span>
+<span class="controle mat-icon float-end" (click)="saveIt()" *ngIf="instance.isEditing"><i class="mat-icon fa fa-check save" ></i>Save</span>

@@ -1,7 +1,4 @@
-<div>
-  <ng-container *ngIf="!isEditing">{{ data | date }}</ng-container>
+ <ng-container *ngIf="!isEditing">{{ date | date }}</ng-container>
   <ng-container *ngIf="isEditing">
-    <input [(ngModel)]="data" type="date">
+    <input [(ngModel)]="date" type="date">
   </ng-container>
-  <button (click)="toggleEdit()">{{ isEditing ? 'Save' : 'Edit' }}</button>
-</div>
