@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -75,9 +76,10 @@ public class ProjectService {
             if (StringUtils.isEmpty(configEntry.getWorkDirectory())){
                 configEntry.setInstalationState("private/admin/config/work-space");
                 configRepository.save(configEntry);
-                throw new RuntimeException("configuration work space not completed");
+                project.setPath (KingaUtils.getDefaultWorkSpaceDirectory ()+ File.separator+project.getPrefix ());
+            } else {
+                project.setPath(KingaUtils.encodeText(KingaUtils.decodeText(configEntry.getWorkDirectory()) + "/" + project.getPrefix()));
             }
-            project.setPath(KingaUtils.encodeText(KingaUtils.decodeText(configEntry.getWorkDirectory()) + "/" + project.getPrefix()));
         }
         project = projectRepository.save(project);
         if (!"complete".equalsIgnoreCase(installation)) {

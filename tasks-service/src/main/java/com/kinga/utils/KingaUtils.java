@@ -1,14 +1,22 @@
 package com.kinga.utils;
 
+import com.kinga.tasksservice.entity.Project;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.util.StringUtils;
 
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Random;
 import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.kinga.tasksservice.entity.Project.BASE_DIRECTORY;
+
 public class KingaUtils {
+    private static final String WORKWPACE = "WORK_SPACE";
+    private static final String MEDIA_SPACE = "MEDIA_SPACE" ;
     private static String SUFFLE_STRING ="tLR4hpeTaQjvGHC0S2zogWPkyq5d3cuMKXlm7FDfiI-BAEJ_Uns/6ZO9YVb1wxrN8";
     private static String NORMAL_STRING = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/-_";
     public static boolean isValidPhoneNumber(String phoneNumber) {
@@ -81,6 +89,15 @@ public class KingaUtils {
             i++;
         }
         return new String(changes);
+    }
+    public static String getDefaultWorkSpaceDirectory(){
+        return baseDirectory ()+File.separator+WORKWPACE;
+    }
+    public static String getDefaultMediaSpaceDirectory(){
+        return baseDirectory ()+File.separator+MEDIA_SPACE;
+    }
+    public static String baseDirectory(){
+         return System.getProperty("user.home")+ File.separator+BASE_DIRECTORY;
     }
 }
 
