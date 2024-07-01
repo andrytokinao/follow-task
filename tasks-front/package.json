@@ -10,7 +10,7 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/animations": "^17.1.0",
+    "@angular/animations": "^17.3.11",
     "@angular/cdk": "^18.0.1",
     "@angular/common": "^17.1.0",
     "@angular/compiler": "^17.1.0",
@@ -31,6 +31,7 @@
     "graphql": "^16.8.1",
     "highcharts": "^11.3.0",
     "highcharts-angular": "^4.0.0",
+    "ngx-toastr": "^19.0.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.3"

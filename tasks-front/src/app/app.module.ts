@@ -6,7 +6,7 @@ import {AppComponent} from "./app.component";
 import {NgbModal, NgbModule} from "@ng-bootstrap/ng-bootstrap";
 import {MatMenuModule} from "@angular/material/menu";
 import {GraphQLModule} from "./type/graphql.module";
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {BrowserAnimationsModule, provideAnimations} from '@angular/platform-browser/animations';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -25,6 +25,7 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import {CookieService} from "ngx-cookie-service";
 import {HttpInterceptorService} from "./services/http.service";
+import {provideToastr, ToastrModule} from "ngx-toastr";
 
 
 @NgModule({
@@ -57,6 +58,13 @@ import {HttpInterceptorService} from "./services/http.service";
     MatSortModule,
     MatSnackBarModule,
     MatMenuModule,
+    ToastrModule.forRoot({
+      positionClass: 'custom-toast-position', // Classe personnalisée pour le toast
+      preventDuplicates: true,
+      timeOut: 10000, // Temps d'affichage du toast
+      closeButton: true, // Afficher le bouton de fermeture
+      progressBar: true // Afficher la barre de progression
+    })
 
   ],
   bootstrap: [AppComponent],
@@ -67,7 +75,9 @@ import {HttpInterceptorService} from "./services/http.service";
       provide: HTTP_INTERCEPTORS,
       useClass: HttpInterceptorService,
       multi: true
-    }
+    },
+    provideAnimations(), // required animations providers
+    provideToastr(), // Toastr providers
   ]
 
 

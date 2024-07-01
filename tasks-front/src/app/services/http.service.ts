@@ -1,18 +1,25 @@
 import { Injectable } from '@angular/core';
-import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpResponse, HttpErrorResponse } from '@angular/common/http';
+import {
+  HttpInterceptor,
+  HttpRequest,
+  HttpHandler,
+  HttpEvent,
+  HttpErrorResponse,
+  HttpResponse
+} from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import {ToastrService} from "ngx-toastr";
 
 @Injectable()
 export class HttpInterceptorService implements HttpInterceptor {
 
-  constructor(private router: Router) {}
+  constructor(private router: Router,
+              private toastr: ToastrService
+  ) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    req = req.clone({
-      withCredentials: true
-    });
     return next.handle(req).pipe(
       tap(event => {
         if (event instanceof HttpResponse) {
@@ -23,11 +30,24 @@ export class HttpInterceptorService implements HttpInterceptor {
         }
       }),
       catchError((error: HttpErrorResponse) => {
-        console.error('Intercepted error ');
-        if (error.error.text &&  error.error.text.includes('class="form-signin"')) {
-             this.router.navigate(['/login']);
+        if (error.error instanceof ErrorEvent) {
+          console.error('Client-side error:', error.error.message);
+          this.toastr.error('Client-side error: ' + error.error.message, 'Error');
+          if (!navigator.onLine) {
+            console.error('No Internet connection');
+            this.toastr.error('No Internet connection', 'Error');
+         //   this.router.navigate(['/no-internet']);
+          }
+        } else {
+          console.error(`Backend returned code ${error.status}, body was: ${error.message}`);
+          if (error.status === 0) {
+            console.error('No Internet connection');
+            this.toastr.error('No Internet connection', 'Error');
+      //           this.router.navigate(['/no-internet']);
+          } else if (error.error && typeof error.error === 'string' && error.error.includes('<form') && error.error.includes('class="form-signin"')) {
+            this.router.navigate(['/login']);
+          }
         }
-
         return throwError(error);
       })
     );

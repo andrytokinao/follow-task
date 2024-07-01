@@ -329,3 +329,39 @@ h3 {
     display: none; /* Hide left menu on smaller screens */
   }
 }
+.toast-container {
+  top: 100vh !important;
+  right: 0;
+  transform: translateY(-100%);
+  position: fixed;
+  width: 100%;
+}
+/* Position du toast */
+.custom-toast-position {
+  top: 90vh !important;
+  right: 0;
+  transform: translateY(-100%);
+  position: fixed;
+}
+
+
+.toast-success {
+  background-color: #4caf50 !important;
+  color: white !important;
+}
+
+
+.toast-error {
+  background-color: #702930 !important;
+  color: white !important;
+}
+
+.toast-warning {
+  background-color: #ff9800 !important;
+  color: white !important;
+}
+
+.toast-info{
+  background-color: #2196f3 !important;
+  color: white !important;
+}
