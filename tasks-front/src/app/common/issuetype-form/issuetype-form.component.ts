@@ -61,7 +61,6 @@ export class IssuetypeFormComponent {
     this.editing = false;
     // after save
     this.inputIssueType = issueType;
-    alert("okaaay "+JSON.stringify(this.inputIssueType));
     this.onComplete.emit(this.inputIssueType);
 
 

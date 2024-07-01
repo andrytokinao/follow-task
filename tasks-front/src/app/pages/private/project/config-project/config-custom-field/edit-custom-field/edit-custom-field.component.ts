@@ -31,7 +31,6 @@ export class EditCustomFieldComponent {
     {value: 'Date', viewValue: 'Date'},
   ];
   save() {
-    alert(JSON.stringify(this.customField));
     this.issueService.saveCustomField(this.customField).subscribe(customFields=> {
       this.activeModal.close({ customFields: customFields });
     })

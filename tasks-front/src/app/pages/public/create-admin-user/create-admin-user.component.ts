@@ -25,11 +25,10 @@ export class CreateAdminUserComponent {
   }
 
   creer() {
-    alert(JSON.stringify(this.user));
     this.userService.initUser(this.user).subscribe((res: any) => {
        this.configService.onNext({});
       }, err => {
-      alert(JSON.stringify(err))
+      console.error(err)
       }
     )
   }

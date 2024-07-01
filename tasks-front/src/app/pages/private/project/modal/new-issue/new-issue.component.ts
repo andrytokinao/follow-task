@@ -47,7 +47,7 @@ export class NewIssueComponent {
     }
 
   change() {
-    alert(JSON.stringify(this.issueType));
+    console.log(JSON.stringify(this.issueType));
 
   }
 }

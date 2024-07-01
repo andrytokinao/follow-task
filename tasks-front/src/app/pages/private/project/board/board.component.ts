@@ -93,7 +93,7 @@ export class BoardComponent implements OnInit {
             this.currentIssue = (result.data.saveIssue)
           },
           error: (err) => {
-            alert(JSON.stringify(err));
+            console.error(err)
           }
         }
       );
@@ -129,7 +129,7 @@ export class BoardComponent implements OnInit {
             this.currentIssue = (result.data.saveIssue)
           },
           error: (err) => {
-            alert(JSON.stringify(err));
+            console.error(err)
           }
         }
       );

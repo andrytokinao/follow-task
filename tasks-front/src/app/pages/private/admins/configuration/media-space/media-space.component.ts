@@ -36,9 +36,7 @@ export class MediaSpaceComponent {
   saveConfig() {
     this.configService.saveConfig('MEDIA_DIRECTORIES',this.pathSelected,this.configEntry.id).subscribe(
       (res:any)=>{
-        alert(JSON.stringify(res));
       }, (error :any)=>{
-        alert("error "+JSON.stringify(error));
       }
     );
   }
@@ -61,7 +59,6 @@ export class MediaSpaceComponent {
         this.repertoire.repertoires = res;
       },
       err => {
-        alert(JSON.stringify(err));
       }
     )
   }

@@ -165,7 +165,6 @@ export class IssueService {
     return this.http.request(req);
   }
   saveProject(project: any) {
-    alert("variable project "+JSON.stringify(project));
     return this.apollo.mutate({
       mutation:operation.SAVE_PROJECT,
       variables: {project}

@@ -65,7 +65,7 @@ export class AuthGuard implements CanActivate {
               this.router.navigate(["private/access-denied"]);
             }
           } else {
-            alert("non data");
+            console.error("non data");
           }
         })
       }

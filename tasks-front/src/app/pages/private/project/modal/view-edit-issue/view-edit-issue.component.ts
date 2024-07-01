@@ -86,7 +86,6 @@ export class ViewEditIssueComponent implements OnInit{
           this.activeModal.close({issue: stripTypename(res.data.saveIssue) as Issue});
         },
         error :(err)=>{
-          alert(JSON.stringify(err))
         }
       }
     );
@@ -107,7 +106,7 @@ export class ViewEditIssueComponent implements OnInit{
           this.comment.text="";
         },
           error:(err)=>{
-        alert(JSON.stringify(err));
+        console.error(err);
       }
     });
   }
@@ -120,7 +119,7 @@ export class ViewEditIssueComponent implements OnInit{
           console.info("--- Loadin comment ---> "+JSON.stringify(this.comments));
         },
         error:(err:any)=>{
-          alert(JSON.stringify(err))
+          console.error(err)
         }
       }
     );
@@ -134,7 +133,7 @@ export class ViewEditIssueComponent implements OnInit{
           console.info("--- Loadin customField values ---> "+JSON.stringify(this.customFieldValues));
         },
         error:(err:any)=>{
-          alert(JSON.stringify(err))
+          console.error(err)
         }
       }
     );
@@ -161,7 +160,6 @@ export class ViewEditIssueComponent implements OnInit{
     let value = supprimerTypename(this.currentCustomFieldValue);
     this.issueService.saveValues(value).subscribe({
       next:((res:any)=>{
-        alert('Saving saccessful  ');
         this.customFieldValues= stripTypename(res.data.saveValue);
       }),
       error:(err=>{

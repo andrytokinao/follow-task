@@ -46,7 +46,6 @@ export class ConfigService {
       .set('type',typeValue)
       .set('value',value)
       .set('configId',configId);
-    alert(JSON.stringify(params));
    return this.http.post<ConfigEntry[]>('http://localhost:8081/api/save-config?'+params.toString(), {},{withCredentials:true})
   }
   loadConfig(){
@@ -91,7 +90,6 @@ export class ConfigService {
 
   loadProject(prefix: String) {
     return new Observable<Project>((observer) => {
-      alert("loading project " + prefix)
       this.issueService.getProject(this.configEntry.projectPrefix).subscribe(
         (res: Project) => {
           this.project = res;

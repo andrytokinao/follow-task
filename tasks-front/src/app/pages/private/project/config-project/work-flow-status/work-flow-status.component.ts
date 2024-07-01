@@ -23,12 +23,11 @@ export class WorkFlowStatusComponent {
     this.issueType.project ={};
     this.issueType.project.id = this.project.id;
     this.issueType.project.name = this.project.name;
-    alert(JSON.stringify(this.issueType));
     this.issueService.affectWorkFlow(this.issueType).subscribe( (workFlow)=>{
         this.issueType.curentWorkFlow  = workFlow;
       },
       err=>{
-        alert("ERROR "+JSON.stringify(err));
+        console.error(err)
       }
     )
   }

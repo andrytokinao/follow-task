@@ -71,10 +71,8 @@ export class ProfileComponent  {
   }
   uploadPhoto() {
     this.userService.upload(this.selectedPhoto,this.user.id).subscribe(res=>{
-      alert(JSON.stringify(res))
     },
       error => {
-      alert('ERROR' + JSON.stringify(error));
       }
       )
   }
