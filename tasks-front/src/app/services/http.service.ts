@@ -40,11 +40,11 @@ export class HttpInterceptorService implements HttpInterceptor {
           }
         } else {
           console.error(`Backend returned code ${error.status}, body was: ${error.message}`);
-          if (error.status === 0) {
+          if (error.status == 0) {
             console.error('No Internet connection');
             this.toastr.error('No Internet connection', 'Error');
       //           this.router.navigate(['/no-internet']);
-          } else if (error.error && typeof error.error === 'string' && error.error.includes('<form') && error.error.includes('class="form-signin"')) {
+          } else if (error.error  && error.error.text.includes('<form') && error.error.text.includes('class="form-signin"')) {
             this.router.navigate(['/login']);
           }
         }
