@@ -42,7 +42,8 @@ public class WebSecurityConfig2 {
         Customizer<CsrfConfigurer<HttpSecurity>> csrfs;
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers(new AntPathRequestMatcher("/graphql")).authenticated ()
+                        .requestMatchers(new AntPathRequestMatcher("/graphql")).permitAll () // TODO : regler le probleme d'autorisation
+                        .requestMatchers(new AntPathRequestMatcher("/api/upload")).permitAll ()
                         .requestMatchers(new AntPathRequestMatcher("/api/**")).authenticated()
                         .requestMatchers(new AntPathRequestMatcher("/")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/public/**")).permitAll()

@@ -5,6 +5,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.util.StringUtils;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Random;
@@ -90,14 +92,29 @@ public class KingaUtils {
         }
         return new String(changes);
     }
-    public static String getDefaultWorkSpaceDirectory(){
-        return baseDirectory ()+File.separator+WORKWPACE;
+    public static String getDefaultWorkSpaceDirectory() throws IOException {
+        String directory = baseDirectory ()+File.separator+WORKWPACE;
+        File projectDirectory = new File(directory);
+        if (!Files.exists(projectDirectory.toPath())) {
+            Files.createDirectory(projectDirectory.toPath());
+        }
+        return directory;
     }
-    public static String getDefaultMediaSpaceDirectory(){
-        return baseDirectory ()+File.separator+MEDIA_SPACE;
+    public static String getDefaultMediaSpaceDirectory() throws IOException {
+        String directory = baseDirectory ()+File.separator+MEDIA_SPACE;
+        File projectDirectory = new File(directory);
+        if (!Files.exists(projectDirectory.toPath())) {
+            Files.createDirectory(projectDirectory.toPath());
+        }
+        return directory;
     }
-    public static String baseDirectory(){
-         return System.getProperty("user.home")+ File.separator+BASE_DIRECTORY;
+    public static String baseDirectory() throws IOException {
+        String directory = System.getProperty("user.home")+ File.separator+BASE_DIRECTORY;
+        File projectDirectory = new File(directory);
+        if (!Files.exists(projectDirectory.toPath())) {
+            Files.createDirectory(projectDirectory.toPath());
+        }
+        return directory;
     }
 }
 

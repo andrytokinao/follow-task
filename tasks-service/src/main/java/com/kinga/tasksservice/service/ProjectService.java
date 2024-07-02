@@ -13,6 +13,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,7 +61,7 @@ public class ProjectService {
     }
 
     // Etape 1 : Creation projet
-    public Project createProjectOrSave(Project project) {
+    public Project createProjectOrSave(Project project) throws IOException {
         ConfigEntry configEntry = configRepository.getByActiveIs(true);
         String installation = configEntry.getInstalationState();
 
@@ -76,7 +77,7 @@ public class ProjectService {
             if (StringUtils.isEmpty(configEntry.getWorkDirectory())){
                 configEntry.setInstalationState("private/admin/config/work-space");
                 configRepository.save(configEntry);
-                project.setPath (KingaUtils.getDefaultWorkSpaceDirectory ()+ File.separator+project.getPrefix ());
+                project.setPath (KingaUtils.encodeText(KingaUtils.getDefaultWorkSpaceDirectory ()+ File.separator+project.getPrefix ()));
             } else {
                 project.setPath(KingaUtils.encodeText(KingaUtils.decodeText(configEntry.getWorkDirectory()) + "/" + project.getPrefix()));
             }

@@ -81,7 +81,7 @@ public class IssueService {
                 issueTypeIds.add(it.getId());
             }
         }
-        String homeDirectory = KingaUtils.decodeText(project.getPath());
+        String homeDirectory = KingaUtils.decodeText(project.getPath()).replaceAll (" ","");
         File projectDirectory = new File(homeDirectory);
         if (!Files.exists(projectDirectory.toPath())) {
             Files.createDirectory(projectDirectory.toPath());

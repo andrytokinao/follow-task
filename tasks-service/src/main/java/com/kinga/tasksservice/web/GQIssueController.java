@@ -110,7 +110,7 @@ public class GQIssueController {
         return projectService.getByPrefix(prefix);
     }
     @MutationMapping
-    public Project createProjectOrSave(@Argument  Project project){
+    public Project createProjectOrSave(@Argument  Project project) throws IOException {
         return projectService.createProjectOrSave(project);
     }
     @MutationMapping
