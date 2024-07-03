@@ -161,5 +161,9 @@ public class GQIssueController {
      public List<CustomField> allCustomField(){
         return projectService.allCustomField();
      }
+     @MutationMapping
+     public Issue assigneToUser(@Argument Issue issue) {
+        return issueService.assigneToUser(issue);
+     }
 
 }

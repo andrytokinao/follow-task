@@ -201,8 +201,13 @@ public class UserService {
             return ResponseEntity.badRequest().body("Le fichier est vide.");
         }
         try {
-            String fileName = file.getOriginalFilename();
-            String uploadDir = configSystem.getProfileDirectories();
+            String origineName = file.getOriginalFilename();
+            String fileName = userId + ( origineName.lastIndexOf (".")>0 ?
+                    origineName.substring (origineName.lastIndexOf (".")) :
+                    "" );
+            String uploadDir = StringUtils.isEmpty (configSystem.getProfileDirectories()) ?
+                    KingaUtils.getDefaultMediaSpaceDirectory () :
+                    configSystem.getProfileDirectories ();
             Files.createDirectories(Paths.get(uploadDir));
             Path filePath = Paths.get(uploadDir, fileName);
             Files.write(filePath, file.getBytes());

@@ -276,6 +276,20 @@ export class IssueService {
       );
     })
   }
+  assigneToUser(issue:Issue) {
+    return new Observable<Issue>((observer)=>{
+       this.apollo.mutate({
+         mutation:operation.ASSIGNE_TO_USER,
+         variables:{issue}
+       }).subscribe((res:any)=>{
+          observer.next(res.data.assigneToUser);
+          observer.complete();
+      },error => {
+         observer.error(error);
+         observer.complete();
+       })
+    });
+  }
 
   saveWorkFlow(workFlow: WorkFlow) {
     return new Observable<WorkFlow>((observer)=> {

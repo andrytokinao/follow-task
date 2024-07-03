@@ -54,6 +54,9 @@ public class IssueService {
     public ProjectService projectService;
     @Autowired
     public ConfigRepository configRepository;
+    @Autowired
+    private UserAppRepository userAppRepository;
+
     public List<Issue> saveIssue(Issue issue) throws IOException {
         if(issue.getId() ==null) {
             issue.setCreationDate(new Date());
@@ -319,5 +322,15 @@ public class IssueService {
             ex.printStackTrace();
             return "";
         }
+    }
+    public Issue assigneToUser (Issue is) {
+        Optional<Issue> optionalIssue = issueRepository.findById (is.getId ());
+        Optional<UserApp> userApp = userAppRepository.findById (is.getAssigne ().getId ());
+        if(optionalIssue.isPresent ()) {
+            Issue issue = optionalIssue.get ();
+            issue.setAssigne (userApp.get ());
+            issueRepository.save (issue);
+        }
+        return issueRepository.getById (is.getId ());
     }
 }

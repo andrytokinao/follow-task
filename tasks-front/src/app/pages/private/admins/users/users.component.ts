@@ -43,4 +43,7 @@ export class UsersComponent {
     })
   }
 
+  getPhoto(user: User):string {
+     return this.userService.getUrlPhoto(user);
+  }
 }

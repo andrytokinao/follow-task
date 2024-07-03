@@ -28,7 +28,7 @@ export class ProfileComponent  {
     if(this.tempPhoto)
       return this.tempPhoto;
     if (this.user && this.user.photo) {
-      return this.user.photo;
+      return 'http://localhost:8081/photo/'+this.user.photo;
     } else {
       return 'assets/photo.png';
     }

@@ -75,7 +75,7 @@ export class BoardComponent implements OnInit {
   }
 
   isActive(user: User): boolean {
-    if (this.currentIssue != null) {
+    if (this.currentIssue != null && this.currentIssue.assigne != null) {
       return this.currentIssue.assigne.id == user.id;
     }
     return false;
@@ -121,16 +121,12 @@ export class BoardComponent implements OnInit {
     this.currentIssue = issue;
   }
 
+
   assigneToUser(user: User) {
     if (this.currentIssue != null) {
       this.currentIssue.assigne = user;
-      this.issueService.saveIssue(this.currentIssue).subscribe({
-          next: (result: any) => {
-            this.currentIssue = (result.data.saveIssue)
-          },
-          error: (err) => {
-            console.error(err)
-          }
+      this.issueService.assigneToUser(this.currentIssue).subscribe((issue:Issue)=>{
+          this.currentIssue = issue;
         }
       );
     }
@@ -177,5 +173,7 @@ export class BoardComponent implements OnInit {
       this.issues = issues;
     });
   }
-
+ getUrlPhoto(user:User){
+    return this.userService.getUrlPhoto(user);
+ }
 }

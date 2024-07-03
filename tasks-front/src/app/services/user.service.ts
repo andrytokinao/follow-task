@@ -77,4 +77,11 @@ export class UserService {
     });
     return this.http.request(req);
   }
+
+  getUrlPhoto(user: User) {
+    if (user.photo != null) {
+      return 'http://localhost:8081/photo/'+user.photo
+    }
+    return 'assets/user.png';
+  }
 }

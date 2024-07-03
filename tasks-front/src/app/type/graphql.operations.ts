@@ -1,5 +1,7 @@
 import {Apollo, gql} from "apollo-angular";
 
+
+
 export type Maybe<T> = T | null;
 
 const SAVE_USER = gql`
@@ -731,6 +733,41 @@ const CUSTOM_FIELD_BY_ISSUE_TYPE = gql`
    }
 
 `
+const ASSIGNE_TO_USER =  gql `
+    mutation assigneToUser($issue:IssueInput) {
+      assigneToUser(issue: $issue){
+        id
+        issueKey
+        summary
+        issueType {
+          id
+          name
+          icone {
+            id
+            value
+            typeIcone
+          }
+        }
+        status {
+          id
+          displayName
+          icone {
+            id
+            typeIcone
+            value
+          }
+        }
+        assigne {
+          id
+          firstName
+          firstName
+          photo
+        }
+
+      }
+    }
+`;
+
 export {
   supprimerTypename,
   SAVE_USER,
@@ -763,7 +800,8 @@ export {
   ALL_CUSTOM_FIELD,
   USE_CUSTOM_FIELD,
   UN_USE_CUSTOM_FIELD,
-  CUSTOM_FIELD_BY_ISSUE_TYPE
+  CUSTOM_FIELD_BY_ISSUE_TYPE,
+  ASSIGNE_TO_USER
 }
 function  supprimerTypename<T>(objet: T): T {
   if (!objet || typeof objet !== 'object') {

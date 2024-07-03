@@ -12,7 +12,7 @@
 
   <li *ngFor =" let user of users" class="controle">
     <div class="item" >
-      <img [src] ="user.photo" alt="Photo">
+      <img [src] ="getPhoto(user)" alt="Photo">
       <div class="details">
         <h3> {{user.lastName}}  {{user.firstName}}</h3>
         <p>Chef de projet </p>
