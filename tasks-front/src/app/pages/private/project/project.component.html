@@ -15,13 +15,13 @@
         <i class="fas fa-chart-line"></i> Diagramme de Gantt
       </li>
 
-      <li class="menu-item controle" routerLinkActive="active" routerLink="rapport">
+      <li class="menu-item controle" *ngIf="authGuard.hasAutority(['CAN_CONFIGURE_SYSTEM']) | async" routerLinkActive="active" routerLink="rapport">
         <i class="fas fa-chart-pie"></i> Rapports
       </li>
-      <li class="menu-item controle" routerLinkActive="active" routerLink="calendar">
+      <li class="menu-item controle" *ngIf="authGuard.hasAutority(['CAN_CONFIGURE_SYSTEM']) | async" routerLinkActive="active" routerLink="calendar">
         <i class="fas fa-calendar-alt"></i> Calendrier des ressources
       </li>
-      <li class="menu-item controle" routerLinkActive="active" routerLink="config">
+      <li class="menu-item controle" *ngIf="authGuard.hasAutority(['CAN_CONFIGURE_SYSTEM']) | async" routerLinkActive="active" routerLink="config">
         <i class="fas fa-cog"></i> Config
       </li>
     </ul>

@@ -10,6 +10,7 @@ import {stripTypename} from "@apollo/client/utilities";
 import {ViewEditIssueComponent} from "../modal/view-edit-issue/view-edit-issue.component";
 import {ActivatedRoute} from "@angular/router";
 import {ToastrService} from "ngx-toastr";
+import {AuthGuard} from "../../../../services/authorization.service.ts";
 
 @Component({
   selector: 'app-board',
@@ -37,7 +38,8 @@ export class BoardComponent implements OnInit {
     essueService: IssueService,
     public userService: UserService,
     private route: ActivatedRoute,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+  protected authGuard:AuthGuard
 
   ) {
     this.essueService = essueService;

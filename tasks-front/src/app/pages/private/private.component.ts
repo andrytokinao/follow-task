@@ -6,6 +6,8 @@ import {ProfileComponent} from "./profile/profile.component";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {Project, User} from "../../type/issue";
 import {IssueService} from "../../services/issue.service";
+import {UserService} from "../../services/user.service";
+import {AuthGuard} from "../../services/authorization.service.ts";
 
 @Component({
   selector: 'private-root',
@@ -20,7 +22,10 @@ export class PrivateComponent {
   constructor(private router: Router,
               private authService: AuthService,
               private modalService: NgbModal,
-              private issueService:IssueService
+              private issueService:IssueService,
+              protected userService:UserService,
+              protected authGuard:AuthGuard
+
   ) {
     this.authService.getProfile().subscribe(profile=>{
       this.profile = profile;

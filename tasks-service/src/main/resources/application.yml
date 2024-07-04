@@ -57,7 +57,8 @@ task-authorization:
       accessibilities:
         - "USER"
         - "CAN_EDIT_PROJECT"
-        - "CAN_ASSIGN_TASK"
+        - "CAN_ASSIGN_TASK",
+        - "CAN_CREATE_TASK",
         - "CAN_CLOSE_TASK"
         - "CAN_APPROVE_TASK"
         - "CAN_SET_PRIORITY"

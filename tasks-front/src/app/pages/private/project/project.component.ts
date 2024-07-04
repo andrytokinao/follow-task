@@ -2,6 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Route} from "@angular/router";
 import {IssueService} from "../../../services/issue.service";
 import {Project} from "../../../type/issue";
+import {AuthGuard} from "../../../services/authorization.service.ts";
 
 @Component({
   selector: 'app-project',
@@ -13,7 +14,8 @@ export class ProjectComponent implements OnInit{
   project:Project | undefined;
   constructor(
     private route:ActivatedRoute,
-    private issueService:IssueService
+    private issueService:IssueService,
+    protected authGuard:AuthGuard
   ) {
   }
 

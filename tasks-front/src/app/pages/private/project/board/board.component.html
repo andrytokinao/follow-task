@@ -21,7 +21,7 @@
         <img *ngIf="!issue.assigne" src="/assets/nonAssigner.jpg" alt="non assigner" mat-icon-button class="image" [matMenuTriggerFor]="menu2" (click)="assign(issue)" />
       </div>
     </div>
-    <div  class="issie-board new " (click)="newIssue( status)" *ngIf = "canCreate(status)">
+    <div  class="issie-board new " (click)="newIssue( status)" *ngIf="authGuard.hasAutority(['CAN_CREATE_TASK']) | async" >
       <div class="card">
         <div class="content details">
           <p><i class="fas fa-plus"></i> Creer un nouveau demande </p>
@@ -30,11 +30,14 @@
     </div>
   </div>
 
-  <mat-menu #menu2="matMenu">
-    <h4> Assigner a </h4>
-    <button mat-menu-item *ngFor="let user of users" (click)="assigneToUser(user)" [ngClass]="{'active': isActive(user)}" >
-      <img [src]="getUrlPhoto(user)" alt="Image"  width="30px"  >
-      <span>{{user.firstName}} {{user.lastName}}</span>
-    </button>
+  <mat-menu #menu2="matMenu"  >
+    <div *ngIf="authGuard.hasAutority(['CAN_ASSIGN_TASK']) | async">
+      <h4> Assigner a </h4>
+      <button mat-menu-item *ngFor="let user of users" (click)="assigneToUser(user)" [ngClass]="{'active': isActive(user)}" >
+        <img [src]="getUrlPhoto(user)" alt="Image"  width="30px"  >
+        <span>{{user.firstName}} {{user.lastName}}</span>
+      </button>
+    </div>
+
   </mat-menu>
 </div>

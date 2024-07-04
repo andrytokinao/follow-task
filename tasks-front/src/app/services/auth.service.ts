@@ -60,13 +60,11 @@ export class AuthService {
   getProfile() {
     return new Observable((observer) => {
         if (this.profile) {
-          console.log(this.profile);
           observer.next(this.profile);
           observer.complete();
         } else {
           this.http.get("http://localhost:8081/api/profile",{withCredentials:true}).subscribe(
             (res: any) => {
-              console.info(JSON.stringify(res));
             if (JSON.stringify(res).localeCompare('login') === -1) {
               localStorage.setItem("user", res);
               this.profile = res;

@@ -95,5 +95,23 @@ export class AuthGuard implements CanActivate {
       }
     })
   }
+  hasAutority(autorities:String[]){
+
+    return new Observable<boolean>((observer) =>{
+       this.authService.getProfile().subscribe((profile:any) => {
+         if (profile.permissions.includes('CAN_ACCESS_ALL')) {
+           observer.next(true);
+           observer.complete();
+         } else {
+           let authorized:boolean = autorities.every((role: string) => profile.permissions.includes(role));
+           observer.next(authorized);
+           observer.complete();
+         }
+        },error => {
+          observer.error(error);
+          observer.complete()
+        })
+     });
+  }
 }
 

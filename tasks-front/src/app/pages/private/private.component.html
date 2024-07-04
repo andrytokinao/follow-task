@@ -8,15 +8,15 @@
           <span class="username">Projet</span>
           <div class="user-dropdown-content">
             <div class="item controle"  *ngFor="let project of projects" (click)="selectProject(project)">{{project.name}}</div>
-            <div class="item controle"  routerLink="admin/project/create"> Creer </div>
+            <div class="item controle" *ngIf="authGuard.hasAutority(['CAN_CREATE_PROJECT']) | async"  routerLink="admin/project/create"> Creer </div>
           </div>
         </div>
       </li>
-      <li><a routerLink="admin/users" routerLinkActive="active" ariaCurrentWhenActive="page">Admin</a></li>
+      <li><a routerLink="admin/users" *ngIf="authGuard.hasAutority(['CAN_CONFIGURE_SYSTEM']) | async" routerLinkActive="active" ariaCurrentWhenActive="page">Admin</a></li>
     </ul>
     <div class="user-section">
       <div class="user-dropdown">
-        <img [src]="profile.photo" alt="P">
+        <img [src]="userService.getUrlPhoto(profile)" alt="P">
         <span class="username">{{profile.firstName}} {{profile.lastName}}</span>
         <div class="user-dropdown-content">
           <div class="item controle" (click)="myProfile()" >Profile</div>
