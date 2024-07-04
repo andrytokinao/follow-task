@@ -5,6 +5,8 @@ import { retry, catchError } from 'rxjs/operators';
 import {ConfigEntry, Issue, Status, User} from "../type/issue";
 import {ALL_ISSUE, ALL_USERS, INIT_USER, LOAD_GROUPE_MEMBER, SAVE_CONFIG, SAVE_USER} from "../type/graphql.operations";
 import {Apollo} from "apollo-angular";
+import {environment} from "@ng-bootstrap/ng-bootstrap/environment";
+import {ssenvironment} from "../../environments/ssenvironment";
 
 @Injectable({
   providedIn: 'root',
@@ -80,7 +82,7 @@ export class UserService {
 
   getUrlPhoto(user: User) {
     if (user.photo != null) {
-      return 'http://localhost:8081/photo/'+user.photo
+      return ssenvironment.apiURL+'/photo/'+user.photo
     }
     return 'assets/user.png';
   }

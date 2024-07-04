@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import {ConfigEntry, Issue, Project, Repertoire, User} from "../../../../../type/issue";
 import {HttpClient} from "@angular/common/http";
 import {ConfigService} from "../../../../../services/config.service";
+import {environment} from "@ng-bootstrap/ng-bootstrap/environment";
+import {ssenvironment} from "../../../../../../environments/ssenvironment";
 
 @Component({
   selector: 'app-media-space',
@@ -54,7 +56,7 @@ export class MediaSpaceComponent {
     console.log('Fichiers sélectionnés :', this.pathSelected);
   }
   loadDossier(){
-    this.http.get<Repertoire[]>("http://localhost:8081/api/sous-dossier/root",{withCredentials:true}).subscribe(
+    this.http.get<Repertoire[]>(ssenvironment.apiURL+"/api/sous-dossier/root",{withCredentials:true}).subscribe(
       res => {
         this.repertoire.repertoires = res;
       },

@@ -2,6 +2,7 @@ import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {Repertoire} from "../../type/issue";
 import {CommonModule} from "@angular/common";
 import {HttpClient} from "@angular/common/http";
+import {ssenvironment} from "../../../environments/ssenvironment";
 
 @Component({
   selector: 'app-dossier-node-item',
@@ -23,7 +24,7 @@ export class TreeDossierItemComponent {
   @Input()  lastSelectedPath :string ='';
   @Output() fileSelected: EventEmitter<any> = new EventEmitter<any>();
   private isLoaded: boolean = false ;
-  private repertoireUrl = "http://localhost:8081/api/sous-dossier?path=";
+  private repertoireUrl = ssenvironment.apiURL+"/api/sous-dossier?path=";
   constructor(private http: HttpClient) { }
   onFileSelected($event: any) {
     this.fileSelected.emit($event);

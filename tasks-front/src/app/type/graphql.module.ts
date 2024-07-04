@@ -2,9 +2,9 @@ import { APOLLO_OPTIONS, ApolloModule } from 'apollo-angular';
 import { HttpLink } from 'apollo-angular/http';
 import { NgModule } from '@angular/core';
 import { ApolloClientOptions, InMemoryCache } from '@apollo/client/core';
-import {API_BASE_URL} from "./constant";
+import {ssenvironment} from "../../environments/ssenvironment";
 
-const uri = API_BASE_URL+'/graphql'; // <-- add the URL of the GraphQL server here
+const uri = ssenvironment.apiURL+'/graphql'; // <-- add the URL of the GraphQL server here
 export function createApollo(httpLink: HttpLink): ApolloClientOptions<any> {
   return {
     link: httpLink.create({ uri }),

@@ -7,6 +7,8 @@ import {ALL_ISSUE, ALL_USERS, LOAD_GROUPE_MEMBER, SAVE_CONFIG, SAVE_USER} from "
 import {Apollo} from "apollo-angular";
 import {NavigationExtras, Router} from "@angular/router";
 import {IssueService} from "./issue.service";
+import {environment} from "@ng-bootstrap/ng-bootstrap/environment";
+import {ssenvironment} from "../../environments/ssenvironment";
 
 @Injectable({
   providedIn: 'root',
@@ -24,7 +26,7 @@ export class ConfigService {
 
   }
   userIsExist:Boolean = false;
-  baseUrl:string = "http://localhost:8081";
+  baseUrl:string = ssenvironment.apiURL;
 
   httpOptions = {
     headers: new HttpHeaders({
@@ -46,12 +48,12 @@ export class ConfigService {
       .set('type',typeValue)
       .set('value',value)
       .set('configId',configId);
-   return this.http.post<ConfigEntry[]>('http://localhost:8081/api/save-config?'+params.toString(), {},{withCredentials:true})
+   return this.http.post<ConfigEntry[]>(ssenvironment.apiURL+'/api/save-config?'+params.toString(), {},{withCredentials:true})
   }
   loadConfig(){
     return new Observable<ConfigEntry>((observer)=>{
       console.info('initConfig()')
-      this.http.get<ConfigEntry>("http://localhost:8081/api/get-config",{withCredentials:true}).subscribe(
+      this.http.get<ConfigEntry>(ssenvironment.apiURL+"/api/get-config",{withCredentials:true}).subscribe(
         (res)=>{
           this.configEntry = res;
           console.info("loading config"+JSON.stringify(res));
@@ -67,11 +69,11 @@ export class ConfigService {
   }
   getCodePath(){
     console.info('getCodePath')
-    return this.http.get<any>("http://localhost:8081/code-path",{withCredentials:true})
+    return this.http.get<any>(ssenvironment.apiURL+"/code-path",{withCredentials:true})
   }
   nextIntallation(){
     return new Observable<string>((observable:any)=>{
-      this.http.get<any>("http://localhost:8081/next-installation-path",{withCredentials:true}).subscribe(
+      this.http.get<any>(ssenvironment.apiURL+"/next-installation-path",{withCredentials:true}).subscribe(
         (res:any)=>{
           this.installationPath = res.path;
           observable.next(this.installationPath);
@@ -85,7 +87,7 @@ export class ConfigService {
   }
 
   checkUser(){
-    return  this.http.get<Boolean>("http://localhost:8081/has-user");
+    return  this.http.get<Boolean>(ssenvironment.apiURL+"/has-user");
   }
 
   loadProject(prefix: String) {
