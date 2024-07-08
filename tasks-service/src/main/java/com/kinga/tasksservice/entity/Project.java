@@ -16,7 +16,7 @@ import java.util.List;
 @ToString
 public class Project {
 
-    public static String BASE_DIRECTORY = "FOLOW_TASK";
+    public static String BASE_DIRECTORY = "FOLLOW_TASK";
     public static String DEFAULT_PREFIX = "TASK";
 
     public static String CONFIG_STATE1 = "create";
