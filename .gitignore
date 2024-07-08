@@ -2,3 +2,6 @@
 /tasks-front/.vscode/
 /.idea/
 /tasks-service/.mvn/
+/tasks-service/frontend/
+/tasks-service/node/
+/tasks-service/package-lock.json
