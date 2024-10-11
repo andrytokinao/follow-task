@@ -30,59 +30,6 @@
         </app-issuetype-form>
         <div (click)="createIssueType()" *ngIf="!isNewIssueType"> Create </div>
       </div>
-      <div class="item items-right">
-        <div *ngIf="issueType.id" >
-          <h1> Flux des travaux </h1>
-          <div *ngFor = "let wf of project.workFlows">
-            <app-text-field  [inputModel]="wf.name" label="Titre de flux "
-                             [editing] = "false" exemple="Flux de traveau "
-                             class="field-item" [selected] = "isSelectedWorkFlow(wf)"
-                             (onClickIt) = "selectWorkFlow(wf)"
-                             (onComplete) ="saveWorkFlow($event,wf)"
-                             (onCancel) = "isNewWorkFlow =false"
-            >
-            </app-text-field>
-          </div>
-          <app-text-field  [inputModel]="newWorkflowName" label="Titre de flux "
-                           [editing] = "isNewWorkFlow" exemple="Flux de traveau "
-                           class="field-item" [selected] = "isSelectedWorkFlow(workFlow)"
-                           (onClickIt) = "selectWorkFlow(workFlow)"
-                           (onComplete) ="saveWorkFlow($event,workFlow)"
-                           (onCancel) = "isNewWorkFlow =false"
-                           *ngIf="isNewWorkFlow"
-          >
-          </app-text-field>
-
-          <div (click)="createWorkFlow()" *ngIf ="!isNewWorkFlow"> Nouveau flux de travail </div>
-
-          <app-icone-view *ngIf="iconSelected" [icon] ="iconSelected" [width]="'fa-2x'" ></app-icone-view>
-        </div>
-        <div *ngIf="issueType.id && issueType.curentWorkFlow " >
-          <div *ngIf="issueType.curentWorkFlow.statuses!=undefined " >
-          <h1> Liste des etat possible  </h1>
-          <div *ngFor = "let state of issueType.curentWorkFlow.statuses"  >
-            <app-states-form  [inputState]="state"
-                                 [editing] = "false" [exemple]="'Flux de traveau '"
-                                 class="field-item"
-                                 (onComplete) ="addStatus($event)"
-            >
-            </app-states-form>
-          </div>
-          </div>
-          <app-states-form  [inputState]="null"
-                            [editing] = "true" [exemple]="' Todo'"
-                            class="field-item"
-                            (onComplete) ="addStatus($event)"
-                            *ngIf="isCreateState"
-          >
-          </app-states-form>
-
-          <div (click)="createState()" *ngIf ="!isCreateState"> Ajouter une etats </div>
-
-      <app-icone-view *ngIf="iconSelected" [icon] ="iconSelected" [width]="'fa-2x'" ></app-icone-view>
-
-      </div>
-    </div>
 
   </div>
 </div>

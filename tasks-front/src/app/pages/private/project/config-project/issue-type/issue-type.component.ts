@@ -4,6 +4,10 @@ import {ConfigService} from "../../../../../services/config.service";
 import {IssueService} from "../../../../../services/issue.service";
 import {supprimerTypename} from "../../../../../type/graphql.operations";
 import {ActivatedRoute} from "@angular/router";
+import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import {IssueTypeModalComponent} from "./issue-type-modal/issue-type-modal.component";
+import {ChooseDialogComponent} from "../../../../../common/icone-field/choose-dialog/choose-dialog.component";
+import {J} from "@angular/cdk/keycodes";
 
 @Component({
   selector: 'app-issue-type',
@@ -26,7 +30,8 @@ export class IssueTypeComponent {
   isCreateState: boolean=false;
   constructor(private configService:ConfigService,
               private issueService :IssueService,
-              private route: ActivatedRoute
+              private route: ActivatedRoute,
+              private modalService:NgbModal
 
   ) {
 
@@ -80,6 +85,15 @@ export class IssueTypeComponent {
   selectIssueType(issueType: any) {
     console.info('select .'+issueType.name);
     this.issueType = issueType;
+    this.showConfigType(issueType);
+  }
+  showConfigType(issueType:any) {
+    const dialogRef = this.modalService.open(IssueTypeModalComponent,{windowClass: "xlModal"} );
+    dialogRef.componentInstance.issueType = issueType;
+    dialogRef.componentInstance.project = this.project;
+    dialogRef.result.then((res) => {
+      this.issueType = res
+    })
   }
 
   createIssueType() {

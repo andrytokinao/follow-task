@@ -1,0 +1,73 @@
+<mat-dialog-content>
+  <mat-toolbar>
+    <div class="mat-toolbar-tools template-background">
+      <h2>Config sur le type te tache </h2>
+    </div>
+    <button (click)="onCancelClick()" class="float-end btn-close"></button>
+  </mat-toolbar>
+  <mat-tab-group>
+    <mat-tab label="Flux de travails">
+      <mat-card class="mat-padding">
+        <div class="sidebar-heding row">
+          <div class="item items-right">
+            <div *ngIf="issueType.id">
+              <h1> Flux des travaux </h1>
+              <div *ngFor="let wf of project.workFlows">
+                <app-text-field [inputModel]="wf.name" label="Titre de flux "
+                                [editing]="false" exemple="Flux de traveau "
+                                class="field-item" [selected]="isSelectedWorkFlow(wf)"
+                                (onClickIt)="selectWorkFlow(wf)"
+                                (onComplete)="saveWorkFlow($event,wf)"
+                                (onCancel)="isNewWorkFlow =false"
+                >
+                </app-text-field>
+              </div>
+
+
+              <app-icone-view *ngIf="iconSelected" [icon]="iconSelected" [width]="'fa-2x'"></app-icone-view>
+            </div>
+
+          </div>
+
+        </div>
+      </mat-card>
+    </mat-tab>
+    <mat-tab label="Champ personnalisé">
+      <mat-card class="mat-padding">
+        <div class="sidebar-heding ">
+          <div *ngFor="let field of customFields">
+            <mat-checkbox
+              class="example-margin"
+              [checked]="isSelected(field)"
+              [indeterminate]="partiallyComplete()"
+              (change)="onCheckboxChange($event,field)"
+            >
+              {{ field.name }}
+            </mat-checkbox>
+          </div>
+          <section class="example-section">
+  <span class="example-list-section">
+
+  </span>
+            <span class="example-list-section">
+
+  </span>
+          </section>
+        </div>
+      </mat-card>
+    </mat-tab>
+    <mat-tab label="Type et liaison">
+      <mat-card class="mat-padding">
+        <div class="sidebar-hedingd   ">
+
+        </div>
+      </mat-card>
+    </mat-tab>
+  </mat-tab-group>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <div style="padding: 10px">
+    <span fxFlex></span>
+    <button mat-raised-button class="btn success" color="primary" (click)="onSaveClick()"><span> Terminer </span></button>
+  </div>
+</mat-dialog-actions>
