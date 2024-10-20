@@ -798,7 +798,7 @@ const GET_CONFIG_PROJECT =gql`
   query getConfigProject($projectId:Int){
     getConfigProject(projectId: $projectId){
       id
-      groupe
+      configof
       value
     }
   }
@@ -807,7 +807,7 @@ const SAVE_CONFIG_PROJECT=gql`
     mutation saveOrUpdateConfig($configProject:ConfigProjectInput){
       saveOrUpdateConfig(configProject: $configProject){
         id
-        groupe
+        configof
         value
       }
     }

@@ -11,8 +11,9 @@ public class ConfigProject {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
    private Long id ;
-   private String groupe;
-   private String value;
+   private String configof;
+    @Column(name = "\"string_value\"")
+    private String value;
    @ManyToOne
    private ConfigEntry configEntry;
 }

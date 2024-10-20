@@ -181,6 +181,6 @@ export interface DisplayCustomField {
 }
 export interface ConfigProject{
   id:number
-  groupe:String
-  value:String
+  configof:String
+  value:string
 }

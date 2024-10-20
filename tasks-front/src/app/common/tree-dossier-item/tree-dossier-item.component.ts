@@ -37,18 +37,21 @@ export class TreeDossierItemComponent {
     this.fileSelected.emit(this.repertoire);
   }
 
-  openDossier(){
+  openDossier() {
+    this.openDossierByPath(this.repertoire.absolutePath);
+  }
+  openDossierByPath(absolutePath:string){
     this.repertoire.open = !this.repertoire.open;
     if (!this.isLoaded) {
-       this.http.get<Repertoire[]> (this.repertoireUrl+this.repertoire.absolutePath , {withCredentials:true}).subscribe(
-         res => {
-           this.repertoire.repertoires = res;
-           this.isLoaded = true;
-         },
-          err=> {
-           console.error(err);
-          }
-       )
+      this.http.get<Repertoire[]> (this.repertoireUrl+absolutePath , {withCredentials:true}).subscribe(
+        res => {
+          this.repertoire.repertoires = res;
+          this.isLoaded = true;
+        },
+        err=> {
+          console.error(err);
+        }
+      )
     }
   }
 }

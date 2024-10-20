@@ -13,7 +13,7 @@
     <h2 class="title" > Information</h2>
     <div class="input-field">
       <i class="fas fa-user"></i>
-      <input type="text"  placeholder="Username" [(ngModel)]="user.username" [ngModelOptions]="{standalone: true}" required/>
+      <input type="text"  placeholder="Contact" [(ngModel)]="user.contact" [ngModelOptions]="{standalone: true}" required/>
     </div>
     <div class="input-field">
       <i class="fa fa-address-book"></i>
@@ -23,22 +23,7 @@
       <i class="fa fa-address-book"></i>
       <input type="text" placeholder="Prénom" [(ngModel)]="user.lastName" [ngModelOptions]="{standalone: true}" />
     </div>
-    <div class="input-field">
-      <i class="fas fa-phone"></i>
-      <input type="text" placeholder="Numero telephone" [(ngModel)]="user.contact" [ngModelOptions]="{standalone: true}" required />
-    </div>
-    <div class="input-field">
-      <i class="fas fa fa-map-marker"></i>
-      <input type="text" placeholder="Adresse" [(ngModel)]="user.address" [ngModelOptions]="{standalone: true}" />
-    </div>
-    <div class="input-field">
-      <i class="fas fa-envelope"></i>
-      <input type="email" placeholder="Email" [(ngModel)]="user.email" [ngModelOptions]="{standalone: true}" required/>
-    </div>
-    <div class="input-field">
-      <i class="fa fa-address-card"></i>
-      <input type="text" placeholder="CIN" [(ngModel)]="user.cin" [ngModelOptions]="{standalone: true}" />
-    </div>
+
     <div class="input-field" >
       <i class="fas fa-lock"></i>
       <input type="password" placeholder="Password" [(ngModel)]="user.password" [ngModelOptions]="{standalone: true}" required />

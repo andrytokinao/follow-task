@@ -185,7 +185,7 @@ type UsingCustomField {
 }
 type ConfigProject {
     id:Int
-    groupe:String
+    configof:String
     value:String
 }
 input CustomFieldImput {
@@ -362,6 +362,6 @@ input UsingCustomFieldInput {
 }
 input ConfigProjectInput {
     id:Int
-    groupe:String
+    configof:String
     value:String
 }

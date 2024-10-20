@@ -3,7 +3,7 @@ import {MyCommonModule} from "../../../../../common/common.module";
 import {NgForOf, NgIf} from "@angular/common";
 import {HttpClient} from "@angular/common/http";
 import {ConfigService} from "../../../../../services/config.service";
-import {ConfigEntry, Repertoire} from "../../../../../type/issue";
+import {ConfigEntry, ConfigProject, Repertoire} from "../../../../../type/issue";
 import {environment} from "../../../../../../environments/environment";
 import {IssueService} from "../../../../../services/issue.service";
 import {ActivatedRoute, Router} from "@angular/router";
@@ -22,6 +22,8 @@ import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 })
 export class StorageComponent {
   private project: any;
+  private configProjects: ConfigProject[] = [];
+  private configPath:ConfigProject ;
   constructor(private http:HttpClient,
               private   configService:ConfigService,
               private issueService:IssueService,
@@ -78,6 +80,23 @@ export class StorageComponent {
   ngOnInit(): void {
     this.route.data.subscribe(data => {
       this.project = data['project'];
+      this.issueService.getConfigProject(this.project.id).subscribe(res=>{
+        this.configProjects = res;
+        this.loadConfig();
+      })
     });
+  }
+  loadConfig(){
+    this.issueService.getConfigProject(this.project.id).subscribe(res=>{
+      this.configProjects = res;
+      if( this.configProjects != null ) {
+        this.configProjects.forEach(cp=> {
+          if (cp.configof == "config.project."+this.project.id+".path") {
+            this.configPath = cp;
+            this.pathSelected = cp.value;
+          }
+        })
+      }
+    })
   }
 }

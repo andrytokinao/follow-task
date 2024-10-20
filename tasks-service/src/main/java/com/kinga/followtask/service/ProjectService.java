@@ -84,14 +84,21 @@ public class ProjectService {
             }
         }
         project = projectRepository.save (project);
-        if (!"complete".equalsIgnoreCase (installation)) {
-            configEntry.setInstalationState ("private/admin/project/issue-type?project=" + project.getPrefix ());
-            configEntry.setProjectPrefix (project.getPrefix ());
-            configRepository.save (configEntry);
-        }
+        completConfig(project);
         return project;
     }
+    public List<ConfigProject> completConfig(Project project) throws IOException {
+        String configPathLabel = "config.project."+project.getId ()+".path";
+       List<ConfigProject> configPaths =  configProjectRepo.findConfigProjectsByConfigof (configPathLabel);
+       if (!CollectionUtils.isEmpty (configPaths))
+           return  configProjectRepo.findConfigProjectsByConfigof ("config.project."+project.getId ());
 
+       ConfigProject configPath = new ConfigProject ();
+       configPath.setConfigof (configPathLabel);
+       configPath.setValue (KingaUtils.encodeText (KingaUtils.getDefaultWorkSpaceDirectory () + File.separator + project.getPrefix ()));
+       configProjectRepo.save (configPath);
+        return  configProjectRepo.findConfigProjectsByConfigof ("config.project."+project.getId ());
+    }
     // Etape 2 : Creation type
     public List<IssueType> saveIssueType (IssueType issueType) {
         ConfigEntry configEntry = configRepository.getByActiveIs (true);
@@ -227,24 +234,24 @@ public class ProjectService {
 
     public ConfigProject setPath (String path, Long projectId) {
         ConfigProject configProject = new ConfigProject ();
-        configProject.setGroupe ("config.project." + projectId + ".path");
+        configProject.setConfigof ("config.project." + projectId + ".path");
         configProject.setValue (path);
         return saveOrUpdateConfig (configProject);
     }
     public ConfigProject saveOrUpdateConfig(ConfigProject cf){
-       /* List<ConfigProject> existes = configProjectRepo.findByGroupe(cf.getGroupe ());
+        List<ConfigProject> existes = configProjectRepo.findConfigProjectsByConfigof(cf.getConfigof ());
         ConfigProject configProject = null;
         if (CollectionUtils.isEmpty (existes)) {
             configProject = new ConfigProject ();
         } else {
             configProject = existes.get (0);
         }
-        configProject.setGroupe (cf.getGroupe ());
-        configProject.setValue (cf.getValue ());*/
+        configProject.setConfigEntry (cf.getConfigEntry ());
+        configProject.setValue (cf.getValue ());
 
-        return configProjectRepo.save (cf);
+        return configProjectRepo.save (configProject);
     }
     public List<ConfigProject> getConfigProject (Long projectId) {
-       return configProjectRepo.findByGroupeContaining ("'config.project." + projectId + ".'");
+       return configProjectRepo.findConfigProjectsByConfigofLike ("%config.project." + projectId + ".%");
     }
 }

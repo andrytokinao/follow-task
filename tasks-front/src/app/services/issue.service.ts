@@ -450,7 +450,7 @@ export class IssueService {
 
   setConfigProjectPath(pathSelected: string, projectId) {
     let configProject:any = {}
-    configProject.groupe = 'config.project.'+projectId+'.path';
+    configProject.configof = 'config.project.'+projectId+'.path';
     configProject.value = pathSelected;
     this.saveOrUpdateConfig(configProject).subscribe(res=>{
       alert(JSON.stringify(res));
