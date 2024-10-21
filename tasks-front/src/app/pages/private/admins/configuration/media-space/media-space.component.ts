@@ -20,15 +20,7 @@ export class MediaSpaceComponent {
       }
     );
   }
-  repertoire:Repertoire = new class implements Repertoire {
-    fileName: String="No directory";
-    absolutePath:string = 'no';
-    path: String ="no";
-    repertoires: Repertoire[] =[];
-    type: String = "none";
-    selected :boolean = false;
-    open : boolean = false;
-  };
+  repertoire:Repertoire ;
 
   configEntry :ConfigEntry | any= {}
   lastSelected:Repertoire | null = null;

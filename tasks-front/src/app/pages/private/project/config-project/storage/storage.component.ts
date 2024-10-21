@@ -8,6 +8,7 @@ import {environment} from "../../../../../../environments/environment";
 import {IssueService} from "../../../../../services/issue.service";
 import {ActivatedRoute, Router} from "@angular/router";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import {TreeDossierItemComponent} from "../../../../../common/tree-dossier-item/tree-dossier-item.component";
 
 @Component({
   selector: 'app-storage',
@@ -24,17 +25,17 @@ export class StorageComponent {
   private project: any;
   private configProjects: ConfigProject[] = [];
   private configPath:ConfigProject ;
+  public paths:string[]=[];
   constructor(private http:HttpClient,
               private   configService:ConfigService,
               private issueService:IssueService,
               private router: Router,
               private modalService: NgbModal,
-              private route: ActivatedRoute
+              private route: ActivatedRoute,
   ) {
     this.configService.loadConfig().subscribe((conf)=>{
       this.configEntry = conf;
     });
-    this.loadDossier();
   }
   repertoire:Repertoire = new class implements Repertoire {
     fileName: String="No directory";
@@ -44,6 +45,7 @@ export class StorageComponent {
     type: String = "none";
     selected :boolean = false;
     open : boolean = false;
+    paths:string[]=[];
   };
 
   configEntry :ConfigEntry | any= {}
@@ -70,7 +72,12 @@ export class StorageComponent {
   loadDossier(){
     this.http.get<Repertoire[]>( environment.apiURL+"api/sous-dossier/root",{withCredentials:true}).subscribe(
       res => {
+        for (let i in res){
+          res[i].paths = this.paths;
+        }
+        alert(JSON.stringify(this.repertoire));
         this.repertoire.repertoires = res;
+        alert(this.paths);
       },
       err => {
         console.error(JSON.stringify(err));
@@ -95,7 +102,14 @@ export class StorageComponent {
             this.configPath = cp;
             this.pathSelected = cp.value;
           }
-        })
+        });
+        if (this.configPath != null) {
+          TreeDossierItemComponent.getPaths(this.http,this.configPath.value).subscribe(paths => {
+            this.paths = paths;
+            this.loadDossier();
+
+          });
+        }
       }
     })
   }

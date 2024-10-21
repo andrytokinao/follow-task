@@ -8,7 +8,6 @@ import {ConfigEntry} from "../../../../type/issue";
 import {Router} from "@angular/router";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {ConfigService} from "../../../../services/config.service";
-import {WorkSpaceComponent} from "./work-space/work-space.component";
 import {MediaSpaceComponent} from "./media-space/media-space.component";
 import {ConfigurationComponent} from "./configuration.component";
 import {InstallDataComponent} from "./install-data/install-data.component";
@@ -30,7 +29,6 @@ import {MatSelectModule} from "@angular/material/select";
     ArchiveComponent,
     BackupComponent,
     MediaSpaceComponent,
-    WorkSpaceComponent,
     ConfigurationComponent,
     InstallDataComponent
   ],

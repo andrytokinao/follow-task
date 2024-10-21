@@ -6,8 +6,15 @@ import com.kinga.utils.KingaUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.rmi.registry.LocateRegistry;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public  class Dossier extends Repertoire {
     public static List<Dossier> getSousDossier(String path) {
@@ -52,6 +59,21 @@ public  class Dossier extends Repertoire {
         super();
         String fn = StringUtils.isEmpty(fileName) ? "/" : fileName;
         super.setFileName(fn);
+    }
+    public static List<String> listDirectoryPaths(String directory) throws IOException {
+        List<String> paths = new ArrayList<> ();
+        String dr ="";
+        if (StringUtils.isEmpty (directory)){
+            return paths ;
+        }
+        String[] fileNimes = directory.split (File.separator);
+        for(int i = 0 ; i <fileNimes.length; i++){
+            if (StringUtils.isEmpty (fileNimes[i]))
+                continue;
+            dr = dr+File.separator+fileNimes[i];
+            paths.add (KingaUtils.encodeText (dr));
+        }
+        return paths;
     }
     private void listDirectory(String dir) {
         File file = new File(dir);

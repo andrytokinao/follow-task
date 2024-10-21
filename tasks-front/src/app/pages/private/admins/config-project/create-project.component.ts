@@ -11,7 +11,6 @@ import {BackupComponent} from "../configuration/backup/backup.component";
 import {ArchiveComponent} from "../configuration/archive/archive.component";
 import {SwitchVersionComponent} from "../configuration/switch-version/switch-version.component";
 import {MediaSpaceComponent} from "../configuration/media-space/media-space.component";
-import {WorkSpaceComponent} from "../configuration/work-space/work-space.component";
 import {InstallDataComponent} from "../configuration/install-data/install-data.component";
 
 @Component({
@@ -26,7 +25,6 @@ export class CreateProjectComponent {
     'private/admin/project/issue-type': IssueTypeComponent,
     'switch-version$': SwitchVersionComponent,
     '\/media-space$': MediaSpaceComponent,
-    '\/work-space$': WorkSpaceComponent,
     '\/install-data$': InstallDataComponent,
   };
   constructor(private router: Router,

@@ -8,16 +8,7 @@ import {CommonModule} from "@angular/common";
   styleUrls: ['./tree-node-item.component.css']
 })
 export class TreeNodeItemComponent {
-  @Input() repertoire : Repertoire = new class implements Repertoire {
-    repertoires: Repertoire[]=[];
-    fileName: String='';
-    path: String='';
-    absolutePath:string ='';
-    type: String='';
-    icone:String ='';
-    selected :boolean = false;
-    open :boolean = false;
-  } ;
+  @Input() repertoire : Repertoire ;
   @Output() fileSelected: EventEmitter<any> = new EventEmitter<any>();
   constructor() { }
 

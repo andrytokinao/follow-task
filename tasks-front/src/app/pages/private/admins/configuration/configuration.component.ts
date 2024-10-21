@@ -1,6 +1,5 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ConfigEntry} from "../../../../type/issue";
-import {WorkSpaceComponent} from "./work-space/work-space.component";
 import {MediaSpaceComponent} from "./media-space/media-space.component";
 import {NavigationStart, Router} from "@angular/router";
 import {NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
@@ -23,7 +22,6 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
     '\/archive$': ArchiveComponent,
     '\/switch-version$': SwitchVersionComponent,
     '\/media-space$': MediaSpaceComponent,
-    '\/work-space$': WorkSpaceComponent,
     '\/install-data$': InstallDataComponent,
   };
 

@@ -33,6 +33,7 @@ export class ViewEditIssueComponent implements OnInit{
     type: String = "none";
     selected :boolean = false;
     open : boolean = false;
+    paths:string[] =[];
   };
   comment:any = {
     issue:{},

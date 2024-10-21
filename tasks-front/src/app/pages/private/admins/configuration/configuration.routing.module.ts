@@ -6,7 +6,6 @@ import {BackupComponent} from "./backup/backup.component";
 import {ArchiveComponent} from "./archive/archive.component";
 import {SwitchVersionComponent} from "./switch-version/switch-version.component";
 import {MediaSpaceComponent} from "./media-space/media-space.component";
-import {WorkSpaceComponent} from "./work-space/work-space.component";
 
 const configRoute: Routes = [
   // "/private/admin/config"

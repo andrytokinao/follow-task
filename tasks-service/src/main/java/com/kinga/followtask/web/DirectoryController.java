@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -34,6 +35,11 @@ public class DirectoryController {
     @ResponseBody
     public List<Dossier> sousDossier(@RequestParam(required = true) String path){
         return Dossier.getSousDossier(path);
+    }
+    @GetMapping(path = "/api/paths")
+    @ResponseBody
+    public List<String> getPaths(@RequestParam(required = true) String path) throws IOException {
+        return Dossier.listDirectoryPaths (KingaUtils.decodeText (path));
     }
     @GetMapping("photo/{endocedPath}")
     public ResponseEntity<Resource> serveFile(@PathVariable String endocedPath) {

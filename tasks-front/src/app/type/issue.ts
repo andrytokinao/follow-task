@@ -86,6 +86,7 @@ export interface Repertoire {
   repertoires:Repertoire[]
   selected:boolean;
   open : boolean;
+  paths:string[]
 }
 export interface Uploading {
   file:File
