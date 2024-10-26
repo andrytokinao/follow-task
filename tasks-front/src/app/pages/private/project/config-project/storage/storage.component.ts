@@ -75,9 +75,7 @@ export class StorageComponent {
         for (let i in res){
           res[i].paths = this.paths;
         }
-        alert(JSON.stringify(this.repertoire));
         this.repertoire.repertoires = res;
-        alert(this.paths);
       },
       err => {
         console.error(JSON.stringify(err));

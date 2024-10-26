@@ -24,7 +24,7 @@
     <div class="item">
       <span *ngFor = "let member of user.groupes">
        {{ member.groupe ? member.groupe.name : '' }}
-        {{ member.role ? member.role : '' }}
+        {{ member.roles ? member.roles : '' }}
       </span>
     </div>
     <div class="items " style="float:right;width: 200px "> <span class="controle btn" (click)="editProfile(user)"> <i class="fa fa-user-edit "></i> Editer </span> <span class="controle btn" (click)="editProfile(user)"> <i class="fa far fa-eye"> </i> Consulter</span> </div>

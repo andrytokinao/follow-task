@@ -19,5 +19,6 @@ public class MemberGroupe {
     private UserApp user;
     @ManyToOne
     private GroupeUser groupe;
-    private String role;
+    @Convert(converter = StringListConverter.class)
+    private List<String> roles;
 }

@@ -2,10 +2,19 @@ import { Injectable } from '@angular/core';
 import {HttpClient, HttpEvent, HttpHeaders, HttpRequest} from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
-import {ConfigEntry, Issue, Status, User} from "../type/issue";
-import {ALL_ISSUE, ALL_USERS, INIT_USER, LOAD_GROUPE_MEMBER, SAVE_CONFIG, SAVE_USER} from "../type/graphql.operations";
+import {ConfigEntry, GroupeUser, Issue, MemberGroupe, Status, User} from "../type/issue";
+import {
+  ADD_USER_IN_GROUPE,
+  ALL_ISSUE,
+  ALL_USERS,
+  INIT_USER,
+  LOAD_GROUPE_MEMBER,
+  SAVE_CONFIG,
+  SAVE_USER
+} from "../type/graphql.operations";
 import {Apollo} from "apollo-angular";
 import {environment} from "../../environments/environment";
+import {stripTypename} from "@apollo/client/utilities";
 
 @Injectable({
   providedIn: 'root',
@@ -29,10 +38,19 @@ export class UserService {
       .pipe(retry(1), catchError(this.handleError));
   }
   getUsers(projet:String) {
-    return this.apollo
-      .query({
-        query: ALL_USERS ,
-      });
+    return new Observable<User[]>(observer => {
+      return this.apollo
+        .query({
+          query: ALL_USERS ,
+        }).subscribe((res:any)=> {
+          observer.next(stripTypename(res.data.allUsers));
+          observer.complete();
+        },error => {
+          observer.error(error);
+          observer.complete();
+        })
+    })
+
   }
   handleError(error: any) {
     let errorMessage = '';
@@ -84,5 +102,23 @@ export class UserService {
       return environment.apiURL+'photo/'+user.photo;
     }
     return 'assets/user.png';
+  }
+
+  addUserInGroupe(username: string, groupeId: number, roles: String[]){
+    return new Observable<MemberGroupe>(observer =>{
+      this.apollo.mutate(
+        {
+          mutation:ADD_USER_IN_GROUPE,
+          variables:{username,groupeId,roles},
+          fetchPolicy:"network-only"
+        }
+      ).subscribe((res:any)=>{
+        observer.next(res.data.addUserInGroupe);
+        observer.complete();
+      },error => {
+        observer.error(error);
+        observer.complete();
+      })
+    })
   }
 }

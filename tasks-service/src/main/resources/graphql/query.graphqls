@@ -22,5 +22,7 @@ type Query {
     issueByCriteria(criterias:[CriteriaInput]):[Issue]
     allCustomField:[CustomField]
     customFieldsByIssueType(issueTypeId:Int):[UsingCustomField]
+    getGroupeUserForProject(projectId:Int):[GroupeUser]
+
 }
 

@@ -60,7 +60,7 @@ const GET_USER = gql`
           name
           id
           members {
-            role
+            roles
             id
             groupe {
               id
@@ -312,7 +312,7 @@ const  LOAD_GROUPE_MEMBER = gql`
         id
         name
       }
-      role
+      roles
     }
   }
 `;
@@ -812,6 +812,45 @@ const SAVE_CONFIG_PROJECT=gql`
       }
     }
 `
+const GET_GROUPE_USER_FOR_PROJECT=gql`
+  query getGroupeUserForProject($projectId:Int){
+    getGroupeUserForProject(projectId: $projectId){
+      id
+      name
+      members {
+        id
+        user {
+          id
+          firstName
+          lastName
+          username
+          photo
+        }
+        roles
+      }
+    }
+  }
+`
+
+const ADD_USER_IN_GROUPE = gql`
+ mutation addUserInGroupe($username:String,$groupeId:Int,$roles:[String]) {
+    addUserInGroupe(username:$username , groupeId: $groupeId,roles: $roles){
+     id
+      user {
+        id
+        firstName
+        photo
+        lastName
+        firstName
+      }
+      roles
+      groupe {
+        id
+        name
+      }
+   }
+ }
+`
 export {
   supprimerTypename,
   SAVE_USER,
@@ -848,7 +887,9 @@ export {
   ASSIGNE_TO_USER,
   GET_CUSTOM_FIELD,
   GET_CONFIG_PROJECT,
-  SAVE_CONFIG_PROJECT
+  SAVE_CONFIG_PROJECT,
+  GET_GROUPE_USER_FOR_PROJECT,
+  ADD_USER_IN_GROUPE
 }
 function  supprimerTypename<T>(objet: T): T {
   if (!objet || typeof objet !== 'object') {

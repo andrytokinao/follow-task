@@ -8,6 +8,7 @@ import com.kinga.followtask.entity.MemberGroupe;
 import com.kinga.followtask.entity.UserApp;
 import com.kinga.followtask.repository.GroupeUserRepository;
 import com.kinga.followtask.repository.MemberGroupeRepository;
+import com.kinga.followtask.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -23,11 +24,13 @@ public class AuthorizationService {
     final MemberGroupeRepository memberGroupeRepository;
     final GroupeUserRepository groupeUserRepository;
     private final ConfigMenue configMenue;
+    private final UserRepository userRepository;
+
     public List<MemberGroupe> addStandarUser(UserApp userApp) {
         MemberGroupe memberGroupe = new MemberGroupe();
         memberGroupe.setGroupe(systemGroupe());
         memberGroupe.setUser(userApp);
-        memberGroupe.setRole("STANDARD_USER");
+        memberGroupe.setRoles(Arrays.asList ("STANDARD_USER"));
         memberGroupeRepository.save(memberGroupe);
         return memberGroupeRepository.findByUserId(userApp.getId());
     }
@@ -42,11 +45,24 @@ public class AuthorizationService {
             memberGroupe.setUser(userApp);
             memberGroupe.setGroupe(systemGroupe());
         }
-        memberGroupe.setRole("SYSTEM_ADMIN");
+        memberGroupe.setRoles(Arrays.asList ("SYSTEM_ADMIN"));
         memberGroupeRepository.save(memberGroupe);
         return memberGroupeRepository.findByGroupeIdAndUserId(memberGroupe.getGroupe().getId(), userApp.getId());
     }
-
+    public MemberGroupe addUserInGroupe(String username , Long groupeId, List<String> roles) {
+        UserApp userApp = userRepository.findByUsername (username);
+        List<MemberGroupe> members = memberGroupeRepository.findByGroupeIdAndUserId (groupeId, userApp.getId ());
+        MemberGroupe memberGroupe = null;
+        if (!CollectionUtils.isEmpty (members)) {
+            memberGroupe = members.get (0);
+        } else {
+            memberGroupe = new MemberGroupe ();
+            memberGroupe.setGroupe (groupeUserRepository.getById (groupeId));
+            memberGroupe.setUser (userApp);
+        }
+        memberGroupe.setRoles (roles);
+        return memberGroupeRepository.save (memberGroupe);
+    }
     public List<MemberGroupe> deletInGroupe(UserApp userApp, GroupeUser groupeUser) {
         List<MemberGroupe> memberGroupes = memberGroupeRepository.findByGroupeIdAndUserId(groupeUser.getId(), userApp.getId());
         if (CollectionUtils.isEmpty(memberGroupes)) {
@@ -58,41 +74,47 @@ public class AuthorizationService {
     }
 
     public GroupeUser systemGroupe() {
-        List<GroupeUser> systemGroupes = groupeUserRepository.findByType("SYSTEM_GROUPE");
+        List<GroupeUser> systemGroupes = groupeUserRepository.findByType(GroupeUser.SYSTEM_GROUPE);
         if (!CollectionUtils.isEmpty(systemGroupes))
             return systemGroupes.get(0);
         GroupeUser systemGroupe = new GroupeUser();
-        systemGroupe.setType("SYSTEM_GROUPE");
+        systemGroupe.setType(GroupeUser.SYSTEM_GROUPE);
         systemGroupe.setName("Accessibilité au systeme ");
         return groupeUserRepository.save(systemGroupe);
     }
 
     public Set<String> getAccessibilities(UserApp userApp) {
         Set<String> accessibilites = new HashSet<>();
-        List<MemberGroupe> systems = memberGroupeRepository.findByUserIdAndGroupeType(userApp.getId(), "SYSTEM_GROUPE");
+        List<MemberGroupe> systems = memberGroupeRepository.findByUserIdAndGroupeType(userApp.getId(), GroupeUser.SYSTEM_GROUPE);
         if (!CollectionUtils.isEmpty(systems)) {
             for (MemberGroupe memberGroupe : systems) {
-                Optional<RoleApp> role = getRoleSystemByName(memberGroupe.getRole());
-                if (!role.isPresent() || CollectionUtils.isEmpty(role.get().getAccessibilities())) {
-                    continue;
+                for(String r : memberGroupe.getRoles ()) {
+                    Optional<RoleApp> role = getRoleSystemByName(r);
+                    if (!role.isPresent() || CollectionUtils.isEmpty(role.get().getAccessibilities())) {
+                        continue;
+                    }
+                    for (String acc : role.get().getAccessibilities()) {
+                        accessibilites.add(acc);
+                    }
                 }
-                for (String acc : role.get().getAccessibilities()) {
-                    accessibilites.add(acc);
-                }
+
             }
         }
-
-        List<MemberGroupe> tasks = memberGroupeRepository.findByUserIdAndGroupeType(userApp.getId(), "TASK_GROUPE");
+        // TODO : Accessibility for travail a aprofondir
+        List<MemberGroupe> tasks = memberGroupeRepository.findByUserIdAndGroupeType(userApp.getId(), GroupeUser.SYSTEM_GROUPE);
         if (!CollectionUtils.isEmpty(tasks)) {
             for (MemberGroupe memberGroupe : tasks) {
                 String prefix = memberGroupe.getGroupe().getPrefix();
-                Optional<RoleApp> role = getRoleSystemByName(memberGroupe.getRole());
-                if (!role.isPresent() || !CollectionUtils.isEmpty(role.get().getAccessibilities())) {
-                    continue;
+                for (String r : memberGroupe.getRoles ()){
+                    Optional<RoleApp> role = getRoleSystemByName(r);
+                    if (!role.isPresent() || !CollectionUtils.isEmpty(role.get().getAccessibilities())) {
+                        continue;
+                    }
+                    for (String acc : role.get().getAccessibilities()) {
+                        accessibilites.add(acc+"_"+prefix);
+                    }
                 }
-                for (String acc : role.get().getAccessibilities()) {
-                    accessibilites.add(acc+"_"+prefix);
-                }
+
             }
         }
         return accessibilites;

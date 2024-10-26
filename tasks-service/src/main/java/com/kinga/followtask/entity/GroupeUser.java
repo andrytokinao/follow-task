@@ -12,12 +12,14 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GroupeUser {
+    public static String SYSTEM_GROUPE= "SYSTEM_GROUPE";
+    public static String PROJECT_GROUPE = "PROJECT_GROUPE";
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String prefix;// TODO : generer le prefix
+    private String prefix;
     private String type;
     private String name;
-    @OneToMany
+    @OneToMany(mappedBy = "groupe")
     private List<MemberGroupe> members;
 }

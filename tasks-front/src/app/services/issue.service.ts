@@ -12,7 +12,7 @@ import {
   Project,
   IssueType,
   WorkFlow,
-  Criteria, CustomField, UsingCustomField, CustomFieldValue, ConfigProject
+  Criteria, CustomField, UsingCustomField, CustomFieldValue, ConfigProject, GroupeUser
 } from "../type/issue";
 import {Apollo} from "apollo-angular";
 import * as operation from "../type/graphql.operations";
@@ -20,7 +20,7 @@ import {stripTypename} from "@apollo/client/utilities";
 import {error} from "@angular/compiler-cli/src/transformers/util";
 import {
   ALL_CUSTOM_FIELD,
-  CUSTOM_FIELD_BY_ISSUE_TYPE, GET_CONFIG_PROJECT, GET_CUSTOM_FIELD,
+  CUSTOM_FIELD_BY_ISSUE_TYPE, GET_CONFIG_PROJECT, GET_CUSTOM_FIELD, GET_GROUPE_USER_FOR_PROJECT,
   ISSUE_BY_CRITERIA,
   SAVE_CONFIG, SAVE_CONFIG_PROJECT,
   supprimerTypename, UN_USE_CUSTOM_FIELD,
@@ -457,7 +457,6 @@ export class IssueService {
     });
   }
   saveOrUpdateConfig(configProject:any){
-    alert('yug');
     return new Observable<ConfigProject>(observer=> {
       this.apollo.mutate({
         mutation:SAVE_CONFIG_PROJECT,
@@ -474,6 +473,22 @@ export class IssueService {
         observer.complete();
         }
         )
+    })
+  }
+  getGroupeUserForProject(projectId:Number){
+    return new Observable<GroupeUser[]>((observer)=>{
+      this.apollo.query({
+        query:GET_GROUPE_USER_FOR_PROJECT,
+        variables:{projectId},
+        fetchPolicy:"network-only"
+      }).subscribe((res:any)=>{
+        observer.next(res.data.getGroupeUserForProject);
+        observer.complete();
+      },error => {
+        observer.error(error);
+        observer.complete();
+        }
+      )
     })
   }
 }

@@ -24,6 +24,7 @@ import {CdkDropList} from "@angular/cdk/drag-drop";
 import {PopupCustomFieldComponent} from "./config-custom-field/popup-custom-field/popup-custom-field.component";
 import {PopupWorkFlowComponent} from "./work-flow/popup-work-flow/popup-work-flow.component";
 import {WorkFlowComponent} from "./work-flow/work-flow.component";
+import {AccessibilityComponent} from "./accessibility/accessibility.component";
 
 @NgModule({
   declarations: [
@@ -35,7 +36,8 @@ import {WorkFlowComponent} from "./work-flow/work-flow.component";
     IssueTypeComponent,
     PopupCustomFieldComponent,
     PopupWorkFlowComponent,
-    WorkFlowComponent
+    WorkFlowComponent,
+    AccessibilityComponent
   ],
     imports: [
         MatTabsModule,

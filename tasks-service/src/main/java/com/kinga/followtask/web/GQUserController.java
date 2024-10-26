@@ -1,9 +1,13 @@
 package com.kinga.followtask.web;
 
 
+import com.kinga.followtask.entity.GroupeUser;
+import com.kinga.followtask.entity.MemberGroupe;
 import com.kinga.followtask.entity.UserApp;
+import com.kinga.followtask.service.AuthorizationService;
 import com.kinga.followtask.service.UserService;
 import com.kinga.utils.KingaUtils;
+import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,11 +28,11 @@ import java.util.List;
 
 
 @Controller
+@AllArgsConstructor
 public class GQUserController {
     private static final Logger logger = LoggerFactory.getLogger(GQUserController.class);
-    @Autowired
-    UserService userService;
-
+    private  final UserService userService;
+    private final AuthorizationService authorizationService;
     @QueryMapping
     public UserApp getUser(@Argument String username){
         return userService.findByUsernamOrContactOrCinOrEmail(username);
@@ -50,5 +54,8 @@ public class GQUserController {
     public ResponseEntity<String> uploadFile(@RequestPart("file") MultipartFile file, @RequestParam String userId) {
         return userService.addPhoto(file, userId);
     }
-
+    @MutationMapping
+    public MemberGroupe addUserInGroupe(@Argument String username , @Argument Long groupeId, @Argument List<String> roles) {
+        return authorizationService.addUserInGroupe (username,groupeId,roles);
+    }
 }

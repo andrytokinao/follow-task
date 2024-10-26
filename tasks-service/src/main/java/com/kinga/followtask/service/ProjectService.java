@@ -15,7 +15,9 @@ import org.springframework.util.StringUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +33,7 @@ public class ProjectService {
     final UsingCustomFieldRepository usingCustomFieldRepository;
     public final CustomFieldRepository customFieldRepository;
     final ConfigProjectRepo configProjectRepo;
+    final GroupeUserRepository groupeUserRepository;
 
     static Logger logger = LoggerFactory.getLogger (ProjectService.class);
 
@@ -90,15 +93,37 @@ public class ProjectService {
     public List<ConfigProject> completConfig(Project project) throws IOException {
         String configPathLabel = "config.project."+project.getId ()+".path";
        List<ConfigProject> configPaths =  configProjectRepo.findConfigProjectsByConfigof (configPathLabel);
-       if (!CollectionUtils.isEmpty (configPaths))
-           return  configProjectRepo.findConfigProjectsByConfigof ("config.project."+project.getId ());
-
+       if (!CollectionUtils.isEmpty (configPaths)) {
+           return configPaths;
+       }
        ConfigProject configPath = new ConfigProject ();
        configPath.setConfigof (configPathLabel);
        configPath.setValue (KingaUtils.encodeText (KingaUtils.getDefaultWorkSpaceDirectory () + File.separator + project.getPrefix ()));
        configProjectRepo.save (configPath);
-        return  configProjectRepo.findConfigProjectsByConfigof ("config.project."+project.getId ());
+       return configProjectRepo.findConfigProjectsByConfigofLike ("config.project."+project.getId ()+"%");
+
     }
+    public List<GroupeUser> getGroupeUserForProject(Long projectId){
+        Project project = projectRepository.findById (projectId).orElse (null);
+        if (project == null) {
+            throw new RuntimeException ("Project #"+projectId+" not found");
+        }
+        getOrCreateGroupe(project.getPrefix ()+"_GROUPE","Groupe user for project "+project.getName (),"GROUPE_PROJECT") ;
+       return groupeUserRepository.findByPrefix (project.getPrefix () + "_GROUPE");
+    }
+    public GroupeUser getOrCreateGroupe (String prefix, String name, String type) {
+        List<GroupeUser> groupeUsers = groupeUserRepository.findByPrefix (prefix);
+        if (!CollectionUtils.isEmpty (groupeUsers)) {
+            return groupeUsers.get (0);
+        }
+        GroupeUser groupeUser = null;
+        groupeUser = new GroupeUser ();
+        groupeUser.setPrefix (prefix);
+        groupeUser.setName (name);
+        return groupeUserRepository.save (groupeUser);
+    }
+
+
     // Etape 2 : Creation type
     public List<IssueType> saveIssueType (IssueType issueType) {
         ConfigEntry configEntry = configRepository.getByActiveIs (true);

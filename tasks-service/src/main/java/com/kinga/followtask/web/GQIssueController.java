@@ -178,4 +178,8 @@ public class GQIssueController {
     public ConfigProject saveOrUpdateConfig (@Argument ConfigProject configProject) {
         return projectService.saveOrUpdateConfig (configProject);
     }
+    @QueryMapping
+    public List<GroupeUser> getGroupeUserForProject(@Argument Long projectId){
+        return projectService.getGroupeUserForProject(projectId);
+    }
 }

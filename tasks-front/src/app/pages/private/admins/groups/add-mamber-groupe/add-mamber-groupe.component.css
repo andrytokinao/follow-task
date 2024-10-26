@@ -1,0 +1,22 @@
+.user-role-dialog {
+  padding: 20px;
+}
+
+.role-checkboxes {
+  display: flex;
+  flex-direction: column;
+}
+
+.register-button {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end; /* Aligne le bouton à droite */
+}
+.example-full-width {
+  width: 100%;
+  min-height: 100px;
+}
+
+.mat-option img {
+  border-radius: 50%;
+}

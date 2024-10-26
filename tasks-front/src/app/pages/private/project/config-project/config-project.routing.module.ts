@@ -7,6 +7,7 @@ import {ConfigCustomFieldComponent} from "./config-custom-field/config-custom-fi
 import {IssueTypeComponent} from "./issue-type/issue-type.component";
 import {WorkFlowComponent} from "./work-flow/work-flow.component";
 import {StorageComponent} from "./storage/storage.component";
+import {AccessibilityComponent} from "./accessibility/accessibility.component";
 
 
 const createProject: Routes = [
@@ -23,6 +24,7 @@ const createProject: Routes = [
           { path: 'custom-field', component: ConfigCustomFieldComponent ,canActivate:[AuthGuard] , data: { roles: ['CAN_CREATE_PROJECT','CAN_ACCESS_ALL']}},
           { path: 'work-flow', component: WorkFlowComponent , canActivate:[AuthGuard] , data: { roles: ['CAN_CREATE_PROJECT','CAN_ACCESS_ALL']}},
           { path: 'storage', component: StorageComponent , canActivate:[AuthGuard] , data: { roles: ['CAN_CREATE_PROJECT','CAN_ACCESS_ALL']}},
+          { path: 'accessibility', component: AccessibilityComponent , canActivate:[AuthGuard] , data: { roles: ['ADMIN_PROJECT']}},
         ]
       }
     ]

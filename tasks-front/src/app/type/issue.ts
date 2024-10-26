@@ -36,13 +36,14 @@ export class User {
 export class GroupeUser {
   id:number| null = null;
   name:string = '';
+
   members:MemberGroupe[] = [];
 }
 export class MemberGroupe{
   id:number | null = null;
   groupe :GroupeUser| any = {};
   user :User | null = null;
-  role : string = '';
+  roles : string[] = [];
 }
 export class Role {
   id:number | null = null;
