@@ -40,3 +40,6 @@
   max-height: 60vh;
   overflow: scroll;
 }
+.mat-mdc-radio-button ~ .mat-mdc-radio-button {
+  margin-left: 16px;
+}

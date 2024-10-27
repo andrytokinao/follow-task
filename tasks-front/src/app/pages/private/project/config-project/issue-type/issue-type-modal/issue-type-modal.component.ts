@@ -15,6 +15,8 @@ import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
 import {supprimerTypename} from "../../../../../../type/graphql.operations";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {MatSelectionList} from "@angular/material/list";
+import {MatOption, MatSelect} from "@angular/material/select";
+import {MatRadioButton, MatRadioGroup} from "@angular/material/radio";
 
 @Component({
   selector: 'app-issue-type-modal',
@@ -32,7 +34,11 @@ import {MatSelectionList} from "@angular/material/list";
     NgForOf,
     NgIf,
     MatCheckbox,
-    MatSelectionList
+    MatSelectionList,
+    MatSelect,
+    MatOption,
+    MatRadioGroup,
+    MatRadioButton
   ],
   templateUrl: './issue-type-modal.component.html',
   styleUrl: './issue-type-modal.component.css'
@@ -51,6 +57,11 @@ export class IssueTypeModalComponent implements OnInit{
   isCreateState: boolean=false;
   customFields: CustomField[] = [];
   private customFieldsSelected: UsingCustomField[] = [];
+  selectedChildIssueType:IssueType[] = [];
+  issueTypes: IssueType[] = [];
+  selectedParentIssueType: IssueType;
+  desactive: boolean = true;
+
    constructor(private issueService :IssueService,
                private route: ActivatedRoute,
                public activeModal: NgbActiveModal,
@@ -120,7 +131,8 @@ export class IssueTypeModalComponent implements OnInit{
       this.customFields = customFields;
       this.customFieldsSelected = this.issueType.usingCustomFields;
 
-    })
+    });
+    this.loadIssueType();
   }
 
   selectField(field: CustomField) {
@@ -173,6 +185,56 @@ export class IssueTypeModalComponent implements OnInit{
       this.issueType.usingCustomFields = result;
       this.customFieldsSelected = this.issueType.usingCustomFields;
 
+    })
+  }
+  checkChildren(event: any, issueType: IssueType) {
+     if( event.checked){
+       this.addAsChild(issueType);
+     } else {
+      this.removeChild(issueType);
+     }
+     this.getFilteredParentOptions();
+  }
+  getFilteredParentOptions() {
+    return this.getFilteredChildrenOptions().filter(type => !this.checkedChildren(type));
+   }
+  checkedChildren(type:IssueType){
+    return this.selectedChildIssueType.some(selected => selected.id=== type.id);
+  };
+
+  getFilteredChildrenOptions() {
+   return this.project.issueTypes.filter(type=>this.issueType.id != type.id );
+  }
+  loadIssueType(){
+    this.issueService.getIssueTypeById(this.issueType.id).subscribe(issueType => {
+      this.issueType = issueType;
+      this.selectedParentIssueType = this.issueType.parent;
+      this.selectedChildIssueType = this.issueType.children;
+    })
+  }
+  addParrent(issueType){
+   // TODO : On change ne marche pas
+    this.issueService.affectIssueTypeForParent(this.issueType.id,issueType.id)
+      .subscribe(ist =>{
+        this.loadIssueType();
+      })
+  }
+  addAsChild(issueType:IssueType){
+    this.issueService.affectIssueTypeForParent(issueType.id,this.issueType.id)
+      .subscribe(it =>{
+        this.loadIssueType();
+      })
+  }
+  removeChild(issueType:IssueType){
+    this.issueService.removeIssueTypeParent(issueType.id)
+      .subscribe(it =>{
+        this.loadIssueType();
+      })
+  }
+
+  setLevel() {
+    this.issueService.saveIssueType(this.issueType).subscribe(res=>{
+      this.loadIssueType();
     })
   }
 }

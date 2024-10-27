@@ -10,6 +10,7 @@ type Query {
     allCustomFieldByIssue(issueId:Int):[CustomField]
     getCustomField(id:Int):CustomField
     getValues(issueId:Int):[CustomFieldValue]
+    getIssueTypeById(issueTypeId:Int):IssueType
     loadDirectory(issueId:Int):Repertoire
     loadGroupeMember(userId:String):[MemberGroupe]
     getConfig(typeEntry:String):[ConfigEntry]

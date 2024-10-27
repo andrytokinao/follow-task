@@ -62,10 +62,13 @@ type IssueType{
     id:Int
     name:String
     icone:Icone
+    level:String
     prefix:String
     project:Project
     curentWorkFlow:WorkFlow
     usingCustomFields:[UsingCustomField]
+    parent:IssueType
+    children:[IssueType]
 }
 
 type Operation{
@@ -237,6 +240,10 @@ input IssueTypeInput{
     id:Int
     name:String
     prefix:String
+    level:String
+    parent:IssueTypeInput
+    children:[IssueTypeInput]
+    usingCustomFields:[UsingCustomFieldInput]
     icone:IconeInput
     project:ProjectInput
     curentWorkFlow:WorkFlowInput

@@ -1,5 +1,6 @@
 package com.kinga.followtask.entity;
 
+import com.kinga.followtask.entity.enumapp.Niveau;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,6 +19,7 @@ public class IssueType {
     private Long id;
     private String name;
     private String prefix;
+    private Niveau level;
     @ManyToOne
     private Icone icone;
     @ManyToOne
@@ -29,5 +31,9 @@ public class IssueType {
     private List<UsingCustomField> usingCustomFields;
     @ManyToOne
     private WorkFlow curentWorkFlow;
+    @ManyToOne
+    private IssueType parent ;
+    @OneToMany(mappedBy = "parent")
+    private List<IssueType> children;
 
 }

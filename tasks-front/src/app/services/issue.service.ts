@@ -19,9 +19,10 @@ import * as operation from "../type/graphql.operations";
 import {stripTypename} from "@apollo/client/utilities";
 import {error} from "@angular/compiler-cli/src/transformers/util";
 import {
+  AFFECT_ISSUE_TYPE_FOR_PARENT,
   ALL_CUSTOM_FIELD,
-  CUSTOM_FIELD_BY_ISSUE_TYPE, GET_CONFIG_PROJECT, GET_CUSTOM_FIELD, GET_GROUPE_USER_FOR_PROJECT,
-  ISSUE_BY_CRITERIA,
+  CUSTOM_FIELD_BY_ISSUE_TYPE, GET_CONFIG_PROJECT, GET_CUSTOM_FIELD, GET_GROUPE_USER_FOR_PROJECT, GET_ISSUE_TYPE_BY_ID,
+  ISSUE_BY_CRITERIA, REMOVE_ISSUE_TYPE_PARENT,
   SAVE_CONFIG, SAVE_CONFIG_PROJECT,
   supprimerTypename, UN_USE_CUSTOM_FIELD,
   USE_CUSTOM_FIELD
@@ -32,10 +33,12 @@ import {environment} from "../../environments/environment";
   providedIn: 'root',
 })
 export class IssueService {
-  projects:Project[] = [];
-  project:Project | null = null;
+  projects: Project[] = [];
+  project: Project | null = null;
 
-  constructor(private http: HttpClient, private apollo: Apollo) {}
+  constructor(private http: HttpClient, private apollo: Apollo) {
+  }
+
   httpOptions = {
     headers: new HttpHeaders({
       'Content-Type': 'application/json',
@@ -48,77 +51,84 @@ export class IssueService {
       .get<Issue[]>(url)
       .pipe(retry(1), catchError(this.handleError));
   }
-  getWorkFlowOld(project:string): Observable<Status[]> {
+
+  getWorkFlowOld(project: string): Observable<Status[]> {
     let url = "assets/workflow-prj1.json";
     return this.http
       .get<Status[]>(url)
       .pipe(retry(1), catchError(this.handleError));
   }
-  getWorkFlow(projet:string) {
+
+  getWorkFlow(projet: string) {
     return this.apollo
       .query({
-        query: operation.ALL_STATUS ,
+        query: operation.ALL_STATUS,
       });
   }
-  getIssues(projet:String | undefined) {
+
+  getIssues(projet: String | undefined) {
     return this.apollo
       .query({
-        query: operation.ALL_ISSUE ,
+        query: operation.ALL_ISSUE,
       });
   }
-  saveIssue(issue:any){
+
+  saveIssue(issue: any) {
     return this.apollo
       .mutate({
-        mutation:operation.SAVE_ISSUE,
-        variables:{issue}
+          mutation: operation.SAVE_ISSUE,
+          variables: {issue}
         }
       );
   }
-  addComment(comment:Comment){
+
+  addComment(comment: Comment) {
     return this.apollo.mutate({
-      mutation:operation.ADD_COMMENT,
-      variables:{comment}
+      mutation: operation.ADD_COMMENT,
+      variables: {comment}
     });
   }
 
 
-  allComment(issueId:number){
+  allComment(issueId: number) {
     return this.apollo
       .query({
-        query: operation.ALL_COMMENT ,
-        variables:{issueId}
+        query: operation.ALL_COMMENT,
+        variables: {issueId}
       });
   }
 
 
-  getValues(issueId:number){
+  getValues(issueId: number) {
     return this.apollo
       .query({
-        query: operation.GET_VALUES ,
-        variables:{issueId}
+        query: operation.GET_VALUES,
+        variables: {issueId}
       });
   }
-  saveValues(v:any){
+
+  saveValues(v: any) {
     let value = supprimerTypename(v);
-    return new Observable<CustomFieldValue[]>(observer=> {
+    return new Observable<CustomFieldValue[]>(observer => {
       this.apollo
         .mutate({
           mutation: operation.SAVE_VALUE,
-          variables:{value}
-        }).subscribe((res:any)=>{
-            observer.next(res.data.saveValue());
-            observer.complete();
-        }, error => {
-          observer.error(error);
-          observer.complete();
+          variables: {value}
+        }).subscribe((res: any) => {
+        observer.next(res.data.saveValue());
+        observer.complete();
+      }, error => {
+        observer.error(error);
+        observer.complete();
       });
     });
   }
-  loadDirectory(issueId:number): Observable<Repertoire> {
+
+  loadDirectory(issueId: number): Observable<Repertoire> {
     let params = new HttpParams().set('issueId', issueId);
-    let url =  environment.apiURL+"api/load-directory?"+params.toString();
-     return this.http
-      .get<Repertoire>(url,{withCredentials:true },)
+    let url = environment.apiURL + "api/load-directory?" + params.toString();
+    return this.http
+      .get<Repertoire>(url, {withCredentials: true},)
       .pipe(retry(1), catchError(this.handleError));
   }
 
@@ -133,6 +143,7 @@ export class IssueService {
       return errorMessage;
     });
   }
+
   ajouterAuGroupe(liste: [any, Issue[]][], groupe: any, issue: Issue): void {
     let groupeExiste = false;
     for (let i = 0; i < liste.length; i++) {
@@ -153,44 +164,47 @@ export class IssueService {
       fileNames.push(fn.absolutePath);
     })
     const queryString = `?fileNames=${fileNames.join(',')}` + "&directory=" + directory;
-    return  environment.apiURL+`/api/download${queryString}`;
+    return environment.apiURL + `/api/download${queryString}`;
   }
-  upload(file: File, dir:string): Observable<HttpEvent<any>> {
+
+  upload(file: File, dir: string): Observable<HttpEvent<any>> {
     const formData: FormData = new FormData();
     formData.append('file', file);
-    const req = new HttpRequest('POST', `${ environment.apiURL}api/upload?directory=`+dir, formData, {
+    const req = new HttpRequest('POST', `${environment.apiURL}api/upload?directory=` + dir, formData, {
       reportProgress: true,
       responseType: 'text'
     });
     return this.http.request(req);
   }
+
   createProjectOrSave(project: any) {
-    return new Observable((observer)=>{
+    return new Observable((observer) => {
       this.apollo.mutate({
-        mutation:operation.SAVE_PROJECT,
+        mutation: operation.SAVE_PROJECT,
         variables: {project}
-      }).subscribe((res:any)=>{
-        observer.next(res.data.createProjectOrSave );
+      }).subscribe((res: any) => {
+        observer.next(res.data.createProjectOrSave);
         observer.complete();
-      },error=>{
+      }, error => {
         observer.error(error);
         observer.complete();
       })
     })
   }
-  getProject(prefix:string){
-    return new Observable<any>((observer)=>{
-      if(this.project == null || this.project.prefix==prefix) {
+
+  getProject(prefix: string) {
+    return new Observable<any>((observer) => {
+      if (this.project == null || this.project.prefix == prefix) {
         this.apollo.query({
-          query:operation.GET_PROJECT,
-          variables:{prefix}
-        }).subscribe((res:any)=>{
+          query: operation.GET_PROJECT,
+          variables: {prefix}
+        }).subscribe((res: any) => {
           this.project = stripTypename(res.data.getProject);
-          if(this.project) {
+          if (this.project) {
             observer.next(this.project);
           }
           observer.complete();
-        },err=>{
+        }, err => {
           observer.error(err);
           observer.complete();
         })
@@ -200,66 +214,71 @@ export class IssueService {
       }
     })
   }
+
   saveIssueType(issueType: IssueType) {
-    return new Observable<any>((observer)=>{
+    return new Observable<any>((observer) => {
       this.apollo.mutate({
         mutation: operation.SAVE_ISSUE_TYPE,
-        variables: {issueType}
-      }).subscribe((res:any)=>{
-       if(this.project){
-         this.project.issueTypes.push(supprimerTypename(res.data.saveIssueType));
-       }else {
-         this.project = issueType.project;
-       }
-        observer.next(res.data.saveIssueType);
-        observer.complete();
-      },(err:any)=>{
-        observer.error(err);
-        observer.complete();
-        }
-      )
-    })
-  }
-  getIssueType(issueTypeId: number) {
-    return new Observable<IssueType>((observer)=>{
-      this.apollo.mutate({
-        mutation: operation.GET_ISSUE_TYPE,
-        variables: {issueTypeId}
-      }).subscribe((res:any)=>{
-        observer.next(stripTypename(res.data.getIssueType));
-        observer.complete();
-        },(err:any)=>{
+        variables: {issueType},
+        fetchPolicy:"network-only"
+      }).subscribe((res: any) => {
+          if (this.project) {
+            this.project.issueTypes.push(supprimerTypename(res.data.saveIssueType));
+          } else {
+            this.project = issueType.project;
+          }
+          observer.next(res.data.saveIssueType);
+          observer.complete();
+        }, (err: any) => {
           observer.error(err);
           observer.complete();
         }
       )
     })
   }
+
+  getIssueType(issueTypeId: number) {
+    return new Observable<IssueType>((observer) => {
+      this.apollo.mutate({
+        mutation: operation.GET_ISSUE_TYPE,
+        variables: {issueTypeId}
+      }).subscribe((res: any) => {
+          observer.next(stripTypename(res.data.getIssueType));
+          observer.complete();
+        }, (err: any) => {
+          observer.error(err);
+          observer.complete();
+        }
+      )
+    })
+  }
+
   affectWorkFlow(issueType: IssueType) {
-    return new Observable<WorkFlow|any>((observer)=>{
+    return new Observable<WorkFlow | any>((observer) => {
       this.apollo.mutate({
         mutation: operation.AFFECT_WORKFLOW,
         variables: {issueType}
-      }).subscribe((res:any)=>{
+      }).subscribe((res: any) => {
         observer.next(stripTypename(res.data.affectWorkFlow));
         observer.complete();
-      },(err)=>{
+      }, (err) => {
         console.error(err);
         observer.error(err);
         observer.complete();
       })
     });
   }
-  addStatus(status: Status, workFlow:WorkFlow, issueTypeId:number) {
-    return new Observable<WorkFlow|any>((observer)=>{
+
+  addStatus(status: Status, workFlow: WorkFlow, issueTypeId: number) {
+    return new Observable<WorkFlow | any>((observer) => {
       this.apollo.mutate({
         mutation: operation.ADD_STATUS,
-        variables: {status,workFlow},
-        fetchPolicy:"network-only"
-      }).subscribe((res:any)=>{
+        variables: {status, workFlow},
+        fetchPolicy: "network-only"
+      }).subscribe((res: any) => {
         observer.next(stripTypename(res.data.addStatus));
         observer.complete();
-      },(err)=>{
+      }, (err) => {
         console.error(err);
         observer.error(err);
         observer.complete();
@@ -285,27 +304,28 @@ export class IssueService {
       );
     })
   }
-  assigneToUser(issue:Issue) {
-    return new Observable<Issue>((observer)=>{
-       this.apollo.mutate({
-         mutation:operation.ASSIGNE_TO_USER,
-         variables:{issue}
-       }).subscribe((res:any)=>{
-          observer.next(res.data.assigneToUser);
-          observer.complete();
-      },error => {
-         observer.error(error);
-         observer.complete();
-       })
+
+  assigneToUser(issue: Issue) {
+    return new Observable<Issue>((observer) => {
+      this.apollo.mutate({
+        mutation: operation.ASSIGNE_TO_USER,
+        variables: {issue}
+      }).subscribe((res: any) => {
+        observer.next(res.data.assigneToUser);
+        observer.complete();
+      }, error => {
+        observer.error(error);
+        observer.complete();
+      })
     });
   }
 
   saveWorkFlow(workFlow: WorkFlow) {
-    return new Observable<WorkFlow>((observer)=> {
+    return new Observable<WorkFlow>((observer) => {
       console.info("saving workflow");
       this.apollo.mutate({
         mutation: operation.SAVE_WORK_FLOW,
-        variables:{workFlow}
+        variables: {workFlow}
       }).subscribe(
         (res: any) => {
           observer.next(res.data.saveWorkFlow);
@@ -318,29 +338,31 @@ export class IssueService {
       );
     })
   }
-  issueByCriteria(criterias:Criteria[]) {
-    return new Observable<Issue[]>(observer =>{
+
+  issueByCriteria(criterias: Criteria[]) {
+    return new Observable<Issue[]>(observer => {
       this.apollo.query({
-        query:ISSUE_BY_CRITERIA,
-        variables:{criterias}
-      }).subscribe((res:any) =>{
-        observer.next(supprimerTypename(res.data.issueByCriteria));
-        observer.complete();
-      },err =>{
-         observer.error(err);
-         observer.complete();
+        query: ISSUE_BY_CRITERIA,
+        variables: {criterias}
+      }).subscribe((res: any) => {
+          observer.next(supprimerTypename(res.data.issueByCriteria));
+          observer.complete();
+        }, err => {
+          observer.error(err);
+          observer.complete();
         }
-        );
+      );
     })
   };
-  saveCustomField(customField:CustomField) {
+
+  saveCustomField(customField: CustomField) {
     return new Observable<CustomField[]>(observer => {
       this.apollo.mutate(
         {
-           mutation:operation.SEVE_CUSTOM_FIELD,
-           variables:{customField}
+          mutation: operation.SEVE_CUSTOM_FIELD,
+          variables: {customField}
         }
-      ).subscribe((res:any) => {
+      ).subscribe((res: any) => {
           observer.next(res.data.saveCustomField);
           observer.complete();
         },
@@ -350,65 +372,69 @@ export class IssueService {
         })
     });
   }
-  allCustomField(){
-    return new Observable<CustomField[]>(observer =>{
+
+  allCustomField() {
+    return new Observable<CustomField[]>(observer => {
       this.apollo.query({
-        query:ALL_CUSTOM_FIELD
-      }).subscribe((res:any) =>{
-        observer.next(res.data.allCustomField);
-        observer.complete();
-      },
-        error=>{
-        console.error(error);
-        observer.error(error);
-        observer.complete();
+        query: ALL_CUSTOM_FIELD
+      }).subscribe((res: any) => {
+          observer.next(res.data.allCustomField);
+          observer.complete();
+        },
+        error => {
+          console.error(error);
+          observer.error(error);
+          observer.complete();
         })
     })
 
   }
+
   getCustomField(id) {
-    return new Observable<CustomField>(observer =>{
+    return new Observable<CustomField>(observer => {
       this.apollo.query({
-        query:GET_CUSTOM_FIELD,
-        variables:{id},
-        fetchPolicy:"network-only"
-      }).subscribe((res:any)=>{
+        query: GET_CUSTOM_FIELD,
+        variables: {id},
+        fetchPolicy: "network-only"
+      }).subscribe((res: any) => {
         observer.next(res.data.getCustomField);
         observer.complete();
-      },error => {
+      }, error => {
         console.error(error);
         observer.error(error);
         observer.complete();
       })
     })
   }
-  useCustomField(usingCustomField:UsingCustomField) {
+
+  useCustomField(usingCustomField: UsingCustomField) {
     return new Observable<UsingCustomField[]>(observer => {
       this.apollo.mutate({
-        mutation:USE_CUSTOM_FIELD,
-        variables:{usingCustomField},
-        fetchPolicy:"network-only"
-      }).subscribe((res:any)=>{
-        observer.next(res.data.useCustomField);
-        observer.complete();
-      },error => {
+        mutation: USE_CUSTOM_FIELD,
+        variables: {usingCustomField},
+        fetchPolicy: "network-only"
+      }).subscribe((res: any) => {
+          observer.next(res.data.useCustomField);
+          observer.complete();
+        }, error => {
           console.error(error);
           observer.error(error);
           observer.complete();
         }
-        )
+      )
     })
   }
-  unUseCustomField(usingCustomField:UsingCustomField) {
+
+  unUseCustomField(usingCustomField: UsingCustomField) {
     return new Observable<UsingCustomField[]>(observer => {
       this.apollo.mutate({
-        mutation:UN_USE_CUSTOM_FIELD,
-        variables:{usingCustomField},
-        fetchPolicy:"network-only"
-      }).subscribe((res:any)=>{
+        mutation: UN_USE_CUSTOM_FIELD,
+        variables: {usingCustomField},
+        fetchPolicy: "network-only"
+      }).subscribe((res: any) => {
           observer.next(res.data.unUseCustomField);
           observer.complete();
-        },error => {
+        }, error => {
           console.error(error);
           observer.error(error);
           observer.complete();
@@ -416,15 +442,16 @@ export class IssueService {
       )
     })
   }
-  customFieldsByIssueType(issueTypeId:Number) {
+
+  customFieldsByIssueType(issueTypeId: Number) {
     return new Observable<UsingCustomField[]>(observer => {
       this.apollo.query({
-        query:CUSTOM_FIELD_BY_ISSUE_TYPE,
-        variables:{issueTypeId}
-      }).subscribe((res:any)=>{
+        query: CUSTOM_FIELD_BY_ISSUE_TYPE,
+        variables: {issueTypeId}
+      }).subscribe((res: any) => {
           observer.next(res.data.customFieldsByIssueType);
           observer.complete();
-        },error => {
+        }, error => {
           console.error(error);
           observer.error(error);
           observer.complete();
@@ -432,15 +459,16 @@ export class IssueService {
       )
     })
   }
-  getConfigProject(projectId:Number) {
+
+  getConfigProject(projectId: Number) {
     return new Observable<ConfigProject[]>(observer => {
       this.apollo.query({
-        query:GET_CONFIG_PROJECT,
-        variables:{projectId}
-      }).subscribe((res:any)=>{
+        query: GET_CONFIG_PROJECT,
+        variables: {projectId}
+      }).subscribe((res: any) => {
         observer.next(res.data.getConfigProject);
         observer.complete();
-      },error => {
+      }, error => {
         console.error(error);
         observer.error(error);
         observer.complete();
@@ -449,46 +477,97 @@ export class IssueService {
   }
 
   setConfigProjectPath(pathSelected: string, projectId) {
-    let configProject:any = {}
-    configProject.configof = 'config.project.'+projectId+'.path';
+    let configProject: any = {}
+    configProject.configof = 'config.project.' + projectId + '.path';
     configProject.value = pathSelected;
-    this.saveOrUpdateConfig(configProject).subscribe(res=>{
+    this.saveOrUpdateConfig(configProject).subscribe(res => {
       alert(JSON.stringify(res));
     });
   }
-  saveOrUpdateConfig(configProject:any){
-    return new Observable<ConfigProject>(observer=> {
+
+  saveOrUpdateConfig(configProject: any) {
+    return new Observable<ConfigProject>(observer => {
       this.apollo.mutate({
-        mutation:SAVE_CONFIG_PROJECT,
-        variables:{configProject},
-        fetchPolicy:"network-only"
-      }).subscribe((res:any)=>{
-        alert(JSON.stringify(res));
-        observer.next(res.data.saveOrUpdateConfig);
-        observer.complete();
-      },error => {
+        mutation: SAVE_CONFIG_PROJECT,
+        variables: {configProject},
+        fetchPolicy: "network-only"
+      }).subscribe((res: any) => {
+          alert(JSON.stringify(res));
+          observer.next(res.data.saveOrUpdateConfig);
+          observer.complete();
+        }, error => {
           alert(JSON.stringify(error));
 
           observer.error(error);
-        observer.complete();
+          observer.complete();
         }
-        )
+      )
     })
   }
-  getGroupeUserForProject(projectId:Number){
-    return new Observable<GroupeUser[]>((observer)=>{
+
+  getGroupeUserForProject(projectId: Number) {
+    return new Observable<GroupeUser[]>((observer) => {
       this.apollo.query({
-        query:GET_GROUPE_USER_FOR_PROJECT,
-        variables:{projectId},
+        query: GET_GROUPE_USER_FOR_PROJECT,
+        variables: {projectId},
+        fetchPolicy: "network-only"
+      }).subscribe((res: any) => {
+          observer.next(res.data.getGroupeUserForProject);
+          observer.complete();
+        }, error => {
+          observer.error(error);
+          observer.complete();
+        }
+      )
+    })
+  }
+
+  getIssueTypeById(issueTypeId: Number) {
+    return new Observable<IssueType>((observer) => {
+        this.apollo.query({
+          query: GET_ISSUE_TYPE_BY_ID,
+          variables: {issueTypeId},
+          fetchPolicy: "network-only"
+        }).subscribe((res: any) => {
+            observer.next(stripTypename( res.data.getIssueTypeById));
+            observer.complete();
+          }, error => {
+            observer.error(error);
+            observer.complete();
+          }
+        );
+      }
+    );
+  }
+  affectIssueTypeForParent(childId:Number, parrentId:Number){
+    return new Observable<IssueType>(observer => {
+      this.apollo.mutate({
+        mutation:AFFECT_ISSUE_TYPE_FOR_PARENT,
+        variables:{childId,parrentId},
         fetchPolicy:"network-only"
       }).subscribe((res:any)=>{
-        observer.next(res.data.getGroupeUserForProject);
+        observer.next(res.data.affectIssueTypeForParent);
         observer.complete();
       },error => {
         observer.error(error);
         observer.complete();
-        }
-      )
+      })
+    })
+  }
+
+  removeIssueTypeParent(childId: number) {
+    return new Observable<IssueType>(observer => {
+      this.apollo.mutate({
+        mutation:REMOVE_ISSUE_TYPE_PARENT,
+        variables:{childId},
+        fetchPolicy:"network-only"
+      }).subscribe((res:any)=>{
+        observer.next(res.data.affectIssueTypeForParent);
+        observer.complete();
+      },error => {
+        observer.error(error);
+        observer.complete();
+      })
     })
   }
 }

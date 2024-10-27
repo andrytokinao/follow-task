@@ -182,4 +182,16 @@ public class GQIssueController {
     public List<GroupeUser> getGroupeUserForProject(@Argument Long projectId){
         return projectService.getGroupeUserForProject(projectId);
     }
+    @MutationMapping
+    public IssueType affectIssueTypeForParent(@Argument Long childId, @Argument Long parrentId){
+        return projectService.affectIssueTypeForParent(childId,parrentId);
+    }
+    @MutationMapping
+    public IssueType removeIssueTypeParent(@Argument Long childId){
+        return projectService.removeIssueTypeParent(childId);
+    }
+    @QueryMapping
+    public IssueType getIssueTypeById(@Argument Long issueTypeId){
+        return projectService.getIssueTypeById(issueTypeId);
+    }
 }

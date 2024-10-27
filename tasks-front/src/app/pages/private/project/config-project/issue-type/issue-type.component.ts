@@ -146,4 +146,9 @@ export class IssueTypeComponent {
       this.project = data['project'];
     });
 }
+  loadIssueType(){
+    this.issueType.getIssueTypeById(this.issueType.id).subscribe(issueType => {
+      this.issueType = issueType;
+    })
+  }
 }

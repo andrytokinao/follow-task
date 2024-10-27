@@ -117,10 +117,13 @@ export interface IssueType{
   id:number
   name:String
   prefix:String
+  level:String
   project:Project
  curentWorkFlow:WorkFlow;
   usingCustomFields : UsingCustomField[]
   icone :Icone | undefined;
+  parent:IssueType;
+  children:IssueType[]
 
 }
 export interface WorkFlow {

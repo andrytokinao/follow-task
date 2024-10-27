@@ -279,4 +279,21 @@ public class ProjectService {
     public List<ConfigProject> getConfigProject (Long projectId) {
        return configProjectRepo.findConfigProjectsByConfigofLike ("%config.project." + projectId + ".%");
     }
+
+    public IssueType affectIssueTypeForParent (Long childId, Long parrentId) {
+        IssueType child = issueTypeRepository.getById (childId);
+        IssueType parent = issueTypeRepository.getById (parrentId);
+        child.setParent (parent);
+       return issueTypeRepository.save (child);
+    }
+
+    public IssueType getIssueTypeById (Long issueTypeId) {
+        return issueTypeRepository.getById (issueTypeId);
+    }
+
+    public IssueType removeIssueTypeParent (Long childId) {
+        IssueType child = issueTypeRepository.getById (childId);
+        child.setParent (null);
+        return issueTypeRepository.save (child);
+    }
 }

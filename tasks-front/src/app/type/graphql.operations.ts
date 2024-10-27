@@ -562,6 +562,16 @@ const GET_PROJECT = gql`
             name
           }
         }
+        parent {
+          id
+          name
+          icone {
+            id
+            value
+            typeIcone
+          }
+        }
+
       },
       workFlows {
         id
@@ -588,6 +598,63 @@ const GET_PROJECT = gql`
     }
   }
 `;
+const GET_ISSUE_TYPE_BY_ID = gql`
+ query getIssueTypeById($issueTypeId:Int){
+   getIssueTypeById(issueTypeId: $issueTypeId){
+     id
+     name
+     level
+     prefix
+     usingCustomFields {
+       id
+       customField {
+         id
+         name
+         type
+       }
+       issueType {
+         id
+         name
+       }
+     }
+     curentWorkFlow {
+       name
+       id
+       crossingStates {
+         id
+         name
+       }
+     }
+     project {
+       id
+       name
+     }
+     icone {
+       id
+       typeIcone
+       value
+     }
+     parent {
+       id
+       name
+       icone {
+         id
+         typeIcone
+         value
+       }
+     }
+     children {
+       id
+       name
+       icone {
+         id
+         typeIcone
+         value
+       }
+     }
+   }
+ }
+`
  const ISSUE_BY_CRITERIA=gql`
    query issueByCriteria($criterias:[CriteriaInput]){
      issueByCriteria(criterias: $criterias){
@@ -757,7 +824,73 @@ const CUSTOM_FIELD_BY_ISSUE_TYPE = gql`
        }
      }
    }
+`
+const AFFECT_ISSUE_TYPE_FOR_PARENT=gql`
+  mutation affectIssueTypeForParent($childId:Int,$parrentId:Int){
+    affectIssueTypeForParent(childId:$childId,parrentId:$parrentId){
+      id
+      name
+      prefix
+      level
+      icone {
+        id
+        value
+        typeIcone
+      }
+      parent {
+        id
+        name
+        icone {
+          id
+          typeIcone
+          value
+        }
+      }
+      children {
+        id
+        name
+        icone {
+          id
+          value
+          typeIcone
+        }
+      }
 
+    }
+  }
+`
+const REMOVE_ISSUE_TYPE_PARENT=gql`
+  mutation removeIssueTypeParent($childId:Int){
+    removeIssueTypeParent(childId:$childId){
+      id
+      name
+      prefix
+      icone {
+        id
+        value
+        typeIcone
+      }
+      parent {
+        id
+        name
+        icone {
+          id
+          typeIcone
+          value
+        }
+      }
+      children {
+        id
+        name
+        icone {
+          id
+          value
+          typeIcone
+        }
+      }
+
+    }
+  }
 `
 const ASSIGNE_TO_USER =  gql `
     mutation assigneToUser($issue:IssueInput) {
@@ -889,7 +1022,10 @@ export {
   GET_CONFIG_PROJECT,
   SAVE_CONFIG_PROJECT,
   GET_GROUPE_USER_FOR_PROJECT,
-  ADD_USER_IN_GROUPE
+  ADD_USER_IN_GROUPE,
+  AFFECT_ISSUE_TYPE_FOR_PARENT,
+  GET_ISSUE_TYPE_BY_ID,
+  REMOVE_ISSUE_TYPE_PARENT
 }
 function  supprimerTypename<T>(objet: T): T {
   if (!objet || typeof objet !== 'object') {

@@ -59,9 +59,42 @@
         </div>
       </mat-card>
     </mat-tab>
-    <mat-tab label="Type et liaison">
+    <mat-tab label="Niveau et liaison">
       <mat-card class="mat-padding">
         <div class="sidebar-hedingd   ">
+          <div class="issue-config-container">
+            <div class="issue-parent-config">
+              <h3>Niveau</h3>
+              <mat-radio-group aria-label="Select an option" [(ngModel)]="issueType.level" (change)="setLevel()">
+                <mat-radio-button value="PARENT">Ticke Maitre</mat-radio-button>
+                <mat-radio-button value="SUB_TASK">Sous Tache</mat-radio-button>
+              </mat-radio-group>
+
+            </div>
+            <div class="issue-parent-config" *ngIf="issueType.level =='SUB_TASK'">
+              <h3>Sélectionner le Type d'Issue Parent</h3>
+              <mat-form-field appearance="outline" class="parent-issue-type">
+                <label>Type d'Issue Parent</label>
+                <mat-select [(ngModel)]="selectedParentIssueType" (change)="addParrent(selectedChildIssueType)">
+                  <mat-option *ngFor="let type of getFilteredParentOptions()" [value]="type">
+                    {{ type.name }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <div class="issue-children-config" *ngIf="issueType.level =='PARENT'">
+              <h3>Sélectionner les Sous-Types d'Issue</h3>
+              <mat-checkbox *ngFor="let type of getFilteredChildrenOptions()"
+                            (change)="checkedChildren(type)"
+                            [disabled]="type === selectedParentIssueType || desactive"
+                            (change)="checkChildren($event,type)"
+                            [checked]="checkedChildren(type)"
+              >
+                {{ type.name }}
+              </mat-checkbox>
+            </div>
+          </div>
 
         </div>
       </mat-card>
