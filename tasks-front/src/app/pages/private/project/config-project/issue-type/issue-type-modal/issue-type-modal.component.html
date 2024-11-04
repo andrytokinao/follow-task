@@ -75,7 +75,7 @@
               <h3>Sélectionner le Type d'Issue Parent</h3>
               <mat-form-field appearance="outline" class="parent-issue-type">
                 <label>Type d'Issue Parent</label>
-                <mat-select [(ngModel)]="selectedParentIssueType" (change)="addParrent(selectedChildIssueType)">
+                <mat-select [(ngModel)]="selectedParentIssueType" (selectionChange)="addParrent()">
                   <mat-option *ngFor="let type of getFilteredParentOptions()" [value]="type">
                     {{ type.name }}
                   </mat-option>

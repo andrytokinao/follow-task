@@ -60,6 +60,6 @@ export class PrivateComponent {
 
   selectProject(project: Project) {
     this.project = project;
-    this.router.navigate(["/private/project/"+project.prefix+"/liste"])
+    this.router.navigate(["/private/working/"+project.prefix+"/liste"])
   }
 }

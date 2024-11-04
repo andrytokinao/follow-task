@@ -8,7 +8,7 @@ import {
   ViewContainerRef
 } from '@angular/core';
 import {DisplayCustomfielFactoryService} from "../../services/display-customfiel-factory.service";
-import {CustomField, CustomFieldValue, DisplayCustomField, Icone} from "../../type/issue";
+import {CustomField, CustomFieldValue, DisplayCustomField, Icone, Issue} from "../../type/issue";
 import {NgIf} from "@angular/common";
 
 @Component({
@@ -37,7 +37,7 @@ export class CustomFieldComponent implements OnInit{
     this.instance.edit.subscribe((newData: any) => this.onEdit(newData));
     this.instance.save.subscribe((newData: any) => this.onSave(newData));
     if (this.customFieldValue.id == null) {
-      this.instance.isEditing = true;
+    //  this.instance.isEditing = true;
     }
   }
   constructor(
@@ -75,5 +75,13 @@ export class CustomFieldComponent implements OnInit{
       ["User", { "typeIcone": "class", "value": "fa fa-user", "id": "\uf007" }]
     ]);
     return icons.get(customField.type);
+  }
+  public static newValue(i:Issue,customField:CustomField):any{
+    let customFieldValue : any = {};
+    let issue:any = {};
+    issue.id = i.id;
+    customFieldValue.customField = customField;
+    customFieldValue.issue = issue;
+    return customFieldValue;
   }
 }

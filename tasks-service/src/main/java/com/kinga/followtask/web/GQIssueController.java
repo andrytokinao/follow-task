@@ -46,7 +46,7 @@ public class GQIssueController {
         return issueService.findByAssigneId(id);
     }
     @MutationMapping
-    public List<Issue> saveIssue(@Argument Issue issue) throws IOException {
+    public Issue saveIssue(@Argument Issue issue) throws IOException {
         return issueService.saveIssue((Issue) issue);
     }
     @QueryMapping
@@ -193,5 +193,26 @@ public class GQIssueController {
     @QueryMapping
     public IssueType getIssueTypeById(@Argument Long issueTypeId){
         return projectService.getIssueTypeById(issueTypeId);
+    }
+    @QueryMapping
+    public List<IssueType> listIssueTypeMaster(@Argument Long projectId){
+        return projectService.listIssueTypeMaster(projectId);
+    }
+    @QueryMapping
+    public List<IssueType> listIssueTypeSubtasks(@Argument  Long masterId){
+        return projectService.listIssueTypeSubtasks(masterId);
+
+    }
+    @QueryMapping
+    public String getNextKey(@Argument Long issueTypeId){
+        return projectService.getNextKey(issueTypeId);
+    }
+    @QueryMapping
+    public Issue getIssue(@Argument String issueKey) {
+        return projectService.getIssue(issueKey);
+    }
+    @QueryMapping
+    public List<Issue> loadSubtask(@Argument Long parentId){
+        return projectService.loadSubtask(parentId);
     }
 }

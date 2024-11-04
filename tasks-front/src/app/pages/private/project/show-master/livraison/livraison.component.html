@@ -1,0 +1,22 @@
+<div class="upload-container">
+  <div class="upload-area" (click)="selectFiles()">
+    <input type="file" multiple (change)="onFileSelected($event)" hidden #fileInput>
+    <p>Glissez-déposez vos fichiers ou cliquez pour les sélectionner</p>
+  </div>
+
+  <div class="files-list" *ngIf="uploadedFiles.length > 0">
+    <h3>Fichiers téléchargés</h3>
+    <div class="file-item" *ngFor="let file of uploadedFiles">
+      <img [src]="file.userPhotoUrl" alt="Propriétaire" class="user-photo">
+      <div class="file-details">
+        <p class="file-name">{{ file.name }}</p>
+        <p class="upload-date">{{ file.uploadDate | date }}</p>
+      </div>
+      <div class="file-actions">
+        <button (click)="downloadFile(file)">Télécharger</button>
+        <button (click)="deleteFile(file)">Supprimer</button>
+      </div>
+    </div>
+  </div>
+</div>
+

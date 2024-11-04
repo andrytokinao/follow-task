@@ -98,44 +98,21 @@ export class ViewEditIssueComponent implements OnInit{
   addComment() {
     this.comment.user.id = this.issue.assigne.id;// TODO: Change to user connected
     this.comment.issue.id = this.issue.id;
-
-    this.issueService.addComment(this.comment).subscribe(
-      {
-        next:(result:any)=>{
-          console.info("--- Loadin adding comment ---> "+JSON.stringify(result));
-          this.comments = result.data.addComment as Comment[];
-          this.comment.text="";
-        },
-          error:(err)=>{
-        console.error(err);
-      }
+    this.issueService.addComment(this.comment).subscribe(res=>{
+      this.comments = res;
     });
   }
   loadComments(){
     console.info("--- Loading  comment ---")
-    this.issueService.allComment(this.issue.id).subscribe(
-      {
-        next:(res:any)=>{
-          this.comments =res.data.allComment as Comment[];
-          console.info("--- Loadin comment ---> "+JSON.stringify(this.comments));
-        },
-        error:(err:any)=>{
-          console.error(err)
-        }
+    this.issueService.allComment(this.issue.id).subscribe(comments =>{
+        this.comments = comments;
       }
     );
   }
   loadValues(){
     console.info("--- Loading  values ---")
-    this.issueService.getValues(this.issue.id).subscribe(
-      {
-        next:(res:any)=>{
-          this.customFieldValues =res.data.getValues as CustomFieldValue[];
-          console.info("--- Loadin customField values ---> "+JSON.stringify(this.customFieldValues));
-        },
-        error:(err:any)=>{
-          console.error(err)
-        }
+    this.issueService.getValues(this.issue.id).subscribe(res => {
+          this.customFieldValues =res;
       }
     );
   }

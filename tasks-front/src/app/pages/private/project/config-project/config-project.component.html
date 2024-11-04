@@ -1,35 +1,10 @@
-<div class="card-list" >
-  <div class="card  menu-item" routerLink="issue-type" routerLinkActive="active">
-    <div class="card-content" >
-      <h3> <i class="fas fa-hourglass-half fa-1x"></i> Type de tache </h3>
-      <p>Configurer les types </p>
-    </div>
-  </div>
-  <div class="card  menu-item" routerLink="work-flow" routerLinkActive="active">
-    <div class="card-content" >
-      <h3> <i class="fas fa-hourglass-half fa-1x"></i> Flux de travail </h3>
-      <p>Configurer Flux de travail</p>
-    </div>
-  </div>
-  <div class="card menu-item" routerLinkActive="active" routerLink="custom-field" routerLinkActive="active">
-    <div class="card-content">
-      <h3> <i class="fas fa-hourglass-half fa-1x"></i> Custom field </h3>
-      <p>Configurer des champ personnalisé</p>
-    </div>
-  </div>
-  <div class="card menu-item" routerLinkActive="active" routerLink="storage" routerLinkActive="active">
-    <div class="card-content">
-      <h3> <i class="fas fa-hourglass-half fa-1x"></i> Stockage </h3>
-      <p>Stockage</p>
-    </div>
-  </div>
-  <div class="card menu-item" routerLinkActive="active" routerLink="accessibility" routerLinkActive="active">
-    <div class="card-content">
-      <h3> <i class="fas fa-hourglass-half fa-1x"></i> Accessibilité  </h3>
-      <p>Gestion d'accessibilité </p>
-    </div>
-  </div>
-</div>
 <div class="config-project container">
+  <ul class="navigation">
+    <li><a routerLink="issue-type"routerLinkActive="active" >Type de tache </a></li>
+    <li><a routerLink="work-flow" routerLinkActive="active" >Flux de travail </a></li>
+    <li><a routerLink="custom-field" routerLinkActive="active" >Champ personnalisé</a></li>
+    <li><a routerLink="storage" routerLinkActive="active" >Stockage </a></li>
+    <li><a routerLink="accessibility" routerLinkActive="active" >Accessibilité </a></li>
+  </ul>
   <router-outlet></router-outlet>
 </div>

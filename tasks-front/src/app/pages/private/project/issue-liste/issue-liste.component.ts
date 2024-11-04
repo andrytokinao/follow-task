@@ -6,16 +6,17 @@ import {stripTypename} from "@apollo/client/utilities";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {IssueService} from "../../../../services/issue.service";
 import {UserService} from "../../../../services/user.service";
-import {ActivatedRoute} from "@angular/router";
+import {ActivatedRoute, Router} from "@angular/router";
 import {MatTableDataSource, MatTableModule} from "@angular/material/table";
 import {MatPaginator, MatPaginatorModule} from "@angular/material/paginator";
 import {MyCommonModule} from "../../../../common/common.module";
 import {ViewEditIssueComponent} from "../modal/view-edit-issue/view-edit-issue.component";
+import {NgIf} from "@angular/common";
 
 @Component({
   selector: 'app-issue-liste',
   standalone: true,
-  imports: [MatTableModule, MatPaginatorModule, MyCommonModule],
+  imports: [MatTableModule, MatPaginatorModule, MyCommonModule, NgIf],
   templateUrl: './issue-liste.component.html',
   styleUrl: './issue-liste.component.css'
 })
@@ -25,7 +26,8 @@ export class IssueListeComponent implements OnInit ,AfterViewInit{
     private issueService: IssueService,
     private essueService: IssueService,
     public userService: UserService,
-    private route: ActivatedRoute
+     private route: ActivatedRoute,
+     private router: Router
   ) {
 
   }
@@ -53,7 +55,7 @@ export class IssueListeComponent implements OnInit ,AfterViewInit{
           this.users = stripTypename(res.data.allUsers);
         });
         this.essueService.getIssues(this.project.prefix).subscribe((res: any) => {
-          this.issues = stripTypename(res.data.allIssue);
+          this.issues = stripTypename(res);
           this.dataSource =  new MatTableDataSource<Issue>(this.issues);
           this.dataSource.paginator = this.paginator;
 
@@ -62,17 +64,27 @@ export class IssueListeComponent implements OnInit ,AfterViewInit{
     });
   }
   editIssue(issue:Issue){
-      const dialogRef = this.modalService.open(ViewEditIssueComponent, {windowClass: "xlModal"});
-      dialogRef.componentInstance.issue = issue;
-      dialogRef.componentInstance.users = this.users;
-      dialogRef.result.then((result) => {
-        this.currentIssue = null;
-      })
+    if(issue.issueType.level =="PARENT") {
+      this.browsIssue(issue);
+    } else {
+      this.openDialogIssue(issue);
+    }
   }
   ngOnInit(): void {
 
   }
+  openDialogIssue(issue:Issue){
+    const dialogRef = this.modalService.open(ViewEditIssueComponent, {windowClass: "xlModal"});
+    dialogRef.componentInstance.issue = issue;
+    dialogRef.componentInstance.users = this.users;
+    dialogRef.result.then((result) => {
+      this.currentIssue = null;
+    })
+  }
+  browsIssue(issue:Issue){
+    this.router.navigate(["private/working/"+this.project.prefix+"/issue/"+issue.issueKey+"/details"])
 
+  }
   editFilter() {
   }
   aplayFilter(){

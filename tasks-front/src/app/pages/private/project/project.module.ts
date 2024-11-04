@@ -34,6 +34,7 @@ import {
 } from "@angular/material/table";
 import {MatPaginatorModule} from "@angular/material/paginator";
 import {CustomFieldComponent} from "../../../common/custom-field/custom-field.component";
+import {ShowMasterComponent} from "./show-master/show-master.component";
 
 @NgModule({
   declarations: [

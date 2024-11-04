@@ -138,7 +138,7 @@ public class ConfigService {
         } else if (StringUtils.isEmpty(configEntry.getWorkDirectory())) {
             configEntry.setInstalationState("private/admin/config/work-space");
         } else if(!"completed".equalsIgnoreCase(configEntry.getInstalationState())) {
-            configEntry.setInstalationState("private/admin/project/create");
+            configEntry.setInstalationState("private/admin/working/create");
         }
         return configRepository.save(configEntry);
      }

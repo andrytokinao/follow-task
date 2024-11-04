@@ -19,7 +19,7 @@ const privateRoute: Routes = [
           { path: 'profile', component: ProfileComponent  },
           { path: 'access-denied', component: AccessDeniedComponent },
           {
-            path: 'project/:project',resolve:{project:ProjectResolverService},
+            path: 'working/:project',resolve:{project:ProjectResolverService},
             loadChildren: () => import('./project/project.module').then(m => m.ProjectModule),
             //  canMatch: [userProject]
           },

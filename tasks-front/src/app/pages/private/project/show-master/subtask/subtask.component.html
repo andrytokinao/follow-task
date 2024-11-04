@@ -1,0 +1,7 @@
+<div class="content" >
+  <h3>Sous-tâches</h3>
+  <ul>
+    <li *ngFor="let subtask of subtasks">{{ subtask.issueKey }}</li>
+  </ul>
+  <button (click)="addSubtask()">Ajouter Sous-tâche</button>
+</div>

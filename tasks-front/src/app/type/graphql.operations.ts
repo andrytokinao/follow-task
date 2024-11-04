@@ -148,6 +148,7 @@ const ALL_ISSUE = gql`
           typeIcone
           value
         }
+        level
       }
       assigne {
         id
@@ -984,6 +985,88 @@ const ADD_USER_IN_GROUPE = gql`
    }
  }
 `
+const GET_NEXT_KEY = gql`
+  query getNextKey($issueTypeId:Int){
+    getNextKey(issueTypeId: $issueTypeId)
+  }
+`
+const LIST_ISSUE_TYPE_SUBTASKS = gql`
+  query listIssueTypeSubtasks($masterId:Int){
+    listIssueTypeSubtasks(masterId: $masterId) {
+      id
+      name
+      prefix
+      level
+    }
+  }
+`
+const LIST_ISSUE_TYPE_MASTER = gql`
+  query listIssueTypeMaster($projectId:Int){
+    listIssueTypeMaster(projectId: $projectId){
+      id
+      name
+      prefix
+      level
+    }
+  }
+`
+const GET_ISSUE = gql`
+  query getIssue($issueKey:String){
+    getIssue(issueKey: $issueKey ) {
+      id
+      issueKey
+      description
+      issueType {
+        id
+        level
+        prefix
+        name
+        icone {
+          id
+          value
+          typeIcone
+        }
+      }
+      assigne {
+        id
+        username
+        firstName
+        lastName
+        photo
+      }
+      reporter {
+        id
+        username
+        firstName
+        lastName
+        photo
+      }
+    }
+  }
+`
+const LOAD_SUBTASK = gql`
+    query loadSubtask($parentId:Int) {
+      loadSubtask(parentId: $parentId){
+        id
+        issueKey
+        summary
+        reporter {
+          id
+          username
+          lastName
+          firstName
+          photo
+        }
+        assigne {
+          id
+          username
+          lastName
+          firstName
+          photo
+        }
+      }
+    }
+`
 export {
   supprimerTypename,
   SAVE_USER,
@@ -1025,7 +1108,12 @@ export {
   ADD_USER_IN_GROUPE,
   AFFECT_ISSUE_TYPE_FOR_PARENT,
   GET_ISSUE_TYPE_BY_ID,
-  REMOVE_ISSUE_TYPE_PARENT
+  REMOVE_ISSUE_TYPE_PARENT,
+  LIST_ISSUE_TYPE_MASTER,
+  LIST_ISSUE_TYPE_SUBTASKS,
+  GET_NEXT_KEY,
+  GET_ISSUE,
+  LOAD_SUBTASK
 }
 function  supprimerTypename<T>(objet: T): T {
   if (!objet || typeof objet !== 'object') {

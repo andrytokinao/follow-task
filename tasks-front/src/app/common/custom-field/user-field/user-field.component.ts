@@ -23,7 +23,7 @@ export class UserFieldComponent implements DisplayCustomField{
     if (this.isEditing) {
       this.edit.emit(this.customFieldValue);
     } else {
-      this.customFieldValue.date = this.date
+      this.customFieldValue.user = this.user
       this.save.emit(this.customFieldValue);
     }
   }

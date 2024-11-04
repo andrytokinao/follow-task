@@ -1,5 +1,5 @@
 <div class="modal-header">
-  <h4 class="modal-title">Ajouter tache </h4>
+  <h4 class="modal-title">Ajouter tache  </h4>
   <span typeField="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
     <i class="fas fa-close"></i>  <span aria-hidden="true"></span>
   </span>
@@ -9,7 +9,7 @@
     <div class="form-group">
       <mat-form-field style="width: 100%" >
         <mat-label>Type </mat-label>
-        <mat-select [(value)]="issueType" >
+        <mat-select [(value)]="issueType" (valueChange)="changeType()" >
           <mat-option *ngFor="let type of issueTypes" [value]="type" style="z-index: 1060">{{type.name}}</mat-option>
         </mat-select>
       </mat-form-field>
@@ -23,12 +23,12 @@
           typeField="text">
       </mat-form-field>
       <mat-form-field style="width: 100%">
-        <mat-label>Description</mat-label>
+        <mat-label>Clé </mat-label>
         <textarea matInput
                   cdkTextareaAutosize
                   #autosize="cdkTextareaAutosize"
                   cdkAutosizeMinRows="1"
-                  [(ngModel)]="description"
+                  [(ngModel)]="issueKey"
                   [ngModelOptions]="{standalone: true}"
                   cdkAutosizeMaxRows="5"></textarea>
       </mat-form-field>
@@ -37,5 +37,7 @@
   </form>
 </div>
 <div class="modal-footer">
-  <button typeField="button" class="btn btn-primary" (click)="save()">Enregistrer</button>
+  <button typeField="button" class="btn btn-primary" (click)="save()">Annuler</button>
+  <button typeField="button" class="btn btn-primary" (click)="complete()">Terminé</button>
+  <button typeField="button" class="btn btn-primary" (click)="next()">Continue</button>
 </div>

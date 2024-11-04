@@ -17,7 +17,7 @@ import {IssueTypeComponent} from "./issue-type/issue-type.component";
 export class ConfigProjectComponent implements OnInit{
   project:Project | any = {};
   dialogMap: { [regex: string]: any } = {
-    'private/admin/project/create$': ProjectNameComponent,
+    'private/admin/working/create$': ProjectNameComponent,
     'private/admin/project/issue-type': IssueTypeComponent,
   };
   constructor(private router: Router,

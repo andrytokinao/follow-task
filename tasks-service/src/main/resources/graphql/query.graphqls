@@ -24,6 +24,10 @@ type Query {
     allCustomField:[CustomField]
     customFieldsByIssueType(issueTypeId:Int):[UsingCustomField]
     getGroupeUserForProject(projectId:Int):[GroupeUser]
+    listIssueTypeMaster(projectId:Int):[IssueType]
+    listIssueTypeSubtasks(masterId:Int):[IssueType]
+    getNextKey(issueTypeId:Int):String
+    getIssue(issueKey:String):Issue
+    loadSubtask(parentId:Int):[Issue]
 
 }
-

@@ -9,3 +9,9 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   grid-column: 2 / 3;
 }
+.navigation li a {
+  text-decoration: none;
+  color: #333333;
+  font-size: 16px;
+  transition: color 0.3s ease;
+}

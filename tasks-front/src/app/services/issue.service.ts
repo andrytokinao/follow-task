@@ -21,10 +21,18 @@ import {error} from "@angular/compiler-cli/src/transformers/util";
 import {
   AFFECT_ISSUE_TYPE_FOR_PARENT,
   ALL_CUSTOM_FIELD,
-  CUSTOM_FIELD_BY_ISSUE_TYPE, GET_CONFIG_PROJECT, GET_CUSTOM_FIELD, GET_GROUPE_USER_FOR_PROJECT, GET_ISSUE_TYPE_BY_ID,
-  ISSUE_BY_CRITERIA, REMOVE_ISSUE_TYPE_PARENT,
-  SAVE_CONFIG, SAVE_CONFIG_PROJECT,
-  supprimerTypename, UN_USE_CUSTOM_FIELD,
+  CUSTOM_FIELD_BY_ISSUE_TYPE,
+  GET_CONFIG_PROJECT,
+  GET_CUSTOM_FIELD,
+  GET_GROUPE_USER_FOR_PROJECT, GET_ISSUE,
+  GET_ISSUE_TYPE_BY_ID,
+  GET_NEXT_KEY,
+  ISSUE_BY_CRITERIA, LIST_ISSUE_TYPE_MASTER, LIST_ISSUE_TYPE_SUBTASKS, LOAD_SUBTASK,
+  REMOVE_ISSUE_TYPE_PARENT,
+  SAVE_CONFIG,
+  SAVE_CONFIG_PROJECT,
+  supprimerTypename,
+  UN_USE_CUSTOM_FIELD,
   USE_CUSTOM_FIELD
 } from "../type/graphql.operations";
 import {environment} from "../../environments/environment";
@@ -67,44 +75,88 @@ export class IssueService {
   }
 
   getIssues(projet: String | undefined) {
-    return this.apollo
-      .query({
-        query: operation.ALL_ISSUE,
-      });
+    return new Observable<Issue[]>(observer=> {
+      this.apollo
+        .query({
+          query: operation.ALL_ISSUE,
+        }).subscribe((res:any)=>{
+           observer.next(res.data.allIssue);
+           observer.complete();
+        },error =>{
+          observer.error(error);
+          observer.complete();
+      })
+    })
+
   }
 
   saveIssue(issue: any) {
-    return this.apollo
-      .mutate({
-          mutation: operation.SAVE_ISSUE,
-          variables: {issue}
-        }
-      );
+   return new Observable<Issue>((observer) => {
+     this.apollo
+       .mutate({
+           mutation: operation.SAVE_ISSUE,
+           variables: {issue}
+         }
+       ).subscribe( (res:any)=>{
+         observer.next(supprimerTypename(res.data.saveIssue));
+         observer.complete();
+     },error=>{
+         observer.error(error);
+         observer.complete();
+     });
+   })
   }
 
   addComment(comment: Comment) {
-    return this.apollo.mutate({
-      mutation: operation.ADD_COMMENT,
-      variables: {comment}
-    });
+    return new Observable<Comment[]>(observer => {
+      return this.apollo.mutate({
+        mutation: operation.ADD_COMMENT,
+        variables: {comment}
+      }).subscribe((res:any)=>{
+        observer.next(res.data.addComment);
+        observer.complete();
+      },
+        error => {
+         observer.error(error);
+         observer.complete();
+        }
+        )
+    })
   }
 
 
   allComment(issueId: number) {
-    return this.apollo
-      .query({
-        query: operation.ALL_COMMENT,
-        variables: {issueId}
+    return new Observable<Comment[]>((observer)=>{
+      this.apollo
+        .query({
+          query: operation.ALL_COMMENT,
+          variables: {issueId}
+        }).subscribe((res:any)=>{
+          observer.next(res.data.allComment);
+          observer.complete();
+      },error=>{
+          observer.error(error);
+          observer.complete();
       });
+    })
   }
 
 
   getValues(issueId: number) {
-    return this.apollo
-      .query({
-        query: operation.GET_VALUES,
-        variables: {issueId}
-      });
+    return new Observable<CustomFieldValue[]>(observer=> {
+      this.apollo
+        .query({
+          query: operation.GET_VALUES,
+          variables: {issueId}
+        }).subscribe((res:any)=>{
+          observer.next(res.data.getValues);
+          observer.complete();
+      },error=>{
+          observer.error(error);
+          observer.complete();
+      })
+    })
+
   }
 
   saveValues(v: any) {
@@ -115,7 +167,7 @@ export class IssueService {
           mutation: operation.SAVE_VALUE,
           variables: {value}
         }).subscribe((res: any) => {
-        observer.next(res.data.saveValue());
+        observer.next(supprimerTypename(res.data.saveValue()));
         observer.complete();
       }, error => {
         observer.error(error);
@@ -183,7 +235,7 @@ export class IssueService {
         mutation: operation.SAVE_PROJECT,
         variables: {project}
       }).subscribe((res: any) => {
-        observer.next(res.data.createProjectOrSave);
+        observer.next(supprimerTypename(res.data.createProjectOrSave));
         observer.complete();
       }, error => {
         observer.error(error);
@@ -227,7 +279,7 @@ export class IssueService {
           } else {
             this.project = issueType.project;
           }
-          observer.next(res.data.saveIssueType);
+          observer.next(supprimerTypename(res.data.saveIssueType));
           observer.complete();
         }, (err: any) => {
           observer.error(err);
@@ -293,7 +345,7 @@ export class IssueService {
         query: operation.ALL_PROJECT
       }).subscribe(
         (res: any) => {
-          this.projects = res.data.allProjects;
+          this.projects = supprimerTypename(res.data.allProjects);
           observable.next(this.projects);
           observable.complete();
         }, (error: any) => {
@@ -311,7 +363,7 @@ export class IssueService {
         mutation: operation.ASSIGNE_TO_USER,
         variables: {issue}
       }).subscribe((res: any) => {
-        observer.next(res.data.assigneToUser);
+        observer.next(supprimerTypename(res.data.assigneToUser));
         observer.complete();
       }, error => {
         observer.error(error);
@@ -328,7 +380,7 @@ export class IssueService {
         variables: {workFlow}
       }).subscribe(
         (res: any) => {
-          observer.next(res.data.saveWorkFlow);
+          observer.next(supprimerTypename(res.data.saveWorkFlow));
           observer.complete();
         }, (error: any) => {
           console.error(error);
@@ -363,7 +415,7 @@ export class IssueService {
           variables: {customField}
         }
       ).subscribe((res: any) => {
-          observer.next(res.data.saveCustomField);
+          observer.next(supprimerTypename(res.data.saveCustomField));
           observer.complete();
         },
         error1 => {
@@ -378,7 +430,7 @@ export class IssueService {
       this.apollo.query({
         query: ALL_CUSTOM_FIELD
       }).subscribe((res: any) => {
-          observer.next(res.data.allCustomField);
+          observer.next(supprimerTypename(res.data.allCustomField));
           observer.complete();
         },
         error => {
@@ -397,7 +449,7 @@ export class IssueService {
         variables: {id},
         fetchPolicy: "network-only"
       }).subscribe((res: any) => {
-        observer.next(res.data.getCustomField);
+        observer.next(supprimerTypename(res.data.getCustomField));
         observer.complete();
       }, error => {
         console.error(error);
@@ -414,7 +466,7 @@ export class IssueService {
         variables: {usingCustomField},
         fetchPolicy: "network-only"
       }).subscribe((res: any) => {
-          observer.next(res.data.useCustomField);
+          observer.next(supprimerTypename(res.data.useCustomField));
           observer.complete();
         }, error => {
           console.error(error);
@@ -432,7 +484,7 @@ export class IssueService {
         variables: {usingCustomField},
         fetchPolicy: "network-only"
       }).subscribe((res: any) => {
-          observer.next(res.data.unUseCustomField);
+          observer.next(supprimerTypename(res.data.unUseCustomField));
           observer.complete();
         }, error => {
           console.error(error);
@@ -449,7 +501,7 @@ export class IssueService {
         query: CUSTOM_FIELD_BY_ISSUE_TYPE,
         variables: {issueTypeId}
       }).subscribe((res: any) => {
-          observer.next(res.data.customFieldsByIssueType);
+          observer.next(supprimerTypename(res.data.customFieldsByIssueType));
           observer.complete();
         }, error => {
           console.error(error);
@@ -466,7 +518,7 @@ export class IssueService {
         query: GET_CONFIG_PROJECT,
         variables: {projectId}
       }).subscribe((res: any) => {
-        observer.next(res.data.getConfigProject);
+        observer.next(supprimerTypename(res.data.getConfigProject));
         observer.complete();
       }, error => {
         console.error(error);
@@ -493,7 +545,7 @@ export class IssueService {
         fetchPolicy: "network-only"
       }).subscribe((res: any) => {
           alert(JSON.stringify(res));
-          observer.next(res.data.saveOrUpdateConfig);
+          observer.next(supprimerTypename(res.data.saveOrUpdateConfig));
           observer.complete();
         }, error => {
           alert(JSON.stringify(error));
@@ -512,7 +564,7 @@ export class IssueService {
         variables: {projectId},
         fetchPolicy: "network-only"
       }).subscribe((res: any) => {
-          observer.next(res.data.getGroupeUserForProject);
+          observer.next(supprimerTypename(res.data.getGroupeUserForProject));
           observer.complete();
         }, error => {
           observer.error(error);
@@ -546,7 +598,7 @@ export class IssueService {
         variables:{childId,parrentId},
         fetchPolicy:"network-only"
       }).subscribe((res:any)=>{
-        observer.next(res.data.affectIssueTypeForParent);
+        observer.next(supprimerTypename(res.data.affectIssueTypeForParent));
         observer.complete();
       },error => {
         observer.error(error);
@@ -562,7 +614,88 @@ export class IssueService {
         variables:{childId},
         fetchPolicy:"network-only"
       }).subscribe((res:any)=>{
-        observer.next(res.data.affectIssueTypeForParent);
+        observer.next(supprimerTypename(res.data.affectIssueTypeForParent));
+        observer.complete();
+      },error => {
+        observer.error(error);
+        observer.complete();
+      })
+    })
+  }
+
+  listIssueTypeMaster(projectId: Number) {
+    return new Observable<IssueType[]>(observer => {
+      this.apollo.query({
+        query:LIST_ISSUE_TYPE_MASTER,
+        variables:{projectId},
+        fetchPolicy:"network-only"
+      }).subscribe((res:any)=>{
+        observer.next(supprimerTypename(res.data.listIssueTypeMaster));
+        observer.complete();
+      },error => {
+        observer.error(error);
+        observer.complete();
+      })
+    })
+  }
+
+  listIssueTypeSubtasks(masterId: Number) {
+    return new Observable<IssueType[]>(observer => {
+      this.apollo.query({
+        query:LIST_ISSUE_TYPE_SUBTASKS,
+        variables:{masterId},
+        fetchPolicy:"network-only"
+      }).subscribe((res:any)=>{
+        observer.next(supprimerTypename(res.data.listIssueTypeSubtasks));
+        observer.complete();
+      },error => {
+        observer.error(error);
+        observer.complete();
+      })
+    })
+  }
+
+  getNextKey(issueTypeId: Number) {
+
+    return new Observable<String>(observer => {
+      this.apollo.query({
+        query:GET_NEXT_KEY,
+        variables:{issueTypeId},
+        fetchPolicy:"network-only"
+      }).subscribe((res:any)=>{
+        observer.next(supprimerTypename(res.data.getNextKey));
+        observer.complete();
+      },error => {
+        observer.error(error);
+        observer.complete();
+      })
+    })
+  }
+
+  getIssue(issueKey: string) {
+    return new Observable<Issue>(observer => {
+      this.apollo.query({
+        query:GET_ISSUE,
+        variables:{issueKey},
+        fetchPolicy:"network-only"
+      }).subscribe((res:any)=>{
+        observer.next(supprimerTypename(res.data.getIssue));
+        observer.complete();
+      },error => {
+        observer.error(error);
+        observer.complete();
+      })
+    })
+  }
+
+  loadSubtask(parentId: number) {
+    return new Observable<Issue[]>(observer => {
+      this.apollo.query({
+        query:LOAD_SUBTASK,
+        variables:{parentId},
+        fetchPolicy:"network-only"
+      }).subscribe((res:any)=>{
+        observer.next(supprimerTypename(res.data.loadSubtask));
         observer.complete();
       },error => {
         observer.error(error);

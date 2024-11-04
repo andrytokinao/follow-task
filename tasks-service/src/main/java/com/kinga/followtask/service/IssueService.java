@@ -57,7 +57,7 @@ public class IssueService {
     @Autowired
     private UserAppRepository userAppRepository;
 
-    public List<Issue> saveIssue(Issue issue) throws IOException {
+    public Issue saveIssue(Issue issue) throws IOException {
         if(issue.getId() ==null) {
             issue.setCreationDate(new Date());
         } else {
@@ -97,12 +97,8 @@ public class IssueService {
             System.out.println("Le répertoire '" + dossier + "' existe déjà.");
         }
         issue.setDirectory(dossier.toString());
-        issueRepository.save(issue);
-        if (!CollectionUtils.isEmpty(issueTypeIds)) {
-            return issueRepository.findByIssueTypeIdIn(issueTypeIds);
-        } else {
-            return issueRepository.findAll();
-        }
+        return issueRepository.save(issue);
+
     }
     private UserApp getCurrentUser() {
         // TODO : Get connected user

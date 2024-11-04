@@ -28,6 +28,13 @@
   </div>
 
   <div class="project-content">
+    <ul class="navigation">
+      <li><a routerLink="" ariaCurrentWhenActive="page">Details</a></li>
+      <li><a routerLink="admin/users" routerLinkActive="active" ariaCurrentWhenActive="page">oou ></a></li>
+      <li><a routerLink="admin/users" routerLinkActive="active" ariaCurrentWhenActive="page">sous > </a></li>
+      <li><a routerLink="admin/users" routerLinkActive="active" ariaCurrentWhenActive="page">Sous </a></li>
+      <li (click)="createMaster()">Creer </li>
+    </ul>
     <router-outlet></router-outlet>
   </div>
 </div>

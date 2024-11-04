@@ -25,8 +25,8 @@ export class User {
   username:string="";
   firstName:string="";
   lastName:string="";
-  photo:string ="";
-  email:string ="";
+  photo:string | "" ;
+  email:string ="/assets/user.png";
   cin :string ="";
   address :string ="";
   contact:string='';

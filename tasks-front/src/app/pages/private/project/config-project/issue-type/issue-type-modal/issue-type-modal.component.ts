@@ -212,9 +212,8 @@ export class IssueTypeModalComponent implements OnInit{
       this.selectedChildIssueType = this.issueType.children;
     })
   }
-  addParrent(issueType){
-   // TODO : On change ne marche pas
-    this.issueService.affectIssueTypeForParent(this.issueType.id,issueType.id)
+  addParrent(){
+    this.issueService.affectIssueTypeForParent(this.issueType.id,this.selectedParentIssueType.id)
       .subscribe(ist =>{
         this.loadIssueType();
       })

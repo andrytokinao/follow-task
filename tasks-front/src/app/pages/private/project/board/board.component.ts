@@ -157,7 +157,7 @@ export class BoardComponent implements OnInit {
 
           });
           this.essueService.getIssues(this.project.prefix).subscribe((res: any) => {
-            this.issues = stripTypename(res.data.allIssue);
+            this.issues = stripTypename(res);
           });
       }}
     });

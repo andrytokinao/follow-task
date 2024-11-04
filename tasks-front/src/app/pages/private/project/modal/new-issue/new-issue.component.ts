@@ -15,10 +15,13 @@ export class NewIssueComponent {
     summary:"Test test  ",
     description :"description ",
   };
+  parent:Issue | undefined;
+  step:string ="";
   status : Status|null = null ;
-  summary: string = 'essai';
+  summary: string = '';
   description: string = '';
-  type: string = 'type1';
+  type: string = '';
+  issueKey:String ="";
   issueType: IssueType | any = {};
   issueTypes: IssueType[] = [];
   project:Project | undefined;
@@ -33,21 +36,64 @@ export class NewIssueComponent {
     let issue:any = {};
     let project :any ={};
     let status :any ={};
+    let issueType : any = {};
     status.id = this.status?.id;
     issue.summary = this.summary;
-    issue.description = this.description;
+    issue.issueKey = this.issueKey;
      project.id = this.project?.id;
-     this.issueType.project = project;
+     issueType.project = project;
 
     issue.issueType = this.issueType;
+    if(this.parent) {
+      let parent:any = {id:this.parent.id}
+      issue.parent = parent;
+    }
     issue.status = this.status;
       this.issueService.saveIssue(issue).subscribe((res:any)=>{
-        this.activeModal.close({ issues: res.data.saveIssue });
+        this.activeModal.close({ issue: res,step :this.step });
       });
     }
+   next(){
+     this.step = "next";
+     this.save();
+   }
+  complete(){
+    this.step = "complete";
+    this.save();
+  }
+  cancel() {
+    this.activeModal.close(null);
+  }
 
   change() {
     console.log(JSON.stringify(this.issueType));
 
+  }
+  public listIssueTypeMaster(project:Number){
+    this.issueService.listIssueTypeMaster(project).subscribe(types=>{
+      this.issueTypes = types;
+      if (this.issueTypes != null && this.issueTypes.length != 0) {
+        this.issueType = this.issueTypes[0];
+        this.loadNextKey(this.issueType.id);
+      }
+    });
+  }
+  public listIssueTypeSubtasks(masterId:Number){
+    this.issueService.listIssueTypeSubtasks(masterId).subscribe(types=>{
+      this.issueTypes = types;
+      if (this.issueTypes != null && this.issueTypes.length != 0) {
+        this.issueType = this.issueTypes[0];
+        this.loadNextKey(this.issueType.id);
+      }
+    });
+  }
+  public loadNextKey(issueTypeId:Number){
+    this.issueService.getNextKey(issueTypeId).subscribe(key => {
+      this.issueKey = key;
+    });
+  }
+
+  changeType() {
+   this.loadNextKey(this.issueType.id);
   }
 }

@@ -2,6 +2,7 @@ package com.kinga.followtask.service;
 
 import com.kinga.followtask.dto.Criteria;
 import com.kinga.followtask.entity.*;
+import com.kinga.followtask.entity.enumapp.Niveau;
 import com.kinga.followtask.repository.*;
 import com.kinga.utils.KingaUtils;
 import lombok.RequiredArgsConstructor;
@@ -14,10 +15,7 @@ import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -136,7 +134,7 @@ public class ProjectService {
             throw new RuntimeException ("Type doit etre affecté au projet ");
         Project project = issueType.getProject ();
         if (!"complete".equalsIgnoreCase (installation)) {
-            configEntry.setInstalationState ("rivate/admin/project/choose-groupe?project=" + project.getPrefix ());
+            configEntry.setInstalationState ("rivate/admin/worging/choose-groupe?project=" + project.getPrefix ());
         }
 
         configRepository.save (configEntry);
@@ -295,5 +293,33 @@ public class ProjectService {
         IssueType child = issueTypeRepository.getById (childId);
         child.setParent (null);
         return issueTypeRepository.save (child);
+    }
+
+    public List<IssueType> listIssueTypeMaster (Long projectId) {
+        return issueTypeRepository.findByProjectIdAndLevel (projectId, Niveau.PARENT);
+    }
+
+    public List<IssueType> listIssueTypeSubtasks (Long masterId) {
+        return issueTypeRepository.findByParentId (masterId);
+    }
+
+    public String getNextKey (Long issueTypeId) {
+        Optional<IssueType> issueType = issueTypeRepository.findById (issueTypeId);
+        if (!issueType.isPresent ())
+            return "";
+        Integer numero = issueRepository.findMaxProjectNumberWithPrefix (issueType.get ().getPrefix ()+"-");
+        if (numero ==null ){
+            numero = 0;
+        }
+        numero++;
+        return issueType.get ().getPrefix () +"-" +numero;
+    }
+
+    public Issue getIssue (String issueKey) {
+        return this.issueRepository.findByIssueKey (issueKey);
+    }
+
+    public List<Issue> loadSubtask (Long parentId) {
+        return this.issueRepository.findByParentId (parentId);
     }
 }

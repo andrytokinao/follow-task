@@ -7,6 +7,10 @@ import {BoardComponent} from "./board/board.component";
 import {CalendarComponent} from "./calendar/calendar.component";
 import {RapportComponent} from "./rapport/rapport.component";
 import {ConfigProjectComponent} from "./config-project/config-project.component";
+import {ShowMasterComponent} from "./show-master/show-master.component";
+import {IssueResolverService} from "../../../services/resolvers/issue-resolver.service";
+
+
 
 const projectRoute: Routes = [
   {
@@ -22,9 +26,11 @@ const projectRoute: Routes = [
           { path: 'rapport', component: RapportComponent },
           { path: 'calendar', component: CalendarComponent},
           { path: 'config', component: ConfigProjectComponent},
-          { path: 'config', component: ConfigProjectComponent},
           { path: 'config', loadChildren:()=> import("./config-project/config-project.module") .then(m=>m.ConfigProjectModule)},
-
+          { path: 'issue/:parrentIssue', component: ShowMasterComponent , resolve:{parrentIssue:IssueResolverService}},
+          { path: 'issue/:parrentIssue',resolve:{parrentIssue:IssueResolverService},
+            loadChildren: () => import('./show-master/issue-master.module').then(m => m.IssueMasterModule),
+          },
         ]
       }
     ]

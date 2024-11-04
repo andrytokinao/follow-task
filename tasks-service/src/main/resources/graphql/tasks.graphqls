@@ -230,7 +230,7 @@ input  IssueInput {
     issueKey:String
     description : String
     directory:String
-    parent:Int,
+    parent:IssueInput,
     issueType:IssueTypeInput
     assigne:UserAppInput
     status:StatusInput

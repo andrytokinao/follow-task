@@ -4,6 +4,7 @@ import { IssueFieldComponent } from '../common/custom-field/issue-field/issue-fi
 import { DateFieldComponent } from '../common/custom-field/date-field/date-field.component';
 import {DisplayCustomField} from "../type/issue";
 import {TextFieldComponent} from "../common/custom-field/text-field/text-field.component";
+import {UserFieldComponent} from "../common/custom-field/user-field/user-field.component";
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +15,8 @@ export class DisplayCustomfielFactoryService {
     Date: DateFieldComponent,
     Number: NumberFieldComponent,
     Issue: IssueFieldComponent,
-    String: TextFieldComponent
+    String: TextFieldComponent,
+    User:UserFieldComponent
   };
 
   constructor() { }
