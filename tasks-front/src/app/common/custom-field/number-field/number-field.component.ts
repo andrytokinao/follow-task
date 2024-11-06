@@ -1,10 +1,17 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {CustomFieldValue, DisplayCustomField} from "../../../type/issue";
+import {DatePipe, NgIf} from "@angular/common";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 
 @Component({
   selector: 'app-number-field',
   standalone: true,
-  imports: [],
+  imports: [
+    DatePipe,
+    NgIf,
+    ReactiveFormsModule,
+    FormsModule
+  ],
   templateUrl: './number-field.component.html',
   styleUrl: './number-field.component.css'
 })
@@ -14,25 +21,16 @@ export class NumberFieldComponent implements DisplayCustomField{
   @Input() isEditable = false;
   @Input() isEditing = false;
   customFieldValue: CustomFieldValue ;
-  number : number;
+  numeric : number;
   public value:any = {};
 
-
-  toggleEdit() {
-    this.isEditing = !this.isEditing;
-    if (this.isEditing) {
-      this.edit.emit(this.customFieldValue);
-    } else {
-       this.saveValue();
-    }
-  }
   saveValue(){
     let value:CustomFieldValue ={
       date: '',
       string:'',
       id:this.customFieldValue.id,
       issue:this.customFieldValue.issue,
-      numeric:this.number,
+      numeric:this.numeric,
       user:undefined,
       customField:this.customFieldValue.customField,
       text:''
@@ -44,6 +42,6 @@ export class NumberFieldComponent implements DisplayCustomField{
   setCustomFieldValue(value: CustomFieldValue) {
     this.customFieldValue = value;
     this.value = value;
-    this.number = this.value.number;
+    this.numeric = this.value.numeric;
   }
 }

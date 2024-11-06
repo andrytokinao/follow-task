@@ -1,1 +1,4 @@
-<p>number-field works!</p>
+<ng-container *ngIf="!isEditing">{{ numeric }}</ng-container>
+<ng-container *ngIf="isEditing">
+  <input [(ngModel)]="numeric" type="number">
+</ng-container>

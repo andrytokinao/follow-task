@@ -10,12 +10,14 @@ import {
 import {DisplayCustomfielFactoryService} from "../../services/display-customfiel-factory.service";
 import {CustomField, CustomFieldValue, DisplayCustomField, Icone, Issue} from "../../type/issue";
 import {NgIf} from "@angular/common";
+import {MyCommonModule} from "../common.module";
 
 @Component({
   selector: 'app-custom-field',
   standalone: true,
   imports: [
-    NgIf
+    NgIf,
+    MyCommonModule
   ],
   templateUrl: './custom-field.component.html',
   styleUrl: './custom-field.component.css'
@@ -83,5 +85,9 @@ export class CustomFieldComponent implements OnInit{
     customFieldValue.customField = customField;
     customFieldValue.issue = issue;
     return customFieldValue;
+  }
+
+  getIcone(customField: CustomField) {
+    return CustomFieldComponent.getIcone(customField);
   }
 }

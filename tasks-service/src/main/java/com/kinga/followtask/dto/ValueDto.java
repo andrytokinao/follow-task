@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class ValueDto {
+public class    ValueDto {
     private Long id;
     private CustomField customField;
     private Issue issue;
