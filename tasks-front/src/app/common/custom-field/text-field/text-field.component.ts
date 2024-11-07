@@ -25,7 +25,7 @@ export class TextFieldComponent implements DisplayCustomField{
   public value:any = {};
 
   saveValue(){
-    let value:CustomFieldValue ={
+    let value:any ={
       date: '',
       string:this.text,
       id:this.customFieldValue.id,

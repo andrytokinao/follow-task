@@ -2,6 +2,7 @@ type CustomField {
     id:Int
     name:String
     type:String
+    options:[String]
     issueTypes:[UsingCustomField]
 }
 type Comment {
@@ -140,6 +141,7 @@ type CustomFieldValue {
     string:String
     user:UserApp
     numeric:Float
+    values:[String]
     text:String
 }
 type Repertoire{
@@ -196,6 +198,7 @@ input CustomFieldImput {
     name:String
     description:String
     type:String
+    options:[String]
     issueTypes:[CustomFieldImput]
 }
 input CredentialInput{
@@ -313,7 +316,8 @@ input ValueInput {
     date:String
     string:String
     user:UserAppInput
-    numeric:Int
+    numeric:Int,
+    values:[String]
     text:String
 }
 input RepertoireInput {

@@ -1,1 +1,12 @@
-<p>select-field works!</p>
+
+<ng-container *ngIf="!isEditing">{{ selectedOption }}</ng-container>
+<ng-container *ngIf="isEditing">
+  <mat-form-field appearance="fill">
+    <mat-label>Select {{customFieldValue.customField.name}}</mat-label>
+    <mat-select [(ngModel)]="selectedOption">
+      <mat-option *ngFor="let option of options" [value]="option">
+        {{ option }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+</ng-container>

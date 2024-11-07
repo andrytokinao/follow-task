@@ -52,7 +52,14 @@
     <mat-tab label="Valeur par defaut">
       <mat-card class="mat-padding">
         <div class="sidebar-hedingd   ">
-
+          <div class="list-container">
+            <ul>
+              <li *ngFor="let cf of options">
+                <span>{{ cf }}</span>
+              </li>
+              <input type="text" [(ngModel)]="newOption"  (keydown.enter)="onEnter()" placeholder="Tapez ici et appuyez sur Entrée">
+            </ul>
+          </div>
         </div>
       </mat-card>
     </mat-tab>

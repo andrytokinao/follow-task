@@ -167,7 +167,7 @@ export class IssueService {
           mutation: operation.SAVE_VALUE,
           variables: {value}
         }).subscribe((res: any) => {
-        observer.next(supprimerTypename(res.data.saveValue()));
+        observer.next(supprimerTypename(res.data.saveValue));
         observer.complete();
       }, error => {
         observer.error(error);
@@ -408,7 +408,7 @@ export class IssueService {
   };
 
   saveCustomField(customField: CustomField) {
-    return new Observable<CustomField[]>(observer => {
+    return new Observable<CustomField>(observer => {
       this.apollo.mutate(
         {
           mutation: operation.SEVE_CUSTOM_FIELD,
@@ -424,11 +424,12 @@ export class IssueService {
         })
     });
   }
-
+// TODO : Modifier sur la custom field pour une projet
   allCustomField() {
     return new Observable<CustomField[]>(observer => {
       this.apollo.query({
-        query: ALL_CUSTOM_FIELD
+        query: ALL_CUSTOM_FIELD,
+        fetchPolicy:"network-only"
       }).subscribe((res: any) => {
           observer.next(supprimerTypename(res.data.allCustomField));
           observer.complete();

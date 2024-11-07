@@ -29,10 +29,12 @@ export class NewCustomFieldComponent {
     {value: 'Number', viewValue: 'Nombre'},
     {value: 'User', viewValue: 'Utilisateur '},
     {value: 'Date', viewValue: 'Date'},
+    {value: 'Selection', viewValue: 'Selection'},
+    {value: 'CheckBox', viewValue: 'Selection multiple'},
   ];
   save() {
-    this.issueService.saveCustomField(this.customField).subscribe(customFields=> {
-      this.activeModal.close({ customFields: customFields });
+    this.issueService.saveCustomField(this.customField).subscribe(customField=> {
+      this.activeModal.close({ customField: customField });
     })
   }
 }

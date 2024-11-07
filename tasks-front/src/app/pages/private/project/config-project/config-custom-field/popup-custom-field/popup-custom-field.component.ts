@@ -16,6 +16,8 @@ export class PopupCustomFieldComponent implements OnInit{
    issueTypes:IssueType[] = [];
    customField :CustomField | any = {};
   private usingCustomFields: UsingCustomField[] = [];
+  options:String[]=[];
+  newOption: string ="";
   constructor(private issueService :IssueService,
               private route: ActivatedRoute,
               public activeModal: NgbActiveModal,
@@ -82,6 +84,23 @@ export class PopupCustomFieldComponent implements OnInit{
   getCustomField(id) {
     this.issueService.getCustomField(id).subscribe(res => {
       this.customField = res;
+      this.options = this.customField.options;
+
     })
+  }
+
+  onEnter() {
+    if (this.newOption != "") {
+      if(this.options == null) {
+        this.options = [];
+      }
+      this.options.push(this.newOption);
+      this.customField.options = this.options;
+      this.issueService.saveCustomField(this.customField).subscribe(customField=> {
+        this.customField = customField;
+        this.options = customField.options;
+      })
+      this.newOption ="";
+    }
   }
 }

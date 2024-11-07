@@ -56,7 +56,7 @@ export class UserFieldComponent implements DisplayCustomField , OnInit{
     }
   }
   saveValue(){
-    let value:CustomFieldValue ={
+    let value:any ={
       date: '',
       string:"",
       id:this.customFieldValue.id,

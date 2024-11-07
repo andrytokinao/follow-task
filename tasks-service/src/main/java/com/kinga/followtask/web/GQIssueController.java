@@ -142,7 +142,7 @@ public class GQIssueController {
         return projectService.issueByCriteria(criterias);
      }
      @MutationMapping
-     public List<CustomField> saveCustomField(@Argument CustomField customField){
+     public CustomField saveCustomField(@Argument CustomField customField){
         return projectService.saveCustomField (customField);
      }
     @MutationMapping

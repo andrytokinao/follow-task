@@ -5,6 +5,8 @@ import { DateFieldComponent } from '../common/custom-field/date-field/date-field
 import {DisplayCustomField} from "../type/issue";
 import {TextFieldComponent} from "../common/custom-field/text-field/text-field.component";
 import {UserFieldComponent} from "../common/custom-field/user-field/user-field.component";
+import {MultiSelectFieldComponent} from "../common/custom-field/multi-select-field/multi-select-field.component";
+import {SelectFieldComponent} from "../common/custom-field/select-field/select-field.component";
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +18,9 @@ export class DisplayCustomfielFactoryService {
     Number: NumberFieldComponent,
     Issue: IssueFieldComponent,
     String: TextFieldComponent,
-    User:UserFieldComponent
+    User:UserFieldComponent,
+    CheckBox:MultiSelectFieldComponent,
+    Selection:SelectFieldComponent
   };
 
   constructor() { }

@@ -202,6 +202,7 @@ const  GET_VALUES = gql`
       string
       date
       numeric
+      values
       issue {
         id
       }
@@ -716,6 +717,7 @@ const SEVE_CUSTOM_FIELD = gql`
         name
         id
         type
+        options
         issueTypes {
           id
           issueType {
@@ -736,6 +738,7 @@ const ALL_CUSTOM_FIELD = gql`
      allCustomField{
        id
        name
+       options
        issueTypes {
          id
          issueType {
@@ -776,6 +779,8 @@ const GET_CUSTOM_FIELD = gql `
      getCustomField(id: $id) {
        id
        name
+       options
+       type
        issueTypes {
          id
          issueType {

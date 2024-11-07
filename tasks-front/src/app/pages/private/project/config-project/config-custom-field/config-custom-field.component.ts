@@ -44,12 +44,17 @@ export class ConfigCustomFieldComponent implements OnInit{
     const dialogRef = this.modalService.open(NewCustomFieldComponent);
     dialogRef.componentInstance.project = this.project;
     dialogRef.result.then((result) => {
-      this.customFields = result.customFields;
+      this.issueService.allCustomField().subscribe(customFields=>{
+        this.customFields = customFields;
+      })
     })
   }
   saveCustomField(customField:CustomField) {
-    this.issueService.saveCustomField(customField).subscribe(customFields=> {
-      this.customFields = customFields;
+    this.issueService.saveCustomField(customField).subscribe(customField=> {
+      this.issueService.allCustomField().subscribe(customFields=>{
+        this.customFields = customFields;
+      })
+
     })
   }
 
@@ -59,7 +64,6 @@ export class ConfigCustomFieldComponent implements OnInit{
     });
     this.issueService.allCustomField().subscribe(customFields=>{
       this.customFields = customFields;
-
     })
   }
   selectIssueType(issueType: any) {

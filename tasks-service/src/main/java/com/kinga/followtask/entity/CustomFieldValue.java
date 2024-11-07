@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import java.text.ParseException;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
@@ -26,6 +27,9 @@ public abstract class CustomFieldValue {
     @ManyToOne
     private UserApp user;
     private Integer numeric;
+    @Convert(converter = StringListConverter.class)
+    @Column(name = "string_values")
+    private List<String> values;
     public abstract CustomFieldValue setValue(Object value) throws ParseException;
     public abstract String getStrinValue() ;
     public abstract Object getObject() throws ParseException;

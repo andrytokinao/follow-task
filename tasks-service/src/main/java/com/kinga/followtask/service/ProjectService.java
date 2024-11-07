@@ -214,9 +214,8 @@ public class ProjectService {
         return new ArrayList<> ();
     }
 
-    public List<CustomField> saveCustomField (CustomField customField) {
-        customFieldRepository.save (customField);
-        return customFieldRepository.findAll ();
+    public CustomField saveCustomField (CustomField customField) {
+       return customFieldRepository.save (customField);
     }
 
     public List<CustomField> allCustomField () {

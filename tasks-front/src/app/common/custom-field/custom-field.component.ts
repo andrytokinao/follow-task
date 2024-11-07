@@ -74,8 +74,11 @@ export class CustomFieldComponent implements OnInit{
       ["Issue", { "typeIcone": "class", "value": "fa fa-exclamation-circle", "id": "\uf06a" }],
       ["String", { "typeIcone": "class", "value": "fa fa-font", "id": "\uf031" }],
       ["Link", { "typeIcone": "class", "value": "fa fa-link", "id": "\uf0c1" }],
-      ["User", { "typeIcone": "class", "value": "fa fa-user", "id": "\uf007" }]
+      ["User", { "typeIcone": "class", "value": "fa fa-user", "id": "\uf007" }],
+      ["CheckBox", { "typeIcone": "class", "value": "fa fa-check-square", "id": "\uf14a" }],
+      ["Selection", { "typeIcone": "class", "value": "fa fa-caret-down", "id": "\uf0d7" }]
     ]);
+
     return icons.get(customField.type);
   }
   public static newValue(i:Issue,customField:CustomField):any{

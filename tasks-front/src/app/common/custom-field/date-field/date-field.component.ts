@@ -34,7 +34,7 @@ export class DateFieldComponent implements DisplayCustomField{
     }
   }
    saveValue(){
-     let value:CustomFieldValue ={
+     let value:any ={
        date: this.date,
        string:"",
        id:this.customFieldValue.id,

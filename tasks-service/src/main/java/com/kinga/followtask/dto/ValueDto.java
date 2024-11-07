@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -19,4 +21,6 @@ public class    ValueDto {
     private UserApp user;
     private Integer numeric;
     private String text;
+    private List<String> values;
+
 }

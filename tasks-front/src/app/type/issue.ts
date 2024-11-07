@@ -66,6 +66,7 @@ export interface CustomField {
   id:number;
   name:String;
   type:string;
+  options:String[];
   issueTypes:UsingCustomField[],
 }
 
@@ -76,6 +77,7 @@ export interface CustomFieldValue {
   text:String;
   numeric:number;
   user:User
+  values:String[];
   issue:Issue
   customField:CustomField
 }

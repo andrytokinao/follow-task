@@ -25,7 +25,7 @@ export class NumberFieldComponent implements DisplayCustomField{
   public value:any = {};
 
   saveValue(){
-    let value:CustomFieldValue ={
+    let value:any ={
       date: '',
       string:'',
       id:this.customFieldValue.id,

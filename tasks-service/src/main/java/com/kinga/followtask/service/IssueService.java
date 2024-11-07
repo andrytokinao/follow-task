@@ -137,6 +137,11 @@ public class IssueService {
             value.setValue(v.getNumeric());
         else if(value instanceof TextCustomFieldValue)
             value.setValue(v.getText());
+        else if (value instanceof  CheckBoxCustomFieldValue)
+            value.setValue (v.getValues());
+        else if (value instanceof  SelectionCustomFieldValue)
+            value.setValue (v.getString ());
+
         valueDeoRepository.save(value);
         return valueDeoRepository.findCustomFieldValueByIssueId(value.getIssue().getId());
     }

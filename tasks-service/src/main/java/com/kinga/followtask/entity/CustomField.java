@@ -17,6 +17,8 @@ public class CustomField {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
+    @Convert(converter = StringListConverter.class)
+    private List<String> options;
     @OneToMany
     @EqualsAndHashCode.Exclude
     private List<UsingCustomField> issueTypes;

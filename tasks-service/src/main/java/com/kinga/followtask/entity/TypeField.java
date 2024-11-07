@@ -4,7 +4,9 @@ public enum TypeField {
     StringValue("String","StringCustomFieldValue"),
     DateValue("Date","DateCustomFieldValue"),
     NumberValue("Number","NumericCustomFieldValue"),
-    UserValue("User","UserCustomFieldValue");
+    UserValue("User","UserCustomFieldValue"),
+    Selection("Selection","SelectionCustomFieldValue"),
+    MultipleSelection("CheckBox","CheckBoxCustomFieldValue");
     private String name;
     private  String type;
 
