@@ -2,7 +2,6 @@ import {ChangeDetectorRef, NgModule} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {StatusComponent} from "./status/status.component";
 import {RepartitionComponent} from "./repartition/repartition.component";
-import {IssueListeComponent} from "./issue-liste/issue-liste.component";
 import {ProjectComponent} from "./project.component";
 import {ProjectRoutingModule} from "./project-routing.module";
 import {GanttChartComponent} from "./gantt-chart/gantt-chart.component";
@@ -35,6 +34,7 @@ import {
 import {MatPaginatorModule} from "@angular/material/paginator";
 import {CustomFieldComponent} from "../../../common/custom-field/custom-field.component";
 import {ShowMasterComponent} from "./show-master/show-master.component";
+import {IssueMasterListComponent} from "./list/issue-master-list/issue-master-list.component";
 
 @NgModule({
   declarations: [
@@ -46,7 +46,7 @@ import {ShowMasterComponent} from "./show-master/show-master.component";
     CalendarComponent,
     RapportComponent,
     NewIssueComponent,
-    ViewEditIssueComponent
+    ViewEditIssueComponent,
   ],
   exports: [
      StatusComponent, RepartitionComponent,ProjectComponent

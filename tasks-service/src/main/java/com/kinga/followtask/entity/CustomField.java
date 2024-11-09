@@ -19,6 +19,8 @@ public class CustomField {
     private String name;
     @Convert(converter = StringListConverter.class)
     private List<String> options;
+    @Convert(converter = StringListConverter.class)
+    private List<String> configDisplay;
     @OneToMany
     @EqualsAndHashCode.Exclude
     private List<UsingCustomField> issueTypes;

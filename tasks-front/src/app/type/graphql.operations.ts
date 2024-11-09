@@ -140,6 +140,32 @@ const ALL_ISSUE = gql`
       summary
       description
       issueKey
+      creationDate
+      values {
+        id
+        values
+        text
+        date
+        numeric
+        issue {
+          id
+        }
+        customField {
+          id
+          type
+          options
+          name
+          configDisplay
+        }
+
+        user {
+          id
+          username
+          photo
+          firstName
+          lastName
+        }
+      }
       issueType {
         id
         name
@@ -217,6 +243,7 @@ const  GET_VALUES = gql`
         id
         type
         name
+        configDisplay
       }
       issue {
         id
@@ -718,6 +745,7 @@ const SEVE_CUSTOM_FIELD = gql`
         id
         type
         options
+        configDisplay
         issueTypes {
           id
           issueType {
@@ -781,6 +809,7 @@ const GET_CUSTOM_FIELD = gql `
        name
        options
        type
+       configDisplay
        issueTypes {
          id
          issueType {

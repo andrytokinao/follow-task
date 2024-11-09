@@ -1,10 +1,13 @@
-<div class="content"  >
-  <ul class="list-group">
-    <li class=" pointer-event " *ngFor="let value of values" >
+<div   >
+  <div class="list-groups">
+    <span class="content" *ngFor="let value of values" >
       <app-custom-field
         [customFieldValue]="value" (save)="saveCustomFieldValue($event)"
+        [viewMode]="viewModeField"
       > </app-custom-field>
-    </li>
-  </ul>
+    </span>
+  </div>
+
+
 </div>
 

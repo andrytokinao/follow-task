@@ -3,6 +3,7 @@ type CustomField {
     name:String
     type:String
     options:[String]
+    configDisplay:[String]
     issueTypes:[UsingCustomField]
 }
 type Comment {
@@ -46,7 +47,8 @@ type MemberGroupe{
 type  Issue {
     id:Int
     summary:String
-    description : String
+    description : String,
+    creationDate:String
     issueType:IssueType
     assigne:UserApp
     status:Status
@@ -58,6 +60,7 @@ type  Issue {
     children:[Issue]
     comments:[Comment]
     files:[File]
+    values:[CustomFieldValue]
 }
 type IssueType{
     id:Int
@@ -199,6 +202,7 @@ input CustomFieldImput {
     description:String
     type:String
     options:[String]
+    configDisplay:[String]
     issueTypes:[CustomFieldImput]
 }
 input CredentialInput{

@@ -32,19 +32,13 @@
     <mat-tab label="Affichage">
       <mat-card class="mat-padding">
         <div class="sidebar-heding ">
-          <div class="item items-right">
-            <ul class="list-group">
-              <li class="list-group-item list-group-item-action pointer-event" > Affiche si vide   </li>
-              <li class="list-group-item list-group-item-action pointer-event" > Afficher lors de la liste  </li>
-            </ul>
-            <div class="list-container">
-              <ul>
-                <li *ngFor="let issueType of issueTypes">
-                  <span>{{ issueType.name }}</span>
-                  <input type="checkbox" [checked]="isUsing(issueType)" class="checkbox-right">
-                </li>
-              </ul>
-            </div>
+          <div *ngFor="let option of displayOptions">
+            <mat-checkbox
+              [checked]="isSelected(option.name)"
+              (change)="onChangeDisplayOptions($event,option.name)"
+            >
+              {{ option.label }}
+            </mat-checkbox>
           </div>
         </div>
       </mat-card>

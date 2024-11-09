@@ -25,6 +25,7 @@ import {PopupCustomFieldComponent} from "./config-custom-field/popup-custom-fiel
 import {PopupWorkFlowComponent} from "./work-flow/popup-work-flow/popup-work-flow.component";
 import {WorkFlowComponent} from "./work-flow/work-flow.component";
 import {AccessibilityComponent} from "./accessibility/accessibility.component";
+import {MatCheckbox} from "@angular/material/checkbox";
 
 @NgModule({
   declarations: [
@@ -56,6 +57,7 @@ import {AccessibilityComponent} from "./accessibility/accessibility.component";
         MatSelectionList,
         MatListOption,
         CdkDropList,
+        MatCheckbox,
     ]
 })
 export class ConfigProjectModule { }

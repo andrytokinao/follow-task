@@ -1,17 +1,12 @@
 .field {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  display: contents;
   margin: 8px 0;
   padding: 8px;
   background-color: #ecf0f1;
   border-radius: 6px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  max-width: 500px;
 }
 
-.label {
-  min-width: 150px;
+.header {
   font-weight: bold;
   color: #34495e;
 }
@@ -25,13 +20,141 @@
   padding: 6px 12px;
   border: none;
   border-radius: 4px;
-  cursor: pointer;
   transition: background-color 0.3s;
 }
 
 .edit-btn:hover {
-  background-color: #2980b9;
+  background-color: rgba(41, 128, 185, 0.46);
 }
-navigation {
-  list-style-type: none;
+
+/* Field */
+.field-view {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 8px 0;
+  padding: 8px;
+  background-color: #ecf0f1;
+  border-radius: 6px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+}
+.field-whith-icone {
+
+}
+.field-whith-icone-ro {
+
+}
+.field-ro {
+  cursor:grab ;
+
+}
+.field-info {
+  max-width: 500px;
+  justify-content: space-between;
+
+}
+.field-info-edit {
+
+}
+
+.header-view {
+  min-width: 150px;
+  font-weight: bold;
+  color: #34495e;
+}
+.header-with-icone{
+
+}
+.header-with-icone-ro{
+
+}
+.header-ro{
+
+}
+.header-info{
+
+}
+.header-info-edit{
+
+}
+
+.label-chip{
+  display: none;
+}
+
+.edit-btn-whith-icone{
+
+}
+.edit-btn-whith-icone-ro{
+   cursor: not-allowed;
+}
+.edit-btn-ro{
+  cursor:not-allowed ;
+}
+.edit-btn-info{
+
+}
+.edit-btn-info-edit{
+  cursor: pointer;
+
+}
+
+
+.field-chip{
+  display: inline-flex;
+  flex-direction: row;
+  border: none;
+  cursor: default;
+  height: 36px;
+  outline: none;
+  padding: 0;
+  font-size: 14px;
+  font-color: #333333;
+  font-family:"Open Sans", sans-serif;
+  white-space: nowrap;
+  align-items: center;
+  border-radius: 16px;
+  vertical-align: middle;
+  text-decoration: none;
+  justify-content: center;
+  border-bottom: #cccccc solid 0.1px;
+  margin: 8px;
+
+}
+.header-chip{
+  display: flex;
+  position: relative;
+  overflow: hidden;
+  background-color: #32C5D2;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  align-items: center;
+  user-select: none;
+  border-radius: 50%;
+  justify-content: center;
+  min-width: 36px;
+  color: #fff;
+  height: 36px;
+  font-size: 20px;
+  margin-right: -4px;
+
+}
+
+.svg-chip{
+  color: #999999;
+  cursor: pointer;
+  height: auto;
+  margin: 4px 4px 0 -8px;
+  fill: currentColor;
+  width: 1em;
+  height: 1em;
+  display: inline-block;
+  font-size: 24px;
+  transition: fill 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+  user-select: none;
+  flex-shrink: 0;
+}
+.svg-chip:hover{
+  color: #666666;
 }

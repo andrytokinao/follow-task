@@ -4,6 +4,7 @@ import {CustomField, IssueType, UsingCustomField} from "../../../../../../type/i
 import {IssueService} from "../../../../../../services/issue.service";
 import {ActivatedRoute} from "@angular/router";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
+import {CustomFieldComponent} from "../../../../../../common/custom-field/custom-field.component";
 
 @Component({
   selector: 'app-popup-custom-field',
@@ -50,6 +51,7 @@ export class PopupCustomFieldComponent implements OnInit{
     this.issueService.useCustomField(usingCustomField).subscribe((result)=> {
       this.issueService.getCustomField(this.customField.id).subscribe(cf => {
         this.customField = cf;
+        this.displayOptionSelected = cf.configDisplay;
       });
     })
   }
@@ -65,6 +67,7 @@ export class PopupCustomFieldComponent implements OnInit{
     this.issueService.unUseCustomField(usingCustomField).subscribe((result)=> {
       this.issueService.getCustomField(this.customField.id).subscribe(cf => {
         this.customField = cf;
+        this.displayOptionSelected = cf.configDisplay;
       });
 
     })
@@ -85,6 +88,7 @@ export class PopupCustomFieldComponent implements OnInit{
     this.issueService.getCustomField(id).subscribe(res => {
       this.customField = res;
       this.options = this.customField.options;
+      this.displayOptionSelected = res.configDisplay;
 
     })
   }
@@ -96,11 +100,40 @@ export class PopupCustomFieldComponent implements OnInit{
       }
       this.options.push(this.newOption);
       this.customField.options = this.options;
-      this.issueService.saveCustomField(this.customField).subscribe(customField=> {
-        this.customField = customField;
-        this.options = customField.options;
-      })
+
       this.newOption ="";
     }
+  }
+  save(){
+    this.customField.configDisplay = this.displayOptionSelected;
+    this.issueService.saveCustomField(this.customField).subscribe(customField=> {
+      this.customField = customField;
+      this.options = customField.options;
+      this.displayOptionSelected = customField.configDisplay;
+    })
+  }
+  protected displayOptionSelected:String[] = [];
+  protected readonly dispatchEvent = dispatchEvent;
+  protected displayOptions: any [] =CustomFieldComponent.getDisplayOptions();
+
+  onChangeDisplayOptions(event: any,display: String) {
+    if (this.displayOptionSelected == null) {
+      this.displayOptionSelected = [];
+    }
+    this.displayOptionSelected = JSON.parse(JSON.stringify(this.displayOptionSelected));
+    if(event.checked) {
+      this.displayOptionSelected.push(display);
+    } else {
+      this.displayOptionSelected = this.displayOptionSelected.filter( d => d != display);
+    }
+    this.customField.configDisplay = this.displayOptionSelected;
+    this.save();
+
+  }
+
+  isSelected(option) {
+    if( this.displayOptionSelected == null)
+      return false;
+    return this.displayOptionSelected.some(s => s == option);
   }
 }

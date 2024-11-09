@@ -94,8 +94,35 @@ export class MultiSelectFieldComponent implements DisplayCustomField{
       this.values = this.values.filter(v => v != option)
     }
   }
+  colors = [
+    'rgba(106,124,143,0.43)', // Bleu Marine
+    'rgba(229,105,116,0.75)', // Gris Anthracite
+    '#7C0A1D', // Rouge Bordeaux
+    '#228B22', // Vert Forêt
+    '#F5F5DC', // Beige Sable
+    '#1C1C1C', // Noir Charbon
+    '#87CEEB', // Bleu Ciel
+    '#98FF98', // Vert Menthe
+    '#FFDB58', // Jaune Moutarde
+    '#CC5500', // Orange Brûlé
+    '#D3D3D3', // Gris Clair
+    '#4682B4', // Bleu Acier
+    '#D70000', // Rouge Cerise
+    '#6A0FAD', // Violet Profond
+    '#40E0D0', // Turquoise
+    '#E6E6FA', // Mauve Doux
+    '#7B3F00', // Brun Chocolat
+    '#FFDAB9', // Pêche
+    '#704214', // Sépia
+    '#C0C0C0'  // Argent Métallique
+  ];
 
-  partiallyComplete() {
+    partiallyComplete() {
     return undefined;
+  }
+
+  getRandomColor(option:String) {
+    const indexNonTrouve :number = this.options.indexOf(option);
+    return this.colors[indexNonTrouve];
   }
 }

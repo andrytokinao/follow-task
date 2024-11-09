@@ -1,6 +1,6 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
-import {IssueListeComponent} from "./issue-liste/issue-liste.component";
+import {IssueListeComponent} from "./list/issue-liste/issue-liste.component";
 import {ProjectComponent} from "./project.component";
 import {GanttChartComponent} from "./gantt-chart/gantt-chart.component";
 import {BoardComponent} from "./board/board.component";
@@ -9,6 +9,10 @@ import {RapportComponent} from "./rapport/rapport.component";
 import {ConfigProjectComponent} from "./config-project/config-project.component";
 import {ShowMasterComponent} from "./show-master/show-master.component";
 import {IssueResolverService} from "../../../services/resolvers/issue-resolver.service";
+import {IssueMasterListComponent} from "./list/issue-master-list/issue-master-list.component";
+import {ListComponent} from "./list/list.component";
+import {AdminComponent} from "../admins/admin.component";
+import {AuthGuard} from "../../../services/authorization.service.ts";
 
 
 
@@ -20,7 +24,11 @@ const projectRoute: Routes = [
       {
         path: '',
         children: [
-          { path: 'liste', component: IssueListeComponent },
+          {path: 'list', component: ListComponent  }, {
+            path: 'list',
+            loadChildren: () => import('./list/list.module').then(m => m.ListModule),
+            //  canMatch: [userAdmin]
+          },
           { path: 'gantt-chart', component: GanttChartComponent },
           { path: 'board', component: BoardComponent },
           { path: 'rapport', component: RapportComponent },

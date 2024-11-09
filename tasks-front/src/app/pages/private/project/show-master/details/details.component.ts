@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {CustomField, CustomFieldValue, Issue, IssueType, UsingCustomField} from "../../../../../type/issue";
 import {ActivatedRoute, Router} from "@angular/router";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
@@ -26,6 +26,8 @@ export class DetailsComponent implements OnInit{
   usingCustomFields :UsingCustomField[] = [];
   values : CustomFieldValue[]=[];
   currentCustomFieldValue:any = null ;
+  viewModeField: string='info-edit';
+
   constructor(private router: Router,
               private modalService: NgbModal,
               private configService:ConfigService,
@@ -101,4 +103,7 @@ export class DetailsComponent implements OnInit{
 
   }
 
+  setViewMode(s: string) {
+    this.viewModeField = s;
+  }
 }

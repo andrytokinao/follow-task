@@ -118,6 +118,7 @@ h1,h2,h3,h4 {
 .menu-btn.active {
   background-color: #e8f3e8;
 }
+
 #content {
   margin-top: 20px;
   text-align: center;
@@ -477,4 +478,13 @@ h3 {
 .card-content p {
   margin-bottom: 0;
   color: #666;
+}
+.content-chip{
+  cursor: inherit;
+  display: flex;
+  align-items: center;
+  user-select: none;
+  white-space: nowrap;
+  padding-left: 20px;
+  padding-right: 12px;
 }

@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import {DisplayCustomfielFactoryService} from "../../services/display-customfiel-factory.service";
 import {CustomField, CustomFieldValue, DisplayCustomField, Icone, Issue} from "../../type/issue";
-import {NgIf} from "@angular/common";
+import {CommonModule, NgIf} from "@angular/common";
 import {MyCommonModule} from "../common.module";
 
 @Component({
@@ -17,12 +17,14 @@ import {MyCommonModule} from "../common.module";
   standalone: true,
   imports: [
     NgIf,
-    MyCommonModule
+    MyCommonModule,
+    CommonModule
   ],
   templateUrl: './custom-field.component.html',
   styleUrl: './custom-field.component.css'
 })
 export class CustomFieldComponent implements OnInit{
+  @Input() viewMode: string='chip';
   @Input() customFieldValue: CustomFieldValue;
   @ViewChild('container', { read: ViewContainerRef, static: true }) container: ViewContainerRef;
   @Output() save = new EventEmitter<CustomFieldValue>();
@@ -81,6 +83,12 @@ export class CustomFieldComponent implements OnInit{
 
     return icons.get(customField.type);
   }
+  public static getDisplayOptions(): any[] {
+    return [
+      {  name: 'DisplayInList', label:"Affichage dans la liste" },
+      {  name: 'DisplayIfEmpty', label:"Afficher se le contenue est vide"},
+    ];
+  }
   public static newValue(i:Issue,customField:CustomField):any{
     let customFieldValue : any = {};
     let issue:any = {};
@@ -93,4 +101,27 @@ export class CustomFieldComponent implements OnInit{
   getIcone(customField: CustomField) {
     return CustomFieldComponent.getIcone(customField);
   }
+  isDisplayInList(){
+    return false;
+  }
+  isReadOnly(){
+    return false;
+  }
+  isFullShow() {
+      return true;
+  }
+  getClass(){
+    return this.viewMode;
+  }
+
+  setViewMode(viewMode: string) {
+    this.viewMode = viewMode;
+  }
 }
+/*whith-icone;
+whith-icone-ro;
+ro;
+info;
+info-edit;
+view;
+chip;*/

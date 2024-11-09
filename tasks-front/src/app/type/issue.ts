@@ -11,8 +11,10 @@ export class Issue {
   type: number= 0;
   description: String ="";
   issueKey:String ="";
+  creationDate:string;
   status: Status | null = null;
   assigne:User = new User();
+  values:CustomFieldValue[];
   reporter:User = new User();
   issueType:IssueType | any = {};
   comments :Comment[] = [];
@@ -67,6 +69,7 @@ export interface CustomField {
   name:String;
   type:string;
   options:String[];
+  configDisplay:String[];
   issueTypes:UsingCustomField[],
 }
 

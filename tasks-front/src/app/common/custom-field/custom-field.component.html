@@ -1,8 +1,9 @@
 
-<div class="field">
-  <span class="label"><i> <app-icone-view [icon]="getIcone(customFieldValue.customField)"></app-icone-view> {{customFieldValue.customField.name}}  </i></span>
-  <span class="value">: <ng-container #container></ng-container></span>
-  <span class="edit-btn " (click)="toggleEdit()" *ngIf="!instance.isEditing"><i class="mat-icon fa fa-edit save"  ></i>Edit</span>
-  <span class="edit-btn" (click)="saveIt()" *ngIf="instance.isEditing"><i class="edit-btn mat-icon fa fa-check save" ></i>Save</span>
+<div [class]="'fieldSS field-'+viewMode" >
+  <span [class]="'header header-'+viewMode" ><i> <app-icone-view [icon]="getIcone(customFieldValue.customField)"></app-icone-view> <span [class]="'label-'+viewMode">{{customFieldValue.customField.name}}</span>  </i></span>
+  <span [class]="'value value-'+viewMode" >: <ng-container #container></ng-container></span>
+  <span [class]="'edit-btn edit-btn-'+viewMode " (click)="toggleEdit()" *ngIf="!instance.isEditing"><i class="mat-icon fa fa-edit save"  ></i>Edit</span>
+  <span [class]="'edit-btn edit-btn-'+viewMode" (click)="saveIt()" *ngIf="instance.isEditing"><i class="edit-btn mat-icon fa fa-check save" ></i>Save</span>
 
 </div>
+

@@ -1,22 +1,20 @@
 import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
-import {Criteria, Issue, IssueType, Project, Status, User, WorkFlow} from "../../../../type/issue";
+import {Criteria, Issue, IssueType, Project, Status, User, WorkFlow} from "../../../../../type/issue";
 import _default from "chart.js/dist/plugins/plugin.tooltip";
 import type = _default.defaults.animations.numbers.type;
 import {stripTypename} from "@apollo/client/utilities";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
-import {IssueService} from "../../../../services/issue.service";
-import {UserService} from "../../../../services/user.service";
+import {IssueService} from "../../../../../services/issue.service";
+import {UserService} from "../../../../../services/user.service";
 import {ActivatedRoute, Router} from "@angular/router";
 import {MatTableDataSource, MatTableModule} from "@angular/material/table";
 import {MatPaginator, MatPaginatorModule} from "@angular/material/paginator";
-import {MyCommonModule} from "../../../../common/common.module";
-import {ViewEditIssueComponent} from "../modal/view-edit-issue/view-edit-issue.component";
+import {MyCommonModule} from "../../../../../common/common.module";
+import {ViewEditIssueComponent} from "../../modal/view-edit-issue/view-edit-issue.component";
 import {NgIf} from "@angular/common";
 
 @Component({
   selector: 'app-issue-liste',
-  standalone: true,
-  imports: [MatTableModule, MatPaginatorModule, MyCommonModule, NgIf],
   templateUrl: './issue-liste.component.html',
   styleUrl: './issue-liste.component.css'
 })

@@ -1,5 +1,5 @@
 
-<ng-container *ngIf="!isEditing"> <i *ngFor="let v of values"> {{v}}, </i> </ng-container>
+<ng-container *ngIf="!isEditing"> <i class="value-chip" *ngFor="let v of values"  [style.background-color]="getRandomColor(v)" > {{v}}, </i> </ng-container>
 <ng-container *ngIf="isEditing">
   <div *ngFor="let option of options">
     <mat-checkbox

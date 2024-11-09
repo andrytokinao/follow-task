@@ -1,0 +1,53 @@
+/* Spinner styles */
+.spinner-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+}
+
+.spinner {
+  border: 8px solid #f3f3f3; /* Light gray */
+  border-top: 8px solid #3498db; /* Blue */
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Project list styles */
+.project-list {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.project-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #e0e0e0;
+  transition: background-color 0.2s;
+}
+
+.project-row:hover {
+  background-color: #f9f9f9;
+}
+
+.project-title {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #333333;
+  margin-right: 15px;
+}
+
+.project-description {
+  font-size: 0.9rem;
+  color: #666666;
+}
