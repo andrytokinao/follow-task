@@ -194,3 +194,6 @@ export interface ConfigProject{
   configof:String
   value:string
 }
+export interface SeatsAvailability {
+  remainingSeats: number;
+}

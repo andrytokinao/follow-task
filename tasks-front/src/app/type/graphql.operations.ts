@@ -12,6 +12,10 @@ const SAVE_USER = gql`
       firstName
       lastName
       cin
+      photo
+      address
+      cin
+      email
     }
   }
 `;

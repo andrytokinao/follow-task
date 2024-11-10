@@ -6,6 +6,9 @@
 input {
   font-family: "Poppins", sans-serif;
 }
+.input-field input:focus {
+  border-bottom: 1px solid #007bff;
+}
 .container {
   position: relative;
   width: 100%;
@@ -222,7 +225,16 @@ form.sign-in-form {
   font-weight: 600;
   font-size: 0.8rem;
 }
+.error-container {
+  margin-bottom: 8px;
+  height: 18px;
+  font-size: small;
+  color: #f12828;
 
+  span {
+    display: block;
+  }
+}
 .right-panel .image,
 .right-panel .content-lg {
   transform: translateX(800px);

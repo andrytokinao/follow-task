@@ -3,7 +3,7 @@ import {AboutComponent} from "./about/about.component";
 import {HelpComponent} from "./help/help.component";
 import {HomeComponent} from "./home/home.component";
 import {LoginComponent} from "./login/login.component";
-import {FormsModule} from "@angular/forms";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatCardModule} from "@angular/material/card";
 import {MatDialogModule} from "@angular/material/dialog";
@@ -32,20 +32,21 @@ import {CreateAdminUserComponent} from "./create-admin-user/create-admin-user.co
   exports: [
 
   ],
-  imports: [
-    PublicRoutingModule,
-    MatTabsModule,
-    MatCardModule,
-    MatDialogModule,
-    MatToolbarModule,
-    MatFormFieldModule,
-    FormsModule,
-    MatMenuModule,
-    MatMenuModule,
-    MatIconModule,
-    MatSelectModule,
-    MyCommonModule,
-    CommonModule
-  ]
+    imports: [
+        PublicRoutingModule,
+        MatTabsModule,
+        MatCardModule,
+        MatDialogModule,
+        MatToolbarModule,
+        MatFormFieldModule,
+        FormsModule,
+        MatMenuModule,
+        MatMenuModule,
+        MatIconModule,
+        MatSelectModule,
+        MyCommonModule,
+        CommonModule,
+        ReactiveFormsModule
+    ]
 })
 export class PublicModule { }
