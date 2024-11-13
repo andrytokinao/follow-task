@@ -66,7 +66,6 @@ export class UserFieldComponent implements DisplayCustomField , OnInit{
       customField:this.customFieldValue.customField,
       text:''
     };
-   alert(JSON.stringify(value));
     this.save.emit(value);
 
   }
@@ -100,7 +99,8 @@ export class UserFieldComponent implements DisplayCustomField , OnInit{
 
   }
   getUser():User{
-   return  this.users.find(u=> u.username = this.userControl.value  );
+    let user =  this.users.find(u=> u.username == this.userControl.value  );
+    return user;
   }
 
 }

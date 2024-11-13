@@ -357,7 +357,11 @@ export class IssueService {
     })
   }
 
-  assigneToUser(issue: Issue) {
+  assigneToUser(is: Issue,user:User) {
+    let issue :any= {
+      id:is.id,
+      assigne:{id:user.id},
+    }
     return new Observable<Issue>((observer) => {
       this.apollo.mutate({
         mutation: operation.ASSIGNE_TO_USER,

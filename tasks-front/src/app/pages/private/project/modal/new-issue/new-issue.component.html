@@ -37,7 +37,7 @@
   </form>
 </div>
 <div class="modal-footer">
-  <button typeField="button" class="btn btn-primary" (click)="save()">Annuler</button>
-  <button typeField="button" class="btn btn-primary" (click)="complete()">Terminé</button>
-  <button typeField="button" class="btn btn-primary" (click)="next()">Continue</button>
+  <button typeField="button" class="btn btn-primary" (click)="cancel()">Annuler</button>
+  <button typeField="button" class="btn btn-primary" [disabled]="isDesable" (click)="complete()">Terminé</button>
+  <button typeField="button" class="btn btn-primary" [disabled]="isDesable" (click)="next()">Continue</button>
 </div>

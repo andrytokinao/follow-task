@@ -23,6 +23,8 @@ import {CustomfieldFormComponent} from "./form/customfield-form/customfield-form
 import {GroupeFormComponent} from "./form/groupe-form/groupe-form.component";
 import {IssuetypeFormComponent} from "./issuetype-form/issuetype-form.component";
 import {StatesFormComponent} from "./states-form/states-form.component";
+import {AssignFieldComponent} from "./assign-field/assign-field.component";
+import {MatAutocomplete, MatAutocompleteTrigger} from "@angular/material/autocomplete";
 
 @NgModule({
   declarations: [
@@ -37,7 +39,8 @@ import {StatesFormComponent} from "./states-form/states-form.component";
     GroupeFormComponent,
     CustomfieldFormComponent,
     IssuetypeFormComponent,
-    StatesFormComponent
+    StatesFormComponent,
+    AssignFieldComponent
 
   ],
   imports: [
@@ -59,24 +62,28 @@ import {StatesFormComponent} from "./states-form/states-form.component";
     MatInput,
     MatLabel,
     NgIf,
-    NgClass
+    NgClass,
+    ReactiveFormsModule,
+    MatAutocompleteTrigger,
+    MatAutocomplete
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA
   ],
-  exports: [
-    TreeNodeItemComponent,
-    MaintenanceComponent,
-    TreeDossierItemComponent,
-    TextFieldComponent,
-    TelFieldComponent,
-    InstallationComponent,
-    IconeFieldComponent,
-    IconeViewComponent,
-    GroupeFormComponent,
-    CustomfieldFormComponent,
-    IssuetypeFormComponent,
-    StatesFormComponent
-  ]
+    exports: [
+        TreeNodeItemComponent,
+        MaintenanceComponent,
+        TreeDossierItemComponent,
+        TextFieldComponent,
+        TelFieldComponent,
+        InstallationComponent,
+        IconeFieldComponent,
+        IconeViewComponent,
+        GroupeFormComponent,
+        CustomfieldFormComponent,
+        IssuetypeFormComponent,
+        StatesFormComponent,
+        AssignFieldComponent
+    ]
 })
 export class MyCommonModule { }

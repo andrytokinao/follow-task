@@ -937,31 +937,65 @@ const ASSIGNE_TO_USER =  gql `
         id
         issueKey
         summary
+        creationDate
+        description
+        status {
+          id
+          icone {
+            id
+            typeIcone
+            value
+          }
+        }
         issueType {
           id
           name
+          prefix
           icone {
             id
             value
             typeIcone
           }
         }
-        status {
+        reporter {
           id
-          displayName
-          icone {
-            id
-            typeIcone
-            value
-          }
-        }
-        assigne {
-          id
-          firstName
+          username
+          lastName
           firstName
           photo
         }
+        values {
+          id
+          numeric
+          date
+          text
+          values
+          customField {
+            id
+            name
+            configDisplay
+            options
+            type
+          }
+          user {
+            id
+            username
+            lastName
+            firstName
+          }
+          issue {
+            id
+            issueKey
+          }
 
+        }
+        assigne {
+          id
+          username
+          lastName
+          firstName
+          photo
+        }
       }
     }
 `;
@@ -1088,12 +1122,57 @@ const LOAD_SUBTASK = gql`
         id
         issueKey
         summary
+        creationDate
+        description
+        status {
+          id
+          icone {
+            id
+            typeIcone
+            value
+          }
+        }
+        issueType {
+          id
+          name
+          prefix
+          icone {
+            id
+            value
+            typeIcone
+          }
+        }
         reporter {
           id
           username
           lastName
           firstName
           photo
+        }
+        values {
+          id
+          numeric
+          date
+          text
+          values
+          customField {
+            id
+            name
+            configDisplay
+            options
+            type
+          }
+          user {
+            id
+            username
+            lastName
+            firstName
+          }
+          issue {
+            id
+            issueKey
+          }
+
         }
         assigne {
           id

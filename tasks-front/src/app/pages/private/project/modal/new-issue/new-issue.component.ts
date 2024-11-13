@@ -5,6 +5,7 @@ import {FormsModule} from "@angular/forms";
 import {Issue, IssueType, Project, Status} from "../../../../../type/issue";
 import {IssueService} from "../../../../../services/issue.service";
 import {CdkTextareaAutosize} from "@angular/cdk/text-field";
+import {JsonpInterceptor} from "@angular/common/http";
 @Component({
   selector: 'app-edit-issue',
   templateUrl: './new-issue.component.html',
@@ -25,6 +26,8 @@ export class NewIssueComponent {
   issueType: IssueType | any = {};
   issueTypes: IssueType[] = [];
   project:Project | undefined;
+  protected  isDesable = false;
+
   @ViewChild('autosize') autosize: CdkTextareaAutosize | undefined;
   private _injector = inject(Injector);
   constructor(
@@ -70,6 +73,7 @@ export class NewIssueComponent {
 
   }
   public listIssueTypeMaster(project:Number){
+    this.isDesable = true;
     this.issueService.listIssueTypeMaster(project).subscribe(types=>{
       this.issueTypes = types;
       if (this.issueTypes != null && this.issueTypes.length != 0) {
@@ -79,6 +83,8 @@ export class NewIssueComponent {
     });
   }
   public listIssueTypeSubtasks(masterId:Number){
+    this.isDesable = true;
+
     this.issueService.listIssueTypeSubtasks(masterId).subscribe(types=>{
       this.issueTypes = types;
       if (this.issueTypes != null && this.issueTypes.length != 0) {
@@ -90,10 +96,13 @@ export class NewIssueComponent {
   public loadNextKey(issueTypeId:Number){
     this.issueService.getNextKey(issueTypeId).subscribe(key => {
       this.issueKey = key;
+    this.isDesable = false;
+
     });
   }
 
   changeType() {
-   this.loadNextKey(this.issueType.id);
+    this.isDesable = true;
+    this.loadNextKey(this.issueType.id);
   }
 }

@@ -58,7 +58,7 @@
       <div class="details-content" >
         <div class="header">
           <h1 class="folder-title" *ngIf="issue.reporter"><i class="fa fa-universal-access" aria-hidden="true"></i>   Creer par : <i> {{issue.reporter.firstName+' '+issue.reporter.lastName}}</i></h1>
-          <h1 class="folder-title"><i class="fa fa-hashtag" aria-hidden="true"></i> <span *ngIf="issue.assigne ; else unassigned"> Assigné  a :  <img  [src]="userService.getUrlPhoto(issue.assigne)" class="photo avatar__img--circle" alt="l'assigné a"  /> {{issue.assigne.firstName+' '+issue.assigne.lastName}}</span>  <ng-template #unassigned> Non assigné  </ng-template></h1>
+          <h1 class="folder-title"><i class="fa fa-hashtag" aria-hidden="true"></i> <app-assign-field [issue]="issue"></app-assign-field></h1>
           <h1 class="folder-title"> <i class="fa fa-folder" aria-hidden="true"></i> Dossier : {{repertoire.fileName}}
             <a [href]="downloadUrl()"    *ngIf ="selected> 0" class="btn btn-group download" style="float: right"> <i class="fa fa-download" aria-hidden="true"></i>- Download({{selected}}) </a>
             <span class="btn btn-group " style="float: right">

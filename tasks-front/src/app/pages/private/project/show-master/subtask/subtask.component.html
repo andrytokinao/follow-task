@@ -1,7 +1,28 @@
-<div class="content" >
-  <h3>Sous-tâches</h3>
-  <ul>
-    <li *ngFor="let subtask of subtasks">{{ subtask.issueKey }}</li>
-  </ul>
-  <button (click)="addSubtask()">Ajouter Sous-tâche</button>
+<div *ngIf="!isLoading" class="project-list list-group">
+  <div class="list-group"  *ngFor="let master of subtasks" class="project-card">
+    <a class="list-group-item list-group-item-action">
+      <div class="d-flex w-100 justify-content-between">
+        <h5 class="mb-1">  <app-icone-view [icon]="master.issueType.icone"  (click)="editIssue(master)"></app-icone-view> {{master.issueKey}}  {{master.summary}}</h5>
+        <small class="text-body-primary" *ngIf="master.creationDate">
+          <b >  <app-assign-field [issue]="master" ></app-assign-field> </b>
+          <span>{{master.creationDate | date}}</span>
+        </small>
+      </div>
+      <p class="mb-1">{{master.description}}.</p>
+      <span  *ngFor="let value of master.values">
+        <app-custom-field *ngIf="canShowInList(value)"
+                          [customFieldValue]="value" (save)="saveCustomFieldValue($event)"
+                          [viewMode]="viewModeField"
+        > </app-custom-field>
+      </span>
+
+    </a>
+
+  </div>
+  <div class="button-container">
+    <button class="btn-create"  (click)="addSubtask()">
+      <i class="fas fa-plus"></i> Créer
+    </button>
+  </div>
 </div>
+

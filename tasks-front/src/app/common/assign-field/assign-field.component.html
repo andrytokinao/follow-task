@@ -1,0 +1,19 @@
+<span class="assigne">
+  <span [matMenuTriggerFor]="menu2" mat-icon-button>
+     <img *ngIf="issue.assigne != null" [src]="userService.getUrlPhoto(issue.assigne)" class="image" alt="l'assigné a"/>
+  <img *ngIf="issue.assigne ==null" src="/assets/nonAssigner.jpg" alt="non assigner" mat-icon-button class="image"/>
+  <b *ngIf="issue.assigne != null"> Assigné à {{ issue.assigne.lastName }} </b>
+  <b *ngIf="!issue.assigne"> Non assigné </b>
+  </span>
+
+  <mat-menu #menu2="matMenu">
+    <div *ngIf="authGuard.hasAutority(['CAN_ASSIGN_TASK']) | async">
+      <h4> Assigner a </h4>
+      <button mat-menu-item *ngFor="let user of users" (click)="assigneToUser(user)"
+              [ngClass]="{'active': isActive(user)}">
+        <img [src]="userService.getUrlPhoto(user)" alt="Image" width="30px">
+        <span>{{ user.firstName }} {{ user.lastName }}</span>
+      </button>
+    </div>
+  </mat-menu>
+</span>

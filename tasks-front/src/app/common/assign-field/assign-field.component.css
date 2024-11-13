@@ -1,0 +1,8 @@
+.image {
+  width: 30px;
+  height: auto;
+  border-radius: 4px;
+}
+.active {
+  background-color: #e0e0e0;
+}

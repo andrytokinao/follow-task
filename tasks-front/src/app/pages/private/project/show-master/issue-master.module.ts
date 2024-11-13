@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, NgModule} from '@angular/core';
+import {ChangeDetectorRef, CUSTOM_ELEMENTS_SCHEMA, NgModule} from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import {CdkTextareaAutosize} from "@angular/cdk/text-field";
@@ -31,6 +31,10 @@ import {ShowMasterComponent} from "./show-master.component";
 import {SubtaskComponent} from "./subtask/subtask.component";
 import {DetailsComponent} from "./details/details.component";
 import {LivraisonComponent} from "./livraison/livraison.component";
+import {MatChip, MatChipsModule} from "@angular/material/chips";
+import {MatCheckboxModule} from "@angular/material/checkbox";
+import {MatButtonModule} from "@angular/material/button";
+import {MatDivider} from "@angular/material/divider";
 
 
 @NgModule({
@@ -43,34 +47,40 @@ import {LivraisonComponent} from "./livraison/livraison.component";
   ],
   exports: [
   ],
-    imports: [
-      IssueMasterRoutingModule,
-        MatTabsModule,
-        MatCardModule,
-        MatDialogModule,
-        MatToolbarModule,
-        MatFormFieldModule,
-        FormsModule,
-        MatMenuModule,
-        MatMenuModule,
-        MatIconModule,
-        MatSelectModule,
-        CommonModule,
-        MyCommonModule,
-        CdkTextareaAutosize,
-        MatInputModule,
-        MatTable,
-        MatHeaderRowDef,
-        MatRowDef,
-        MatCellDef,
-        MatHeaderCellDef,
-        MatColumnDef,
-        MatPaginatorModule,
-        MatCell,
-        MatHeaderCell,
-        MatHeaderRow,
-        MatRow,
-        CustomFieldComponent
-    ]
+  imports: [
+    IssueMasterRoutingModule,
+    MatTabsModule,
+    MatCardModule,
+    MatDialogModule,
+    MatToolbarModule,
+    MatFormFieldModule,
+    FormsModule,
+    MatMenuModule,
+    MatMenuModule,
+    MatIconModule,
+    MatSelectModule,
+    CommonModule,
+    MyCommonModule,
+    CdkTextareaAutosize,
+    MatInputModule,
+    MatTable,
+    MatHeaderRowDef,
+    MatRowDef,
+    MatCellDef,
+    MatHeaderCellDef,
+    MatColumnDef,
+    MatPaginatorModule,
+    MatCell,
+    MatHeaderCell,
+    MatHeaderRow,
+    MatRow,
+    CustomFieldComponent,
+    MatCardModule,
+    MatIconModule,
+    MatButtonModule,
+    MatChipsModule,
+    MatDivider,
+  ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class IssueMasterModule { }

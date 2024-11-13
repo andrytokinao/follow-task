@@ -10,9 +10,6 @@
         <small class="text-body-secondary" *ngIf="master.creationDate">{{master.creationDate | date}}</small>
       </div>
       <p class="mb-1">{{master.description}}.</p>
-<!--
-      <small class="text-body-secondary">And some muted small print.</small>
--->
       <span  *ngFor="let value of master.values">
         <app-custom-field *ngIf="canShowInList(value)"
                           [customFieldValue]="value" (save)="saveCustomFieldValue($event)"

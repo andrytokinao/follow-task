@@ -127,7 +127,7 @@ export class BoardComponent implements OnInit {
   assigneToUser(user: User) {
     if (this.currentIssue != null) {
       this.currentIssue.assigne = user;
-      this.issueService.assigneToUser(this.currentIssue).subscribe((issue:Issue)=>{
+      this.issueService.assigneToUser(this.currentIssue,user).subscribe((issue:Issue)=>{
           this.currentIssue = issue;
         }
       );
