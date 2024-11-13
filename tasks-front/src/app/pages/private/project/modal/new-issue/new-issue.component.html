@@ -6,7 +6,16 @@
 </div>
 <div class="modal-body">
   <form #f="ngForm" (ngSubmit)="save()">
-    <div class="form-group">
+    <div class="form-group" #parent>
+      <mat-form-field style="width: 100%">
+        <mat-label>Clé </mat-label>
+        <input matInput
+               cdkTextareaAutosize
+               cdkAutosizeMinRows="1"
+               [(ngModel)]="issueKey"
+               [ngModelOptions]="{standalone: true}"
+               cdkAutosizeMaxRows="5"/>
+      </mat-form-field>
       <mat-form-field style="width: 100%" >
         <mat-label>Type </mat-label>
         <mat-select [(value)]="issueType" (valueChange)="changeType()" >
@@ -22,16 +31,16 @@
           class="form-control"
           typeField="text">
       </mat-form-field>
-      <mat-form-field style="width: 100%">
-        <mat-label>Clé </mat-label>
-        <textarea matInput
-                  cdkTextareaAutosize
-                  #autosize="cdkTextareaAutosize"
-                  cdkAutosizeMinRows="1"
-                  [(ngModel)]="issueKey"
-                  [ngModelOptions]="{standalone: true}"
-                  cdkAutosizeMaxRows="5"></textarea>
+      <mat-form-field class="textarea-mat-field">
+        <mat-label>Text description</mat-label>
+        <textarea
+          matInput
+          placeholder="Description .."
+          [(ngModel)]="description"
+          [ngModelOptions]="{standalone: true}"
+          style="height: 50px;width: 1001px"></textarea>
       </mat-form-field>
+
 
     </div>
   </form>

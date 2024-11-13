@@ -42,6 +42,7 @@ export class NewIssueComponent {
     let issueType : any = {};
     status.id = this.status?.id;
     issue.summary = this.summary;
+    issue.description = this.description;
     issue.issueKey = this.issueKey;
      project.id = this.project?.id;
      issueType.project = project;
