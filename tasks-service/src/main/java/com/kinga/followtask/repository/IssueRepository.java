@@ -1,6 +1,7 @@
 package com.kinga.followtask.repository;
 
 import com.kinga.followtask.entity.Issue;
+import com.kinga.followtask.entity.IssueType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,5 +18,7 @@ public interface IssueRepository extends JpaRepository<Issue,Long> {
     public List<Issue> findByIssueTypeIdIn(List<Long> issueT);
     public Issue findByIssueKey(String issueKey);
     public List<Issue> findByParentId(Long parentId);
+    public List<Issue> findByIssueTypeProjectPrefix(String prefix);
+    public List<Issue> findByIssueTypeIn(List<IssueType> issueTypes);
 
 }

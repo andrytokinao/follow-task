@@ -1,0 +1,37 @@
+.breadcrumb {
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  color: #333;
+}
+
+.breadcrumb a {
+  color: #007BFF;
+  text-decoration: none;
+  font-weight: bold;
+  padding: 8px 15px;
+  background-color: #f7f9fc;
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+  transition: color 0.3s, box-shadow 0.3s;
+  margin-right: 10px;
+}
+
+.breadcrumb a:hover {
+  color: #0056b3;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+}
+
+.breadcrumb .separator {
+  font-size: 24px;
+  color: #999;
+  margin: 0 12px;
+}
+
+.breadcrumb .current {
+  color: #555;
+  padding: 8px 15px;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}

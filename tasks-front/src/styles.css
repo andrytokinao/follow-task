@@ -118,6 +118,10 @@ h1,h2,h3,h4 {
 .menu-btn.active {
   background-color: #e8f3e8;
 }
+.active {
+  background-color: #e8f3e8;
+}
+
 
 #content {
   margin-top: 20px;

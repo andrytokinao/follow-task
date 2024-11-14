@@ -321,4 +321,13 @@ public class ProjectService {
     public List<Issue> loadSubtask (Long parentId) {
         return this.issueRepository.findByParentId (parentId);
     }
+
+    public List<Issue> allByProject (String prefix) {
+        return this.issueRepository.findByIssueTypeProjectPrefix(prefix);
+    }
+
+    public List<Issue> loadIssueMasterByProject (Long projectId) {
+        List<IssueType> types = listIssueTypeMaster (projectId);
+        return issueRepository.findByIssueTypeIn (types);
+    }
 }

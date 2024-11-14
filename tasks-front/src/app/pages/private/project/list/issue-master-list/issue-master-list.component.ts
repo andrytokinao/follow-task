@@ -48,7 +48,7 @@ export class IssueMasterListComponent {
         this.userService.getUsers(this.project.prefix).subscribe((res: any) => {
           this.users = stripTypename(res.data.allUsers);
         });
-        this.essueService.getIssues(this.project.prefix).subscribe((res: any) => {
+        this.essueService.loadIssueMasterByProject(this.project.id).subscribe((res: any) => {
           this.issues = stripTypename(res);
           this.dataSource =  new MatTableDataSource<Issue>(this.issues);
           this.dataSource.paginator = this.paginator;

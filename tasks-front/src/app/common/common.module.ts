@@ -25,6 +25,8 @@ import {IssuetypeFormComponent} from "./issuetype-form/issuetype-form.component"
 import {StatesFormComponent} from "./states-form/states-form.component";
 import {AssignFieldComponent} from "./assign-field/assign-field.component";
 import {MatAutocomplete, MatAutocompleteTrigger} from "@angular/material/autocomplete";
+import {BreadcrumbComponent} from "./navigation/breadcrumb.component";
+import {RouterLink} from "@angular/router";
 
 @NgModule({
   declarations: [
@@ -40,33 +42,35 @@ import {MatAutocomplete, MatAutocompleteTrigger} from "@angular/material/autocom
     CustomfieldFormComponent,
     IssuetypeFormComponent,
     StatesFormComponent,
-    AssignFieldComponent
+    AssignFieldComponent,
+    BreadcrumbComponent
 
   ],
-  imports: [
-    CommonModule,
-    MatMenuModule,
-    MatIconModule,
-    MatSelectModule,
-    MatFormFieldModule,
-    MatCardModule,
-    MatDialogModule,
-    MatToolbarModule,
-    MatSelectModule,
-    FormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    FormsModule,
-    MatFormField,
-    MatInput,
-    MatLabel,
-    NgIf,
-    NgClass,
-    ReactiveFormsModule,
-    MatAutocompleteTrigger,
-    MatAutocomplete
-  ],
+    imports: [
+        CommonModule,
+        MatMenuModule,
+        MatIconModule,
+        MatSelectModule,
+        MatFormFieldModule,
+        MatCardModule,
+        MatDialogModule,
+        MatToolbarModule,
+        MatSelectModule,
+        FormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatButtonModule,
+        FormsModule,
+        MatFormField,
+        MatInput,
+        MatLabel,
+        NgIf,
+        NgClass,
+        ReactiveFormsModule,
+        MatAutocompleteTrigger,
+        MatAutocomplete,
+        RouterLink
+    ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA
   ],
@@ -83,7 +87,8 @@ import {MatAutocomplete, MatAutocompleteTrigger} from "@angular/material/autocom
         CustomfieldFormComponent,
         IssuetypeFormComponent,
         StatesFormComponent,
-        AssignFieldComponent
+        AssignFieldComponent,
+      BreadcrumbComponent
     ]
 })
 export class MyCommonModule { }

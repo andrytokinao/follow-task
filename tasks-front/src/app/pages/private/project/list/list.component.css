@@ -1,8 +1,7 @@
 .card{
   min-width: 250px;
   height: 80px;
-  height: 80px;
-  background-color: #f8f8f8;
+  height: 55px;
   cursor: pointer;
 }
 .card-list {

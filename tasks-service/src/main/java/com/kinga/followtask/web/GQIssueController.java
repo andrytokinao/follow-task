@@ -215,4 +215,8 @@ public class GQIssueController {
     public List<Issue> loadSubtask(@Argument Long parentId){
         return projectService.loadSubtask(parentId);
     }
+    @QueryMapping
+    public List<Issue> loadIssueMasterByProject(@Argument Long projectId) {
+        return projectService.loadIssueMasterByProject(projectId);
+    }
 }

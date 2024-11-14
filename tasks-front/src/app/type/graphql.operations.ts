@@ -1184,6 +1184,74 @@ const LOAD_SUBTASK = gql`
       }
     }
 `
+const LOAD_ISSUE_MASTER_BY_PROJECT = gql`
+  query loadIssueMasterByProject($projectId:Int) {
+    loadIssueMasterByProject(projectId: $projectId){
+      id
+      issueKey
+      summary
+      creationDate
+      description
+      status {
+        id
+        icone {
+          id
+          typeIcone
+          value
+        }
+      }
+      issueType {
+        id
+        name
+        prefix
+        icone {
+          id
+          value
+          typeIcone
+        }
+      }
+      reporter {
+        id
+        username
+        lastName
+        firstName
+        photo
+      }
+      values {
+        id
+        numeric
+        date
+        text
+        values
+        customField {
+          id
+          name
+          configDisplay
+          options
+          type
+        }
+        user {
+          id
+          username
+          lastName
+          firstName
+        }
+        issue {
+          id
+          issueKey
+        }
+
+      }
+      assigne {
+        id
+        username
+        lastName
+        firstName
+        photo
+      }
+    }
+  }
+`
 export {
   supprimerTypename,
   SAVE_USER,
@@ -1230,7 +1298,8 @@ export {
   LIST_ISSUE_TYPE_SUBTASKS,
   GET_NEXT_KEY,
   GET_ISSUE,
-  LOAD_SUBTASK
+  LOAD_SUBTASK,
+  LOAD_ISSUE_MASTER_BY_PROJECT
 }
 function  supprimerTypename<T>(objet: T): T {
   if (!objet || typeof objet !== 'object') {

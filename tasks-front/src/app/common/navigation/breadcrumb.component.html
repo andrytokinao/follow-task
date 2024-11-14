@@ -1,0 +1,17 @@
+<div class="breadcrumb">
+  <ng-container *ngFor="let breadcrumb of breadcrumbs; let i = index">
+    <div class="breadcrumb-item">
+      <a (click)="toggleSubMenu(i)">{{ breadcrumb.label }}</a>
+
+
+      <div *ngIf="activeSubMenu === i" class="sub-menu">
+        <ng-container *ngFor="let subItem of breadcrumb.subItems">
+          <a [routerLink]="subItem.url">{{ subItem.label }}</a>
+        </ng-container>
+      </div>
+    </div>
+
+    <!-- Séparateur -->
+    <span *ngIf="i < breadcrumbs.length - 1" class="separator">›</span>
+  </ng-container>
+</div>

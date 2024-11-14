@@ -27,7 +27,7 @@ import {
   GET_GROUPE_USER_FOR_PROJECT, GET_ISSUE,
   GET_ISSUE_TYPE_BY_ID,
   GET_NEXT_KEY,
-  ISSUE_BY_CRITERIA, LIST_ISSUE_TYPE_MASTER, LIST_ISSUE_TYPE_SUBTASKS, LOAD_SUBTASK,
+  ISSUE_BY_CRITERIA, LIST_ISSUE_TYPE_MASTER, LIST_ISSUE_TYPE_SUBTASKS, LOAD_ISSUE_MASTER_BY_PROJECT, LOAD_SUBTASK,
   REMOVE_ISSUE_TYPE_PARENT,
   SAVE_CONFIG,
   SAVE_CONFIG_PROJECT,
@@ -701,6 +701,22 @@ export class IssueService {
         fetchPolicy:"network-only"
       }).subscribe((res:any)=>{
         observer.next(supprimerTypename(res.data.loadSubtask));
+        observer.complete();
+      },error => {
+        observer.error(error);
+        observer.complete();
+      })
+    })
+  }
+
+  loadIssueMasterByProject(projectId: Number) {
+    return new Observable<Issue[]>(observer => {
+      this.apollo.query({
+        query:LOAD_ISSUE_MASTER_BY_PROJECT,
+        variables:{projectId},
+        fetchPolicy:"network-only"
+      }).subscribe((res:any)=>{
+        observer.next(supprimerTypename(res.data.loadIssueMasterByProject));
         observer.complete();
       },error => {
         observer.error(error);

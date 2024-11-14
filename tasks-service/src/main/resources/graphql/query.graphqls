@@ -29,5 +29,6 @@ type Query {
     getNextKey(issueTypeId:Int):String
     getIssue(issueKey:String):Issue
     loadSubtask(parentId:Int):[Issue]
+    loadIssueMasterByProject(projectId:Int):[Issue]
 
 }
