@@ -685,6 +685,23 @@ const GET_ISSUE_TYPE_BY_ID = gql`
          value
        }
      }
+     curentWorkFlow {
+       id
+       name
+       project {
+         id
+       }
+       statuses {
+         id
+         icone {
+           id
+           value
+           typeIcone
+         }
+
+       }
+     }
+
    }
  }
 `

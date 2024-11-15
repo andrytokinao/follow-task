@@ -27,6 +27,7 @@ import {AssignFieldComponent} from "./assign-field/assign-field.component";
 import {MatAutocomplete, MatAutocompleteTrigger} from "@angular/material/autocomplete";
 import {BreadcrumbComponent} from "./navigation/breadcrumb.component";
 import {RouterLink} from "@angular/router";
+import {StatusFieldComponent} from "./status-field/status-field.component";
 
 @NgModule({
   declarations: [
@@ -43,7 +44,8 @@ import {RouterLink} from "@angular/router";
     IssuetypeFormComponent,
     StatesFormComponent,
     AssignFieldComponent,
-    BreadcrumbComponent
+    BreadcrumbComponent,
+    StatusFieldComponent
 
   ],
     imports: [
@@ -88,7 +90,8 @@ import {RouterLink} from "@angular/router";
         IssuetypeFormComponent,
         StatesFormComponent,
         AssignFieldComponent,
-      BreadcrumbComponent
+      BreadcrumbComponent,
+      StatusFieldComponent
     ]
 })
 export class MyCommonModule { }

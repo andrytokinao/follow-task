@@ -31,7 +31,8 @@
 
       <ng-container matColumnDef="status">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
-        <td mat-cell *matCellDef="let element">  <span *ngIf="element.status != null"> <app-icone-view *ngIf="element.status != null " [icon]="element.status.icone" ></app-icone-view> {{element.status.displayName}} </span></td>
+        <td mat-cell *matCellDef="let element">  <app-status-field [issue]="element"></app-status-field></td>
+
       </ng-container>
       <ng-container matColumnDef="assigne">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>Assigné</th>

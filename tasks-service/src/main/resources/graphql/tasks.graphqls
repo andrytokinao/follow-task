@@ -253,6 +253,7 @@ input IssueTypeInput{
     usingCustomFields:[UsingCustomFieldInput]
     icone:IconeInput
     project:ProjectInput
+    statuses:[StatusInput]
     curentWorkFlow:WorkFlowInput
 }
 
