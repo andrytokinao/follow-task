@@ -380,3 +380,54 @@ input ConfigProjectInput {
     configof:String
     value:String
 }
+input IssueSearchCriteriaInput {
+    key: String
+    summary: String
+    dateFrom: String
+    dateTo: String
+    statusIds: [ID]
+    issueTypeIds: [ID]
+    assigneUsernames: [String]
+    customFieldStringValues: [CustomFieldStringValuesInput]
+    customFieldDateValues: [CustomFieldDateValuesInput]
+    customFieldDateValueFrom: [CustomFieldDateValueFromInput]
+    customFieldDateValueTo: [CustomFieldDateValueToInput]
+    customFieldUserIds: [CustomFieldUserIdsInput]
+    customFieldIssueIds: [CustomFieldIssueIdsInput]
+    customFieldTextValues: [CustomFieldTextValuesInput]
+}
+
+input CustomFieldStringValuesInput {
+    customFieldId: ID
+    values: [String]
+}
+
+input CustomFieldDateValuesInput {
+    customFieldId: ID
+    values: [String]
+}
+
+input CustomFieldDateValueFromInput {
+    customFieldId: ID
+    value: String
+}
+
+input CustomFieldDateValueToInput {
+    customFieldId: ID
+    value: String
+}
+
+input CustomFieldUserIdsInput {
+    customFieldId: ID
+    userIds: [String]
+}
+
+input CustomFieldIssueIdsInput {
+    customFieldId: ID
+    issueIds: [ID]
+}
+
+input CustomFieldTextValuesInput {
+    customFieldId: ID
+    textValues: [String]
+}

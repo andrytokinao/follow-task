@@ -3,6 +3,8 @@ package com.kinga.followtask.web;
 import com.kinga.followtask.dto.Criteria;
 import com.kinga.followtask.dto.ValueDto;
 import com.kinga.followtask.entity.*;
+import com.kinga.followtask.repository.criteria.IssueSearchCriteria;
+import com.kinga.followtask.repository.criteria.IssueSpecification;
 import com.kinga.followtask.service.AuthorizationService;
 import com.kinga.followtask.service.ConfigService;
 import com.kinga.followtask.service.IssueService;
@@ -218,5 +220,9 @@ public class GQIssueController {
     @QueryMapping
     public List<Issue> loadIssueMasterByProject(@Argument Long projectId) {
         return projectService.loadIssueMasterByProject(projectId);
+    }
+    @QueryMapping
+    public List<Issue> searchIssues(@Argument IssueSearchCriteria criteria) {
+        return  projectService.searchIssues (criteria);
     }
 }

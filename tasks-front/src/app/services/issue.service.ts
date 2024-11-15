@@ -30,12 +30,13 @@ import {
   ISSUE_BY_CRITERIA, LIST_ISSUE_TYPE_MASTER, LIST_ISSUE_TYPE_SUBTASKS, LOAD_ISSUE_MASTER_BY_PROJECT, LOAD_SUBTASK,
   REMOVE_ISSUE_TYPE_PARENT,
   SAVE_CONFIG,
-  SAVE_CONFIG_PROJECT,
+  SAVE_CONFIG_PROJECT, SEARCH_ISSUES,
   supprimerTypename,
   UN_USE_CUSTOM_FIELD,
   USE_CUSTOM_FIELD
 } from "../type/graphql.operations";
 import {environment} from "../../environments/environment";
+import {IssueSearchCriteriaInput} from "../type/issue-search-criteria.util";
 
 @Injectable({
   providedIn: 'root',
@@ -717,6 +718,21 @@ export class IssueService {
         fetchPolicy:"network-only"
       }).subscribe((res:any)=>{
         observer.next(supprimerTypename(res.data.loadIssueMasterByProject));
+        observer.complete();
+      },error => {
+        observer.error(error);
+        observer.complete();
+      })
+    })
+  }
+  searchIssues(criteria: IssueSearchCriteriaInput) {
+    return new Observable<Issue[]>(observer => {
+      this.apollo.query({
+        query:SEARCH_ISSUES,
+        variables:{criteria},
+        fetchPolicy:"network-only"
+      }).subscribe((res:any)=>{
+        observer.next(supprimerTypename(res.data.searchIssues));
         observer.complete();
       },error => {
         observer.error(error);

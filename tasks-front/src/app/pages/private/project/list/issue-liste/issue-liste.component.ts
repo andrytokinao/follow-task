@@ -1,17 +1,27 @@
 import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
-import {Criteria, Issue, IssueType, Project, Status, User, WorkFlow} from "../../../../../type/issue";
+import {
+  Criteria,
+  Issue,
+  IssueType,
+  Project,
+  Status,
+  User,
+  WorkFlow
+} from "../../../../../type/issue";
 import _default from "chart.js/dist/plugins/plugin.tooltip";
 import type = _default.defaults.animations.numbers.type;
 import {stripTypename} from "@apollo/client/utilities";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {IssueService} from "../../../../../services/issue.service";
 import {UserService} from "../../../../../services/user.service";
-import {ActivatedRoute, Router} from "@angular/router";
+import {ActivatedRoute, ParamMap, Router} from "@angular/router";
 import {MatTableDataSource, MatTableModule} from "@angular/material/table";
 import {MatPaginator, MatPaginatorModule} from "@angular/material/paginator";
 import {MyCommonModule} from "../../../../../common/common.module";
 import {ViewEditIssueComponent} from "../../modal/view-edit-issue/view-edit-issue.component";
 import {NgIf} from "@angular/common";
+import {AuthService} from "../../../../../services/auth.service";
+import {fromUrlParams, IssueSearchCriteriaInput} from "../../../../../type/issue-search-criteria.util";
 
 @Component({
   selector: 'app-issue-liste',
@@ -24,11 +34,14 @@ export class IssueListeComponent implements OnInit ,AfterViewInit{
     private issueService: IssueService,
     private essueService: IssueService,
     public userService: UserService,
+    public authService: AuthService,
      private route: ActivatedRoute,
      private router: Router
   ) {
 
   }
+  searchCriteria: IssueSearchCriteriaInput | any = {
+  };
   public issues: Issue[] = [];
   public users: User[] = [];
   public currentIssue: Issue | null = null;
@@ -52,11 +65,11 @@ export class IssueListeComponent implements OnInit ,AfterViewInit{
         this.userService.getUsers(this.project.prefix).subscribe((res: any) => {
           this.users = stripTypename(res.data.allUsers);
         });
-        this.essueService.getIssues(this.project.prefix).subscribe((res: any) => {
-          this.issues = stripTypename(res);
-          this.dataSource =  new MatTableDataSource<Issue>(this.issues);
-          this.dataSource.paginator = this.paginator;
+       // this.loadMySubtask();
 
+        this.route.queryParamMap.subscribe((params:ParamMap) => {
+          this.searchCriteria = fromUrlParams(params);
+          this.search();
         });
       }
     });
@@ -86,5 +99,13 @@ export class IssueListeComponent implements OnInit ,AfterViewInit{
   editFilter() {
   }
   aplayFilter(){
+  }
+
+  search(){
+    this.issueService.searchIssues(this.searchCriteria).subscribe(issues => {
+      this.issues = stripTypename(issues);
+      this.dataSource =  new MatTableDataSource<Issue>(this.issues);
+      this.dataSource.paginator = this.paginator;
+    })
   }
 }

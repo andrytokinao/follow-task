@@ -4,6 +4,8 @@ import com.kinga.followtask.dto.Criteria;
 import com.kinga.followtask.entity.*;
 import com.kinga.followtask.entity.enumapp.Niveau;
 import com.kinga.followtask.repository.*;
+import com.kinga.followtask.repository.criteria.IssueSearchCriteria;
+import com.kinga.followtask.repository.criteria.IssueSpecification;
 import com.kinga.utils.KingaUtils;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -328,6 +330,13 @@ public class ProjectService {
 
     public List<Issue> loadIssueMasterByProject (Long projectId) {
         List<IssueType> types = listIssueTypeMaster (projectId);
-        return issueRepository.findByIssueTypeIn (types);
+      //  return issueRepository.findByIssueTypeIn (types);
+        IssueSearchCriteria criteria = new IssueSearchCriteria ();
+        criteria.setKey ("TYPE-1");
+        return searchIssues (criteria);
+    }
+    public List<Issue> searchIssues(IssueSearchCriteria criteria) {
+        IssueSpecification specification = new IssueSpecification(criteria);
+        return issueRepository.findAll(specification);
     }
 }

@@ -17,6 +17,7 @@ const list: Routes = [
         children: [
           { path: 'master', component: IssueMasterListComponent },
           { path: 'issue', component: IssueListeComponent },
+          { path: 'search-issue', component: IssueListeComponent },
         ]
       }
     ]
