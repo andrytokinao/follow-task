@@ -53,7 +53,7 @@ export class IssueListeComponent implements OnInit ,AfterViewInit{
   email: any;
   project: Project | undefined;
   issueType: IssueType | any = {};
-  displayedColumns: string[] = ['id', 'summary', 'description', 'issueKey', 'issueType', 'status'];
+  displayedColumns: string[] = ['id', 'summary', 'description', 'issueKey', 'issueType', 'status',"assigne"];
   dataSource:MatTableDataSource<Issue> ;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
