@@ -14,6 +14,7 @@ import {MatList, MatListItem} from "@angular/material/list";
 import {CustomFieldComponent} from "../../../../../common/custom-field/custom-field.component";
 import {IssueTypeModalComponent} from "../issue-type/issue-type-modal/issue-type-modal.component";
 import {PopupCustomFieldComponent} from "./popup-custom-field/popup-custom-field.component";
+import {CustomFieldSepperComponent} from "./custom-field-sepper/custom-field-sepper.component";
 
 @Component({
   selector: 'config-app-custom-field',
@@ -41,8 +42,9 @@ export class ConfigCustomFieldComponent implements OnInit{
 
   }
   newCustomField(){
-    const dialogRef = this.modalService.open(NewCustomFieldComponent);
+    const dialogRef = this.modalService.open(CustomFieldSepperComponent);
     dialogRef.componentInstance.project = this.project;
+    dialogRef.componentInstance.issueTypes = this.project.issueTypes;
     dialogRef.result.then((result) => {
       this.issueService.allCustomField().subscribe(customFields=>{
         this.customFields = customFields;
@@ -129,9 +131,10 @@ export class ConfigCustomFieldComponent implements OnInit{
     return  CustomFieldComponent.getIcone(field);
   }
   editCustomField(customField:CustomField) {
-    const dialogRef = this.modalService.open(PopupCustomFieldComponent,{windowClass: "xlModal"} );
+    const dialogRef = this.modalService.open(CustomFieldSepperComponent);
     dialogRef.componentInstance.issueTypes = this.project.issueTypes;
     dialogRef.componentInstance.getCustomField(customField.id) ;
+    dialogRef.componentInstance.desabledTypeField() ;
     dialogRef.result.then((res) => {
       this.issueType = res;
     })

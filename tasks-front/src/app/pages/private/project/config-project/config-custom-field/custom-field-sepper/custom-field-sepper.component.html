@@ -1,0 +1,148 @@
+<mat-dialog-content>
+
+  <mat-tab-group>
+    <mat-tab label="Champ personnalisé ">
+      <mat-card class="mat-padding">
+        <mat-stepper orientation="vertical" [linear]="isLinear" #stepper >
+          <mat-step [stepControl]="firstFormGroup">
+            <form [formGroup]="firstFormGroup">
+              <ng-template matStepLabel> Creation du champ</ng-template>
+              <mat-form-field>
+                <mat-label>Nom du champ</mat-label>
+                <input
+                  matInput
+                  formControlName="fiedName"
+                  [(ngModel)]="customField.name"
+                  typeField="text">
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label> Description</mat-label>
+                <input
+                  matInput
+                  formControlName="description"
+                  [(ngModel)]="customField.description"
+                  [disabled]="true"
+                  placeholder="Quelque description"
+                  typeField="text">
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>Type du champ</mat-label>
+                <mat-select
+                  [(value)]="customField.type"
+                  [disabled]="true"
+
+                  formControlName="typeControle"
+                >
+                  <mat-option *ngFor="let field of fields" [value]="field.value">
+                    {{ field.viewValue }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+              <div>
+                <button mat-button matStepperNext [disabled]="!firstFormGroup.valid" (click)="create()">Next</button>
+              </div>
+            </form>
+          </mat-step>
+          <mat-step [stepControl]="secondFormGroup">
+            <form [formGroup]="secondFormGroup">
+              <ng-template matStepLabel>Parametre d'affichage affichage</ng-template>
+              <div class="sidebar-heding ">
+                <div *ngFor="let option of displayOptions">
+                  <mat-checkbox
+                    [checked]="isSelected(option.name)"
+                    (change)="onChangeDisplayOptions($event,option.name)"
+                    [disabled]="this.customField.id == null"
+                  >
+                    {{ option.label }}
+                  </mat-checkbox>
+                </div>
+              </div>
+              <div>
+                <button mat-button matStepperNext [disabled]="!firstFormGroup.valid">Next</button>
+              </div>
+            </form>
+          </mat-step>
+          <mat-step [stepControl]="secondFormGroup">
+            <form [formGroup]="secondFormGroup">
+              <ng-template matStepLabel>Type des tache </ng-template>
+              <mat-card class="mat-padding">
+                <div class="sidebar-heding row">
+                  <div class="list-container">
+                    <ul>
+                      <li *ngFor="let it of issueTypes; " (click)="toggleCheck(it)">
+                        <label >
+                          <app-icone-view [icon]="it.icone" [width]="'fa-1x'"></app-icone-view>
+                          <span>{{ it.name }}</span>
+
+                        </label>
+                        <input
+                          type="checkbox"
+                          [id]="'type-' + it.id"
+                          [disabled]="this.customField.id == null"
+                          class="checkbox-right"
+                          [checked]="isUsing(it)">
+
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </mat-card>
+              <div>
+                <button mat-button matStepperNext >Next</button>
+              </div>
+            </form>
+          </mat-step>
+          <mat-step [stepControl]="secondFormGroup" *ngIf="customField.type === 'Selection' || customField.type === 'CheckBox'">
+              <ng-template matStepLabel>Liste d'options</ng-template>
+              <div class="sidebar-heading">
+                <div class="list-container">
+                  <mat-card class="mat-padding">
+                    <ul>
+                      <li *ngFor="let cf of options">
+                        <span>{{ cf }}</span>
+                      </li>
+                    </ul>
+                  </mat-card>
+                  <!-- Form field for adding a new option -->
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>New Option</mat-label>
+                    <input
+                      matInput
+                      type="text"
+                      placeholder="Press enter for add"
+                      [disabled]="this.customField.id == null"
+                      [(ngModel)]="newOption"
+                      (keydown.enter)="onEnter()"
+                    />
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <div>
+                <!-- Button to proceed to the next step -->
+                <button mat-button matStepperNext [disabled]="customField.id == null">Next</button>
+              </div>
+          </mat-step>
+
+          <mat-step>
+            <ng-template matStepLabel>Done</ng-template>
+            <p>You are now done.</p>
+            <div>
+              <button mat-button matStepperPrevious>Back</button>
+              <button mat-button (click)="stepper.reset()">Reset</button>
+            </div>
+          </mat-step>
+        </mat-stepper>
+
+      </mat-card>
+    </mat-tab>
+
+  </mat-tab-group>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <div style="padding: 10px">
+    <span fxFlex></span>
+    <button mat-raised-button class="btn success" color="primary" (click)="onSaveClick()" [disabled]="this.customField.id == null"><span> Terminer </span>
+    </button>
+  </div>
+</mat-dialog-actions>
