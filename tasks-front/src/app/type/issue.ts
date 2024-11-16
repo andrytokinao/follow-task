@@ -17,6 +17,7 @@ export class Issue {
   values:CustomFieldValue[];
   reporter:User = new User();
   issueType:IssueType | any = {};
+  parent:Issue
   comments :Comment[] = [];
   constructor() {
 

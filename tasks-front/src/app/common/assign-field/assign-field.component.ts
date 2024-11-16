@@ -10,6 +10,7 @@ import {IssueService} from "../../services/issue.service";
 import {ActivatedRoute} from "@angular/router";
 import {ToastrService} from "ngx-toastr";
 import {AuthGuard} from "../../services/authorization.service.ts";
+import {AuthService} from "../../services/auth.service";
 
 @Component({
   selector: 'app-assign-field',
@@ -32,7 +33,9 @@ export class AssignFieldComponent implements OnInit{
     public userService: UserService,
     private route: ActivatedRoute,
     private toastr: ToastrService,
-    protected authGuard:AuthGuard
+    protected authGuard:AuthGuard,
+    private authService: AuthService,
+
 
   ) {
 

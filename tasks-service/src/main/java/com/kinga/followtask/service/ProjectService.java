@@ -330,10 +330,8 @@ public class ProjectService {
 
     public List<Issue> loadIssueMasterByProject (Long projectId) {
         List<IssueType> types = listIssueTypeMaster (projectId);
-      //  return issueRepository.findByIssueTypeIn (types);
-        IssueSearchCriteria criteria = new IssueSearchCriteria ();
-        criteria.setKey ("TYPE-1");
-        return searchIssues (criteria);
+        return issueRepository.findByIssueTypeIn (types);
+
     }
     public List<Issue> searchIssues(IssueSearchCriteria criteria) {
         IssueSpecification specification = new IssueSpecification(criteria);

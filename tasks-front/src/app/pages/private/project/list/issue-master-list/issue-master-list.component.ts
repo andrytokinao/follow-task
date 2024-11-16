@@ -42,6 +42,8 @@ export class IssueMasterListComponent {
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   ngAfterViewInit() {
+    this.isLoading = false;
+
     this.route.data.subscribe(data => {
       this.project = data['project'];
       if (this.project && this.project.prefix) {
@@ -52,17 +54,15 @@ export class IssueMasterListComponent {
           this.issues = stripTypename(res);
           this.dataSource =  new MatTableDataSource<Issue>(this.issues);
           this.dataSource.paginator = this.paginator;
+          this.isLoading = false;
 
         });
       }
     });
   }
   editIssue(issue:Issue){
-    if(issue.issueType.level =="PARENT") {
-      this.browsIssue(issue);
-    } else {
-      this.openDialogIssue(issue);
-    }
+      this.browsIssueMaster(issue);
+
   }
   openDialogIssue(issue:Issue){
     const dialogRef = this.modalService.open(ViewEditIssueComponent, {windowClass: "xlModal"});
@@ -72,9 +72,8 @@ export class IssueMasterListComponent {
       this.currentIssue = null;
     })
   }
-  browsIssue(issue:Issue){
-    this.router.navigate(["private/working/"+this.project.prefix+"/issue/"+issue.issueKey+"/details"])
-
+  browsIssueMaster(issue:Issue){
+    this.issueService.browsIssueMaster(issue);
   }
   editFilter() {
   }

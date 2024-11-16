@@ -6,6 +6,10 @@ import {UserService} from "../../services/user.service";
 import {ActivatedRoute} from "@angular/router";
 import {ToastrService} from "ngx-toastr";
 import {AuthGuard} from "../../services/authorization.service.ts";
+import {AuthService} from "../../services/auth.service";
+import {Observable} from "rxjs";
+import _default from "chart.js/dist/plugins/plugin.tooltip";
+import reset = _default.reset;
 
 @Component({
   selector: 'app-status-field',
@@ -22,7 +26,8 @@ export class StatusFieldComponent implements OnInit , AfterViewInit{
     public userService: UserService,
     private route: ActivatedRoute,
     private toastr: ToastrService,
-    protected authGuard:AuthGuard
+    protected authGuard:AuthGuard,
+    protected authService:AuthService
 
   ) {
 
@@ -46,6 +51,20 @@ export class StatusFieldComponent implements OnInit , AfterViewInit{
   ngOnInit(): void {
     this.issueService.getIssueTypeById(this.issue.issueType.id).subscribe(issueType=>{
       this.issueType = issueType;
+    })
+  }
+
+  canChangeStatus() {
+    return new Observable<boolean>(observer=>{
+      this.authService.getProfile().subscribe((profile:any)=>{
+        if (profile.id == this.issue.assigne.id || this.issue.reporter.id == profile.id) {
+          observer.next(true);
+          observer.complete();
+        }  else {
+          observer.next(true);
+          observer.complete();
+        }
+      })
     })
   }
 }

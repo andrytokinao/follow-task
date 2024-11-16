@@ -5,7 +5,7 @@
 </span>
 
 <mat-menu #menu2="matMenu">
-  <div *ngIf="authGuard.hasAutority(['CAN_ASSIGN_TASK']) | async">
+  <div *ngIf="canChangeStatus() | async">
     <h4> status  </h4>
     <span  *ngIf="issueType != null && issueType.curentWorkFlow != null && issueType.curentWorkFlow.states != null && issueType.curentWorkFlow.states.length !=0 ">
        <button  mat-menu-item *ngFor="let status of issueType.curentWorkFlow.states" (click)="changeStatus(status)"

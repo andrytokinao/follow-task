@@ -31,12 +31,12 @@ import {fromUrlParams, IssueSearchCriteriaInput} from "../../../../../type/issue
 export class IssueListeComponent implements OnInit ,AfterViewInit{
   constructor(
     private modalService: NgbModal,
-    private issueService: IssueService,
+    protected issueService: IssueService,
     private essueService: IssueService,
     public userService: UserService,
     public authService: AuthService,
-     private route: ActivatedRoute,
-     private router: Router
+    private route: ActivatedRoute,
+    private router: Router
   ) {
 
   }
@@ -53,7 +53,7 @@ export class IssueListeComponent implements OnInit ,AfterViewInit{
   email: any;
   project: Project | undefined;
   issueType: IssueType | any = {};
-  displayedColumns: string[] = ['id', 'summary', 'description', 'issueKey', 'issueType', 'status',"assigne"];
+  displayedColumns: string[] = ['parrent', 'summary', 'description', 'issueKey', 'issueType', 'status',"assigne"];
   dataSource:MatTableDataSource<Issue> ;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;

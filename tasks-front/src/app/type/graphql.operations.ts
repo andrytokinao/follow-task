@@ -1334,6 +1334,20 @@ const SEARCH_ISSUES = gql`
         firstName
         photo
       }
+      parent {
+        id
+        issueKey
+        summary
+        issueType {
+          id
+          name
+          icone {
+            id
+            value
+            typeIcone
+          }
+        }
+      }
     }
   }
 `

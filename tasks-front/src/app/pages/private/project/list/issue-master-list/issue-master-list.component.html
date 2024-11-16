@@ -6,7 +6,7 @@
   <div class="list-group"  *ngFor="let master of issues" class="project-card" (click)="editIssue(master)">
     <a class="list-group-item list-group-item-action">
       <div class="d-flex w-100 justify-content-between">
-        <h5 class="mb-1"> {{master.issueKey}}  {{master.summary}}</h5>
+        <h5 class="mb-1"> <app-icone-view [icon]="master.issueType.icone"></app-icone-view> {{master.issueKey}}  {{master.summary}}</h5>
         <small class="text-body-secondary" *ngIf="master.creationDate">{{master.creationDate | date}}</small>
       </div>
       <p class="mb-1">{{master.description}}.</p>

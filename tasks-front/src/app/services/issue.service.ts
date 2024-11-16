@@ -37,6 +37,7 @@ import {
 } from "../type/graphql.operations";
 import {environment} from "../../environments/environment";
 import {IssueSearchCriteriaInput} from "../type/issue-search-criteria.util";
+import {ActivatedRoute, Router} from "@angular/router";
 
 @Injectable({
   providedIn: 'root',
@@ -45,7 +46,11 @@ export class IssueService {
   projects: Project[] = [];
   project: Project | null = null;
 
-  constructor(private http: HttpClient, private apollo: Apollo) {
+  constructor(private http: HttpClient,
+              private apollo: Apollo,
+              private router: Router
+
+  ) {
   }
 
   httpOptions = {
@@ -739,5 +744,10 @@ export class IssueService {
         observer.complete();
       })
     })
+  }
+
+  browsIssueMaster(issue: Issue) {
+    this.router.navigate(["private/working/"+this.project.prefix+"/issue/"+issue.issueKey+"/details"])
+
   }
 }
