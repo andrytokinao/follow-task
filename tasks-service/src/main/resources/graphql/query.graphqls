@@ -20,6 +20,7 @@ type Query {
     getProject(prefix:String):Project
     getConfigProject(projectId:Int):[ConfigProject]
     getIssueType(issueTypeId:Int):IssueType
+    allIssueType(projectId:Int):[IssueType]
     issueByCriteria(criterias:[CriteriaInput]):[Issue]
     allCustomField:[CustomField]
     customFieldsByIssueType(issueTypeId:Int):[UsingCustomField]

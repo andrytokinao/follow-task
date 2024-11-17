@@ -373,7 +373,9 @@ h3 {
   font-size: 18px;
   margin-right: 10px;
 }
-
+.icon-spacing {
+  margin-right: 10px;
+}
 .social-icons a:hover {
   color: #bbb;
 }
@@ -491,4 +493,14 @@ h3 {
   white-space: nowrap;
   padding-left: 20px;
   padding-right: 12px;
+}
+.error-container {
+  margin-bottom: 8px;
+  height: 18px;
+  font-size: small;
+  color: #f12828;
+
+  span {
+    display: block;
+  }
 }

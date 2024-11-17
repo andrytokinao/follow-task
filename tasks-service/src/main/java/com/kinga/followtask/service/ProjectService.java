@@ -125,7 +125,7 @@ public class ProjectService {
 
 
     // Etape 2 : Creation type
-    public List<IssueType> saveIssueType (IssueType issueType) {
+    public    IssueType saveIssueType (IssueType issueType) {
         ConfigEntry configEntry = configRepository.getByActiveIs (true);
         String installation = configEntry.getInstalationState ();
         if (issueType.getIcone () != null)
@@ -140,8 +140,7 @@ public class ProjectService {
         }
 
         configRepository.save (configEntry);
-        issueTypeRepository.save (issueType);
-        return issueTypeRepository.findByProjectId (issueType.getProject ().getId ());
+        return issueTypeRepository.save (issueType);
     }
 
     // Etape 3 : Creation / chois  workFlow et affectation de type ==> Affecter a des status
@@ -290,6 +289,9 @@ public class ProjectService {
         return issueTypeRepository.getById (issueTypeId);
     }
 
+    public List<IssueType> allIssueType (Long projectId) {
+        return issueTypeRepository.findByProjectId (projectId);
+    }
     public IssueType removeIssueTypeParent (Long childId) {
         IssueType child = issueTypeRepository.getById (childId);
         child.setParent (null);

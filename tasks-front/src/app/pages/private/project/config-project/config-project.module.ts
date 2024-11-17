@@ -26,10 +26,12 @@ import {PopupWorkFlowComponent} from "./work-flow/popup-work-flow/popup-work-flo
 import {WorkFlowComponent} from "./work-flow/work-flow.component";
 import {AccessibilityComponent} from "./accessibility/accessibility.component";
 import {MatCheckbox} from "@angular/material/checkbox";
-import {CustomFieldSepperComponent} from "./config-custom-field/custom-field-sepper/custom-field-sepper.component";
+import {CustomFieldStepperComponent} from "./config-custom-field/custom-field-stepper/custom-field-stepper.component";
 import {MatStep, MatStepper, MatStepperModule} from "@angular/material/stepper";
 import {MatInputModule} from "@angular/material/input";
 import {MatButtonModule} from "@angular/material/button";
+import {IssueTypeStepperComponent} from "./issue-type/issue-type-stepper/issue-type-stepper.component";
+import {MatRadioButton, MatRadioGroup} from "@angular/material/radio";
 
 @NgModule({
   declarations: [
@@ -43,42 +45,45 @@ import {MatButtonModule} from "@angular/material/button";
     PopupWorkFlowComponent,
     WorkFlowComponent,
     AccessibilityComponent,
-    CustomFieldSepperComponent
+    CustomFieldStepperComponent,
+    IssueTypeStepperComponent
 
   ],
-  imports: [
-    MatTabsModule,
-    MatCardModule,
-    MatDialogModule,
-    MatToolbarModule,
-    MatFormFieldModule,
-    FormsModule,
-    MatMenuModule,
-    MatIconModule,
-    MatSelectModule,
-    CommonModule,
-    MyCommonModule,
-    ConfigProjectRoutingModule,
-    DataRowOutlet,
-    MatSelectionList,
-    MatListOption,
-    CdkDropList,
-    MatCheckbox,
-    MatStep,
-    ReactiveFormsModule,
-    MatStepper,
-    MatInputModule,
-    MatButtonModule,
-    MatStepperModule,
-    FormsModule,
-    CdkDropList,
-    CdkDrag,
-    MyCommonModule,
-    NgForOf,
-    NgIf,
-    MatList,
-    MatListItem,
+    imports: [
+        MatTabsModule,
+        MatCardModule,
+        MatDialogModule,
+        MatToolbarModule,
+        MatFormFieldModule,
+        FormsModule,
+        MatMenuModule,
+        MatIconModule,
+        MatSelectModule,
+        CommonModule,
+        MyCommonModule,
+        ConfigProjectRoutingModule,
+        DataRowOutlet,
+        MatSelectionList,
+        MatListOption,
+        CdkDropList,
+        MatCheckbox,
+        MatStep,
+        ReactiveFormsModule,
+        MatStepper,
+        MatInputModule,
+        MatButtonModule,
+        MatStepperModule,
+        FormsModule,
+        CdkDropList,
+        CdkDrag,
+        MyCommonModule,
+        NgForOf,
+        NgIf,
+        MatList,
+        MatListItem,
+        MatRadioButton,
+        MatRadioGroup,
 
-  ]
+    ]
 })
 export class ConfigProjectModule { }

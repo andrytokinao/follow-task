@@ -96,6 +96,7 @@ type Project{
     id:Int
     name:String
     prefix:String
+    description:String
     statusConfig:String
     issueTypes:[IssueType]
     workFlows :[WorkFlow]
@@ -277,6 +278,7 @@ input PasseTimeInput {
 input ProjectInput{
     id:Int
     name:String
+    description:String
     prefix:String
 }
 

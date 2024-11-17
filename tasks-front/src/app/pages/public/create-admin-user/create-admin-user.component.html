@@ -32,6 +32,9 @@
     <i class="fas fa-lock"></i>
     <input type="password" placeholder="Confirm" [(ngModel)]="user.confirm" [ngModelOptions]="{standalone: true}" required/>
   </div>
+    <div class="error-container">
+      <span *ngIf="error">{{error}}</span>
+    </div>
     <div class="btn controle input-field" style="width: 200px;">
       <i class="fas fa-save"></i>
       <input class="btn controle" value="Créer" type="submit">

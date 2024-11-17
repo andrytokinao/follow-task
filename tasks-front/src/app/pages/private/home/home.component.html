@@ -1,18 +1,17 @@
 
 <div class="container">
 
-  <a  class="btn" (click)="createProject()" >Creer une nouvelle espace de travails</a>
-  <div class="card-list" >
-    <div class="card"  *ngFor=" let project of projects" (click)="selectProject(project)">
-      <div class="icon-container">
-        <i class="fas fa-hourglass-half fa-2x"></i>
-      </div>
-      <div class="card-content">
-        <h3>{{project.prefix  }}</h3>
-        <p>{{project.name}}</p>
-      </div>
+  <div class="project-list list-group card-content" >
+    <div class="ist-group card"  *ngFor=" let project of projects" (click)="selectProject(project)">
+      <a class="list-group-item list-group-item-action">
+        <div class="d-flex w-100 justify-content-between">
+          <h5 class="mb-1"> <i class="fa fa-briefcase workspace-icon icon-spacing">  </i> <b>{{project.prefix}} </b> <i> {{project.name}} </i></h5>
+        </div>
+        <p class="mb-1">{{project.description}}.</p>
+      </a>
     </div>
-
-
+  </div>
+  <div class="">
+    <a  class="btn" (click)="createProject()" *ngIf="authGuard.hasAutority(['ADMIN']) | async ">Creer une nouvelle espace de travails</a>
   </div>
 </div>

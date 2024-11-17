@@ -1,36 +1,22 @@
 <div class="">
-  <div class="modal-header">
-    <b class="modal-title"> Confituration du projet '{{project.name}}'</b>
-    <span typeField="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
-    <i class="fas fa-close"></i>  <span aria-hidden="true"></span>
-  </span>
-  </div>
-  <div class="modal-body ">
-    <div class="work-flow">
-      <div >
-        <h1> Type des taches </h1>
-        <div class="issuetype-liste">
-          <div style="margin-bottom: 5px" *ngFor = "let itype of project.issueTypes">
-          <app-issuetype-form  [inputIssueType]="itype"  [label]="'Titre de flux '"
-                               [editing] = "false" [exemple]="'Flux de traveau '"
-                               class="field-item" [selected] = "isSelectedIssueType(itype)"
-                               (onClickIt) = "selectIssueType(itype)"
-                               (onComplete) ="saveIssueType($event)"
-          >
-          </app-issuetype-form>
-        </div>
-
+</div>
+<div class="modal-body ">
+  <div class="work-flow">
+    <div >
+      <h1> Type des taches </h1>
+      <div class="issuetype-liste">
+        <ul class="list-group">
+          <li class="list-group-item list-group-item-action pointer-event" *ngFor="let itype of project.issueTypes" >
+            <app-icone-view [icon]="itype.icone" [width]="'fa-1x'"></app-icone-view>
+            {{ itype.name }}
+            <span class="float-md-end pointer-event" (click)="openStepperDialog(itype)" > Edit
+        <i class="mat-icon  fa fa-edit"  > </i>
+      </span>
+          </li>
+          <li class="list-group-item list-group-item-action" style="text-align: center;margin-top: 5px" (click)="openStepperDialog(undefined)" > <i class="fas fa-plus-square"> </i> Nouveau</li>
+        </ul>
       </div>
-        <app-issuetype-form  [inputIssueType]="null"  [label]="'Titre de flux '"
-                             [editing] = "true" [exemple]="'Flux de traveau '"
-                             class="field-item"
-                             (onComplete) ="saveIssueType($event)"
-                             *ngIf ="isNewIssueType"
-        >
-        </app-issuetype-form>
-        <div (click)="createIssueType()" *ngIf="!isNewIssueType"> Create </div>
-      </div>
-
+    </div>
   </div>
 </div>
 

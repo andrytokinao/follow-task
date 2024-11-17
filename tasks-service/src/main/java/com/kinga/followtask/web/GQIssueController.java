@@ -116,7 +116,7 @@ public class GQIssueController {
         return projectService.createProjectOrSave(project);
     }
     @MutationMapping
-    public List<IssueType> saveIssueType(@Argument IssueType issueType){
+    public IssueType saveIssueType(@Argument IssueType issueType){
         return projectService.saveIssueType(issueType);
     }
     @MutationMapping
@@ -134,6 +134,10 @@ public class GQIssueController {
     @QueryMapping
     public IssueType getIssueType(@Argument Long issueTypeId){
         return projectService.getIssueType(issueTypeId);
+    }
+    @QueryMapping
+    public List<IssueType> allIssueType(@Argument Long projectId) {
+        return projectService.allIssueType(projectId);
     }
      @MutationMapping
      public WorkFlow saveWorkFlow(@Argument WorkFlow workFlow) {

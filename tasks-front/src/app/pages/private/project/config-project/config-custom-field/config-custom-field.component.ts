@@ -14,7 +14,7 @@ import {MatList, MatListItem} from "@angular/material/list";
 import {CustomFieldComponent} from "../../../../../common/custom-field/custom-field.component";
 import {IssueTypeModalComponent} from "../issue-type/issue-type-modal/issue-type-modal.component";
 import {PopupCustomFieldComponent} from "./popup-custom-field/popup-custom-field.component";
-import {CustomFieldSepperComponent} from "./custom-field-sepper/custom-field-sepper.component";
+import {CustomFieldStepperComponent} from "./custom-field-stepper/custom-field-stepper.component";
 
 @Component({
   selector: 'config-app-custom-field',
@@ -42,7 +42,7 @@ export class ConfigCustomFieldComponent implements OnInit{
 
   }
   newCustomField(){
-    const dialogRef = this.modalService.open(CustomFieldSepperComponent);
+    const dialogRef = this.modalService.open(CustomFieldStepperComponent);
     dialogRef.componentInstance.project = this.project;
     dialogRef.componentInstance.issueTypes = this.project.issueTypes;
     dialogRef.result.then((result) => {
@@ -131,7 +131,7 @@ export class ConfigCustomFieldComponent implements OnInit{
     return  CustomFieldComponent.getIcone(field);
   }
   editCustomField(customField:CustomField) {
-    const dialogRef = this.modalService.open(CustomFieldSepperComponent);
+    const dialogRef = this.modalService.open(CustomFieldStepperComponent);
     dialogRef.componentInstance.issueTypes = this.project.issueTypes;
     dialogRef.componentInstance.getCustomField(customField.id) ;
     dialogRef.componentInstance.desabledTypeField() ;

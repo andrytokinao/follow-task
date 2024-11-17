@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { CustomFieldSepperComponent } from './custom-field-sepper.component';
+import { CustomFieldStepperComponent } from './custom-field-stepper.component';
 
 describe('CustomFieldSepperComponent', () => {
-  let component: CustomFieldSepperComponent;
-  let fixture: ComponentFixture<CustomFieldSepperComponent>;
+  let component: CustomFieldStepperComponent;
+  let fixture: ComponentFixture<CustomFieldStepperComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CustomFieldSepperComponent]
+      imports: [CustomFieldStepperComponent]
     })
     .compileComponents();
-    
-    fixture = TestBed.createComponent(CustomFieldSepperComponent);
+
+    fixture = TestBed.createComponent(CustomFieldStepperComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -1,22 +1,56 @@
 <div class="modal-header">
-  <h4 class="modal-title"> Nouveau projet </h4>
+  <h4 class="modal-title"> Nouveau espace de travail </h4>
   <span typeField="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
     <i class="fas fa-close"></i>  <span aria-hidden="true"></span>
   </span>
 </div>
 <div class="modal-body">
-  <form #f="ngForm">
-    <div class="form-group">
-      <label for="summary">Titre</label>
-      <input [(ngModel)]="project.name" [ngModelOptions]="{standalone: true}" class="form-control" id="summary" name="summary"
-             typeField="text" >
-    </div>
-    <div class="form-group">
-      <label >Prefix</label>
-      <input [(ngModel)]="project.prefix" [ngModelOptions]="{standalone: true}" class="form-control" id="summary" name="summary"
-             typeField="text">
-    </div>
+  <form #f="ngForm" class="mat-form">
+    <mat-form-field class="full-width">
+      <mat-label>Titre</mat-label>
+      <input
+        matInput
+        [(ngModel)]="project.name"
+        [ngModelOptions]="{ standalone: true }"
+        id="name"
+        name="name"
+        type="text"
+        placeholder="Entrez le titre"
+      />
+    </mat-form-field>
+
+    <!-- Prefix Field -->
+    <mat-form-field class="full-width">
+      <mat-label>Prefix</mat-label>
+      <input
+        matInput
+        [(ngModel)]="project.prefix"
+        [ngModelOptions]="{ standalone: true }"
+        id="prefix"
+        name="prefix"
+        type="text"
+        placeholder="Entrez le préfixe"
+      />
+    </mat-form-field>
+
+    <!-- Description Field -->
+    <mat-form-field class="full-width">
+      <mat-label>Description</mat-label>
+      <input
+        matInput
+        [(ngModel)]="project.description"
+        [ngModelOptions]="{ standalone: true }"
+        id="description"
+        name="description"
+        type="text"
+        placeholder="Entrez la description"
+      />
+    </mat-form-field>
   </form>
+
+  <div class="error-container">
+    <span *ngIf="errorMessage">{{errorMessage}}</span>
+  </div>
 </div>
 <div class="modal-footer">
   <button typeField="button" class="btn btn-primary" (click)="save()">Enregistrer</button>

@@ -8,6 +8,7 @@ import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {IssueTypeModalComponent} from "./issue-type-modal/issue-type-modal.component";
 import {ChooseDialogComponent} from "../../../../../common/icone-field/choose-dialog/choose-dialog.component";
 import {J} from "@angular/cdk/keycodes";
+import {IssueTypeStepperComponent} from "./issue-type-stepper/issue-type-stepper.component";
 
 @Component({
   selector: 'app-issue-type',
@@ -149,6 +150,21 @@ export class IssueTypeComponent {
   loadIssueType(){
     this.issueType.getIssueTypeById(this.issueType.id).subscribe(issueType => {
       this.issueType = issueType;
+    })
+  }
+  openStepperDialog(issueType:IssueType){
+    const dialogRef = this.modalService.open(IssueTypeStepperComponent );
+    if (issueType != undefined ){
+      dialogRef.componentInstance.issueType = issueType;
+    }
+    dialogRef.componentInstance.loadAllCustomField();
+    dialogRef.componentInstance.project = this.project;
+    dialogRef.result.then((res) => {
+      this.issueType = res;
+      this.issueService.allIssueType(this.project.id).subscribe(issueTypes => {
+        this.project.issueTypes = issueTypes;
+        this.issueService.updateProject(this.project);
+      })
     })
   }
 }

@@ -116,6 +116,7 @@ export interface Project {
   id:Number;
   name:String;
   prefix:String;
+  description:String;
   issueTypes : IssueType[];
   workFlows : WorkFlow[];
 }

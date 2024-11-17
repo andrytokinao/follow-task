@@ -484,6 +484,64 @@ const  GET_ISSUE_TYPE = gql`
     }
   }
 `;
+const ALL_ISSUE_TYPE =gql`
+  query ($projectId:Int!) {
+    allIssueType(projectId: $projectId){
+      id
+      name
+      prefix
+      project {
+        id
+        name
+        prefix
+      }
+      parent {
+        id
+        prefix
+        name
+      }
+      level
+      usingCustomFields {
+        id
+        issueType {
+          id
+          name
+          icone {
+            id
+            value
+            typeIcone
+          }
+          prefix
+          level
+        }
+        customField {
+          id
+          name
+          type
+        }
+      }
+      curentWorkFlow {
+        id
+        name
+        statuses {
+          id
+          displayName
+          icone {
+            id
+            typeIcone
+            value
+          }
+        }
+      }
+      icone {
+        id
+        value
+        typeIcone
+      }
+
+    }
+  }
+`;
 const SAVE_WORK_FLOW = gql`
     mutation saveWorkFlow($workFlow:WorkFlowInput) {
       saveWorkFlow(workFlow: $workFlow) {
@@ -542,6 +600,7 @@ const ALL_PROJECT = gql`
       id
       name
       prefix
+      description
       statusConfig
     }
   }
@@ -1392,6 +1451,7 @@ export {
   ADD_USER_IN_GROUPE,
   AFFECT_ISSUE_TYPE_FOR_PARENT,
   GET_ISSUE_TYPE_BY_ID,
+  ALL_ISSUE_TYPE,
   REMOVE_ISSUE_TYPE_PARENT,
   LIST_ISSUE_TYPE_MASTER,
   LIST_ISSUE_TYPE_SUBTASKS,

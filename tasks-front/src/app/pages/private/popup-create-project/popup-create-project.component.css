@@ -6,3 +6,6 @@ h4{
   grid-template-columns: [linename] 100px;
   display: grid;
 }
+.full-width {
+  width: 100%;
+}

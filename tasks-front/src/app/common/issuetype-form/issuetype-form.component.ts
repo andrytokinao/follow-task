@@ -63,8 +63,6 @@ export class IssuetypeFormComponent {
     this.inputIssueType = issueType;
     this.onComplete.emit(this.inputIssueType);
 
-
-
   }
   isValid(){
     if (!this.editing)

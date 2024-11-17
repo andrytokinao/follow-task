@@ -11,28 +11,32 @@ import {Issue} from "../../../type/issue";
   styleUrl: './popup-create-project.component.css'
 })
 export class PopupCreateProjectComponent {
-
+  errorMessage:String = undefined;
   user: any;
   project: any = {
     id: null,
     name: "",
     prefix:  "",
+    description:""
   };
   constructor(  public activeModal: NgbActiveModal,
                 public issueService:IssueService,) {
   }
 
   save() {
+    this. errorMessage= undefined;
     let project:any = {};
     project.id = this.project.id;
     project.name = this.project.name;
     project.prefix = this.project.prefix;
+    project.description = this.project.description;
     this.issueService.createProjectOrSave(project).subscribe(
       (res:any)=>{
         this.activeModal.close( stripTypename(res));
 
       },
       (error)=>{
+        this.errorMessage = error.message;
         console.error(error);
       }
     );

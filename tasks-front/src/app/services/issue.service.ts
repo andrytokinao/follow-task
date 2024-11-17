@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import {HttpClient, HttpEvent, HttpHeaders, HttpParams, HttpRequest} from '@angular/common/http';
-import {observable, Observable, throwError} from 'rxjs';
+import {BehaviorSubject, observable, Observable, throwError} from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import {
   Issue,
@@ -20,7 +20,7 @@ import {stripTypename} from "@apollo/client/utilities";
 import {error} from "@angular/compiler-cli/src/transformers/util";
 import {
   AFFECT_ISSUE_TYPE_FOR_PARENT,
-  ALL_CUSTOM_FIELD,
+  ALL_CUSTOM_FIELD, ALL_ISSUE_TYPE,
   CUSTOM_FIELD_BY_ISSUE_TYPE,
   GET_CONFIG_PROJECT,
   GET_CUSTOM_FIELD,
@@ -45,14 +45,28 @@ import {ActivatedRoute, Router} from "@angular/router";
 export class IssueService {
   projects: Project[] = [];
   project: Project | null = null;
+  private projectSubject: BehaviorSubject<Project>;
+
+  // Exposed as an observable for components to subscribe
+  project$: Observable<Project>;
 
   constructor(private http: HttpClient,
               private apollo: Apollo,
               private router: Router
 
   ) {
+    const initialProject: Project = null;
+
+    this.projectSubject = new BehaviorSubject<Project>(initialProject);
+    this.project$ = this.projectSubject.asObservable();
+  }
+  updateProject(newProject: Project): void {
+    this.projectSubject.next(newProject);
   }
 
+  getCurrentProject(): Project {
+    return this.projectSubject.value;
+  }
   httpOptions = {
     headers: new HttpHeaders({
       'Content-Type': 'application/json',
@@ -274,17 +288,18 @@ export class IssueService {
   }
 
   saveIssueType(issueType: IssueType) {
-    return new Observable<any>((observer) => {
+    return new Observable<IssueType>((observer) => {
+      if (issueType.project == undefined ){
+       let  error :any = {message:"Saving issueType , project es undefined"}
+        observer.error(error);
+       observer.complete();
+       return;
+      }
       this.apollo.mutate({
         mutation: operation.SAVE_ISSUE_TYPE,
         variables: {issueType},
         fetchPolicy:"network-only"
       }).subscribe((res: any) => {
-          if (this.project) {
-            this.project.issueTypes.push(supprimerTypename(res.data.saveIssueType));
-          } else {
-            this.project = issueType.project;
-          }
           observer.next(supprimerTypename(res.data.saveIssueType));
           observer.complete();
         }, (err: any) => {
@@ -749,5 +764,20 @@ export class IssueService {
   browsIssueMaster(issue: Issue) {
     this.router.navigate(["private/working/"+this.project.prefix+"/issue/"+issue.issueKey+"/details"])
 
+  }
+  allIssueType(projectId:Number) {
+    return new Observable<Issue[]>(observer => {
+      this.apollo.query({
+        query:ALL_ISSUE_TYPE,
+        variables:{projectId},
+        fetchPolicy:"network-only"
+      }).subscribe((res:any)=>{
+        observer.next(supprimerTypename(res.data.allIssueType));
+        observer.complete();
+      },error => {
+        observer.error(error);
+        observer.complete();
+      })
+    })
   }
 }

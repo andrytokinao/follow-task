@@ -29,6 +29,7 @@ public class Project {
     private Long id;
     private String name;
     private String prefix;
+    private String description;
     private Integer dernierNumero ;
     private String path;
     private String statusConfig;

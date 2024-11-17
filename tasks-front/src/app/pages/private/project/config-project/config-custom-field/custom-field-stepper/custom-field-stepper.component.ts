@@ -13,11 +13,11 @@ interface Field {
 }
 @Component({
   selector: 'app-custom-field-sepper',
-  templateUrl: './custom-field-sepper.component.html',
-  styleUrl: './custom-field-sepper.component.css',
+  templateUrl: './custom-field-stepper.component.html',
+  styleUrl: './custom-field-stepper.component.css',
 
 })
-export class CustomFieldSepperComponent {
+export class CustomFieldStepperComponent {
 
   private _formBuilder = inject(FormBuilder);
 
