@@ -8,6 +8,7 @@ import {ActivatedRoute} from "@angular/router";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {IssueTypeModalComponent} from "../issue-type/issue-type-modal/issue-type-modal.component";
 import {PopupWorkFlowComponent} from "./popup-work-flow/popup-work-flow.component";
+import {StepperWorkflowComponent} from "./stepper-workflow/stepper-workflow.component";
 
 @Component({
   selector: 'app-work-flow',
@@ -68,5 +69,10 @@ export class WorkFlowComponent implements OnInit{
       }
     )
 
+  }
+  openStepper(flow: any) {
+    const dialogRef = this.modalService.open(StepperWorkflowComponent );
+/*    dialogRef.componentInstance.workFlow = flow;
+    dialogRef.componentInstance.project = this.project;*/
   }
 }

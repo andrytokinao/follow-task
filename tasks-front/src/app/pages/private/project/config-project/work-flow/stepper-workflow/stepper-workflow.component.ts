@@ -1,38 +1,36 @@
-import { Component } from '@angular/core';
+import {Component, inject} from '@angular/core';
+import {FormBuilder, Validators} from "@angular/forms";
 import {Project, Status, WorkFlow} from "../../../../../../type/issue";
 import {IssueService} from "../../../../../../services/issue.service";
 import {ActivatedRoute} from "@angular/router";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
-  selector: 'app-popup-work-flow',
-  templateUrl: './popup-work-flow.component.html',
-  styleUrl: './popup-work-flow.component.css'
+  selector: 'app-stepper-workflow',
+  templateUrl: './stepper-workflow.component.html',
+  styleUrl: './stepper-workflow.component.css'
 })
-export class PopupWorkFlowComponent {
+export class StepperWorkflowComponent {
   project:Project | any = {};
   workFlow:WorkFlow | any = {};
   isCreateState: boolean;
   iconSelected: any;
-
-  onCancelClick() {
-
-  }
   constructor(private issueService :IssueService,
               private route: ActivatedRoute,
               public activeModal: NgbActiveModal,
   ) {
   }
-  toggleCheck(it: any) {
+  private _formBuilder = inject(FormBuilder);
 
-  }
+  firstFormGroup = this._formBuilder.group({
+    nameCtrl: ['', Validators.required],
+  });
+  secondFormGroup = this._formBuilder.group({
+    secondCtrl: ['', Validators.required],
+  });
+  isLinear = true;
 
-  isUsing(wf: any) {
-
-  }
-
-  onSaveClick() {
-
+  setIcone($event: any) {
   }
 
   addStatus(status: Status) {

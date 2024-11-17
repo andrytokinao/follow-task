@@ -32,6 +32,7 @@ import {MatInputModule} from "@angular/material/input";
 import {MatButtonModule} from "@angular/material/button";
 import {IssueTypeStepperComponent} from "./issue-type/issue-type-stepper/issue-type-stepper.component";
 import {MatRadioButton, MatRadioGroup} from "@angular/material/radio";
+import {StepperWorkflowComponent} from "./work-flow/stepper-workflow/stepper-workflow.component";
 
 @NgModule({
   declarations: [
@@ -46,7 +47,8 @@ import {MatRadioButton, MatRadioGroup} from "@angular/material/radio";
     WorkFlowComponent,
     AccessibilityComponent,
     CustomFieldStepperComponent,
-    IssueTypeStepperComponent
+    IssueTypeStepperComponent,
+    StepperWorkflowComponent
 
   ],
     imports: [

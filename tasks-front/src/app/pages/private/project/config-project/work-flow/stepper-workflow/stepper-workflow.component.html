@@ -1,0 +1,55 @@
+
+<mat-stepper orientation="vertical" [linear]="isLinear" #stepper>
+  <mat-step [stepControl]="firstFormGroup">
+    <form [formGroup]="firstFormGroup">
+      <ng-template matStepLabel>Flux de traveau</ng-template>
+      <mat-form-field>
+        <mat-label>Name</mat-label>
+        <input matInput placeholder="Work flow name" formControlName="nameCtrl" required>
+      </mat-form-field>
+      <div>
+        <button mat-button matStepperNext>Next</button>
+      </div>
+    </form>
+  </mat-step>
+  <mat-step [stepControl]="secondFormGroup">
+    <form [formGroup]="secondFormGroup">
+      <ng-template matStepLabel>Etat </ng-template>
+      <div *ngIf="workFlow.states!=undefined ">
+        <h1> Liste des etat possible </h1>
+        <div *ngFor="let state of workFlow.states">
+          <app-states-form [inputState]="state"
+                           [editing]="false" [exemple]="'Resolve '"
+                           class="field-item"
+                           (onComplete)="addStatus($event)"
+          >
+          </app-states-form>
+        </div>
+      </div>
+      <app-states-form [inputState]="null"
+                       [editing]="true" [exemple]="' Todo'"
+                       class="field-item"
+                       (onComplete)="addStatus($event)"
+                       *ngIf="isCreateState"
+      >
+      </app-states-form>
+      <mat-form-field>
+        <mat-label></mat-label>
+        <input matInput formControlName="secondCtrl" placeholder="Ex. 1 Main St, New York, NY"
+               required>
+      </mat-form-field>
+      <div>
+        <button mat-button matStepperPrevious>Back</button>
+        <button mat-button matStepperNext>Next</button>
+      </div>
+    </form>
+  </mat-step>
+  <mat-step>
+    <ng-template matStepLabel>Done</ng-template>
+    <p>You are now done.</p>
+    <div>
+      <button mat-button matStepperPrevious>Back</button>
+      <button mat-button (click)="stepper.reset()">Reset</button>
+    </div>
+  </mat-step>
+</mat-stepper>

@@ -21,4 +21,5 @@ export class BreadcrumbComponent implements OnInit {
   toggleSubMenu(index: number) {
     this.activeSubMenu = this.activeSubMenu === index ? null : index;
   }
+
 }

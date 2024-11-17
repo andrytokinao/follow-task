@@ -49,12 +49,10 @@ export class ProjectComponent implements OnInit{
            if( res.step == "next") {
              this.editIssue(res.issue);
            } else if (res.step == "complete") {
-         //  this.router.navigate(['/issue/:res.issue.issueKey]); TODO : A etudier l'affichage de project sur cette route
+         //  this.router.navigate(['/issue/:res.issue.issueKey]);
              const currentPath = this.route.snapshot.url.map(segment => segment.path);
-             alert(JSON.stringify(currentPath));
-             const newPath = [...currentPath, 'issue/' +res.issue.issueKey];
 
-             this.router.navigate(newPath);
+             this.router.navigate(["/private/working/"+this.project.prefix+" /list/master"]);
            }
        }
      })

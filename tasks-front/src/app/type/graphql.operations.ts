@@ -1145,6 +1145,12 @@ const LIST_ISSUE_TYPE_SUBTASKS = gql`
       name
       prefix
       level
+      project {
+        id
+        name
+        prefix
+        description
+      }
     }
   }
 `

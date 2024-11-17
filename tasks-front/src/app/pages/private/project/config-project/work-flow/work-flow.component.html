@@ -4,7 +4,7 @@
       <div>
         <h1>Flux de travails </h1>
         <ul class="list-group">
-          <li class="list-group-item list-group-item-action pointer-event" *ngFor="let flow of project.workFlows" (click)="editWorkFlow(flow)">
+          <li class="list-group-item list-group-item-action pointer-event" *ngFor="let flow of project.workFlows" (click)="openStepper(flow)">
             {{ flow.name }}
           </li>
           <app-text-field  [inputModel]="newWorkflowName" label="Titre de flux "
