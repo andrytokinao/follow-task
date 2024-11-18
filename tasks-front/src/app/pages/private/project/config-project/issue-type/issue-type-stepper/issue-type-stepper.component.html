@@ -45,19 +45,20 @@
           <h3>Sélectionner le Type d'Issue Parent</h3>
           <mat-form-field appearance="outline" class="parent-issue-type">
             <label>Type d'Issue Parent</label>
-            <mat-select [(ngModel)]="selectedParentIssueType" >
+            <mat-select [(ngModel)]="selectedParentIssueType" [compareWith]="issueService.defaultCompare" [ngModelOptions]="{standalone: true}">
               <mat-option *ngFor="let type of getFilteredParentOptions()" [value]="type" (click)="addParrent(type)">
                 {{ type.name }}
               </mat-option>
             </mat-select>
           </mat-form-field>
+
         </div>
 
         <div class="issue-children-config" *ngIf="issueType.level =='PARENT'">
           <h3>Sélectionner les Sous-Types d'Issue</h3>
           <mat-checkbox *ngFor="let type of getFilteredChildrenOptions()"
                         (change)="checkedChildren(type)"
-                        [disabled]="type === selectedParentIssueType || desactive"
+                        [disabled]="type   === selectedParentIssueType || desactive"
                         (change)="checkChildren($event,type)"
                         [checked]="checkedChildren(type)"
           >
@@ -96,7 +97,7 @@
     <p *ngIf="project.workFlows != undefined && project.workFlows.length != 0" >Choie du flux de traveaux utilisé </p>
     <p *ngIf="project.workFlows == undefined || project.workFlows.length == 0" >Aucun flux de traveaux utilisé creés</p>
 
-    <mat-radio-group aria-label="Select an option"  formControlName="level" >
+    <mat-radio-group aria-label="Select an option"   >
         <mat-radio-button value="PARENT" *ngFor="let wf of project.workFlows" (click)="alert('okay')">Ticke Maitre</mat-radio-button>
 
       </mat-radio-group>

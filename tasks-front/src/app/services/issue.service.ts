@@ -780,4 +780,8 @@ export class IssueService {
       })
     })
   }
+  defaultCompare(option1:any,option2){
+    console.debug('comparaison '+JSON.stringify(option1) + " == "+JSON.stringify(option2));
+    return option1.id === option2.id;
+  }
 }

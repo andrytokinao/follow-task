@@ -467,6 +467,7 @@ const  GET_ISSUE_TYPE = gql`
       id
       name
       prefix
+      level
       curentWorkFlow {
         id
         name
@@ -478,6 +479,17 @@ const  GET_ISSUE_TYPE = gql`
             typeIcone
             value
           }
+        }
+      }
+      parent {
+        id
+        prefix
+        name
+        level
+        icone {
+          id
+          value
+          typeIcone
         }
       }
 

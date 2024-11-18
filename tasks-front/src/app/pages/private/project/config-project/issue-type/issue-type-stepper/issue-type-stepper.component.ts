@@ -17,7 +17,7 @@ import {NgbActiveModal, NgbModal} from "@ng-bootstrap/ng-bootstrap";
 })
 export class IssueTypeStepperComponent {
   constructor(private configService:ConfigService,
-              private issueService :IssueService,
+              protected issueService :IssueService,
               private route: ActivatedRoute,
               public activeModal: NgbActiveModal,
 
@@ -76,7 +76,9 @@ export class IssueTypeStepperComponent {
   loadIssueType(){
     this.issueService.getIssueTypeById(this.issueType.id).subscribe(issueType => {
       this.issueType = issueType;
-      this.selectedParentIssueType = this.issueType.parent;
+      if (this.issueType.parent != undefined) {
+        this.selectedParentIssueType = this.issueType.parent;
+      }
       this.selectedChildIssueType = this.issueType.children;
     })
   }
@@ -180,7 +182,6 @@ export class IssueTypeStepperComponent {
 
     });
   }
-
   protected readonly alert = alert;
   onSaveClick() {
     this.activeModal.close({ project: this.project,issueType:this.issueType });

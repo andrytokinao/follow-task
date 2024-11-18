@@ -156,6 +156,7 @@ export class IssueTypeComponent {
     const dialogRef = this.modalService.open(IssueTypeStepperComponent );
     if (issueType != undefined ){
       dialogRef.componentInstance.issueType = issueType;
+      dialogRef.componentInstance.loadIssueType();
     }
     dialogRef.componentInstance.loadAllCustomField();
     dialogRef.componentInstance.project = this.project;
