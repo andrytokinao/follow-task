@@ -24,7 +24,7 @@ export class CustomFieldStepperComponent {
   firstFormGroup = this._formBuilder.group({
     fiedName: ['', Validators.required],
     typeControle: ['', Validators.required],
-    description: ['', Validators.required],
+    description: ['', null],
 
   });
   secondFormGroup = this._formBuilder.group({

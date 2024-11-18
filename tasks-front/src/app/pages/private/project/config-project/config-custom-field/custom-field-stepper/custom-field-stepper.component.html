@@ -43,8 +43,8 @@
               </div>
             </form>
           </mat-step>
-          <mat-step [stepControl]="secondFormGroup">
-            <form [formGroup]="secondFormGroup">
+          <mat-step >
+            <form >
               <ng-template matStepLabel>Parametre d'affichage affichage</ng-template>
               <div class="sidebar-heding ">
                 <div *ngFor="let option of displayOptions">
@@ -58,12 +58,12 @@
                 </div>
               </div>
               <div>
-                <button mat-button matStepperNext [disabled]="!firstFormGroup.valid">Next</button>
+                <button mat-button matStepperNext >Next</button>
               </div>
             </form>
           </mat-step>
-          <mat-step [stepControl]="secondFormGroup">
-            <form [formGroup]="secondFormGroup">
+          <mat-step >
+            <form >
               <ng-template matStepLabel>Type des tache </ng-template>
               <mat-card class="mat-padding">
                 <div class="sidebar-heding row">
