@@ -32,7 +32,7 @@ export class IssueTypeStepperComponent {
   levelFormGroup = this._formBuilder.group({
     level: ['', Validators.required],
   });
-  isLinear = false;
+  isLinear = true;
   issueType: IssueType | any = {};
   newIssueType:IssueType | any = {};
   project:Project | any = {};

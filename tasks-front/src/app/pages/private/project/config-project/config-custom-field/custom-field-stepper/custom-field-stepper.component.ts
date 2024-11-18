@@ -38,7 +38,7 @@ export class CustomFieldStepperComponent {
     {value: 'Selection', viewValue: 'Selection'},
     {value: 'CheckBox', viewValue: 'Selection multiple'},
   ];
-  isLinear = false;
+  isLinear = true;
   issueTypes:IssueType[] = [];
   customField :CustomField | any = {};
   private usingCustomFields: UsingCustomField[] = [];
