@@ -19,6 +19,7 @@ type Query {
 
     getWorkFlow(workFlowId:Int):WorkFlow
     allWorkFlow:[WorkFlow]
+    workFlowsByProject(projectId:Int):[WorkFlow]
 
     getProject(prefix:String):Project
     getConfigProject(projectId:Int):[ConfigProject]

@@ -343,4 +343,8 @@ public class ProjectService {
     public WorkFlow getWorkFlow (Long workFlowId) {
         return workFlowRepository.getById (workFlowId);
     }
+
+    public List<WorkFlow> workFlowsByProject (Long projectId) {
+       return workFlowRepository.findByProjectId(projectId);
+    }
 }

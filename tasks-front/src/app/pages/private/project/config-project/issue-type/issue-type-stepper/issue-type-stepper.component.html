@@ -95,11 +95,12 @@
   <mat-step>
     <ng-template matStepLabel>Flux de traveau</ng-template>
     <p *ngIf="project.workFlows != undefined && project.workFlows.length != 0" >Choie du flux de traveaux utilisé </p>
-    <p *ngIf="project.workFlows == undefined || project.workFlows.length == 0" >Aucun flux de traveaux utilisé creés</p>
+    <p *ngIf="workFlows == undefined || workFlows.length == 0" >Aucun flux de traveaux utilisé creés</p>
 
-    <mat-radio-group aria-label="Select an option"   >
-        <mat-radio-button value="PARENT" *ngFor="let wf of project.workFlows" (click)="alert('okay')">Ticke Maitre</mat-radio-button>
-
+    <mat-radio-group aria-label="Select an option" [(ngModel)]="selectedWorkflow"  (change)="affectWorkFlow()"  >
+        <mat-radio-button  *ngFor="let wf of workFlows" [value] = "wf"
+                          [checked]="workFlowIsCheded(wf)"
+        >{{wf.name}}</mat-radio-button>
       </mat-radio-group>
 
     <div>

@@ -624,6 +624,30 @@ const GET_WORK_FLOW = gql`
     }
   }
 `
+
+const WORK_FLOWS_BY_PROJECT = gql`
+  query workFlowsByProject($projectId:Int) {
+    workFlowsByProject(projectId: $projectId) {
+      id
+      name
+      statuses {
+        id
+        displayName
+        icone {
+          id
+          typeIcone
+          value
+        }
+      }
+      active
+      project {
+        id
+        name
+      }
+    }
+  }
+`
+
 const  AFFECT_WORKFLOW = gql`
   mutation affectWorkFlow ($issueType:IssueTypeInput!) {
     affectWorkFlow(issueType: $issueType){
@@ -1527,6 +1551,7 @@ export {
   GET_ISSUE_TYPE,
   SAVE_WORK_FLOW,
   GET_WORK_FLOW,
+  WORK_FLOWS_BY_PROJECT,
   ISSUE_BY_CRITERIA,
   SEVE_CUSTOM_FIELD,
   ALL_CUSTOM_FIELD,

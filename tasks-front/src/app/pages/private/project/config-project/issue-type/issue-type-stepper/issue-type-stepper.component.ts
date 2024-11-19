@@ -2,7 +2,7 @@ import {Component, inject, OnInit} from '@angular/core';
 import {MatStep, MatStepper} from "@angular/material/stepper";
 import {FormBuilder, ReactiveFormsModule, Validators} from "@angular/forms";
 import {MatFormField} from "@angular/material/form-field";
-import {CustomField, Icone, IssueType, Project, UsingCustomField} from "../../../../../../type/issue";
+import {CustomField, Icone, IssueType, Project, UsingCustomField, WorkFlow} from "../../../../../../type/issue";
 import {supprimerTypename} from "../../../../../../type/graphql.operations";
 import {ConfigService} from "../../../../../../services/config.service";
 import {IssueService} from "../../../../../../services/issue.service";
@@ -50,6 +50,8 @@ export class IssueTypeStepperComponent {
   issueTypes: IssueType[] = [];
   selectedParentIssueType: IssueType;
   desactive: boolean = true;
+  workFlows : WorkFlow[]= [];
+  selectedWorkflow:WorkFlow ;
   /*CREATION*/
   create() {
     let project :any = {} ;
@@ -80,6 +82,9 @@ export class IssueTypeStepperComponent {
         this.selectedParentIssueType = this.issueType.parent;
       }
       this.selectedChildIssueType = this.issueType.children;
+      this.selectedWorkflow = this.issueType.currentWorkflow;
+      alert(JSON.stringify(this.issueType));
+      alert(JSON.stringify(this.issueType.curentWorkFlow));
     })
   }
   save() {
@@ -182,8 +187,42 @@ export class IssueTypeStepperComponent {
 
     });
   }
+  loadWorkFlows(){
+    this.issueService.workFlowsByProject(this.project.id).subscribe(workFlows=>{
+      this.workFlows = workFlows;
+
+    });
+  }
+  affectWorkFlow(){
+    let project : any = {};
+    project.id = this.project.id;
+    project.name = this.project.name;
+    project.prefix = this.project.prefix;
+
+    this.selectedWorkflow.project = project;
+    this.issueType.curentWorkFlow = this.selectedWorkflow;
+    this.issueType.project = project;
+
+    let issueType:IssueType | any = {};
+    issueType.id = this.issueType.id;
+    issueType.prefix = this.issueType.prefix;
+    issueType.name = this.issueType.name;
+    issueType.icone = this.issueType.icone;
+    issueType.project = project;
+    issueType.curentWorkFlow = this.selectedWorkflow;
+    this.issueService.affectWorkFlow(issueType).subscribe( (workFlow)=>{
+        this.loadIssueType();
+      },
+
+    )
+  }
   protected readonly alert = alert;
   onSaveClick() {
     this.activeModal.close({ project: this.project,issueType:this.issueType });
+  }
+  workFlowIsCheded(wf:WorkFlow):boolean {
+    let cheded = wf?.id === this.selectedWorkflow?.id;
+
+    return cheded;
   }
 }

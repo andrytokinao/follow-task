@@ -33,7 +33,8 @@ import {
   SAVE_CONFIG_PROJECT, SEARCH_ISSUES,
   supprimerTypename,
   UN_USE_CUSTOM_FIELD,
-  USE_CUSTOM_FIELD
+  USE_CUSTOM_FIELD,
+  WORK_FLOWS_BY_PROJECT
 } from "../type/graphql.operations";
 import {environment} from "../../environments/environment";
 import {IssueSearchCriteriaInput} from "../type/issue-search-criteria.util";
@@ -424,6 +425,23 @@ export class IssueService {
           observer.complete();
         }
         );
+    })
+  }
+  workFlowsByProject(projectId: Number) {
+    return new Observable<WorkFlow[]>(observer => {
+      this.apollo
+        .query({
+          query: operation.WORK_FLOWS_BY_PROJECT,
+          variables:{projectId},
+          fetchPolicy:"network-only"
+        }).subscribe((res:any)=>{
+          observer.next(supprimerTypename(res.data.workFlowsByProject));
+          observer.complete();
+        }, error => {
+          observer.error(error);
+          observer.complete();
+        }
+      );
     })
   }
   issueByCriteria(criterias: Criteria[]) {

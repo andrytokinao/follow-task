@@ -157,8 +157,9 @@ export class IssueTypeComponent {
       dialogRef.componentInstance.issueType = issueType;
       dialogRef.componentInstance.loadIssueType();
     }
-    dialogRef.componentInstance.loadAllCustomField();
     dialogRef.componentInstance.project = this.project;
+    dialogRef.componentInstance.loadAllCustomField();
+    dialogRef.componentInstance.loadWorkFlows();
     dialogRef.result.then((res) => {
       this.issueType = res;
       this.issueService.allIssueType(this.project.id).subscribe(issueTypes => {

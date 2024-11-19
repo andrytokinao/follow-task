@@ -140,6 +140,10 @@ public class GQIssueController {
         return projectService.getIssueType(issueTypeId);
     }
     @QueryMapping
+    public List<WorkFlow> workFlowsByProject(@Argument Long projectId) {
+        return projectService.workFlowsByProject(projectId);
+    }
+    @QueryMapping
     public List<IssueType> allIssueType(@Argument Long projectId) {
         return projectService.allIssueType(projectId);
     }
