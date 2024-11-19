@@ -5,19 +5,20 @@
       <ng-template matStepLabel>Flux de traveau</ng-template>
       <mat-form-field>
         <mat-label>Name</mat-label>
-        <input matInput placeholder="Work flow name" formControlName="nameCtrl" required>
+        <input matInput placeholder="Work flow name" formControlName="nameCtrl" required [(ngModel)]="workFlow.name" >
       </mat-form-field>
       <div>
-        <button mat-button matStepperNext>Next</button>
+        <button mat-button matStepperNext (click)="save()" [disabled]="!firstFormGroup.valid">Next</button>
       </div>
     </form>
   </mat-step>
-  <mat-step [stepControl]="secondFormGroup">
+  <mat-step >
     <form [formGroup]="secondFormGroup">
       <ng-template matStepLabel>Etat </ng-template>
-      <div *ngIf="workFlow.states!=undefined ">
+      <div *ngIf="workFlow.statuses!=undefined ">
         <h1> Liste des etat possible </h1>
-        <div *ngFor="let state of workFlow.states">
+
+    <div *ngFor="let state of workFlow.statuses">
           <app-states-form [inputState]="state"
                            [editing]="false" [exemple]="'Resolve '"
                            class="field-item"
@@ -33,23 +34,16 @@
                        *ngIf="isCreateState"
       >
       </app-states-form>
-      <mat-form-field>
-        <mat-label></mat-label>
-        <input matInput formControlName="secondCtrl" placeholder="Ex. 1 Main St, New York, NY"
-               required>
-      </mat-form-field>
+      <span (click)="createState()"> Nouveau etat </span>
+
       <div>
         <button mat-button matStepperPrevious>Back</button>
-        <button mat-button matStepperNext>Next</button>
+      </div>
+      <div style="padding: 10px">
+        <span fxFlex></span>
+        <button mat-raised-button class="btn success" color="primary" (click)="onSaveClick()"><span> Terminer </span></button>
       </div>
     </form>
   </mat-step>
-  <mat-step>
-    <ng-template matStepLabel>Done</ng-template>
-    <p>You are now done.</p>
-    <div>
-      <button mat-button matStepperPrevious>Back</button>
-      <button mat-button (click)="stepper.reset()">Reset</button>
-    </div>
-  </mat-step>
+
 </mat-stepper>

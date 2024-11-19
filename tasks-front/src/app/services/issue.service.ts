@@ -87,12 +87,6 @@ export class IssueService {
       .pipe(retry(1), catchError(this.handleError));
   }
 
-  getWorkFlow(projet: string) {
-    return this.apollo
-      .query({
-        query: operation.ALL_STATUS,
-      });
-  }
 
   getIssues(projet: String | undefined) {
     return new Observable<Issue[]>(observer=> {
@@ -415,7 +409,23 @@ export class IssueService {
       );
     })
   }
-
+  getWorkFlow(workFlowId: Number) {
+    return new Observable<WorkFlow>(observer => {
+      this.apollo
+        .query({
+          query: operation.GET_WORK_FLOW,
+          variables:{workFlowId},
+          fetchPolicy:"network-only"
+        }).subscribe((res:any)=>{
+          observer.next(supprimerTypename(res.data.getWorkFlow));
+          observer.complete();
+      }, error => {
+          observer.error(error);
+          observer.complete();
+        }
+        );
+    })
+  }
   issueByCriteria(criterias: Criteria[]) {
     return new Observable<Issue[]>(observer => {
       this.apollo.query({

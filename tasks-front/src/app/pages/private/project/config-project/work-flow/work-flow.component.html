@@ -1,29 +1,21 @@
-<div class="">
-  <div class="modal-body ">
-    <div class="custom-field">
-      <div>
-        <h1>Flux de travails </h1>
-        <ul class="list-group">
-          <li class="list-group-item list-group-item-action pointer-event" *ngFor="let flow of project.workFlows" (click)="openStepper(flow)">
-            {{ flow.name }}
-          </li>
-          <app-text-field  [inputModel]="newWorkflowName" label="Titre de flux "
-                           [editing] = "isNewWorkFlow" exemple="Flux de traveau "
-                           class="field-item" [selected] = "isSelectedWorkFlow(workFlow)"
-                           (onClickIt) = "selectWorkFlow(workFlow)"
-                           (onComplete) ="saveWorkFlow($event,workFlow)"
-                           (onCancel) = "isNewWorkFlow =false"
-                           *ngIf="isNewWorkFlow"
-          >
-          </app-text-field>
-          <li class="list-group-item list-group-item-action" style="text-align: center;margin-top: 5px" (click)="newWorkFlow()" > <i class="fas fa-plus-square"> </i> Nouveau</li>
+<div class="work-flow">
+  <div>
+    <h1>Flux de travails </h1>
+    <ul class="list-group">
+      <li class="list-group-item list-group-item-action pointer-event" *ngFor="let flow of project.workFlows"
+          (click)="openStepper(flow)">
+        {{ flow.name }}
+      </li>
 
-        </ul>
+      <li class="list-group-item list-group-item-action" style="text-align: center;margin-top: 5px"
+          (click)="openStepper(null)"><i class="fas fa-plus-square"> </i> Nouveau
+      </li>
 
-      </div>
+    </ul>
 
-    </div>
   </div>
+
 </div>
+
 
 

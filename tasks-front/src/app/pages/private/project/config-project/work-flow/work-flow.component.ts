@@ -63,16 +63,16 @@ export class WorkFlowComponent implements OnInit{
     project.id = this.project.id;
     workFlow.project = project;
     this.issueService.saveWorkFlow(workFlow).subscribe( (workFlow)=>{
-        this.issueService.getWorkFlow(this.project.prefix).subscribe(project => {
-          this.project = project;
-        })
+        this.workFlow = workFlow;
       }
     )
 
   }
   openStepper(flow: any) {
     const dialogRef = this.modalService.open(StepperWorkflowComponent );
-/*    dialogRef.componentInstance.workFlow = flow;
-    dialogRef.componentInstance.project = this.project;*/
+    if (flow != null) {
+      dialogRef.componentInstance.loadWorkFlow(flow.id)
+    }
+    dialogRef.componentInstance.project = this.project;
   }
 }

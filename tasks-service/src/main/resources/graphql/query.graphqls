@@ -16,7 +16,10 @@ type Query {
     getConfig(typeEntry:String):[ConfigEntry]
     allConfig:[ConfigEntry]
     allProjects:[Project]
+
+    getWorkFlow(workFlowId:Int):WorkFlow
     allWorkFlow:[WorkFlow]
+
     getProject(prefix:String):Project
     getConfigProject(projectId:Int):[ConfigProject]
     getIssueType(issueTypeId:Int):IssueType

@@ -1,0 +1,7 @@
+.work-flow{
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  grid-gap: 10px;
+  max-height: 80%;
+  min-height: 500%;
+}

@@ -568,8 +568,61 @@ const SAVE_WORK_FLOW = gql`
             value
           }
         }
+        crossingStates {
+          id
+          name
+          description
+          credential {
+            id
+            name
+          }
+        }
+        active
+        issueTypes {
+          id
+          name
+        }
+        project {
+          id
+          name
+        }
       }
     }
+`
+const GET_WORK_FLOW = gql`
+  query getWorkFlow($workFlowId:Int) {
+    getWorkFlow(workFlowId: $workFlowId) {
+      id
+      name
+      statuses {
+        id
+        displayName
+        icone {
+          id
+          typeIcone
+          value
+        }
+      }
+      crossingStates {
+        id
+        name
+        description
+        credential {
+          id
+          name
+        }
+      }
+      active
+      issueTypes {
+        id
+        name
+      }
+      project {
+        id
+        name
+      }
+    }
+  }
 `
 const  AFFECT_WORKFLOW = gql`
   mutation affectWorkFlow ($issueType:IssueTypeInput!) {
@@ -602,6 +655,24 @@ const  ADD_STATUS = gql`
           typeIcone
           value
         }
+      }
+      crossingStates {
+        id
+        name
+        description
+        credential {
+          id
+          name
+        }
+      }
+      active
+      issueTypes {
+        id
+        name
+      }
+      project {
+        id
+        name
       }
     }
   }
@@ -1455,6 +1526,7 @@ export {
   GET_PROJECT,
   GET_ISSUE_TYPE,
   SAVE_WORK_FLOW,
+  GET_WORK_FLOW,
   ISSUE_BY_CRITERIA,
   SEVE_CUSTOM_FIELD,
   ALL_CUSTOM_FIELD,

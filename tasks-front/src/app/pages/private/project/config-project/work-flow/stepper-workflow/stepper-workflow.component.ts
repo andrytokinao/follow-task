@@ -13,6 +13,7 @@ import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 export class StepperWorkflowComponent {
   project:Project | any = {};
   workFlow:WorkFlow | any = {};
+  statuses:Status[]=[];
   isCreateState: boolean;
   iconSelected: any;
   constructor(private issueService :IssueService,
@@ -41,12 +42,34 @@ export class StepperWorkflowComponent {
     this.issueService.addStatus(status,this.workFlow,null).subscribe(
       workFlow=>{
         this.workFlow = workFlow;
+        this.statuses = this.workFlow.statuses;
         this.isCreateState = false;
       }
     )
   }
 
-  createState() {
+  save() {
+    let project : any = {};
+    project.id = this.project.id;
+    this.workFlow.project = project;
+    this.issueService.saveWorkFlow(this.workFlow).subscribe( (workFlow)=> {
+      this.workFlow = workFlow ;
+      this.statuses = this.workFlow.statuses;
+
+    });
+  }
+  loadWorkFlow(workFlowId:Number) {
+    this.issueService.getWorkFlow(workFlowId).subscribe( (workFlow)=> {
+      this.workFlow = { ...workFlow };
+      this.statuses = [...this.workFlow.statuses];
+
+    });
+  }
+  public createState(){
     this.isCreateState = true;
+  }
+
+  onSaveClick() {
+    this.activeModal.close({ workFlow:this.workFlow });
   }
 }

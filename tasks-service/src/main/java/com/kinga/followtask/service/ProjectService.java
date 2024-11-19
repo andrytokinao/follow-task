@@ -339,4 +339,8 @@ public class ProjectService {
         IssueSpecification specification = new IssueSpecification(criteria);
         return issueRepository.findAll(specification);
     }
+
+    public WorkFlow getWorkFlow (Long workFlowId) {
+        return workFlowRepository.getById (workFlowId);
+    }
 }

@@ -65,7 +65,6 @@ export class IssueTypeComponent {
         this.affectWorkFlow(workFlow);
       }
     )
-
   }
   affectWorkFlow(wf:WorkFlow){
     let project : any = {};
