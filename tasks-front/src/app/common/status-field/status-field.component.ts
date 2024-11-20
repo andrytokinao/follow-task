@@ -38,7 +38,7 @@ export class StatusFieldComponent implements OnInit , AfterViewInit{
   }
 
   isActive(status: Status) {
-    if (status == null || this.issue == null || this.issue.status) {
+    if (status == null || this.issue == null || this.issue.status == null) {
       return false;
     }
     return status.id == this.issue.status.id;

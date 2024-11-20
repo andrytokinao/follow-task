@@ -138,6 +138,7 @@ export interface WorkFlow {
   name:String,
   active :Boolean,
   states :Status[],
+  statuses :Status[],
   issueTypes :IssueType[],
   project:Project
   crossingStates :CrossingState[],

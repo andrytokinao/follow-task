@@ -859,6 +859,7 @@ const GET_ISSUE_TYPE_BY_ID = gql`
        }
        statuses {
          id
+         displayName
          icone {
            id
            value

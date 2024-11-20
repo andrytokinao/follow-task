@@ -7,15 +7,15 @@
 <mat-menu #menu2="matMenu">
   <div *ngIf="canChangeStatus() | async">
     <h4> status  </h4>
-    <span  *ngIf="issueType != null && issueType.curentWorkFlow != null && issueType.curentWorkFlow.states != null && issueType.curentWorkFlow.states.length !=0 ">
-       <button  mat-menu-item *ngFor="let status of issueType.curentWorkFlow.states" (click)="changeStatus(status)"
+    <span  *ngIf="issueType != null && issueType.curentWorkFlow != null && issueType.curentWorkFlow.statuses != null && issueType.curentWorkFlow.statuses.length !=0 ">
+       <button  mat-menu-item *ngFor="let status of issueType.curentWorkFlow.statuses" (click)="changeStatus(status)"
                 [ngClass]="{'active': isActive(status)}">
-      <span ><app-icone-view [icon]="status.icone" ></app-icone-view> {{issue.status.displayName}} </span>
+      <span ><app-icone-view [icon]="status.icone" ></app-icone-view> {{status.displayName}} ss</span>
 
     </button>
     </span>
 
-    <span  *ngIf="issueType.curentWorkFlow == null || issueType.curentWorkFlow.states == null || issueType.curentWorkFlow.states.length ==0 ">
+    <span  *ngIf="issueType == null || issueType.curentWorkFlow == null || issueType.curentWorkFlow.statuses	 == null || issueType.curentWorkFlow.statuses	.length ==0 ">
       <span  > Flus de traveau non configuré </span>
 
     </span>
