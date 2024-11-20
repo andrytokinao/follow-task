@@ -1384,6 +1384,7 @@ const LOAD_ISSUE_MASTER_BY_PROJECT = gql`
       description
       status {
         id
+        displayName
         icone {
           id
           typeIcone
@@ -1452,6 +1453,7 @@ const SEARCH_ISSUES = gql`
       description
       status {
         id
+        displayName
         icone {
           id
           typeIcone

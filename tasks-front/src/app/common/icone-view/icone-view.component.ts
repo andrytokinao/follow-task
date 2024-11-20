@@ -1,5 +1,5 @@
-import {Component, Input} from '@angular/core';
-import {Icone} from "../../type/issue";
+import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {Icone, Issue} from "../../type/issue";
 import {extractClass} from "@angular/compiler-cli/src/ngtsc/docs/src/class_extractor";
 
 @Component({

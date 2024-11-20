@@ -110,7 +110,8 @@ export class IssueService {
      this.apollo
        .mutate({
            mutation: operation.SAVE_ISSUE,
-           variables: {issue}
+           variables: {issue},
+           fetchPolicy:"network-only"
          }
        ).subscribe( (res:any)=>{
          observer.next(supprimerTypename(res.data.saveIssue));

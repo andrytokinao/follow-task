@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, Input, OnInit} from '@angular/core';
+import {AfterViewInit, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {Issue, IssueType, Status} from "../../type/issue";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {IssueService} from "../../services/issue.service";
@@ -18,6 +18,7 @@ import reset = _default.reset;
 })
 export class StatusFieldComponent implements OnInit , AfterViewInit{
   @Input() issue: Issue;
+  @Output() onUpdateIssue = new EventEmitter<any>();
   statusDispo: Status[] = [];
   protected issueType: IssueType;
   constructor(
@@ -34,7 +35,18 @@ export class StatusFieldComponent implements OnInit , AfterViewInit{
   }
 
   changeStatus(status: Status) {
+    let issue = {...this.issue};
+    delete issue.values;
+    delete issue.creationDate;
+    issue.status = status;
+    this.issueService.saveIssue(issue).subscribe(
+         (result) => {
+          this.issue = result;
+          this.onUpdateIssue.emit(this.issue);
+        }
 
+
+    );
   }
 
   isActive(status: Status) {

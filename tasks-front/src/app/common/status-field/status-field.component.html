@@ -10,7 +10,7 @@
     <span  *ngIf="issueType != null && issueType.curentWorkFlow != null && issueType.curentWorkFlow.statuses != null && issueType.curentWorkFlow.statuses.length !=0 ">
        <button  mat-menu-item *ngFor="let status of issueType.curentWorkFlow.statuses" (click)="changeStatus(status)"
                 [ngClass]="{'active': isActive(status)}">
-      <span ><app-icone-view [icon]="status.icone" ></app-icone-view> {{status.displayName}} ss</span>
+      <span ><app-icone-view [icon]="status.icone" ></app-icone-view> {{status.displayName}} </span>
 
     </button>
     </span>
