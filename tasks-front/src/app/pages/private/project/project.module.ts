@@ -35,6 +35,8 @@ import {MatPaginatorModule} from "@angular/material/paginator";
 import {CustomFieldComponent} from "../../../common/custom-field/custom-field.component";
 import {ShowMasterComponent} from "./show-master/show-master.component";
 import {IssueMasterListComponent} from "./list/issue-master-list/issue-master-list.component";
+import {DocumentComponent} from "./document/document.component";
+import {MarkdownComponent} from "ngx-markdown";
 
 @NgModule({
   declarations: [
@@ -47,38 +49,40 @@ import {IssueMasterListComponent} from "./list/issue-master-list/issue-master-li
     RapportComponent,
     NewIssueComponent,
     ViewEditIssueComponent,
+    DocumentComponent
   ],
   exports: [
      StatusComponent, RepartitionComponent,ProjectComponent
   ],
-    imports: [
-        ProjectRoutingModule,
-        MatTabsModule,
-        MatCardModule,
-        MatDialogModule,
-        MatToolbarModule,
-        MatFormFieldModule,
-        FormsModule,
-        MatMenuModule,
-        MatMenuModule,
-        MatIconModule,
-        MatSelectModule,
-        CommonModule,
-        MyCommonModule,
-        CdkTextareaAutosize,
-        MatInputModule,
-        MatTable,
-        MatHeaderRowDef,
-        MatRowDef,
-        MatCellDef,
-        MatHeaderCellDef,
-        MatColumnDef,
-        MatPaginatorModule,
-        MatCell,
-        MatHeaderCell,
-        MatHeaderRow,
-        MatRow,
-        CustomFieldComponent
-    ]
+  imports: [
+    ProjectRoutingModule,
+    MatTabsModule,
+    MatCardModule,
+    MatDialogModule,
+    MatToolbarModule,
+    MatFormFieldModule,
+    FormsModule,
+    MatMenuModule,
+    MatMenuModule,
+    MatIconModule,
+    MatSelectModule,
+    CommonModule,
+    MyCommonModule,
+    CdkTextareaAutosize,
+    MatInputModule,
+    MatTable,
+    MatHeaderRowDef,
+    MatRowDef,
+    MatCellDef,
+    MatHeaderCellDef,
+    MatColumnDef,
+    MatPaginatorModule,
+    MatCell,
+    MatHeaderCell,
+    MatHeaderRow,
+    MatRow,
+    CustomFieldComponent,
+    MarkdownComponent
+  ]
 })
 export class ProjectModule { }

@@ -26,6 +26,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import {CookieService} from "ngx-cookie-service";
 import {HttpInterceptorService} from "./services/http.service";
 import {provideToastr, ToastrModule} from "ngx-toastr";
+import {MarkdownModule} from "ngx-markdown";
 
 
 @NgModule({
@@ -62,9 +63,10 @@ import {provideToastr, ToastrModule} from "ngx-toastr";
       timeOut: 10000, // Temps d'affichage du toast
       closeButton: true, // Afficher le bouton de fermeture
       progressBar: true // Afficher la barre de progression
-    })
+    }),
+    MarkdownModule.forRoot()
 
-  ],
+],
   bootstrap: [AppComponent],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
   providers :[

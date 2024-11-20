@@ -1,0 +1,17 @@
+<div class="app-container">
+  <!-- Menu latéral -->
+  <aside class="sidebar">
+    <ul>
+      <li *ngFor="let doc of documents"
+          [class.active]="doc.file === selectedDocument"
+          (click)="loadDocument(doc.file)">
+        {{ doc.title }}
+      </li>
+    </ul>
+  </aside>
+
+  <!-- Zone de contenu -->
+  <main class="content">
+    <markdown [data]="markdownContent"></markdown>
+  </main>
+</div>

@@ -1,0 +1,43 @@
+.app-container {
+  display: flex;
+  height: 100vh;
+  font-family: Arial, sans-serif;
+}
+
+/* Menu latéral */
+.sidebar {
+  width: 250px;
+  background-color: #f4f4f4;
+  padding: 15px;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar li {
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  margin-bottom: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.sidebar li:hover {
+  background-color: #ddd;
+}
+
+.sidebar li.active {
+  background-color: #007bff;
+  color: white;
+}
+
+/* Zone de contenu */
+.content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}

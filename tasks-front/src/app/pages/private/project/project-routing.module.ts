@@ -13,6 +13,7 @@ import {IssueMasterListComponent} from "./list/issue-master-list/issue-master-li
 import {ListComponent} from "./list/list.component";
 import {AdminComponent} from "../admins/admin.component";
 import {AuthGuard} from "../../../services/authorization.service.ts";
+import {DocumentComponent} from "./document/document.component";
 
 
 
@@ -30,6 +31,7 @@ const projectRoute: Routes = [
             //  canMatch: [userAdmin]
           },
           { path: 'gantt-chart', component: GanttChartComponent },
+          { path: 'document', component: DocumentComponent },
           { path: 'board', component: BoardComponent },
           { path: 'rapport', component: RapportComponent },
           { path: 'calendar', component: CalendarComponent},

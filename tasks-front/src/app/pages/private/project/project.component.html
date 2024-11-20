@@ -28,6 +28,9 @@
       <li class="menu-item controle" *ngIf="authGuard.hasAutority(['CAN_CONFIGURE_SYSTEM']) | async" routerLinkActive="active" routerLink="config">
         <i class="fas fa-cog"></i> Config
       </li>
+      <li class="menu-item controle" *ngIf="authGuard.hasAutority(['CAN_CONFIGURE_SYSTEM']) | async" routerLinkActive="active" routerLink="document">
+        <i class="fas fa-file-alt"></i> Guide de configuration
+      </li>
     </ul>
   </div>
 
