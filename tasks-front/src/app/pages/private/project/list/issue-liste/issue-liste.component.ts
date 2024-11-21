@@ -62,8 +62,8 @@ export class IssueListeComponent implements OnInit ,AfterViewInit{
     this.route.data.subscribe(data => {
       this.project = data['project'];
       if (this.project && this.project.prefix) {
-        this.userService.getUsers(this.project.prefix).subscribe((res: any) => {
-          this.users = stripTypename(res.data.allUsers);
+        this.userService.getUsers(this.project.prefix).subscribe((users: any) => {
+          this.users = stripTypename(users);
         });
        // this.loadMySubtask();
 

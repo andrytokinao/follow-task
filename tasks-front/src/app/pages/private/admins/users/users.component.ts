@@ -29,8 +29,8 @@ export class UsersComponent {
   }
 
   loadList() {
-    this.userService.getUsers("projet").subscribe((res: any) => {
-      this.users = stripTypename(res.data.allUsers);
+    this.userService.getUsers("projet").subscribe((users) => {
+      this.users = stripTypename(users);
     });
   }
 
