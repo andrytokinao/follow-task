@@ -77,14 +77,17 @@ export class IssueTypeStepperComponent {
 
   loadIssueType(){
     this.issueService.getIssueTypeById(this.issueType.id).subscribe(issueType => {
+     if (issueType.curentWorkFlow != null )
+      this.selectedWorkflowId = issueType.curentWorkFlow.id;
+
       this.issueType = issueType;
       if (this.issueType.parent != undefined) {
         this.selectedParentIssueType = this.issueType.parent;
       }
       this.selectedChildIssueType = this.issueType.children;
-      this.selectedWorkflow = this.issueType.currentWorkflow;
-      alert(JSON.stringify(this.issueType));
-      alert(JSON.stringify(this.issueType.curentWorkFlow));
+     this.selectedWorkflow = this.issueType.curentWorkFlow;
+    }, error => {
+      this.selectedWorkflowId = undefined;
     })
   }
   save() {
@@ -161,7 +164,6 @@ export class IssueTypeStepperComponent {
     usingCustomField.issueType = issueType;
     this.issueService.useCustomField(usingCustomField).subscribe((result)=> {
       this.issueType.usingCustomFields = result;
-
       this.customFieldsSelected = this.issueType.usingCustomFields;
     })
   }
@@ -193,36 +195,39 @@ export class IssueTypeStepperComponent {
 
     });
   }
-  affectWorkFlow(){
+  affectWorkFlow(wf:WorkFlow){
     let project : any = {};
     project.id = this.project.id;
     project.name = this.project.name;
     project.prefix = this.project.prefix;
 
     this.selectedWorkflow.project = project;
-    this.issueType.curentWorkFlow = this.selectedWorkflow;
     this.issueType.project = project;
 
-    let issueType:IssueType | any = {};
-    issueType.id = this.issueType.id;
-    issueType.prefix = this.issueType.prefix;
-    issueType.name = this.issueType.name;
-    issueType.icone = this.issueType.icone;
-    issueType.project = project;
-    issueType.curentWorkFlow = this.selectedWorkflow;
+    let issueType:IssueType | any = {...this.issueType};
+    issueType.curentWorkFlow = wf;
     this.issueService.affectWorkFlow(issueType).subscribe( (workFlow)=>{
         this.loadIssueType();
+      } , error => {
+       this.selectedWorkflow = undefined;
       },
 
     )
   }
+  checkedWorkflowsMap: { [key: number]: boolean } = {};
+  private updateCheckedWorkflows(): void {
+    this.checkedWorkflowsMap = {};
+    this.workFlows.forEach(wf => {
+    //  this.checkedWorkflowsMap[wf.id] = this.workFlowIsChecked(wf);
+    });
+  }
+  workFlowIsChecked(wf: any): boolean {
+    return this.selectedWorkflow?.id === wf.id;
+  }
   protected readonly alert = alert;
+  selectedWorkflowId: Number;
   onSaveClick() {
     this.activeModal.close({ project: this.project,issueType:this.issueType });
   }
-  workFlowIsCheded(wf:WorkFlow):boolean {
-    let cheded = wf?.id === this.selectedWorkflow?.id;
 
-    return cheded;
-  }
 }

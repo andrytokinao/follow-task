@@ -97,11 +97,18 @@
     <p *ngIf="project.workFlows != undefined && project.workFlows.length != 0" >Choie du flux de traveaux utilisé </p>
     <p *ngIf="workFlows == undefined || workFlows.length == 0" >Aucun flux de traveaux utilisé creés</p>
 
-    <mat-radio-group aria-label="Select an option" [(ngModel)]="selectedWorkflow"  (change)="affectWorkFlow()"  >
-        <mat-radio-button  *ngFor="let wf of workFlows" [value] = "wf"
-                          [checked]="workFlowIsCheded(wf)"
-        >{{wf.name}}</mat-radio-button>
-      </mat-radio-group>
+    <mat-radio-group
+      aria-label="Select an option"
+      [(ngModel)]="selectedWorkflowId"
+    >
+      <mat-radio-button
+        *ngFor="let wf of workFlows"
+        [value]="wf.id"
+        (click)="affectWorkFlow(wf)"
+      >
+        {{ wf.name }}
+      </mat-radio-button>
+    </mat-radio-group>
 
     <div>
       <button mat-button matStepperPrevious>Back</button>
