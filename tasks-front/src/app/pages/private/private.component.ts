@@ -43,12 +43,12 @@ export class PrivateComponent {
       }
     );
   }
+
   myProfile() {
     const dialogRef = this.modalService.open(ProfileComponent, {windowClass: "xlModal"});
-    dialogRef.componentInstance.loadComments();
-    dialogRef.componentInstance.loadValues();
-    dialogRef.componentInstance.allCustomField();
-    dialogRef.componentInstance.loadDirectory();
+    dialogRef.componentInstance.user = this.profile;
+    dialogRef.componentInstance.action ="Edition d'un utilisateur";
+    dialogRef.componentInstance.loadGroupeMember();
     dialogRef.result.then((result) => {
     })
   }

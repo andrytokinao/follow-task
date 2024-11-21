@@ -89,7 +89,7 @@ export class UserService {
   upload(file: File, userId:string): Observable<HttpEvent<any>> {
     const formData: FormData = new FormData();
     formData.append('file', file);
-    const req = new HttpRequest('POST', `${this.baseUrl}api/upload/photo?userId=`+userId, formData, {
+    const req = new HttpRequest('POST', `${this.baseUrl}/api/upload/photo?userId=`+userId, formData, {
       reportProgress: true,
       withCredentials:true,
       responseType: 'text'
