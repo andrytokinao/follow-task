@@ -6,7 +6,7 @@ import {ConfigEntry, GroupeUser, Issue, MemberGroupe, Status, User} from "../typ
 import {
   ADD_USER_IN_GROUPE,
   ALL_ISSUE,
-  ALL_USERS,
+  ALL_USERS, GET_USER,
   INIT_USER,
   LOAD_GROUPE_MEMBER,
   SAVE_CONFIG,
@@ -70,7 +70,9 @@ export class UserService {
         variables:{userId}
       });
   }
-  saveUser(userApp:User) {
+  saveUser(user:User) {
+    var userApp:any = {...user};
+    delete  userApp.permissions;
     return this.apollo.mutate(
       {
         mutation : SAVE_USER,
@@ -120,5 +122,23 @@ export class UserService {
         observer.complete();
       })
     })
+  }
+
+  getUser(username: String) {
+    return new Observable<User>(observer =>{
+      this.apollo.mutate(
+        {
+          mutation:GET_USER,
+          variables:{username},
+          fetchPolicy:"network-only"
+        }
+      ).subscribe((res:any)=>{
+        observer.next(res.data.getUser);
+        observer.complete();
+      },error => {
+        observer.error(error);
+        observer.complete();
+      })
+  })
   }
 }

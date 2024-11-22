@@ -46,7 +46,7 @@ export class PrivateComponent {
 
   myProfile() {
     const dialogRef = this.modalService.open(ProfileComponent, {windowClass: "xlModal"});
-    dialogRef.componentInstance.user = this.profile;
+    dialogRef.componentInstance.loadUser(this.profile.id);
     dialogRef.componentInstance.action ="Edition d'un utilisateur";
     dialogRef.componentInstance.loadGroupeMember();
     dialogRef.result.then((result) => {

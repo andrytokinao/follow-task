@@ -1,15 +1,15 @@
 import { Component } from '@angular/core';
-import {MemberGroupe, User} from "../../../type/issue";
-import {UserService} from "../../../services/user.service";
-import {supprimerTypename} from "../../../type/graphql.operations";
-import {environment} from "../../../../environments/environment";
+import {UserService} from "../../../../services/user.service";
+import {MemberGroupe, User} from "../../../../type/issue";
+import {environment} from "../../../../../environments/environment";
+import {supprimerTypename} from "../../../../type/graphql.operations";
 
 @Component({
-  selector: 'app-profile',
-  templateUrl: './profile.component.html',
-  styleUrl: './profile.component.css'
+  selector: 'app-edit-user',
+  templateUrl: './edit-user.component.html',
+  styleUrl: './edit-user.component.css'
 })
-export class ProfileComponent  {
+export class EditUserComponent {
 
   constructor(private userService:UserService) {
   }
@@ -54,11 +54,11 @@ export class ProfileComponent  {
   }
 
   selectPhoto($event: any) {
-      const file: File = $event!.target.files[0];
-      if (file) {
-        this.selectedPhoto = file;
-        this.previewImage(file);
-      }
+    const file: File = $event!.target.files[0];
+    if (file) {
+      this.selectedPhoto = file;
+      this.previewImage(file);
+    }
   }
   previewImage(file: File): void {
     const reader = new FileReader();
@@ -72,10 +72,10 @@ export class ProfileComponent  {
   }
   uploadPhoto() {
     this.userService.upload(this.selectedPhoto,this.user.id).subscribe(res=>{
-    },
+      },
       error => {
       }
-      )
+    )
   }
   loadUser(userId:String){
     this.userService.getUser(userId).subscribe((user:User)=>{

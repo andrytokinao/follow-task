@@ -20,11 +20,12 @@ import {MatAutocomplete, MatAutocompleteTrigger} from "@angular/material/autocom
 import {MatInputModule} from "@angular/material/input";
 import {MatGridList, MatGridTile} from "@angular/material/grid-list";
 import {MatCheckbox} from "@angular/material/checkbox";
+import {EditUserComponent} from "./edit-user/edit-user.component";
 
 
 
 @NgModule({
-  declarations: [AdminComponent,GroupsComponent,UsersComponent,AddMamberGroupeComponent],
+  declarations: [AdminComponent,GroupsComponent,UsersComponent,AddMamberGroupeComponent,EditUserComponent],
   imports: [
     AdminRoutingModule,
     MatTabsModule,

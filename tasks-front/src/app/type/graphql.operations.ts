@@ -54,6 +54,7 @@ const GET_USER = gql`
       password
       lastName
       firstName
+      contact
       cin
       photo
       address

@@ -5,6 +5,7 @@ import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {ProfileComponent} from "../../profile/profile.component";
 import {stripTypename} from "@apollo/client/utilities";
 import {UserService} from "../../../../services/user.service";
+import {EditUserComponent} from "../edit-user/edit-user.component";
 
 @Component({
   selector: 'app-users',
@@ -19,8 +20,8 @@ export class UsersComponent {
   }
 
   editProfile(user:User) {
-    const dialogRef = this.modalService.open(ProfileComponent, {windowClass: "xlModal"});
-    dialogRef.componentInstance.user = user;
+    const dialogRef = this.modalService.open(EditUserComponent, {windowClass: "xlModal"});
+    dialogRef.componentInstance.loadUser(user.id);
     dialogRef.componentInstance.action ="Edition d'un utilisateur";
     dialogRef.componentInstance.loadGroupeMember();
     dialogRef.result.then((result) => {
@@ -35,7 +36,7 @@ export class UsersComponent {
   }
 
   create() {
-    const dialogRef = this.modalService.open(ProfileComponent, {windowClass: "xlModal"});
+    const dialogRef = this.modalService.open(EditUserComponent, {windowClass: "xlModal"});
     dialogRef.componentInstance.action ="Nouvel utilisateur";
     dialogRef.componentInstance.isCreate = true;
     dialogRef.result.then((result) => {
