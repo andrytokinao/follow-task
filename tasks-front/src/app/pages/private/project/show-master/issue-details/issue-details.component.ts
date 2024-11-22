@@ -1,22 +1,20 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {CustomField, CustomFieldValue, Issue, IssueType, UsingCustomField} from "../../../../../type/issue";
+import {Component, Input} from '@angular/core';
+import {Comment, CustomField, CustomFieldValue, Issue, IssueType, UsingCustomField} from "../../../../../type/issue";
 import {ActivatedRoute, Router} from "@angular/router";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {ConfigService} from "../../../../../services/config.service";
 import {IssueService} from "../../../../../services/issue.service";
 import {UserService} from "../../../../../services/user.service";
 import {AuthService} from "../../../../../services/auth.service";
-import {NewIssueComponent} from "../../modal/new-issue/new-issue.component";
 import {CustomFieldComponent} from "../../../../../common/custom-field/custom-field.component";
 
 @Component({
-  selector: 'app-details',
-  templateUrl: './details.component.html',
-  styleUrl: './details.component.css'
+  selector: 'app-issue-details',
+  templateUrl: './issue-details.component.html',
+  styleUrl: './issue-details.component.css'
 })
-export class DetailsComponent implements OnInit{
+export class IssueDetailsComponent {
   private project: any;
-  private profile: any;
   private issue: Issue;
   protected parentIssue: any;
   protected issueType:IssueType | undefined;
@@ -27,12 +25,18 @@ export class DetailsComponent implements OnInit{
   values : CustomFieldValue[]=[];
   currentCustomFieldValue:any = null ;
   viewModeField: string='info-edit';
+  activeMenuItem: string;
+  profile:any  = {};
 
+  comment:any = {
+    issue:{},
+    user:{}
+  };
   constructor(private router: Router,
               private modalService: NgbModal,
               private configService:ConfigService,
               private issueService:IssueService,
-              private userService:UserService,
+              protected userService:UserService,
               private route: ActivatedRoute,
               private authService: AuthService
   ) {
@@ -47,10 +51,12 @@ export class DetailsComponent implements OnInit{
       this.parentIssue = data['parrentIssue'];
       this.project = data['project'];
       this.loadValues();
+      this.loadComments();
     });
     this.authService.getProfile().subscribe((res)=>{
       this.profile = res;
     });
+
 
   }
 
@@ -58,8 +64,8 @@ export class DetailsComponent implements OnInit{
   loadValues(){
     console.info("--- Loading  values ---")
     this.issueService.getValues(this.parentIssue.id).subscribe(res => {
-      this.customFieldValues = res;
-      this.loadIssueType();
+        this.customFieldValues = res;
+        this.loadIssueType();
       }
     );
   }
@@ -89,16 +95,16 @@ export class DetailsComponent implements OnInit{
     this.currentCustomFieldValue.issue = issue;
   }
   getCustomFieldValue(customField:CustomField) {
-  let value: CustomFieldValue;
+    let value: CustomFieldValue;
 
 
-   value = this.customFieldValues.find(
+    value = this.customFieldValues.find(
       cfv=> cfv.customField.id == customField.id
     );
 
     if(value != null ) {
-     return value;
-   }
+      return value;
+    }
     return CustomFieldComponent.newValue(this.parentIssue,customField);
 
   }
@@ -106,4 +112,24 @@ export class DetailsComponent implements OnInit{
   setViewMode(s: string) {
     this.viewModeField = s;
   }
+
+  comments :Comment[] = [];
+
+  addComment() {
+    this.comment.user.id = this.profile.id;// TODO: Change to user connected recuperer coté serveur
+    this.comment.issue.id = this.parentIssue.id;
+
+    this.issueService.addComment(this.comment).subscribe(res=>{
+      this.comments = res;
+      this.comment.text ="";
+    });
+  }
+  loadComments(){
+    console.info("--- Loading  comment ---")
+    this.issueService.allComment(this.parentIssue.id).subscribe(comments =>{
+        this.comments = comments;
+      }
+    );
+  }
+
 }

@@ -1,10 +1,9 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from "@angular/router";
 import {ShowMasterComponent} from "./show-master.component";
-import {CommentComponent} from "./comment/comment.component";
-import {DetailsComponent} from "./details/details.component";
 import {SubtaskComponent} from "./subtask/subtask.component";
 import {LivraisonComponent} from "./livraison/livraison.component";
+import {IssueDetailsComponent} from "./issue-details/issue-details.component";
 
 
 
@@ -18,8 +17,7 @@ const masterRoute: Routes = [
       {
         path: '',
         children: [
-          { path: 'comment', component: CommentComponent },
-          { path: 'details', component: DetailsComponent },
+          { path: 'details', component: IssueDetailsComponent },
           { path: 'subtask', component: SubtaskComponent },
           { path: 'livraison', component: LivraisonComponent },
         ]

@@ -13,7 +13,6 @@ import {
   MatTable
 } from "@angular/material/table";
 import {MatPaginatorModule} from "@angular/material/paginator";
-import {ProjectRoutingModule} from "../project-routing.module";
 import {MatTabsModule} from "@angular/material/tabs";
 import {MatCardModule} from "@angular/material/card";
 import {MatDialogModule} from "@angular/material/dialog";
@@ -25,25 +24,23 @@ import {MatIconModule} from "@angular/material/icon";
 import {MatSelectModule} from "@angular/material/select";
 import {MyCommonModule} from "../../../../common/common.module";
 import {CustomFieldComponent} from "../../../../common/custom-field/custom-field.component";
-import {CommentComponent} from "./comment/comment.component";
 import {IssueMasterRoutingModule} from "./issue-master-routing.module";
 import {ShowMasterComponent} from "./show-master.component";
 import {SubtaskComponent} from "./subtask/subtask.component";
-import {DetailsComponent} from "./details/details.component";
 import {LivraisonComponent} from "./livraison/livraison.component";
 import {MatChip, MatChipsModule} from "@angular/material/chips";
 import {MatCheckboxModule} from "@angular/material/checkbox";
 import {MatButtonModule} from "@angular/material/button";
 import {MatDivider} from "@angular/material/divider";
+import {IssueDetailsComponent} from "./issue-details/issue-details.component";
 
 
 @NgModule({
   declarations: [
-    CommentComponent,
     ShowMasterComponent,
     SubtaskComponent,
-    DetailsComponent,
-    LivraisonComponent
+    LivraisonComponent,
+    IssueDetailsComponent
   ],
   exports: [
   ],
