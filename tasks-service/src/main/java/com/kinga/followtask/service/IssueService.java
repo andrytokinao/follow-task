@@ -60,11 +60,12 @@ public class IssueService {
     public Issue saveIssue(Issue issue) throws IOException {
         if(issue.getId() ==null) {
             issue.setCreationDate(new Date());
+            issue.setReporter(getCurrentUser());
+
         } else {
             issue.setUpdateDate( new Date());
         }
 
-        issue.setReporter(getCurrentUser());
         if (issue.getIssueType() == null) {
             throw new RuntimeException("type mast bee renseign");
         }
@@ -84,6 +85,29 @@ public class IssueService {
                 issueTypeIds.add(it.getId());
             }
         }
+        issue = createDirectoryIfEmpty(issue,project);
+        return issueRepository.save(issue);
+
+    }
+    private Issue createDirectoryIfEmpty(Issue issue, Project project) throws IOException {
+        if (!StringUtils.isEmpty (issue.getDirectory ()))
+            return issue;
+        if (issue.getParent () != null) {
+            Issue parrent = issueRepository.findById (issue.getParent ().getId ()).orElse (null);
+            if (parrent == null ){
+                throw new RemoteException ("issue parrent#"+issue.getParent ().getId ()+" not found");
+            }
+            String parentDirectory = parrent.getDirectory ();
+            Path dossier = Paths.get(parentDirectory, issue.getIssueKey());
+            if (!Files.exists(dossier)) {
+                Files.createDirectory(dossier);
+            } else {
+                System.out.println("Le répertoire '" + dossier + "' existe déjà.");
+            }
+            issue.setDirectory(dossier.toString());
+            return issue;
+        }
+        // Creation si parent vide
         String homeDirectory = KingaUtils.decodeText(project.getPath()).replaceAll (" ","");
         File projectDirectory = new File(homeDirectory);
         if (!Files.exists(projectDirectory.toPath())) {
@@ -98,7 +122,6 @@ public class IssueService {
         }
         issue.setDirectory(dossier.toString());
         return issueRepository.save(issue);
-
     }
     private UserApp getCurrentUser() {
         // TODO : Get connected user

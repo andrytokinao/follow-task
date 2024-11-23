@@ -1,5 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {BreadcrumbService} from "../../services/breadcrumb.service";
+import {NewIssueComponent} from "../../pages/private/project/modal/new-issue/new-issue.component";
+import {Issue} from "../../type/issue";
+import {ActivatedRoute, Router} from "@angular/router";
+import {IssueService} from "../../services/issue.service";
+import {AuthGuard} from "../../services/authorization.service.ts";
+import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
   selector: 'app-breadcrumb',
@@ -9,6 +15,7 @@ import {BreadcrumbService} from "../../services/breadcrumb.service";
 export class BreadcrumbComponent implements OnInit {
   breadcrumbs = [];
   activeSubMenu: number | null = null;  // Pour identifier quel sous-menu est ouvert
+  @Output() createMaster = new EventEmitter<any>();
 
   constructor(private breadcrumbService: BreadcrumbService) {}
 
@@ -21,5 +28,7 @@ export class BreadcrumbComponent implements OnInit {
   toggleSubMenu(index: number) {
     this.activeSubMenu = this.activeSubMenu === index ? null : index;
   }
-
+  newMaster(){
+    this.createMaster.emit({});
+  }
 }

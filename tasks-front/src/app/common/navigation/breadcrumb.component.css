@@ -35,3 +35,6 @@
   border-radius: 4px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
 }
+.breadcrumb-item{
+  cursor: pointer;
+}

@@ -36,7 +36,7 @@
 
   <div class="project-content">
 
-    <app-breadcrumb></app-breadcrumb> <span (click)="createMaster()" > Creer  </span>
+    <app-breadcrumb (createMaster) = "createMaster()"></app-breadcrumb>
     <router-outlet></router-outlet>
   </div>
 </div>
