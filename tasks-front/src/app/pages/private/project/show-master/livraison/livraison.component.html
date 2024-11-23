@@ -1,20 +1,36 @@
 <div class="upload-container">
-  <div class="upload-area" (click)="selectFiles()">
-    <input type="file" multiple (change)="onFileSelected($event)" hidden #fileInput>
-    <p>Glissez-déposez vos fichiers ou cliquez pour les sélectionner</p>
-  </div>
 
-  <div class="files-list" *ngIf="uploadedFiles.length > 0">
+
+  <div class="files-list" *ngIf="repertoire.repertoires.length > 0">
     <h3>Fichiers téléchargés</h3>
-    <div class="file-item" *ngFor="let file of uploadedFiles">
-      <img [src]="file.userPhotoUrl" alt="Propriétaire" class="user-photo">
-      <div class="file-details">
-        <p class="file-name">{{ file.name }}</p>
-        <p class="upload-date">{{ file.uploadDate | date }}</p>
+    <div class="file-item"*ngFor="let l of livraisons">
+      <div>
+        <app-tree-node-item [repertoire]="l.repertoire" (fileSelected)="selectFile($event)"></app-tree-node-item>
       </div>
-      <div class="file-actions">
-        <button (click)="downloadFile(file)">Télécharger</button>
-        <button (click)="deleteFile(file)">Supprimer</button>
+      <div class="upload-area" (click)="selectFiles()" (dragover)="onDragOver($event,l)" (drop)="onDrop($event,l)">
+        <div>
+          <ul *ngIf="l.filesToUpload">
+            <div *ngFor="let up of l.uploading; let i = index" class="file" [ngClass]="up.status">
+              <label class="file"> <i class="fa fa-file-text"> </i>
+                {{ up.file.name}}
+              </label>
+              <span (click)="removeFile(i,l)" style="float: right;"> {{ up.status }} <i class="fa fa-remove"></i></span>
+            </div>
+            <div>
+              <button class="upload-btn" (click)="upload(l)">Uploader</button>
+            </div>
+          </ul>
+        </div>
+
+        <div
+          (click)="fileInput.click()"
+
+
+          class="file-drop-zone">
+          <input type="file" multiple (change)="onFileSelected($event,l)" hidden #fileInput>
+          <p>Glissez-déposez vos fichiers ou cliquez pour les sélectionner</p>
+        </div>
+
       </div>
     </div>
   </div>

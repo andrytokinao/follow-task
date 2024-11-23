@@ -18,6 +18,7 @@ export class IssueDetailsComponent {
   private issue: Issue;
   protected parentIssue: any;
   protected issueType:IssueType | undefined;
+  expaces:any[]=[];
   customFieldValue:CustomFieldValue |any= {}
   customFieldValues :CustomFieldValue[] = [];
   newValues:CustomFieldValue[] =[];
