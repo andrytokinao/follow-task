@@ -47,8 +47,8 @@ export class IssueMasterListComponent {
     this.route.data.subscribe(data => {
       this.project = data['project'];
       if (this.project && this.project.prefix) {
-        this.userService.getUsers(this.project.prefix).subscribe((res: any) => {
-          this.users = stripTypename(res.data.allUsers);
+        this.userService.getUsers(this.project.prefix).subscribe((users ) => {
+          this.users = stripTypename(users);
         });
         this.essueService.loadIssueMasterByProject(this.project.id).subscribe((res: any) => {
           this.issues = stripTypename(res);

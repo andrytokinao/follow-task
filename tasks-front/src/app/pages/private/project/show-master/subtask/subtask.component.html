@@ -2,7 +2,7 @@
   <div class="list-group"  *ngFor="let master of subtasks" class="project-card">
     <a class="list-group-item list-group-item-action">
       <div class="d-flex w-100 justify-content-between">
-        <h5 class="mb-1">  <app-icone-view [icon]="master.issueType.icone"  (click)="editIssue(master)"></app-icone-view> {{master.issueKey}}  {{master.summary}}</h5>
+        <h5 class="mb-1"(click)="editIssue(master)" style="cursor: pointer">  <app-icone-view [icon]="master.issueType.icone"  ></app-icone-view> {{master.issueKey}}  {{master.summary}}</h5>
         <small class="text-body-primary" *ngIf="master.creationDate">
           <b >  <app-assign-field [issue]="master" ></app-assign-field> </b>
           <span>{{master.creationDate | date}}</span>

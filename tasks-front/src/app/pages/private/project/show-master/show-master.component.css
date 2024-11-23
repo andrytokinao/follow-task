@@ -7,7 +7,6 @@
 
 .navigation {
   display: flex;
-  justify-content: space-around;
   list-style: none;
   padding: 0;
   margin: 0;
@@ -15,6 +14,10 @@
 
 .navigation li {
   margin: 0;
+}
+.navigation li:hover {
+  margin: 0;
+  background-color: #cccccc;
 }
 
 .navigation a {

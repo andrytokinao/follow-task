@@ -1278,6 +1278,7 @@ const GET_ISSUE = gql`
     getIssue(issueKey: $issueKey ) {
       id
       issueKey
+      summary
       description
       issueType {
         id
