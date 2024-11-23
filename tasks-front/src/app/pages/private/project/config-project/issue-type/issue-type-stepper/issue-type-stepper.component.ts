@@ -201,7 +201,7 @@ export class IssueTypeStepperComponent {
     project.name = this.project.name;
     project.prefix = this.project.prefix;
 
-    this.selectedWorkflow.project = project;
+    wf.project = project;
     this.issueType.project = project;
 
     let issueType:IssueType | any = {...this.issueType};
