@@ -14,7 +14,7 @@ import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 })
 export class BreadcrumbComponent implements OnInit {
   breadcrumbs = [];
-  activeSubMenu: number | null = null;  // Pour identifier quel sous-menu est ouvert
+  activeSubMenu: number | null = null;
   @Output() createMaster = new EventEmitter<any>();
 
   constructor(private breadcrumbService: BreadcrumbService) {}
