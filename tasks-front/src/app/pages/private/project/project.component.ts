@@ -1,12 +1,13 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Route, Router} from "@angular/router";
 import {IssueService} from "../../../services/issue.service";
-import {Issue, Project} from "../../../type/issue";
+import {Breadcrumb, Issue, Project} from "../../../type/issue";
 import {AuthGuard} from "../../../services/authorization.service.ts";
 import {NewIssueComponent} from "./modal/new-issue/new-issue.component";
 import {stripTypename} from "@apollo/client/utilities";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {ViewEditIssueComponent} from "./modal/view-edit-issue/view-edit-issue.component";
+import {BreadcrumbService} from "../../../services/breadcrumb.service";
 
 @Component({
   selector: 'app-project',
@@ -16,20 +17,30 @@ import {ViewEditIssueComponent} from "./modal/view-edit-issue/view-edit-issue.co
 })
 export class ProjectComponent implements OnInit{
   project:Project | undefined;
-  private issues: Issue[]=[]
+  private issues: Issue[]=[];
+  breadcrumbs: Breadcrumb[] = [];
   constructor(
     private route:ActivatedRoute,
     private issueService:IssueService,
     protected authGuard:AuthGuard,
     private modalService: NgbModal,
     private router: Router,
+    private breadcrumbService: BreadcrumbService
 
   ) {
   }
 
   ngOnInit(): void {
     this.route.data.subscribe(data => {
+      const breadcrumb: Breadcrumb[] = data['breadcrumb'];
       this.project = data['project'];
+     /* console.debug(breadcrumb);
+      this.breadcrumbService.setBreadcrumbs(breadcrumb);
+      this.breadcrumbs = breadcrumb;
+      this.breadcrumbService.setBreadcrumbs(breadcrumb);*/
+    });
+    this.route.data.subscribe(data => {
+
     });
   }
   editIssue(issue:Issue){

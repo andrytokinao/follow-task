@@ -27,18 +27,25 @@ import {MyCommonModule} from "../../../../common/common.module";
 import {CustomFieldComponent} from "../../../../common/custom-field/custom-field.component";
 import {ListComponent} from "./list.component";
 import {IssueMasterListComponent} from "./issue-master-list/issue-master-list.component";
-import {IssueListeComponent} from "./issue-liste/issue-liste.component";
+import {SimpleListeComponent} from "./issue-liste/simple-liste.component";
 import {DataRowOutlet} from "@angular/cdk/table";
+import {ShowListComponent} from "./show/show-list.component";
+import {BoardListComponent} from "./board-list/board-list.component";
+import {CalandarListComponent} from "./calendar-list/calandar-list.component";
 
 @NgModule({
   declarations: [
     ListComponent,
     IssueMasterListComponent,
-    IssueListeComponent
+    SimpleListeComponent,
+    ShowListComponent,
+    BoardListComponent,
+    CalandarListComponent
 
   ],
-  exports: [
-  ],
+    exports: [
+        SimpleListeComponent
+    ],
   imports: [
     ListRoutingModule,
     MatTabsModule,

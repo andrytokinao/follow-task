@@ -1,17 +1,20 @@
-import { Component } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {IssueService} from "../../../../services/issue.service";
 import {UserService} from "../../../../services/user.service";
 import {AuthService} from "../../../../services/auth.service";
 import {ActivatedRoute, Router} from "@angular/router";
 import {IssueSearchCriteriaInput, toQueryParams} from "../../../../type/issue-search-criteria.util";
+import {BreadcrumbService} from "../../../../services/breadcrumb.service";
+import {Breadcrumb, Project} from "../../../../type/issue";
 
 @Component({
   selector: 'app-list',
   templateUrl: './list.component.html',
   styleUrl: './list.component.css'
 })
-export class ListComponent {
+export class ListComponent  implements OnInit{
+  private project:Project ;
   searchCriteria: IssueSearchCriteriaInput | any = {
   };
   constructor(
@@ -21,7 +24,8 @@ export class ListComponent {
     public userService: UserService,
     public authService: AuthService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private breadcrumbService:BreadcrumbService,
   ) {
 
   }
@@ -50,4 +54,11 @@ export class ListComponent {
   mySubtask(){
     this.loadMySubtask();
   }
+  ngOnInit(): void {
+    this.route.data.subscribe(data => {
+      this.project = data['project'];
+    });
+  }
+
+
 }

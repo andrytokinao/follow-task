@@ -47,6 +47,11 @@ export class IssueService {
   projects: Project[] = [];
   project: Project | null = null;
   private projectSubject: BehaviorSubject<Project>;
+  private issuesSubject = new BehaviorSubject<Issue[]>([]);
+  issues$ = this.issuesSubject.asObservable();
+  setIssues(issues: Issue[]) {
+    this.issuesSubject.next(issues);
+  }
 
   // Exposed as an observable for components to subscribe
   project$: Observable<Project>;
@@ -96,6 +101,7 @@ export class IssueService {
           query: operation.ALL_ISSUE,
         }).subscribe((res:any)=>{
            observer.next(res.data.allIssue);
+           this.setIssues(res.data.allIssue);
            observer.complete();
         },error =>{
           observer.error(error);
@@ -588,7 +594,6 @@ export class IssueService {
     configProject.configof = 'config.project.' + projectId + '.path';
     configProject.value = pathSelected;
     this.saveOrUpdateConfig(configProject).subscribe(res => {
-      alert(JSON.stringify(res));
     });
   }
 
@@ -599,7 +604,6 @@ export class IssueService {
         variables: {configProject},
         fetchPolicy: "network-only"
       }).subscribe((res: any) => {
-          alert(JSON.stringify(res));
           observer.next(supprimerTypename(res.data.saveOrUpdateConfig));
           observer.complete();
         }, error => {
@@ -782,6 +786,7 @@ export class IssueService {
         fetchPolicy:"network-only"
       }).subscribe((res:any)=>{
         observer.next(supprimerTypename(res.data.searchIssues));
+        this.setIssues(res.data.searchIssues);
         observer.complete();
       },error => {
         observer.error(error);

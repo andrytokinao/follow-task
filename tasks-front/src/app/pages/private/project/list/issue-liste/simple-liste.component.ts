@@ -1,9 +1,9 @@
-import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, Input, OnInit, ViewChild} from '@angular/core';
 import {
-  Criteria,
+  Criteria, Icone,
   Issue,
   IssueType,
-  Project,
+  Project, Repertoire,
   Status,
   User,
   WorkFlow
@@ -25,10 +25,10 @@ import {fromUrlParams, IssueSearchCriteriaInput} from "../../../../../type/issue
 
 @Component({
   selector: 'app-issue-liste',
-  templateUrl: './issue-liste.component.html',
-  styleUrl: './issue-liste.component.css'
+  templateUrl: './simple-liste.component.html',
+  styleUrl: './simple-liste.component.css'
 })
-export class IssueListeComponent implements OnInit ,AfterViewInit{
+export class SimpleListeComponent implements OnInit{
   constructor(
     private modalService: NgbModal,
     protected issueService: IssueService,
@@ -40,9 +40,10 @@ export class IssueListeComponent implements OnInit ,AfterViewInit{
   ) {
 
   }
+
   searchCriteria: IssueSearchCriteriaInput | any = {
   };
-  public issues: Issue[] = [];
+  issues: Issue[] = [];
   public users: User[] = [];
   public currentIssue: Issue | null = null;
   workflow: Status[] = [];
@@ -58,22 +59,7 @@ export class IssueListeComponent implements OnInit ,AfterViewInit{
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
-  ngAfterViewInit() {
-    this.route.data.subscribe(data => {
-      this.project = data['project'];
-      if (this.project && this.project.prefix) {
-        this.userService.getUsers(this.project.prefix).subscribe((users: any) => {
-          this.users = stripTypename(users);
-        });
-       // this.loadMySubtask();
 
-        this.route.queryParamMap.subscribe((params:ParamMap) => {
-          this.searchCriteria = fromUrlParams(params);
-          this.search();
-        });
-      }
-    });
-  }
   editIssue(issue:Issue){
     if(issue.issueType.level =="PARENT") {
       this.browsIssue(issue);
@@ -82,7 +68,12 @@ export class IssueListeComponent implements OnInit ,AfterViewInit{
     }
   }
   ngOnInit(): void {
+      this.issueService.issues$.subscribe(data => {
+        this.issues = data;
+        this.dataSource =  new MatTableDataSource<Issue>(this.issues);
+        this.dataSource.paginator = this.paginator;
 
+      });
   }
   openDialogIssue(issue:Issue){
     const dialogRef = this.modalService.open(ViewEditIssueComponent, {windowClass: "xlModal"});
@@ -100,12 +91,7 @@ export class IssueListeComponent implements OnInit ,AfterViewInit{
   }
   aplayFilter(){
   }
-
   search(){
-    this.issueService.searchIssues(this.searchCriteria).subscribe(issues => {
-      this.issues = stripTypename(issues);
-      this.dataSource =  new MatTableDataSource<Issue>(this.issues);
-      this.dataSource.paginator = this.paginator;
-    })
+
   }
 }

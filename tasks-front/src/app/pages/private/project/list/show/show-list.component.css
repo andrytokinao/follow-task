@@ -1,0 +1,28 @@
+.type-view {
+  margin-left: 10px;
+  float: right;
+  width: 50px;
+  align-items: center;
+
+}
+
+.menu-item i {
+  color: #555;
+  cursor: pointer;
+  transition: color 0.3s, transform 0.2s;
+}
+.menu-item {
+  margin: 8px;
+
+}
+.menu-item:hover {
+  transform: scale(1.2);
+}
+
+.menu-item.active i {
+  color: #ffffff;
+  font-weight: bold;
+  border-left: 4px solid rgba(117, 127, 134, 0.8);
+  background-color: #1a1d20;
+  padding-left: 8px;
+}

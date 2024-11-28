@@ -1,12 +1,12 @@
 <div class="breadcrumb">
   <ng-container *ngFor="let breadcrumb of breadcrumbs; let i = index">
     <div class="breadcrumb-item">
-      <a (click)="toggleSubMenu(i)">{{ breadcrumb.label }}</a>
+      <a (click)="toggleSubMenu(i)">{{ breadcrumb.name }}</a>
 
 
       <div *ngIf="activeSubMenu === i" class="sub-menu">
-        <ng-container *ngFor="let subItem of breadcrumb.subItems">
-          <a [routerLink]="subItem.url">{{ subItem.label }}</a>
+        <ng-container *ngFor="let subItem of breadcrumb.others">
+          <a [routerLink]="subItem.path">{{ subItem.name }}</a>
         </ng-container>
       </div>
     </div>

@@ -9,6 +9,7 @@ import {AccessDeniedComponent} from "./access-denied/access-denied.component";
 import {AuthGuard} from "../../services/authorization.service.ts";
 import {ProjectResolverService} from "../../services/resolvers/project-resolver.service";
 import {HomeComponent} from "./home/home.component";
+import {ProjectBreadcrumbResolverService} from "./project/project-breadcrumb-resolver.service";
 
 const privateRoute: Routes = [
   {
@@ -19,7 +20,7 @@ const privateRoute: Routes = [
           { path: 'profile', component: ProfileComponent  },
           { path: 'access-denied', component: AccessDeniedComponent },
           {
-            path: 'working/:project',resolve:{project:ProjectResolverService},
+            path: 'working/:project',resolve:{project:ProjectResolverService,breadcrumb: ProjectBreadcrumbResolverService},
             loadChildren: () => import('./project/project.module').then(m => m.ProjectModule),
             //  canMatch: [userProject]
           },

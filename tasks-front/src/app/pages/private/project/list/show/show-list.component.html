@@ -1,0 +1,17 @@
+<div class="type-view">
+  <div class="menu-item" *ngFor="let view of views" [class.active]="currentView === view.id">
+    <i
+      [class]="view.icon"
+      [title]="view.title"
+      (click)="changeView(view.id)">
+    </i>
+  </div>
+</div>
+<div *ngIf="currentView ==='list'">
+  <app-issue-liste ></app-issue-liste>
+</div>
+<div *ngIf="currentView ==='board'">
+  <app-board-list ></app-board-list>
+</div><div *ngIf="currentView ==='calendar'">
+  <app-calendar-list ></app-calendar-list>
+</div>

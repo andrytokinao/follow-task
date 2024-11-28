@@ -200,3 +200,8 @@ export interface ConfigProject{
 export interface SeatsAvailability {
   remainingSeats: number;
 }
+export interface Breadcrumb {
+  name: string;
+  path:string;
+  others:Breadcrumb[];
+}
