@@ -100,8 +100,8 @@ export class IssueService {
         .query({
           query: operation.ALL_ISSUE,
         }).subscribe((res:any)=>{
-           observer.next(res.data.allIssue);
-           this.setIssues(res.data.allIssue);
+           observer.next(supprimerTypename(res.data.allIssue));
+           this.setIssues(supprimerTypename(res.data.allIssue));
            observer.complete();
         },error =>{
           observer.error(error);
@@ -135,7 +135,7 @@ export class IssueService {
         mutation: operation.ADD_COMMENT,
         variables: {comment}
       }).subscribe((res:any)=>{
-        observer.next(res.data.addComment);
+        observer.next(supprimerTypename(res.data.addComment));
         observer.complete();
       },
         error => {
@@ -154,7 +154,7 @@ export class IssueService {
           query: operation.ALL_COMMENT,
           variables: {issueId}
         }).subscribe((res:any)=>{
-          observer.next(res.data.allComment);
+          observer.next(supprimerTypename(res.data.allComment));
           observer.complete();
       },error=>{
           observer.error(error);
@@ -171,7 +171,7 @@ export class IssueService {
           query: operation.GET_VALUES,
           variables: {issueId}
         }).subscribe((res:any)=>{
-          observer.next(res.data.getValues);
+          observer.next(supprimerTypename(res.data.getValues));
           observer.complete();
       },error=>{
           observer.error(error);
@@ -786,7 +786,7 @@ export class IssueService {
         fetchPolicy:"network-only"
       }).subscribe((res:any)=>{
         observer.next(supprimerTypename(res.data.searchIssues));
-        this.setIssues(res.data.searchIssues);
+        this.setIssues(supprimerTypename(res.data.searchIssues));
         observer.complete();
       },error => {
         observer.error(error);
