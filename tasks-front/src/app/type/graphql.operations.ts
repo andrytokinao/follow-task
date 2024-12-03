@@ -179,6 +179,19 @@ const ALL_ISSUE = gql`
           typeIcone
           value
         }
+        curentWorkFlow {
+          id
+          name
+          statuses {
+            id
+            displayName
+            icone {
+              id
+              typeIcone
+              value
+            }
+          }
+        }
         level
       }
       assigne {

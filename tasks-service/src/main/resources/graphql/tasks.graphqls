@@ -239,6 +239,7 @@ input  IssueInput {
     description : String
     directory:String
     parent:IssueInput,
+    creationDate:String,
     issueType:IssueTypeInput
     assigne:UserAppInput
     status:StatusInput

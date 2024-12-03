@@ -11,7 +11,7 @@
   <app-issue-liste ></app-issue-liste>
 </div>
 <div *ngIf="currentView ==='board'">
-  <app-board-list ></app-board-list>
+  <app-board-list [searchCriteria] = "searchCriteria"></app-board-list>
 </div><div *ngIf="currentView ==='calendar'">
   <app-calendar-list ></app-calendar-list>
 </div>

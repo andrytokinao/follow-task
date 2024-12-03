@@ -112,6 +112,7 @@ export class IssueService {
   }
 
   saveIssue(issue: any) {
+    delete issue.values;
    return new Observable<Issue>((observer) => {
      this.apollo
        .mutate({
@@ -433,6 +434,18 @@ export class IssueService {
         }
         );
     })
+  }
+  getDistinctWorkflows(issues: Issue[]): WorkFlow[] {
+    const workflowMap = new Map<number, WorkFlow>();
+    issues.forEach(issue => {
+      const workflow = issue.issueType?.curentWorkFlow;
+      if (workflow && workflow.id != null) {
+        if (!workflowMap.has(workflow.id)) {
+          workflowMap.set(workflow.id, workflow);
+        }
+      }
+    });
+    return Array.from(workflowMap.values());
   }
   workFlowsByProject(projectId: Number) {
     return new Observable<WorkFlow[]>(observer => {

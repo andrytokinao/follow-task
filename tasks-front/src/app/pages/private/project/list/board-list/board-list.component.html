@@ -1,2 +1,32 @@
-<p>board-list works!</p>
-<app-maintenance></app-maintenance>
+
+<div class="board" >
+  <div class="column" *ngFor='let status of currentWorkflow?.statuses' (dragover)="onDragOver($event)" (drop)= "onDrop($event, status)" >
+    <div class="entete"> <app-icone-view [icon]="status.icone"></app-icone-view>{{ status.displayName }} </div>
+    <div class="issie-board" *ngFor="let issue of filterByStatus(status)" draggable="true" (dragstart)="onDragStart($event,issue)"  >
+      <div class="myCard"  >
+        <div class="content details" (click)="viewIssue(issue)">
+          <app-icone-view [icon] = issue.issueType.icone></app-icone-view> <b>{{issue.issueKey+' '+issue.summary}}</b>
+          <p>{{issue.description}}</p>
+        </div>
+        <img *ngIf="issue.assigne !== null" [src]="getUrlPhoto(issue.assigne)" class="image" alt="l'assigné a" mat-icon-button [matMenuTriggerFor]="menu2" (click)="assign(issue)" />
+        <img *ngIf="!issue.assigne" src="/assets/nonAssigner.jpg" alt="non assigner" mat-icon-button class="image" [matMenuTriggerFor]="menu2" (click)="assign(issue)" />
+      </div>
+    </div>
+    <div  class="issie-board new " (click)="newIssue( status)" *ngIf="authGuard.hasAutority(['CAN_CREATE_TASK']) | async" >
+      <div class="card">
+        <div class="content details">
+          <p><i class="fas fa-plus"></i> Creer un nouveau demande </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <mat-menu #menu2="matMenu"  >
+    <div *ngIf="authGuard.hasAutority(['CAN_ASSIGN_TASK']) | async">
+      <h4> Assigner a </h4>
+      <button mat-menu-item *ngFor="let user of users" (click)="assigneToUser(user)" [ngClass]="{'active': isActive(user)}" >
+        <img [src]="getUrlPhoto(user)" alt="Image"  width="30px"  >
+        <span>{{user.firstName}} {{user.lastName}}</span>
+      </button>
+    </div>
+  </mat-menu>
+</div>
