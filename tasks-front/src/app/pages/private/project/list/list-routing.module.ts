@@ -16,9 +16,10 @@ const list: Routes = [
       {
         path: '',
         children: [
-          { path: 'master', component: IssueMasterListComponent },
-          { path: 'issue', component: ShowListComponent },
-          { path: 'search-issue', component: ShowListComponent },
+          { path: '',   redirectTo: 'master', pathMatch: 'full'  },
+          { path: 'master', component: IssueMasterListComponent , title:'Liste des projet' },
+          { path: 'issue', component: ShowListComponent ,  title:'Mes tache' },
+          { path: 'search-issue', component: ShowListComponent ,  title:'Recherche des taches ' },
         ]
       }
     ]
