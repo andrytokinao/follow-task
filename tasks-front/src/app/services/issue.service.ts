@@ -134,7 +134,8 @@ export class IssueService {
     return new Observable<Comment[]>(observer => {
       return this.apollo.mutate({
         mutation: operation.ADD_COMMENT,
-        variables: {comment}
+        variables: {comment},
+        fetchPolicy:'network-only'
       }).subscribe((res:any)=>{
         observer.next(supprimerTypename(res.data.addComment));
         observer.complete();
@@ -153,7 +154,8 @@ export class IssueService {
       this.apollo
         .query({
           query: operation.ALL_COMMENT,
-          variables: {issueId}
+          variables: {issueId},
+          fetchPolicy:'network-only'
         }).subscribe((res:any)=>{
           observer.next(supprimerTypename(res.data.allComment));
           observer.complete();

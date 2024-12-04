@@ -225,6 +225,7 @@ const  ALL_COMMENT = gql`
     allComment(issueId: $issueId){
       id
       text
+      date
       user {
         id
         username

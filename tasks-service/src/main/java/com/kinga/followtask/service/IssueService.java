@@ -139,6 +139,8 @@ public class IssueService {
          return commentRepository.findByIssueId(issueId);
     }
     public List<Comment> addComment(Comment comment) {
+        if (comment.getId() ==null )
+            comment.setDate(new Date());
        commentRepository.save(comment);
        return commentRepository.findByIssueId(comment.getIssue().getId());
     }

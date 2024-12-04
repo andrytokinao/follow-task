@@ -37,9 +37,10 @@
                 alt="{{ comment.user.username }}"
                 class="user-photo"
               />
-              <span class="user-name">{{ comment.user.firstName }}</span>
+              <span class="user-name">{{ comment.user.firstName }}         <small class="text-body-secondary" *ngIf="comment.date">{{comment.date}}</small>
+ </span>
             </div>
-            <p class="comment-text">{{ comment.text }}</p>
+            <p class="comment-text">{{ comment.text }} </p>
           </div>
         </div>
 
