@@ -15,6 +15,8 @@ import {AdminComponent} from "../admins/admin.component";
 import {AuthGuard} from "../../../services/authorization.service.ts";
 import {DocumentComponent} from "./document/document.component";
 import {ProjectBreadcrumbResolverService} from "./project-breadcrumb-resolver.service";
+import {PlanningComponent} from "./planning/planning.component";
+import {PlanningModule} from "./planning/planning.module";
 
 
 
@@ -36,6 +38,11 @@ const projectRoute: Routes = [
           { path: 'board', component: BoardComponent, resolve: { breadcrumb: ProjectBreadcrumbResolverService  } },
           { path: 'rapport', component: RapportComponent, resolve: { breadcrumb: ProjectBreadcrumbResolverService  } },
           { path: 'calendar', component: CalendarComponent , resolve: { breadcrumb: ProjectBreadcrumbResolverService  }},
+          { path: 'planning', component: PlanningComponent , resolve: { breadcrumb: ProjectBreadcrumbResolverService  }},
+          {
+            path:'planning',
+            loadChildren:()=> import('./planning/planning.module').then(m=>m.PlanningModule),
+          },
           { path: 'config', component: ConfigProjectComponent , resolve: { breadcrumb: ProjectBreadcrumbResolverService  }},
           { path: 'config', loadChildren:()=> import("./config-project/config-project.module") .then(m=>m.ConfigProjectModule)},
           { path: 'issue/:parrentIssue', component: ShowMasterComponent , resolve:{parrentIssue:IssueResolverService , breadcrumb: ProjectBreadcrumbResolverService}},

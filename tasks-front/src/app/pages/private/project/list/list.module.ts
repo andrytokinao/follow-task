@@ -32,6 +32,7 @@ import {DataRowOutlet} from "@angular/cdk/table";
 import {ShowListComponent} from "./show/show-list.component";
 import {BoardListComponent} from "./board-list/board-list.component";
 import {CalandarListComponent} from "./calendar-list/calandar-list.component";
+import {DayPilotModule} from "@daypilot/daypilot-lite-angular";
 
 @NgModule({
   declarations: [
@@ -40,7 +41,7 @@ import {CalandarListComponent} from "./calendar-list/calandar-list.component";
     SimpleListeComponent,
     ShowListComponent,
     BoardListComponent,
-    CalandarListComponent
+    CalandarListComponent,
 
   ],
     exports: [
@@ -73,7 +74,8 @@ import {CalandarListComponent} from "./calendar-list/calandar-list.component";
     MatHeaderRow,
     MatRow,
     CustomFieldComponent,
-    DataRowOutlet
+    DataRowOutlet,
+    DayPilotModule
   ]
 })
 export class ListModule { }

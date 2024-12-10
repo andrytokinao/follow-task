@@ -21,6 +21,7 @@
     "@angular/platform-browser-dynamic": "^17.1.0",
     "@angular/router": "^17.1.0",
     "@apollo/client": "^3.9.5",
+    "@daypilot/daypilot-lite-angular": "^3.30.1",
     "@fortawesome/fontawesome-free": "^6.5.1",
     "@ng-bootstrap/ng-bootstrap": "^16.0.0",
     "@popperjs/core": "^2.11.8",
@@ -32,13 +33,13 @@
     "graphql": "^16.8.1",
     "highcharts": "^11.3.0",
     "highcharts-angular": "^4.0.0",
+    "marked": "^5.1.0",
     "ngx-breadcrumbs": "^0.0.3",
     "ngx-markdown": "^18.1.0",
     "ngx-toastr": "^19.0.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
-    "zone.js": "~0.14.3",
-    "marked": "^5.1.0"
+    "zone.js": "~0.14.3"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^17.1.1",

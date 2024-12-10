@@ -8,9 +8,9 @@ import {
 import {EventsService} from "../../../../../services/events.service";
 
 @Component({
-  selector: 'app-calendar-list',
+  selector: 'calendar-test-component',
   template: `
-    <div class="container-list">
+    <div class="contenue">
       <div class="navigator">
         <daypilot-navigator [config]="configNavigator" [events]="events" [(date)]="date" (dateChange)="changeDate($event)" #navigator></daypilot-navigator>
       </div>
@@ -29,7 +29,7 @@ import {EventsService} from "../../../../../services/events.service";
 
   `,
   styles: [`
-    .container-list {
+    .contenue {
       display: flex;
       flex-direction: row;
     }
@@ -92,7 +92,7 @@ import {EventsService} from "../../../../../services/events.service";
 
   `]
 })
-export class CalandarListComponent implements AfterViewInit {
+export class PlanningCalendarComponent implements AfterViewInit {
 
   @ViewChild("day") day!: DayPilotCalendarComponent;
   @ViewChild("week") week!: DayPilotCalendarComponent;
