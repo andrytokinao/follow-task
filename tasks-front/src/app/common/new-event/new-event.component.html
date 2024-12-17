@@ -1,0 +1,19 @@
+<div class="new-event-container">
+  <h3>Créer un nouvel événement</h3>
+  <form (ngSubmit)="onSubmit()" class="event-form">
+    <mat-form-field appearance="fill" class="form-field">
+      <mat-label>Titre de l'événement</mat-label>
+      <input matInput type="text" [(ngModel)]="event.title" name="title" required placeholder="Entrez le titre" />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="form-field">
+      <mat-label>Type d'événement</mat-label>
+      <mat-select [(ngModel)]="event.eventType" name="eventType" required>
+        <mat-option value="">Sélectionner un type</mat-option>
+        <mat-option *ngFor="let type of eventTypes" [value]="type">{{ type.name }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <button mat-raised-button color="primary" type="submit">Créer l'événement</button>
+  </form>
+</div>

@@ -1,17 +1,22 @@
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Injectable} from '@angular/core';
 import {CookieService} from "ngx-cookie-service";
-import {Observable} from "rxjs";
+import {BehaviorSubject, Observable} from "rxjs";
 import {User} from "../type/issue";
 import {environment} from "../../environments/environment";
+import {UserService} from "./user.service";
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   profile = null;
+  userSubject = new BehaviorSubject<User>(null);
+  connectedUser$ = this.userSubject.asObservable();
 
-  constructor(private http: HttpClient, private cookieService: CookieService) {
+  constructor(private http: HttpClient, private cookieService: CookieService,
+    private userService:UserService
+  ) {
   }
 
   login(username: string, password: string) {
@@ -70,6 +75,7 @@ export class AuthService {
               localStorage.setItem("user", res);
               this.profile = res;
               observer.next(this.profile);
+              this.loadConnectedUser();
               observer.complete();
             } else {
               observer.error("Connection failed");
@@ -82,6 +88,13 @@ export class AuthService {
             }
           );
         }
+      }
+    )
+  }
+  loadConnectedUser(){
+    this.profile.username;
+    this.userService.getUser(this.profile.username).subscribe(res => {
+      this.userSubject.next(res);
       }
     )
   }

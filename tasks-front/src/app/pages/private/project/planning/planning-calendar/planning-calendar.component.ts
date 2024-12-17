@@ -6,6 +6,10 @@ import {
   DayPilotNavigatorComponent
 } from "@daypilot/daypilot-lite-angular";
 import {EventsService} from "../../../../../services/events.service";
+import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import {NewIssueComponent} from "../../modal/new-issue/new-issue.component";
+import {EventApp, EventSearchCriteria, User} from "../../../../../type/issue";
+import {AuthService} from "../../../../../services/auth.service";
 
 @Component({
   selector: 'calendar-test-component',
@@ -13,6 +17,9 @@ import {EventsService} from "../../../../../services/events.service";
     <div class="contenue">
       <div class="navigator">
         <daypilot-navigator [config]="configNavigator" [events]="events" [(date)]="date" (dateChange)="changeDate($event)" #navigator></daypilot-navigator>
+      </div>
+      <div (click) ="eventService.testCurrentEvents()">
+         test events
       </div>
       <div class="content">
         <div class="buttons">
@@ -98,7 +105,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
   @ViewChild("week") week!: DayPilotCalendarComponent;
   @ViewChild("month") month!: DayPilotMonthComponent;
   @ViewChild("navigator") nav!: DayPilotNavigatorComponent;
-
+   eventCriteria:EventSearchCriteria={};
   events: DayPilot.EventData[] = [];
 
   date = DayPilot.Date.today();
@@ -182,12 +189,24 @@ export class PlanningCalendarComponent implements AfterViewInit {
 
   configNavigator: DayPilot.NavigatorConfig = {
     showMonths: 3,
-    cellWidth: 25,
+    cellWidth: 23,
     cellHeight: 25,
     onVisibleRangeChanged: args => {
       this.loadEvents();
-    }
+    },
+    onTimeRangeSelected: (args) => {
+      this.eventCriteria.start = args.start.toString();
+      this.eventCriteria.end = args.end.toString();
+      this.eventService.searchEvents(this.eventCriteria);
+    },
   };
+  private user: User;
+  private resizeEvent(args: any){
+    this.eventService.resizeEvent(args,this.eventCriteria);
+  }
+  private moveEvent(args:any){
+    this.eventService.resizeEvent(args,this.eventCriteria);
+  }
 
   selectTomorrow() {
     this.date = DayPilot.Date.today().addDays(1);
@@ -204,39 +223,58 @@ export class PlanningCalendarComponent implements AfterViewInit {
     contextMenu: this.contextMenu,
     onTimeRangeSelected: this.onTimeRangeSelected.bind(this),
     onBeforeEventRender: this.onBeforeEventRender.bind(this),
-    onEventClick: this.onEventClick.bind(this),
+    onEventClick: this.eventService.onEventClick.bind(this),
+    onEventResize: (args) => this.resizeEvent(args),
+    onEventMove: (args) => this.moveEvent(args),
+
   };
 
   configWeek: DayPilot.CalendarConfig = {
     viewType: "Week",
-    durationBarVisible: false,
+    durationBarVisible: true ,
+    visible:true,
+    businessBeginsHour:7,
+    businessEndsHour: 17,
     contextMenu: this.contextMenu,
     onTimeRangeSelected: this.onTimeRangeSelected.bind(this),
     onBeforeEventRender: this.onBeforeEventRender.bind(this),
-    onEventClick: this.onEventClick.bind(this),
+    onEventClick: this.eventService.openDialog.bind(this),
+    onEventResize: (args) => this.resizeEvent(args),
+    onEventMove: (args) => this.moveEvent(args),
+
   };
 
   configMonth: DayPilot.MonthConfig = {
     contextMenu: this.contextMenu,
     eventBarVisible: false,
     onTimeRangeSelected: this.onTimeRangeSelected.bind(this),
-    onEventClick: this.onEventClick.bind(this),
+    onEventClick: this.eventService.onEventClick.bind(this),
+    onEventMove: (args) => this.moveEvent(args),
+
   };
 
-  constructor(private ds: EventsService) {
+  constructor(
+    protected eventService: EventsService,
+    private modalService: NgbModal,
+    private authService:AuthService
+) {
     this.viewWeek();
   }
 
   ngAfterViewInit(): void {
+    this.eventService.events$.subscribe(events=>{
+      this.events= events;
+    })
+    this.authService.connectedUser$.subscribe(user=> {
+      this.user = user;
+    })
     this.loadEvents();
   }
 
   loadEvents(): void {
-    const from = this.nav.control.visibleStart();
-    const to = this.nav.control.visibleEnd();
-    this.ds.getEvents(from, to).subscribe(result => {
-      this.events = result;
-    });
+    this.eventCriteria.start = this.nav.control.visibleStart().toString();
+    this.eventCriteria.end = this.nav.control.visibleEnd().toString();
+    this.eventService.searchEvents(this.eventCriteria);
   }
 
   viewDay():void {
@@ -251,6 +289,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
     this.configDay.visible = false;
     this.configWeek.visible = true;
     this.configMonth.visible = false;
+
   }
 
   viewMonth():void {
@@ -303,16 +342,27 @@ export class PlanningCalendarComponent implements AfterViewInit {
   }
 
   async onTimeRangeSelected(args: any) {
-    const modal = await DayPilot.Modal.prompt("Create a new event:", "Event 1");
-    const dp = args.control;
-    dp.clearSelection();
-    if (!modal.result) { return; }
-    dp.events.add(new DayPilot.Event({
+    const newEvent: EventApp = {
+      title: "",
+      eventType: undefined,
       start: args.start,
+      allDay: false,
+      customColor: "",
+      customStyle: "",
+      description: "",
       end: args.end,
-      id: DayPilot.guid(),
-      text: modal.result
-    }));
+      id: undefined,
+      issue: undefined,
+      location: "",
+      reminderOffset: 0,
+      reminderTime: "",
+      user: this.user
+    };
+    this.eventService.newEvent(newEvent).subscribe(res => {
+      this.eventCriteria.userIds = [this.user.id];
+      this.eventService.searchEvents(this.eventCriteria);
+    });
+
   }
 
   async onEventClick(args: any) {
@@ -320,21 +370,22 @@ export class PlanningCalendarComponent implements AfterViewInit {
       {name: "Text", id: "text"},
       {name: "Start", id: "start", dateFormat: "MM/dd/yyyy", type: "datetime"},
       {name: "End", id: "end", dateFormat: "MM/dd/yyyy", type: "datetime"},
-      {name: "Color", id: "backColor", type: "select", options: this.ds.getColors()},
+      {name: "akotry", id: "qj", dateFormat: "MM/dd/yyyy", type: "datetime"},
+      {name: "alekrj", id: "aerlakej", dateFormat: "MM/dd/yyyy", type: "datetime"},
+      {name: "qdf", id: "qdf", dateFormat: "MM/dd/yyyy", type: "datetime"},
+      {name: "Color", id: "backColor", type: "select", options: this.eventService.getColors()},
     ];
-
     const data = args.e.data;
     const modal = await DayPilot.Modal.form(form, data);
+    this.eventService.openDialog(args);
 
     if (modal.canceled) {
       return;
     }
 
     const dp = args.control;
-
     dp.events.update(modal.result);
   }
-
 
 }
 

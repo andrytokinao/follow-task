@@ -1542,6 +1542,81 @@ const SEARCH_ISSUES = gql`
     }
   }
 `
+const SAVE_EVENT = gql`
+  mutation saveEvent($event:EventInput) {
+    saveEvent(event: $event) {
+      id
+      title
+      description
+      allDay
+      customColor
+      customStyle
+      location
+      reminderTime
+      reminderOffset
+      start
+      end
+      user {
+        id
+        firstName
+        lastName
+        firstName
+      }
+      issue {
+        id
+        issueKey
+        summary
+      }
+    }
+  }
+`
+const ALL_EVENT_TYPE = gql`
+  query allEventType{
+   allEventType{
+    id
+     name
+     description
+     defaultColor
+     defaultStyle
+   }
+  }
+`
+const SEARCH_EVENTS  = gql`
+  query searchEvents($criteria:EventSearchCriteriaInput){
+    searchEvents(criteria:$criteria){
+      id
+      title
+      location
+      start
+      end
+      allDay
+      reminderOffset
+      reminderTime
+      customColor
+      eventType {
+        id
+        name
+        defaultStyle
+        defaultColor
+      }
+      issue {
+        id
+        summary
+        issueKey
+      }
+      user {
+        id
+        username
+        firstName
+        lastName
+        photo
+      }
+
+    }
+  }
+`
+
+
 export {
   supprimerTypename,
   SAVE_USER,
@@ -1593,7 +1668,10 @@ export {
   GET_ISSUE,
   LOAD_SUBTASK,
   LOAD_ISSUE_MASTER_BY_PROJECT,
-  SEARCH_ISSUES
+  SEARCH_ISSUES,
+  SAVE_EVENT,
+  ALL_EVENT_TYPE,
+  SEARCH_EVENTS
 }
 function  supprimerTypename<T>(objet: T): T {
   if (!objet || typeof objet !== 'object') {

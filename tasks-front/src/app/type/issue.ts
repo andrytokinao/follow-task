@@ -205,3 +205,33 @@ export interface Breadcrumb {
   path:string;
   others:Breadcrumb[];
 }
+export interface EventTypeApp {
+  id: number;
+  name: string;
+  description?: string;
+  defaultColor?: string;
+  defaultStyle?: string;
+  events?: EventApp[];
+}
+export interface EventApp {
+  id: string | number;
+  title?: string;
+  description?: string;
+  eventType?: EventTypeApp;
+  start?: string;
+  end?: string;
+  location?: string;
+  allDay?: boolean;
+  reminderTime?: string;
+  customColor?: string;
+  customStyle?: string;
+  reminderOffset?: number;
+  user?: User;
+  issue?: Issue;
+}
+export interface EventSearchCriteria {
+  userIds?:String[]
+  issueIds?: number[]
+  start?: String
+  end?: String
+}

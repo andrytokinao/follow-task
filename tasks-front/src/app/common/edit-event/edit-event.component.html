@@ -1,0 +1,62 @@
+<div class="modal-header">
+  <h4 class="modal-title">Edit Event</h4>
+  <button type="button" class="btn-close" aria-label="Close" (click)="activeModal.dismiss('close')"></button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="editEventForm" (ngSubmit)="onSubmit()">
+    <div class="mb-3">
+      <label for="title" class="form-label">Event Title</label>
+      <input
+        type="text"
+        id="title"
+        class="form-control"
+        formControlName="title"
+        [ngClass]="{ 'is-invalid': submitted && editEventForm.controls['title'].invalid }"
+      />
+      <div *ngIf="submitted && editEventForm.controls['title'].errors" class="invalid-feedback">
+        Title is required.
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label for="start" class="form-label">Start Time</label>
+      <input
+        type="datetime-local"
+        id="start"
+        class="form-control"
+        formControlName="start"
+        [ngClass]="{ 'is-invalid': submitted && editEventForm.controls['start'].invalid }"
+      />
+      <div *ngIf="submitted && editEventForm.controls['start'].errors" class="invalid-feedback">
+        Start time is required.
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label for="end" class="form-label">End Time</label>
+      <input
+        type="datetime-local"
+        id="end"
+        class="form-control"
+        formControlName="end"
+        [ngClass]="{ 'is-invalid': submitted && editEventForm.controls['end'].invalid }"
+      />
+      <div *ngIf="submitted && editEventForm.controls['end'].errors" class="invalid-feedback">
+        End time is required.
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label for="description" class="form-label">Description</label>
+      <textarea
+        id="description"
+        class="form-control"
+        formControlName="description"
+        rows="3"
+      ></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <button type="button" class="btn btn-secondary" (click)="activeModal.dismiss('cancel')">Cancel</button>
+  </form>
+</div>

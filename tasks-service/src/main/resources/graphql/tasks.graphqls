@@ -435,3 +435,56 @@ input CustomFieldTextValuesInput {
     customFieldId: ID
     textValues: [String]
 }
+type Event {
+    id: ID!
+    title: String!
+    description: String
+    eventType: EventType!
+    start: String!
+    end: String
+    location: String
+    allDay: Boolean!
+    reminderTime: String
+    customColor: String
+    customStyle: String
+    reminderOffset: Int
+    user: UserApp!
+    issue: Issue
+}
+input EventInput {
+    id: ID
+    title: String!
+    description: String
+    eventType: EventTypeInput!
+    start: String!
+    end: String
+    location: String
+    allDay: Boolean!
+    reminderTime: String
+    customColor: String
+    customStyle: String
+    reminderOffset: Int
+    user: UserAppInput
+    issue: IssueInput
+}
+type EventType {
+    id: ID!
+    name: String!
+    description: String
+    defaultColor: String
+    defaultStyle: String
+    events: [Event]
+}
+input EventTypeInput {
+    id:ID
+    name: String!
+    description: String
+    defaultColor: String
+    defaultStyle: String
+}
+input EventSearchCriteriaInput {
+    userIds: [String]  # Liste d'IDs des utilisateurs, facultatif
+    issueIds: [ID]  # Liste d'IDs des issues, facultatif
+    start: String  # Date/heure de début, facultatif
+    end: String  # Date/heure de fin, facultatif
+}

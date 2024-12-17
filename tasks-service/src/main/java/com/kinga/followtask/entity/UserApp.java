@@ -36,6 +36,8 @@ public class UserApp {
     private List<Issue> repotrers;
     @OneToMany(mappedBy = "userApp")
     private List<EntryTime> entryTimes;
+    @OneToMany(mappedBy = "user")
+    private List<Event> events;
     @OneToMany
     private List<UserCustomFieldValue> userValues;
 

@@ -28,6 +28,8 @@ import {MatAutocomplete, MatAutocompleteTrigger} from "@angular/material/autocom
 import {BreadcrumbComponent} from "./navigation/breadcrumb.component";
 import {RouterLink} from "@angular/router";
 import {StatusFieldComponent} from "./status-field/status-field.component";
+import {EditEventComponent} from "./edit-event/edit-event.component";
+import {NewEventComponent} from "./new-event/new-event.component";
 
 @NgModule({
   declarations: [
@@ -45,7 +47,9 @@ import {StatusFieldComponent} from "./status-field/status-field.component";
     StatesFormComponent,
     AssignFieldComponent,
     BreadcrumbComponent,
-    StatusFieldComponent
+    StatusFieldComponent,
+    EditEventComponent,
+    NewEventComponent
 
   ],
     imports: [
@@ -91,7 +95,9 @@ import {StatusFieldComponent} from "./status-field/status-field.component";
         StatesFormComponent,
         AssignFieldComponent,
       BreadcrumbComponent,
-      StatusFieldComponent
+      StatusFieldComponent,
+      EditEventComponent,
+      NewEventComponent
     ]
 })
 export class MyCommonModule { }

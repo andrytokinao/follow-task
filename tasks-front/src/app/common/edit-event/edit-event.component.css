@@ -1,0 +1,17 @@
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #dee2e6;
+}
+.btn-close {
+  background: none;
+  border: none;
+}
+.is-invalid {
+  border-color: #dc3545;
+}
+.invalid-feedback {
+  display: block;
+  color: #dc3545;
+}

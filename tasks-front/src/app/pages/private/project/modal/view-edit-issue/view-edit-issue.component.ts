@@ -18,6 +18,7 @@ import {HttpEventType, HttpResponse} from "@angular/common/http";
 import {concatMap, Observable} from "rxjs";
 
 import {error} from "@angular/compiler-cli/src/transformers/util";
+import {AuthService} from "../../../../../services/auth.service";
 @Component({
   selector: 'app-view-edit-issue',
   templateUrl: './view-edit-issue.component.html',
@@ -75,7 +76,8 @@ export class ViewEditIssueComponent implements OnInit{
   constructor(
     public activeModal: NgbActiveModal,
     public issueService:IssueService,
-    public userService:UserService
+    public userService:UserService,
+    private authService:AuthService
   ) {}
   editDescription(){
     this.editingDescription =!this.editingDescription;

@@ -10,7 +10,7 @@ import {
   INIT_USER,
   LOAD_GROUPE_MEMBER,
   SAVE_CONFIG,
-  SAVE_USER
+  SAVE_USER, supprimerTypename
 } from "../type/graphql.operations";
 import {Apollo} from "apollo-angular";
 import {environment} from "../../environments/environment";
@@ -115,7 +115,7 @@ export class UserService {
           fetchPolicy:"network-only"
         }
       ).subscribe((res:any)=>{
-        observer.next(res.data.addUserInGroupe);
+        observer.next(supprimerTypename(res.data.addUserInGroupe));
         observer.complete();
       },error => {
         observer.error(error);
@@ -133,7 +133,7 @@ export class UserService {
           fetchPolicy:"network-only"
         }
       ).subscribe((res:any)=>{
-        observer.next(res.data.getUser);
+        observer.next(supprimerTypename(res.data.getUser));
         observer.complete();
       },error => {
         observer.error(error);

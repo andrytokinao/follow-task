@@ -46,7 +46,6 @@ export class BoardComponent implements OnInit {
 
   }
 
-
   newIssueTest(status: Status) {
     const dialogRef = this.modalService.open(NewIssueComponent);
     dialogRef.componentInstance.status = status;

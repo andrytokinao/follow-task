@@ -1,14 +1,12 @@
 package com.kinga.followtask.web;
 
 import com.kinga.followtask.dto.Criteria;
+import com.kinga.followtask.dto.EventSearchCriteriaDTO;
 import com.kinga.followtask.dto.ValueDto;
 import com.kinga.followtask.entity.*;
 import com.kinga.followtask.repository.criteria.IssueSearchCriteria;
 import com.kinga.followtask.repository.criteria.IssueSpecification;
-import com.kinga.followtask.service.AuthorizationService;
-import com.kinga.followtask.service.ConfigService;
-import com.kinga.followtask.service.IssueService;
-import com.kinga.followtask.service.ProjectService;
+import com.kinga.followtask.service.*;
 import com.kinga.utils.KingaUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +36,7 @@ public class GQIssueController {
     @Autowired
     ProjectService projectService;
     final AuthorizationService authorizationService;
+    final EventService eventService;
     final ConfigService configService;
     @QueryMapping
     public List<Issue> allIssue(){
@@ -236,5 +235,17 @@ public class GQIssueController {
     @QueryMapping
     public List<Issue> searchIssues(@Argument IssueSearchCriteria criteria) {
         return  projectService.searchIssues (criteria);
+    }
+    @QueryMapping
+    public List<Event> searchEvents(@Argument EventSearchCriteriaDTO criteria) {
+        return  eventService.searchEvents (criteria);
+    }
+    @QueryMapping
+    public List<EventType> allEventType() {
+        return  eventService.allEventType ();
+    }
+    @MutationMapping
+    public Event saveEvent(@Argument Event event){
+        return eventService.saveEvent(event);
     }
 }

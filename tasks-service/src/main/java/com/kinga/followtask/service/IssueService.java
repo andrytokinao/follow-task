@@ -56,6 +56,9 @@ public class IssueService {
     public ConfigRepository configRepository;
     @Autowired
     private UserAppRepository userAppRepository;
+    @Autowired
+    private EventRepository eventRepository;
+
 
     public Issue saveIssue(Issue issue) throws IOException {
         if(issue.getId() ==null) {
