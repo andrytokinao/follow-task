@@ -232,6 +232,6 @@ export interface EventApp {
 export interface EventSearchCriteria {
   userIds?:String[]
   issueIds?: number[]
-  start?: String
-  end?: String
+  start?: string
+  end?: string
 }

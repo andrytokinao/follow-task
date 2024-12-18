@@ -1,7 +1,8 @@
 import {Component, ViewChild, AfterViewInit} from "@angular/core";
 import {DayPilot, DayPilotCalendarComponent} from "@daypilot/daypilot-lite-angular";
-import {forkJoin} from "rxjs";
+import {BehaviorSubject, filter, forkJoin} from "rxjs";
 import {EventsService} from "../../../../../services/events.service";
+import {EventSearchCriteria} from "../../../../../type/issue";
 
 @Component({
   selector: 'calendar-component-resources',
@@ -12,11 +13,14 @@ export class PlanningResourcesComponent implements AfterViewInit {
 
   @ViewChild("calendar")
   calendar!: DayPilotCalendarComponent;
-
+  eventCriteria:EventSearchCriteria={};
+  startDate:string =  "2024-12-20";
   config: DayPilot.CalendarConfig = {
     viewType: "Resources",
     headerHeight: 100,
-    startDate: "2025-09-01",
+    startDate: this.startDate,
+    onEventResize: (args) => this.resizeEvent(args),
+    onEventMove:(args) => this.mouveEventAtResources(args),
     contextMenu: new DayPilot.Menu({
       items: [
         {
@@ -93,18 +97,40 @@ export class PlanningResourcesComponent implements AfterViewInit {
       ];
     }
   };
+  private events: any[];
+  private resources: any[];
 
-  constructor(private ds: EventsService) {
+  constructor(private eventService: EventsService) {
   }
 
   ngAfterViewInit(): void {
 
     const from = new DayPilot.Date(this.config.startDate);
     const to = from.addDays(1);
+    this.eventCriteria.start =  from.toString();
+    this.eventCriteria.end =  to.toString();
+    this.eventService.searchEvents(this.eventCriteria);
+    this.eventService.loadUserResource();
+    this.eventService.events$.subscribe(events => {
+      this.events = events;
+      this.refreshView();
+    });
+    this.eventService.resources$.subscribe(resources => {
+      this.resources = resources;
+      this.refreshView();
+    })
 
+  }
+  refreshView(){
+
+
+   let resourceSubject = new BehaviorSubject<any[]>([]);
+    let resources$ = resourceSubject.asObservable();
+    let eventsSubject = new BehaviorSubject<any[]>([]);
+    let events$ = eventsSubject.asObservable();
     forkJoin([
-      this.ds.getResources(),
-      this.ds.getEvents(from, to)
+      resources$,
+      events$
     ]).subscribe(data => {
       const options = {
         columns: data[0],
@@ -112,8 +138,16 @@ export class PlanningResourcesComponent implements AfterViewInit {
       };
       this.calendar.control.update(options);
     });
-
+    eventsSubject.next(this.events);
+    resourceSubject.next(this.resources);
+    resourceSubject.complete();
+    eventsSubject.complete();
   }
-
+  private resizeEvent(args: any){
+    this.eventService.resizeEvent(args,this.eventCriteria);
+  }
+  private mouveEventAtResources(args:any){
+    this.eventService.mouveEventAtResources(args,this.eventCriteria);
+  }
 }
 

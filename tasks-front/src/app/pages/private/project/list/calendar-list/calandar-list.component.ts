@@ -185,7 +185,7 @@ export class CalandarListComponent implements AfterViewInit {
     cellWidth: 25,
     cellHeight: 25,
     onVisibleRangeChanged: args => {
-      this.loadEvents();
+    //  this.loadEvents();
     }
   };
 
@@ -228,16 +228,8 @@ export class CalandarListComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.loadEvents();
   }
 
-  loadEvents(): void {
-    const from = this.nav.control.visibleStart();
-    const to = this.nav.control.visibleEnd();
-    this.ds.getEvents(from, to).subscribe(result => {
-      this.events = result;
-    });
-  }
 
   viewDay():void {
     this.configNavigator.selectMode = "Day";

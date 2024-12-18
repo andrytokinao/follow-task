@@ -43,7 +43,7 @@ export class UserService {
         .query({
           query: ALL_USERS ,
         }).subscribe((res:any)=> {
-          observer.next(stripTypename(res));
+          observer.next(stripTypename(res.data.allUsers));
           observer.complete();
         },error => {
           observer.error(error);

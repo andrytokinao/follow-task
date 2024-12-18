@@ -18,9 +18,6 @@ import {AuthService} from "../../../../../services/auth.service";
       <div class="navigator">
         <daypilot-navigator [config]="configNavigator" [events]="events" [(date)]="date" (dateChange)="changeDate($event)" #navigator></daypilot-navigator>
       </div>
-      <div (click) ="eventService.testCurrentEvents()">
-         test events
-      </div>
       <div class="content">
         <div class="buttons">
         <button (click)="viewDay()" [class]="this.configNavigator.selectMode == 'Day' ? 'selected' : ''">Day</button>
@@ -139,49 +136,36 @@ export class PlanningCalendarComponent implements AfterViewInit {
       {
         text: "Red",
         onClick: args => {
-          const event = args.source;
-          const dp = event.calendar;
-          event.data.backColor = EventsService.colors.red;
-          dp.events.update(event);
+          this.eventService.updateBackColor(args.source,EventsService.colors.red,this.eventCriteria);
+
         }
       },
       {
         text: "Green",
         onClick: args => {
-          const event = args.source;
-          const dp = event.calendar;
-          event.data.backColor = EventsService.colors.green;
+          this.eventService.updateBackColor(args.source,EventsService.colors.green,this.eventCriteria);
 
-          dp.events.update(event);
         }
       },
       {
         text: "Blue",
         onClick: args => {
-          const event = args.source;
-          const dp = event.calendar;
-          event.data.backColor = EventsService.colors.blue;
-          dp.events.update(event);
+          this.eventService.updateBackColor(args.source,EventsService.colors.blue,this.eventCriteria);
+
         }
       },
       {
         text: "Yellow",
         onClick: args => {
-          const event = args.source;
-          const dp = event.calendar;
-          event.data.backColor = EventsService.colors.yellow;
-          dp.events.update(event);
+          this.eventService.updateBackColor(args.source,EventsService.colors.yellow,this.eventCriteria);
+
         }
       },
 
       {
         text: "Gray",
         onClick: args => {
-          const event = args.source;
-          const dp = event.calendar;
-          event.data.backColor = EventsService.colors.gray;
-
-          dp.events.update(event);
+          this.eventService.updateBackColor(args.source,EventsService.colors.gray,this.eventCriteria);
         }
       }
     ]
@@ -267,8 +251,10 @@ export class PlanningCalendarComponent implements AfterViewInit {
     })
     this.authService.connectedUser$.subscribe(user=> {
       this.user = user;
+      this.eventCriteria.userIds = [this.user.id];
+      this.loadEvents();
+
     })
-    this.loadEvents();
   }
 
   loadEvents(): void {
