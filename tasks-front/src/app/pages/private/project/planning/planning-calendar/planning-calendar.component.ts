@@ -175,7 +175,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
     showMonths: 3,
     cellWidth: 23,
     cellHeight: 25,
-    onVisibleRangeChanged: args => {
+    onVisibleRangeChanged: (args) => {;
       this.loadEvents();
     },
     onTimeRangeSelected: (args) => {
@@ -348,9 +348,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
       this.eventCriteria.userIds = [this.user.id];
       this.eventService.searchEvents(this.eventCriteria);
     });
-
   }
-
   async onEventClick(args: any) {
     const form = [
       {name: "Text", id: "text"},

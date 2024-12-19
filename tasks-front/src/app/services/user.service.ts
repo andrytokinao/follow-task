@@ -103,7 +103,7 @@ export class UserService {
     if (user.photo != null) {
       return environment.apiURL+'photo/'+user.photo;
     }
-    return 'assets/user.png';
+    return environment.apiURL+'assets/user.png';
   }
 
   addUserInGroupe(username: string, groupeId: number, roles: String[]){

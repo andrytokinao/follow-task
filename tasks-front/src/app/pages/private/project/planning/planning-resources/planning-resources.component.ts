@@ -1,41 +1,64 @@
 import {Component, ViewChild, AfterViewInit} from "@angular/core";
-import {DayPilot, DayPilotCalendarComponent} from "@daypilot/daypilot-lite-angular";
+import {
+  DayPilot,
+  DayPilotCalendarComponent,
+  DayPilotMonthComponent,
+  DayPilotNavigatorComponent
+} from "@daypilot/daypilot-lite-angular";
 import {BehaviorSubject, filter, forkJoin} from "rxjs";
 import {EventsService} from "../../../../../services/events.service";
-import {EventSearchCriteria} from "../../../../../type/issue";
+import {EventApp, EventSearchCriteria} from "../../../../../type/issue";
 
 @Component({
   selector: 'calendar-component-resources',
-  template: `<daypilot-calendar [config]="config" #calendar></daypilot-calendar>`,
-  styles: [``]
+  template: `
+    <div class="contenue">
+    <div class="navigator">
+      <daypilot-navigator [config]="configNavigator" [events]="events" [(date)]="date" (dateChange)="changeDate($event)" #navigator></daypilot-navigator>
+    </div>
+      <div class="content">
+    <daypilot-calendar [config]="config" #calendar></daypilot-calendar>
+      </div>
+    </div>
+  `,
+  styleUrl: './planning-resources.component.css'
+
 })
 export class PlanningResourcesComponent implements AfterViewInit {
+  date = DayPilot.Date.today();
 
+  configNavigator: DayPilot.NavigatorConfig = {
+    showMonths: 3,
+    cellWidth: 23,
+    cellHeight: 25,
+    onVisibleRangeChanged: args => {
+      this.eventCriteria.start = args.start.toString();
+      this.eventCriteria.end = args.end.toString();
+      this.eventService.searchEvents(this.eventCriteria);
+    },
+    onTimeRangeSelected: (args) => {
+    },
+  };
+  @ViewChild("day") day!: DayPilotCalendarComponent;
+  @ViewChild("week") week!: DayPilotCalendarComponent;
+  @ViewChild("month") month!: DayPilotMonthComponent;
+  @ViewChild("navigator") nav!: DayPilotNavigatorComponent;
   @ViewChild("calendar")
   calendar!: DayPilotCalendarComponent;
   eventCriteria:EventSearchCriteria={};
-  startDate:string =  "2024-12-20";
   config: DayPilot.CalendarConfig = {
     viewType: "Resources",
     headerHeight: 100,
-    startDate: this.startDate,
     onEventResize: (args) => this.resizeEvent(args),
     onEventMove:(args) => this.mouveEventAtResources(args),
+    onTimeRangeSelected: this.onTimeRangeSelected.bind(this),
     contextMenu: new DayPilot.Menu({
       items: [
         {
           text: "Edit...",
           onClick: async args => {
-            const data = args.source.data;
-            const modal = await DayPilot.Modal.prompt("Edit event text:", data.text);
-
-            const calendar = this.calendar.control;
-            if (modal.canceled) {
-              return;
-            }
-
-            data.text = modal.result;
-            calendar.events.update(data);
+              this.eventService.openDialog(args);
+            ;
           }
         },
         {
@@ -43,27 +66,44 @@ export class PlanningResourcesComponent implements AfterViewInit {
           onClick: args => {
             this.calendar.control.events.remove(args.source);
           }
+        },
+        {
+          text: "-"
+        },
+        {
+          text: "Red",
+          onClick: args => {
+            this.eventService.updateBackColor(args.source,EventsService.colors.red,this.eventCriteria);
+          }
+        },
+        {
+          text: "Green",
+          onClick: args => {
+            this.eventService.updateBackColor(args.source,EventsService.colors.green,this.eventCriteria);
+          }
+        },
+        {
+          text: "Blue",
+          onClick: args => {
+            this.eventService.updateBackColor(args.source,EventsService.colors.blue,this.eventCriteria);
+          }
+        },
+        {
+          text: "Yellow",
+          onClick: args => {
+            this.eventService.updateBackColor(args.source,EventsService.colors.yellow,this.eventCriteria);
+          }
+        },
+        {
+          text: "Gray",
+          onClick: args => {
+            this.eventService.updateBackColor(args.source,EventsService.colors.gray,this.eventCriteria);
+          }
         }
-      ]
-    }),
-    onTimeRangeSelected: async args => {
-      const modal = await DayPilot.Modal.prompt("Create a new event:", "Event 1");
+      ],
+    }
+    ),
 
-      const calendar = this.calendar.control;
-      calendar.clearSelection();
-      if (modal.canceled) {
-        return;
-      }
-
-      calendar.events.add({
-        start: args.start,
-        end: args.end,
-        id: DayPilot.guid(),
-        text: modal.result,
-        resource: args.resource
-      });
-
-    },
     onBeforeHeaderRender: args => {
       const data = args.column.data;
       const header = args.header;
@@ -97,7 +137,7 @@ export class PlanningResourcesComponent implements AfterViewInit {
       ];
     }
   };
-  private events: any[];
+  protected events: any[];
   private resources: any[];
 
   constructor(private eventService: EventsService) {
@@ -105,10 +145,8 @@ export class PlanningResourcesComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
 
-    const from = new DayPilot.Date(this.config.startDate);
-    const to = from.addDays(1);
-    this.eventCriteria.start =  from.toString();
-    this.eventCriteria.end =  to.toString();
+    this.eventCriteria.start = this.nav.control.visibleStart().toString();
+    this.eventCriteria.end = this.nav.control.visibleEnd().toString();;
     this.eventService.searchEvents(this.eventCriteria);
     this.eventService.loadUserResource();
     this.eventService.events$.subscribe(events => {
@@ -120,6 +158,28 @@ export class PlanningResourcesComponent implements AfterViewInit {
       this.refreshView();
     })
 
+  }
+  onTimeRangeSelected(args: any) {
+    console.debug(args);
+    const newEvent: EventApp = {
+      title: "",
+      eventType: undefined,
+      start: args.start,
+      allDay: false,
+      customColor: "",
+      customStyle: "",
+      description: "",
+      end: args.end,
+      id: undefined,
+      issue: undefined,
+      location: "",
+      reminderOffset: 0,
+      reminderTime: "",
+      user: this.eventService.getUserByResource(args.resource)
+    };
+    this.eventService.newEvent(newEvent).subscribe(res => {
+      this.loadEvents();
+    });
   }
   refreshView(){
 
@@ -148,6 +208,14 @@ export class PlanningResourcesComponent implements AfterViewInit {
   }
   private mouveEventAtResources(args:any){
     this.eventService.mouveEventAtResources(args,this.eventCriteria);
+  }
+  loadEvents(): void {
+    this.eventCriteria.start = this.nav.control.visibleStart().toString();
+    this.eventCriteria.end = this.nav.control.visibleEnd().toString();
+    this.eventService.searchEvents(this.eventCriteria);
+  }
+  changeDate(date: DayPilot.Date): void {
+    this.config.startDate = date;;
   }
 }
 

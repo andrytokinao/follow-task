@@ -181,9 +181,8 @@ export class EventsService {
         observer.closed;
       })
     })
-
-
   }
+
   allEventType(){
     return new Observable<EventTypeApp[]>(observer=> {
       this.apollo.query({
