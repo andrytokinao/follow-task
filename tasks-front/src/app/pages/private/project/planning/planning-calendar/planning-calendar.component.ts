@@ -112,22 +112,14 @@ export class PlanningCalendarComponent implements AfterViewInit {
       {
         text: "Delete",
         onClick: args => {
-          const event = args.source;
-          const dp = event.calendar;
-          dp.events.remove(event);
+          this.eventService.deleteEvent(args.source.data,this.eventCriteria);
+
         }
       },
       {
         text: "Edit...",
         onClick: async args => {
-          const event = args.source;
-          const dp = event.calendar;
-
-          const modal = await DayPilot.Modal.prompt("Edit event text:", event.data.text);
-          dp.clearSelection();
-          if (!modal.result) { return; }
-          event.data.text = modal.result;
-          dp.events.update(event);
+          this.eventService.editDialog(args.source.data,this.eventCriteria);
         }
       },
       {
@@ -222,7 +214,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
     contextMenu: this.contextMenu,
     onTimeRangeSelected: this.onTimeRangeSelected.bind(this),
     onBeforeEventRender: this.onBeforeEventRender.bind(this),
-    onEventClick: this.eventService.openDialog.bind(this),
+    onEventClick:(args) =>this.eventService.editDialog(args.e.data,this.eventCriteria),
     onEventResize: (args) => this.resizeEvent(args),
     onEventMove: (args) => this.moveEvent(args),
 
@@ -349,26 +341,8 @@ export class PlanningCalendarComponent implements AfterViewInit {
       this.eventService.searchEvents(this.eventCriteria);
     });
   }
-  async onEventClick(args: any) {
-    const form = [
-      {name: "Text", id: "text"},
-      {name: "Start", id: "start", dateFormat: "MM/dd/yyyy", type: "datetime"},
-      {name: "End", id: "end", dateFormat: "MM/dd/yyyy", type: "datetime"},
-      {name: "akotry", id: "qj", dateFormat: "MM/dd/yyyy", type: "datetime"},
-      {name: "alekrj", id: "aerlakej", dateFormat: "MM/dd/yyyy", type: "datetime"},
-      {name: "qdf", id: "qdf", dateFormat: "MM/dd/yyyy", type: "datetime"},
-      {name: "Color", id: "backColor", type: "select", options: this.eventService.getColors()},
-    ];
-    const data = args.e.data;
-    const modal = await DayPilot.Modal.form(form, data);
-    this.eventService.openDialog(args);
-
-    if (modal.canceled) {
-      return;
-    }
-
-    const dp = args.control;
-    dp.events.update(modal.result);
+  async onEventClick(args: any,criteria:EventSearchCriteria) {
+    this.eventService.editDialog(args,criteria);
   }
 
 }

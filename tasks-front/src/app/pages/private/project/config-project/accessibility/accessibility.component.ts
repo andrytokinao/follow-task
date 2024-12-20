@@ -47,16 +47,15 @@ export class AccessibilityComponent implements OnInit{
         this.configProjects = res;
         this.loadConfig();
       });
+      this.issueService.groupeUsers$.subscribe(groupeUsers => {
+        this.groupeUsers = groupeUsers;
+      })
       this.getGroupeUserForProject();
 
     });
   }
   getGroupeUserForProject(){
-    this.issueService.getGroupeUserForProject(this.project.id).subscribe(
-      groupeUser=> {
-        this.groupeUsers = groupeUser;
-      }
-    )
+    this.issueService.getGroupeUserForProject(this.project.id);
   }
 
   addMembrerForGroupe(groupe: GroupeUser) {

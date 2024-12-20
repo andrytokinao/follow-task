@@ -15,6 +15,7 @@ import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {EditEventComponent} from "../common/edit-event/edit-event.component";
 import {NewEventComponent} from "../common/new-event/new-event.component";
 import {UserService} from "./user.service";
+import {query} from "@angular/animations";
 
 @Injectable({
   providedIn:"root"
@@ -143,22 +144,17 @@ export class EventsService {
 
     dp.events.update(modal.result);
   }
-  openDialog(args:any){
+  editDialog(data:any, criteria:EventSearchCriteria){
     const modalRef = this.modalService.open(EditEventComponent, {
       size: 'lg',
       backdrop: 'static',
       keyboard: false
     });
-
-    modalRef.componentInstance.event = args.e.data;
-    modalRef.componentInstance.setData(args.e.data);
+    modalRef.componentInstance.loadEvent(data.id);
     modalRef.result.then(
       (result) => {
         if (result) {
-          const dp = args.control;
-
-          dp.events.update(result);
-          console.log('Événement mis à jour :', result);
+          this.searchEvents(criteria);
         }
       },
       (reason) => {
@@ -249,6 +245,28 @@ export class EventsService {
     ev.customColor = colors;
     this.saveEvent(ev).subscribe(rap => {
       this.searchEvents(criteria);
+    })
+  }
+
+  deleteEvent(data, eventCriteria: EventSearchCriteria) {
+      this.apollo.mutate({
+        mutation:operation.DELETE_EVENT_TYPE,
+        variables:{eventId:data.id}
+      }).subscribe((res:any)=>{
+        this.searchEvents(eventCriteria);
+      })
+    }
+
+  getByEventId(id) {
+    return new Observable<EventApp>(observer => {
+      this.apollo.query({
+        query:operation.EVENT_BY_ID,
+        variables:{eventId:id}
+        }
+      ).subscribe((res:any)=> {
+        observer.next(supprimerTypename(res.data.getByEventId));
+        observer.complete();
+      })
     })
   }
 }

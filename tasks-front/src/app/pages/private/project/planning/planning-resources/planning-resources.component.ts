@@ -51,20 +51,21 @@ export class PlanningResourcesComponent implements AfterViewInit {
     headerHeight: 100,
     onEventResize: (args) => this.resizeEvent(args),
     onEventMove:(args) => this.mouveEventAtResources(args),
+    onEventClick:(args)=> this.eventService.editDialog(args.e.data,this.eventCriteria),
     onTimeRangeSelected: this.onTimeRangeSelected.bind(this),
     contextMenu: new DayPilot.Menu({
       items: [
         {
           text: "Edit...",
           onClick: async args => {
-              this.eventService.openDialog(args);
+              this.eventService.editDialog(args.source.data,this.eventCriteria);
             ;
           }
         },
         {
           text: "Delete",
           onClick: args => {
-            this.calendar.control.events.remove(args.source);
+            this.eventService.deleteEvent(args.source.data,this.eventCriteria);
           }
         },
         {
@@ -215,7 +216,7 @@ export class PlanningResourcesComponent implements AfterViewInit {
     this.eventService.searchEvents(this.eventCriteria);
   }
   changeDate(date: DayPilot.Date): void {
-    this.config.startDate = date;;
+    this.config.startDate = date;
   }
 }
 

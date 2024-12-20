@@ -1615,8 +1615,46 @@ const SEARCH_EVENTS  = gql`
     }
   }
 `
-
-
+const DELETE_EVENT_TYPE = gql`
+  mutation deleteEvent($eventId:Int!) {
+    deleteEvent(eventId:$eventId) {
+      id
+    }
+  }
+`
+const EVENT_BY_ID=gql`
+    query getByEventId($eventId:Int!){
+      getByEventId(eventId:$eventId){
+        id
+        title
+        location
+        start
+        end
+        allDay
+        reminderOffset
+        reminderTime
+        customColor
+        eventType {
+          id
+          name
+          defaultStyle
+          defaultColor
+        }
+        issue {
+          id
+          summary
+          issueKey
+        }
+        user {
+          id
+          username
+          firstName
+          lastName
+          photo
+        }
+      }
+    }
+`
 export {
   supprimerTypename,
   SAVE_USER,
@@ -1671,7 +1709,9 @@ export {
   SEARCH_ISSUES,
   SAVE_EVENT,
   ALL_EVENT_TYPE,
-  SEARCH_EVENTS
+  SEARCH_EVENTS,
+  DELETE_EVENT_TYPE,
+  EVENT_BY_ID
 }
 function  supprimerTypename<T>(objet: T): T {
   if (!objet || typeof objet !== 'object') {

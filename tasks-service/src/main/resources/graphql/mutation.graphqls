@@ -23,6 +23,7 @@ type Mutation {
     saveOrUpdateConfig(configProject:ConfigProjectInput):ConfigProject
     addUserInGroupe(username:String,groupeId:Int,roles:[String]):MemberGroupe
     saveEvent(event:EventInput):Event
+    deleteEvent(eventId:Int):Event
 }
 
 

@@ -29,4 +29,13 @@ public class EventService {
   public List<EventType> allEventType(){
       return eventTypeRepository.findAll();
   }
+
+    public Event deleteEvent(Long eventId) {
+       this.eventRepository.deleteById(eventId);
+       return null;
+    }
+
+    public Event getByEventId(Long eventId) {
+      return eventRepository.findById(eventId).orElse(null);
+    }
 }

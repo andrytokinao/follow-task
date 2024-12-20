@@ -11,6 +11,7 @@
         id="title"
         class="form-control"
         formControlName="title"
+        [(ngModel)]="event.title"
         [ngClass]="{ 'is-invalid': submitted && editEventForm.controls['title'].invalid }"
       />
       <div *ngIf="submitted && editEventForm.controls['title'].errors" class="invalid-feedback">
@@ -25,6 +26,7 @@
         id="start"
         class="form-control"
         formControlName="start"
+        [(ngModel)]="event.start"
         [ngClass]="{ 'is-invalid': submitted && editEventForm.controls['start'].invalid }"
       />
       <div *ngIf="submitted && editEventForm.controls['start'].errors" class="invalid-feedback">
@@ -39,12 +41,14 @@
         id="end"
         class="form-control"
         formControlName="end"
+        [(ngModel)]="event.end"
         [ngClass]="{ 'is-invalid': submitted && editEventForm.controls['end'].invalid }"
       />
       <div *ngIf="submitted && editEventForm.controls['end'].errors" class="invalid-feedback">
         End time is required.
       </div>
     </div>
+
 
     <div class="mb-3">
       <label for="description" class="form-label">Description</label>

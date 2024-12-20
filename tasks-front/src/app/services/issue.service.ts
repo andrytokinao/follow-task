@@ -46,6 +46,10 @@ import {ActivatedRoute, Router} from "@angular/router";
 export class IssueService {
   projects: Project[] = [];
   project: Project | null = null;
+  private groupeUsersSubject = new BehaviorSubject<GroupeUser[]>([]);
+
+  groupeUsers$=this.groupeUsersSubject.asObservable();
+
   private projectSubject: BehaviorSubject<Project>;
   private issuesSubject = new BehaviorSubject<Issue[]>([]);
   issues$ = this.issuesSubject.asObservable();
@@ -632,20 +636,16 @@ export class IssueService {
   }
 
   getGroupeUserForProject(projectId: Number) {
-    return new Observable<GroupeUser[]>((observer) => {
       this.apollo.query({
         query: GET_GROUPE_USER_FOR_PROJECT,
         variables: {projectId},
         fetchPolicy: "network-only"
       }).subscribe((res: any) => {
-          observer.next(supprimerTypename(res.data.getGroupeUserForProject));
-          observer.complete();
+         this.groupeUsersSubject.next(supprimerTypename(res.data.getGroupeUserForProject));
         }, error => {
-          observer.error(error);
-          observer.complete();
+          console.error(error);
         }
       )
-    })
   }
 
   getIssueTypeById(issueTypeId: Number) {

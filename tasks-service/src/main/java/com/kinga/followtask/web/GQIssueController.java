@@ -248,4 +248,12 @@ public class GQIssueController {
     public Event saveEvent(@Argument Event event){
         return eventService.saveEvent(event);
     }
+    @MutationMapping
+    public Event deleteEvent(@Argument Long eventId){
+        return eventService.deleteEvent(eventId);
+    }
+     @QueryMapping
+    public Event getByEventId(@Argument Long eventId){
+        return eventService.getByEventId(eventId);
+    }
 }
