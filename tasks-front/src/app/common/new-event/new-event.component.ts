@@ -1,6 +1,6 @@
 import {AfterViewInit, Component, OnInit} from '@angular/core';
 import {EventsService} from "../../services/events.service";
-import {EventApp, EventTypeApp, User} from "../../type/issue";
+import {EventApp, EventTypeApp, Issue, User} from "../../type/issue";
 import {DayPilot} from "@daypilot/daypilot-lite-angular";
 import Date = DayPilot.Date;
 import {AuthService} from "../../services/auth.service";
@@ -17,6 +17,7 @@ export class NewEventComponent implements OnInit, AfterViewInit{
   eventTypes: EventTypeApp[] = [];
   private user: User;
   event:EventApp | any ={};
+  issue:Issue;
 
   constructor(private eventService: EventsService,
               private autService:AuthService,
@@ -24,10 +25,13 @@ export class NewEventComponent implements OnInit, AfterViewInit{
   ) {}
 
   // Fonction pour gérer la soumission du formulaire
+  issues: Issue[]= [];
   onSubmit(): void {
     if (this.event.title && this.event.eventType) {
-
-
+      if (this.issue != null) {
+        let issue = {id:this.issue.id}
+        this.event.issue = issue;
+      }
       this.eventService.saveEvent(this.event).subscribe(res => {
           this.title = '';
           this.eventType =undefined;

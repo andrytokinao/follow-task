@@ -485,6 +485,7 @@ input EventTypeInput {
 input EventSearchCriteriaInput {
     userIds: [String]  # Liste d'IDs des utilisateurs, facultatif
     issueIds: [ID]  # Liste d'IDs des issues, facultatif
+    parrentIds:[Int] # Liste d'IDs des parent d'issues
     start: String  # Date/heure de début, facultatif
     end: String  # Date/heure de fin, facultatif
 }

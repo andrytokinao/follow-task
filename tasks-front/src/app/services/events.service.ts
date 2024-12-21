@@ -4,7 +4,7 @@ import {DayPilot} from "@daypilot/daypilot-lite-angular";
 import {HttpClient} from "@angular/common/http";
 import CalendarColumnData = DayPilot.CalendarColumnData;
 import EventData = DayPilot.EventData;
-import {EventApp, EventSearchCriteria, EventTypeApp, IssueType, User} from "../type/issue";
+import {EventApp, EventSearchCriteria, EventTypeApp, Issue, IssueType, User} from "../type/issue";
 import * as operation from "../type/graphql.operations";
 import {stripTypename} from "@apollo/client/utilities";
 import {Apollo} from "apollo-angular";
@@ -34,7 +34,7 @@ export class EventsService {
     gray: "#808080",
     blue: "#2e78d6",
   };
-
+  issues:Issue[] =[]
   private eventApps: EventApp[] = [];
 
   constructor(
@@ -102,7 +102,7 @@ export class EventsService {
   public toEventData(eventApp: EventApp): EventData {
     return {
       id: eventApp.id,
-      text: eventApp.title,
+      text: (eventApp.issue? eventApp.issue.issueKey+':' : '') + eventApp.title,
       start: eventApp.start,
       end: eventApp.end || undefined,
       html: eventApp.description || undefined,
@@ -170,6 +170,7 @@ export class EventsService {
         keyboard: false
       });
       modalRef.componentInstance.event = newEvent;
+      modalRef.componentInstance.issues = this.issues;
       modalRef.result.then( (result:any) => {
         observer.next(result.event);
         observer.complete();

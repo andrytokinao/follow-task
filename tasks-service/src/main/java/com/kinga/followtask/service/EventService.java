@@ -3,10 +3,13 @@ package com.kinga.followtask.service;
 import com.kinga.followtask.dto.EventSearchCriteriaDTO;
 import com.kinga.followtask.entity.Event;
 import com.kinga.followtask.entity.EventType;
+import com.kinga.followtask.entity.Issue;
 import com.kinga.followtask.repository.EventRepository;
 import com.kinga.followtask.repository.EventTypeRepository;
+import com.kinga.followtask.repository.IssueRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
@@ -16,6 +19,7 @@ public class EventService {
   final  EventRepository eventRepository;
   final EventTypeRepository eventTypeRepository;
   final UserService userService;
+  final IssueRepository issueRepository;
   public Event saveEvent(Event event){
     if (event.getUser() == null){
       event.setUser(userService.getConnected());

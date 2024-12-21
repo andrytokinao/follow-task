@@ -1,4 +1,4 @@
-import {Component, ViewChild, AfterViewInit} from "@angular/core";
+import {Component, ViewChild, AfterViewInit, Input} from "@angular/core";
 import {
   DayPilot,
   DayPilotCalendarComponent,
@@ -12,7 +12,7 @@ import {EventApp, EventSearchCriteria, User} from "../../../../../type/issue";
 import {AuthService} from "../../../../../services/auth.service";
 
 @Component({
-  selector: 'calendar-test-component',
+  selector: 'calendar-planning-component',
   template: `
     <div class="contenue">
       <div class="navigator">
@@ -102,7 +102,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
   @ViewChild("week") week!: DayPilotCalendarComponent;
   @ViewChild("month") month!: DayPilotMonthComponent;
   @ViewChild("navigator") nav!: DayPilotNavigatorComponent;
-   eventCriteria:EventSearchCriteria={};
+  @Input() eventCriteria:EventSearchCriteria={};
   events: DayPilot.EventData[] = [];
 
   date = DayPilot.Date.today();

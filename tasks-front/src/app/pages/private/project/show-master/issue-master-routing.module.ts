@@ -4,6 +4,7 @@ import {ShowMasterComponent} from "./show-master.component";
 import {SubtaskComponent} from "./subtask/subtask.component";
 import {LivraisonComponent} from "./livraison/livraison.component";
 import {IssueDetailsComponent} from "./issue-details/issue-details.component";
+import {PlanningComponent} from "./planning/planning.component";
 
 
 
@@ -19,6 +20,7 @@ const masterRoute: Routes = [
         children: [
           { path: 'details', component: IssueDetailsComponent },
           { path: 'subtask', component: SubtaskComponent },
+          { path: 'planning', component: PlanningComponent },
           { path: 'livraison', component: LivraisonComponent },
         ]
       }

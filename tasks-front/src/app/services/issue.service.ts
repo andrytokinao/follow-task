@@ -47,7 +47,8 @@ export class IssueService {
   projects: Project[] = [];
   project: Project | null = null;
   private groupeUsersSubject = new BehaviorSubject<GroupeUser[]>([]);
-
+  private subtaskSubject= new BehaviorSubject<Issue[]>([]);
+    subtask$ = this.subtaskSubject.asObservable();
   groupeUsers$=this.groupeUsersSubject.asObservable();
 
   private projectSubject: BehaviorSubject<Project>;

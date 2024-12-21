@@ -13,6 +13,13 @@
         <mat-option *ngFor="let type of eventTypes" [value]="type">{{ type.name }}</mat-option>
       </mat-select>
     </mat-form-field>
+    <mat-form-field appearance="fill" class="form-field">
+      <mat-label>Tache </mat-label>
+      <mat-select [(ngModel)]="issue" name="issue" >
+        <mat-option value="">Tache liée</mat-option>
+        <mat-option *ngFor="let issue of issues" [value]="issue">{{ issue.issueKey }} {{ issue.summary }}</mat-option>
+      </mat-select>
+    </mat-form-field>
 
     <button mat-raised-button color="primary" type="submit">Créer l'événement</button>
   </form>

@@ -10,16 +10,19 @@ import {DayPilotModule} from "@daypilot/daypilot-lite-angular";
 
 
 @NgModule({
-  declarations: [
-    PlanningResourcesComponent,
-    PlanningCalendarComponent,
-    PlanningComponent
-  ],
-  imports: [
-    CommonModule,
-    RouterOutlet,
-    PlanningRoutingModule,
-    DayPilotModule
-  ]
+    declarations: [
+        PlanningResourcesComponent,
+        PlanningCalendarComponent,
+        PlanningComponent
+    ],
+    exports: [
+        PlanningCalendarComponent
+    ],
+    imports: [
+        CommonModule,
+        RouterOutlet,
+        PlanningRoutingModule,
+        DayPilotModule
+    ]
 })
 export class PlanningModule { }

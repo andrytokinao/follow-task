@@ -33,6 +33,8 @@ import {MatCheckboxModule} from "@angular/material/checkbox";
 import {MatButtonModule} from "@angular/material/button";
 import {MatDivider} from "@angular/material/divider";
 import {IssueDetailsComponent} from "./issue-details/issue-details.component";
+import {PlanningComponent} from "./planning/planning.component";
+import {PlanningModule} from "../planning/planning.module";
 
 
 @NgModule({
@@ -40,7 +42,8 @@ import {IssueDetailsComponent} from "./issue-details/issue-details.component";
     ShowMasterComponent,
     SubtaskComponent,
     LivraisonComponent,
-    IssueDetailsComponent
+    IssueDetailsComponent,
+    PlanningComponent
   ],
   exports: [
   ],
@@ -77,6 +80,7 @@ import {IssueDetailsComponent} from "./issue-details/issue-details.component";
     MatButtonModule,
     MatChipsModule,
     MatDivider,
+    PlanningModule,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
