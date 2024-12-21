@@ -21,6 +21,7 @@ import {EventGateway} from "../../../type/event-gatway";
 import {isAdultValidator, PasswordMatchValidator} from "../../../type/validator";
 import {User} from "../../../type/issue";
 import {UserService} from "../../../services/user.service";
+import {EditEventComponent} from "../../../common/edit-event/edit-event.component";
 export type Nullable<T> = T | null;
 
 @Component({
@@ -50,10 +51,13 @@ export class LoginComponent {
       this.router.navigate(['/private']);
     });
     this.configService.nextIntallation().subscribe(path=>{
-
       if(path == "create-admin-user") {
         let dialogRef: any;
-         dialogRef = this.modalService.open(CreateAdminUserComponent, {windowClass: "xlModal"});
+        const modalRef = this.modalService.open(CreateAdminUserComponent, {
+          size: 'lg',
+          backdrop: 'static',
+          keyboard: false
+        });
      }
 
     })
@@ -101,28 +105,33 @@ export class LoginComponent {
     }
   }
 
-  protected contactValidator(): ValidatorFn {
-    const contactPattern = /^(0?(34|33|32|38)|\+261(34|33|32|38))\d{7}$/;
+  private contactValidator(): ValidatorFn {
 
-    return (control: AbstractControl): ValidationErrors | null => {
+    return (group: AbstractControl): Nullable<ValidationErrors> => {
+      const contactPattern = /^(0(34|33|32|38)|\+261(34|33|32|38))\d{7}$/;
+
       if( this.form == null || this.form.value == null) {
         return {notReady:true}
       }
       const isValid = contactPattern.test(this.form.value.contact);
-      return isValid ? null : { invalidContact: true };
-    };
+
+      if (!isValid) {
+        return {invalidContact:true}
+      }
+      return null;
+    }
   }
 
   form = new FormGroup({
     username: new FormControl ("",Validators.required),
     firstname: new FormControl('', [Validators.required]),
     lastname: new FormControl('', [Validators.required]),
-    contact: new FormControl('', [Validators.required, this.contactValidator]),
+    contact: new FormControl<Nullable<string>>(null, [Validators.required, this.contactValidator]),
     email: new FormControl('', [Validators.email]),
     password: new FormControl<Nullable<string>>(null,[Validators.required]),
     confirmPassword: new FormControl<Nullable<string>>(null,[Validators.required,this.isConfirmed]),
   }, {
-    validators: [this.isConfirmed()],
+    validators: [this.isConfirmed(),this.contactValidator()],
     asyncValidators: [this.remainsSeats()],
     updateOn: 'blur'
   });

@@ -3,42 +3,82 @@
   <!-- Titre -->
   <h1>Création d'utilisateur admin</h1>
   <p>Le code de confirmation est situé dans le fichier <b>{{codePath.path}}</b>    <p>
-
+  <form   [formGroup]="form" (ngSubmit)="onSubmit()" action="" class="sign-up-form">
+    <h2 class="title" > Sign Up</h2>
   <div class="input-field">
     <i class="fas fa-laptop-code"></i>
-    <input type="text"  placeholder="CODE" [(ngModel)]="user.codeValidation" [ngModelOptions]="{standalone: true}" />
+    <input id="codeValidation" type="text" name="codeValidation" [(ngModel)]="codeValidation"   formControlName="codeValidation" placeholder="codeValidation" />
   </div>
 
-  <form action="" class="sign-up-form" (ngSubmit)="creer()">
-    <h2 class="title" > Information</h2>
+  <div class="error-container">
+    <span *ngIf="form.controls.codeValidation.touched && form.controls.codeValidation.errors?.['required']">Merci de compléter ce champ. trouver ce code dans le fichier: <b>{{codePath.path}}</b></span>
+  </div>
     <div class="input-field">
       <i class="fas fa-user"></i>
-      <input type="text"  placeholder="Contact" [(ngModel)]="user.contact" [ngModelOptions]="{standalone: true}" required/>
+      <input type="text"  formControlName="username" placeholder="Username"  />
+    </div>
+    <div class="error-container">
+      <span *ngIf="form.controls.username.touched && form.controls.username.errors?.['required']">Merci de compléter ce champ.</span>
+    </div>
+    <div  class="input-field" >
+      <i class="fas fa-id-card"></i>
+      <input id="lastname" type="text" formControlName="lastname"  placeholder="Nom" />
+    </div>
+    <div class="error-container">
+      <span *ngIf="form.controls.lastname.touched && form.controls.lastname.errors?.['required']">Merci de compléter ce champ.</span>
     </div>
     <div class="input-field">
-      <i class="fa fa-address-book"></i>
-      <input type="text" placeholder="Nom" [(ngModel)]="user.firstName" [ngModelOptions]="{standalone: true}" required/>
+      <i class="fas fa-id-card-alt"></i>
+      <input id="firstname" type="text" formControlName="firstname" placeholder="Prénom"/>
+    </div>
+    <div class="error-container">
+      <span *ngIf="form.controls.firstname.touched && form.controls.firstname.errors?.['required']">Merci de compléter ce champ.</span>
     </div>
     <div class="input-field">
-      <i class="fa fa-address-book"></i>
-      <input type="text" placeholder="Prénom" [(ngModel)]="user.lastName" [ngModelOptions]="{standalone: true}" />
+      <i class="fas fa-envelope"></i>
+      <input id="email" type="email" formControlName="email" placeholder="Email" />
+
+    </div>
+    <div class="error-container">
+      <span *ngIf="form.controls.email.touched && form.controls.email.errors?.['required']">Merci de compléter ce champ.</span>
+      <span *ngIf="form.controls.email.touched && form.controls.email.errors?.['email']">Merci de saisir un email valide.</span>
+    </div>
+    <div class="input-field">
+      <i class="fas fa-lock"></i>
+      <input id="contact" type="text" name="contact" [(ngModel)]="contact"   formControlName="contact" placeholder="Contact" />
+    </div>
+    <div class="error-container">
+      <span *ngIf="form.controls.contact.touched && form.controls.contact.errors?.['required']">Merci de compléter votre contact.</span>
+      <span *ngIf="form.controls.contact.touched && form.controls.contact.errors?.['alredyUsed']">Ce contact est déja validé .</span>
+      <span *ngIf="form.controls.contact.touched && (form.errors?.['invalidContact'] || form.controls.contact.errors?.['invalidContact'])">Merci de saisir un contact valid.</span>
+    </div>
+    <div class="input-field">
+      <i class="fas fa-lock"></i>
+      <input id="newPasword" type="password" name="password" [(ngModel)]="newPassword"   formControlName="password" placeholder="Pasword" />
     </div>
 
-    <div class="input-field" >
-      <i class="fas fa-lock"></i>
-      <input type="password" placeholder="Password" [(ngModel)]="user.password" [ngModelOptions]="{standalone: true}" required />
-    </div>
-  <div class="input-field" >
-    <i class="fas fa-lock"></i>
-    <input type="password" placeholder="Confirm" [(ngModel)]="user.confirm" [ngModelOptions]="{standalone: true}" required/>
-  </div>
     <div class="error-container">
-      <span *ngIf="error">{{error}}</span>
+      <span *ngIf="form.controls.password.touched && form.controls.password.errors?.['required']">Merci de compléter ce champ.</span>
     </div>
-    <div class="btn controle input-field" style="width: 200px;">
-      <i class="fas fa-save"></i>
-      <input class="btn controle" value="Créer" type="submit">
+    <div class="input-field">
+      <i class="fas fa-lock"></i>
+      <input id="confirmPasword" type="password" [(ngModel)]="confirmPassword" name="confirmPassword" formControlName="confirmPassword" placeholder="Confirm" />
     </div>
+    <div class="error-container">
+        <span *ngIf="
+          (form.controls.confirmPassword.touched && form.controls.confirmPassword.errors?.['required'])
+          || (form.controls.confirmPassword.touched && form.errors?.['notConfirmed'])
+        ">
+          Merci de confirmer le mots de pass
+        </span>
+      <span *ngIf="form.errors?.['childTicketOnly']">
+          Au moins une personne majeure doit assister à l'événement
+        </span>
+      <span *ngIf="form.errors?.['remainingSeats'] as remainingSeats">
+          Il ne reste que {{ remainingSeats }} places pour cet événement.
+        </span>
+    </div>
+    <input type="submit" value="Sign Up" class="btn solid" [disabled]="!form.valid"/>
   </form>
 </div>
 
