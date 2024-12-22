@@ -3,7 +3,6 @@
     <div class="project-title">
       <span>{{project.name}}</span>
     </div>
-    <h3>Planing </h3>
 
     <ul>
       <li class="menu-item controle" routerLinkActive="active" routerLink="list">
@@ -13,18 +12,18 @@
         <i class="fas fa-chart-bar"></i> Tableau de bord
       </li>
       <li class="menu-item controle " routerLinkActive="active" routerLink="planning">
-        <i class="fas fa-calendar"></i> Planning
+        <i class="fas fa-calendar-alt"></i> Calendrier et planning
       </li>
       <li class="menu-item controle" routerLinkActive="active" routerLink="gantt-chart">
         <i class="fas fa-chart-line"></i> Diagramme de Gantt
       </li>
 
-      <li class="menu-item controle" *ngIf="authGuard.hasAutority(['CAN_CONFIGURE_SYSTEM']) | async" routerLinkActive="active" routerLink="rapport">
+<!--      <li class="menu-item controle" *ngIf="authGuard.hasAutority(['CAN_CONFIGURE_SYSTEM']) | async" routerLinkActive="active" routerLink="rapport">
         <i class="fas fa-chart-pie"></i> Rapports
-      </li>
-      <li class="menu-item controle" *ngIf="authGuard.hasAutority(['CAN_CONFIGURE_SYSTEM']) | async" routerLinkActive="active" routerLink="calendar">
+      </li>-->
+<!--      <li class="menu-item controle" *ngIf="authGuard.hasAutority(['CAN_CONFIGURE_SYSTEM']) | async" routerLinkActive="active" routerLink="calendar">
         <i class="fas fa-calendar-alt"></i> Calendrier des ressources
-      </li>
+      </li>-->
       <li class="menu-item controle" *ngIf="authGuard.hasAutority(['CAN_CONFIGURE_SYSTEM']) | async" routerLinkActive="active" routerLink="config">
         <i class="fas fa-cog"></i> Config
       </li>

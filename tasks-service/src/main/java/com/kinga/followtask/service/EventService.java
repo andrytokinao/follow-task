@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -29,6 +30,12 @@ public class EventService {
   public List<Event> searchEvents(EventSearchCriteriaDTO criteria){
     if (CollectionUtils.isEmpty(criteria.getParrentIds())) {
       return eventRepository.findEventsByUserIdsAndIssues(criteria.getUserIds(), criteria.getIssueIds(), criteria.getStart(), criteria.getEnd(),criteria.getProjectId());
+    }
+    List<Long> issueIds = criteria.getIssueIds();
+    if (issueIds == null) {
+      issueIds = new ArrayList<>();
+      issueIds.addAll(criteria.getParrentIds());
+      criteria.setIssueIds(issueIds);
     }
     return eventRepository.findEventsByUserIdsAndIssuesAndParent(criteria.getUserIds(), criteria.getIssueIds(), criteria.getParrentIds(), criteria.getStart(), criteria.getEnd(),criteria.getProjectId());
   }

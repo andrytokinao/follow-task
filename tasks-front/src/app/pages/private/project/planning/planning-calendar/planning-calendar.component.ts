@@ -140,7 +140,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
   @ViewChild("navigator") nav!: DayPilotNavigatorComponent;
   @Input() eventCriteria:EventSearchCriteria={};
   events: DayPilot.EventData[] = [];
-  parentSelectedId = undefined;
+  parentSelectedId :number = undefined;
   usersSelected:String[] = [];
   date = DayPilot.Date.today();
   users:User[] = [];
@@ -365,7 +365,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
   }
 
   async onTimeRangeSelected(args: any) {
-    const newEvent: EventApp = {
+    const newEvent: any = {
       title: "",
       eventType: undefined,
       start: args.start,
@@ -381,6 +381,10 @@ export class PlanningCalendarComponent implements AfterViewInit {
       reminderTime: "",
       user: this.user
     };
+    if (this.parentSelectedId) {
+      newEvent.issue = {id:this.parentSelectedId};
+      this.issueService.loadSubtask(this.parentSelectedId);
+    }
     this.eventService.newEvent(newEvent).subscribe(res => {
       this.eventCriteria.userIds = [this.user.id];
       this.eventService.searchEvents(this.eventCriteria);

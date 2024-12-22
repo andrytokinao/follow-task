@@ -16,8 +16,14 @@
     <mat-form-field appearance="fill" class="form-field">
       <mat-label>Tache </mat-label>
       <mat-select [(ngModel)]="issue" name="issue" >
-        <mat-option value="">Tache liée</mat-option>
+        <mat-option [value]="undefined">Non lié</mat-option>
         <mat-option *ngFor="let issue of issues" [value]="issue">{{ issue.issueKey }} {{ issue.summary }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="fill" class="form-field" required>
+      <mat-label>User </mat-label>
+      <mat-select [(ngModel)]="user"   name="user" [compareWith]="issueService.defaultCompare" [ngModelOptions]="{standalone: true}">
+        <mat-option *ngFor="let user of users" [value]="user" >{{ user.firstName }} {{ user.lastName }} </mat-option>
       </mat-select>
     </mat-form-field>
 

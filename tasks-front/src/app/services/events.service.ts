@@ -16,6 +16,7 @@ import {EditEventComponent} from "../common/edit-event/edit-event.component";
 import {NewEventComponent} from "../common/new-event/new-event.component";
 import {UserService} from "./user.service";
 import {query} from "@angular/animations";
+import {IssueService} from "./issue.service";
 
 @Injectable({
   providedIn:"root"
@@ -27,6 +28,7 @@ export class EventsService {
   private eventTypes:EventTypeApp[] = [];
   events$=this.eventsSubject.asObservable();
   resources$ = this.resourceSubject.asObservable();
+  selectedMaster : number;
   static colors = {
     green: "#6aa84f",
     yellow: "#f1c232",
@@ -41,7 +43,8 @@ export class EventsService {
     private http : HttpClient,
     private apollo:Apollo,
     private modalService: NgbModal,
-    private userService:UserService
+    private userService:UserService,
+    private issueService:IssueService
 
   ){
   }
@@ -153,7 +156,8 @@ export class EventsService {
     const modalRef = this.modalService.open(EditEventComponent, {
       size: 'lg',
       backdrop: 'static',
-      keyboard: false
+      keyboard: false,
+      centered:true,
     });
     modalRef.componentInstance.loadEvent(data.id);
     modalRef.result.then(
@@ -168,6 +172,9 @@ export class EventsService {
     );
   }
   newEvent(newEvent: EventApp){
+    if (this.selectedMaster) {
+      this.issueService
+    }
     return new Observable<EventApp>(observer=>{
       const modalRef = this.modalService.open(NewEventComponent, {
         size: 'lg',

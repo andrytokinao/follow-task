@@ -1634,6 +1634,7 @@ const EVENT_BY_ID=gql`
         reminderOffset
         reminderTime
         customColor
+        description
         eventType {
           id
           name
