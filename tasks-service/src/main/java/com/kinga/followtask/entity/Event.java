@@ -68,6 +68,9 @@ public class Event {
     @ManyToOne
     @JoinColumn(name = "issue_id", nullable = true)
     private Issue issue;
+    @ManyToOne
+    @JoinColumn(name = "project_id")
+    private Project project ;
 
     public Event() {}
 

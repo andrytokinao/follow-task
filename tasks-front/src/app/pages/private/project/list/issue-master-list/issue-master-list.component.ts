@@ -47,16 +47,10 @@ export class IssueMasterListComponent {
     this.route.data.subscribe(data => {
       this.project = data['project'];
       if (this.project && this.project.prefix) {
-        this.userService.getUsers(this.project.prefix).subscribe((users ) => {
+        this.userService.users$.subscribe((users ) => {
           this.users = stripTypename(users);
         });
-        this.essueService.loadIssueMasterByProject(this.project.id).subscribe((res: any) => {
-          this.issues = stripTypename(res);
-          this.dataSource =  new MatTableDataSource<Issue>(this.issues);
-          this.dataSource.paginator = this.paginator;
-          this.isLoading = false;
-
-        });
+        this.essueService.loadIssueMasterByProject(this.project.id);
       }
     });
   }
@@ -93,6 +87,12 @@ export class IssueMasterListComponent {
     setTimeout(() => {
       this.isLoading = false;
     }, 2000); // Attendre 2 secondes avant de masquer le spinner
+    this.essueService.issueMasters$.subscribe((res: any) => {
+      this.issues = stripTypename(res);
+      this.dataSource =  new MatTableDataSource<Issue>(this.issues);
+      this.dataSource.paginator = this.paginator;
+      this.isLoading = false;
+    });
   }
 
   saveCustomFieldValue($event: CustomFieldValue) {

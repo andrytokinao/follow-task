@@ -105,7 +105,6 @@ export class EventsService {
       text: (eventApp.issue? eventApp.issue.issueKey+':' : '') + eventApp.title,
       start: eventApp.start,
       end: eventApp.end || undefined,
-      html: eventApp.description || undefined,
       resource: eventApp.user.username || undefined,
       backColor: eventApp.customColor || eventApp.eventType.defaultColor || undefined,
       cssClass: eventApp.customStyle || undefined,
@@ -114,6 +113,12 @@ export class EventsService {
         allDay: eventApp.allDay,
         reminderOffset: eventApp.reminderOffset,
       },
+      html:  `<div>
+        <p style="font-size: 12px; ">${(eventApp.issue ? eventApp.issue.issueKey + ': ' : '') + eventApp.title}</p>
+        <i style="font-size: 12px; color: #555;">${eventApp.description || ''}</i>
+      </div>
+    `,
+
     };
   }
 
@@ -191,7 +196,15 @@ export class EventsService {
     })
   }
   searchEvents(criteria: EventSearchCriteria) {
-    console.debug("eventSearchCriteria " + criteria);
+    if (criteria.userIds != null && criteria.userIds.length == 0) {
+      criteria.userIds = undefined;
+    }
+    if (criteria.issueIds != null && criteria.issueIds.length == 0) {
+      criteria.issueIds = undefined;
+    }
+    if (criteria.parrentIds != null && criteria.parrentIds.length ==0 ) {
+      criteria.parrentIds = undefined;
+    }
     this.apollo.query({
       query: SEARCH_EVENTS,
       variables:{criteria},
@@ -212,7 +225,7 @@ export class EventsService {
     })
   }
   loadUserResource(){
-    this.userService.getUsers("TODO").subscribe(users =>{
+    this.userService.users$.subscribe(users =>{
       let resources = users.map(user => this.userToResource(user));
       this.users = users;
       this.resourceSubject.next(resources);

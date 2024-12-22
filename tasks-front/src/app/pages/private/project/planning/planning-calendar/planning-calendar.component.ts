@@ -8,8 +8,13 @@ import {
 import {EventsService} from "../../../../../services/events.service";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {NewIssueComponent} from "../../modal/new-issue/new-issue.component";
-import {EventApp, EventSearchCriteria, User} from "../../../../../type/issue";
+import {EventApp, EventSearchCriteria, Issue, User} from "../../../../../type/issue";
 import {AuthService} from "../../../../../services/auth.service";
+import {MatCheckboxChange} from "@angular/material/checkbox";
+import {stripTypename} from "@apollo/client/utilities";
+import {MatTableDataSource} from "@angular/material/table";
+import {IssueService} from "../../../../../services/issue.service";
+import {UserService} from "../../../../../services/user.service";
 
 @Component({
   selector: 'calendar-planning-component',
@@ -17,7 +22,36 @@ import {AuthService} from "../../../../../services/auth.service";
     <div class="contenue">
       <div class="navigator">
         <daypilot-navigator [config]="configNavigator" [events]="events" [(date)]="date" (dateChange)="changeDate($event)" #navigator></daypilot-navigator>
-      </div>
+       <div >
+         <form class="card" style="margin-top: 15px;padding-top: 5px;padding-bottom: 5px" >
+           <h1> Projets </h1>
+           <div class="sidebar-heding ">
+             <div *ngFor="let parent of issueMasters">
+               <mat-checkbox
+                 [checked]="isSelectedParent(parent.id)"
+                 (change)="changesParents($event,parent.id)"
+               >
+                 {{ parent.issueKey +' '+parent.summary }}
+               </mat-checkbox>
+             </div>
+           </div>
+         </form>
+       </div>
+        <form class="card" style="margin-top: 15px;padding-top: 5px;padding-bottom: 5px">
+          <h1> Equipe </h1>
+          <div class="sidebar-heding ">
+            <div *ngFor="let user of users" [class]="isSelectedUser(user.id) ? 'selected' : ''">
+              <mat-checkbox
+                [checked]="isSelectedUser(user.id)"
+                (change)="changeUsersSelected($event,user.id)"
+              >
+                {{ user.lastName +' '+user.firstName }}
+              </mat-checkbox>
+            </div>
+          </div>
+        </form>
+        </div>
+
       <div class="content">
         <div class="buttons">
         <button (click)="viewDay()" [class]="this.configNavigator.selectMode == 'Day' ? 'selected' : ''">Day</button>
@@ -74,7 +108,9 @@ import {AuthService} from "../../../../../services/auth.service";
       background-color: #1c4587;
       box-shadow: 0 3px 5px rgba(0,0,0,0.1);
     }
-
+    selected{
+      background-color: #1c4587;
+    }
     button:first-child {
       border-top-left-radius: 30px;
       border-bottom-left-radius: 30px;
@@ -104,9 +140,10 @@ export class PlanningCalendarComponent implements AfterViewInit {
   @ViewChild("navigator") nav!: DayPilotNavigatorComponent;
   @Input() eventCriteria:EventSearchCriteria={};
   events: DayPilot.EventData[] = [];
-
+  parentSelectedId = undefined;
+  usersSelected:String[] = [];
   date = DayPilot.Date.today();
-
+  users:User[] = [];
   contextMenu = new DayPilot.Menu({
     items: [
       {
@@ -164,7 +201,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
   });
 
   configNavigator: DayPilot.NavigatorConfig = {
-    showMonths: 3,
+    showMonths: 1,
     cellWidth: 23,
     cellHeight: 25,
     onVisibleRangeChanged: (args) => {;
@@ -198,11 +235,12 @@ export class PlanningCalendarComponent implements AfterViewInit {
     durationBarVisible: false,
     contextMenu: this.contextMenu,
     onTimeRangeSelected: this.onTimeRangeSelected.bind(this),
-    onBeforeEventRender: this.onBeforeEventRender.bind(this),
+    onBeforeEventRender: function (args) {
+      args.data.html = args.data.html || args.data.text;
+    },
     onEventClick: this.eventService.onEventClick.bind(this),
     onEventResize: (args) => this.resizeEvent(args),
     onEventMove: (args) => this.moveEvent(args),
-
   };
 
   configWeek: DayPilot.CalendarConfig = {
@@ -228,11 +266,14 @@ export class PlanningCalendarComponent implements AfterViewInit {
     onEventMove: (args) => this.moveEvent(args),
 
   };
+  issueMasters: Issue[]=[];
 
   constructor(
     protected eventService: EventsService,
     private modalService: NgbModal,
-    private authService:AuthService
+    private authService:AuthService,
+    private issueService:IssueService,
+    private userService:UserService
 ) {
     this.viewWeek();
   }
@@ -243,13 +284,20 @@ export class PlanningCalendarComponent implements AfterViewInit {
     })
     this.authService.connectedUser$.subscribe(user=> {
       this.user = user;
-      this.eventCriteria.userIds = [this.user.id];
+   //   this.eventCriteria.userIds = [this.user.id];
       this.loadEvents();
+    });
 
+    this.issueService.issueMasters$.subscribe((res: any) => {
+      this.issueMasters = res;
+    });
+    this.userService.users$.subscribe(users => {
+      this.users = users;
     })
+
   }
 
-  loadEvents(): void {
+    loadEvents(): void {
     this.eventCriteria.start = this.nav.control.visibleStart().toString();
     this.eventCriteria.end = this.nav.control.visibleEnd().toString();
     this.eventService.searchEvents(this.eventCriteria);
@@ -279,9 +327,6 @@ export class PlanningCalendarComponent implements AfterViewInit {
 
   onBeforeEventRender(args: any) {
     const dp = args.control;
-
-
-
     args.data.areas = [
       {
         top: 3,
@@ -345,5 +390,36 @@ export class PlanningCalendarComponent implements AfterViewInit {
     this.eventService.editDialog(args,criteria);
   }
 
+  isSelectedParent(id: number) {
+    return id == this.parentSelectedId;
+  }
+  changesParents(event: any, id: number) {
+    if (event.checked) {
+      this.parentSelectedId = id;
+    } else {
+      this.parentSelectedId = undefined;
+    }
+    if (this.parentSelectedId != null){
+      this.eventCriteria.parrentIds = [this.parentSelectedId];
+    } else {
+      this.eventCriteria.parrentIds = undefined;
+    }
+    this.eventService.searchEvents(this.eventCriteria);
+  }
+
+  isSelectedUser(id: String) {
+     return  this.usersSelected.some(userId => userId === id)
+  }
+
+  changeUsersSelected(event: any, id: String) {
+    if (event.checked) {
+      this.usersSelected.push(id);
+    } else {
+      this.usersSelected = this.usersSelected.filter(u => u != id);
+    }
+    console.debug(this.usersSelected);
+    this.eventCriteria.userIds = this.usersSelected;
+    this.eventService.searchEvents(this.eventCriteria);
+  }
 }
 

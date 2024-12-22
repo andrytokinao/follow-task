@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import {HttpClient, HttpEvent, HttpHeaders, HttpRequest} from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
+import {BehaviorSubject, Observable, throwError} from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import {ConfigEntry, GroupeUser, Issue, MemberGroupe, Status, User} from "../type/issue";
 import {
@@ -20,7 +20,8 @@ import {stripTypename} from "@apollo/client/utilities";
   providedIn: 'root',
 })
 export class UserService {
-
+   private usersSubject = new BehaviorSubject<User[]>([]);
+   users$ = this.usersSubject.asObservable();
   constructor(private http: HttpClient, private apollo: Apollo) {
   }
   baseUrl:string = "http://localhost:8081";
@@ -38,19 +39,14 @@ export class UserService {
       .pipe(retry(1), catchError(this.handleError));
   }
   getUsers(projet:String) {
-    return new Observable<User[]>(observer => {
-      return this.apollo
+      this.apollo
         .query({
           query: ALL_USERS ,
         }).subscribe((res:any)=> {
-          observer.next(stripTypename(res.data.allUsers));
-          observer.complete();
+          this.usersSubject.next(stripTypename(res.data.allUsers));
         },error => {
-          observer.error(error);
-          observer.complete();
+          error.error(error);
         })
-    })
-
   }
   handleError(error: any) {
     let errorMessage = '';

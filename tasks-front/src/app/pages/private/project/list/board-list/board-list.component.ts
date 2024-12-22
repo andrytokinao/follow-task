@@ -148,24 +148,22 @@ export class BoardListComponent implements OnInit{
     this.route.data.subscribe(data => {
       this.project = data['project'];
       if (this.project) {
-        if ("prefix" in this.project) {
-          this.userService.getUsers("projet").subscribe((res: any) => {
-            this.users = stripTypename(res.data.allUsers);
-          });
-          this.issueService.getIssues(this.project.prefix).subscribe((res: any) => {
-          });
-        }}
-    });
-    this.issueService.issues$.subscribe(issues => {
-      this.currentWorkflows = this.issueService.getDistinctWorkflows(issues);
-      if (this.currentWorkflows != null && this.currentWorkflows.length != 0){
-        this.currentWorkflow = this.currentWorkflows[0];
+        this.issueService.getIssues(this.project.prefix).subscribe((res: any) => {
+        });
+        this.issueService.issues$.subscribe(issues => {
+          this.currentWorkflows = this.issueService.getDistinctWorkflows(issues);
+          if (this.currentWorkflows != null && this.currentWorkflows.length != 0) {
+            this.currentWorkflow = this.currentWorkflows[0];
+          }
+          this.issues = issues;
+
+        });
+        this.userService.users$.subscribe(users => {
+          this;
+          this.users = users;
+        });
       }
-      this.issues = issues;
-
-    })
-  }
-
+  })}
   loadByWorkFlow(currentWorkflow:WorkFlow) {
     let criterias: Criteria[] =[];
     for (let type of currentWorkflow.issueTypes){

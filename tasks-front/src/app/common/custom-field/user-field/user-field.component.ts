@@ -71,7 +71,11 @@ export class UserFieldComponent implements DisplayCustomField , OnInit{
   }
   ngOnInit() {
     this.loadList();
-
+    this.userService.users$.subscribe((users: any) => {
+      this.users = users;
+      this.filteredUsers = this.userControl.valueChanges.pipe(
+        map(value => this._filterUsers(value || '')));
+    });
   }
   setCustomFieldValue(value: CustomFieldValue) {
     this.customFieldValue = value;
@@ -80,11 +84,7 @@ export class UserFieldComponent implements DisplayCustomField , OnInit{
   }
   loadList() {
     // TODO : Configuration des utilisateurs peut etre entrer ici
-    this.userService.getUsers("projet").subscribe((users: any) => {
-      this.users = users;
-      this.filteredUsers = this.userControl.valueChanges.pipe(
-        map(value => this._filterUsers(value || '')));
-    });
+    this.userService.getUsers("project");
   }
 
   private _filterUsers(value: string): User[] {

@@ -15,23 +15,30 @@ public interface EventRepository extends JpaRepository<Event,Long> {
             "WHERE (:userIds IS NULL OR e.user.id IN :userIds) " +
             "AND (:issueIds IS NULL OR e.issue.id IN :issueIds) " +
             "AND (:start IS NULL OR e.start >= :start) " +
-            "AND (:end IS NULL OR e.end <= :end) ")
+            "AND (:end IS NULL OR e.end <= :end) "+
+            "AND (:projectId IS NULL OR e.project.id = :projectId) ")
     List<Event> findEventsByUserIdsAndIssues(@Param("userIds") List<String> userIds,
                                              @Param("issueIds") List<Long> issueIds,
                                              @Param("start") LocalDateTime start,
-                                             @Param("end") LocalDateTime end);
+                                             @Param("end") LocalDateTime end,
+                                             @Param("projectId") Long projectId
+    );
 
     @Query("SELECT e FROM Event e " +
             "WHERE (:userIds IS NULL OR e.user.id IN :userIds) " +
             "AND (:issueIds IS NULL OR e.issue.id IN :issueIds) " +
             "AND (:start IS NULL OR e.start >= :start) " +
             "AND (:end IS NULL OR e.end <= :end) " +
-            "AND (:parrentIds IS NULL OR e.issue.parent.id IN :parrentIds )")
-    List<Event> findEventsByUserIdsAndIssues2(@Param("userIds") List<String> userIds,
+            "AND (:parrentIds IS NULL OR e.issue.parent.id IN :parrentIds )" +
+            "AND (:projectId IS NULL OR e.project.id = :projectId) ")
+    List<Event> findEventsByUserIdsAndIssuesAndParent(@Param("userIds") List<String> userIds,
                                              @Param("issueIds") List<Long> issueIds,
                                              @Param("parrentIds") List<Long> parrentIds,
                                              @Param("start") LocalDateTime start,
-                                             @Param("end") LocalDateTime end);
+                                             @Param("end") LocalDateTime end,
+                                              @Param("projectId") Long projectId
+
+    );
 
 
 }

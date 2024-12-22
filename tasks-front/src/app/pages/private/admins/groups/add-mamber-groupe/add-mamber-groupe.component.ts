@@ -35,15 +35,16 @@ export class AddMamberGroupeComponent implements OnInit {
   }
 
   loadList() {
-    this.userService.getUsers("projet").subscribe((users: any) => {
-      this.users = users;
-      this.filteredUsers = this.userControl.valueChanges.pipe(
-        map(value => this._filterUsers(value || '')));
-    });
+
   }
 
   ngOnInit() {
     this.loadList();
+    this.userService.users$.subscribe((users: any) => {
+      this.users = users;
+      this.filteredUsers = this.userControl.valueChanges.pipe(
+        map(value => this._filterUsers(value || '')));
+    });
 
   }
 

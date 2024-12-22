@@ -39,6 +39,7 @@ import {
 import {environment} from "../../environments/environment";
 import {IssueSearchCriteriaInput} from "../type/issue-search-criteria.util";
 import {ActivatedRoute, Router} from "@angular/router";
+import {UserService} from "./user.service";
 
 @Injectable({
   providedIn: 'root',
@@ -48,10 +49,13 @@ export class IssueService {
   project: Project | null = null;
   private groupeUsersSubject = new BehaviorSubject<GroupeUser[]>([]);
   private subtaskSubject= new BehaviorSubject<Issue[]>([]);
-    subtask$ = this.subtaskSubject.asObservable();
+  private issueMastersSubject = new BehaviorSubject<Issue[]>([]);
+  private projectSubject = new BehaviorSubject<Project>(undefined);
+  subtask$ = this.subtaskSubject.asObservable();
   groupeUsers$=this.groupeUsersSubject.asObservable();
+  issueMasters$ = this.issueMastersSubject.asObservable();
+  project$ = this.projectSubject.asObservable();
 
-  private projectSubject: BehaviorSubject<Project>;
   private issuesSubject = new BehaviorSubject<Issue[]>([]);
   issues$ = this.issuesSubject.asObservable();
   setIssues(issues: Issue[]) {
@@ -59,17 +63,13 @@ export class IssueService {
   }
 
   // Exposed as an observable for components to subscribe
-  project$: Observable<Project>;
 
   constructor(private http: HttpClient,
               private apollo: Apollo,
-              private router: Router
-
+              private router: Router,
+              private userService:UserService
   ) {
     const initialProject: Project = null;
-
-    this.projectSubject = new BehaviorSubject<Project>(initialProject);
-    this.project$ = this.projectSubject.asObservable();
   }
   updateProject(newProject: Project): void {
     this.projectSubject.next(newProject);
@@ -284,6 +284,9 @@ export class IssueService {
           this.project = stripTypename(res.data.getProject);
           if (this.project) {
             observer.next(this.project);
+            this.loadIssueMasterByProject(this.project.id);
+            this.projectSubject.next(this.project);
+            this.loadUsers();
           }
           observer.complete();
         }, err => {
@@ -763,36 +766,28 @@ export class IssueService {
     })
   }
 
-  loadSubtask(parentId: number) {
-    return new Observable<Issue[]>(observer => {
+  loadSubtask(parentId: Number) {
       this.apollo.query({
         query:LOAD_SUBTASK,
         variables:{parentId},
         fetchPolicy:"network-only"
       }).subscribe((res:any)=>{
-        observer.next(supprimerTypename(res.data.loadSubtask));
-        observer.complete();
+        this.subtaskSubject.next(supprimerTypename(res.data.loadSubtask));
       },error => {
-        observer.error(error);
-        observer.complete();
+        console.error(error);
       })
-    })
   }
 
   loadIssueMasterByProject(projectId: Number) {
-    return new Observable<Issue[]>(observer => {
       this.apollo.query({
         query:LOAD_ISSUE_MASTER_BY_PROJECT,
         variables:{projectId},
         fetchPolicy:"network-only"
       }).subscribe((res:any)=>{
-        observer.next(supprimerTypename(res.data.loadIssueMasterByProject));
-        observer.complete();
+        this.issueMastersSubject.next(supprimerTypename(res.data.loadIssueMasterByProject));
       },error => {
-        observer.error(error);
-        observer.complete();
+        console.error(error);
       })
-    })
   }
   searchIssues(criteria: IssueSearchCriteriaInput) {
     return new Observable<Issue[]>(observer => {
@@ -833,5 +828,9 @@ export class IssueService {
   defaultCompare(option1:any,option2){
     console.debug('comparaison '+JSON.stringify(option1) + " == "+JSON.stringify(option2));
     return option1.id === option2.id;
+  }
+
+  private loadUsers() {
+    this.userService.getUsers(this.project.prefix);
   }
 }

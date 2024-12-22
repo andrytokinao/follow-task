@@ -27,8 +27,10 @@ public class EventService {
       return eventRepository.save(event);
   }
   public List<Event> searchEvents(EventSearchCriteriaDTO criteria){
-    List<Event> res = eventRepository.findEventsByUserIdsAndIssues(criteria.getUserIds(), criteria.getIssueIds(), criteria.getStart(), criteria.getEnd());
-   return res;
+    if (CollectionUtils.isEmpty(criteria.getParrentIds())) {
+      return eventRepository.findEventsByUserIdsAndIssues(criteria.getUserIds(), criteria.getIssueIds(), criteria.getStart(), criteria.getEnd(),criteria.getProjectId());
+    }
+    return eventRepository.findEventsByUserIdsAndIssuesAndParent(criteria.getUserIds(), criteria.getIssueIds(), criteria.getParrentIds(), criteria.getStart(), criteria.getEnd(),criteria.getProjectId());
   }
   public List<EventType> allEventType(){
       return eventTypeRepository.findAll();

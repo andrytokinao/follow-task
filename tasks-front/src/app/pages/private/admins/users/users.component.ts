@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {Issue, User} from "../../../../type/issue";
 import {ViewEditIssueComponent} from "../../project/modal/view-edit-issue/view-edit-issue.component";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
@@ -12,7 +12,7 @@ import {EditUserComponent} from "../edit-user/edit-user.component";
   templateUrl: './users.component.html',
   styleUrl: './users.component.css'
 })
-export class UsersComponent {
+export class UsersComponent implements OnInit{
   currentUser: User | null = null;
   users:User[] =[];
   constructor(private modalService: NgbModal, private userService: UserService) {
@@ -30,9 +30,7 @@ export class UsersComponent {
   }
 
   loadList() {
-    this.userService.getUsers("projet").subscribe((users) => {
-      this.users = stripTypename(users);
-    });
+    this.userService.getUsers("projet");
   }
 
   create() {
@@ -46,5 +44,11 @@ export class UsersComponent {
 
   getPhoto(user: User):string {
      return this.userService.getUrlPhoto(user);
+  }
+
+  ngOnInit(): void {
+    this.userService.users$.subscribe(users=> {
+      this.users = users;
+    })
   }
 }

@@ -48,15 +48,14 @@ export class ShowListComponent implements OnInit, AfterViewInit{
     this.route.data.subscribe(data => {
       this.project = data['project'];
       if (this.project && this.project.prefix) {
-        this.userService.getUsers(this.project.prefix).subscribe((users: any) => {
-     //     this.users = stripTypename(users);
-        });
-
         this.route.queryParamMap.subscribe((params:ParamMap) => {
           this.searchCriteria = fromUrlParams(params);
           this.search();
         });
       }
+    });
+    this.userService.users$.subscribe((users: any) => {
+      // this.users = stripTypename(users);
     });
   }
 

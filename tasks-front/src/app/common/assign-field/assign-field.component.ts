@@ -41,14 +41,13 @@ export class AssignFieldComponent implements OnInit{
 
   }
   ngOnInit() {
-    this.loadList();
+      // TODO : Configuration des utilisateurs peut etre entrer ici
+      this.userService.users$.subscribe((users: any) => {
+        this.users = users;
+      });
+
   }
-  loadList() {
-    // TODO : Configuration des utilisateurs peut etre entrer ici
-    this.userService.getUsers("projet").subscribe((users: any) => {
-      this.users = users;
-    });
-  }
+
   private _filterUsers(value: string): User[] {
     const filterValue = value.toLowerCase();
     return this.users.filter(user => user =>

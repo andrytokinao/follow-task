@@ -6,6 +6,10 @@ import {PlanningCalendarComponent} from "./planning-calendar/planning-calendar.c
 import {RouterOutlet} from "@angular/router";
 import {PlanningRoutingModule} from "./planning-routing.module";
 import {DayPilotModule} from "@daypilot/daypilot-lite-angular";
+import {FormsModule} from "@angular/forms";
+import {MatButton} from "@angular/material/button";
+import {MatCheckbox} from "@angular/material/checkbox";
+import {MatStepLabel, MatStepperNext} from "@angular/material/stepper";
 
 
 
@@ -22,7 +26,12 @@ import {DayPilotModule} from "@daypilot/daypilot-lite-angular";
         CommonModule,
         RouterOutlet,
         PlanningRoutingModule,
-        DayPilotModule
+        DayPilotModule,
+        FormsModule,
+        MatButton,
+        MatCheckbox,
+        MatStepLabel,
+        MatStepperNext
     ]
 })
 export class PlanningModule { }

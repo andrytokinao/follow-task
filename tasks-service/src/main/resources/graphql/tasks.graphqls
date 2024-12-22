@@ -100,6 +100,7 @@ type Project{
     statusConfig:String
     issueTypes:[IssueType]
     workFlows :[WorkFlow]
+    events:[Event]
 }
 
 type RoleApp{
@@ -281,6 +282,7 @@ input ProjectInput{
     name:String
     description:String
     prefix:String
+    events:[EventInput]
 }
 
 input RoleAppInput{
@@ -486,6 +488,7 @@ input EventSearchCriteriaInput {
     userIds: [String]  # Liste d'IDs des utilisateurs, facultatif
     issueIds: [ID]  # Liste d'IDs des issues, facultatif
     parrentIds:[Int] # Liste d'IDs des parent d'issues
+    projectId:Int
     start: String  # Date/heure de début, facultatif
     end: String  # Date/heure de fin, facultatif
 }

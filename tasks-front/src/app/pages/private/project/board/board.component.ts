@@ -151,14 +151,14 @@ export class BoardComponent implements OnInit {
       this.project = data['project'];
       if (this.project) {
         if ("prefix" in this.project) {
-          this.userService.getUsers("projet").subscribe((res: any) => {
-            this.users = stripTypename(res.data.allUsers);
 
-          });
           this.essueService.getIssues(this.project.prefix).subscribe((res: any) => {
             this.issues = stripTypename(res);
           });
       }}
+    });
+    this.userService.users$.subscribe((res: any) => {
+      this.users = stripTypename(res.data.allUsers);
     });
   }
 

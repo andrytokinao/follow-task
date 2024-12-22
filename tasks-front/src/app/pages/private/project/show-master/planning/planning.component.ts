@@ -32,23 +32,9 @@ export class PlanningComponent implements OnInit{
       this.parentIssue = data['parrentIssue'];
       this.loadSubtask();
     });
+
   }
   protected loadSubtask() {
-    this.issueService.loadSubtask(this.parentIssue.id).subscribe(res => {
-      let subtasks:Issue[] = res;
-      let issueIds :number[] =[];
-      if (subtasks != undefined && subtasks.length != 0){
-        this.issues = res;
-        this.eventSevice.issues = this.issues;
-        subtasks.forEach( is => {
-          issueIds.push(is.id);
-        });
-        this.eventCriteria = {};
-        this.eventCriteria.parrentIds = [this.parentIssue.id];
-        this.eventCriteria.issueIds = issueIds;
-        this.eventSevice.searchEvents(this.eventCriteria);
-      }
-
-    })
+    this.issueService.loadSubtask(this.parentIssue.id);
   }
 }
