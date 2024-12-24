@@ -393,6 +393,7 @@ input IssueSearchCriteriaInput {
     dateTo: String
     statusIds: [ID]
     issueTypeIds: [ID]
+    issueTypeLevels:[String]
     assigneUsernames: [String]
     customFieldStringValues: [CustomFieldStringValuesInput]
     customFieldDateValues: [CustomFieldDateValuesInput]

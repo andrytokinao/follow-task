@@ -28,6 +28,7 @@ export class WorkFlowComponent implements OnInit{
   project:Project | any = {};
   newWorkflowName: string;
   workFlow: WorkFlow | any = {};
+  workFlows:WorkFlow[] =[];
 
   editWorkFlow(flow: any) {
     const dialogRef = this.modalService.open(PopupWorkFlowComponent,{windowClass: "xlModal"} );
@@ -40,8 +41,13 @@ export class WorkFlowComponent implements OnInit{
   }
   ngOnInit(): void {
     this.route.data.subscribe(data => {
-      this.project = data['project'];
     });
+    this.issueService.project$.subscribe(project => {
+      this.project = project;
+    });
+    this.issueService.workFlows$.subscribe(wfs=> {
+      this.workFlows =wfs;
+    })
   }
   createWorkFlow() {
     this.isNewWorkFlow = true;

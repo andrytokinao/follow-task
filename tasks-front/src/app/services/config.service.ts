@@ -91,7 +91,7 @@ export class ConfigService {
 
   loadProject(prefix: String) {
     return new Observable<Project>((observer) => {
-      this.issueService.getProject(this.configEntry.projectPrefix).subscribe(
+      this.issueService.project$.subscribe(
         (res: Project) => {
           this.project = res;
           observer.next(this.project);

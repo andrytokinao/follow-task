@@ -50,10 +50,10 @@ export class IssueDetailsComponent {
   ngOnInit(): void {
     this.route.data.subscribe(data => {
       this.parentIssue = data['parrentIssue'];
-      this.project = data['project'];
       this.loadValues();
       this.loadComments();
     });
+    this.issueService.project$.subscribe(project=> this.project = project)
     this.authService.getProfile().subscribe((res)=>{
       this.profile = res;
     });

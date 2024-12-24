@@ -59,7 +59,7 @@ export class AssignFieldComponent implements OnInit{
     if (this.issue != null) {
       this.issueService.assigneToUser(this.issue,user).subscribe((issue:Issue)=>{
           this.issue = issue;
-          this.save.emit(this.issue );
+          this.save.emit(this.issue);
         }
       )
     }

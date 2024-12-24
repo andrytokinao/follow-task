@@ -4,6 +4,7 @@ import com.kinga.followtask.entity.CustomFieldValue;
 import com.kinga.followtask.entity.Issue;
 import jakarta.persistence.criteria.*;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +49,9 @@ public class IssueSpecification implements Specification<Issue> {
         }
         if (criteria.getIssueTypeIds () != null && !criteria.getIssueTypeIds().isEmpty()) {
             predicates.add(root.get("issueType").get("id").in(criteria.getIssueTypeIds()));
+        }
+        if (!CollectionUtils.isEmpty(criteria.getIssueTypeLevels())) {
+            predicates.add(root.get("issueType").get("level").in(criteria.getIssueTypeLevels()));
         }
         if (criteria.getIssueTypeIds () != null && !criteria.getIssueTypeIds().isEmpty()) {
             predicates.add(root.get("issueType").get("id").in(criteria.getIssueTypeIds()));

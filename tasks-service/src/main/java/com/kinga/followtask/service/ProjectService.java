@@ -19,9 +19,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
+import static com.kinga.followtask.entity.enumapp.Niveau.SUB_TASK;
+
 @Service
 @RequiredArgsConstructor
 public class ProjectService {
+    private static final String PRINCIPALE = "Tâche Principale";
+    private static final String PROJECT = "PROJECT";
+    private static final String SOUS_TACHE ="Sous_tâche";
     @Autowired
     public StatusRepository statusRepository;
     final ProjectRepository projectRepository;
@@ -63,7 +68,84 @@ public class ProjectService {
     public List<Project> allProjects () {
         return projectRepository.findAll ();
     }
-
+    public WorkFlow getDefaultWorkFlow(){
+       WorkFlow workFlow =  workFlowRepository.findWorkFlowByName("Default workflow");
+       if (workFlow != null) {
+           return workFlow;
+       }
+        workFlow = new WorkFlow();
+        workFlow.setName("Default workflow");
+        workFlow.setActive(true);
+        workFlow.setStatuses(defalutStatusList());
+        return workFlowRepository.save(workFlow);
+    }
+    private List<Status> defalutStatusList() {
+        List<Icone> icones = Arrays.asList(
+                new Icone("\uf252", "fas fa-hourglass-half", "class"),
+                new Icone("\uf07c", "fas fa-folder-open", "class"),
+                new Icone("\uf1da", "fas fa-tasks", "class"),
+                new Icone("\uf044", "fas fa-edit", "class"),
+                new Icone("\uf058", "fas fa-check-circle", "class"),
+                new Icone("\uf11e", "fas fa-flag-checkered", "class"),
+                new Icone("\uf05e", "fas fa-ban", "class")
+        );
+        List<String> statusNames = Arrays.asList(
+                "En Attente", "Ouvert", "En Cours", "Corrigé", "Résolue", "Terminé", "Abandonné"
+        );
+        Map<String, Icone> statusMap = new LinkedHashMap<>();
+        for (int i = 0; i < statusNames.size(); i++) {
+            Icone icone = iconeRepository.save(icones.get(i));
+            statusMap.put(statusNames.get(i),icone);
+        }
+        List<Status> statuses = new ArrayList<>();
+        for (int i = 0; i < icones.size(); i++) {
+            Icone icone = icones.get(i);
+            String displayName = statusNames.get(i);
+            Status status = new Status();
+            status.setIcone(icone);
+            status.setDisplayName(displayName);
+            status.setId((long)(i+1));
+            status = statusRepository.save(status);
+            statuses.add(status);
+        }
+        return statuses;
+    }
+    public List<IssueType> getOrInitialiseDefaultIssueType() {
+        List<IssueType> issueTypes = new ArrayList<>();
+        List<IssueType> principales = issueTypeRepository.findByName(PRINCIPALE);
+        IssueType principale = null;
+        if (CollectionUtils.isEmpty(principales)) {
+            principale = new IssueType();
+            principale.setName(PRINCIPALE);
+            principale.setPrefix(PROJECT);
+            principale.setLevel(Niveau.PARENT);
+            Icone tachePrincipaleIcone = iconeRepository.save(new Icone("\uf542", "fas fa-project-diagram", "class"));
+            principale.setIcone(tachePrincipaleIcone);
+            principale.setCurentWorkFlow(getDefaultWorkFlow());
+            principale = issueTypeRepository.save(principale);
+        } else {
+            principale = principales.get(0);
+        }
+        issueTypes.add(principale);
+        List<IssueType> sousTaches = issueTypeRepository.findByName(SOUS_TACHE);
+        IssueType soutache = null;
+        if (CollectionUtils.isEmpty(sousTaches)) {
+            Icone sousTacheIcone = iconeRepository.save(new Icone("\uf0ae", "fas fa-tasks", "class"));
+            soutache = new IssueType();
+            soutache.setName(SOUS_TACHE);
+            soutache.setPrefix(SUB_TASK.name());
+            soutache.setLevel(SUB_TASK);
+            soutache.setIcone(sousTacheIcone);
+            soutache.setCurentWorkFlow(getDefaultWorkFlow());
+            issueTypeRepository.save(soutache);
+            soutache.setParent(principale);
+            soutache = issueTypeRepository.save(soutache);
+        } else {
+            soutache = sousTaches.get(0);
+        }
+        issueTypes.add(soutache);
+        return issueTypes;
+    }
     // Etape 1 : Creation projet
     public Project createProjectOrSave (Project project) throws IOException {
         ConfigEntry configEntry = configRepository.getByActiveIs (true);
@@ -72,6 +154,7 @@ public class ProjectService {
         if (StringUtils.isEmpty (project.getName ()) || StringUtils.isEmpty (project.getPrefix ())) {
             throw new RuntimeException ("Name and prefix are required");
         }
+        project.setPrefix(project.getPrefix().toUpperCase().replaceAll(" ",""));
         if (project.getId () == null) {
             if (projectRepository.findByPrefix (project.getPrefix ()) != null) {
                 throw new RuntimeException ("Prefix " + project.getPrefix () + " is alredy in use");
@@ -131,6 +214,9 @@ public class ProjectService {
         if (issueType.getIcone () != null)
             issueType.setIcone (iconeRepository.save (issueType.getIcone ()));
         issueType = issueTypeRepository.save (issueType);
+        if (issueType.getCurentWorkFlow() == null) {
+            issueType.setCurentWorkFlow(getDefaultWorkFlow());
+        }
 
         if (issueType.getProject () == null)
             throw new RuntimeException ("Type doit etre affecté au projet ");
@@ -197,7 +283,13 @@ public class ProjectService {
     public WorkFlow saveWorkFlow (WorkFlow workFlow) {
         return workFlowRepository.save (workFlow);
     }
-
+    private WorkFlow SaveWorkFlos(WorkFlow wf) {
+        WorkFlow existing = workFlowRepository.findWorkFlowByName(wf.getName());
+        if (existing != null) {
+            wf.setId(existing.getId());
+        }
+        return existing;
+    }
     public List<Issue> issueByCriteria (List<Criteria> criterias) {
         List<Criteria> typeCriterias = Criteria.findByField (criterias, "issueTypeId");
         List<Long> issueTypeIds = new ArrayList<> ();
@@ -290,7 +382,9 @@ public class ProjectService {
     }
 
     public List<IssueType> allIssueType (Long projectId) {
-        return issueTypeRepository.findByProjectId (projectId);
+        List<IssueType> issueTypes = issueTypeRepository.findByProjectId(projectId);
+        issueTypes.addAll(getOrInitialiseDefaultIssueType());
+        return issueTypes;
     }
     public IssueType removeIssueTypeParent (Long childId) {
         IssueType child = issueTypeRepository.getById (childId);
@@ -299,7 +393,13 @@ public class ProjectService {
     }
 
     public List<IssueType> listIssueTypeMaster (Long projectId) {
-        return issueTypeRepository.findByProjectIdAndLevel (projectId, Niveau.PARENT);
+        List<IssueType> masters = issueTypeRepository.findByProjectIdAndLevel(projectId, Niveau.PARENT);
+        List<IssueType> principale = issueTypeRepository.findByName(PRINCIPALE);
+        if (CollectionUtils.isEmpty(masters)) {
+            return principale;
+        }
+        masters.addAll(principale);
+        return masters;
     }
 
     public List<IssueType> listIssueTypeSubtasks (Long masterId) {
@@ -337,7 +437,7 @@ public class ProjectService {
     }
     public List<Issue> searchIssues(IssueSearchCriteria criteria) {
         IssueSpecification specification = new IssueSpecification(criteria);
-        return issueRepository.findAll(specification);
+            return issueRepository.findAll(specification);
     }
 
     public WorkFlow getWorkFlow (Long workFlowId) {
@@ -345,6 +445,11 @@ public class ProjectService {
     }
 
     public List<WorkFlow> workFlowsByProject (Long projectId) {
-       return workFlowRepository.findByProjectId(projectId);
+        WorkFlow defaultWf = this.getDefaultWorkFlow();
+        List<WorkFlow> wfs = workFlowRepository.findByProjectId(projectId);
+        wfs.add(defaultWf);
+        return wfs;
     }
+
+
 }

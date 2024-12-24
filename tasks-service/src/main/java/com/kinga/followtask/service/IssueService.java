@@ -5,6 +5,7 @@ import com.kinga.followtask.dto.Repertoire;
 import com.kinga.followtask.dto.ValueDto;
 import com.kinga.followtask.entity.CustomFieldValue;
 import com.kinga.followtask.entity.*;
+import com.kinga.followtask.entity.enumapp.Niveau;
 import com.kinga.followtask.repository.*;
 import com.kinga.utils.KingaUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +59,8 @@ public class IssueService {
     private UserAppRepository userAppRepository;
     @Autowired
     private EventRepository eventRepository;
+    @Autowired
+    private IconeRepository iconeRepository;
 
 
     public Issue saveIssue(Issue issue) throws IOException {
@@ -72,11 +75,12 @@ public class IssueService {
         if (issue.getIssueType() == null) {
             throw new RuntimeException("type mast bee renseign");
         }
+        Project tempProject = issue.getIssueType().getProject();
+        Project project = projectRepository.findById(tempProject.getId()).orElse(null);
 
         IssueType issueType = issueTypeRepository.getById(issue.getIssueType().getId());
          if (StringUtils.isEmpty(issue.getIssueKey()))
              issue.setIssueKey(getKeySuivente(issueType));
-        Project project = issueType.getProject();
         if (StringUtils.isEmpty(project.getPath())) {
             throw new RemoteException(" Config non terminer ");
         }

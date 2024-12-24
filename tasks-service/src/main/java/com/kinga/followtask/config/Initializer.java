@@ -2,6 +2,8 @@ package com.kinga.followtask.config;
 
 import com.kinga.followtask.entity.EventType;
 import com.kinga.followtask.repository.EventTypeRepository;
+import com.kinga.followtask.repository.IssueTypeRepository;
+import com.kinga.followtask.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -10,6 +12,8 @@ import org.springframework.stereotype.Component;
 public class Initializer implements CommandLineRunner {
     @Autowired
     private EventTypeRepository eventTypeRepository;
+    @Autowired
+    private ProjectService projectService;
 
     @Override
     public void run(String... args) throws Exception {
@@ -21,7 +25,7 @@ public class Initializer implements CommandLineRunner {
             eventTypeRepository.save(new EventType("REMINDER", "#FF6347", "background-color: #FF6347;"));
             eventTypeRepository.save(new EventType("HOLIDAY", "#FFD700", "background-color: #FFD700;"));
             eventTypeRepository.save(new EventType("OTHER", "#D3D3D3", "background-color: #D3D3D3;"));
-
         }
+        projectService.getOrInitialiseDefaultIssueType();
     }
 }

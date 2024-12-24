@@ -1,5 +1,6 @@
 package com.kinga.followtask.repository.criteria;
 
+import com.kinga.followtask.entity.enumapp.Niveau;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,6 +18,7 @@ public class IssueSearchCriteria {
     private Date dateTo;
     private List<Long> statusIds;
     private List<Long> issueTypeIds;
+    private List<Niveau> issueTypeLevels;
     private List<String> assigneUsernames;
     private Map<Long, List<String>> customFieldStringValues;
     private Map<Long, List<Date>> customFieldDateValues;

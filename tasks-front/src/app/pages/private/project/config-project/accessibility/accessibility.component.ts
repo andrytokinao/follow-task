@@ -41,8 +41,8 @@ export class AccessibilityComponent implements OnInit{
   }
 
   ngOnInit(): void {
+    this.issueService.project$.subscribe(project=> this.project = project);
     this.route.data.subscribe(data => {
-      this.project = data['project'];
       this.issueService.getConfigProject(this.project.id).subscribe(res=>{
         this.configProjects = res;
         this.loadConfig();

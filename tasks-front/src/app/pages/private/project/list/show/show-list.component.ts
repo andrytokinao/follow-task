@@ -38,6 +38,7 @@ export class ShowListComponent implements OnInit, AfterViewInit{
 
   }
   search(){
+    this.searchCriteria.issueTypeLevels=['SUB_TASK'];
     this.issueService.searchIssues(this.searchCriteria).subscribe(issues => {
    //   this.issues = stripTypename(issues);
 
@@ -56,6 +57,13 @@ export class ShowListComponent implements OnInit, AfterViewInit{
     });
     this.userService.users$.subscribe((users: any) => {
       // this.users = stripTypename(users);
+    });
+    this.issueService.project$.subscribe(project=> {
+      this.project = project;
+    });
+    this.route.queryParamMap.subscribe((params:ParamMap) => {
+      this.searchCriteria = fromUrlParams(params);
+      this.search();
     });
   }
 

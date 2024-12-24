@@ -44,20 +44,20 @@ export class CreateProjectComponent {
       this.route.queryParams
         .subscribe((params:any) => {
             if(this.project.prefix != params.project) {
-              this.issueService.getProject(params.project).subscribe(
-                (res: Project) => {
-                  this.project = res;
-                  const dialogRef = this.modalService.open(IssueTypeComponent,{windowClass: "xlModal"});
-                  dialogRef.componentInstance.project = this.project;
-                },
-                (err: any) => {
-                  console.error(err);
-                }
-              );
+              this.issueService.getProject(params.project);
             }
           }
         );
     }
-
+    this.issueService.project$.subscribe(
+      (res: Project) => {
+        this.project = res;
+        const dialogRef = this.modalService.open(IssueTypeComponent,{windowClass: "xlModal"});
+        dialogRef.componentInstance.project = this.project;
+      },
+      (err: any) => {
+        console.error(err);
+      }
+    );
   }
 }

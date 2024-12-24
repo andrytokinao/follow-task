@@ -59,8 +59,8 @@ export class ShowMasterComponent implements OnInit{
     }
   }
   ngOnInit(): void {
+    this.issueService.project$.subscribe(project=> this.project = project)
     this.route.data.subscribe(data => {
-      this.project = data['project'];
       this.parrentIssue = data['parrentIssue'];
     });
 

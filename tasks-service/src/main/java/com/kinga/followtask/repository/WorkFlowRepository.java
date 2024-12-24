@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface WorkFlowRepository extends JpaRepository<WorkFlow,Long> {
     public List<WorkFlow> findByProjectId(Long projectId);
+    public WorkFlow findWorkFlowByName(String name);
 }

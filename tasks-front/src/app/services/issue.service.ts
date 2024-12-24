@@ -47,11 +47,15 @@ import {UserService} from "./user.service";
 export class IssueService {
   projects: Project[] = [];
   project: Project | null = null;
+  issueTypes:IssueType[]=[];
+
   private groupeUsersSubject = new BehaviorSubject<GroupeUser[]>([]);
   private subtaskSubject= new BehaviorSubject<Issue[]>([]);
   private issueMastersSubject = new BehaviorSubject<Issue[]>([]);
   private projectSubject = new BehaviorSubject<Project>(undefined);
-  subtask$ = this.subtaskSubject.asObservable();
+  private worksFlowsSubject = new BehaviorSubject<WorkFlow[]>([]);
+  workFlows$ = this.worksFlowsSubject.asObservable();
+   subtask$ = this.subtaskSubject.asObservable();
   groupeUsers$=this.groupeUsersSubject.asObservable();
   issueMasters$ = this.issueMastersSubject.asObservable();
   project$ = this.projectSubject.asObservable();
@@ -117,6 +121,13 @@ export class IssueService {
   }
 
   saveIssue(issue: any) {
+    if (issue.issueType.project == null ) {
+      issue.issueType.project = {
+        id:this.project.id,
+        prefix:this.project.prefix,
+        name:this.project.name
+      }
+    }
     delete issue.values;
    return new Observable<Issue>((observer) => {
      this.apollo
@@ -275,28 +286,23 @@ export class IssueService {
   }
 
   getProject(prefix: string) {
-    return new Observable<any>((observer) => {
-      if (this.project == null || this.project.prefix == prefix) {
-        this.apollo.query({
-          query: operation.GET_PROJECT,
-          variables: {prefix}
-        }).subscribe((res: any) => {
-          this.project = stripTypename(res.data.getProject);
-          if (this.project) {
-            observer.next(this.project);
-            this.loadIssueMasterByProject(this.project.id);
-            this.projectSubject.next(this.project);
-            this.loadUsers();
-          }
-          observer.complete();
-        }, err => {
-          observer.error(err);
-          observer.complete();
-        })
-      } else {
-        observer.next(this.project);
-        observer.complete();
+    console.debug("loading project "+prefix);
+    this.apollo.query({
+      query: operation.GET_PROJECT,
+      variables: {prefix},
+      fetchPolicy:"network-only"
+    }).subscribe((res: any) => {
+      this.project = stripTypename(res.data.getProject);
+      if (this.project) {
+        console.debug(this.project);
+        this.projectSubject.next(this.project);
+        this.loadIssueMasterByProject(this.project.id);
+        this.workFlowsByProject(this.project.id).subscribe();
+        this.loadUsers();
+        this.loadIssueType();
       }
+    }, err => {
+      console.error(err);
     })
   }
 
@@ -465,7 +471,12 @@ export class IssueService {
           variables:{projectId},
           fetchPolicy:"network-only"
         }).subscribe((res:any)=>{
-          observer.next(supprimerTypename(res.data.workFlowsByProject));
+         let wf =  supprimerTypename(res.data.workFlowsByProject);
+         let project = {...this.projectSubject.value};
+         project.workFlows = wf;
+         this.projectSubject.next(project);
+         observer.next(supprimerTypename(res.data.workFlowsByProject));
+         this.worksFlowsSubject.next(wf);
           observer.complete();
         }, error => {
           observer.error(error);
@@ -817,6 +828,10 @@ export class IssueService {
         variables:{projectId},
         fetchPolicy:"network-only"
       }).subscribe((res:any)=>{
+        this.issueTypes = supprimerTypename(res.data.allIssueType);
+        let project:Project = {...this.projectSubject.value}
+        project.issueTypes = this.issueTypes;
+        this.projectSubject.next(project);
         observer.next(supprimerTypename(res.data.allIssueType));
         observer.complete();
       },error => {
@@ -825,6 +840,7 @@ export class IssueService {
       })
     })
   }
+
   defaultCompare(option1:any,option2){
     console.debug('comparaison '+JSON.stringify(option1) + " == "+JSON.stringify(option2));
     return option1.id === option2.id;
@@ -832,5 +848,9 @@ export class IssueService {
 
   private loadUsers() {
     this.userService.getUsers(this.project.prefix);
+  }
+
+  private loadIssueType() {
+    this.allIssueType(this.project.id);
   }
 }

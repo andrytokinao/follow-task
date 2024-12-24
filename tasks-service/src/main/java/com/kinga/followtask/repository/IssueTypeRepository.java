@@ -10,5 +10,6 @@ public interface IssueTypeRepository extends JpaRepository<IssueType,Long> {
     List<IssueType> findByProjectId(Long projectId);
     List<IssueType> findByProjectIdAndLevel(Long projectId, Niveau level);
     List<IssueType> findByParentId(Long parentId);
+    List<IssueType> findByName(String name);
 
 }

@@ -56,8 +56,8 @@ export class SubtaskComponent implements OnInit {
   ngOnInit(): void {
     this.route.data.subscribe(data => {
       this.parentIssue = data['parrentIssue'];
-      this.project = data['project'];
     });
+    this.issueService.project$.subscribe(project=> this.project = project)
     this.authService.getProfile().subscribe((res) => {
       this.profile = res;
 

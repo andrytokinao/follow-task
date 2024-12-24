@@ -45,7 +45,6 @@ export class IssueMasterListComponent {
     this.isLoading = false;
 
     this.route.data.subscribe(data => {
-      this.project = data['project'];
       if (this.project && this.project.prefix) {
         this.userService.users$.subscribe((users ) => {
           this.users = stripTypename(users);
@@ -53,6 +52,13 @@ export class IssueMasterListComponent {
         this.essueService.loadIssueMasterByProject(this.project.id);
       }
     });
+    this.issueService.project$.subscribe(project => {
+      this.project = project;
+      console.debug(project);
+      if (this.project) {
+        this.essueService.loadIssueMasterByProject(this.project.id);
+      }
+    })
   }
   editIssue(issue:Issue){
       this.browsIssueMaster(issue);

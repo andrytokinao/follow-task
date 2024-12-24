@@ -69,7 +69,7 @@ export class StatusFieldComponent implements OnInit , AfterViewInit{
   canChangeStatus() {
     return new Observable<boolean>(observer=>{
       this.authService.getProfile().subscribe((profile:any)=>{
-        if (profile.id == this.issue.assigne.id || this.issue.reporter.id == profile.id) {
+        if (profile.id == this.issue.assigne?.id || this.issue.reporter?.id == profile.id) {
           observer.next(true);
           observer.complete();
         }  else {

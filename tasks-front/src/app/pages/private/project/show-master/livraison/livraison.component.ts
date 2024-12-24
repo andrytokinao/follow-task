@@ -87,9 +87,9 @@ export class LivraisonComponent implements OnInit{
     return livraison;
   }
   ngOnInit(): void {
+    this.issueService.project$.subscribe(project=> this.project = project)
     this.route.data.subscribe(data => {
       this.parentIssue = data['parrentIssue'];
-      this.project = data['project'];
       this.loadDirectory();
     });
     this.authService.getProfile().subscribe((res)=>{

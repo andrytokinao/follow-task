@@ -32,6 +32,7 @@ export class ProjectComponent implements OnInit{
 
   ngOnInit(): void {
     this.route.data.subscribe(data => {
+      console.debug(data);
       const breadcrumb: Breadcrumb[] = data['breadcrumb'];
       this.project = data['project'];
      /* console.debug(breadcrumb);
@@ -42,6 +43,9 @@ export class ProjectComponent implements OnInit{
     this.route.data.subscribe(data => {
 
     });
+    this.issueService.project$.subscribe(project => {
+      this.project = project;
+    })
   }
   editIssue(issue:Issue){
     const dialogRef = this.modalService.open(ViewEditIssueComponent, {windowClass: "xlModal"});
@@ -58,6 +62,7 @@ export class ProjectComponent implements OnInit{
      dialogRef.result.then(res=> {
        if (res != null) {
            if( res.step == "next") {
+             this.issueService.loadIssueMasterByProject(this.project.id);
              this.editIssue(res.issue);
            } else if (res.step == "complete") {
          //  this.router.navigate(['/issue/:res.issue.issueKey]);

@@ -142,9 +142,7 @@ export class IssueTypeComponent {
     )
   }
   ngOnInit(): void {
-    this.route.data.subscribe(data => {
-      this.project = data['project'];
-    });
+    this.issueService.project$.subscribe(project => {this.project = project});
 }
   loadIssueType(){
     this.issueType.getIssueTypeById(this.issueType.id).subscribe(issueType => {

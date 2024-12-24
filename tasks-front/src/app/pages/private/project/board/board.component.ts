@@ -147,16 +147,7 @@ export class BoardComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.route.data.subscribe(data => {
-      this.project = data['project'];
-      if (this.project) {
-        if ("prefix" in this.project) {
-
-          this.essueService.getIssues(this.project.prefix).subscribe((res: any) => {
-            this.issues = stripTypename(res);
-          });
-      }}
-    });
+    this.issueService.project$.subscribe(project=> this.project = project);
     this.userService.users$.subscribe((res: any) => {
       this.users = stripTypename(res.data.allUsers);
     });

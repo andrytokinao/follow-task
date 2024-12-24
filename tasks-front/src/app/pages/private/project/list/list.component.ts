@@ -55,9 +55,7 @@ export class ListComponent  implements OnInit{
     this.loadMySubtask();
   }
   ngOnInit(): void {
-    this.route.data.subscribe(data => {
-      this.project = data['project'];
-    });
+    this.issueService.project$.subscribe(project => {this.project = project});
   }
 
 

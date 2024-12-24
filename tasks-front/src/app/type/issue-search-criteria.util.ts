@@ -7,6 +7,7 @@ export interface IssueSearchCriteriaInput {
   dateTo?: string;    // Utilisation de string au lieu de Date
   statusIds?: number[];
   issueTypeIds?: number[];
+  issueTypeLevels?:string[];
   assigneUsernames?: string[];
   customFieldStringValues?: CustomFieldStringValues[];
   customFieldDateValues?: CustomFieldDateValues[];

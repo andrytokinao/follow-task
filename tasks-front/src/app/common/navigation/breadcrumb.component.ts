@@ -19,17 +19,18 @@ export class BreadcrumbComponent implements OnInit {
   activeSubMenu: number | null = null;
   @Output() createMaster = new EventEmitter<any>();
 
-  constructor(private breadcrumbService: BreadcrumbService,   private route:ActivatedRoute,) {
+  constructor(private breadcrumbService: BreadcrumbService,   private route:ActivatedRoute,private issueService:IssueService) {
 
   }
 
   ngOnInit(): void {
+    this.issueService.project$.subscribe(project=> this.project = project);
     this.breadcrumbService.breadcrumbs.subscribe(breadcrumbs => {
       this.breadcrumbs = breadcrumbs;
     });
+    this.issueService.project$.subscribe(project=> this.project = project)
     this.route.data.subscribe(data => {
       const breadcrumb: Breadcrumb[] = data['breadcrumb'];
-      this.project = data['project'];
        console.debug(breadcrumb);
        this.breadcrumbService.setBreadcrumbs(breadcrumb);
        this.breadcrumbs = breadcrumb;

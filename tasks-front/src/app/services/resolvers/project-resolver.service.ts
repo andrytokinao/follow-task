@@ -16,8 +16,10 @@ export class ProjectResolverService implements Resolve<any>{
   }
   resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): any {
     const projectPrefix = route.paramMap.get('project');
+    console.debug("resolve project with "+projectPrefix);
     if(projectPrefix != null) {
-      return this.issueService.getProject(projectPrefix);
+       this.issueService.getProject(projectPrefix);
+       return this.issueService.project$;
     }
     return this.issueService.project$;
   }
