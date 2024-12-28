@@ -30,6 +30,7 @@
     "bootstrap": "^5.3.3",
     "chart.js": "^4.4.1",
     "crypto-js": "^4.2.0",
+    "gojs": "^3.0.16",
     "graphql": "^16.8.1",
     "highcharts": "^11.3.0",
     "highcharts-angular": "^4.0.0",
