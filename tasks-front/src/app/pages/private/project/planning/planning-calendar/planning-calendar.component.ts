@@ -15,6 +15,7 @@ import {stripTypename} from "@apollo/client/utilities";
 import {MatTableDataSource} from "@angular/material/table";
 import {IssueService} from "../../../../../services/issue.service";
 import {UserService} from "../../../../../services/user.service";
+import {BehaviorSubject, forkJoin} from "rxjs";
 
 @Component({
   selector: 'calendar-planning-component',
@@ -53,15 +54,19 @@ import {UserService} from "../../../../../services/user.service";
         </div>
 
       <div class="content">
+        <span class="selected-date" > <b> {{this.navigator.date.toDate() | date}} </b></span>
+
         <div class="buttons">
-        <button (click)="viewDay()" [class]="this.configNavigator.selectMode == 'Day' ? 'selected' : ''">Day</button>
-        <button (click)="viewWeek()" [class]="this.configNavigator.selectMode == 'Week' ? 'selected' : ''">Week</button>
-        <button (click)="viewMonth()" [class]="this.configNavigator.selectMode == 'Month' ? 'selected' : ''">Month</button>
+          <button (click)="viewResources()" [class]="this.configNavigator.selectMode == 'None' ? 'selected' : ''">Equipe</button>
+          <button (click)="viewDay()" [class]="this.configNavigator.selectMode == 'Day' ? 'selected' : ''">Day</button>
+          <button (click)="viewWeek()" [class]="this.configNavigator.selectMode == 'Week' ? 'selected' : ''">Week</button>
+          <button (click)="viewMonth()" [class]="this.configNavigator.selectMode == 'Month' ? 'selected' : ''">Month</button>
         </div>
 
         <daypilot-calendar [config]="configDay" [events]="events" #day></daypilot-calendar>
         <daypilot-calendar [config]="configWeek" [events]="events" #week></daypilot-calendar>
         <daypilot-month [config]="configMonth" [events]="events" #month></daypilot-month>
+        <daypilot-calendar [config]="configResource" #calendar></daypilot-calendar>
       </div>
     </div>
 
@@ -129,7 +134,12 @@ import {UserService} from "../../../../../services/user.service";
     button:active {
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
-
+    .selected-date{
+      border-radius: 21px;
+      background-color: #aaaaaa;
+      padding: 15px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
   `]
 })
 export class PlanningCalendarComponent implements AfterViewInit {
@@ -138,12 +148,16 @@ export class PlanningCalendarComponent implements AfterViewInit {
   @ViewChild("week") week!: DayPilotCalendarComponent;
   @ViewChild("month") month!: DayPilotMonthComponent;
   @ViewChild("navigator") nav!: DayPilotNavigatorComponent;
+  @ViewChild("calendar")
+  calendar!: DayPilotCalendarComponent;
   @Input() eventCriteria:EventSearchCriteria={};
   events: DayPilot.EventData[] = [];
   parentSelectedId :number = undefined;
   usersSelected:String[] = [];
   date = DayPilot.Date.today();
   users:User[] = [];
+  private resources: any[];
+
   contextMenu = new DayPilot.Menu({
     items: [
       {
@@ -266,6 +280,65 @@ export class PlanningCalendarComponent implements AfterViewInit {
     onEventMove: (args) => this.moveEvent(args),
 
   };
+  configResource: DayPilot.CalendarConfig = {
+    viewType: "Resources",
+    headerHeight: 100,
+    onEventResize: (args) => this.resizeEvent(args),
+    onEventMove: (args) => this.mouveEventAtResources(args),
+    onEventClick: (args) => this.eventService.editDialog(args.e.data, this.eventCriteria),
+    onTimeRangeSelected: this.onTimeRangeSelected.bind(this),
+    contextMenu: new DayPilot.Menu({
+        items: [
+          {
+            text: "Edit...",
+            onClick: async args => {
+              this.eventService.editDialog(args.source.data, this.eventCriteria);
+              ;
+            }
+          },
+          {
+            text: "Delete",
+            onClick: args => {
+              this.eventService.deleteEvent(args.source.data, this.eventCriteria);
+            }
+          },
+          {
+            text: "-"
+          },
+          {
+            text: "Red",
+            onClick: args => {
+              this.eventService.updateBackColor(args.source, EventsService.colors.red, this.eventCriteria);
+            }
+          },
+          {
+            text: "Green",
+            onClick: args => {
+              this.eventService.updateBackColor(args.source, EventsService.colors.green, this.eventCriteria);
+            }
+          },
+          {
+            text: "Blue",
+            onClick: args => {
+              this.eventService.updateBackColor(args.source, EventsService.colors.blue, this.eventCriteria);
+            }
+          },
+          {
+            text: "Yellow",
+            onClick: args => {
+              this.eventService.updateBackColor(args.source, EventsService.colors.yellow, this.eventCriteria);
+            }
+          },
+          {
+            text: "Gray",
+            onClick: args => {
+              this.eventService.updateBackColor(args.source, EventsService.colors.gray, this.eventCriteria);
+            }
+          }
+        ],
+      }
+    ),
+  };
   issueMasters: Issue[]=[];
 
   constructor(
@@ -281,12 +354,20 @@ export class PlanningCalendarComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     this.eventService.events$.subscribe(events=>{
       this.events= events;
+      this.refreshView();
+
     })
     this.authService.connectedUser$.subscribe(user=> {
       this.user = user;
    //   this.eventCriteria.userIds = [this.user.id];
       this.loadEvents();
     });
+
+    this.eventService.resources$.subscribe(resources => {
+      this.resources = resources;
+      console.debug(this.resources);
+      this.refreshView();
+    })
 
     this.issueService.issueMasters$.subscribe((res: any) => {
       this.issueMasters = res;
@@ -301,13 +382,23 @@ export class PlanningCalendarComponent implements AfterViewInit {
     this.eventCriteria.start = this.nav.control.visibleStart().toString();
     this.eventCriteria.end = this.nav.control.visibleEnd().toString();
     this.eventService.searchEvents(this.eventCriteria);
-  }
+      this.eventService.loadUserResource();
 
+    }
+  viewResources():void {
+    this.configNavigator.selectMode = "None";
+    this.configDay.visible = false;
+    this.configWeek.visible = false;
+    this.configMonth.visible = false;
+    this.configResource.visible = true;
+  }
   viewDay():void {
     this.configNavigator.selectMode = "Day";
     this.configDay.visible = true;
     this.configWeek.visible = false;
     this.configMonth.visible = false;
+    this.configResource.visible = false;
+
   }
 
   viewWeek():void {
@@ -315,6 +406,8 @@ export class PlanningCalendarComponent implements AfterViewInit {
     this.configDay.visible = false;
     this.configWeek.visible = true;
     this.configMonth.visible = false;
+    this.configResource.visible = false;
+
 
   }
 
@@ -323,6 +416,8 @@ export class PlanningCalendarComponent implements AfterViewInit {
     this.configDay.visible = false;
     this.configWeek.visible = false;
     this.configMonth.visible = true;
+    this.configResource.visible = false;
+
   }
 
   onBeforeEventRender(args: any) {
@@ -424,6 +519,30 @@ export class PlanningCalendarComponent implements AfterViewInit {
     console.debug(this.usersSelected);
     this.eventCriteria.userIds = this.usersSelected;
     this.eventService.searchEvents(this.eventCriteria);
+  }
+  private mouveEventAtResources(args:any){
+    this.eventService.mouveEventAtResources(args,this.eventCriteria);
+  }
+  refreshView(){
+    let resourceSubject = new BehaviorSubject<any[]>([]);
+    let resources$ = resourceSubject.asObservable();
+    let eventsSubject = new BehaviorSubject<any[]>([]);
+    let events$ = eventsSubject.asObservable();
+    forkJoin([
+      resources$,
+      events$
+    ]).subscribe(data => {
+      const options = {
+        columns: data[0],
+        events: data[1]
+      };
+      this.calendar.control.update(options);
+      console.debug(options);
+    });
+    eventsSubject.next(this.events);
+    resourceSubject.next(this.resources);
+    resourceSubject.complete();
+    eventsSubject.complete();
   }
 }
 

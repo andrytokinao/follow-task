@@ -250,7 +250,7 @@ export class EventsService {
   }
 
   mouveEventAtResources(args: any, eventCriteria: EventSearchCriteria) {
-    let ev =  this.eventApps.find((event) => event.id == args.e.cache.id);
+    let ev =  this.eventApps.find((event) => event.id == args.e.data.id);
     ev.start = args.newStart.toString();
     ev.end = args.newEnd.toString();
    if (args.newResource) {
