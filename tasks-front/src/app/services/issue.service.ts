@@ -868,4 +868,20 @@ export class IssueService {
   private loadIssueType() {
     this.allIssueType(this.projectSubject.value.id);
   }
+
+  findAllStatus() {
+    return new Observable<Status[]>((observer)=> {
+      this.apollo.query({
+        query:operation.ALL_STATUS
+      }).subscribe((res:any)=>{
+        observer.next(supprimerTypename(res.data.findAllStatus));
+        observer.complete();
+      }, error =>{
+        observer.error(error);
+        console.error(error);
+        observer.complete();
+      }
+      )
+    })
+  }
 }

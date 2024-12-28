@@ -238,7 +238,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
     onBeforeEventRender: function (args) {
       args.data.html = args.data.html || args.data.text;
     },
-    onEventClick: this.eventService.onEventClick.bind(this),
+    onEventClick:(args)=> this.eventService.onEventClick(args),
     onEventResize: (args) => this.resizeEvent(args),
     onEventMove: (args) => this.moveEvent(args),
   };

@@ -1,0 +1,47 @@
+<div class="form-container">
+  <form>
+    <div class="card" style="margin-top: 15px;padding-top: 5px;padding-bottom: 5px">
+      <h1> Status </h1>
+      <div class="sidebar-heding ">
+      <span *ngFor="let st of status" [class]="selectStatus(st.id) ? 'selected' : ''">
+        <mat-checkbox
+          [checked]="isSelectedStatus(st.id)"
+          (change)="changeStatuesSelected($event,st.id)"
+        >
+          {{ st.displayName  }}
+        </mat-checkbox>
+      </span>
+      </div>
+    </div>
+    <div class="card" style="margin-top: 15px;padding-top: 5px;padding-bottom: 5px">
+      <h1> Assigné  </h1>
+      <div class="sidebar-heding ">
+        <span *ngFor="let user of users" [class]="isSelectedUser(user.id) ? 'selected' : ''">
+          <mat-checkbox
+            [checked]="isSelectedUser(user.id)"
+            (change)="changeUsersSelected($event,user.username)"
+          >
+            {{ user.lastName +' '+user.firstName }}
+          </mat-checkbox>
+        </span>
+
+      </div>
+    </div>
+
+  </form>
+  <!--<div class="card" style="margin-top: 15px;padding-top: 5px;padding-bottom: 5px">
+    <h1> Date création  </h1>
+    <div class="sidebar-heding ">
+        <span >
+          <input type="date" [(ngModel)]="creationFrom">
+        </span>
+      <span >
+          <input type="date" [(ngModel)]="creationTo">
+        </span>
+
+    </div>
+  </div>-->
+
+  <button type="submit" class="btn btn-primary" (click)="save()">Save</button>
+  <button type="button" class="btn btn-secondary" (click)="activeModal.dismiss('cancel')">Cancel</button>
+</div>

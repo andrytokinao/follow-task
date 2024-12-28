@@ -12,11 +12,12 @@
       <p>Tous mes tache</p>
     </div>
   </div>
-  <div class="card" (click)="aplayFilter()"  routerLinkActive="active" routerLink="search-issue">
+
+  <div class="card" *ngFor="let filter of fileters" >
 
     <div class="card-content">
-      <h3 class="edit" >Filtre <i class="fas fa-edit" (click)=" editFilter()"></i></h3>
-      <p>Ajous des filtre  </p>
+      <h3 class="edit" (click)="aplayFilter(filter)">Filtre </h3>
+      <p (click)="editFilter(filter)"> {{filter.name}}  <i class="fas fa-edit" ></i> </p>
 
     </div>
   </div>

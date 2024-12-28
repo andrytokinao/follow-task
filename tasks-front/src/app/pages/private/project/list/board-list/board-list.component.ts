@@ -146,7 +146,9 @@ export class BoardListComponent implements OnInit{
 
   ngOnInit(): void {
     this.route.data.subscribe(data => {
-      this.project = data['project'];
+
+  });
+    this.issueService.project$.subscribe(project => {
       if (this.project) {
         this.issueService.getIssues(this.project.prefix).subscribe((res: any) => {
         });
@@ -163,7 +165,12 @@ export class BoardListComponent implements OnInit{
           this.users = users;
         });
       }
-  })}
+      this.issueService.project$.subscribe(project => {
+
+      })
+    })
+
+  }
   loadByWorkFlow(currentWorkflow:WorkFlow) {
     let criterias: Criteria[] =[];
     for (let type of currentWorkflow.issueTypes){

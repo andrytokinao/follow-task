@@ -1,5 +1,10 @@
 import {ParamMap} from "@angular/router";
-
+export interface Filter {
+  name:String,
+  description?:String,
+  user:User,
+  issueSearchCriteria:IssueSearchCriteriaInput
+}
 export interface IssueSearchCriteriaInput {
   key?: string;
   summary?: string;
@@ -55,6 +60,7 @@ export interface CustomFieldTextValues {
 
 // Conversion en paramètres d'URL
 import { HttpParams } from '@angular/common/http';
+import {User} from "./issue";
 
 export function toQueryParams(criteria: IssueSearchCriteriaInput): { [key: string]: any } {
   const params: { [key: string]: any } = {};
@@ -63,6 +69,7 @@ export function toQueryParams(criteria: IssueSearchCriteriaInput): { [key: strin
     if (criteria[key] !== undefined && criteria[key] !== null) {
       if (Array.isArray(criteria[key])) {
         criteria[key].forEach((value, index) => {
+          let values=[];
           if (typeof value === 'object') {
             for (const objKey in value) {
               if (value[objKey] !== undefined && value[objKey] !== null) {
@@ -70,7 +77,9 @@ export function toQueryParams(criteria: IssueSearchCriteriaInput): { [key: strin
               }
             }
           } else {
-            params[`${key}[]`] = value;
+            values = (params[`${key}[]`])?(params[`${key}[]`]) : [];
+            values.push(value);
+            params[`${key}[]`] = values;
           }
         });
       } else {

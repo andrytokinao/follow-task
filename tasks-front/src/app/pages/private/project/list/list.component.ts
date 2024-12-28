@@ -4,7 +4,7 @@ import {IssueService} from "../../../../services/issue.service";
 import {UserService} from "../../../../services/user.service";
 import {AuthService} from "../../../../services/auth.service";
 import {ActivatedRoute, Router} from "@angular/router";
-import {IssueSearchCriteriaInput, toQueryParams} from "../../../../type/issue-search-criteria.util";
+import {Filter, IssueSearchCriteriaInput, toQueryParams} from "../../../../type/issue-search-criteria.util";
 import {BreadcrumbService} from "../../../../services/breadcrumb.service";
 import {Breadcrumb, Project} from "../../../../type/issue";
 
@@ -17,6 +17,7 @@ export class ListComponent  implements OnInit{
   private project:Project ;
   searchCriteria: IssueSearchCriteriaInput | any = {
   };
+  fileters:Filter[]=[] ;
   constructor(
     private modalService: NgbModal,
     private issueService: IssueService,
@@ -29,15 +30,21 @@ export class ListComponent  implements OnInit{
   ) {
 
   }
-  aplayFilter() {
-    const queryParams = toQueryParams(this.searchCriteria);
+
+  aplayFilter(filter) {
+    this.searchIssue(filter.issueSearchCriteria);
+  }
+  searchIssue(searchCriteria:IssueSearchCriteriaInput){
+    const queryParams = toQueryParams(searchCriteria);
     this.router.navigate(['search-issue'], {
       queryParams ,
       relativeTo: this.route
     });
   }
-
-  editFilter() {
+  editFilter(filter) {
+    this.essueService.editFilter(filter.issueSearchCriteria).subscribe(filter => {
+      this.searchIssue(filter);
+    })
   }
   loadMySubtask() {
     this.searchCriteria.assigneUsernames = [];
@@ -56,6 +63,12 @@ export class ListComponent  implements OnInit{
   }
   ngOnInit(): void {
     this.issueService.project$.subscribe(project => {this.project = project});
+    this.fileters.push({
+      name:'Premier filtre',
+      description:'Description',
+      user:undefined,
+      issueSearchCriteria:{}
+    });
   }
 
 

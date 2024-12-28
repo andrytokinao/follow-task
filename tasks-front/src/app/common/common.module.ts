@@ -30,6 +30,8 @@ import {RouterLink} from "@angular/router";
 import {StatusFieldComponent} from "./status-field/status-field.component";
 import {EditEventComponent} from "./edit-event/edit-event.component";
 import {NewEventComponent} from "./new-event/new-event.component";
+import {IssueFilterFieldComponent} from "./issue-filter-field/issue-filter-field.component";
+import {MatCheckbox} from "@angular/material/checkbox";
 
 @NgModule({
   declarations: [
@@ -49,7 +51,8 @@ import {NewEventComponent} from "./new-event/new-event.component";
     BreadcrumbComponent,
     StatusFieldComponent,
     EditEventComponent,
-    NewEventComponent
+    NewEventComponent,
+    IssueFilterFieldComponent
 
   ],
     imports: [
@@ -75,7 +78,8 @@ import {NewEventComponent} from "./new-event/new-event.component";
         ReactiveFormsModule,
         MatAutocompleteTrigger,
         MatAutocomplete,
-        RouterLink
+        RouterLink,
+        MatCheckbox
     ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA
