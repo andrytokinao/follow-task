@@ -40,6 +40,9 @@ import {environment} from "../../environments/environment";
 import {IssueSearchCriteriaInput} from "../type/issue-search-criteria.util";
 import {ActivatedRoute, Router} from "@angular/router";
 import {UserService} from "./user.service";
+import {NewIssueComponent} from "../pages/private/project/modal/new-issue/new-issue.component";
+import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import {IssueFilterFieldComponent} from "../common/issue-filter-field/issue-filter-field.component";
 
 @Injectable({
   providedIn: 'root',
@@ -71,7 +74,8 @@ export class IssueService {
   constructor(private http: HttpClient,
               private apollo: Apollo,
               private router: Router,
-              private userService:UserService
+              private userService:UserService,
+              private modalService:NgbModal
   ) {
     const initialProject: Project = null;
   }
@@ -123,9 +127,9 @@ export class IssueService {
   saveIssue(issue: any) {
     if (issue.issueType.project == null ) {
       issue.issueType.project = {
-        id:this.project.id,
-        prefix:this.project.prefix,
-        name:this.project.name
+        id:this.projectSubject.value.id,
+        prefix:this.projectSubject.value.prefix,
+        name:this.projectSubject.value.name
       }
     }
     delete issue.values;
@@ -296,8 +300,8 @@ export class IssueService {
       if (this.project) {
         console.debug(this.project);
         this.projectSubject.next(this.project);
-        this.loadIssueMasterByProject(this.project.id);
-        this.workFlowsByProject(this.project.id).subscribe();
+        this.loadIssueMasterByProject(this.projectSubject.value.id);
+        this.workFlowsByProject(this.projectSubject.value.id).subscribe();
         this.loadUsers();
         this.loadIssueType();
       }
@@ -776,7 +780,18 @@ export class IssueService {
       })
     })
   }
-
+  editFilter(issueCriteria:IssueSearchCriteriaInput) {
+    return new Observable<IssueSearchCriteriaInput>((observer) => {
+      const dialogRef = this.modalService.open(IssueFilterFieldComponent);
+      dialogRef.componentInstance.issueCriteria = issueCriteria;
+      dialogRef.result.then((result) => {
+        observer.next(result.criteria);
+        observer.complete();
+      }, err => {
+        observer.complete();
+      })
+    });
+  }
   loadSubtask(parentId: Number) {
       this.apollo.query({
         query:LOAD_SUBTASK,
@@ -818,7 +833,7 @@ export class IssueService {
   }
 
   browsIssueMaster(issue: Issue) {
-    this.router.navigate(["private/working/"+this.project.prefix+"/issue/"+issue.issueKey+"/details"])
+    this.router.navigate(["private/working/"+this.projectSubject.value.prefix+"/issue/"+issue.issueKey+"/details"])
 
   }
   allIssueType(projectId:Number) {
@@ -847,10 +862,10 @@ export class IssueService {
   }
 
   private loadUsers() {
-    this.userService.getUsers(this.project.prefix);
+    this.userService.getUsers(this.projectSubject.value.prefix);
   }
 
   private loadIssueType() {
-    this.allIssueType(this.project.id);
+    this.allIssueType(this.projectSubject.value.id);
   }
 }
