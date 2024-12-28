@@ -459,6 +459,7 @@ export class IssueService {
     const workflowMap = new Map<number, WorkFlow>();
     issues.forEach(issue => {
       const workflow = issue.issueType?.curentWorkFlow;
+      console.debug(workflow);
       if (workflow && workflow.id != null) {
         if (!workflowMap.has(workflow.id)) {
           workflowMap.set(workflow.id, workflow);

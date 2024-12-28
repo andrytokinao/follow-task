@@ -149,6 +149,7 @@ export class BoardListComponent implements OnInit{
 
   });
     this.issueService.project$.subscribe(project => {
+      this.project = project;
       if (this.project) {
         this.issueService.getIssues(this.project.prefix).subscribe((res: any) => {
         });

@@ -1,20 +1,31 @@
 .my-form {
-  min-width: 300px;
+  padding: 10px;
+  background-color: #eeeeee;
+  border-radius: 5px;
+  cursor: pointer;
+  min-width: 500px;
   max-width: 500px;
   width: 100%;
 }
 
 .my-full-width {
-  width: 100%;
-}
-.my-width{
   padding: 10px;
-  background-color: #eeeeee;
   border-radius: 5px;
   cursor: pointer;
-  min-width: 300px;
+  min-width: 500px;
+  max-width: 500px;
+  width: 100%;}
+.my-width{
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  min-width: 500px;
   max-width: 500px;
   width: 100%;
+
+}
+.my-width:hover{
+  background-color: #eeeeee;
 
 }
 .selected{
