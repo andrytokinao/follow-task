@@ -37,6 +37,7 @@ import {ShowMasterComponent} from "./show-master/show-master.component";
 import {IssueMasterListComponent} from "./list/issue-master-list/issue-master-list.component";
 import {DocumentComponent} from "./document/document.component";
 import {MarkdownComponent} from "ngx-markdown";
+import {ViewEventComponent} from "./modal/view-event/view-event.component";
 
 @NgModule({
   declarations: [
@@ -49,7 +50,8 @@ import {MarkdownComponent} from "ngx-markdown";
     RapportComponent,
     NewIssueComponent,
     ViewEditIssueComponent,
-    DocumentComponent
+    DocumentComponent,
+    ViewEventComponent
   ],
   exports: [
      StatusComponent, RepartitionComponent,ProjectComponent

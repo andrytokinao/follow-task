@@ -43,6 +43,7 @@ import {UserService} from "./user.service";
 import {NewIssueComponent} from "../pages/private/project/modal/new-issue/new-issue.component";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {IssueFilterFieldComponent} from "../common/issue-filter-field/issue-filter-field.component";
+import {ViewEditIssueComponent} from "../pages/private/project/modal/view-edit-issue/view-edit-issue.component";
 
 @Injectable({
   providedIn: 'root',
@@ -830,6 +831,12 @@ export class IssueService {
         observer.error(error);
         observer.complete();
       })
+    })
+  }
+  openEditIssue(issue:Issue){
+    const dialogRef = this.modalService.open(ViewEditIssueComponent, {windowClass: "xlModal"});
+    dialogRef.componentInstance.issue = issue;
+    dialogRef.result.then((result) => {
     })
   }
 

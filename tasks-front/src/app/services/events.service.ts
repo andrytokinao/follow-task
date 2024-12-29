@@ -17,6 +17,8 @@ import {NewEventComponent} from "../common/new-event/new-event.component";
 import {UserService} from "./user.service";
 import {query} from "@angular/animations";
 import {IssueService} from "./issue.service";
+import {ViewEventComponent} from "../pages/private/project/modal/view-event/view-event.component";
+import {error} from "@angular/compiler-cli/src/transformers/util";
 
 @Injectable({
   providedIn:"root"
@@ -278,7 +280,7 @@ export class EventsService {
       })
     }
 
-  getByEventId(id) {
+  getByEventById(id) {
     return new Observable<EventApp>(observer => {
       this.apollo.query({
         query:operation.EVENT_BY_ID,
@@ -289,6 +291,26 @@ export class EventsService {
         observer.complete();
       })
     })
+  }
+  viewEvent(eventId:number){
+    return new Observable<String>(observer=> {
+      const modalRef = this.modalService.open(ViewEventComponent, {
+        size: 'lg',
+        keyboard: true,
+        centered:true,
+      });
+      modalRef.componentInstance.loadEvent(eventId);
+      modalRef.result.then((result:any) => {
+        observer.next(result.next);
+        observer.complete();
+      }, close => {
+          observer.next("close");
+          observer.complete();
+        }
+        )
+    });
+
+
   }
 }
 

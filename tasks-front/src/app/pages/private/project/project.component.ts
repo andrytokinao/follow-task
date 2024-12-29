@@ -47,12 +47,6 @@ export class ProjectComponent implements OnInit{
       this.project = project;
     })
   }
-  editIssue(issue:Issue){
-    const dialogRef = this.modalService.open(ViewEditIssueComponent, {windowClass: "xlModal"});
-    dialogRef.componentInstance.issue = issue;
-    dialogRef.result.then((result) => {
-    })
-  }
   createMaster() {
     const dialogRef = this.modalService.open(NewIssueComponent);
     dialogRef.componentInstance.listIssueTypeMaster(this.project.id);
@@ -73,5 +67,9 @@ export class ProjectComponent implements OnInit{
        }
      })
     })
+  }
+
+  private editIssue(issue) {
+    this.issueService.openEditIssue(issue);
   }
 }

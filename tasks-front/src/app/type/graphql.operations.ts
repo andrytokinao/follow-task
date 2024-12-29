@@ -1645,6 +1645,21 @@ const EVENT_BY_ID=gql`
           id
           summary
           issueKey
+          description
+          issueType {
+            id
+            name
+          }
+          parent {
+            id
+            issueKey
+            summary
+            description
+            issueType {
+              id
+              name
+            }
+          }
         }
         user {
           id

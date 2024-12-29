@@ -51,7 +51,7 @@ export class EditEventComponent {
     });
   }
   loadEvent(id){
-    this.eventService.getByEventId(id).subscribe( event => {
+    this.eventService.getByEventById(id).subscribe(event => {
       this.event = event;
       if (this.event) {
         this.editEventForm.patchValue({

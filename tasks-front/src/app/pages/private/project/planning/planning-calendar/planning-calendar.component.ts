@@ -252,7 +252,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
     onBeforeEventRender: function (args) {
       args.data.html = args.data.html || args.data.text;
     },
-    onEventClick:(args)=> this.eventService.onEventClick(args),
+    onEventClick:(args)=> this.viewEvent(args),
     onEventResize: (args) => this.resizeEvent(args),
     onEventMove: (args) => this.moveEvent(args),
   };
@@ -266,7 +266,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
     contextMenu: this.contextMenu,
     onTimeRangeSelected: this.onTimeRangeSelected.bind(this),
     onBeforeEventRender: this.onBeforeEventRender.bind(this),
-    onEventClick:(args) =>this.eventService.editDialog(args.e.data,this.eventCriteria),
+    onEventClick:(args) =>this.viewEvent(args),
     onEventResize: (args) => this.resizeEvent(args),
     onEventMove: (args) => this.moveEvent(args),
 
@@ -276,7 +276,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
     contextMenu: this.contextMenu,
     eventBarVisible: false,
     onTimeRangeSelected: this.onTimeRangeSelected.bind(this),
-    onEventClick: this.eventService.onEventClick.bind(this),
+    onEventClick: (args)=>this.viewEvent(args),
     onEventMove: (args) => this.moveEvent(args),
 
   };
@@ -285,7 +285,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
     headerHeight: 100,
     onEventResize: (args) => this.resizeEvent(args),
     onEventMove: (args) => this.mouveEventAtResources(args),
-    onEventClick: (args) => this.eventService.editDialog(args.e.data, this.eventCriteria),
+    onEventClick:(args)=> this.viewEvent(args),
     onTimeRangeSelected: this.onTimeRangeSelected.bind(this),
     contextMenu: new DayPilot.Menu({
         items: [
@@ -543,6 +543,11 @@ export class PlanningCalendarComponent implements AfterViewInit {
     resourceSubject.next(this.resources);
     resourceSubject.complete();
     eventsSubject.complete();
+  }
+  viewEvent(args:any){
+    this.eventService.viewEvent(args.e.data.id).subscribe(result => {
+      console.debug(result);
+    })
   }
 }
 
