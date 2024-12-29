@@ -31,14 +31,14 @@
           class="form-control"
           typeField="text">
       </mat-form-field>
-      <mat-form-field class="textarea-mat-field">
+      <mat-form-field  style="width: 100%;min-height: 100px" >
         <mat-label>Text description</mat-label>
         <textarea
           matInput
           placeholder="Description .."
           [(ngModel)]="description"
           [ngModelOptions]="{standalone: true}"
-          style="height: 50px;width: 1001px"></textarea>
+         ></textarea>
       </mat-form-field>
 
 

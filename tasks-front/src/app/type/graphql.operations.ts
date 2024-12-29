@@ -1650,6 +1650,14 @@ const EVENT_BY_ID=gql`
             id
             name
           }
+          status {
+            id
+            displayName
+            icone {
+              id
+              value
+            }
+          }
           parent {
             id
             issueKey
