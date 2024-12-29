@@ -19,8 +19,8 @@ import {IssueSearchCriteriaInput} from "../../../../../type/issue-search-criteri
 export class BoardListComponent implements OnInit{
   public issuesBoard: [any, Issue[]][] = [];
   @Input()
-  public searchCriteria:IssueSearchCriteriaInput | undefined = undefined;
-  public issues: Issue[] = [];
+  searchCriteria: IssueSearchCriteriaInput | any = {
+  };  public issues: Issue[] = [];
   public users: User[] = [];
   public currentIssue: Issue | null = null;
   workflow: Status[] = [];
@@ -145,31 +145,20 @@ export class BoardListComponent implements OnInit{
   }
 
   ngOnInit(): void {
-    this.route.data.subscribe(data => {
-
-  });
+    this.issueService.issues$.subscribe(issues => {
+      this.currentWorkflows = this.issueService.getDistinctWorkflows(issues);
+      if (this.currentWorkflows != null && this.currentWorkflows.length != 0) {
+        this.currentWorkflow = this.currentWorkflows[0];
+      }
+      this.issues = issues;
+    });
     this.issueService.project$.subscribe(project => {
       this.project = project;
-      if (this.project) {
-        this.issueService.getIssues(this.project.prefix).subscribe((res: any) => {
-        });
-        this.issueService.issues$.subscribe(issues => {
-          this.currentWorkflows = this.issueService.getDistinctWorkflows(issues);
-          if (this.currentWorkflows != null && this.currentWorkflows.length != 0) {
-            this.currentWorkflow = this.currentWorkflows[0];
-          }
-          this.issues = issues;
-
-        });
-        this.userService.users$.subscribe(users => {
-          this;
-          this.users = users;
-        });
-      }
-      this.issueService.project$.subscribe(project => {
-
-      })
-    })
+    });
+    this.userService.users$.subscribe(users => {
+      this;
+      this.users = users;
+    });
 
   }
   loadByWorkFlow(currentWorkflow:WorkFlow) {
@@ -180,9 +169,7 @@ export class BoardListComponent implements OnInit{
       criteria.value = type.id;
       criteria.operator ="eq";
     }
-    this.issueService.issueByCriteria(criterias).subscribe(issues => {
-      this.issues = issues;
-    });
+
   }
   getUrlPhoto(user:User){
     return this.userService.getUrlPhoto(user);

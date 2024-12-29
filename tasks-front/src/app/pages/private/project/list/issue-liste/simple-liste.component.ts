@@ -68,13 +68,10 @@ export class SimpleListeComponent implements OnInit{
     }
   }
   ngOnInit(): void {
-    this.issueService.searchIssues(this.searchCriteria);
-
     this.issueService.issues$.subscribe(data => {
         this.issues = data;
         this.dataSource =  new MatTableDataSource<Issue>(this.issues);
         this.dataSource.paginator = this.paginator;
-
       });
   }
   openDialogIssue(issue:Issue){

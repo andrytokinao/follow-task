@@ -146,6 +146,10 @@ const ALL_ISSUE = gql`
       description
       issueKey
       creationDate
+      parent {
+        id
+        summary
+      }
       values {
         id
         values
@@ -1479,12 +1483,25 @@ const SEARCH_ISSUES = gql`
       issueType {
         id
         name
-        prefix
         icone {
           id
-          value
           typeIcone
+          value
         }
+        curentWorkFlow {
+          id
+          name
+          statuses {
+            id
+            displayName
+            icone {
+              id
+              typeIcone
+              value
+            }
+          }
+        }
+        level
       }
       reporter {
         id
