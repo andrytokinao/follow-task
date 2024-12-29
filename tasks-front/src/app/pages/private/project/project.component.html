@@ -5,13 +5,18 @@
     </div>
 
     <ul>
-      <li class="menu-item controle" routerLinkActive="active" routerLink="list">
-        <i class="fas fa-tasks"></i> Liste des tâches
+      <li class="menu-item  controle">
+         <span class=" menu-item menu-item-hover" (click)="toggleList()"  routerLinkActive="active"> <i class="fas fa-tasks"></i> Liste des tâches</span>
+        <ul [ngClass]="{'open-child': openList, 'close-child': !openList}" >
+          <li class="menu-item menu-item-hover" routerLinkActive="active" routerLink="list/master"> Liste des projets </li>
+          <li class="menu-item menu-item-hover" routerLinkActive="active" routerLink="list/issue"> Sous taches  </li>
+
+        </ul>
       </li>
       <!--<li class="menu-item controle" routerLinkActive="active" routerLink="board">
         <i class="fas fa-chart-bar"></i> Tableau de bord
       </li>-->
-      <li class="menu-item controle " routerLinkActive="active" routerLink="planning">
+      <li class="menu-item controle " routerLinkActive="active" routerLink="planning" >
         <i class="fas fa-calendar-alt"></i> Calendrier et planning
       </li>
       <li class="menu-item controle" routerLinkActive="active" routerLink="gantt-chart">
@@ -24,8 +29,15 @@
 <!--      <li class="menu-item controle" *ngIf="authGuard.hasAutority(['CAN_CONFIGURE_SYSTEM']) | async" routerLinkActive="active" routerLink="calendar">
         <i class="fas fa-calendar-alt"></i> Calendrier des ressources
       </li>-->
-      <li class="menu-item controle" *ngIf="authGuard.hasAutority(['CAN_CONFIGURE_SYSTEM']) | async" routerLinkActive="active" routerLink="config">
-        <i class="fas fa-cog"></i> Config
+      <li class="menu-item controle" *ngIf="authGuard.hasAutority(['CAN_CONFIGURE_SYSTEM']) | async"  >
+        <span class="menu-item menu-item-hover" (click)="toggleConfig()"> <i class="fas fa-cog"></i>  Config </span>
+        <ul  [ngClass]="{'open-child': openConfig, 'close-child': !openConfig}">
+          <li class="menu-item menu-item-hover" routerLinkActive="active" routerLink="config/issue-type"> Type des tache </li>
+          <li class="menu-item menu-item-hover" routerLinkActive="active" routerLink="config/work-flow"> Flux de traveaux </li>
+          <li class="menu-item menu-item-hover" routerLinkActive="active" routerLink="config/custom-field">  Champ personnalisé </li>
+          <li class="menu-item menu-item-hover" routerLinkActive="active" routerLink="config/storage"> Stockage </li>
+          <li class="menu-item menu-item-hover" routerLinkActive="active" routerLink="config/accessibility"> Equipes </li>
+        </ul>
       </li>
       <li class="menu-item controle" *ngIf="authGuard.hasAutority(['CAN_CONFIGURE_SYSTEM']) | async" routerLinkActive="active" routerLink="document">
         <i class="fas fa-file-alt"></i> Guide de configuration

@@ -34,7 +34,6 @@ h1,h2,h3,h4 {
   font-weight: bolder;
 }
 .controle:hover{
-  background-color: #d4d4d4;
   cursor: pointer;
 }
 .faild{
@@ -244,7 +243,7 @@ h1,h2,h3,h4 {
   transition: background-color 0.3s ease;
 }
 
-.menu-item:hover {
+.menu-item-hover:hover {
   background-color: #e6e6e6;
 }
 

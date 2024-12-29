@@ -19,6 +19,9 @@ export class ProjectComponent implements OnInit{
   project:Project | undefined;
   private issues: Issue[]=[];
   breadcrumbs: Breadcrumb[] = [];
+  openConfig:boolean = false;
+  openList:boolean = false;
+
   constructor(
     private route:ActivatedRoute,
     private issueService:IssueService,
@@ -71,5 +74,12 @@ export class ProjectComponent implements OnInit{
 
   private editIssue(issue) {
     this.issueService.openEditIssue(issue);
+  }
+  toggleList() {
+    this.openList = !this.openList;
+  }
+
+  toggleConfig() {
+    this.openConfig = !this.openConfig;
   }
 }

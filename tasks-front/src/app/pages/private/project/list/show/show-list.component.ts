@@ -1,13 +1,18 @@
 import {AfterViewInit, Component, OnInit} from '@angular/core';
 import {stripTypename} from "@apollo/client/utilities";
 import {MatTableDataSource} from "@angular/material/table";
-import {Issue, Project} from "../../../../../type/issue";
+import {Issue, Project, User} from "../../../../../type/issue";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {IssueService} from "../../../../../services/issue.service";
 import {UserService} from "../../../../../services/user.service";
 import {AuthService} from "../../../../../services/auth.service";
 import {ActivatedRoute, ParamMap, Router} from "@angular/router";
-import {fromUrlParams, IssueSearchCriteriaInput} from "../../../../../type/issue-search-criteria.util";
+import {
+  Filter,
+  fromUrlParams,
+  IssueSearchCriteriaInput,
+  toQueryParams
+} from "../../../../../type/issue-search-criteria.util";
 
 @Component({
   selector: 'app-show',
@@ -21,11 +26,17 @@ export class ShowListComponent implements OnInit, AfterViewInit{
   views = [
     { id: 'list', icon: 'fas fa-list', title: 'Liste de tâches' },
     { id: 'board', icon: 'fas fa-columns', title: 'Kanban' },
+/*
     { id: 'calendar', icon: 'fas fa-calendar-alt', title: 'Calendrier' }
+*/
   ];
 
   searchCriteria: IssueSearchCriteriaInput | any = {
   };
+  fileters:Filter[]=[] ;
+  mesTache:Filter ;
+  private user: User;
+  private selectedFilter: Filter;
   constructor(
     private modalService: NgbModal,
     protected issueService: IssueService,
@@ -65,6 +76,24 @@ export class ShowListComponent implements OnInit, AfterViewInit{
       this.searchCriteria = fromUrlParams(params);
       this.search();
     });
+    this.authService.connectedUser$.subscribe(user => {
+      this.user = user;
+      this.mesTache ={
+        name:'Mes taches',
+        description:'Tache affecté a moi ',
+        user:undefined,
+        issueSearchCriteria:{assigneUsernames:[this.user.username]}
+      };
+      this.aplayFilter(this.mesTache);
+    })
+
+    this.fileters.push({
+      name:'Premier filtre',
+      description:'Description',
+      user:undefined,
+      issueSearchCriteria:{}
+    });
+
   }
 
   ngOnInit(): void {
@@ -72,5 +101,34 @@ export class ShowListComponent implements OnInit, AfterViewInit{
 
   changeView(view: string) {
     this.currentView = view;
+  }
+
+  loadMySubtask() {
+
+  }
+
+  aplayFilter(filter) {
+    this.selectedFilter = filter;
+    this.searchIssue(filter.issueSearchCriteria);
+  }
+
+  editFilter(filter) {
+    this.essueService.editFilter(filter.issueSearchCriteria).subscribe(filter => {
+      this.searchIssue(filter);
+    })
+  }
+
+  searchIssue(searchCriteria:IssueSearchCriteriaInput){
+    const queryParams = toQueryParams(searchCriteria);
+    this.router.navigate(['../issue'], {
+      queryParams ,
+      relativeTo: this.route
+    });
+  }
+
+  isActiveFilter(filter: Filter) {
+    if (this.selectedFilter == null)
+      return '';
+   return (filter.name == this.selectedFilter.name)? "active" : "";
   }
 }

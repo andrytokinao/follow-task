@@ -25,3 +25,17 @@
   color: #ffffff;
 
 }
+.card{
+  min-width: 250px;
+  height: 80px;
+  height: 55px;
+  cursor: pointer;
+}
+.card-list {
+  display: flex;
+  justify-content: left;
+  flex-wrap: wrap;
+}
+.edit:hover{
+  color: #333333;
+}
