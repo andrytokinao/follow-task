@@ -20,7 +20,7 @@ export class ProjectComponent implements OnInit{
   private issues: Issue[]=[];
   breadcrumbs: Breadcrumb[] = [];
   openConfig:boolean = false;
-  openList:boolean = false;
+  openList:boolean = true;
 
   constructor(
     private route:ActivatedRoute,

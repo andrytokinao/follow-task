@@ -33,7 +33,7 @@ export class HomeComponent implements OnInit{
   }
   selectProject(project: Project) {
     this.project = project;
-    this.router.navigate(["/private/working/"+project.prefix+"/list"])
+    this.router.navigate(["/private/working/"+project.prefix+"/list/master"])
   }
 
   createProject(){

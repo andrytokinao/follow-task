@@ -1,5 +1,24 @@
-<div class="container">
-  <h1>Bienvenue sur Votre Plateforme de Gestion de Tâches</h1>
-  <p>Organisez, attribuez et suivez les tâches de votre équipe de manière efficace et collaborative.</p>
-  <a  class="btn" (click)="start()">Commencer dès maintenant</a>
+<div class="hero">
+  <div class="hero-content">
+    <h1 class="hero-title">
+      Bienvenue sur <span class="highlight">Votre Plateforme</span>
+    </h1>
+    <p class="hero-subtitle">
+      Organisez, attribuez et suivez les tâches de votre équipe de manière efficace et collaborative.<span class="wave">👋</span>
+    </p>
+    <button mat-raised-button color="primary" (click)="start()">Commencez</button>
+  </div>
+  <canvas id="background-animation"></canvas>
 </div>
+
+<section id="features" class="features">
+  <h2 class="section-title">Avantage </h2>
+  <div class="features-grid">
+    <mat-card class="feature" *ngFor="let feature of features">
+      <mat-icon class="feature-icon">{{ feature.icon }}</mat-icon>
+      <h3>{{ feature.title }}</h3>
+      <p>{{ feature.description }}</p>
+    </mat-card>
+  </div>
+</section>
+
