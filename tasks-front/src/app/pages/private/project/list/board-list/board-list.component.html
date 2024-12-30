@@ -4,8 +4,9 @@
     <div class="entete"> <app-icone-view [icon]="status.icone"></app-icone-view>{{ status.displayName }} </div>
     <div class="issie-board" *ngFor="let issue of filterByStatus(status)" draggable="true" (dragstart)="onDragStart($event,issue)"  >
       <div class="myCard"  >
-        <div class="content details" (click)="viewIssue(issue)">
-          <app-icone-view [icon] = issue.issueType.icone></app-icone-view> <b>{{issue.issueKey+' '+issue.summary}}</b>
+        <div class="content details" >
+          <app-icone-view [icon] = issue.issueType.icone></app-icone-view>
+          <b><show-issue-option [issue] = "issue" [label]="issue.issueKey+' '+issue.summary" ></show-issue-option></b>
           <p>{{issue.description}}</p>
         </div>
         <img *ngIf="issue.assigne !== null" [src]="getUrlPhoto(issue.assigne)" class="image" alt="l'assigné a" mat-icon-button [matMenuTriggerFor]="menu2" (click)="assign(issue)" />

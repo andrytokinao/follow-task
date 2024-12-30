@@ -33,6 +33,7 @@ import {ShowListComponent} from "./show/show-list.component";
 import {BoardListComponent} from "./board-list/board-list.component";
 import {CalandarListComponent} from "./calendar-list/calandar-list.component";
 import {DayPilotModule} from "@daypilot/daypilot-lite-angular";
+import {ProjectModule} from "../project.module";
 
 @NgModule({
   declarations: [
@@ -47,35 +48,36 @@ import {DayPilotModule} from "@daypilot/daypilot-lite-angular";
     exports: [
         SimpleListeComponent
     ],
-  imports: [
-    ListRoutingModule,
-    MatTabsModule,
-    MatCardModule,
-    MatDialogModule,
-    MatToolbarModule,
-    MatFormFieldModule,
-    FormsModule,
-    MatMenuModule,
-    MatIconModule,
-    MatSelectModule,
-    CommonModule,
-    MyCommonModule,
-    CdkTextareaAutosize,
-    MatInputModule,
-    MatTable,
-    MatHeaderRowDef,
-    MatRowDef,
-    MatCellDef,
-    MatHeaderCellDef,
-    MatColumnDef,
-    MatPaginatorModule,
-    MatCell,
-    MatHeaderCell,
-    MatHeaderRow,
-    MatRow,
-    CustomFieldComponent,
-    DataRowOutlet,
-    DayPilotModule
-  ]
+    imports: [
+        ListRoutingModule,
+        MatTabsModule,
+        MatCardModule,
+        MatDialogModule,
+        MatToolbarModule,
+        MatFormFieldModule,
+        FormsModule,
+        MatMenuModule,
+        MatIconModule,
+        MatSelectModule,
+        CommonModule,
+        MyCommonModule,
+        CdkTextareaAutosize,
+        MatInputModule,
+        MatTable,
+        MatHeaderRowDef,
+        MatRowDef,
+        MatCellDef,
+        MatHeaderCellDef,
+        MatColumnDef,
+        MatPaginatorModule,
+        MatCell,
+        MatHeaderCell,
+        MatHeaderRow,
+        MatRow,
+        CustomFieldComponent,
+        DataRowOutlet,
+        DayPilotModule,
+        ProjectModule
+    ]
 })
 export class ListModule { }

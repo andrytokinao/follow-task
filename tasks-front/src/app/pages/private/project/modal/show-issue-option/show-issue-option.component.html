@@ -1,0 +1,11 @@
+<span class="controle" style="width: 100%;height: 100%"  [matMenuTriggerFor]="showIssue">
+  {{label }}
+</span>
+
+  <mat-menu #showIssue="matMenu">
+    <div >
+      <button mat-menu-item  (click)="showPlanning()" > <span>Planning </span> </button>
+      <button mat-menu-item  (click)="showDetails()" ><span>Details </span> </button>
+    </div>
+  </mat-menu>
+

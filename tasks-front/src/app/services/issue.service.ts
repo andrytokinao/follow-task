@@ -44,6 +44,7 @@ import {NewIssueComponent} from "../pages/private/project/modal/new-issue/new-is
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {IssueFilterFieldComponent} from "../common/issue-filter-field/issue-filter-field.component";
 import {ViewEditIssueComponent} from "../pages/private/project/modal/view-edit-issue/view-edit-issue.component";
+import {PlanningIssueComponent} from "../pages/private/project/modal/planning-issue/planning-issue.component";
 
 @Injectable({
   providedIn: 'root',
@@ -69,7 +70,9 @@ export class IssueService {
   setIssues(issues: Issue[]) {
     this.issuesSubject.next(issues);
   }
-
+  setSubtask(issues:Issue[]){
+    this.subtaskSubject.next(issues);
+  }
   // Exposed as an observable for components to subscribe
 
   constructor(private http: HttpClient,
@@ -833,12 +836,7 @@ export class IssueService {
       })
     })
   }
-  openEditIssue(issue:Issue){
-    const dialogRef = this.modalService.open(ViewEditIssueComponent, {windowClass: "xlModal"});
-    dialogRef.componentInstance.issue = issue;
-    dialogRef.result.then((result) => {
-    })
-  }
+
 
   browsIssueMaster(issue: Issue) {
     this.router.navigate(["private/working/"+this.projectSubject.value.prefix+"/issue/"+issue.issueKey+"/details"])
@@ -890,6 +888,18 @@ export class IssueService {
         observer.complete();
       }
       )
+    })
+  }
+  openEditIssue(issue:Issue){
+    const dialogRef = this.modalService.open(ViewEditIssueComponent, {windowClass: "xlModal"});
+    dialogRef.componentInstance.issue = issue;
+    dialogRef.result.then((result) => {
+    })
+  }
+  showPlanning(issue: Issue) {
+    const dialogRef = this.modalService.open(PlanningIssueComponent, {windowClass: "xlModal"});
+    dialogRef.componentInstance.issue = issue;
+    dialogRef.result.then((result) => {
     })
   }
 }

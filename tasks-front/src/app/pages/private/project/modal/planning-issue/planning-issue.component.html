@@ -1,0 +1,9 @@
+<div class="contenue">
+  <div class="navigator">
+    <button (click)="selectLastWeek()"> Precedent</button>
+    <button (click)="selectNextWeek()"> Suivant</button>
+    <daypilot-navigator [config]="configNavigator" [events]="events" [(date)]="date" (dateChange)="changeDate($event)" #navigator></daypilot-navigator>
+
+  </div>
+  <daypilot-calendar [config]="configWeek" [events]="events"></daypilot-calendar>
+</div>

@@ -154,24 +154,34 @@ export class EventsService {
 
     dp.events.update(modal.result);
   }
-  editDialog(data:any, criteria:EventSearchCriteria){
-    const modalRef = this.modalService.open(EditEventComponent, {
-      size: 'lg',
-      backdrop: 'static',
-      keyboard: false,
-      centered:true,
-    });
-    modalRef.componentInstance.loadEvent(data.id);
-    modalRef.result.then(
-      (result) => {
-        if (result) {
-          this.searchEvents(criteria);
+  editDialogAndSet(data:any, criteria:EventSearchCriteria){
+    this.editDialog(data).subscribe(res => {
+      this.searchEventsAndSet(criteria);
+    })
+  }
+  editDialog(data:any){
+    return new Observable<any>(observer => {
+      const modalRef = this.modalService.open(EditEventComponent, {
+        size: 'lg',
+        backdrop: 'static',
+        keyboard: false,
+        centered:true,
+      });
+      modalRef.componentInstance.loadEvent(data.id);
+      modalRef.result.then(
+        (result) => {
+          if (result) {
+            observer.next(result);
+            observer.complete();
+          }
+        },
+        (reason) => {
+          console.log('Modal fermé :', reason);
+          observer.closed
         }
-      },
-      (reason) => {
-        console.log('Modal fermé :', reason);
-      }
-    );
+      );
+    })
+
   }
   newEvent(newEvent: EventApp){
     if (this.selectedMaster) {
@@ -180,7 +190,6 @@ export class EventsService {
     return new Observable<EventApp>(observer=>{
       const modalRef = this.modalService.open(NewEventComponent, {
         size: 'lg',
-        backdrop: 'static',
         keyboard: false
       });
       modalRef.componentInstance.event = newEvent;
@@ -204,35 +213,64 @@ export class EventsService {
       })
     })
   }
-  searchEvents(criteria: EventSearchCriteria) {
-    if (criteria.userIds != null && criteria.userIds.length == 0) {
-      criteria.userIds = undefined;
-    }
-    if (criteria.issueIds != null && criteria.issueIds.length == 0) {
-      criteria.issueIds = undefined;
-    }
-    if (criteria.parrentIds != null && criteria.parrentIds.length ==0 ) {
-      criteria.parrentIds = undefined;
-    }
-    this.apollo.query({
-      query: SEARCH_EVENTS,
-      variables:{criteria},
-      fetchPolicy: "network-only"
-    }).subscribe((res: any) => {
-        let eventApp: EventApp[] = supprimerTypename(res.data.searchEvents);
-        this.setEvents(eventApp);
-      }
-    );
-  }
-
-  resizeEvent(args: any,criteria:EventSearchCriteria){
-    let ev =  this.eventApps.find((event) => event.id == args.e.cache.id);
-    ev.start = args.newStart.toString();
-    ev.end = args.newEnd.toString();
-    this.saveEvent(ev).subscribe(res => {
-      this.searchEvents(criteria);
+  searchEventsAndSet(criteria: EventSearchCriteria) {
+    this.searchEvents(criteria).subscribe(events => {
+      this.setEvents(events);
     })
   }
+  searchEvents(criteria: EventSearchCriteria) {
+    return new Observable<EventApp[]>(observer => {
+      if (criteria.userIds != null && criteria.userIds.length == 0) {
+        criteria.userIds = undefined;
+      }
+      if (criteria.issueIds != null && criteria.issueIds.length == 0) {
+        criteria.issueIds = undefined;
+      }
+      if (criteria.parrentIds != null && criteria.parrentIds.length ==0 ) {
+        criteria.parrentIds = undefined;
+      }
+      this.apollo.query({
+        query: SEARCH_EVENTS,
+        variables:{criteria},
+        fetchPolicy: "network-only"
+      }).subscribe((res: any) => {
+        let eventApp: EventApp[] = supprimerTypename(res.data.searchEvents);
+        observer.next(eventApp);
+        observer.complete();
+        },error => {
+         console.error(error);
+         observer.error(error);
+         observer.complete();
+        }
+      );
+    })
+
+  }
+  resizeEventAndLoad(args: any, criteria:EventSearchCriteria){
+    this.resizeEvent(args).subscribe(res => {
+      this.searchEventsAndSet(criteria);
+    })
+  }
+
+  resizeEvent(args: any){
+    return new Observable<EventApp>(observer => {
+      this.getByEventById(args.e.cache.id).subscribe(ev=>{
+        ev.start = args.newStart.toString();
+        ev.end = args.newEnd.toString();
+        this.saveEvent(ev).subscribe(res => {
+          observer.next(res);
+          observer.complete();
+        } , error =>{
+          observer.error(error);
+          observer.complete();
+        })
+      })
+
+    })
+    let ev =  this.eventApps.find((event) => event.id == args.e.cache.id);
+
+  }
+
   loadUserResource(){
     this.userService.users$.subscribe(users =>{
       let resources = users.map(user => this.userToResource(user));
@@ -259,7 +297,7 @@ export class EventsService {
      ev.user = this.getUserByResource(args.newResource)
    }
     this.saveEvent(ev).subscribe(res => {
-      this.searchEvents(eventCriteria);
+      this.searchEventsAndSet(eventCriteria);
     })
   }
   updateBackColor(eventData,colors,criteria:EventSearchCriteria){
@@ -267,7 +305,7 @@ export class EventsService {
     let ev =  this.eventApps.find((event) => event.id == eventData.cache.id);
     ev.customColor = colors;
     this.saveEvent(ev).subscribe(rap => {
-      this.searchEvents(criteria);
+      this.searchEventsAndSet(criteria);
     })
   }
 
@@ -276,7 +314,7 @@ export class EventsService {
         mutation:operation.DELETE_EVENT_TYPE,
         variables:{eventId:data.id}
       }).subscribe((res:any)=>{
-        this.searchEvents(eventCriteria);
+        this.searchEventsAndSet(eventCriteria);
       })
     }
 
@@ -309,8 +347,6 @@ export class EventsService {
         }
         )
     });
-
-
   }
 }
 

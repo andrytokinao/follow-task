@@ -1,0 +1,17 @@
+.contenue {
+  display: flex;
+  flex-direction: row;
+}
+
+.navigator {
+  margin-right: 10px;
+}
+
+.content {
+  flex-grow: 1;
+}
+
+.buttons {
+  margin-bottom: 10px;
+  display: inline-flex;
+}

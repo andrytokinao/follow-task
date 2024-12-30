@@ -34,7 +34,7 @@ export class PlanningResourcesComponent implements AfterViewInit {
     onVisibleRangeChanged: args => {
       this.eventCriteria.start = args.start.toString();
       this.eventCriteria.end = args.end.toString();
-      this.eventService.searchEvents(this.eventCriteria);
+      this.eventService.searchEventsAndSet(this.eventCriteria);
     },
     onTimeRangeSelected: (args) => {
     },
@@ -51,14 +51,14 @@ export class PlanningResourcesComponent implements AfterViewInit {
     headerHeight: 100,
     onEventResize: (args) => this.resizeEvent(args),
     onEventMove:(args) => this.mouveEventAtResources(args),
-    onEventClick:(args)=> this.eventService.editDialog(args.e.data,this.eventCriteria),
+    onEventClick:(args)=> this.eventService.editDialogAndSet(args.e.data,this.eventCriteria),
     onTimeRangeSelected: this.onTimeRangeSelected.bind(this),
     contextMenu: new DayPilot.Menu({
       items: [
         {
           text: "Edit...",
           onClick: async args => {
-              this.eventService.editDialog(args.source.data,this.eventCriteria);
+              this.eventService.editDialogAndSet(args.source.data,this.eventCriteria);
             ;
           }
         },
@@ -148,7 +148,7 @@ export class PlanningResourcesComponent implements AfterViewInit {
 
     this.eventCriteria.start = this.nav.control.visibleStart().toString();
     this.eventCriteria.end = this.nav.control.visibleEnd().toString();;
-    this.eventService.searchEvents(this.eventCriteria);
+    this.eventService.searchEventsAndSet(this.eventCriteria);
     this.eventService.loadUserResource();
     this.eventService.events$.subscribe(events => {
       this.events = events;
@@ -205,7 +205,7 @@ export class PlanningResourcesComponent implements AfterViewInit {
     eventsSubject.complete();
   }
   private resizeEvent(args: any){
-    this.eventService.resizeEvent(args,this.eventCriteria);
+    this.eventService.resizeEventAndLoad(args,this.eventCriteria);
   }
   private mouveEventAtResources(args:any){
     this.eventService.mouveEventAtResources(args,this.eventCriteria);
@@ -213,7 +213,7 @@ export class PlanningResourcesComponent implements AfterViewInit {
   loadEvents(): void {
     this.eventCriteria.start = this.nav.control.visibleStart().toString();
     this.eventCriteria.end = this.nav.control.visibleEnd().toString();
-    this.eventService.searchEvents(this.eventCriteria);
+    this.eventService.searchEventsAndSet(this.eventCriteria);
   }
   changeDate(date: DayPilot.Date): void {
     this.config.startDate = date;

@@ -164,13 +164,12 @@ export class PlanningCalendarComponent implements AfterViewInit {
         text: "Delete",
         onClick: args => {
           this.eventService.deleteEvent(args.source.data,this.eventCriteria);
-
         }
       },
       {
         text: "Edit...",
         onClick: async args => {
-          this.eventService.editDialog(args.source.data,this.eventCriteria);
+          this.eventService.editDialogAndSet(args.source.data,this.eventCriteria);
         }
       },
       {
@@ -224,15 +223,15 @@ export class PlanningCalendarComponent implements AfterViewInit {
     onTimeRangeSelected: (args) => {
       this.eventCriteria.start = args.start.toString();
       this.eventCriteria.end = args.end.toString();
-      this.eventService.searchEvents(this.eventCriteria);
+      this.eventService.searchEventsAndSet(this.eventCriteria);
     },
   };
   private user: User;
   private resizeEvent(args: any){
-    this.eventService.resizeEvent(args,this.eventCriteria);
+    this.eventService.resizeEventAndLoad(args,this.eventCriteria);
   }
   private moveEvent(args:any){
-    this.eventService.resizeEvent(args,this.eventCriteria);
+    this.eventService.resizeEventAndLoad(args,this.eventCriteria);
   }
 
   selectTomorrow() {
@@ -292,7 +291,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
           {
             text: "Edit...",
             onClick: async args => {
-              this.eventService.editDialog(args.source.data, this.eventCriteria);
+              this.eventService.editDialogAndSet(args.source.data, this.eventCriteria);
               ;
             }
           },
@@ -381,7 +380,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
     loadEvents(): void {
     this.eventCriteria.start = this.nav.control.visibleStart().toString();
     this.eventCriteria.end = this.nav.control.visibleEnd().toString();
-    this.eventService.searchEvents(this.eventCriteria);
+    this.eventService.searchEventsAndSet(this.eventCriteria);
       this.eventService.loadUserResource();
 
     }
@@ -482,11 +481,11 @@ export class PlanningCalendarComponent implements AfterViewInit {
     }
     this.eventService.newEvent(newEvent).subscribe(res => {
       this.eventCriteria.userIds = [this.user.id];
-      this.eventService.searchEvents(this.eventCriteria);
+      this.eventService.searchEventsAndSet(this.eventCriteria);
     });
   }
   async onEventClick(args: any,criteria:EventSearchCriteria) {
-    this.eventService.editDialog(args,criteria);
+    this.eventService.editDialogAndSet(args,criteria);
   }
 
   isSelectedParent(id: number) {
@@ -503,7 +502,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
     } else {
       this.eventCriteria.parrentIds = undefined;
     }
-    this.eventService.searchEvents(this.eventCriteria);
+    this.eventService.searchEventsAndSet(this.eventCriteria);
   }
 
   isSelectedUser(id: String) {
@@ -518,7 +517,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
     }
     console.debug(this.usersSelected);
     this.eventCriteria.userIds = this.usersSelected;
-    this.eventService.searchEvents(this.eventCriteria);
+    this.eventService.searchEventsAndSet(this.eventCriteria);
   }
   private mouveEventAtResources(args:any){
     this.eventService.mouveEventAtResources(args,this.eventCriteria);
@@ -547,6 +546,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
   viewEvent(args:any){
     this.eventService.viewEvent(args.e.data.id).subscribe(result => {
       console.debug(result);
+      this.loadEvents();
     })
   }
 }

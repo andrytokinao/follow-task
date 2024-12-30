@@ -31,7 +31,7 @@ export class SubtaskComponent implements OnInit {
   constructor(private router: Router,
               private modalService: NgbModal,
               private configService: ConfigService,
-              private issueService: IssueService,
+              protected issueService: IssueService,
               private userService: UserService,
               private route: ActivatedRoute,
               private authService: AuthService

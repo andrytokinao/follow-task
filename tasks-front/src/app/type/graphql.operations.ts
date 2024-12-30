@@ -1336,6 +1336,7 @@ const LOAD_SUBTASK = gql`
         description
         status {
           id
+          displayName
           icone {
             id
             typeIcone
@@ -1390,6 +1391,10 @@ const LOAD_SUBTASK = gql`
           lastName
           firstName
           photo
+        }
+        parent {
+          id
+          summary
         }
       }
     }

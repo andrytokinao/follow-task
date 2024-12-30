@@ -54,7 +54,7 @@ export class SimpleListeComponent implements OnInit{
   email: any;
   project: Project | undefined;
   issueType: IssueType | any = {};
-  displayedColumns: string[] = ['parrent', 'summary', 'description', 'issueKey', 'issueType', 'status',"assigne"];
+  displayedColumns: string[] = ['parrent', 'Titre', 'description', 'issueKey', 'issueType', 'status',"assigne","action"];
   dataSource:MatTableDataSource<Issue> ;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;

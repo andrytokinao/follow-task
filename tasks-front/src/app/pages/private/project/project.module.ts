@@ -38,6 +38,9 @@ import {IssueMasterListComponent} from "./list/issue-master-list/issue-master-li
 import {DocumentComponent} from "./document/document.component";
 import {MarkdownComponent} from "ngx-markdown";
 import {ViewEventComponent} from "./modal/view-event/view-event.component";
+import {DayPilotModule} from "@daypilot/daypilot-lite-angular";
+import {PlanningIssueComponent} from "./modal/planning-issue/planning-issue.component";
+import {ShowIssueOptionComponent} from "./modal/show-issue-option/show-issue-option.component";
 
 @NgModule({
   declarations: [
@@ -51,40 +54,43 @@ import {ViewEventComponent} from "./modal/view-event/view-event.component";
     NewIssueComponent,
     ViewEditIssueComponent,
     DocumentComponent,
-    ViewEventComponent
+    ViewEventComponent,
+    PlanningIssueComponent,
+    ShowIssueOptionComponent
   ],
   exports: [
-     StatusComponent, RepartitionComponent,ProjectComponent
+    StatusComponent, RepartitionComponent, ProjectComponent, ShowIssueOptionComponent
   ],
-  imports: [
-    ProjectRoutingModule,
-    MatTabsModule,
-    MatCardModule,
-    MatDialogModule,
-    MatToolbarModule,
-    MatFormFieldModule,
-    FormsModule,
-    MatMenuModule,
-    MatMenuModule,
-    MatIconModule,
-    MatSelectModule,
-    CommonModule,
-    MyCommonModule,
-    CdkTextareaAutosize,
-    MatInputModule,
-    MatTable,
-    MatHeaderRowDef,
-    MatRowDef,
-    MatCellDef,
-    MatHeaderCellDef,
-    MatColumnDef,
-    MatPaginatorModule,
-    MatCell,
-    MatHeaderCell,
-    MatHeaderRow,
-    MatRow,
-    CustomFieldComponent,
-    MarkdownComponent
-  ]
+    imports: [
+        ProjectRoutingModule,
+        MatTabsModule,
+        MatCardModule,
+        MatDialogModule,
+        MatToolbarModule,
+        MatFormFieldModule,
+        FormsModule,
+        MatMenuModule,
+        MatMenuModule,
+        MatIconModule,
+        MatSelectModule,
+        CommonModule,
+        MyCommonModule,
+        CdkTextareaAutosize,
+        MatInputModule,
+        MatTable,
+        MatHeaderRowDef,
+        MatRowDef,
+        MatCellDef,
+        MatHeaderCellDef,
+        MatColumnDef,
+        MatPaginatorModule,
+        MatCell,
+        MatHeaderCell,
+        MatHeaderRow,
+        MatRow,
+        CustomFieldComponent,
+        MarkdownComponent,
+        DayPilotModule
+    ]
 })
 export class ProjectModule { }
