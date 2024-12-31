@@ -25,15 +25,15 @@ export class Issue {
 }
 export class User {
   id:string ="";
-  username:string="";
-  firstName:string="";
-  lastName:string="";
-  photo:string | "" ;
-  email:string ="/assets/user.png";
-  cin :string ="";
-  address :string ="";
-  contact:string='';
-  groupes:MemberGroupe[] =[];
+  username?:string="";
+  firstName?:string="";
+  lastName?:string="";
+  photo?:string | "" ;
+  email?:string ="/assets/user.png";
+  cin? :string ="";
+  address? :string ="";
+  contact?:string='';
+  groupes?:MemberGroupe[] =[];
 
 }
 export class GroupeUser {

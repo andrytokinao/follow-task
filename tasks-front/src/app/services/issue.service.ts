@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import {Injectable, OnInit} from '@angular/core';
 import {HttpClient, HttpEvent, HttpHeaders, HttpParams, HttpRequest} from '@angular/common/http';
 import {BehaviorSubject, observable, Observable, throwError} from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
@@ -45,15 +45,17 @@ import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {IssueFilterFieldComponent} from "../common/issue-filter-field/issue-filter-field.component";
 import {ViewEditIssueComponent} from "../pages/private/project/modal/view-edit-issue/view-edit-issue.component";
 import {PlanningIssueComponent} from "../pages/private/project/modal/planning-issue/planning-issue.component";
+import {AuthService} from "./auth.service";
+import {id} from "@swimlane/ngx-charts";
 
 @Injectable({
   providedIn: 'root',
 })
-export class IssueService {
+export class IssueService implements OnInit{
   projects: Project[] = [];
   project: Project | null = null;
   issueTypes:IssueType[]=[];
-
+  user:User | undefined;
   private groupeUsersSubject = new BehaviorSubject<GroupeUser[]>([]);
   private subtaskSubject= new BehaviorSubject<Issue[]>([]);
   private issueMastersSubject = new BehaviorSubject<Issue[]>([]);
@@ -79,9 +81,13 @@ export class IssueService {
               private apollo: Apollo,
               private router: Router,
               private userService:UserService,
-              private modalService:NgbModal
+              private modalService:NgbModal,
+              private authService:AuthService
   ) {
     const initialProject: Project = null;
+    this.authService.connectedUser$.subscribe(user => {
+      this.user = user;
+    })
   }
   updateProject(newProject: Project): void {
     this.projectSubject.next(newProject);
@@ -155,6 +161,8 @@ export class IssueService {
   }
 
   addComment(comment: Comment) {
+    comment.user = {id:this.user.id}// TODO: Change to user connected recuperer coté serveur
+
     return new Observable<Comment[]>(observer => {
       return this.apollo.mutate({
         mutation: operation.ADD_COMMENT,
@@ -901,5 +909,8 @@ export class IssueService {
     dialogRef.componentInstance.issue = issue;
     dialogRef.result.then((result) => {
     })
+  }
+  ngOnInit(): void {
+
   }
 }

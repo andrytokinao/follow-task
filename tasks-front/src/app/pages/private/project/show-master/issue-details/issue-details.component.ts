@@ -117,7 +117,6 @@ export class IssueDetailsComponent {
   comments :Comment[] = [];
 
   addComment() {
-    this.comment.user.id = this.profile.id;// TODO: Change to user connected recuperer coté serveur
     this.comment.issue.id = this.parentIssue.id;
 
     this.issueService.addComment(this.comment).subscribe(res=>{
