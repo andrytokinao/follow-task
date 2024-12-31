@@ -17,7 +17,7 @@ import {ViewEditIssueComponent} from "../../modal/view-edit-issue/view-edit-issu
 export class IssueMasterListComponent {
   constructor(
     private modalService: NgbModal,
-    private issueService: IssueService,
+    protected issueService: IssueService,
     private essueService: IssueService,
     public userService: UserService,
     private route: ActivatedRoute,

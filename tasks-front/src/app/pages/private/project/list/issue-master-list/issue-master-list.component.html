@@ -3,12 +3,21 @@
 </div>
 
 <div *ngIf="!isLoading" class="project-list list-group">
-  <div class="list-group"  *ngFor="let master of issues" class="project-card" (click)="editIssue(master)">
+  <div class="list-group"  *ngFor="let master of issues" class="project-card" >
     <a class="list-group-item list-group-item-action">
       <div class="d-flex w-100 justify-content-between">
         <h5 class="mb-1"> <app-icone-view [icon]="master.issueType.icone"></app-icone-view> {{master.issueKey}}  {{master.summary}}</h5>
-        <small class="text-body-secondary" *ngIf="master.creationDate">{{master.creationDate | date}}</small>
-      </div>
+        <small class="text-body-primary" >
+          <b >  <app-assign-field [issue]="master" ></app-assign-field> </b>
+          <span *ngIf="master.creationDate">{{master.creationDate | date}}</span>
+          <p style="text-align: right"> Etat:
+            <app-status-field  [issue]="master"></app-status-field>
+          </p>
+          <p  style="text-align:right">
+            <span (click)="issueService.showPlanning(master)" class="controle">  <i class="fas fa-calendar">  </i>  Planing </span>
+            <span (click)="editIssue(master)" class="controle" >  <i class="fas fa-calendar" > </i>  Details </span>
+          </p>
+        </small>      </div>
       <p class="mb-1">{{master.description}}.</p>
       <span  *ngFor="let value of master.values">
         <app-custom-field *ngIf="canShowInList(value)"
