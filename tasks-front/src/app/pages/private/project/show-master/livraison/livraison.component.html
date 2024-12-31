@@ -3,9 +3,12 @@
 
   <div class="files-list" *ngIf="repertoire.repertoires.length > 0">
     <h3>Fichiers téléchargés</h3>
+    <span class="float-end" >
+      <a [href]="downloadUrl()"    *ngIf ="selected> 0" class="btn btn-group download" style="float: right"> <i class="fa fa-download" aria-hidden="true"></i>- Download({{selected}}) </a>
+    </span>
     <div class="file-item"*ngFor="let l of livraisons"  (dragover)="onDragOver($event,l)" (drop)="onDrop($event,l)">
       <div>
-        <app-tree-node-item [repertoire]="l.repertoire" (fileSelected)="selectFile($event)"></app-tree-node-item>
+        <app-tree-node-item [repertoire]="l.repertoire" (fileSelected)="onFileSelectedToDownload($event)"></app-tree-node-item>
       </div>
       <div class="upload-area" (click)="selectFiles()">
         <div>

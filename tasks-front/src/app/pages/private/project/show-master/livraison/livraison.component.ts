@@ -19,6 +19,8 @@ interface Livraison {
 })
 export class LivraisonComponent implements OnInit{
   uploadedFiles: Array<{ name: string, userPhotoUrl: string, uploadDate: Date }> = [];
+  selectedFiles:Repertoire[] = [];
+
   private project: any;
   private issue: Issue;
   protected parentIssue: any;
@@ -41,6 +43,7 @@ export class LivraisonComponent implements OnInit{
     open : boolean = false;
     paths:string[] =[];
   };
+  selected: number = 0;
 
   selectFiles() {
     document.querySelector<HTMLInputElement>('#fileInput')?.click();
@@ -165,5 +168,22 @@ export class LivraisonComponent implements OnInit{
     if (index > -1) {
       array.splice(index, 1);
     }
+  }
+  downloadUrl() {
+    return this.issueService.generateDownloadUrl(this.selectedFiles, this.repertoire.fileName);
+
+  }
+  onFileSelectedToDownload(repertoire: any) {
+    if (repertoire.selected) {
+      this.selectedFiles.push(repertoire);
+    } else {
+      const index = this.selectedFiles.findIndex(file => file === repertoire);
+      if (index !== -1) {
+        this.selectedFiles.splice(index, 1);
+      }
+    }
+    this.selected = this.selectedFiles.length;
+
+    console.log('Fichiers sélectionnés :', this.selectedFiles);
   }
 }

@@ -265,7 +265,7 @@ export class IssueService {
       fileNames.push(fn.absolutePath);
     })
     const queryString = `?fileNames=${fileNames.join(',')}` + "&directory=" + directory;
-    return environment.apiURL + `/api/download${queryString}`;
+    return environment.apiURL + `api/download${queryString}`;
   }
 
   upload(file: File, dir: string): Observable<HttpEvent<any>> {
