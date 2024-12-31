@@ -19,8 +19,8 @@ import static com.kinga.followtask.entity.Project.BASE_DIRECTORY;
 public class KingaUtils {
     private static final String WORKWPACE = "WORK_SPACE";
     private static final String MEDIA_SPACE = "MEDIA_SPACE" ;
-    private static String SUFFLE_STRING ="tLR4hpeTaQjvGHC0S2zogWPkyq5d3cuMKXlm7FDfiI-BAEJ_Uns/6ZO9YVb1wxrN8";
-    private static String NORMAL_STRING = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/-_";
+    private static String SUFFLE_STRING ="tLR4hpeTaQjvGHC0S2zogWPkyq5d3cuMKXlm7FDfiI-BAEJ_Uns/6ZO9YVb1wxrN8@";
+    private static String NORMAL_STRING = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/-_\\";
     public static boolean isValidPhoneNumber(String phoneNumber) {
         if (StringUtils.isEmpty(phoneNumber))
             return true;
