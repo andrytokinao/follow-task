@@ -65,12 +65,10 @@ export class IssueFilterFieldComponent implements AfterViewInit{
   }
 
   save() {
-    if (this.statusIds && this.statusIds.length != 0) {
-      this.issueCriteria.statusIds = this.statusIds;
-    }
-    if (this.selectedAssign && this.selectedAssign.length !=0){
-      this.issueCriteria.assigneUsernames = this.selectedAssign;
-    }
+    this.issueCriteria.statusIds = this.statusIds;
+
+    this.issueCriteria.assigneUsernames = this.selectedAssign;
+
     if (this.creationFrom) {
       this.issueCriteria.dateFrom = this.creationFrom;
     }

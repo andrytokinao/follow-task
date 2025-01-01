@@ -312,6 +312,7 @@ export class IssueService implements OnInit{
     }).subscribe((res: any) => {
       this.project = stripTypename(res.data.getProject);
       if (this.project) {
+        alert("ici ")
         console.debug(this.project);
         this.projectSubject.next(this.project);
         this.loadIssueMasterByProject(this.projectSubject.value.id);
