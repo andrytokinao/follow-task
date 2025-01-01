@@ -9,6 +9,7 @@ import {NgbActiveModal, NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {MatDialog} from "@angular/material/dialog";
 import {AddMamberGroupeComponent} from "../../../admins/groups/add-mamber-groupe/add-mamber-groupe.component";
 import {FormControl} from "@angular/forms";
+import {UserService} from "../../../../../services/user.service";
 
 @Component({
   selector: 'app-accessibility',
@@ -24,6 +25,7 @@ export class AccessibilityComponent implements OnInit{
     private http:HttpClient,
     private configService:ConfigService,
     private issueService:IssueService,
+    private userService:UserService,
     private router: Router,
     private modalService: NgbModal,
     private route: ActivatedRoute,
@@ -47,7 +49,7 @@ export class AccessibilityComponent implements OnInit{
         this.configProjects = res;
         this.loadConfig();
       });
-      this.issueService.groupeUsers$.subscribe(groupeUsers => {
+      this.userService.groupeUsers$.subscribe(groupeUsers => {
         this.groupeUsers = groupeUsers;
       })
       this.getGroupeUserForProject();
@@ -55,7 +57,7 @@ export class AccessibilityComponent implements OnInit{
     });
   }
   getGroupeUserForProject(){
-    this.issueService.getGroupeUserForProject(this.project.id);
+    this.userService.loadGroupeUserForProject(this.project.id);
   }
 
   addMembrerForGroupe(groupe: GroupeUser) {
@@ -63,7 +65,6 @@ export class AccessibilityComponent implements OnInit{
     dialogRef.componentInstance.groupeUser = groupe;
     dialogRef.result.then((res) => {
       this.getGroupeUserForProject();
-
     })
   }
   editMamberForGroupe(member:MemberGroupe){

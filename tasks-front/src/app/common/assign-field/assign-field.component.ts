@@ -42,10 +42,9 @@ export class AssignFieldComponent implements OnInit{
   }
   ngOnInit() {
       // TODO : Configuration des utilisateurs peut etre entrer ici
-      this.userService.users$.subscribe((users: any) => {
+      this.userService.canAssignUsers$.subscribe((users: any) => {
         this.users = users;
       });
-
   }
 
   private _filterUsers(value: string): User[] {

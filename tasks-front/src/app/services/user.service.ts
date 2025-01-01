@@ -6,7 +6,7 @@ import {ConfigEntry, GroupeUser, Issue, MemberGroupe, Status, User} from "../typ
 import {
   ADD_USER_IN_GROUPE,
   ALL_ISSUE,
-  ALL_USERS, GET_USER,
+  ALL_USERS, GET_GROUPE_USER_FOR_PROJECT, GET_USER,
   INIT_USER,
   LOAD_GROUPE_MEMBER,
   SAVE_CONFIG,
@@ -21,7 +21,11 @@ import {stripTypename} from "@apollo/client/utilities";
 })
 export class UserService {
    private usersSubject = new BehaviorSubject<User[]>([]);
+   private canAssignUsersSubject = new BehaviorSubject<User[]>([]);
    users$ = this.usersSubject.asObservable();
+   canAssignUsers$ = this.canAssignUsersSubject.asObservable();
+  private groupeUsersSubject = new BehaviorSubject<GroupeUser[]>([]);
+  groupeUsers$=this.groupeUsersSubject.asObservable();
   constructor(private http: HttpClient, private apollo: Apollo) {
   }
   baseUrl:string = "http://localhost:8081";
@@ -136,5 +140,28 @@ export class UserService {
         observer.complete();
       })
   })
+  }
+  loadGroupeUserForProject(projectId: Number) {
+    this.apollo.query({
+      query: GET_GROUPE_USER_FOR_PROJECT,
+      variables: {projectId},
+      fetchPolicy: "network-only"
+    }).subscribe((res: any) => {
+        let groups:GroupeUser[] = supprimerTypename(res.data.getGroupeUserForProject);
+        this.groupeUsersSubject.next(groups);
+        this.extractUserRules(groups);
+      }, error => {
+        console.error(error);
+      }
+    )
+  }
+  private extractUserRules(groups: GroupeUser[]) {
+    let  allAccessible:User[]=[];
+    groups.forEach(groupe=> {
+      groupe.members.forEach(member => {
+        allAccessible.push(member.user);
+      })
+    });
+    this.canAssignUsersSubject.next(allAccessible);
   }
 }

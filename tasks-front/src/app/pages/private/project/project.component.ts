@@ -8,6 +8,7 @@ import {stripTypename} from "@apollo/client/utilities";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {ViewEditIssueComponent} from "./modal/view-edit-issue/view-edit-issue.component";
 import {BreadcrumbService} from "../../../services/breadcrumb.service";
+import {UserService} from "../../../services/user.service";
 
 @Component({
   selector: 'app-project',
@@ -28,6 +29,7 @@ export class ProjectComponent implements OnInit{
     protected authGuard:AuthGuard,
     private modalService: NgbModal,
     private router: Router,
+    private userService:UserService,
     private breadcrumbService: BreadcrumbService
 
   ) {
@@ -48,6 +50,9 @@ export class ProjectComponent implements OnInit{
     });
     this.issueService.project$.subscribe(project => {
       this.project = project;
+      if (this.project) {
+        this.userService.loadGroupeUserForProject(this.project.id);
+      }
     })
   }
   createMaster() {

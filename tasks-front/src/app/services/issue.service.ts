@@ -56,15 +56,14 @@ export class IssueService implements OnInit{
   project: Project | null = null;
   issueTypes:IssueType[]=[];
   user:User | undefined;
-  private groupeUsersSubject = new BehaviorSubject<GroupeUser[]>([]);
   private subtaskSubject= new BehaviorSubject<Issue[]>([]);
   private issueMastersSubject = new BehaviorSubject<Issue[]>([]);
   private projectSubject = new BehaviorSubject<Project>(undefined);
   private worksFlowsSubject = new BehaviorSubject<WorkFlow[]>([]);
   private masterCriteriaSubject = new BehaviorSubject<IssueSearchCriteriaInput>({});
   workFlows$ = this.worksFlowsSubject.asObservable();
-   subtask$ = this.subtaskSubject.asObservable();
-  groupeUsers$=this.groupeUsersSubject.asObservable();
+  subtask$ = this.subtaskSubject.asObservable();
+
   issueMasters$ = this.issueMastersSubject.asObservable();
   project$ = this.projectSubject.asObservable();
   masterCriteria$ = this.masterCriteriaSubject.asObservable();
@@ -312,7 +311,6 @@ export class IssueService implements OnInit{
     }).subscribe((res: any) => {
       this.project = stripTypename(res.data.getProject);
       if (this.project) {
-        alert("ici ")
         console.debug(this.project);
         this.projectSubject.next(this.project);
         this.loadIssueMasterByProject(this.projectSubject.value.id);
@@ -670,18 +668,6 @@ export class IssueService implements OnInit{
     })
   }
 
-  getGroupeUserForProject(projectId: Number) {
-      this.apollo.query({
-        query: GET_GROUPE_USER_FOR_PROJECT,
-        variables: {projectId},
-        fetchPolicy: "network-only"
-      }).subscribe((res: any) => {
-         this.groupeUsersSubject.next(supprimerTypename(res.data.getGroupeUserForProject));
-        }, error => {
-          console.error(error);
-        }
-      )
-  }
 
   getIssueTypeById(issueTypeId: Number) {
     return new Observable<IssueType>((observer) => {
