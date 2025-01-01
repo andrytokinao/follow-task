@@ -201,6 +201,22 @@ export class EventsService {
       })
     })
   }
+  newEventForResources(newEvent:EventApp, username:String) {
+    return new Observable<EventApp>(observer=>{
+      this.userService.getUser(username).subscribe(user => {
+          newEvent.user = user;
+          this.newEvent(newEvent).subscribe( eventApp => {
+            observer.next(eventApp);
+            observer.complete();
+            },
+            err => {
+               observer.error(err);
+               observer.complete();
+            }
+          )
+      });
+    });
+  }
 
   allEventType(){
     return new Observable<EventTypeApp[]>(observer=> {

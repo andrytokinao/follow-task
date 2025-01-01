@@ -60,8 +60,12 @@ export class NewEventComponent implements OnInit, AfterViewInit{
       this.eventTypes = res;
     });
     this.autService.connectedUser$.subscribe(user => {
-      this.user = user;
       this.mee = user;
+      if (this.event.user ){
+        this.user = this.event.user;
+      } else {
+        this.user = this.mee;
+      }
     });
     this.userService.users$.subscribe(users=> {
       this.users = users;

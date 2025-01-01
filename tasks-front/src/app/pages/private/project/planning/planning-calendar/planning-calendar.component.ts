@@ -30,7 +30,7 @@ import {BehaviorSubject, forkJoin} from "rxjs";
              <div *ngFor="let parent of issueMasters">
                <mat-checkbox
                  [checked]="isSelectedParent(parent.id)"
-                 (change)="changesParents($event,parent.id)"
+                 (change)="changesParents($event,parent)"
                >
                  {{ parent.issueKey +' '+parent.summary }}
                </mat-checkbox>
@@ -53,7 +53,7 @@ import {BehaviorSubject, forkJoin} from "rxjs";
         </form>
         </div>
 
-      <div class="content">
+      <div class="my-content">
         <span class="selected-date" > <b> {{this.navigator.date.toDate() | date}} </b></span>
 
         <div class="buttons">
@@ -73,15 +73,15 @@ import {BehaviorSubject, forkJoin} from "rxjs";
   `,
   styles: [`
     .contenue {
-      display: flex;
-      flex-direction: row;
+      display: grid;
+      grid-template-columns: 1fr 3fr;
     }
 
     .navigator {
       margin-right: 10px;
     }
 
-    .content {
+    .my-content {
       flex-grow: 1;
     }
 
@@ -153,6 +153,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
   @Input() eventCriteria:EventSearchCriteria={};
   events: DayPilot.EventData[] = [];
   parentSelectedId :number = undefined;
+  parentSelected:Issue | undefined;
   usersSelected:String[] = [];
   date = DayPilot.Date.today();
   users:User[] = [];
@@ -242,12 +243,13 @@ export class PlanningCalendarComponent implements AfterViewInit {
     this.configDay.startDate = date;
     this.configWeek.startDate = date;
     this.configMonth.startDate = date;
+    this.configResource.startDate = date;
   }
 
   configDay: DayPilot.CalendarConfig = {
     durationBarVisible: false,
     contextMenu: this.contextMenu,
-    onTimeRangeSelected: this.onTimeRangeSelected.bind(this),
+    onTimeRangeSelected: this.newEvent.bind(this),
     onBeforeEventRender: function (args) {
       args.data.html = args.data.html || args.data.text;
     },
@@ -263,7 +265,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
     businessBeginsHour:7,
     businessEndsHour: 17,
     contextMenu: this.contextMenu,
-    onTimeRangeSelected: this.onTimeRangeSelected.bind(this),
+    onTimeRangeSelected: this.newEvent.bind(this),
     onBeforeEventRender: this.onBeforeEventRender.bind(this),
     onEventClick:(args) =>this.viewEvent(args),
     onEventResize: (args) => this.resizeEvent(args),
@@ -274,7 +276,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
   configMonth: DayPilot.MonthConfig = {
     contextMenu: this.contextMenu,
     eventBarVisible: false,
-    onTimeRangeSelected: this.onTimeRangeSelected.bind(this),
+    onTimeRangeSelected: this.newEvent.bind(this),
     onEventClick: (args)=>this.viewEvent(args),
     onEventMove: (args) => this.moveEvent(args),
 
@@ -285,7 +287,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
     onEventResize: (args) => this.resizeEvent(args),
     onEventMove: (args) => this.mouveEventAtResources(args),
     onEventClick:(args)=> this.viewEvent(args),
-    onTimeRangeSelected: this.onTimeRangeSelected.bind(this),
+    onTimeRangeSelected: (args)=>this.newEventForResources(args),
     contextMenu: new DayPilot.Menu({
         items: [
           {
@@ -458,7 +460,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
     });
   }
 
-  async onTimeRangeSelected(args: any) {
+  newEvent(args: any) {
     const newEvent: any = {
       title: "",
       eventType: undefined,
@@ -475,11 +477,37 @@ export class PlanningCalendarComponent implements AfterViewInit {
       reminderTime: "",
       user: this.user
     };
-    if (this.parentSelectedId) {
-      newEvent.issue = {id:this.parentSelectedId};
+    if (this.parentSelected) {
+      newEvent.issue = this.parentSelected;
       this.issueService.loadSubtaskAndSet(this.parentSelectedId);
     }
     this.eventService.newEvent(newEvent).subscribe(res => {
+      this.eventCriteria.userIds = [this.user.id];
+      this.eventService.searchEventsAndSet(this.eventCriteria);
+    });
+  }
+  newEventForResources(args: any) {
+    console.debug(args);
+    const newEvent: any = {
+      title: "",
+      eventType: undefined,
+      start: args.start,
+      allDay: false,
+      customColor: "",
+      customStyle: "",
+      description: "",
+      end: args.end,
+      id: undefined,
+      issue: undefined,
+      location: "",
+      reminderOffset: 0,
+      reminderTime: "",
+      user: undefined
+    };
+    if (this.parentSelected) {
+      newEvent.issue = this.parentSelected;
+    }
+    this.eventService.newEventForResources(newEvent,args.resource).subscribe(res => {
       this.eventCriteria.userIds = [this.user.id];
       this.eventService.searchEventsAndSet(this.eventCriteria);
     });
@@ -491,11 +519,14 @@ export class PlanningCalendarComponent implements AfterViewInit {
   isSelectedParent(id: number) {
     return id == this.parentSelectedId;
   }
-  changesParents(event: any, id: number) {
+  changesParents(event: any, issue: Issue) {
     if (event.checked) {
-      this.parentSelectedId = id;
+      this.parentSelectedId = issue.id;
+      this.parentSelected = issue;
     } else {
       this.parentSelectedId = undefined;
+      this.parentSelected = undefined;
+
     }
     if (this.parentSelectedId != null){
       this.eventCriteria.parrentIds = [this.parentSelectedId];
