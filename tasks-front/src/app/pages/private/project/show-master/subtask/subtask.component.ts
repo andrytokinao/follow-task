@@ -62,14 +62,13 @@ export class SubtaskComponent implements OnInit {
       this.profile = res;
 
     });
-    this.issueService.subtask$.subscribe(res => {
-      this.subtasks = res;
-    })
     this.loadSubtask();
   }
 
   protected loadSubtask() {
-    this.issueService.loadSubtask(this.parentIssue.id);
+    this.issueService.loadSubtask(this.parentIssue.id).subscribe(issues => {
+      this.subtasks = issues;
+    });
   }
 
   toggleTaskStatus(task: Task) {

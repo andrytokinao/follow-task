@@ -35,6 +35,6 @@ export class PlanningComponent implements OnInit{
 
   }
   protected loadSubtask() {
-    this.issueService.loadSubtask(this.parentIssue.id);
+    this.issueService.loadSubtaskAndSet(this.parentIssue.id);
   }
 }

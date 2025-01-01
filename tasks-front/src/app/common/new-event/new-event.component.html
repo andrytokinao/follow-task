@@ -16,7 +16,6 @@
     <mat-form-field appearance="fill" class="form-field">
       <mat-label>Tache </mat-label>
       <mat-select [(ngModel)]="issue" name="issue" >
-        <mat-option [value]="undefined">Non lié</mat-option>
         <mat-option *ngFor="let issue of issues" [value]="issue">{{ issue.issueKey }} {{ issue.summary }}</mat-option>
       </mat-select>
     </mat-form-field>

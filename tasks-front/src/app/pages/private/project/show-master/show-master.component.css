@@ -1,5 +1,8 @@
 /* Container */
-.container {
+master-container{
+  border-radius: 1px;
+  box-shadow:#1a1d20 ;
+}.container {
   width: 100%;
   margin: 0 auto;
   padding: 0 20px;

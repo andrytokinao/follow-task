@@ -477,7 +477,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
     };
     if (this.parentSelectedId) {
       newEvent.issue = {id:this.parentSelectedId};
-      this.issueService.loadSubtask(this.parentSelectedId);
+      this.issueService.loadSubtaskAndSet(this.parentSelectedId);
     }
     this.eventService.newEvent(newEvent).subscribe(res => {
       this.eventCriteria.userIds = [this.user.id];

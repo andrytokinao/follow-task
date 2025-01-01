@@ -193,7 +193,6 @@ export class EventsService {
         keyboard: false
       });
       modalRef.componentInstance.event = newEvent;
-      modalRef.componentInstance.issues = this.issues;
       modalRef.result.then( (result:any) => {
         observer.next(result.event);
         observer.complete();

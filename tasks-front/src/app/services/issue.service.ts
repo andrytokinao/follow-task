@@ -805,18 +805,26 @@ export class IssueService implements OnInit{
       })
     });
   }
+  loadSubtaskAndSet(parentId: Number) {
+      this.loadSubtask(parentId).subscribe(
+       issues =>  this.subtaskSubject.next(issues)
+      )
+  }
   loadSubtask(parentId: Number) {
+    return new Observable<Issue[]>(observer => {
       this.apollo.query({
         query:LOAD_SUBTASK,
         variables:{parentId},
         fetchPolicy:"network-only"
       }).subscribe((res:any)=>{
-        this.subtaskSubject.next(supprimerTypename(res.data.loadSubtask));
+        observer.next(supprimerTypename(res.data.loadSubtask));
+        observer.complete();
       },error => {
         console.error(error);
+        observer.complete();
       })
+    });
   }
-
   loadIssueMasterByProject(projectId: Number) {
       this.apollo.query({
         query:LOAD_ISSUE_MASTER_BY_PROJECT,

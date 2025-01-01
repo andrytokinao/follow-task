@@ -22,6 +22,8 @@ export class NewEventComponent implements OnInit, AfterViewInit{
   event:EventApp | any ={};
   issue:Issue;
   users:User[] = [];
+  // Fonction pour gérer la soumission du formulaire
+  issues: Issue[]= [];
 
   constructor(private eventService: EventsService,
               private autService:AuthService,
@@ -30,8 +32,7 @@ export class NewEventComponent implements OnInit, AfterViewInit{
               public issueService:IssueService
   ) {}
 
-  // Fonction pour gérer la soumission du formulaire
-  issues: Issue[]= [];
+
   onSubmit(): void {
     if (this.event.title && this.event.eventType && this.user) {
       if (this.issue != null) {
@@ -65,11 +66,23 @@ export class NewEventComponent implements OnInit, AfterViewInit{
     this.userService.users$.subscribe(users=> {
       this.users = users;
     });
-    this.issueService.subtask$.subscribe(issues=> {
-      this.issues = issues;
-    })
+    this.loadSubtask();
+
   }
-  loadSubtask(parrentId:number){
-    this.issueService.loadSubtask(parrentId);
+  loadSubtask(){
+    if (this.event.issue) {
+      this.issue = this.event.issue;
+    }
+    if (this.issue && this.issue.id) {
+      this.issues = [this.issue];
+      this.issueService.loadSubtask(this.issue.id).subscribe(issues => {
+        if (issues.length != 0) {
+          this.issues.push(...issues);
+        }
+      })
+    } else {
+      console.debug("issue is null");
+    }
   }
 }
+

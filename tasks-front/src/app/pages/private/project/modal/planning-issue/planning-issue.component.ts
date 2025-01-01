@@ -175,7 +175,7 @@ export class PlanningIssueComponent implements OnInit{
       this.eventCriteria.start = this.nav.control.visibleStart().toString();
       this.eventCriteria.end = this.nav.control.visibleEnd().toString();
     }
-    this.eventCriteria.issueIds = [this.issue.id];
+    this.eventCriteria.parrentIds = [this.issue.id];
     this.eventService.searchEvents(this.eventCriteria).subscribe(events => {
       this.events = this.eventService.toEventDataList(events);
     });
@@ -200,5 +200,8 @@ export class PlanningIssueComponent implements OnInit{
     this.eventService.editDialog(data).subscribe(event => {
       this.loadEvents();
     })
+  };
+  private loadSubTask(){
+
   }
 }
