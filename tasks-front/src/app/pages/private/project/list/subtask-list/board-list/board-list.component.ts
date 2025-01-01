@@ -1,15 +1,15 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
-import {IssueService} from "../../../../../services/issue.service";
-import {UserService} from "../../../../../services/user.service";
+import {IssueService} from "../../../../../../services/issue.service";
+import {UserService} from "../../../../../../services/user.service";
 import {ActivatedRoute} from "@angular/router";
 import {ToastrService} from "ngx-toastr";
-import {AuthGuard} from "../../../../../services/authorization.service.ts";
-import {Criteria, Issue, IssueType, Project, Status, User, WorkFlow} from "../../../../../type/issue";
-import {NewIssueComponent} from "../../modal/new-issue/new-issue.component";
+import {Criteria, Issue, IssueType, Project, Status, User, WorkFlow} from "../../../../../../type/issue";
+import {NewIssueComponent} from "../../../modal/new-issue/new-issue.component";
 import {stripTypename} from "@apollo/client/utilities";
-import {ViewEditIssueComponent} from "../../modal/view-edit-issue/view-edit-issue.component";
-import {IssueSearchCriteriaInput} from "../../../../../type/issue-search-criteria.util";
+import {ViewEditIssueComponent} from "../../../modal/view-edit-issue/view-edit-issue.component";
+import {IssueSearchCriteriaInput} from "../../../../../../type/issue-search-criteria.util";
+import {AuthGuard} from "../../../../../../services/authorization.service.ts";
 
 @Component({
   selector: 'app-board-list',
@@ -89,7 +89,7 @@ export class BoardListComponent implements OnInit{
       this.issueService.saveIssue(this.currentIssue).subscribe({
           next: (result: any) => {
             this.currentIssue = (result.data.saveIssue);
-            this.issueService.searchIssues(this.searchCriteria);
+            this.issueService.searchIssuesAnSet(this.searchCriteria);
           },
           error: (err) => {
             console.error(err)

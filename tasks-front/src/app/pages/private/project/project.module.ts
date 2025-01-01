@@ -34,7 +34,7 @@ import {
 import {MatPaginatorModule} from "@angular/material/paginator";
 import {CustomFieldComponent} from "../../../common/custom-field/custom-field.component";
 import {ShowMasterComponent} from "./show-master/show-master.component";
-import {IssueMasterListComponent} from "./list/issue-master-list/issue-master-list.component";
+import {IssueMasterListComponent} from "./list/issue-master-list/simple-liste/issue-master-list.component";
 import {DocumentComponent} from "./document/document.component";
 import {MarkdownComponent} from "ngx-markdown";
 import {ViewEventComponent} from "./modal/view-event/view-event.component";

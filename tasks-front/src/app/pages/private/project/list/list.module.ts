@@ -26,14 +26,15 @@ import {MatSelectModule} from "@angular/material/select";
 import {MyCommonModule} from "../../../../common/common.module";
 import {CustomFieldComponent} from "../../../../common/custom-field/custom-field.component";
 import {ListComponent} from "./list.component";
-import {IssueMasterListComponent} from "./issue-master-list/issue-master-list.component";
-import {SimpleListeComponent} from "./issue-liste/simple-liste.component";
+import {IssueMasterListComponent} from "./issue-master-list/simple-liste/issue-master-list.component";
+import {SimpleListeComponent} from "./subtask-list/issue-liste/simple-liste.component";
 import {DataRowOutlet} from "@angular/cdk/table";
-import {ShowListComponent} from "./show/show-list.component";
-import {BoardListComponent} from "./board-list/board-list.component";
-import {CalandarListComponent} from "./calendar-list/calandar-list.component";
+import {ShowListComponent} from "./subtask-list/show-list.component";
+import {BoardListComponent} from "./subtask-list/board-list/board-list.component";
+import {CalandarListComponent} from "./subtask-list/calendar-list/calandar-list.component";
 import {DayPilotModule} from "@daypilot/daypilot-lite-angular";
 import {ProjectModule} from "../project.module";
+import {ShowMasterListComponent} from "./issue-master-list/show-master-list/show-master-list.component";
 
 @NgModule({
   declarations: [
@@ -43,6 +44,7 @@ import {ProjectModule} from "../project.module";
     ShowListComponent,
     BoardListComponent,
     CalandarListComponent,
+    ShowMasterListComponent
 
   ],
     exports: [

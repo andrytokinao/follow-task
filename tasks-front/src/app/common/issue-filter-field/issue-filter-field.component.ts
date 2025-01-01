@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {AfterViewInit, Component} from '@angular/core';
 import {FormArray, FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {stripTypename} from "@apollo/client/utilities";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
@@ -6,13 +6,14 @@ import {Status, User, WorkFlow} from "../../type/issue";
 import {IssueService} from "../../services/issue.service";
 import {IssueSearchCriteriaInput} from "../../type/issue-search-criteria.util";
 import {UserService} from "../../services/user.service";
+import {id} from "@swimlane/ngx-charts";
 
 @Component({
   selector: 'app-issue-filter-field',
   templateUrl: './issue-filter-field.component.html',
   styleUrl: './issue-filter-field.component.css'
 })
-export class IssueFilterFieldComponent {
+export class IssueFilterFieldComponent implements AfterViewInit{
   searchForm: FormGroup;
   issueCriteria:IssueSearchCriteriaInput = {} ;
   status:Status[] = [];
@@ -32,8 +33,7 @@ export class IssueFilterFieldComponent {
 
 
   ngOnInit(): void {
-    this.loadAllStatus();
-    this.userService.users$.subscribe((users: any) => {this.users = users});
+
   }
 
   private loadAllStatus() {
@@ -90,6 +90,17 @@ export class IssueFilterFieldComponent {
       this.selectedAssign.push(id);
     } else {
       this.selectedAssign = this.selectedAssign.filter(u => u != id);
+    }
+  }
+
+  ngAfterViewInit(): void {
+    this.loadAllStatus();
+    this.userService.users$.subscribe((users: any) => {this.users = users});
+    if (this.issueCriteria.statusIds){
+      this.statusIds = this.issueCriteria.statusIds;
+    }
+    if (this.issueCriteria.assigneUsernames) {
+      this.selectedAssign = this.issueCriteria.assigneUsernames;
     }
   }
 }

@@ -1,13 +1,13 @@
 import {Component, ViewChild} from '@angular/core';
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
-import {IssueService} from "../../../../../services/issue.service";
-import {UserService} from "../../../../../services/user.service";
+import {IssueService} from "../../../../../../services/issue.service";
+import {UserService} from "../../../../../../services/user.service";
 import {ActivatedRoute, Router} from "@angular/router";
-import {CustomFieldValue, Issue, IssueType, Project, Status, User, WorkFlow} from "../../../../../type/issue";
+import {CustomFieldValue, Issue, IssueType, Project, Status, User, WorkFlow} from "../../../../../../type/issue";
 import {MatTableDataSource} from "@angular/material/table";
 import {MatPaginator} from "@angular/material/paginator";
 import {stripTypename} from "@apollo/client/utilities";
-import {ViewEditIssueComponent} from "../../modal/view-edit-issue/view-edit-issue.component";
+import {ViewEditIssueComponent} from "../../../modal/view-edit-issue/view-edit-issue.component";
 
 @Component({
   selector: 'app-issue-master-list',
@@ -49,7 +49,6 @@ export class IssueMasterListComponent {
         this.userService.users$.subscribe((users ) => {
           this.users = stripTypename(users);
         });
-        this.essueService.loadIssueMasterByProject(this.project.id);
       }
     });
     this.issueService.project$.subscribe(project => {

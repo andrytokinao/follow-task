@@ -5,7 +5,7 @@ import {
   DayPilotMonthComponent,
   DayPilotNavigatorComponent
 } from "@daypilot/daypilot-lite-angular";
-import {EventsService} from "../../../../../services/events.service";
+import {EventsService} from "../../../../../../services/events.service";
 
 @Component({
   selector: 'app-calendar-list',

@@ -16,6 +16,7 @@ import {MatTableDataSource} from "@angular/material/table";
 import {IssueService} from "../../../../../services/issue.service";
 import {UserService} from "../../../../../services/user.service";
 import {BehaviorSubject, forkJoin} from "rxjs";
+import {IssueSearchCriteriaInput} from "../../../../../type/issue-search-criteria.util";
 
 @Component({
   selector: 'calendar-planning-component',
@@ -25,7 +26,7 @@ import {BehaviorSubject, forkJoin} from "rxjs";
         <daypilot-navigator [config]="configNavigator" [events]="events" [(date)]="date" (dateChange)="changeDate($event)" #navigator></daypilot-navigator>
        <div >
          <form class="card" style="margin-top: 15px;padding-top: 5px;padding-bottom: 5px" >
-           <h1> Projets </h1>
+           <h1> Projets <i class="fas fa-edit" (click)="editFilterMaster()"></i></h1>
            <div class="sidebar-heding ">
              <div *ngFor="let parent of issueMasters">
                <mat-checkbox
@@ -228,6 +229,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
     },
   };
   private user: User;
+  private masterCriteria: IssueSearchCriteriaInput = {};
   private resizeEvent(args: any){
     this.eventService.resizeEventAndLoad(args,this.eventCriteria);
   }
@@ -356,7 +358,6 @@ export class PlanningCalendarComponent implements AfterViewInit {
     this.eventService.events$.subscribe(events=>{
       this.events= events;
       this.refreshView();
-
     })
     this.authService.connectedUser$.subscribe(user=> {
       this.user = user;
@@ -375,6 +376,9 @@ export class PlanningCalendarComponent implements AfterViewInit {
     });
     this.userService.users$.subscribe(users => {
       this.users = users;
+    })
+    this.issueService.masterCriteria$.subscribe(criteria=> {
+      this.masterCriteria = criteria;
     })
 
   }
@@ -579,6 +583,17 @@ export class PlanningCalendarComponent implements AfterViewInit {
       console.debug(result);
       this.loadEvents();
     })
+  }
+
+  editFilterMaster() {
+    this.issueService.editFilter(this.masterCriteria).subscribe(
+      criteria => {
+        this.issueService.searchIssues(criteria).subscribe(issues=> {
+          this.issueService.setMasters(issues);
+          this.issueService.setIssueMasterCriteria(criteria);
+        })
+      }
+    )
   }
 }
 

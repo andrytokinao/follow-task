@@ -1,34 +1,34 @@
-import {AfterViewInit, Component, OnInit} from '@angular/core';
-import {stripTypename} from "@apollo/client/utilities";
-import {MatTableDataSource} from "@angular/material/table";
-import {Issue, Project, User} from "../../../../../type/issue";
-import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
-import {IssueService} from "../../../../../services/issue.service";
-import {UserService} from "../../../../../services/user.service";
-import {AuthService} from "../../../../../services/auth.service";
-import {ActivatedRoute, ParamMap, Router} from "@angular/router";
+import { Component } from '@angular/core';
+import {ListModule} from "../../list.module";
+import {NgForOf, NgIf} from "@angular/common";
+import {Issue, Project, User} from "../../../../../../type/issue";
 import {
   Filter,
   fromUrlParams,
   IssueSearchCriteriaInput,
   toQueryParams
-} from "../../../../../type/issue-search-criteria.util";
+} from "../../../../../../type/issue-search-criteria.util";
+import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import {IssueService} from "../../../../../../services/issue.service";
+import {UserService} from "../../../../../../services/user.service";
+import {AuthService} from "../../../../../../services/auth.service";
+import {ActivatedRoute, ParamMap, Router} from "@angular/router";
 
 @Component({
-  selector: 'app-show',
-  templateUrl: './show-list.component.html',
-  styleUrl: './show-list.component.css'
+  selector: 'app-show-master-list',
+  templateUrl: './show-master-list.component.html',
+  styleUrl: './show-master-list.component.css'
 })
-export class ShowListComponent implements OnInit, AfterViewInit{
+export class ShowMasterListComponent {
   issues:Issue[] =[];
   project: Project | undefined;
   currentView: string = 'list';
   views = [
     { id: 'list', icon: 'fas fa-list', title: 'Liste de tâches' },
     { id: 'board', icon: 'fas fa-columns', title: 'Kanban' },
-/*
-    { id: 'calendar', icon: 'fas fa-calendar-alt', title: 'Calendrier' }
-*/
+    /*
+        { id: 'calendar', icon: 'fas fa-calendar-alt', title: 'Calendrier' }
+    */
   ];
 
   searchCriteria: IssueSearchCriteriaInput | any = {
@@ -48,13 +48,7 @@ export class ShowListComponent implements OnInit, AfterViewInit{
   ) {
 
   }
-  search(){
-    this.searchCriteria.issueTypeLevels=['SUB_TASK'];
-    this.issueService.searchIssues(this.searchCriteria).subscribe(issues => {
-   //   this.issues = stripTypename(issues);
 
-    })
-  }
 
   ngAfterViewInit() {
     this.route.data.subscribe(data => {
@@ -62,7 +56,7 @@ export class ShowListComponent implements OnInit, AfterViewInit{
       if (this.project && this.project.prefix) {
         this.route.queryParamMap.subscribe((params:ParamMap) => {
           this.searchCriteria = fromUrlParams(params);
-          this.search();
+          this.loadIssueMasters();
         });
       }
     });
@@ -74,7 +68,8 @@ export class ShowListComponent implements OnInit, AfterViewInit{
     });
     this.route.queryParamMap.subscribe((params:ParamMap) => {
       this.searchCriteria = fromUrlParams(params);
-      this.search();
+
+      this.loadIssueMasters();
     });
     this.authService.connectedUser$.subscribe(user => {
       this.user = user;
@@ -88,10 +83,12 @@ export class ShowListComponent implements OnInit, AfterViewInit{
     })
 
     this.fileters.push({
-      name:'Premier filtre',
+      name:'Non tesminé',
       description:'Description',
       user:undefined,
-      issueSearchCriteria:{}
+      issueSearchCriteria:{
+        statusIds:[1,2,3,4]
+      }
     });
 
   }
@@ -112,15 +109,17 @@ export class ShowListComponent implements OnInit, AfterViewInit{
     this.searchIssue(filter.issueSearchCriteria);
   }
 
-  editFilter(filter) {
-    this.essueService.editFilter(filter.issueSearchCriteria).subscribe(filter => {
-      this.searchIssue(filter);
+  editFilter(filter:Filter) {
+    this.essueService.editFilter(filter.issueSearchCriteria).subscribe(criteria => {
+      filter.issueSearchCriteria = criteria;
+      this.searchCriteria = criteria;
+      this.searchIssue(criteria);
     })
   }
 
   searchIssue(searchCriteria:IssueSearchCriteriaInput){
     const queryParams = toQueryParams(searchCriteria);
-    this.router.navigate(['../issue'], {
+    this.router.navigate(['../master'], {
       queryParams ,
       relativeTo: this.route
     });
@@ -129,6 +128,13 @@ export class ShowListComponent implements OnInit, AfterViewInit{
   isActiveFilter(filter: Filter) {
     if (this.selectedFilter == null)
       return '';
-   return (filter.name == this.selectedFilter.name)? "active" : "";
+    return (filter.name == this.selectedFilter.name)? "active" : "";
+  }
+  loadIssueMasters(){
+    this.searchCriteria.issueTypeLevels=['PARENT'];
+    this.issueService.setIssueMasterCriteria(this.searchCriteria);
+    this.issueService.searchIssues(this.searchCriteria).subscribe(masters => {
+      this.issueService.setMasters(masters);
+    })
   }
 }

@@ -37,7 +37,7 @@ import {
   WORK_FLOWS_BY_PROJECT
 } from "../type/graphql.operations";
 import {environment} from "../../environments/environment";
-import {IssueSearchCriteriaInput} from "../type/issue-search-criteria.util";
+import {Filter, IssueSearchCriteriaInput} from "../type/issue-search-criteria.util";
 import {ActivatedRoute, Router} from "@angular/router";
 import {UserService} from "./user.service";
 import {NewIssueComponent} from "../pages/private/project/modal/new-issue/new-issue.component";
@@ -61,11 +61,13 @@ export class IssueService implements OnInit{
   private issueMastersSubject = new BehaviorSubject<Issue[]>([]);
   private projectSubject = new BehaviorSubject<Project>(undefined);
   private worksFlowsSubject = new BehaviorSubject<WorkFlow[]>([]);
+  private masterCriteriaSubject = new BehaviorSubject<IssueSearchCriteriaInput>({});
   workFlows$ = this.worksFlowsSubject.asObservable();
    subtask$ = this.subtaskSubject.asObservable();
   groupeUsers$=this.groupeUsersSubject.asObservable();
   issueMasters$ = this.issueMastersSubject.asObservable();
   project$ = this.projectSubject.asObservable();
+  masterCriteria$ = this.masterCriteriaSubject.asObservable();
 
   private issuesSubject = new BehaviorSubject<Issue[]>([]);
   issues$ = this.issuesSubject.asObservable();
@@ -831,10 +833,18 @@ export class IssueService implements OnInit{
         variables:{projectId},
         fetchPolicy:"network-only"
       }).subscribe((res:any)=>{
-        this.issueMastersSubject.next(supprimerTypename(res.data.loadIssueMasterByProject));
+        this.setMasters(supprimerTypename(res.data.loadIssueMasterByProject));
       },error => {
         console.error(error);
       })
+  }
+  setMasters(masters:Issue[]){
+    this.issueMastersSubject.next(masters);
+  }
+  searchIssuesAnSet(criteria: IssueSearchCriteriaInput) {
+   this.searchIssues(criteria).subscribe(issues => {
+     this.setIssues(issues);
+   })
   }
   searchIssues(criteria: IssueSearchCriteriaInput) {
     return new Observable<Issue[]>(observer => {
@@ -844,7 +854,7 @@ export class IssueService implements OnInit{
         fetchPolicy:"network-only"
       }).subscribe((res:any)=>{
         observer.next(supprimerTypename(res.data.searchIssues));
-        this.setIssues(supprimerTypename(res.data.searchIssues));
+        observer.complete();
         observer.complete();
       },error => {
         observer.error(error);
@@ -905,6 +915,9 @@ export class IssueService implements OnInit{
       }
       )
     })
+  }
+  setIssueMasterCriteria(criteria:IssueSearchCriteriaInput){
+    this.masterCriteriaSubject.next(criteria);
   }
   openEditIssue(issue:Issue){
     const dialogRef = this.modalService.open(ViewEditIssueComponent, {windowClass: "xlModal"});

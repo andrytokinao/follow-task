@@ -1,0 +1,41 @@
+.type-view {
+  margin-left: 10px;
+  float: right;
+  width: 50px;
+  align-items: center;
+
+}
+
+.menu-item{
+  color: #555;
+  cursor: pointer;
+  transition: color 0.3s, transform 0.2s;
+  border-radius: 5px;
+  padding: 5px;
+}
+.menu-item {
+  margin: 8px;
+
+}
+.menu-item:hover {
+  transform: scale(1.2);
+}
+
+.menu-item.active  {
+  color: #ffffff;
+
+}
+.card{
+  min-width: 250px;
+  height: 80px;
+  height: 55px;
+  cursor: pointer;
+}
+.card-list {
+  display: flex;
+  justify-content: left;
+  flex-wrap: wrap;
+}
+.edit:hover{
+  color: #333333;
+}

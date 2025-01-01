@@ -7,21 +7,21 @@ import {
   Status,
   User,
   WorkFlow
-} from "../../../../../type/issue";
+} from "../../../../../../type/issue";
 import _default from "chart.js/dist/plugins/plugin.tooltip";
 import type = _default.defaults.animations.numbers.type;
 import {stripTypename} from "@apollo/client/utilities";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
-import {IssueService} from "../../../../../services/issue.service";
-import {UserService} from "../../../../../services/user.service";
+import {IssueService} from "../../../../../../services/issue.service";
+import {UserService} from "../../../../../../services/user.service";
 import {ActivatedRoute, ParamMap, Router} from "@angular/router";
 import {MatTableDataSource, MatTableModule} from "@angular/material/table";
 import {MatPaginator, MatPaginatorModule} from "@angular/material/paginator";
-import {MyCommonModule} from "../../../../../common/common.module";
-import {ViewEditIssueComponent} from "../../modal/view-edit-issue/view-edit-issue.component";
+import {MyCommonModule} from "../../../../../../common/common.module";
+import {ViewEditIssueComponent} from "../../../modal/view-edit-issue/view-edit-issue.component";
 import {NgIf} from "@angular/common";
-import {AuthService} from "../../../../../services/auth.service";
-import {fromUrlParams, IssueSearchCriteriaInput} from "../../../../../type/issue-search-criteria.util";
+import {AuthService} from "../../../../../../services/auth.service";
+import {fromUrlParams, IssueSearchCriteriaInput} from "../../../../../../type/issue-search-criteria.util";
 
 @Component({
   selector: 'app-issue-liste',

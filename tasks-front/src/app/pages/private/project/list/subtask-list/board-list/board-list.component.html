@@ -10,7 +10,7 @@
           <p>{{issue.description}}</p>
         </div>
         <img *ngIf="issue.assigne !== null" [src]="getUrlPhoto(issue.assigne)" class="image" alt="l'assigné a" mat-icon-button [matMenuTriggerFor]="menu2" (click)="assign(issue)" />
-        <img *ngIf="!issue.assigne" src="/assets/nonAssigner.jpg" alt="non assigner" mat-icon-button class="image" [matMenuTriggerFor]="menu2" (click)="assign(issue)" />
+        <img *ngIf="!issue.assigne" src="/tasks-front/src/assets/nonAssigner.jpg" alt="non assigner" mat-icon-button class="image" [matMenuTriggerFor]="menu2" (click)="assign(issue)" />
       </div>
     </div>
     <div  class="issie-board new " (click)="newIssue( status)" *ngIf="authGuard.hasAutority(['CAN_CREATE_TASK']) | async" >
