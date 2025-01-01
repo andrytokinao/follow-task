@@ -256,4 +256,8 @@ public class GQIssueController {
     public Event getByEventId(@Argument Long eventId){
         return eventService.getByEventId(eventId);
     }
+    @QueryMapping
+    public List<Project> getProjectByUser(@Argument String userId) {
+        return projectService.getProjectByUser(userId);
+    }
 }

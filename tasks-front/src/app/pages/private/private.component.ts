@@ -21,6 +21,7 @@ export class PrivateComponent {
   title = 'tasks-front';
   projects:Project[] = [];
   project:Project | undefined;
+  connectedUser:User | undefined;
   constructor(private router: Router,
               private authService: AuthService,
               private modalService: NgbModal,
@@ -32,7 +33,15 @@ export class PrivateComponent {
     this.authService.getProfile().subscribe(profile=>{
       this.profile = profile;
     });
-    this.allProjects();
+    this.authService.connectedUser$.subscribe(user => {
+      this.connectedUser = user;
+      if (this.connectedUser) {
+        this.issueService.getProjectByUser(this.connectedUser.id);
+      }
+    });
+    this.issueService.projects$.subscribe(projectes => {
+      this.projects = projectes;
+    })
   }
   logout(){
     this.authService.logout().subscribe(
@@ -50,11 +59,6 @@ export class PrivateComponent {
     dialogRef.componentInstance.action ="Edition d'un utilisateur";
     dialogRef.componentInstance.loadGroupeMember();
     dialogRef.result.then((result) => {
-    })
-  }
-  allProjects(){
-    this.issueService.allProjects().subscribe(projects=>{
-      this.projects = projects;
     })
   }
 

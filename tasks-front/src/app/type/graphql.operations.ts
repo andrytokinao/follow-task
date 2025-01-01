@@ -1701,6 +1701,46 @@ const EVENT_BY_ID=gql`
       }
     }
 `
+const GET_PROJECT_BY_USER = gql`
+    query getProjectByUser($userId:String){
+      getProjectByUser(userId: $userId){
+        id
+        name
+        description
+        issueTypes {
+          id
+          name
+          icone {
+            id
+            value
+            typeIcone
+          }
+          parent {
+            id
+            name
+            icone {
+              id
+              typeIcone
+              value
+            }
+          }
+        }
+        workFlows {
+          id
+          name
+          issueTypes {
+            id
+            name
+            icone {
+              id
+              value
+              typeIcone
+            }
+          }
+        }
+      }
+    }
+`
 export {
   supprimerTypename,
   SAVE_USER,
@@ -1757,7 +1797,8 @@ export {
   ALL_EVENT_TYPE,
   SEARCH_EVENTS,
   DELETE_EVENT_TYPE,
-  EVENT_BY_ID
+  EVENT_BY_ID,
+  GET_PROJECT_BY_USER
 }
 function  supprimerTypename<T>(objet: T): T {
   if (!objet || typeof objet !== 'object') {

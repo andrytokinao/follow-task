@@ -27,8 +27,8 @@ export class HomeComponent implements OnInit{
 
   }
   ngOnInit(): void {
-    this.issueService.allProjects().subscribe(projects => {
-      this.projects = projects;
+    this.issueService.projects$.subscribe(projectes => {
+      this.projects = projectes;
     })
   }
   selectProject(project: Project) {

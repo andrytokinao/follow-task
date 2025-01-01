@@ -39,6 +39,7 @@ public class ProjectService {
     public final CustomFieldRepository customFieldRepository;
     final ConfigProjectRepo configProjectRepo;
     final GroupeUserRepository groupeUserRepository;
+    final MemberGroupeRepository memberGroupeRepository;
 
     static Logger logger = LoggerFactory.getLogger (ProjectService.class);
 
@@ -67,6 +68,20 @@ public class ProjectService {
      * */
     public List<Project> allProjects () {
         return projectRepository.findAll ();
+    }
+    public List<Project> getProjectByUser(String userId) {
+        List<MemberGroupe> memberGroupes = memberGroupeRepository.findByUserIdAndGroupeType(userId, "GROUPE_PROJECT");
+        List<String> projectPrefixs = new ArrayList<>();
+        if (memberGroupes.size() != 0) {
+            memberGroupes.forEach(memberGroupe -> {
+               String prefix =  memberGroupe.getGroupe().getPrefix().replaceAll("_GROUPE","");
+               projectPrefixs.add(prefix);
+            });
+        }
+        if (CollectionUtils.isEmpty(projectPrefixs)) {
+            return new ArrayList<>();
+        }
+        return projectRepository.findByPrefixIn(projectPrefixs);
     }
     public WorkFlow getDefaultWorkFlow(){
        WorkFlow workFlow =  workFlowRepository.findWorkFlowByName("Default workflow");
@@ -202,6 +217,7 @@ public class ProjectService {
         GroupeUser groupeUser = null;
         groupeUser = new GroupeUser ();
         groupeUser.setPrefix (prefix);
+        groupeUser.setType(type);
         groupeUser.setName (name);
         return groupeUserRepository.save (groupeUser);
     }

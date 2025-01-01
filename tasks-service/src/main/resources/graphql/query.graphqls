@@ -39,4 +39,5 @@ type Query {
     allEventType:[EventType]
     searchEvents(criteria:EventSearchCriteriaInput):[Event]
     getByEventId(eventId:Int):Event
+    getProjectByUser(userId:String):[Project]
 }

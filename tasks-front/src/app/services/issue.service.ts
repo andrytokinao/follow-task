@@ -26,7 +26,7 @@ import {
   GET_CUSTOM_FIELD,
   GET_GROUPE_USER_FOR_PROJECT, GET_ISSUE,
   GET_ISSUE_TYPE_BY_ID,
-  GET_NEXT_KEY,
+  GET_NEXT_KEY, GET_PROJECT_BY_USER,
   ISSUE_BY_CRITERIA, LIST_ISSUE_TYPE_MASTER, LIST_ISSUE_TYPE_SUBTASKS, LOAD_ISSUE_MASTER_BY_PROJECT, LOAD_SUBTASK,
   REMOVE_ISSUE_TYPE_PARENT,
   SAVE_CONFIG,
@@ -59,6 +59,7 @@ export class IssueService implements OnInit{
   private subtaskSubject= new BehaviorSubject<Issue[]>([]);
   private issueMastersSubject = new BehaviorSubject<Issue[]>([]);
   private projectSubject = new BehaviorSubject<Project>(undefined);
+  private projectsSubject = new BehaviorSubject<Project[]>([]);
   private worksFlowsSubject = new BehaviorSubject<WorkFlow[]>([]);
   private masterCriteriaSubject = new BehaviorSubject<IssueSearchCriteriaInput>({});
   workFlows$ = this.worksFlowsSubject.asObservable();
@@ -66,6 +67,7 @@ export class IssueService implements OnInit{
 
   issueMasters$ = this.issueMastersSubject.asObservable();
   project$ = this.projectSubject.asObservable();
+  projects$ = this.projectsSubject.asObservable();
   masterCriteria$ = this.masterCriteriaSubject.asObservable();
 
   private issuesSubject = new BehaviorSubject<Issue[]>([]);
@@ -920,5 +922,18 @@ export class IssueService implements OnInit{
   }
   ngOnInit(): void {
 
+  }
+
+  getProjectByUser(userId: string) {
+      this.apollo.query({
+        query:GET_PROJECT_BY_USER,
+        variables:{userId},
+        fetchPolicy:"network-only"
+      }).subscribe((res:any)=>{
+        let projects:Project[] = supprimerTypename(res.data.getProjectByUser);
+        this.projectsSubject.next(projects);
+      },error => {
+        console.error(error);
+      })
   }
 }
