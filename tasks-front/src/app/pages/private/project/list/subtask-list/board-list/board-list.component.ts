@@ -9,7 +9,7 @@ import {NewIssueComponent} from "../../../modal/new-issue/new-issue.component";
 import {stripTypename} from "@apollo/client/utilities";
 import {ViewEditIssueComponent} from "../../../modal/view-edit-issue/view-edit-issue.component";
 import {IssueSearchCriteriaInput} from "../../../../../../type/issue-search-criteria.util";
-import {AuthGuard} from "../../../../../../services/authorization.service.ts";
+import {AuthGuard} from "../../../../../../services/SystemGuard";
 
 @Component({
   selector: 'app-board-list',

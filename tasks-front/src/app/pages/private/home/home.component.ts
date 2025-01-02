@@ -5,7 +5,7 @@ import {Router} from "@angular/router";
 import {AuthService} from "../../../services/auth.service";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {UserService} from "../../../services/user.service";
-import {AuthGuard} from "../../../services/authorization.service.ts";
+import {AuthGuard} from "../../../services/SystemGuard";
 import {PopupCreateProjectComponent} from "../popup-create-project/popup-create-project.component";
 
 @Component({

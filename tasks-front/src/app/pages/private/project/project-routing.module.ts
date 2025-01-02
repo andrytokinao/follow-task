@@ -12,7 +12,7 @@ import {IssueResolverService} from "../../../services/resolvers/issue-resolver.s
 import {IssueMasterListComponent} from "./list/issue-master-list/simple-liste/issue-master-list.component";
 import {ListComponent} from "./list/list.component";
 import {AdminComponent} from "../admins/admin.component";
-import {AuthGuard} from "../../../services/authorization.service.ts";
+import {AuthGuard} from "../../../services/SystemGuard";
 import {DocumentComponent} from "./document/document.component";
 import {ProjectBreadcrumbResolverService} from "./project-breadcrumb-resolver.service";
 import {PlanningComponent} from "./planning/planning.component";

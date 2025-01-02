@@ -37,7 +37,7 @@ public class AuthorizationService {
 
     public List<MemberGroupe> addUserToAdminSystem(UserApp userApp) {
         MemberGroupe memberGroupe = null;
-        List<MemberGroupe> memberGroupes = memberGroupeRepository.findByUserIdAndGroupeType(userApp.getId(), "SYSTEM_GROUPE");
+        List<MemberGroupe> memberGroupes = memberGroupeRepository.findByUserIdAndGroupeType(userApp.getId(), GroupeUser.SYSTEM_GROUPE);
         if (!CollectionUtils.isEmpty(memberGroupes)) {
             memberGroupe = memberGroupes.get(0);
         } else {
@@ -83,7 +83,7 @@ public class AuthorizationService {
         return groupeUserRepository.save(systemGroupe);
     }
 
-    public Set<String> getAccessibilities(UserApp userApp) {
+    public Set<String> buildAccessibilities(UserApp userApp) {
         Set<String> accessibilites = new HashSet<>();
         List<MemberGroupe> systems = memberGroupeRepository.findByUserIdAndGroupeType(userApp.getId(), GroupeUser.SYSTEM_GROUPE);
         if (!CollectionUtils.isEmpty(systems)) {
@@ -101,17 +101,17 @@ public class AuthorizationService {
             }
         }
         // TODO : Accessibility for travail a aprofondir
-        List<MemberGroupe> tasks = memberGroupeRepository.findByUserIdAndGroupeType(userApp.getId(), GroupeUser.SYSTEM_GROUPE);
-        if (!CollectionUtils.isEmpty(tasks)) {
-            for (MemberGroupe memberGroupe : tasks) {
+        List<MemberGroupe> projectGroupe = memberGroupeRepository.findByUserIdAndGroupeType(userApp.getId(), GroupeUser.PROJECT_GROUPE);
+        if (!CollectionUtils.isEmpty(projectGroupe)) {
+            for (MemberGroupe memberGroupe : projectGroupe) {
                 String prefix = memberGroupe.getGroupe().getPrefix();
                 for (String r : memberGroupe.getRoles ()){
-                    Optional<RoleApp> role = getRoleSystemByName(r);
-                    if (!role.isPresent() || !CollectionUtils.isEmpty(role.get().getAccessibilities())) {
+                    Optional<RoleApp> role = getRoleTaskByName(r);
+                    if (!role.isPresent() || CollectionUtils.isEmpty(role.get().getAccessibilities())) {
                         continue;
                     }
                     for (String acc : role.get().getAccessibilities()) {
-                        accessibilites.add(acc+"_"+prefix);
+                        accessibilites.add(prefix+"_"+acc);
                     }
                 }
 

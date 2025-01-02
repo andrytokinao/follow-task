@@ -1,17 +1,24 @@
 package com.kinga.followtask.config;
 
 import com.kinga.followtask.entity.EventType;
+import com.kinga.followtask.entity.GroupeUser;
 import com.kinga.followtask.repository.EventTypeRepository;
+import com.kinga.followtask.repository.GroupeUserRepository;
 import com.kinga.followtask.repository.IssueTypeRepository;
 import com.kinga.followtask.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+
+import java.util.List;
 
 @Component
 public class Initializer implements CommandLineRunner {
     @Autowired
     private EventTypeRepository eventTypeRepository;
+    @Autowired
+    private GroupeUserRepository groupeUserRepository;
     @Autowired
     private ProjectService projectService;
 
@@ -27,5 +34,14 @@ public class Initializer implements CommandLineRunner {
             eventTypeRepository.save(new EventType("OTHER", "#D3D3D3", "background-color: #D3D3D3;"));
         }
         projectService.getOrInitialiseDefaultIssueType();
+        // Ratrappage des groupe user
+         List<GroupeUser> groupeUsers = groupeUserRepository.findAll();
+         for(GroupeUser groupe :groupeUsers) {
+             String type = groupe.getType();
+             if (StringUtils.endsWithIgnoreCase("GROUPE_PROJECT",type)) {
+                 groupe.setType(GroupeUser.PROJECT_GROUPE);
+                 groupeUserRepository.save(groupe);
+             }
+         }
     }
 }

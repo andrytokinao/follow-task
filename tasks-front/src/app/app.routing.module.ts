@@ -4,7 +4,7 @@ import {BrowserModule} from "@angular/platform-browser";
 import {PublicComponent} from "./pages/public/public.component";
 import {PrivateComponent} from "./pages/private/private.component";
 import {NotFoundComponent} from "./pages/not-found/not-found.component";
-import {AuthGuard} from "./services/authorization.service.ts";
+import {AuthGuard} from "./services/SystemGuard";
 
 
 const appRoutes: Routes = [

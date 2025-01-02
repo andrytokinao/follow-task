@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Route, Router} from "@angular/router";
 import {IssueService} from "../../../services/issue.service";
 import {Breadcrumb, Issue, Project} from "../../../type/issue";
-import {AuthGuard} from "../../../services/authorization.service.ts";
+import {AuthGuard} from "../../../services/SystemGuard";
 import {NewIssueComponent} from "./modal/new-issue/new-issue.component";
 import {stripTypename} from "@apollo/client/utilities";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";

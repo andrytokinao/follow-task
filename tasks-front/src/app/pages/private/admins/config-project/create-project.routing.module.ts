@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import {RouterModule, Routes,provideRouter,withComponentInputBinding} from "@angular/router";
 import {CreateProjectComponent} from "./create-project.component";
 import {DialogOverviewComponent} from "./dialog-overview/dialog-overview.component";
-import {AuthGuard} from "../../../../services/authorization.service.ts";
+import {AuthGuard} from "../../../../services/SystemGuard";
 
 
 const createProject: Routes = [

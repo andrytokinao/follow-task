@@ -187,7 +187,7 @@ public class UserService {
         if (userApp == null)
             return null;
         Set<String> roleApps = new HashSet<>();
-        permissionNames =  authorizationService.getAccessibilities(userApp);
+        permissionNames =  authorizationService.buildAccessibilities(userApp);
         return new UserDetailsDeto(userApp.getId(),userApp.getUsername(), userApp.getPassword(),userApp.getFirstName(),userApp.getLastName(), userApp.getPhoto(),permissionNames);
 
     }

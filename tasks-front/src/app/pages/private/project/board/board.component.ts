@@ -10,7 +10,7 @@ import {stripTypename} from "@apollo/client/utilities";
 import {ViewEditIssueComponent} from "../modal/view-edit-issue/view-edit-issue.component";
 import {ActivatedRoute} from "@angular/router";
 import {ToastrService} from "ngx-toastr";
-import {AuthGuard} from "../../../../services/authorization.service.ts";
+import {AuthGuard} from "../../../../services/SystemGuard";
 
 @Component({
   selector: 'app-board',

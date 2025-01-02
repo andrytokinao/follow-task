@@ -34,6 +34,7 @@ type CrossingState {
 }
 type GroupeUser {
     id:Int!
+    prefix:String
     name:String
     members:[MemberGroupe]
 }

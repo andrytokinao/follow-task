@@ -4,7 +4,7 @@ import {NewIssueComponent} from "../../pages/private/project/modal/new-issue/new
 import {Breadcrumb, Issue, Project} from "../../type/issue";
 import {ActivatedRoute, Router} from "@angular/router";
 import {IssueService} from "../../services/issue.service";
-import {AuthGuard} from "../../services/authorization.service.ts";
+import {AuthGuard} from "../../services/SystemGuard";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({

@@ -24,8 +24,8 @@
     <mat-grid-tile>
       <div class="role-checkboxes">
         <h3>Rôles</h3>
-        <mat-checkbox *ngFor="let role of roles" [checked]="idChecked(role)" (change)="onRoleChange($event, role)">
-          {{ role }}
+        <mat-checkbox *ngFor="let role of roles" [checked]="idChecked(role)" (change)="onRoleChange($event, role.value)">
+          {{ role.affichage }}
         </mat-checkbox>
       </div>
     </mat-grid-tile>

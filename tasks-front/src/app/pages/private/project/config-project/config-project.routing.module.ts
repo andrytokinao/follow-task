@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import {RouterModule, Routes,provideRouter,withComponentInputBinding} from "@angular/router";
 import {ConfigProjectComponent} from "./config-project.component";
 import {DialogOverviewComponent} from "./dialog-overview/dialog-overview.component";
-import {AuthGuard} from "../../../../services/authorization.service.ts";
+import {AuthGuard} from "../../../../services/SystemGuard";
 import {ConfigCustomFieldComponent} from "./config-custom-field/config-custom-field.component";
 import {IssueTypeComponent} from "./issue-type/issue-type.component";
 import {WorkFlowComponent} from "./work-flow/work-flow.component";

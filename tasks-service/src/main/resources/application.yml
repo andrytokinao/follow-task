@@ -57,6 +57,7 @@ task-authorization:
       accessibilities:
         - "USER"
         - "CAN_EDIT_PROJECT"
+        - "CAN_VIEW_TEAM_AGENDA"
         - "CAN_ASSIGN_TASK"
         - "CAN_CREATE_TASK"
         - "CAN_CLOSE_TASK"

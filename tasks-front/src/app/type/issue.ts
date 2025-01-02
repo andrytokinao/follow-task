@@ -39,6 +39,7 @@ export class User {
 export class GroupeUser {
   id:number| null = null;
   name:string = '';
+  prefix?:string;
 
   members:MemberGroupe[] = [];
 }

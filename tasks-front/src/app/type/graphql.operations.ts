@@ -1226,6 +1226,7 @@ const GET_GROUPE_USER_FOR_PROJECT=gql`
     getGroupeUserForProject(projectId: $projectId){
       id
       name
+      prefix
       members {
         id
         user {

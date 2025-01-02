@@ -17,6 +17,7 @@ import {IssueService} from "../../../../../services/issue.service";
 import {UserService} from "../../../../../services/user.service";
 import {BehaviorSubject, forkJoin} from "rxjs";
 import {IssueSearchCriteriaInput} from "../../../../../type/issue-search-criteria.util";
+import {AuthGuard} from "../../../../../services/SystemGuard";
 
 @Component({
   selector: 'calendar-planning-component',
@@ -58,7 +59,7 @@ import {IssueSearchCriteriaInput} from "../../../../../type/issue-search-criteri
         <span class="selected-date" > <b> {{this.navigator.date.toDate() | date}} </b></span>
 
         <div class="buttons">
-          <button (click)="viewResources()" [class]="this.configNavigator.selectMode == 'None' ? 'selected' : ''">Equipe</button>
+          <button (click)="viewResources()" *ngIf="authGuard.hasAutorityInProject(['CAN_VIEW_TEAM_AGENDA']) | async" [class]="this.configNavigator.selectMode == 'None' ? 'selected' : ''">Equipe</button>
           <button (click)="viewDay()" [class]="this.configNavigator.selectMode == 'Day' ? 'selected' : ''">Day</button>
           <button (click)="viewWeek()" [class]="this.configNavigator.selectMode == 'Week' ? 'selected' : ''">Week</button>
           <button (click)="viewMonth()" [class]="this.configNavigator.selectMode == 'Month' ? 'selected' : ''">Month</button>
@@ -349,19 +350,24 @@ export class PlanningCalendarComponent implements AfterViewInit {
     private modalService: NgbModal,
     private authService:AuthService,
     private issueService:IssueService,
-    private userService:UserService
+    private userService:UserService,
+    protected authGuard:AuthGuard,
 ) {
+/*
     this.viewWeek();
+*/
   }
 
   ngAfterViewInit(): void {
-    this.eventService.events$.subscribe(events=>{
-      this.events= events;
-      this.refreshView();
+    this.viewWeek();
+
+    this.eventService.events$.subscribe(events => {
+      this.events = events;
+      //   this.refreshView();
     })
-    this.authService.connectedUser$.subscribe(user=> {
+    this.authService.connectedUser$.subscribe(user => {
       this.user = user;
-   //   this.eventCriteria.userIds = [this.user.id];
+      //   this.eventCriteria.userIds = [this.user.id];
       this.loadEvents();
     });
 
@@ -377,7 +383,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
     this.userService.users$.subscribe(users => {
       this.users = users;
     })
-    this.issueService.masterCriteria$.subscribe(criteria=> {
+    this.issueService.masterCriteria$.subscribe(criteria => {
       this.masterCriteria = criteria;
     })
 

@@ -19,7 +19,13 @@ export class AddMamberGroupeComponent implements OnInit {
   roUser:boolean = false;
   filteredUsers!: Observable<User[]>;
   userControl = new FormControl();
-  roles: string[] = ['Admin', 'Editor', 'Viewer'];
+  roles: any[] = [
+    {value:'ADMIN', affichage:"Admin de l'espace de travail"},
+    {value:'PROJECT_MANAGER', affichage:"Manager de l'espace de travail "},
+    {value:'TEAM_MEMBER', affichage:"Quipe qui peut assiger pour tous les projets et taches"},
+    {value:'OBSERVER', affichage:"Lectute seul"},
+    {value:'EXTERNAL_USER', affichage:"Utilisateur exterieur , qui peut voire et commenter certaine projet "},
+  ];
   selectedUser: User;
   selectedRoles: string[] = [];
   members

@@ -12,6 +12,6 @@
     </div>
   </div>
   <div class="">
-    <a  class="btn" (click)="createProject()" *ngIf="authGuard.hasAutority(['ADMIN']) | async ">Creer une nouvelle espace de travails</a>
+    <a  class="btn" (click)="createProject()" *ngIf="authGuard.hasAutorityAsync(['ADMIN']) | async ">Creer une nouvelle espace de travails</a>
   </div>
 </div>

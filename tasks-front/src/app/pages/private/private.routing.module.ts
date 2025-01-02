@@ -6,10 +6,11 @@ import {ProjectComponent} from "./project/project.component";
 import {AdminComponent} from "./admins/admin.component";
 import {ProfileComponent} from "./profile/profile.component";
 import {AccessDeniedComponent} from "./access-denied/access-denied.component";
-import {AuthGuard} from "../../services/authorization.service.ts";
+import {AuthGuard} from "../../services/SystemGuard";
 import {ProjectResolverService} from "../../services/resolvers/project-resolver.service";
 import {HomeComponent} from "./home/home.component";
 import {ProjectBreadcrumbResolverService} from "./project/project-breadcrumb-resolver.service";
+import {ProjectGuard} from "../../services/ProjectGuard";
 
 const privateRoute: Routes = [
   {
@@ -20,9 +21,9 @@ const privateRoute: Routes = [
           { path: 'profile', component: ProfileComponent  },
           { path: 'access-denied', component: AccessDeniedComponent },
           {
-            path: 'working/:project',resolve:{project:ProjectResolverService,breadcrumb: ProjectBreadcrumbResolverService},
+            path: 'working/:project',resolve:{project:ProjectResolverService,breadcrumb: ProjectBreadcrumbResolverService,},
             loadChildren: () => import('./project/project.module').then(m => m.ProjectModule),
-            //  canMatch: [userProject]
+             canActivate: [ProjectGuard] , data:{roles:['USER']}
           },
           {path: 'admin', component: AdminComponent  , canActivate :[AuthGuard]}, {
             path: 'admin',

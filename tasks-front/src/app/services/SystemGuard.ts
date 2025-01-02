@@ -2,9 +2,10 @@ import {ActivatedRouteSnapshot, CanActivate, NavigationExtras, Router, RouterSta
 import {Observable} from "rxjs";
 import {AuthService} from "./auth.service";
 import {Injectable} from "@angular/core";
-import {Accessibility} from "../type/issue";
+import {Accessibility, GroupeUser} from "../type/issue";
 import {HttpClient} from '@angular/common/http';
 import {environment} from "../../environments/environment";
+import {UserService} from "./user.service";
 
 
 @Injectable({
@@ -13,9 +14,20 @@ import {environment} from "../../environments/environment";
 export class AuthGuard implements CanActivate {
   profile: any | null = null;
   accessibility: any | null = null;
+  groupeUsers:GroupeUser[] = [];
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private http: HttpClient,
+    private userService:UserService
+  ) {
 
-  constructor(private authService: AuthService, private router: Router, private http: HttpClient) {
-
+    this.authService.profile$.subscribe(profile => {
+      this.profile = profile;
+    });
+    this.userService.groupeUsers$.subscribe(groups => {
+      this.groupeUsers = groups;
+    })
   }
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
@@ -25,6 +37,7 @@ export class AuthGuard implements CanActivate {
         let permissions: string[] = this.profile.permissions;
         let data: any = route.data;
         if (data && data.roles) {
+          // On donne l'accès pour ce qui on de
           data.roles.push('CAN_ACCESS_ALL');
           let authorized = false;
           if (permissions.includes('CAN_ACCESS_ALL')) {
@@ -96,8 +109,8 @@ export class AuthGuard implements CanActivate {
       }
     })
   }
-  hasAutority(autorities:String[]){
-
+  hasAutorityAsync(autorities:String[]){
+    console.debug("hasAutoritySynch" , autorities);
     return new Observable<boolean>((observer) =>{
        this.authService.getProfile().subscribe((profile:any) => {
          if (profile.permissions.includes('CAN_ACCESS_ALL')) {
@@ -110,9 +123,24 @@ export class AuthGuard implements CanActivate {
          }
         },error => {
           observer.error(error);
-          observer.complete()
+          observer.complete();
         })
      });
   }
+  hasAutority(autorities:String[]){
+    autorities.push('CAN_ACCESS_ALL');
+    return  autorities.every((role: string) => this.profile.permissions.includes(role));
+  }
+  hasAutorityInProject(toVerifies: string[]) {
+    const nouvelleListe: string[] = [];
+    for (const groupe of this.groupeUsers) {
+      for (const value of toVerifies) {
+        nouvelleListe.push(`${groupe.prefix}_${value}`);
+      }
+    }
+    console.debug("AutorityProject ",nouvelleListe);
+    return this.hasAutorityAsync(nouvelleListe);
+  }
+
 }
 

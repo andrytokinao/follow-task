@@ -7,7 +7,7 @@ import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {Project, User} from "../../type/issue";
 import {IssueService} from "../../services/issue.service";
 import {UserService} from "../../services/user.service";
-import {AuthGuard} from "../../services/authorization.service.ts";
+import {AuthGuard} from "../../services/SystemGuard";
 import {IssueTypeComponent} from "./admins/config-project/issue-type/issue-type.component";
 import {PopupCreateProjectComponent} from "./popup-create-project/popup-create-project.component";
 

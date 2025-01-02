@@ -9,7 +9,7 @@ import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {IssueService} from "../../services/issue.service";
 import {ActivatedRoute} from "@angular/router";
 import {ToastrService} from "ngx-toastr";
-import {AuthGuard} from "../../services/authorization.service.ts";
+import {AuthGuard} from "../../services/SystemGuard";
 import {AuthService} from "../../services/auth.service";
 
 @Component({

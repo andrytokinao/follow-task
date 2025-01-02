@@ -13,7 +13,8 @@ export class AuthService {
   profile = null;
   userSubject = new BehaviorSubject<User>(null);
   connectedUser$ = this.userSubject.asObservable();
-
+  private profileSubject = new BehaviorSubject<any>(undefined);
+  profile$ = this.profileSubject.asObservable();
   constructor(private http: HttpClient, private cookieService: CookieService,
     private userService:UserService
   ) {
@@ -74,6 +75,7 @@ export class AuthService {
             if (JSON.stringify(res).localeCompare('login') === -1) {
               localStorage.setItem("user", res);
               this.profile = res;
+              this.profileSubject.next(res);
               observer.next(this.profile);
               this.loadConnectedUser();
               observer.complete();
