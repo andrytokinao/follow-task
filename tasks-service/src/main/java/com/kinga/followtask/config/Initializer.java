@@ -38,7 +38,7 @@ public class Initializer implements CommandLineRunner {
          List<GroupeUser> groupeUsers = groupeUserRepository.findAll();
          for(GroupeUser groupe :groupeUsers) {
              String type = groupe.getType();
-             if (StringUtils.endsWithIgnoreCase("GROUPE_PROJECT",type)) {
+             if (StringUtils.isEmpty(type)) {
                  groupe.setType(GroupeUser.PROJECT_GROUPE);
                  groupeUserRepository.save(groupe);
              }
