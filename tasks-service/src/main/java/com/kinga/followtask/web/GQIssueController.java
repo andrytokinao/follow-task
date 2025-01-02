@@ -192,8 +192,8 @@ public class GQIssueController {
         return projectService.saveOrUpdateConfig (configProject);
     }
     @QueryMapping
-    public List<GroupeUser> getGroupeUserForProject(@Argument Long projectId){
-        return projectService.getGroupeUserForProject(projectId);
+    public List<GroupeUser> getGroupeUserForProject(@Argument String prefix){
+        return projectService.getGroupeUserForProject(prefix);
     }
     @MutationMapping
     public IssueType affectIssueTypeForParent(@Argument Long childId, @Argument Long parrentId){

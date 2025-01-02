@@ -57,7 +57,7 @@ export class AccessibilityComponent implements OnInit{
     });
   }
   getGroupeUserForProject(){
-    this.userService.loadGroupeUserForProject(this.project.id);
+    this.userService.loadGroupeUserForProject(this.project.prefix);
   }
 
   addMembrerForGroupe(groupe: GroupeUser) {

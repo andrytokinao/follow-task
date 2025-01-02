@@ -141,10 +141,10 @@ export class UserService {
       })
   })
   }
-  loadGroupeUserForProject(projectId: Number) {
+  loadGroupeUserForProject(prefix: String) {
     this.apollo.query({
       query: GET_GROUPE_USER_FOR_PROJECT,
-      variables: {projectId},
+      variables: {prefix},
       fetchPolicy: "network-only"
     }).subscribe((res: any) => {
         let groups:GroupeUser[] = supprimerTypename(res.data.getGroupeUserForProject);

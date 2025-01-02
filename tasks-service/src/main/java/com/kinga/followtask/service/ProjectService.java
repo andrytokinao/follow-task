@@ -211,12 +211,12 @@ public class ProjectService {
        return configProjectRepo.findConfigProjectsByConfigofLike ("config.project."+project.getId ()+"%");
 
     }
-    public List<GroupeUser> getGroupeUserForProject(Long projectId){
-        Project project = projectRepository.findById (projectId).orElse (null);
+    public List<GroupeUser> getGroupeUserForProject(String prefix){
+        Project project = projectRepository.findByPrefix (prefix);
         if (project == null) {
-            throw new RuntimeException ("Project #"+projectId+" not found");
+            throw new RuntimeException ("Project #"+project+" not found");
         }
-        getOrCreateGroupe(project.getPrefix ()+"_GROUPE","Groupe user for project "+project.getName (),GroupeUser.PROJECT_GROUPE) ;
+        getOrCreateGroupe(prefix+"_GROUPE","Groupe user for project "+project.getName (),GroupeUser.PROJECT_GROUPE) ;
        return groupeUserRepository.findByPrefix (project.getPrefix () + "_GROUPE");
     }
     public GroupeUser getOrCreateGroupe (String prefix, String name, String type) {

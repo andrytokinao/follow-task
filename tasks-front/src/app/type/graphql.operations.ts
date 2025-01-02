@@ -1222,8 +1222,8 @@ const SAVE_CONFIG_PROJECT=gql`
     }
 `
 const GET_GROUPE_USER_FOR_PROJECT=gql`
-  query getGroupeUserForProject($projectId:Int){
-    getGroupeUserForProject(projectId: $projectId){
+  query getGroupeUserForProject($prefix:String){
+    getGroupeUserForProject(prefix: $prefix){
       id
       name
       prefix

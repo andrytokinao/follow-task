@@ -18,6 +18,7 @@ import {UserService} from "../../../../../services/user.service";
 import {BehaviorSubject, forkJoin} from "rxjs";
 import {IssueSearchCriteriaInput} from "../../../../../type/issue-search-criteria.util";
 import {AuthGuard} from "../../../../../services/SystemGuard";
+import {ProjectGuard} from "../../../../../services/ProjectGuard";
 
 @Component({
   selector: 'calendar-planning-component',
@@ -59,7 +60,7 @@ import {AuthGuard} from "../../../../../services/SystemGuard";
         <span class="selected-date" > <b> {{this.navigator.date.toDate() | date}} </b></span>
 
         <div class="buttons">
-          <button (click)="viewResources()" *ngIf="authGuard.hasAutorityInProject(['CAN_VIEW_TEAM_AGENDA']) | async" [class]="this.configNavigator.selectMode == 'None' ? 'selected' : ''">Equipe</button>
+          <button (click)="viewResources()" *ngIf="projectGuard.hasCredential(['CAN_VIEW_TEAM_AGENDA']) | async" [class]="this.configNavigator.selectMode == 'None' ? 'selected' : ''">Equipe</button>
           <button (click)="viewDay()" [class]="this.configNavigator.selectMode == 'Day' ? 'selected' : ''">Day</button>
           <button (click)="viewWeek()" [class]="this.configNavigator.selectMode == 'Week' ? 'selected' : ''">Week</button>
           <button (click)="viewMonth()" [class]="this.configNavigator.selectMode == 'Month' ? 'selected' : ''">Month</button>
@@ -352,6 +353,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
     private issueService:IssueService,
     private userService:UserService,
     protected authGuard:AuthGuard,
+    protected projectGuard:ProjectGuard
 ) {
 /*
     this.viewWeek();

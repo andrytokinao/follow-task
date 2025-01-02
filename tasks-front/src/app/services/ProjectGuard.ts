@@ -12,6 +12,7 @@ import {UserService} from "./user.service";
   providedIn: 'root'
 })
 export class ProjectGuard implements CanActivate {
+  projectPrefix:String | undefined;
   profile: any | null = null;
   accessibility: any | null = null;
   groupeUsers:GroupeUser[] = [];
@@ -32,60 +33,79 @@ export class ProjectGuard implements CanActivate {
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
     console.log("current url :" + state.url);
+    this.projectPrefix = route.paramMap.get('project');
     return new Observable<boolean>((observer) => {
       if (this.profile) {
         let permissions: string[] = this.profile.permissions;
         let data: any = route.data;
-        if (data && data.roles) {
-          let authorized = false;
-          if (permissions.includes('CAN_ACCESS_ALL')) {
-            authorized = true;
-          } else {
-            let roles = this.addPrefix(data.roles);
-            authorized = roles.every((role: string) => permissions.includes(role));
-          }
-
-          if (authorized) {
-            observer.next(true);
-            observer.complete();
-          } else {
-            observer.next(false);
-            observer.complete();
+        this.checkCredencialForProject(data.roles,permissions).subscribe(autorize => {
+          observer.next(autorize);
+          if (!autorize) {
             this.router.navigate(["private/access-denied"]);
           }
-        } else {
-          alert("non data");
-        }
+          observer.complete();
+        });
       } else {
         this.authService.getProfile().subscribe((profile) => {
           this.profile = profile;
           let permissions: string[] = this.profile.permissions;
-          let data: any = route.data;
-          if (data && data.roles) {
-            data.roles.push('CAN_ACCESS_ALL');
-            let authorized = false;
-            if (permissions.includes('CAN_ACCESS_ALL')) {
-              authorized = true;
-            } else {
-              authorized = data.roles.every((role: string) => permissions.includes(role));
-            }
-            if (authorized) {
-              observer.next(true);
-              observer.complete();
-            } else {
-              observer.next(false);
-              observer.complete();
+          let data:any = route.data;
+          this.checkCredencialForProject(data.roles,permissions).subscribe(autorize => {
+            observer.next(autorize);
+            if (!autorize) {
               this.router.navigate(["private/access-denied"]);
             }
-          } else {
-            console.error("non data");
-          }
+            observer.complete();
+          });
+
         })
       }
     });
-
   }
+  hasCredential(roles:string[]){
+    return new Observable<boolean>((observer) => {
+      if (this.profile) {
+        let permissions: string[] = this.profile.permissions;
+        this.checkCredencialForProject(roles,permissions).subscribe(autorize => {
+          observer.next(autorize);
+          observer.complete();
+        });
+      } else {
+        this.authService.getProfile().subscribe((profile) => {
+          this.profile = profile;
+          let permissions: string[] = this.profile.permissions;
+          this.checkCredencialForProject(roles,permissions).subscribe(autorize => {
+            observer.next(autorize);
+            observer.complete();
+          });
 
+        })
+      }
+    });
+  }
+  checkCredencialForProject(toCheck:string[], permissions: string[]){
+    return new Observable<boolean>(observer => {
+      let authorized = false;
+      if (toCheck) {
+        if (permissions.includes('CAN_ACCESS_ALL')) {
+          observer.next(true);
+          observer.complete();
+        } else {
+          this.addPrefix([...toCheck]).subscribe(projectRole => {
+            projectRole.every((role: string) => {
+              authorized = permissions.includes(role);
+            })
+            observer.next(authorized);
+            observer.complete();
+          });
+        }
+      } else {
+        console.error("non data");
+        observer.next(false);
+        observer.complete();
+      }
+    })
+  }
   getAccessibility() {
     return new Observable<Accessibility>((observer) => {
       if (this.accessibility) {
@@ -109,7 +129,6 @@ export class ProjectGuard implements CanActivate {
     })
   }
   hasAutorityAsync(autorities:String[]){
-    console.debug("hasAutoritySynch" , autorities);
     return new Observable<boolean>((observer) =>{
       this.authService.getProfile().subscribe((profile:any) => {
         if (profile.permissions.includes('CAN_ACCESS_ALL')) {
@@ -131,16 +150,27 @@ export class ProjectGuard implements CanActivate {
     return  autorities.every((role: string) => this.profile.permissions.includes(role));
   }
   hasAutorityInProject(toVerifies: string[]) {
-    return this.hasAutorityAsync(this.addPrefix(toVerifies));
+   // return this.hasAutorityAsync(this.addPrefix(toVerifies));
   }
   private addPrefix(toVerifies: string[]) {
-    const nouvelleListe: string[] = [];
-    for (const groupe of this.groupeUsers) {
-      for (const value of toVerifies) {
-        nouvelleListe.push(`${groupe.prefix}_${value}`);
-      }
-    }
-    return nouvelleListe;
+    return new Observable<string[]>(observer => {
+      const nouvelleListe: string[] = [];
+      this.userService.groupeUsers$.subscribe(groupes => {
+        if (groupes && groupes.length !=0) {
+          for (const groupe of this.groupeUsers) {
+            for (const value of toVerifies) {
+              nouvelleListe.push(`${groupe.prefix}_${value}`);
+            }
+          }
+          observer.next(nouvelleListe);
+          observer.complete();
+        } else {
+          this.userService.loadGroupeUserForProject(this.projectPrefix);
+        }
+      })
+
+    })
+
   }
 
 }

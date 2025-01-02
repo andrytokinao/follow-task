@@ -17,6 +17,9 @@ import {DocumentComponent} from "./document/document.component";
 import {ProjectBreadcrumbResolverService} from "./project-breadcrumb-resolver.service";
 import {PlanningComponent} from "./planning/planning.component";
 import {PlanningModule} from "./planning/planning.module";
+import {ProjectGuard} from "../../../services/ProjectGuard";
+import _default from "chart.js/dist/core/core.interaction";
+import dataset = _default.modes.dataset;
 
 
 
@@ -43,7 +46,7 @@ const projectRoute: Routes = [
             path:'planning',
             loadChildren:()=> import('./planning/planning.module').then(m=>m.PlanningModule),
           },
-          { path: 'config', component: ConfigProjectComponent , resolve: { breadcrumb: ProjectBreadcrumbResolverService  }},
+          { path: 'config', component: ConfigProjectComponent , resolve: { breadcrumb: ProjectBreadcrumbResolverService  } , canActivate :[ProjectGuard] , data:{roles:['CAN_EDIT_ALL','CAN_FONFIG_PROJECT']}},
           { path: 'config', loadChildren:()=> import("./config-project/config-project.module") .then(m=>m.ConfigProjectModule)},
           { path: 'issue/:parrentIssue', component: ShowMasterComponent , resolve:{parrentIssue:IssueResolverService , breadcrumb: ProjectBreadcrumbResolverService}},
           { path: 'issue/:parrentIssue',resolve:{parrentIssue:IssueResolverService ,breadcrumb: ProjectBreadcrumbResolverService},
