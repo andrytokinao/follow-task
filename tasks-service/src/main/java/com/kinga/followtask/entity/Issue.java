@@ -46,5 +46,7 @@ public class Issue {
     private List<CustomFieldValue> values;
     @OneToMany(mappedBy = "issue")
     private List<Event> events;
+    @ManyToOne
+    private Project project;
 
 }

@@ -138,12 +138,13 @@ export class IssueService implements OnInit{
   }
 
   saveIssue(issue: any) {
-    if (issue.issueType.project == null ) {
+    if (issue.issueType.project == null || issue.project ) {
       issue.issueType.project = {
         id:this.projectSubject.value.id,
         prefix:this.projectSubject.value.prefix,
         name:this.projectSubject.value.name
       }
+      issue.project = issue.issueType.project;
     }
     delete issue.values;
    return new Observable<Issue>((observer) => {
@@ -836,6 +837,7 @@ export class IssueService implements OnInit{
    })
   }
   searchIssues(criteria: IssueSearchCriteriaInput) {
+    criteria.projectId = this.projectSubject.value.id;
     return new Observable<Issue[]>(observer => {
       this.apollo.query({
         query:SEARCH_ISSUES,

@@ -62,6 +62,7 @@ type  Issue {
     comments:[Comment]
     files:[File]
     values:[CustomFieldValue]
+    project:Project
 }
 type IssueType{
     id:Int
@@ -102,6 +103,7 @@ type Project{
     issueTypes:[IssueType]
     workFlows :[WorkFlow]
     events:[Event]
+    issues:[Issue]
 }
 
 type RoleApp{
@@ -246,6 +248,7 @@ input  IssueInput {
     assigne:UserAppInput
     status:StatusInput
     reporter:StatusInput
+    project:ProjectInput
 }
 input IssueTypeInput{
     id:Int
@@ -403,6 +406,7 @@ input IssueSearchCriteriaInput {
     customFieldUserIds: [CustomFieldUserIdsInput]
     customFieldIssueIds: [CustomFieldIssueIdsInput]
     customFieldTextValues: [CustomFieldTextValuesInput]
+    projectId:Int
 }
 
 input CustomFieldStringValuesInput {

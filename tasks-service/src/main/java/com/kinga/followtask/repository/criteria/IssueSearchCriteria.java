@@ -27,4 +27,5 @@ public class IssueSearchCriteria {
     private Map<Long, List<String>> customFieldUserIds;
     private Map<Long, List<Long>> customFieldIssueIds;
     private Map<Long, List<String>> customFieldTextValues;
+    private Long projectId;
 }

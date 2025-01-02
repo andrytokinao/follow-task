@@ -19,6 +19,7 @@ export class Issue {
   issueType:IssueType | any = {};
   parent:Issue
   comments :Comment[] = [];
+  project:Project;
   constructor() {
 
   }

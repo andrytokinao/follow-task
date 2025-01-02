@@ -62,6 +62,9 @@ public class IssueSpecification implements Specification<Issue> {
         if (criteria.getAssigneUsernames() != null && !criteria.getAssigneUsernames().isEmpty()) {
             predicates.add(root.join("assigne").get("username").in(criteria.getAssigneUsernames()));
         }
+        if (criteria.getProjectId() != null ) {
+            predicates.add(root.join("project").get("id").in(criteria.getProjectId()));
+        }
         Join<Issue, CustomFieldValue> customFieldJoin = root.join("values", JoinType.LEFT);
         if (criteria.getCustomFieldStringValues() != null) {
             criteria.getCustomFieldStringValues().forEach((fieldId, values) -> {

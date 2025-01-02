@@ -75,6 +75,13 @@ public class IssueService {
         if (issue.getIssueType() == null) {
             throw new RuntimeException("type mast bee renseign");
         }
+        if (issue.getProject() == null) {
+            issue.setProject(issue.getIssueType().getProject());
+            if (issue.getProject() == null){
+                throw new RuntimeException("project mast bee renseign");
+            }
+
+        }
         Project tempProject = issue.getIssueType().getProject();
         Project project = projectRepository.findById(tempProject.getId()).orElse(null);
 

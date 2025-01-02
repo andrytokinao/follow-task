@@ -39,6 +39,8 @@ public class Project {
     private List<WorkFlow> workFlows;
     @OneToMany(mappedBy = "project")
     private List<Event> events;
+    @OneToMany(mappedBy = "project")
+    private List<Issue> issues;
 
     @Override
     public String toString () {
