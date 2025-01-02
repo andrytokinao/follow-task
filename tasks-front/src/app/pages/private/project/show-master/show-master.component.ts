@@ -48,7 +48,7 @@ export class ShowMasterComponent implements OnInit{
   constructor(private router: Router,
               private modalService: NgbModal,
               private configService:ConfigService,
-              private issueService:IssueService,
+              protected issueService:IssueService,
               private route: ActivatedRoute
   ) {
   }

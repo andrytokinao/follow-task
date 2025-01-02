@@ -1,5 +1,7 @@
 <div class="project-title">
-  <h1>{{parrentIssue.issueKey}} {{parrentIssue.summary}}</h1>
+  <h1>{{parrentIssue.issueKey}} {{parrentIssue.summary}}
+    <span (click)="issueService.showPlanning(parrentIssue)" class="controle">  <i class="fas fa-calendar">  </i>  Planing </span>
+  </h1>
 </div>
 
 <div class="master-container">
