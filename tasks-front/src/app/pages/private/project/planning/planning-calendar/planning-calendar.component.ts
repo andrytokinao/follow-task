@@ -37,6 +37,7 @@ import {ProjectGuard} from "../../../../../services/ProjectGuard";
                >
                  {{ parent.issueKey +' '+parent.summary }}
                </mat-checkbox>
+               <i class="fas fa-d-and-d-beyond" (click)="detailsIssue(parent)"> </i>
              </div>
            </div>
          </form>
@@ -602,6 +603,10 @@ export class PlanningCalendarComponent implements AfterViewInit {
         })
       }
     )
+  }
+
+  detailsIssue(issue:Issue) {
+    this.issueService.browsIssueMaster(issue)
   }
 }
 
