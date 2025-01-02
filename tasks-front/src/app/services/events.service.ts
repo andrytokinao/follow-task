@@ -119,8 +119,8 @@ export class EventsService {
         reminderOffset: eventApp.reminderOffset,
       },
       html:  `<div>
-        <p style="font-size: 12px; ">${(eventApp.issue ? eventApp.issue.issueKey + ': ' : '') + eventApp.title}</p>
-        <i style="font-size: 12px; color: #555;">${eventApp.description || ''}</i>
+        <p style="font-size: 12px; "><b><i> ${(eventApp.issue ? eventApp.issue.issueKey + ': ' : '')} </i></b>${(eventApp.title)}</p>
+        <p style="font-size: 12px; color: #555;">${eventApp.description || ''}</p>
       </div>
     `,
 

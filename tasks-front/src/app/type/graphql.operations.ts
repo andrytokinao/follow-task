@@ -1616,6 +1616,7 @@ const SEARCH_EVENTS  = gql`
       reminderOffset
       reminderTime
       customColor
+      description
       eventType {
         id
         name

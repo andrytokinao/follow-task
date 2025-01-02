@@ -256,7 +256,10 @@ export class PlanningCalendarComponent implements AfterViewInit {
     contextMenu: this.contextMenu,
     onTimeRangeSelected: this.newEvent.bind(this),
     onBeforeEventRender: function (args) {
-      args.data.html = args.data.html || args.data.text;
+      console.debug("event.html",args.data.html);
+      args.data.html = args.data.html ;
+
+
     },
     onEventClick:(args)=> this.viewEvent(args),
     onEventResize: (args) => this.resizeEvent(args),
@@ -366,7 +369,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
 
     this.eventService.events$.subscribe(events => {
       this.events = events;
-      //   this.refreshView();
+        this.refreshView();
     })
     this.authService.connectedUser$.subscribe(user => {
       this.user = user;
@@ -437,29 +440,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
   onBeforeEventRender(args: any) {
     const dp = args.control;
     args.data.areas = [
-      {
-        top: 3,
-        right: 3,
-        width: 20,
-        height: 20,
-        symbol: "/icons/daypilot.svg#minichevron-down-2",
-        fontColor: "#fff",
-        toolTip: "Show context menu",
-        action: "ContextMenu",
-      },
-      {
-        top: 3,
-        right: 25,
-        width: 20,
-        height: 20,
-        symbol: "/icons/daypilot.svg#x-circle",
-        fontColor: "#fff",
-        action: "None",
-        toolTip: "Delete event",
-        onClick: async (args: any)   => {
-          dp.events.remove(args.source);
-        }
-      }
+
     ];
 
     args.data.areas.push({
