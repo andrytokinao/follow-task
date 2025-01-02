@@ -1,6 +1,7 @@
 package com.kinga.followtask.service;
 
 import com.kinga.followtask.dto.Criteria;
+import com.kinga.followtask.dto.UserDetailsDeto;
 import com.kinga.followtask.entity.*;
 import com.kinga.followtask.entity.enumapp.Niveau;
 import com.kinga.followtask.repository.*;
@@ -40,7 +41,7 @@ public class ProjectService {
     final ConfigProjectRepo configProjectRepo;
     final GroupeUserRepository groupeUserRepository;
     final MemberGroupeRepository memberGroupeRepository;
-
+    final UserService userService;
     static Logger logger = LoggerFactory.getLogger (ProjectService.class);
 
     public Status saveStatus (Status status) {
@@ -70,7 +71,16 @@ public class ProjectService {
         return projectRepository.findAll ();
     }
     public List<Project> getProjectByUser(String userId) {
-        List<MemberGroupe> memberGroupes = memberGroupeRepository.findByUserIdAndGroupeType(userId, "GROUPE_PROJECT");
+
+        UserDetailsDeto userDetails = userService.findByUsername(userId);
+        List<MemberGroupe> groupeSystems = memberGroupeRepository.findByUserIdAndGroupeType(userId,GroupeUser.SYSTEM_GROUPE);
+        if (userDetails == null){
+            return new ArrayList<>();
+        }
+        if (userDetails.getPermissions().contains("CAN_ACCESS_ALL")){
+            return projectRepository.findAll();
+        }
+        List<MemberGroupe> memberGroupes = memberGroupeRepository.findByUserIdAndGroupeType(userId, GroupeUser.PROJECT_GROUPE);
         List<String> projectPrefixs = new ArrayList<>();
         if (memberGroupes.size() != 0) {
             memberGroupes.forEach(memberGroupe -> {
@@ -206,7 +216,7 @@ public class ProjectService {
         if (project == null) {
             throw new RuntimeException ("Project #"+projectId+" not found");
         }
-        getOrCreateGroupe(project.getPrefix ()+"_GROUPE","Groupe user for project "+project.getName (),"GROUPE_PROJECT") ;
+        getOrCreateGroupe(project.getPrefix ()+"_GROUPE","Groupe user for project "+project.getName (),GroupeUser.PROJECT_GROUPE) ;
        return groupeUserRepository.findByPrefix (project.getPrefix () + "_GROUPE");
     }
     public GroupeUser getOrCreateGroupe (String prefix, String name, String type) {

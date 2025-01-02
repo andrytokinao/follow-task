@@ -21,9 +21,9 @@ import {stripTypename} from "@apollo/client/utilities";
 })
 export class UserService {
    private usersSubject = new BehaviorSubject<User[]>([]);
-   private canAssignUsersSubject = new BehaviorSubject<User[]>([]);
+   private allMemberSubject = new BehaviorSubject<User[]>([]);
    users$ = this.usersSubject.asObservable();
-   canAssignUsers$ = this.canAssignUsersSubject.asObservable();
+   allMembers$ = this.allMemberSubject.asObservable();
   private groupeUsersSubject = new BehaviorSubject<GroupeUser[]>([]);
   groupeUsers$=this.groupeUsersSubject.asObservable();
   constructor(private http: HttpClient, private apollo: Apollo) {
@@ -162,6 +162,6 @@ export class UserService {
         allAccessible.push(member.user);
       })
     });
-    this.canAssignUsersSubject.next(allAccessible);
+    this.allMemberSubject.next(allAccessible);
   }
 }

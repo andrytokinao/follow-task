@@ -1706,6 +1706,7 @@ const GET_PROJECT_BY_USER = gql`
       getProjectByUser(userId: $userId){
         id
         name
+        prefix
         description
         issueTypes {
           id
