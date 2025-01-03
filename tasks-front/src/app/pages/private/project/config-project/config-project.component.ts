@@ -7,6 +7,7 @@ import {IssueService} from "../../../../services/issue.service";
 import {ProjectNameComponent} from "./project-name/project-name.component";
 import {stripTypename} from "@apollo/client/utilities";
 import {IssueTypeComponent} from "./issue-type/issue-type.component";
+import {ProjectGuard} from "../../../../services/ProjectGuard";
 
 
 @Component({
@@ -24,7 +25,8 @@ export class ConfigProjectComponent implements OnInit{
               private modalService: NgbModal,
               private configService:ConfigService,
               private issueService:IssueService,
-              private route: ActivatedRoute
+              private route: ActivatedRoute,
+              protected projectGuard: ProjectGuard
   ) {
 
   }

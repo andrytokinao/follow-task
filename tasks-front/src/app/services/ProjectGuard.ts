@@ -32,6 +32,10 @@ export class ProjectGuard implements CanActivate {
   }
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
+    let data: any = route.data;
+
+    console.debug("canActivate -> checkCredencialForProject : autorize",data);
+
     console.log("current url :" + state.url);
     this.projectPrefix = route.paramMap.get('project');
     return new Observable<boolean>((observer) => {
@@ -40,6 +44,7 @@ export class ProjectGuard implements CanActivate {
         let data: any = route.data;
         this.checkCredencialForProject(data.roles,permissions).subscribe(autorize => {
           observer.next(autorize);
+          console.debug("canActivate -> checkCredencialForProject : autorize",autorize);
           if (!autorize) {
             this.router.navigate(["private/access-denied"]);
           }
@@ -52,6 +57,7 @@ export class ProjectGuard implements CanActivate {
           let data:any = route.data;
           this.checkCredencialForProject(data.roles,permissions).subscribe(autorize => {
             observer.next(autorize);
+            console.debug("canActivate -> getProfile -> checkCredencialForProject : autorize",autorize);
             if (!autorize) {
               this.router.navigate(["private/access-denied"]);
             }

@@ -59,6 +59,10 @@ task-authorization:
         - "CAN_EDIT_PROJECT"
         - "CAN_VIEW_TEAM_AGENDA"
         - "CAN_FONFIG_PROJECT"
+        - "CAN_CONFIG_STORAGE"
+        - "CAN_CONFIG_WORKFLOW"
+        - "CAN_CONFIG_CUSTOM_FIELD"
+        - "CAN_CONFIG_ISSUE_TYPE"
         - "CAN_ASSIGN_TASK"
         - "CAN_CREATE_TASK"
         - "CAN_CLOSE_TASK"
@@ -73,6 +77,7 @@ task-authorization:
         - "CAN_TRACK_TIME"
         - "CAN_ATTACH_FILES_RESULT"
         - "CAN_SELF_ASSIGN_TASK"
+        - "CAN_EDIT_ROLE_USER"
     - name: "TEAM_MEMBER"
       description: "Membre de l'équipe"
       accessibilities:

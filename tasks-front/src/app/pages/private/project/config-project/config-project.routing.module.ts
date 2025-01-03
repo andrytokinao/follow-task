@@ -8,6 +8,7 @@ import {IssueTypeComponent} from "./issue-type/issue-type.component";
 import {WorkFlowComponent} from "./work-flow/work-flow.component";
 import {StorageComponent} from "./storage/storage.component";
 import {AccessibilityComponent} from "./accessibility/accessibility.component";
+import {ProjectGuard} from "../../../../services/ProjectGuard";
 
 
 const createProject: Routes = [
@@ -19,12 +20,12 @@ const createProject: Routes = [
         path: '',
         children: [
           { path: '', redirectTo: "create", pathMatch : "prefix"  },
-          { path: 'create', component: DialogOverviewComponent ,canActivate:[AuthGuard], data: { roles: ['CAN_CREATE_PROJECT','CAN_ACCESS_ALL']} },
-          { path: 'issue-type', component: IssueTypeComponent ,canActivate:[AuthGuard] , data: { roles: ['CAN_CREATE_PROJECT','CAN_ACCESS_ALL']}},
-          { path: 'custom-field', component: ConfigCustomFieldComponent ,canActivate:[AuthGuard] , data: { roles: ['CAN_CREATE_PROJECT','CAN_ACCESS_ALL']}},
-          { path: 'work-flow', component: WorkFlowComponent , canActivate:[AuthGuard] , data: { roles: ['CAN_CREATE_PROJECT','CAN_ACCESS_ALL']}},
-          { path: 'storage', component: StorageComponent , canActivate:[AuthGuard] , data: { roles: ['CAN_CREATE_PROJECT','CAN_ACCESS_ALL']}},
-          { path: 'accessibility', component: AccessibilityComponent , canActivate:[AuthGuard] , data: { roles: ['ADMIN_PROJECT']}},
+          { path: 'create', component: DialogOverviewComponent ,canActivate:[ProjectGuard], data: { roles: ['CAN_EDIT_ALL']} },
+          { path: 'issue-type', component: IssueTypeComponent ,canActivate:[ProjectGuard] , data: { roles: ['CAN_CONFIG_ISSUE_TYPE']}},
+          { path: 'custom-field', component: ConfigCustomFieldComponent ,canActivate:[ProjectGuard] , data: { roles: ['CAN_CONFIG_CUSTOM_FIELD']}},
+          { path: 'work-flow', component: WorkFlowComponent , canActivate:[ProjectGuard] , data: { roles: ['CAN_CONFIG_WORKFLOW']}},
+          { path: 'storage', component: StorageComponent , canActivate:[ProjectGuard] , data: { roles: ['CAN_CONFIG_STORAGE']}},
+          { path: 'accessibility', component: AccessibilityComponent , canActivate:[ProjectGuard] , data: { roles: ['CAN_EDIT_ROLE_USER']}},
         ]
       }
     ]
