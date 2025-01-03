@@ -17,7 +17,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
-import { ReactiveFormsModule } from '@angular/forms';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
@@ -27,6 +27,8 @@ import {CookieService} from "ngx-cookie-service";
 import {HttpInterceptorService} from "./services/http.service";
 import {provideToastr, ToastrModule} from "ngx-toastr";
 import {MarkdownModule} from "ngx-markdown";
+import {QuillModule} from "ngx-quill";
+import {MyCommonModule} from "./common/common.module";
 
 
 @NgModule({
@@ -64,9 +66,21 @@ import {MarkdownModule} from "ngx-markdown";
       closeButton: true, // Afficher le bouton de fermeture
       progressBar: true // Afficher la barre de progression
     }),
-    MarkdownModule.forRoot()
+    MarkdownModule.forRoot(),
+    QuillModule.forRoot({
+      modules: {
+        toolbar: [
+          ['bold', 'italic', 'underline'], // Outils de style
+          [{header: [1, 2, 3, false]}], // En-têtes
+          [{list: 'ordered'}, {list: 'bullet'}], // Listes
+          ['link', 'image'], // Liens et images
+        ],
+      },
+    }),
+    MyCommonModule,
+    FormsModule,
 
-],
+  ],
   bootstrap: [AppComponent],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
   providers :[

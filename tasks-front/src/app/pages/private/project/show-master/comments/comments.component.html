@@ -25,8 +25,8 @@
             <p class="comment-text">{{ comment.text }} </p>
           </div>
         </div>
-
-        <div class="add-comment">
+        <app-quill-editor [(content)]="pageContent" [theme]="'snow'"></app-quill-editor>
+        <!--<div class="add-comment">
           <mat-form-field appearance="fill" class="comment-input">
             <mat-label>Ajouter un commentaire</mat-label>
             <textarea matInput [(ngModel)]="comment.text"></textarea>
@@ -35,7 +35,7 @@
           <button mat-raised-button color="primary" (click)="addComment()">
             Publier
           </button>
-        </div>
+        </div>-->
       </mat-card-content>
     </mat-card>
   </div>

@@ -32,6 +32,8 @@ import {EditEventComponent} from "./edit-event/edit-event.component";
 import {NewEventComponent} from "./new-event/new-event.component";
 import {IssueFilterFieldComponent} from "./issue-filter-field/issue-filter-field.component";
 import {MatCheckbox} from "@angular/material/checkbox";
+import {QuillEditorComponent} from "ngx-quill";
+import {EditorComponent} from "./quill-editor/quill-editor.component";
 
 @NgModule({
   declarations: [
@@ -52,56 +54,60 @@ import {MatCheckbox} from "@angular/material/checkbox";
     StatusFieldComponent,
     EditEventComponent,
     NewEventComponent,
-    IssueFilterFieldComponent
+    IssueFilterFieldComponent,
+    EditorComponent
 
   ],
-    imports: [
-        CommonModule,
-        MatMenuModule,
-        MatIconModule,
-        MatSelectModule,
-        MatFormFieldModule,
-        MatCardModule,
-        MatDialogModule,
-        MatToolbarModule,
-        MatSelectModule,
-        FormsModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatButtonModule,
-        FormsModule,
-        MatFormField,
-        MatInput,
-        MatLabel,
-        NgIf,
-        NgClass,
-        ReactiveFormsModule,
-        MatAutocompleteTrigger,
-        MatAutocomplete,
-        RouterLink,
-        MatCheckbox
-    ],
+  imports: [
+    CommonModule,
+    MatMenuModule,
+    MatIconModule,
+    MatSelectModule,
+    MatFormFieldModule,
+    MatCardModule,
+    MatDialogModule,
+    MatToolbarModule,
+    MatSelectModule,
+    FormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    FormsModule,
+    MatFormField,
+    MatInput,
+    MatLabel,
+    NgIf,
+    NgClass,
+    ReactiveFormsModule,
+    MatAutocompleteTrigger,
+    MatAutocomplete,
+    RouterLink,
+    MatCheckbox,
+    QuillEditorComponent,
+  ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA
   ],
-    exports: [
-        TreeNodeItemComponent,
-        MaintenanceComponent,
-        TreeDossierItemComponent,
-        TextFieldComponent,
-        TelFieldComponent,
-        InstallationComponent,
-        IconeFieldComponent,
-        IconeViewComponent,
-        GroupeFormComponent,
-        CustomfieldFormComponent,
-        IssuetypeFormComponent,
-        StatesFormComponent,
-        AssignFieldComponent,
-      BreadcrumbComponent,
-      StatusFieldComponent,
-      EditEventComponent,
-      NewEventComponent
-    ]
+  exports: [
+    TreeNodeItemComponent,
+    MaintenanceComponent,
+    TreeDossierItemComponent,
+    TextFieldComponent,
+    TelFieldComponent,
+    InstallationComponent,
+    IconeFieldComponent,
+    IconeViewComponent,
+    GroupeFormComponent,
+    CustomfieldFormComponent,
+    IssuetypeFormComponent,
+    StatesFormComponent,
+    AssignFieldComponent,
+    BreadcrumbComponent,
+    StatusFieldComponent,
+    EditEventComponent,
+    NewEventComponent,
+    QuillEditorComponent,
+    EditorComponent
+  ]
 })
 export class MyCommonModule { }

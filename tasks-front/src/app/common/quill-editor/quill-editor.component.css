@@ -1,0 +1,20 @@
+.editor-wrapper {
+  width: 5000px;
+  height: auto;
+  min-height: 300px;
+  box-sizing: border-box;
+}
+
+.editor-wrapper .ql-container {
+  height: 100%;
+  min-height: 300px;
+
+}
+.editor-wrapper .ql-editor {
+  height: 100%;
+  min-height: 300px;
+}
+quill-editor{
+  width: 100%;
+}
+

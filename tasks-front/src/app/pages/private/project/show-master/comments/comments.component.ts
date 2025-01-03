@@ -113,6 +113,7 @@ export class CommentsComponent {
   }
 
   comments :Comment[] = [];
+  pageContent: string = "commentaire ";
 
   addComment() {
     this.comment.issue.id = this.parentIssue.id;

@@ -1,0 +1,18 @@
+
+<div class="editor-container">
+  <quill-editor
+    [(ngModel)]="content"
+    [modules]="modules"
+    [theme]="theme"
+    (onEditorCreated)="editor = $event"
+    (onContentChanged)="onContentChanged($event)">
+  </quill-editor>
+ <!-- <div class="controls">
+    <button (click)="getDeltaContent(editor)">Afficher Delta</button>
+    <button (click)="getHtmlContent(editor)">Afficher HTML</button>
+    <button (click)="getTextContent(editor)">Afficher Texte</button>
+    <button (click)="getSetHtml(editor)">Set html </button>
+  </div>-->
+</div>
+
+

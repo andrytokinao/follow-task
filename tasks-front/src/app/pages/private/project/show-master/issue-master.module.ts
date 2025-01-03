@@ -39,6 +39,7 @@ import {FileListComponent} from "./file-list/file-list.component";
 import {DossierSourceComponent} from "./dossier-sources/dossier-source.component";
 import {CommentsComponent} from "./comments/comments.component";
 import {IssueChatsComponent} from "./issue-chats/issue-chats.component";
+import {QuillEditorComponent} from "ngx-quill";
 
 
 @NgModule({
@@ -89,6 +90,7 @@ import {IssueChatsComponent} from "./issue-chats/issue-chats.component";
     MatChipsModule,
     MatDivider,
     PlanningModule,
+    QuillEditorComponent,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
