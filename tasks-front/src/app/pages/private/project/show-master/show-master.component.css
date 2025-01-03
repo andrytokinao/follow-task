@@ -1,45 +1,89 @@
-/* Container */
-master-container{
-  border-radius: 1px;
-  box-shadow:#1a1d20 ;
-}.container {
-  width: 100%;
-  margin: 0 auto;
-  padding: 0 20px;
+/* Master container */
+.master-container {
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add subtle shadow */
+  background-color: #fff;
+  padding: 20px;
+  margin-top: 20px;
 }
 
+/* Project title */
+.project-title {
+  font-family: 'Roboto', sans-serif;
+  font-size: 24px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.project-title h1 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.project-title .controle {
+  font-size: 16px;
+  font-weight: 500;
+  color: #007bff;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.project-title .controle:hover {
+  color: #0056b3;
+}
+
+.project-title i {
+  margin-right: 8px;
+}
+
+/* Navigation */
 .navigation {
   display: flex;
   list-style: none;
   padding: 0;
   margin: 0;
+  justify-content: space-between; /* Space out items */
+  background-color: #f8f9fa; /* Light background */
+  border-radius: 8px;
+  overflow: hidden; /* Make the borders rounded */
 }
 
 .navigation li {
   margin: 0;
-}
-.navigation li:hover {
-  margin: 0;
-  background-color: #cccccc;
+  transition: background-color 0.3s ease;
 }
 
 .navigation a {
   display: block;
-  padding: 5px 20px;
+  padding: 12px 20px;
   text-decoration: none;
-  color: #333333;
-  font-weight: bold;
+  color: #333;
+  font-weight: 600;
   transition: color 0.3s ease, background-color 0.3s ease;
 }
 
 .navigation a:hover {
-  color: #483e3e;
+  background-color: #007bff;
+  color: #fff;
 }
 
 .navigation a.active {
-  background-color: #9dabb9;
+  background-color: #0056b3;
   color: #fff;
   border-radius: 5px;
+}
+
+/* Add focus for accessibility */
+.navigation a:focus {
+  outline: none;
+  box-shadow: 0 0 3px 3px rgba(38, 143, 255, 0.5);
+}
+
+/* Hover effect on list items */
+.navigation li:hover {
+  background-color: #e9ecef;
 }
 
 /* Responsive adjustments */
@@ -47,18 +91,25 @@ master-container{
   .navigation {
     flex-direction: column;
     align-items: center;
+    width: 100%;
   }
 
   .navigation a {
     width: 100%;
     text-align: center;
-    padding: 10px;
+    padding: 15px 20px;
+  }
+
+  .project-title h1 {
+    font-size: 20px;
   }
 }
 
 /* Content styling */
-.content-container {
+.containers {
   padding: 20px;
   margin-top: 20px;
-  border-radius: 5px;
+  background-color: #f1f1f1; /* Light background for content */
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
