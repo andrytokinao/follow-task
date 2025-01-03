@@ -25,7 +25,7 @@ export class AccessibilityComponent implements OnInit{
     private http:HttpClient,
     private configService:ConfigService,
     private issueService:IssueService,
-    private userService:UserService,
+    protected userService:UserService,
     private router: Router,
     private modalService: NgbModal,
     private route: ActivatedRoute,
@@ -67,10 +67,10 @@ export class AccessibilityComponent implements OnInit{
       this.getGroupeUserForProject();
     })
   }
-  editMamberForGroupe(member:MemberGroupe){
+  editMamberForGroupe(member:MemberGroupe,groupe:GroupeUser){
     const dialogRef = this.modalService.open(AddMamberGroupeComponent, { windowClass: 'centerModal'});
-    dialogRef.componentInstance.groupeUser = member.groupe;
-    dialogRef.componentInstance.memberGroupe = member;
+    dialogRef.componentInstance.groupeUser = groupe;
+    dialogRef.componentInstance.setMember( member);
     dialogRef.result.then((res) => {
       this.getGroupeUserForProject();
     })

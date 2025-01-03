@@ -504,4 +504,10 @@ h3 {
   span {
     display: block;
   }
+  .user-photo {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    border: 2px solid #007bff;
+  }
 }

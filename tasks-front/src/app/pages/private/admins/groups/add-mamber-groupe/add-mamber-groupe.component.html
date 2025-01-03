@@ -1,8 +1,11 @@
 <div class="user-role-dialog">
-  <h1> Ajout d'utilisateure au groupe {{groupeUser.name}}</h1>
+  <h1> {{(memberGroupe == undefined || memberGroupe.id === undefined)? 'Ajout ':' Edition des rôle'}} d'utilisateur au groupe {{groupeUser.name}}</h1>
+
+
+
   <mat-grid-list cols="2" >
     <mat-grid-tile>
-      <mat-form-field class="example-full-width">
+      <mat-form-field class="example-full-width" *ngIf="(memberGroupe == undefined || memberGroupe.id === undefined)">
         <input
           [disabled]="roUser"
           type="text"
@@ -14,11 +17,17 @@
         >
         <mat-autocomplete #auto="matAutocomplete">
           <mat-option *ngFor="let user of filteredUsers | async" [value]="user.username"  >
-            <img [src]="user.photo" alt=" " width="30" height="30" style="margin-right: 10px;">
+            <img [src]="userService.getUrlPhoto(user)" alt=" " width="30" height="30" style="margin-right: 10px;">
             {{ user.firstName }} {{ user.lastName }} ({{ user.username }})
           </mat-option>
         </mat-autocomplete>
       </mat-form-field>
+      <div class="user-card" *ngIf="memberGroupe != undefined && memberGroupe.user != undefined">
+        <img [src]="userService.getUrlPhoto(memberGroupe.user)" alt="Proto" class="user-photo">
+        <div class="user-info">
+          <h2>{{memberGroupe.user.firstName+' '+memberGroupe.user.firstName}} </h2>
+        </div>
+      </div>
     </mat-grid-tile>
 
     <mat-grid-tile>

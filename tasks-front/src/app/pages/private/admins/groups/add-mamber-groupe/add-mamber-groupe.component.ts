@@ -15,7 +15,7 @@ import {MatCheckboxChange} from "@angular/material/checkbox";
 export class AddMamberGroupeComponent implements OnInit {
   groupeUser: GroupeUser;
   users: User[] = [];
-  user: User;
+  user: User ;
   roUser:boolean = false;
   filteredUsers!: Observable<User[]>;
   userControl = new FormControl();
@@ -34,7 +34,7 @@ export class AddMamberGroupeComponent implements OnInit {
 
   constructor(
     private modalService: NgbModal,
-    private userService: UserService,
+    protected userService: UserService,
     public activeModal: NgbActiveModal
   ) {
 
@@ -67,7 +67,12 @@ export class AddMamberGroupeComponent implements OnInit {
   }
 
   register() {
-    this.userService.addUserInGroupe(this.userControl.value, this.groupeUser.id, this.selectedRoles).subscribe(res => {
+    this.user = this.userControl.value || this.memberGroupe.user;
+    if (this.user == undefined) {
+      alert("Completer l'user  ");
+      return;
+    }
+    this.userService.addUserInGroupe(this.user.username, this.groupeUser.id, this.selectedRoles).subscribe(res => {
       this.activeModal.close({memberGroupe: res});
       this.memberGroupe = res;
     })
@@ -77,9 +82,12 @@ export class AddMamberGroupeComponent implements OnInit {
 
   }
 
-  idChecked(role: string): boolean {
-    return this.selectedRoles.includes(role);
+  idChecked(role: any): boolean {
+    if (this.selectedRoles == undefined)
+      return false;
+    return this.selectedRoles.some(selected => selected === role.value);
   }
+
 
   onRoleChange(event: any, role: string): void {
     if (event.checked) {
@@ -89,5 +97,8 @@ export class AddMamberGroupeComponent implements OnInit {
       ;
     }
   }
-
+  setMember(member:MemberGroupe) {
+    this.memberGroupe = member;
+    this.selectedRoles = member.roles || [];
+  }
 }
