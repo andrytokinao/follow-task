@@ -43,16 +43,17 @@ export class AccessibilityComponent implements OnInit{
   }
 
   ngOnInit(): void {
-    this.issueService.project$.subscribe(project=> this.project = project);
+    this.issueService.project$.subscribe(project=> {
+      this.project = project;
+      if (this.project) {
+        this.getGroupeUserForProject();
+      }
+
+    });
     this.route.data.subscribe(data => {
-      this.issueService.getConfigProject(this.project.id).subscribe(res=>{
-        this.configProjects = res;
-        this.loadConfig();
-      });
       this.userService.groupeUsers$.subscribe(groupeUsers => {
         this.groupeUsers = groupeUsers;
       })
-      this.getGroupeUserForProject();
 
     });
   }
