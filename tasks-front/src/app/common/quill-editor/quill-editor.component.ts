@@ -7,13 +7,16 @@ import Quill from "quill";
   styleUrls: ['./quill-editor.component.css']
 })
 export class EditorComponent {
-  @Input() content: string = '';
+  @Input()  content = '';
+  @Output() html = new EventEmitter<string>();
+  @Output() delta = new EventEmitter<any>();
+  @Output() text = new EventEmitter<string>();
   @Output() contentChange = new EventEmitter<string>();
   @Input() theme: string = 'snow';
   modules: any = {
     toolbar: [
       ['bold', 'italic', 'underline'],
-      [{ header: [1, 2, 3, false] }],
+      [{ header: [1, 2, 3,4,5,6, false] }],
       [{ list: 'ordered' }, { list: 'bullet' }],
       ['link', 'image'],
     ],
@@ -21,6 +24,10 @@ export class EditorComponent {
 
   onContentChanged(event: any) {
     this.contentChange.emit(event.html);
+  /*  this.contentChange.emit(this.editor.root.innerHTML);
+    this.html.emit(this.editor.root.innerHTML);
+    this.delta.emit(this.editor.getDelta());
+    this.text.emit(this.editor.getText());*/
   }
 
   // Fonction pour récupérer le contenu au format Delta
@@ -36,12 +43,13 @@ export class EditorComponent {
   }
 
   // Fonction pour récupérer le contenu au format texte brut
-  editor: Quill;
+  editor: any;
   getTextContent(quillEditor: any): void {
     const text = quillEditor.getText();
     console.log('Texte brut:', text);
   }
-  getSetHtml(quillEditor: any): void {
-    quillEditor.root.innerHTML= "<b> Texte html  </b>" ;
+
+  initEditor(e: Quill) {
+    this.editor = e;
   }
 }

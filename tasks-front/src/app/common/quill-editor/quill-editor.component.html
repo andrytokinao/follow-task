@@ -4,7 +4,7 @@
     [(ngModel)]="content"
     [modules]="modules"
     [theme]="theme"
-    (onEditorCreated)="editor = $event"
+    (onEditorCreated)="initEditor($event)"
     (onContentChanged)="onContentChanged($event)">
   </quill-editor>
  <!-- <div class="controls">

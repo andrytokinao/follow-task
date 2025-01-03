@@ -22,20 +22,15 @@
                 <small class="text-body-secondary" *ngIf="comment.date">{{comment.date | date}}</small>
             </span>
             </div>
-            <p class="comment-text">{{ comment.text }} </p>
+            <p class="comment-text" [innerHTML]="comment.text"> </p>
           </div>
         </div>
-        <app-quill-editor [(content)]="pageContent" [theme]="'snow'"></app-quill-editor>
-        <!--<div class="add-comment">
-          <mat-form-field appearance="fill" class="comment-input">
-            <mat-label>Ajouter un commentaire</mat-label>
-            <textarea matInput [(ngModel)]="comment.text"></textarea>
-          </mat-form-field>
+        <app-quill-editor [(content)]="comment.text" [theme]="'snow'"></app-quill-editor>
 
-          <button mat-raised-button color="primary" (click)="addComment()">
-            Publier
+          <button mat-raised-button color="primary" class="float-end" (click)="addComment()">
+            Commenter
           </button>
-        </div>-->
+
       </mat-card-content>
     </mat-card>
   </div>
