@@ -5,6 +5,7 @@ import {SubtaskComponent} from "./subtask/subtask.component";
 import {LivraisonComponent} from "./livraison/livraison.component";
 import {IssueDetailsComponent} from "./issue-details/issue-details.component";
 import {PlanningComponent} from "./planning/planning.component";
+import {FileListComponent} from "./file-list/file-list.component";
 
 
 
@@ -22,6 +23,7 @@ const masterRoute: Routes = [
           { path: 'subtask', component: SubtaskComponent },
           { path: 'planning', component: PlanningComponent },
           { path: 'livraison', component: LivraisonComponent },
+          {path:'files',component:FileListComponent}
         ]
       }
     ]

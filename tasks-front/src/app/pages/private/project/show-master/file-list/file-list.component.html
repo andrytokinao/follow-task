@@ -1,0 +1,48 @@
+<div class="file-group-container">
+  <!-- Aperçu du fichier sélectionné -->
+  <div class="file-preview-container" *ngIf="selectedFile">
+    <h3>Aperçu du fichier: {{ selectedFile.name }}</h3>
+    <div class="file-preview">
+      <ng-container [ngSwitch]="selectedFile.type">
+        <div *ngSwitchCase="'image'" class="image-preview">
+          <img [src]="selectedFile.previewUrl" alt="File Preview">
+        </div>
+        <div *ngSwitchCase="'pdf'" class="pdf-preview">
+          <object [data]="selectedFile.previewUrl" type="application/pdf" width="100%" height="200px"></object>
+        </div>
+        <div *ngSwitchCase="'word'" class="default-preview">
+          <p>Fichier Word - Aucun aperçu disponible</p>
+        </div>
+        <div *ngSwitchDefault class="default-preview">
+          <p>Aperçu non disponible</p>
+        </div>
+      </ng-container>
+    </div>
+
+    <!-- Informations supplémentaires -->
+    <div class="file-info">
+      <p><strong>Date d'upload:</strong> {{ selectedFile.uploadDate }}</p>
+      <p><strong>Utilisateur:</strong> {{ selectedFile.uploadedBy }}</p>
+      <p><strong>Description:</strong> {{ selectedFile.fileDescription }}</p>
+    </div>
+  </div>
+
+  <!-- Liste des groupes de fichiers -->
+  <div class="file-list">
+    <div *ngFor="let group of fileGroups">
+      <div class="file-group">
+        <h4>{{ group.description }}</h4>
+        <p><small>{{ group.uploadDate }} - Par {{ group.uploadedBy }}</small></p>
+        <p><small>{{ group.groupDescription }}</small></p>
+
+        <div class="file-item-list">
+          <div *ngFor="let file of group.files" (click)="selectFile(file)" class="file-item">
+            <p>{{ file.name }}</p>
+            <p><small>{{ file.uploadDate }} - Par {{ file.uploadedBy }}</small></p>
+            <p><small>{{ file.fileDescription }}</small></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

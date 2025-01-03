@@ -35,6 +35,7 @@ import {MatDivider} from "@angular/material/divider";
 import {IssueDetailsComponent} from "./issue-details/issue-details.component";
 import {PlanningComponent} from "./planning/planning.component";
 import {PlanningModule} from "../planning/planning.module";
+import {FileListComponent} from "./file-list/file-list.component";
 
 
 @NgModule({
@@ -43,7 +44,8 @@ import {PlanningModule} from "../planning/planning.module";
     SubtaskComponent,
     LivraisonComponent,
     IssueDetailsComponent,
-    PlanningComponent
+    PlanningComponent,
+    FileListComponent
   ],
   exports: [
   ],
