@@ -30,15 +30,30 @@ import {ProjectGuard} from "../../../../../services/ProjectGuard";
          <form class="card" style="margin-top: 15px;padding-top: 5px;padding-bottom: 5px" >
            <h1> Projets <i class="fas fa-edit" (click)="editFilterMaster()"></i></h1>
            <div class="sidebar-heding ">
-             <div *ngFor="let parent of issueMasters">
+             <div
+               *ngFor="let parent of issueMasters"
+               class="parent-container"
+               (mouseenter)="hoveredParent = parent.id"
+               (mouseleave)="hoveredParent = null"
+             >
                <mat-checkbox
                  [checked]="isSelectedParent(parent.id)"
-                 (change)="changesParents($event,parent)"
+                 (change)="changesParents($event, parent)"
+                 class="custom-checkbox"
                >
-                 {{ parent.issueKey +' '+parent.summary }}
+                 {{ parent.issueKey + ' ' + parent.summary }}
                </mat-checkbox>
-               <i class="fas fa-d-and-d-beyond" (click)="detailsIssue(parent)"> </i>
+               <i
+                 class="fas fa-bars float-end"
+                 [ngClass]="{
+      'icon-visible': hoveredParent === parent.id,
+      'icon-hidden': hoveredParent !== parent.id
+    }"
+                 (click)="detailsIssue(parent)"
+               >
+               </i>
              </div>
+
            </div>
          </form>
        </div>
@@ -73,7 +88,10 @@ import {ProjectGuard} from "../../../../../services/ProjectGuard";
         <daypilot-calendar [config]="configResource" #calendar></daypilot-calendar>
       </div>
     </div>
-
+<!--    <div
+      id="current-time-marker"
+      style="position: absolute; width: 100%; height: 2px; background-color: red; z-index: 1000;">
+    </div>-->
   `,
   styles: [`
     .contenue {
@@ -144,10 +162,69 @@ import {ProjectGuard} from "../../../../../services/ProjectGuard";
       padding: 15px;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     }
+    /* Conteneur parent */
+    .parent-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px;
+      margin: 5px 0;
+      border: 1px solid #e0e0e0;
+      border-radius: 5px;
+      background-color: #f9f9f9;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* Changement de couleur au survol */
+    .parent-container:hover {
+      background-color: #e3f2fd; /* Couleur de fond bleu clair */
+      color: #1565c0; /* Texte bleu foncé */
+    }
+
+    /* Style pour le checkbox */
+    .custom-checkbox {
+      font-size: 16px;
+      color: #424242;
+    }
+
+    /* Changement de couleur au survol du checkbox */
+    .custom-checkbox:hover {
+      color: #1565c0; /* Bleu foncé */
+    }
+
+    /* Icône masquée par défaut */
+    .icon-hidden {
+      visibility: hidden;
+      opacity: 0;
+      transition: visibility 0.2s, opacity 0.2s ease-in-out, color 0.3s ease;
+      font-size: 16px;
+      margin-right: 10px;
+      cursor: pointer;
+    }
+
+    /* Icône visible au survol */
+    .icon-visible {
+      visibility: visible;
+      opacity: 1;
+      color: #1565c0; /* Bleu foncé par défaut */
+    }
+
+    /* Changement de couleur au survol de l'icône */
+    .icon-visible:hover {
+      color: #0d47a1; /* Bleu plus foncé */
+    }
+
+    /* Style pour le texte dans le checkbox */
+    mat-checkbox .mat-checkbox-label {
+      font-size: 14px;
+      color: inherit;
+    }
+
+
   `]
 })
 export class PlanningCalendarComponent implements AfterViewInit {
-
+  hoveredParent: number | null = null;
   @ViewChild("day") day!: DayPilotCalendarComponent;
   @ViewChild("week") week!: DayPilotCalendarComponent;
   @ViewChild("month") month!: DayPilotMonthComponent;
@@ -252,13 +329,14 @@ export class PlanningCalendarComponent implements AfterViewInit {
   }
 
   configDay: DayPilot.CalendarConfig = {
-    durationBarVisible: false,
+    durationBarVisible: true,
     contextMenu: this.contextMenu,
     onTimeRangeSelected: this.newEvent.bind(this),
     onBeforeEventRender: function (args) {
       args.data.html = args.data.html ;
-
-
+    },
+    onBeforeCellRender: (args: any) => {
+      args.cell.backColor = "#FF0000";
     },
     onEventClick:(args)=> this.viewEvent(args),
     onEventResize: (args) => this.resizeEvent(args),
@@ -277,6 +355,12 @@ export class PlanningCalendarComponent implements AfterViewInit {
     onEventClick:(args) =>this.viewEvent(args),
     onEventResize: (args) => this.resizeEvent(args),
     onEventMove: (args) => this.moveEvent(args),
+    onBeforeCellRender: (args:any) => {
+      const now = DayPilot.Date.now();
+      if (args.cell.start <= now && now < args.cell.end) {
+        args.cell.backColor = "red";
+      }
+    },
 
   };
 
@@ -365,7 +449,13 @@ export class PlanningCalendarComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     this.viewWeek();
+    // Ajouter un "fake event" pour l'heure actuelle
+    this.addCurrentTimeMarker();
 
+    // Mettre à jour l'heure actuelle chaque minute
+    setInterval(() => {
+      this.addCurrentTimeMarker();
+    }, 60000);
     this.eventService.events$.subscribe(events => {
       this.events = events;
         this.refreshView();
@@ -390,7 +480,6 @@ export class PlanningCalendarComponent implements AfterViewInit {
     this.issueService.masterCriteria$.subscribe(criteria => {
       this.masterCriteria = criteria;
     })
-
   }
 
     loadEvents(): void {
@@ -582,6 +671,41 @@ export class PlanningCalendarComponent implements AfterViewInit {
 
   detailsIssue(issue:Issue) {
     this.issueService.browsIssueMaster(issue)
+  }
+  updateCurrentTimeMarker() {
+    const marker = document.getElementById('current-time-marker');
+    if (!marker) return;
+
+    const now = new Date();
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const dayLengthInMs = 24 * 60 * 60 * 1000;
+    const positionPercentage = ((now.getTime() - startOfDay.getTime()) / dayLengthInMs) * 100;
+
+    // Ajuster la position de la ligne
+    marker.style.top = positionPercentage + '%';
+  }
+  setInterval() {
+  this.updateCurrentTimeMarker();
+  }
+  addCurrentTimeMarker() {
+    const now = DayPilot.Date.today().addMilliseconds(new Date().getTime() - new Date().setHours(0, 0, 0, 0));
+
+    // Supprimer l'ancien événement de l'heure actuelle
+    this.events = this.events.filter((event) => event.id !== "current-time");
+
+    // Ajouter un nouvel événement pour représenter l'heure actuelle
+    this.events.push({
+      id: "current-time",
+      text: "",
+      start: now,
+      end: now.addMinutes(1),
+      cssClass: "current-time-event",
+    });
+
+    // Rafraîchir le calendrier
+    this.configDay = { ...this.configDay };
   }
 }
 
