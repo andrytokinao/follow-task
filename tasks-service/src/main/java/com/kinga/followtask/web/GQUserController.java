@@ -1,6 +1,8 @@
 package com.kinga.followtask.web;
 
 
+import com.kinga.followtask.config.PermissionSystem;
+import com.kinga.followtask.config.PermissionTask;
 import com.kinga.followtask.entity.GroupeUser;
 import com.kinga.followtask.entity.MemberGroupe;
 import com.kinga.followtask.entity.UserApp;
@@ -32,6 +34,8 @@ import java.util.List;
 public class GQUserController {
     private static final Logger logger = LoggerFactory.getLogger(GQUserController.class);
     private  final UserService userService;
+    final PermissionSystem permissionSystem;
+    final PermissionTask permissionTask;
     private final AuthorizationService authorizationService;
     @QueryMapping
     public UserApp getUser(@Argument String username){
@@ -57,5 +61,9 @@ public class GQUserController {
     @MutationMapping
     public MemberGroupe addUserInGroupe(@Argument String username , @Argument Long groupeId, @Argument List<String> roles) {
         return authorizationService.addUserInGroupe (username,groupeId,roles);
+    }
+    @QueryMapping
+    public PermissionTask loadPermissiontTask(){
+       return permissionTask;
     }
 }

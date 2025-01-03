@@ -50,10 +50,14 @@ export class MemberGroupe{
   user :User | null = null;
   roles : string[] = [];
 }
-export class Role {
-  id:number | null = null;
-  memberGroupes:MemberGroupe[] =[];
-  credentials:Credential[] =[];
+export class RoleApp {
+  name?:string
+  description?:String
+  accessibilities?:String[]
+}
+export class Permission {
+  name?:String
+  roles?:RoleApp[]
 }
 export class Credential{
   id:number | null =null;

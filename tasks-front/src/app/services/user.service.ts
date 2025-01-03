@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import {HttpClient, HttpEvent, HttpHeaders, HttpRequest} from '@angular/common/http';
 import {BehaviorSubject, Observable, throwError} from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
-import {ConfigEntry, GroupeUser, Issue, MemberGroupe, Status, User} from "../type/issue";
+import {ConfigEntry, GroupeUser, Issue, MemberGroupe, Permission, Status, User} from "../type/issue";
 import {
   ADD_USER_IN_GROUPE,
   ALL_ISSUE,
@@ -10,6 +10,7 @@ import {
   INIT_USER,
   LOAD_GROUPE_MEMBER,
   SAVE_CONFIG,
+  LOAD_PERMISSION_TASK,
   SAVE_USER, supprimerTypename
 } from "../type/graphql.operations";
 import {Apollo} from "apollo-angular";
@@ -21,11 +22,14 @@ import {stripTypename} from "@apollo/client/utilities";
 })
 export class UserService {
    private usersSubject = new BehaviorSubject<User[]>([]);
+   private permissionTaskSubject=new BehaviorSubject<Permission>(undefined);
+   permissionTask$ = this.permissionTaskSubject.asObservable();
    private allMemberSubject = new BehaviorSubject<User[]>([]);
    users$ = this.usersSubject.asObservable();
    allMembers$ = this.allMemberSubject.asObservable();
   private groupeUsersSubject = new BehaviorSubject<GroupeUser[]>([]);
   groupeUsers$=this.groupeUsersSubject.asObservable();
+
   constructor(private http: HttpClient, private apollo: Apollo) {
   }
   baseUrl:string = "http://localhost:8081";
@@ -163,5 +167,18 @@ export class UserService {
       })
     });
     this.allMemberSubject.next(allAccessible);
+  }
+
+  loadPermissiontTask() {
+    this.apollo.query({
+      query: LOAD_PERMISSION_TASK,
+      fetchPolicy: "cache-first"
+    }).subscribe((res: any) => {
+        let permissionTask = supprimerTypename(res.data.loadPermissiontTask);
+        this.permissionTaskSubject.next(permissionTask);
+      }, error => {
+        console.error(error);
+      }
+    )
   }
 }

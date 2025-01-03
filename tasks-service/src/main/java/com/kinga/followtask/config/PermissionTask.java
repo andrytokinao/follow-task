@@ -11,6 +11,7 @@ import java.util.List;
 @Configuration
 @ConfigurationProperties(prefix = "task-authorization")
 public class PermissionTask {
+    private String name = "task-authorization";
     private List<RoleApp> roles;
 
     public List<RoleApp> getRoles() {

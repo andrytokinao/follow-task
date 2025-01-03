@@ -40,4 +40,5 @@ type Query {
     searchEvents(criteria:EventSearchCriteriaInput):[Event]
     getByEventId(eventId:Int):Event
     getProjectByUser(userId:String):[Project]
+    loadPermissiontTask:Permission
 }

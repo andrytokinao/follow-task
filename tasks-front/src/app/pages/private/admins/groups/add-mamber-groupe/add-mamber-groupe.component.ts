@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {GroupeUser, MemberGroupe, User} from "../../../../../type/issue";
+import {GroupeUser, MemberGroupe, Permission, User} from "../../../../../type/issue";
 import {stripTypename} from "@apollo/client/utilities";
 import {NgbActiveModal, NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {UserService} from "../../../../../services/user.service";
@@ -13,6 +13,7 @@ import {MatCheckboxChange} from "@angular/material/checkbox";
   styleUrl: './add-mamber-groupe.component.css'
 })
 export class AddMamberGroupeComponent implements OnInit {
+  permission : Permission;
   groupeUser: GroupeUser;
   users: User[] = [];
   user: User ;
@@ -51,6 +52,10 @@ export class AddMamberGroupeComponent implements OnInit {
       this.filteredUsers = this.userControl.valueChanges.pipe(
         map(value => this._filterUsers(value || '')));
     });
+    this.userService.permissionTask$.subscribe(permission=> {
+      this.permission = permission;
+    })
+    this.userService.loadPermissiontTask();
 
   }
 
@@ -85,7 +90,7 @@ export class AddMamberGroupeComponent implements OnInit {
   idChecked(role: any): boolean {
     if (this.selectedRoles == undefined)
       return false;
-    return this.selectedRoles.some(selected => selected === role.value);
+    return this.selectedRoles.some(selected => selected === role.name);
   }
 
 

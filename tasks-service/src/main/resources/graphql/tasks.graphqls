@@ -106,12 +106,7 @@ type Project{
     issues:[Issue]
 }
 
-type RoleApp{
-    id:Int
-    name:String
-    memberGroupes:[MemberGroupe]
-    credentials:[Credential]
-}
+
 
 type Status{
     id:Int
@@ -497,4 +492,14 @@ input EventSearchCriteriaInput {
     projectId:Int
     start: String  # Date/heure de début, facultatif
     end: String  # Date/heure de fin, facultatif
+}
+
+type Permission {
+    name:String
+    roles:[RoleApp]
+}
+type RoleApp{
+    name:String
+    description:String
+    accessibilities:[String]
 }

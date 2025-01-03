@@ -1744,6 +1744,18 @@ const GET_PROJECT_BY_USER = gql`
       }
     }
 `
+const LOAD_PERMISSION_TASK=gql`
+  query loadPermissiontTask  {
+    loadPermissiontTask {
+        name
+        roles {
+          name
+          description
+          accessibilities
+        }
+    }
+  }
+`
 export {
   supprimerTypename,
   SAVE_USER,
@@ -1801,7 +1813,8 @@ export {
   SEARCH_EVENTS,
   DELETE_EVENT_TYPE,
   EVENT_BY_ID,
-  GET_PROJECT_BY_USER
+  GET_PROJECT_BY_USER,
+  LOAD_PERMISSION_TASK
 }
 function  supprimerTypename<T>(objet: T): T {
   if (!objet || typeof objet !== 'object') {
