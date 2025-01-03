@@ -67,7 +67,7 @@ export class Comment {
   id:number|null=null;
   user : User = new User();
   text : String ="";
-  date : String ="";
+  date : Date ;
   issue : Issue = new Issue();
 }
 

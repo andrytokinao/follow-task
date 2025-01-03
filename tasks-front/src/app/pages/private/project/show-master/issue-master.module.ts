@@ -36,6 +36,9 @@ import {IssueDetailsComponent} from "./issue-details/issue-details.component";
 import {PlanningComponent} from "./planning/planning.component";
 import {PlanningModule} from "../planning/planning.module";
 import {FileListComponent} from "./file-list/file-list.component";
+import {DossierSourceComponent} from "./dossier-sources/dossier-source.component";
+import {CommentsComponent} from "./comments/comments.component";
+import {IssueChatsComponent} from "./issue-chats/issue-chats.component";
 
 
 @NgModule({
@@ -45,7 +48,10 @@ import {FileListComponent} from "./file-list/file-list.component";
     LivraisonComponent,
     IssueDetailsComponent,
     PlanningComponent,
-    FileListComponent
+    FileListComponent,
+    DossierSourceComponent,
+    CommentsComponent,
+    IssueChatsComponent
   ],
   exports: [
   ],

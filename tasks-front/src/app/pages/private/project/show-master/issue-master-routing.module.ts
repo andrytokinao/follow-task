@@ -6,6 +6,9 @@ import {LivraisonComponent} from "./livraison/livraison.component";
 import {IssueDetailsComponent} from "./issue-details/issue-details.component";
 import {PlanningComponent} from "./planning/planning.component";
 import {FileListComponent} from "./file-list/file-list.component";
+import {DossierSourceComponent} from "./dossier-sources/dossier-source.component";
+import {CommentsComponent} from "./comments/comments.component";
+import {IssueChatsComponent} from "./issue-chats/issue-chats.component";
 
 
 
@@ -20,10 +23,13 @@ const masterRoute: Routes = [
         path: '',
         children: [
           { path: 'details', component: IssueDetailsComponent },
+          { path: 'sources-files', component: DossierSourceComponent },
           { path: 'subtask', component: SubtaskComponent },
           { path: 'planning', component: PlanningComponent },
           { path: 'livraison', component: LivraisonComponent },
-          {path:'files',component:FileListComponent}
+          { path: 'comments', component: CommentsComponent },
+          { path: 'chats', component: IssueChatsComponent },
+          {path:'espace-livraison',component:FileListComponent}
         ]
       }
     ]
