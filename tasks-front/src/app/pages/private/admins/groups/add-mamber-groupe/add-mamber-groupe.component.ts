@@ -61,10 +61,13 @@ export class AddMamberGroupeComponent implements OnInit {
 
   private _filterUsers(value: string): User[] {
     const filterValue = value.toLowerCase();
-    return this.users.filter(user => user =>
+    let fileted= this.users.filter( user =>
       user.firstName.toLowerCase().includes(filterValue) ||
       user.lastName.toLowerCase().includes(filterValue) ||
       user.username.toLowerCase().includes(filterValue));
+    console.debug("_filterUsers => ",fileted)
+
+    return fileted;
   }
 
   displayFn(user: User): string {

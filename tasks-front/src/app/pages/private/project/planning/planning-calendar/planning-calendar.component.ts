@@ -256,7 +256,6 @@ export class PlanningCalendarComponent implements AfterViewInit {
     contextMenu: this.contextMenu,
     onTimeRangeSelected: this.newEvent.bind(this),
     onBeforeEventRender: function (args) {
-      console.debug("event.html",args.data.html);
       args.data.html = args.data.html ;
 
 
@@ -379,7 +378,6 @@ export class PlanningCalendarComponent implements AfterViewInit {
 
     this.eventService.resources$.subscribe(resources => {
       this.resources = resources;
-      console.debug(this.resources);
       this.refreshView();
     })
 
@@ -481,7 +479,6 @@ export class PlanningCalendarComponent implements AfterViewInit {
     });
   }
   newEventForResources(args: any) {
-    console.debug(args);
     const newEvent: any = {
       title: "",
       eventType: undefined,
@@ -540,7 +537,6 @@ export class PlanningCalendarComponent implements AfterViewInit {
     } else {
       this.usersSelected = this.usersSelected.filter(u => u != id);
     }
-    console.debug(this.usersSelected);
     this.eventCriteria.userIds = this.usersSelected;
     this.eventService.searchEventsAndSet(this.eventCriteria);
   }
@@ -561,7 +557,6 @@ export class PlanningCalendarComponent implements AfterViewInit {
         events: data[1]
       };
       this.calendar.control.update(options);
-      console.debug(options);
     });
     eventsSubject.next(this.events);
     resourceSubject.next(this.resources);
@@ -570,7 +565,6 @@ export class PlanningCalendarComponent implements AfterViewInit {
   }
   viewEvent(args:any){
     this.eventService.viewEvent(args.e.data.id).subscribe(result => {
-      console.debug(result);
       this.loadEvents();
     })
   }

@@ -110,7 +110,6 @@ export class AuthGuard implements CanActivate {
     })
   }
   hasAutorityAsync(autorities:String[]){
-    console.debug("hasAutoritySynch" , autorities);
     return new Observable<boolean>((observer) =>{
        this.authService.getProfile().subscribe((profile:any) => {
          if (profile.permissions.includes('CAN_ACCESS_ALL')) {
@@ -138,7 +137,6 @@ export class AuthGuard implements CanActivate {
         nouvelleListe.push(`${groupe.prefix}_${value}`);
       }
     }
-    console.debug("AutorityProject ",nouvelleListe);
     return this.hasAutorityAsync(nouvelleListe);
   }
 
