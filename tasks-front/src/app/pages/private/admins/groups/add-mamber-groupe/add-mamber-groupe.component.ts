@@ -75,7 +75,7 @@ export class AddMamberGroupeComponent implements OnInit {
   }
 
   register() {
-    this.user = this.userControl.value || this.memberGroupe.user;
+    this.user = this.user || this.memberGroupe.user;
     if (this.user == undefined) {
       alert("Completer l'user  ");
       return;
@@ -108,5 +108,9 @@ export class AddMamberGroupeComponent implements OnInit {
   setMember(member:MemberGroupe) {
     this.memberGroupe = member;
     this.selectedRoles = member.roles || [];
+  }
+
+  selectUsert(user: User) {
+    this.user = user;
   }
 }
