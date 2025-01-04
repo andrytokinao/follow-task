@@ -2,12 +2,14 @@ package com.kinga.followtask.web;
 
 import com.kinga.followtask.dto.Criteria;
 import com.kinga.followtask.dto.EventSearchCriteriaDTO;
+import com.kinga.followtask.dto.Uploaded;
 import com.kinga.followtask.dto.ValueDto;
 import com.kinga.followtask.entity.*;
 import com.kinga.followtask.repository.criteria.IssueSearchCriteria;
 import com.kinga.followtask.repository.criteria.IssueSpecification;
 import com.kinga.followtask.service.*;
 import com.kinga.utils.KingaUtils;
+import com.nimbusds.jose.shaded.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -17,6 +19,7 @@ import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -86,7 +89,8 @@ public class GQIssueController {
         return issueService.downloadFiles(fileNames,directory);
     }
     @PostMapping("/api/upload")
-    public ResponseEntity<String> uploadFile(@RequestPart("file") MultipartFile file,@RequestParam String directory) {
+    @ResponseBody
+    public ResponseEntity<String> uploadFile(@RequestPart("file") MultipartFile file,@RequestParam String directory,@RequestParam(name = "newDirectory")  String newDirectory) {
         if (file.isEmpty()) {
             return ResponseEntity.badRequest().body("Le fichier est vide.");
         }
@@ -94,9 +98,16 @@ public class GQIssueController {
             String fileName = file.getOriginalFilename();
             String uploadDir = KingaUtils.decodeText(directory);
             Files.createDirectories(Paths.get(uploadDir));
+            if (!StringUtils.isEmpty(newDirectory)) {
+                Path newPathDir = Paths.get(uploadDir , newDirectory);
+                Files.createDirectories(newPathDir);
+                uploadDir = newPathDir.toString();
+            }
             Path filePath = Paths.get(uploadDir , fileName);
             Files.write(filePath, file.getBytes());
-            return ResponseEntity.ok().body("Le fichier a été téléchargé avec succès : " + fileName);
+            Uploaded uploaded = new Uploaded(fileName,KingaUtils.encodeText(filePath.toString()));
+
+            return ResponseEntity.ok().body((new Gson()).toJson(uploaded));
         } catch (IOException e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Une erreur s'est produite lors du téléchargement du fichier.");

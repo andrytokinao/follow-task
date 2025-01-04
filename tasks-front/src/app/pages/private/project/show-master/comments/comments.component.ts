@@ -1,12 +1,20 @@
 import {Component, Input} from '@angular/core';
-import {Comment, CustomField, CustomFieldValue, Issue, IssueType, UsingCustomField} from "../../../../../type/issue";
+import {
+  Comment,
+  CustomField,
+  CustomFieldValue,
+  Issue,
+  IssueType,
+  Uploading,
+  UsingCustomField
+} from "../../../../../type/issue";
 import {ActivatedRoute, Router} from "@angular/router";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {ConfigService} from "../../../../../services/config.service";
 import {IssueService} from "../../../../../services/issue.service";
 import {UserService} from "../../../../../services/user.service";
 import {AuthService} from "../../../../../services/auth.service";
-import {CustomFieldComponent} from "../../../../../common/custom-field/custom-field.component";
+import {Observable} from "rxjs";
 
 @Component({
   selector: 'comments-componets',
@@ -33,6 +41,7 @@ export class CommentsComponent {
     issue:{},
     user:{}
   };
+  protected filesToUploads: FileList;
   constructor(private router: Router,
               private modalService: NgbModal,
               private configService:ConfigService,
@@ -42,15 +51,9 @@ export class CommentsComponent {
               private authService: AuthService
   ) {
   }
-  subtasks: Issue[];
-  newSubtask: Issue;
-  userngCustomFields: UsingCustomField[] = [];
-
-
   ngOnInit(): void {
     this.route.data.subscribe(data => {
       this.parentIssue = data['parrentIssue'];
-      this.loadValues();
       this.loadComments();
     });
     this.issueService.project$.subscribe(project=> this.project = project)
@@ -58,67 +61,12 @@ export class CommentsComponent {
       this.profile = res;
     });
   }
-
-
-  loadValues(){
-    console.info("--- Loading  values ---")
-    this.issueService.getValues(this.parentIssue.id).subscribe(res => {
-        this.customFieldValues = res;
-        this.loadIssueType();
-      }
-    );
-  }
-  loadIssueType(){
-    this.issueService.getIssueTypeById(this.parentIssue.issueType.id).subscribe(issueType => {
-      this.issueType = issueType;
-      for( let usingCf of this.issueType.usingCustomFields){
-        this.values.push(this.getCustomFieldValue(usingCf.customField));
-      }
-    })
-  }
-
-  protected readonly CustomFieldComponent = CustomFieldComponent;
-
-  saveCustomFieldValue(event: CustomFieldValue) {
-    this.issueService.saveValues(event).subscribe(value =>
-      (values:CustomFieldValue[]) => {
-        this.customFieldValues = values;
-      }
-    );
-  }
-  addCustomFieldValue(usingCustomField:UsingCustomField) {
-    this.currentCustomFieldValue = {};
-    let issue:any = {};
-    issue.id = this.issue.id;
-    this.currentCustomFieldValue.customField = usingCustomField.customField;
-    this.currentCustomFieldValue.issue = issue;
-  }
-  getCustomFieldValue(customField:CustomField) {
-    let value: CustomFieldValue;
-
-
-    value = this.customFieldValues.find(
-      cfv=> cfv.customField.id == customField.id
-    );
-
-    if(value != null ) {
-      return value;
-    }
-    return CustomFieldComponent.newValue(this.parentIssue,customField);
-
-  }
-
-  setViewMode(s: string) {
-    this.viewModeField = s;
-  }
-
   comments :Comment[] = [];
-  pageContent: string = " ";
+  protected uploadings: Uploading[] = [];
 
   addComment() {
     this.comment.issue.id = this.parentIssue.id;
-
-    this.issueService.addComment(this.comment).subscribe(res=>{
+    this.issueService.addComment(this.comment,this.parentIssue.encodedPath,this.uploadings).subscribe(res=>{
       this.loadComments();
       this.comment.text ="";
     });
@@ -130,5 +78,46 @@ export class CommentsComponent {
       }
     );
   }
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files) {
+      console.debug("input.files",input.files);
+      this.filesToUploads = input.files;
+      for (let i = 0; i < input.files.length; i++) {
+        let uploading: Uploading = new class implements Uploading {
+          file: File = input.files.item(i)!;
+          progression: number = 0;
+          status: string = '';
+        }
+        this.uploadings.push(uploading);
+      }
+    }
+  }
 
+  selectFiles() {
+    document.querySelector<HTMLInputElement>('#fileInput')?.click();
+  }
+
+  removeFile(index: number) {
+    this.uploadings.splice(index, 1);
+  }
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    console.log('Fichier au-dessus de la zone');
+  }
+
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    if (event.dataTransfer?.files) {
+      this.filesToUploads = event.dataTransfer?.files;
+      for (let i = 0; i < event.dataTransfer?.files.length; i++) {
+        let uploading: Uploading = new class implements Uploading {
+          file: File = event.dataTransfer?.files.item(i)!;
+          progression: number = 0;
+          status: string = '';
+        }
+        this.uploadings.push(uploading);
+      }
+    }
+  }
 }

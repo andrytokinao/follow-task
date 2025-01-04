@@ -12,6 +12,7 @@ export class Issue {
   description: String ="";
   issueKey:String ="";
   creationDate:string;
+  encodedPath:String;
   status: Status | null = null;
   assigne:User = new User();
   values:CustomFieldValue[];
@@ -241,4 +242,8 @@ export interface EventSearchCriteria {
   parrentIds?:number[]
   start?: string
   end?: string
+}
+export interface Uploaded{
+  encodedPath:String;
+  name:String;
 }

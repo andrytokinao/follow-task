@@ -61,6 +61,7 @@ type  Issue {
     children:[Issue]
     comments:[Comment]
     files:[File]
+    encodedPath:String
     values:[CustomFieldValue]
     project:Project
 }

@@ -100,7 +100,7 @@ export class ViewEditIssueComponent implements OnInit{
   addComment() {
     this.comment.user.id = this.issue.assigne.id;// TODO: Change to user connected
     this.comment.issue.id = this.issue.id;
-    this.issueService.addComment(this.comment).subscribe(res=>{
+    this.issueService.addComment(this.comment,undefined,undefined).subscribe(res=>{
       this.comments = res;
     });
   }

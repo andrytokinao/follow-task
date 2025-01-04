@@ -1,9 +1,11 @@
 package com.kinga.followtask.entity;
 
+import com.kinga.utils.KingaUtils;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.File;
 import java.util.Date;
 import java.util.List;
 
@@ -48,5 +50,8 @@ public class Issue {
     private List<Event> events;
     @ManyToOne
     private Project project;
+    public String getEncodedPath(){
+        return KingaUtils.encodeText(this.getDirectory());
+    }
 
 }

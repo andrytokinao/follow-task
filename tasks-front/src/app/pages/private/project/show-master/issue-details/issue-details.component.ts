@@ -119,7 +119,7 @@ export class IssueDetailsComponent {
   addComment() {
     this.comment.issue.id = this.parentIssue.id;
 
-    this.issueService.addComment(this.comment).subscribe(res=>{
+    this.issueService.addComment(this.comment,undefined,undefined).subscribe(res=>{
       this.loadComments();
       this.comment.text ="";
     });

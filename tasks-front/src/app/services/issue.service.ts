@@ -1,6 +1,6 @@
 import {Injectable, OnInit} from '@angular/core';
 import {HttpClient, HttpEvent, HttpHeaders, HttpParams, HttpRequest} from '@angular/common/http';
-import {BehaviorSubject, observable, Observable, throwError} from 'rxjs';
+import {BehaviorSubject, concatMap, observable, Observable, throwError} from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import {
   Issue,
@@ -12,7 +12,7 @@ import {
   Project,
   IssueType,
   WorkFlow,
-  Criteria, CustomField, UsingCustomField, CustomFieldValue, ConfigProject, GroupeUser
+  Criteria, CustomField, UsingCustomField, CustomFieldValue, ConfigProject, GroupeUser, Uploading, Uploaded
 } from "../type/issue";
 import {Apollo} from "apollo-angular";
 import * as operation from "../type/graphql.operations";
@@ -164,26 +164,91 @@ export class IssueService implements OnInit{
    })
   }
 
-  addComment(comment: Comment) {
+  addComment(comment: Comment, encodedPath:String,uploadings:Uploading[]) {
     comment.user = {id:this.user.id}// TODO: Change to user connected recuperer coté serveur
-
     return new Observable<Comment[]>(observer => {
-      return this.apollo.mutate({
-        mutation: operation.ADD_COMMENT,
-        variables: {comment},
-        fetchPolicy:'network-only'
-      }).subscribe((res:any)=>{
-        observer.next(supprimerTypename(res.data.addComment));
-        observer.complete();
-      },
-        error => {
-         observer.error(error);
-         observer.complete();
-        }
+      if (uploadings === undefined || uploadings.length == 0) {
+        this.apollo.mutate({
+          mutation: operation.ADD_COMMENT,
+          variables: {comment},
+          fetchPolicy: 'network-only'
+        }).subscribe((res: any) => {
+            observer.next(supprimerTypename(res.data.addComment));
+            observer.complete();
+          },
+          error => {
+            observer.error(error);
+            observer.complete();
+          }
         )
-    })
+      } else {
+        let filenames  = new Set<Uploaded>();
+        let count = uploadings.length;
+        let alredySending = false;
+        this.sendSequentialUpload(uploadings,filenames, encodedPath, "COMMENTS").subscribe(res => {
+          console.debug("fileUploaded",filenames);
+
+          if (count == filenames.size) {
+            if (alredySending)
+              return;
+            alredySending = true;
+            let htmlLinks: String = this.fileNamesToLink(filenames);
+            comment.text = comment.text + "<br/>" + htmlLinks;
+            this.addComment(comment, undefined, undefined).subscribe(res => {
+              console.debug("addComment ", comment);
+              observer.next(res);
+              observer.complete();
+            });
+          }
+        });
+      }
+      // commentaire avec des fichies
+
+    });
   }
 
+  sendSequentialUpload(ups: Uploading[],filesUploaded:Set<Uploaded> ,directory: String,newDirectory:String): Observable<string> {
+    if (ups === undefined || ups.length === 0) {
+      return new Observable<string>(observer => {
+          observer.next(undefined);
+          observer.complete();
+      });
+    }
+    const up = ups.shift();
+    if(up) {
+      if (newDirectory){
+        let newDirectoryS = newDirectory.toString();
+        return this.uploadInNewDirertory(up.file,directory,newDirectoryS).pipe(
+          concatMap((response:any) => {
+            console.debug("uploadResponse",response);
+            this.removeElementAtIndex(ups, 0);
+            if (response.body) {
+              filesUploaded.add(JSON.parse(response.body));
+              console.debug("filesUploaded",filesUploaded);
+
+            }
+            return this.sendSequentialUpload(ups,filesUploaded, directory,directory);
+          })
+        );
+
+      } else {
+        return this.upload(up.file, directory).pipe(
+          concatMap((response:any) => {
+            console.debug("uploadResponse",response);
+            this.removeElementAtIndex(ups, 0);
+            if (response.body) {
+              filesUploaded.add(JSON.parse(response.body));
+              console.debug("filesUploaded",filesUploaded);
+            }
+            return this.sendSequentialUpload(ups,filesUploaded, directory,directory);
+          })
+        );
+      }
+
+    } else {
+      return this.sendSequentialUpload(ups,filesUploaded,directory,newDirectory);
+    }
+  }
 
   allComment(issueId: number) {
     return new Observable<Comment[]>((observer)=>{
@@ -280,16 +345,30 @@ export class IssueService implements OnInit{
     return environment.apiURL + `api/download${queryString}`;
   }
 
-  upload(file: File, dir: string): Observable<HttpEvent<any>> {
+  upload(file: File, root: String): Observable<HttpEvent<any>> {
     const formData: FormData = new FormData();
     formData.append('file', file);
-    const req = new HttpRequest('POST', `${environment.apiURL}api/upload?directory=` + dir, formData, {
+    const req = new HttpRequest('POST', `${environment.apiURL}api/upload?directory=` + root, formData, {
+      reportProgress: true,
+      responseType: 'text'
+    });
+    return this.http.request(req);
+  }
+  uploadInNewDirertory(file: File, root: String,newDirectory:string): Observable<HttpEvent<any>> {
+    const formData: FormData = new FormData();
+    formData.append('file', file);
+    const req = new HttpRequest('POST', `${environment.apiURL}api/upload?directory=` + root+'&newDirectory='+newDirectory, formData, {
       reportProgress: true,
       responseType: 'text'
     });
     return this.http.request(req);
   }
 
+  removeElementAtIndex(array: any[], index: number): void {
+    if (index > -1) {
+      array.splice(index, 1);
+    }
+  }
   createProjectOrSave(project: any) {
     return new Observable((observer) => {
       this.apollo.mutate({
@@ -937,5 +1016,21 @@ export class IssueService implements OnInit{
       },error => {
         console.error(error);
       })
+  }
+
+  fileNamesToLink(uploadeds: Set<Uploaded>):String {
+    let links:String = "" ;
+    if (uploadeds && uploadeds.size != 0){
+      for (let uploaded of uploadeds) {
+        let str = '<label class="tnz-file-tree-item file">' +
+          '    <span class="tnz-file-tree-label">' +
+                   '<a href="'+environment.apiURL +'api/download?fileNames='+uploaded.encodedPath+'&directory=metyfona">'+uploaded.name+'</a>';
+          '</span>' +
+          '</label>';
+          links += str;
+      }
+    }
+
+    return links;
   }
 }

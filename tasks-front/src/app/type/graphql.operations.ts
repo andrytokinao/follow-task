@@ -1299,6 +1299,7 @@ const GET_ISSUE = gql`
       issueKey
       summary
       description
+      encodedPath
       issueType {
         id
         level
