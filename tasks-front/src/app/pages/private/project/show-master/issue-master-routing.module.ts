@@ -2,7 +2,7 @@ import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from "@angular/router";
 import {ShowMasterComponent} from "./show-master.component";
 import {SubtaskComponent} from "./subtask/subtask.component";
-import {LivraisonComponent} from "./livraison/livraison.component";
+import {UploadedFilesComponent} from "./uploaded-file/uploaded-files.component";
 import {IssueDetailsComponent} from "./issue-details/issue-details.component";
 import {PlanningComponent} from "./planning/planning.component";
 import {FileListComponent} from "./file-list/file-list.component";
@@ -26,7 +26,7 @@ const masterRoute: Routes = [
           { path: 'sources-files', component: DossierSourceComponent },
           { path: 'subtask', component: SubtaskComponent },
           { path: 'planning', component: PlanningComponent },
-          { path: 'livraison', component: LivraisonComponent },
+          { path: 'uploaded', component: UploadedFilesComponent },
           { path: 'comments', component: CommentsComponent },
           { path: 'chats', component: IssueChatsComponent },
           {path:'espace-livraison',component:FileListComponent}

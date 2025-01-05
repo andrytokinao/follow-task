@@ -13,11 +13,11 @@ interface Livraison {
   filesToUpload?: FileList;
 }
 @Component({
-  selector: 'app-livraison',
-  templateUrl: './livraison.component.html',
-  styleUrl: './livraison.component.css'
+  selector: 'app-uploaded-files',
+  templateUrl: './uploaded-files.component.html',
+  styleUrl: './uploaded-files.component.css'
 })
-export class LivraisonComponent implements OnInit{
+export class UploadedFilesComponent implements OnInit{
   uploadedFiles: Array<{ name: string, userPhotoUrl: string, uploadDate: Date }> = [];
   selectedFiles:Repertoire[] = [];
 

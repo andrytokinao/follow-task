@@ -27,7 +27,7 @@ import {CustomFieldComponent} from "../../../../common/custom-field/custom-field
 import {IssueMasterRoutingModule} from "./issue-master-routing.module";
 import {ShowMasterComponent} from "./show-master.component";
 import {SubtaskComponent} from "./subtask/subtask.component";
-import {LivraisonComponent} from "./livraison/livraison.component";
+import {UploadedFilesComponent} from "./uploaded-file/uploaded-files.component";
 import {MatChip, MatChipsModule} from "@angular/material/chips";
 import {MatCheckboxModule} from "@angular/material/checkbox";
 import {MatButtonModule} from "@angular/material/button";
@@ -46,7 +46,7 @@ import {QuillEditorComponent} from "ngx-quill";
   declarations: [
     ShowMasterComponent,
     SubtaskComponent,
-    LivraisonComponent,
+    UploadedFilesComponent,
     IssueDetailsComponent,
     PlanningComponent,
     FileListComponent,
