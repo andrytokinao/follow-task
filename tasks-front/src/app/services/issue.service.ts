@@ -1033,4 +1033,37 @@ export class IssueService implements OnInit{
 
     return links;
   }
+  onFileSelected(event: Event): void {
+    let fileCategory ;
+    const input = event.target as HTMLInputElement;
+
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      const fileName = file.name;
+      const fileExtension = this.getFileExtension(fileName).toLowerCase();
+
+      // Détermine la catégorie du fichier
+      if (['pdf'].includes(fileExtension)) {
+        fileCategory = 'PDF';
+      } else if (['doc', 'docx'].includes(fileExtension)) {
+        fileCategory = 'Word';
+      }
+      else if (['xls', 'xlsx'].includes(fileExtension)) {
+        fileCategory = 'Excel';
+      } else if (['png', 'jpg', 'jpeg', 'gif', 'bmp', 'svg'].includes(fileExtension)) {
+        fileCategory = 'Image';
+      } else {
+        fileCategory = 'Type inconnu';
+      }
+    }
+    return fileCategory;
+  }
+
+  private getFileExtension(fileName: string): string {
+    const lastDotIndex = fileName.lastIndexOf('.');
+    if (lastDotIndex === -1 || lastDotIndex === fileName.length - 1) {
+      return '';
+    }
+    return fileName.substring(lastDotIndex + 1); // Retourne l'extension
+  }
 }

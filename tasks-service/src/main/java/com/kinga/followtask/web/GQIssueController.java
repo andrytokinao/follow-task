@@ -88,6 +88,12 @@ public class GQIssueController {
     public ResponseEntity<Resource> downloadFiles(@RequestParam List<String> fileNames, @RequestParam String directory, @RequestParam String fileName) throws MalformedURLException {
         return issueService.downloadFiles(fileNames,directory,fileName);
     }
+    @GetMapping("/api/fech-file")
+    @ResponseBody
+    public ResponseEntity<Resource> fechFile(@RequestParam String fileName,String fileType)  {
+
+        return issueService.fechFile(fileName,fileType);
+    }
     @PostMapping("/api/upload")
     @ResponseBody
     public ResponseEntity<String> uploadFile(@RequestPart("file") MultipartFile file,@RequestParam String directory,@RequestParam(name = "newDirectory")  String newDirectory) {

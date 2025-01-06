@@ -378,4 +378,26 @@ public class IssueService {
     public CustomField getCustomField (Long id) {
         return customFieldRepository.getById (id);
     }
+
+    public ResponseEntity<Resource> fechFile(String myPath, String fileType) {
+        MediaType mediaType = null;
+        if ("pdf".equalsIgnoreCase(fileType)) {
+            mediaType = MediaType.APPLICATION_PDF;
+        }
+        try {
+            Path path = Paths.get(KingaUtils.decodeText(myPath));
+            Resource pdfResource = new UrlResource(path.toUri());
+            String fileName = pdfResource.getFilename() ;
+
+            if (!pdfResource.exists() || !pdfResource.isReadable()) {
+                throw new RuntimeException("Le fichier PDF n'existe pas ou n'est pas lisible");
+            }
+            return ResponseEntity.ok()
+                    .contentType(mediaType)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + fileName + "\"")
+                    .body(pdfResource);
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors de la récupération du fichier PDF", e);
+        }
+    }
 }

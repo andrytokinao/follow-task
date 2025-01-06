@@ -1,20 +1,23 @@
 <div class="file-group-container">
-  <!-- Aperçu du fichier sélectionné -->
+  <app-pdf-overview></app-pdf-overview>
   <div class="file-preview-container" *ngIf="selectedFile">
     <h3>Aperçu du fichier: {{ selectedFile.name }}</h3>
     <div class="file-preview">
+
       <ng-container [ngSwitch]="selectedFile.type">
         <div *ngSwitchCase="'image'" class="image-preview">
           <img [src]="selectedFile.previewUrl" alt="File Preview">
         </div>
         <div *ngSwitchCase="'pdf'" class="pdf-preview">
+          <app-pdf-overview></app-pdf-overview>
+
           <object [data]="selectedFile.previewUrl" type="application/pdf" width="100%" height="200px"></object>
         </div>
         <div *ngSwitchCase="'word'" class="default-preview">
           <p>Fichier Word - Aucun aperçu disponible</p>
         </div>
         <div *ngSwitchDefault class="default-preview">
-          <p>Aperçu non disponible</p>
+          <app-pdf-overview></app-pdf-overview>
         </div>
       </ng-container>
     </div>

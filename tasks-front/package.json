@@ -37,6 +37,7 @@
     "lottie-web": "^5.12.2",
     "marked": "^5.1.0",
     "ngx-breadcrumbs": "^0.0.3",
+    "ngx-extended-pdf-viewer": "^22.2.0-alpha.6",
     "ngx-lottie": "^12.0.0",
     "ngx-markdown": "^18.1.0",
     "ngx-quill": "^27.0.0",

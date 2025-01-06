@@ -34,6 +34,8 @@ import {IssueFilterFieldComponent} from "./issue-filter-field/issue-filter-field
 import {MatCheckbox} from "@angular/material/checkbox";
 import {QuillEditorComponent} from "ngx-quill";
 import {EditorComponent} from "./quill-editor/quill-editor.component";
+import {PdfOverviewComponent} from "./pdf-overview/pdf-overview.component";
+import {NgxExtendedPdfViewerModule} from "ngx-extended-pdf-viewer";
 
 @NgModule({
   declarations: [
@@ -55,7 +57,8 @@ import {EditorComponent} from "./quill-editor/quill-editor.component";
     EditEventComponent,
     NewEventComponent,
     IssueFilterFieldComponent,
-    EditorComponent
+    EditorComponent,
+    PdfOverviewComponent
 
   ],
   imports: [
@@ -84,6 +87,7 @@ import {EditorComponent} from "./quill-editor/quill-editor.component";
     RouterLink,
     MatCheckbox,
     QuillEditorComponent,
+    NgxExtendedPdfViewerModule,
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA
@@ -107,7 +111,8 @@ import {EditorComponent} from "./quill-editor/quill-editor.component";
     EditEventComponent,
     NewEventComponent,
     QuillEditorComponent,
-    EditorComponent
+    EditorComponent,
+    PdfOverviewComponent
   ]
 })
 export class MyCommonModule { }
