@@ -2,11 +2,11 @@ package com.kinga.followtask.web;
 
 import com.kinga.followtask.dto.Criteria;
 import com.kinga.followtask.dto.EventSearchCriteriaDTO;
-import com.kinga.followtask.dto.Uploaded;
+import com.kinga.followtask.dto.UploadedDto;
+import com.kinga.followtask.entity.Uploaded;
 import com.kinga.followtask.dto.ValueDto;
 import com.kinga.followtask.entity.*;
 import com.kinga.followtask.repository.criteria.IssueSearchCriteria;
-import com.kinga.followtask.repository.criteria.IssueSpecification;
 import com.kinga.followtask.service.*;
 import com.kinga.utils.KingaUtils;
 import com.nimbusds.jose.shaded.gson.Gson;
@@ -85,8 +85,8 @@ public class GQIssueController {
 
     @GetMapping("/api/download")
     @ResponseBody
-    public ResponseEntity<Resource> downloadFiles(@RequestParam List<String> fileNames, @RequestParam String directory) throws MalformedURLException {
-        return issueService.downloadFiles(fileNames,directory);
+    public ResponseEntity<Resource> downloadFiles(@RequestParam List<String> fileNames, @RequestParam String directory, @RequestParam String fileName) throws MalformedURLException {
+        return issueService.downloadFiles(fileNames,directory,fileName);
     }
     @PostMapping("/api/upload")
     @ResponseBody
@@ -94,23 +94,13 @@ public class GQIssueController {
         if (file.isEmpty()) {
             return ResponseEntity.badRequest().body("Le fichier est vide.");
         }
-        try {
-            String fileName = file.getOriginalFilename();
-            String uploadDir = KingaUtils.decodeText(directory);
-            Files.createDirectories(Paths.get(uploadDir));
-            if (!StringUtils.isEmpty(newDirectory)) {
-                Path newPathDir = Paths.get(uploadDir , newDirectory);
-                Files.createDirectories(newPathDir);
-                uploadDir = newPathDir.toString();
-            }
-            Path filePath = Paths.get(uploadDir , fileName);
-            Files.write(filePath, file.getBytes());
-            Uploaded uploaded = new Uploaded(fileName,KingaUtils.encodeText(filePath.toString()));
+        try{
+           Uploaded uploaded = projectService.uplodoadFile(file, directory, newDirectory);
+           String json = (new Gson()).toJson(new UploadedDto(uploaded.getId(),uploaded.getName(),uploaded.getPath(),uploaded.getEncodedPath()));
+            return ResponseEntity.ok().body(json);
 
-            return ResponseEntity.ok().body((new Gson()).toJson(uploaded));
-        } catch (IOException e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Une erreur s'est produite lors du téléchargement du fichier.");
+        } catch (Exception ex){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Une erreur s'est produite lors du téléchargement du fichier."+ex.getMessage());
         }
     }
     @QueryMapping

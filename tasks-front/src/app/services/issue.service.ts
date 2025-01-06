@@ -1024,7 +1024,7 @@ export class IssueService implements OnInit{
       for (let uploaded of uploadeds) {
         let str = '<label class="tnz-file-tree-item file">' +
           '    <span class="tnz-file-tree-label">' +
-                   '<a href="'+environment.apiURL +'api/download?fileNames='+uploaded.encodedPath+'&directory=metyfona">'+uploaded.name+'</a>';
+                   '<a href="'+environment.apiURL +'api/download?fileNames='+uploaded.encodedPath+'&directory=metyfona&fileName='+uploaded.name+'">'+uploaded.name+'</a>';
           '</span>' +
           '</label>';
           links += str;

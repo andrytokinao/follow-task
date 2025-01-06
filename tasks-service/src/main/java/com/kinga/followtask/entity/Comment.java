@@ -13,6 +13,8 @@ public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Lob
+    @Column(name = "text",length = 5000)
     private String text;
     @ManyToOne
     private UserApp user;

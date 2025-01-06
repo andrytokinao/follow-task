@@ -1,6 +1,7 @@
 package com.kinga.followtask.service;
 
 import com.kinga.followtask.dto.Criteria;
+import com.kinga.followtask.dto.UploadedDto;
 import com.kinga.followtask.dto.UserDetailsDeto;
 import com.kinga.followtask.entity.*;
 import com.kinga.followtask.entity.enumapp.Niveau;
@@ -8,16 +9,23 @@ import com.kinga.followtask.repository.*;
 import com.kinga.followtask.repository.criteria.IssueSearchCriteria;
 import com.kinga.followtask.repository.criteria.IssueSpecification;
 import com.kinga.utils.KingaUtils;
+import com.nimbusds.jose.shaded.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 import static com.kinga.followtask.entity.enumapp.Niveau.SUB_TASK;
@@ -42,6 +50,7 @@ public class ProjectService {
     final GroupeUserRepository groupeUserRepository;
     final MemberGroupeRepository memberGroupeRepository;
     final UserService userService;
+    final UploadedRepository uploadedRepository;
     static Logger logger = LoggerFactory.getLogger (ProjectService.class);
 
     public Status saveStatus (Status status) {
@@ -478,4 +487,19 @@ public class ProjectService {
     }
 
 
+    public Uploaded uplodoadFile(MultipartFile file, String directory, String newDirectory) throws IOException {
+        String fileName = file.getOriginalFilename();
+        String uploadDir = KingaUtils.decodeText(directory);
+        Files.createDirectories(Paths.get(uploadDir));
+        if (!StringUtils.isEmpty(newDirectory)) {
+            Path newPathDir = Paths.get(uploadDir, newDirectory);
+            Files.createDirectories(newPathDir);
+            uploadDir = newPathDir.toString();
+        }
+        String newFileName =  UUID.randomUUID().toString();
+        Path filePath = Paths.get(uploadDir,newFileName);
+        Files.write(filePath, file.getBytes());
+        Uploaded uploaded = new Uploaded(fileName, filePath.toString());
+        return uploadedRepository.save(uploaded);
+    }
 }

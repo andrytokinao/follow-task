@@ -302,16 +302,17 @@ public class IssueService {
         return valueDeoRepository.findCustomFieldValueByIssueId(id);
     }
 
-    public ResponseEntity<Resource> downloadFiles(List<String> fileNames, String directory) throws MalformedURLException {
+    public ResponseEntity<Resource> downloadFiles(List<String> fileNames, String directory,String newFileName) throws MalformedURLException {
         if (CollectionUtils.isEmpty(fileNames)) {
             return null;
         }
         if (fileNames.size() == 1) {
             Path zipFilePath = Paths.get(KingaUtils.decodeText(fileNames.get(0)));
             Resource singleResource = new UrlResource(zipFilePath.toUri());
+            String fileName = StringUtils.isEmpty(newFileName)? singleResource.getFilename() : newFileName;
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + singleResource.getFilename() + "\"")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
                     .body(singleResource);
         }
 

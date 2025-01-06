@@ -37,11 +37,16 @@
 
         <div class="file-item-list">
           <div *ngFor="let file of group.files" (click)="selectFile(file)" class="file-item">
-            <p>{{ file.name }}</p>
-            <p><small>{{ file.uploadDate }} - Par {{ file.uploadedBy }}</small></p>
-            <p><small>{{ file.fileDescription }}</small></p>
+            <span><i class="fas fa-file-pdf"></i> {{ file.name }}</span>
           </div>
         </div>
+        <div class="file-item-list">
+            <div class="file-item"><i class="fas fa-file-pdf"></i> fichier.pdf</div>
+            <div class="file-item"><i class="fas fa-file-word"></i> fichier.docx</div>
+            <div class="file-item"><i class="fas fa-file-archive"></i> fichier.zip</div>
+            <div class="file-item"><i class="fas fa-file-audio"></i> fichier.mp3</div>
+            <div class="file-item"><i class="fas fa-file-video"></i> fichie.mp4</div>
+          </div>
       </div>
     </div>
   </div>

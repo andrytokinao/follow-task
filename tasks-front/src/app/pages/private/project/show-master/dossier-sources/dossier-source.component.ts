@@ -15,19 +15,10 @@ export class DossierSourceComponent {
       files: [
         {
           name: 'draft-image.png',
-          type: 'image',
-          previewUrl: 'assets/draft-image.png',
-          uploadDate: '2025-01-03',
-          uploadedBy: 'Charlie Lemoine',
-          fileDescription: 'Image du brouillon du projet.'
         },
         {
           name: 'draft-doc.pdf',
-          type: 'pdf',
-          previewUrl: 'assets/draft-doc.pdf',
-          uploadDate: '2025-01-03',
-          uploadedBy: 'Charlie Lemoine',
-          fileDescription: 'Document PDF du brouillon.'
+
         }
       ]
     },
@@ -39,19 +30,9 @@ export class DossierSourceComponent {
       files: [
         {
           name: 'final-image.png',
-          type: 'image',
-          previewUrl: 'assets/final-image.png',
-          uploadDate: '2025-01-05',
-          uploadedBy: 'Alice Dupont',
-          fileDescription: 'Image finale du projet.'
         },
         {
           name: 'final-doc.pdf',
-          type: 'pdf',
-          previewUrl: 'assets/final-doc.pdf',
-          uploadDate: '2025-01-05',
-          uploadedBy: 'Alice Dupont',
-          fileDescription: 'Document PDF final du projet.'
         }
       ]
     }
