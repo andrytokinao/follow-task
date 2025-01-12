@@ -2,7 +2,7 @@ import {Component, Input} from '@angular/core';
 import {
   Comment,
   CustomField,
-  CustomFieldValue,
+  CustomFieldValue, DocumentApp,
   Issue,
   IssueType,
   Uploading,
@@ -26,7 +26,10 @@ export class CommentsComponent {
   private issue: Issue;
   protected parentIssue: any;
   protected issueType:IssueType | undefined;
+  document: DocumentApp = {};
+
   expaces:any[]=[];
+  documents:DocumentApp[]=[];
   customFieldValue:CustomFieldValue |any= {}
   customFieldValues :CustomFieldValue[] = [];
   newValues:CustomFieldValue[] =[];
@@ -42,6 +45,7 @@ export class CommentsComponent {
     user:{}
   };
   protected filesToUploads: FileList;
+  private typeDocument: string ='COMMENT_FILES';
   constructor(private router: Router,
               private modalService: NgbModal,
               private configService:ConfigService,
@@ -54,7 +58,9 @@ export class CommentsComponent {
   ngOnInit(): void {
     this.route.data.subscribe(data => {
       this.parentIssue = data['parrentIssue'];
-      this.loadComments();
+  //    this.loadComments();
+      this.loadDocument();
+
     });
     this.issueService.project$.subscribe(project=> this.project = project)
     this.authService.getProfile().subscribe((res)=>{
@@ -87,7 +93,7 @@ export class CommentsComponent {
         let uploading: Uploading = new class implements Uploading {
           file: File = input.files.item(i)!;
           progression: number = 0;
-          status: string = '';
+          status:  '';
         }
         this.uploadings.push(uploading);
       }
@@ -114,10 +120,28 @@ export class CommentsComponent {
         let uploading: Uploading = new class implements Uploading {
           file: File = event.dataTransfer?.files.item(i)!;
           progression: number = 0;
-          status: string = '';
+          status:  '';
         }
         this.uploadings.push(uploading);
       }
     }
+  }
+  private loadDocument() {
+    this.issueService.getDocuments(this.parentIssue.id,this.typeDocument).subscribe(documents => {
+      this.documents = documents;
+    })
+  }
+
+  addDocument() {
+    alert("add document");
+    this.document.typeDocument = this.typeDocument;
+    this.document.titre ="Commentaire";
+    this.document.issues = {id:this.parentIssue.id}
+    if (this.profile){
+      this.document.userApp = {id:this.profile.id}
+    }
+    this.issueService.uploadDocument(this.document,this.parentIssue.encodedPath,this.uploadings,this.typeDocument).subscribe(document => {
+      this.loadDocument();
+    })
   }
 }

@@ -11,6 +11,8 @@ import com.kinga.utils.KingaUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -61,6 +63,10 @@ public class IssueService {
     private EventRepository eventRepository;
     @Autowired
     private IconeRepository iconeRepository;
+    @Autowired
+    private DocumentRepository documentRepository;
+    @Autowired
+    private UploadedRepository uploadedRepository;
 
 
     public Issue saveIssue(Issue issue) throws IOException {
@@ -374,7 +380,6 @@ public class IssueService {
         }
         return issueRepository.getById (is.getId ());
     }
-
     public CustomField getCustomField (Long id) {
         return customFieldRepository.getById (id);
     }
@@ -399,5 +404,23 @@ public class IssueService {
         } catch (Exception e) {
             throw new RuntimeException("Erreur lors de la récupération du fichier PDF", e);
         }
+    }
+    public Document addDocument(Document document){
+        if (document.getId() == null) {
+            document.setCreation(new Date());
+        }
+        document = documentRepository.save(document);
+        List<Uploaded> uploadeds = document.getUploadeds();
+       if (!CollectionUtils.isEmpty(uploadeds)) for(Uploaded up :uploadeds){
+            up.setDocument(document);
+            uploadedRepository.save(up);
+        }
+        return this.documentRepository.getById(document.getId());
+    }
+    public List<Document> getDocuments(Long issueId, TypeDocument typeDocument) {
+        return documentRepository.findByIssuesIdAndTypeDocument(issueId,typeDocument);
+    }
+    public Uploaded saveUploaded(Uploaded uploaded) {
+        return uploadedRepository.save(uploaded);
     }
 }

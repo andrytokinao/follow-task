@@ -7,20 +7,20 @@ export class Status {
 }
 export class Issue {
   id: number = 0;
-  summary: String= "";
-  type: number= 0;
-  description: String ="";
-  issueKey:String ="";
-  creationDate:string;
-  encodedPath:String;
-  status: Status | null = null;
-  assigne:User = new User();
-  values:CustomFieldValue[];
-  reporter:User = new User();
-  issueType:IssueType | any = {};
-  parent:Issue
-  comments :Comment[] = [];
-  project:Project;
+  summary?: String= "";
+  type?: number= 0;
+  description?: String ="";
+  issueKey?:String ="";
+  creationDate?:string;
+  encodedPath?:String;
+  status?: Status | null = null;
+  assigne?:User = new User();
+  values?:CustomFieldValue[];
+  reporter?:User = new User();
+  issueType?:IssueType | any = {};
+  parent?:Issue
+  comments? :Comment[] = [];
+  project?:Project;
   constructor() {
 
   }
@@ -104,7 +104,7 @@ export interface Repertoire {
 }
 export interface Uploading {
   file:File
-  status:string ;
+  status: '' | 'pending' | 'uploading' | 'success' | 'error';
   progression:number ;
 }
 export interface ConfigEntry{
@@ -246,4 +246,16 @@ export interface EventSearchCriteria {
 export interface Uploaded{
   encodedPath:String;
   name:String;
+  document:DocumentApp;
+  path:String;
+}
+export interface DocumentApp{
+  titre?:String;
+  description?:string;
+  typeDocument?:string;
+  creation?:string;
+  userApp?:User;
+  issues?:Issue
+  uploadeds?:Uploaded[]
+
 }

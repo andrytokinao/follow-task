@@ -176,7 +176,7 @@ export class ViewEditIssueComponent implements OnInit{
       let uploading: Uploading = new class implements Uploading {
         file: File = files.item(i)!;
         progression: number = 0;
-        status: string = '';
+        status:  '';
       }
       this.uploading.push(uploading);
     }

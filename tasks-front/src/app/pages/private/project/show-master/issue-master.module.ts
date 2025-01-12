@@ -40,6 +40,7 @@ import {DossierSourceComponent} from "./dossier-sources/dossier-source.component
 import {CommentsComponent} from "./comments/comments.component";
 import {IssueChatsComponent} from "./issue-chats/issue-chats.component";
 import {QuillEditorComponent} from "ngx-quill";
+import {DocumentsComponent} from "./documents/documents.component";
 
 
 @NgModule({
@@ -52,7 +53,8 @@ import {QuillEditorComponent} from "ngx-quill";
     FileListComponent,
     DossierSourceComponent,
     CommentsComponent,
-    IssueChatsComponent
+    IssueChatsComponent,
+    DocumentsComponent
   ],
   exports: [
   ],

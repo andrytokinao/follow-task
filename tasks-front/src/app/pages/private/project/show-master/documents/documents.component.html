@@ -1,0 +1,92 @@
+<div class="file-group-container"  >
+
+  <div class="file-list-full" [ngClass]="{'file-list-with-selected': (selectedFile || isNewFile), 'file-list-not ':!(selectedFile || isNewFile)}" >
+    <div class="card" *ngIf="!isNewFile" (click)="createUpload()">
+      <div class="content details" >
+        <p><i class="fas fa-plus"></i> Creer une uploads </p>
+      </div>
+    </div>
+    <div *ngFor="let document of documents">
+      <span>
+        <small>{{ document.creation | date | date }} - Par {{ document.userApp.username }}</small>
+      </span>
+      <div class="file-group">
+        <h4>{{document.titre}}</h4>
+
+        <div [innerHTML]="document.description "></div>
+        <div class="file-item-list">
+          <div> Fichier </div>
+          <div class="file-item" *ngFor="let up of document.uploadeds" (click)="selectFile(up)">
+            <i [class]="getFileIconClass(up.name.toString())"></i> {{ up.name }}
+          </div>
+
+          <!--<div class="file-item"><i class="fas fa-file-word"></i> fichier.docx</div>
+          <div class="file-item"><i class="fas fa-file-archive"></i> fichier.zip</div>
+          <div class="file-item"><i class="fas fa-file-audio"></i> fichier.mp3</div>
+          <div class="file-item"><i class="fas fa-file-video"></i> fichie.mp4</div>-->
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="file-preview-container" *ngIf="selectedFile || isNewFile" >
+    <div class="file-preview" *ngIf="!isNewFile" >
+     <app-pdf-overview *ngIf="selectedFile" [setUploaded]="selectedFile"> </app-pdf-overview>
+      <!--<ng-container [ngSwitch]="selectedFile.name">
+        <div *ngSwitchCase="'image'" class="image-preview">
+          <img [src]="selectedFile.encodedPath" alt="File Preview">
+        </div>
+        <div *ngSwitchCase="'pdf'" class="pdf-preview">
+          <object [data]="selectedFile.encodedPath" type="application/pdf" width="100%" height="200px"></object>
+        </div>
+        <div *ngSwitchCase="'word'" class="default-preview">
+          <p>Fichier Word - Aucun aperçu disponible</p>
+        </div>
+        <div *ngSwitchDefault class="default-preview">
+          <p>Aperçu non disponible</p>
+        </div>
+
+      </ng-container>-->
+    </div>
+    <div *ngIf="isNewFile" (dragover)="onDragOver($event)" (drop)="onDrop($event)">
+      <div>
+        <form #f="ngForm" (ngSubmit)="upload()">
+          <div class="form-group" #parent>
+            <mat-form-field style="width: 100%">
+              <mat-label>Titre </mat-label>
+              <input matInput
+                     cdkTextareaAutosize
+                     cdkAutosizeMinRows="1"
+                     [(ngModel)]="document.titre"
+                     [ngModelOptions]="{standalone: true}"
+                     cdkAutosizeMaxRows="5"/>
+            </mat-form-field>
+            <div style="width: 100%;min-height: 100px" >
+              <app-quill-editor [(content)]="document.description"></app-quill-editor>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div
+        (click)="fileInput.click()"
+        class="file-drop-zone">
+        <input type="file" multiple (change)="onFileSelected($event)" hidden #fileInput>
+        <p>Glissez-déposez vos fichiers ou cliquez pour les sélectionner</p>
+      </div>
+      <div>
+        <ul *ngIf="filesToUploads">
+          <div *ngFor="let up of uploadings; let i = index" class="file" [ngClass]="up.status">
+            <label class="file"> <i class="fa fa-file-text"> </i>
+              {{ up.file.name}}
+            </label>
+            <span (click)="removeFile(i)" style="float: right;"> {{ up.status }} <i class="fa fa-remove"></i></span>
+          </div>
+          <div>
+            <button class="upload-btn" (click)="upload()">Uploader</button>
+          </div>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

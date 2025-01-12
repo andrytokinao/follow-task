@@ -24,6 +24,8 @@ type Mutation {
     addUserInGroupe(username:String,groupeId:Int,roles:[String]):MemberGroupe
     saveEvent(event:EventInput):Event
     deleteEvent(eventId:Int):Event
+    addDocument(document:DocumentInput):Document
+    saveUploaded(uploaded:UploadedInput):Uploaded
 }
 
 

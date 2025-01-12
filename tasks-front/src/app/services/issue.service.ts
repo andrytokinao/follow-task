@@ -1,6 +1,6 @@
 import {Injectable, OnInit} from '@angular/core';
-import {HttpClient, HttpEvent, HttpHeaders, HttpParams, HttpRequest} from '@angular/common/http';
-import {BehaviorSubject, concatMap, observable, Observable, throwError} from 'rxjs';
+import {HttpClient, HttpEvent, HttpEventType, HttpHeaders, HttpParams, HttpRequest} from '@angular/common/http';
+import {BehaviorSubject, concatMap, finalize, observable, Observable, of, switchMap, tap, throwError} from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import {
   Issue,
@@ -12,7 +12,7 @@ import {
   Project,
   IssueType,
   WorkFlow,
-  Criteria, CustomField, UsingCustomField, CustomFieldValue, ConfigProject, GroupeUser, Uploading, Uploaded
+  Criteria, CustomField, UsingCustomField, CustomFieldValue, ConfigProject, GroupeUser, Uploading, Uploaded, DocumentApp
 } from "../type/issue";
 import {Apollo} from "apollo-angular";
 import * as operation from "../type/graphql.operations";
@@ -47,6 +47,7 @@ import {ViewEditIssueComponent} from "../pages/private/project/modal/view-edit-i
 import {PlanningIssueComponent} from "../pages/private/project/modal/planning-issue/planning-issue.component";
 import {AuthService} from "./auth.service";
 import {id} from "@swimlane/ngx-charts";
+import {List} from "gojs";
 
 @Injectable({
   providedIn: 'root',
@@ -182,71 +183,142 @@ export class IssueService implements OnInit{
           }
         )
       } else {
-        let filenames  = new Set<Uploaded>();
         let count = uploadings.length;
         let alredySending = false;
-        this.sendSequentialUpload(uploadings,filenames, encodedPath, "COMMENTS").subscribe(res => {
-          console.debug("fileUploaded",filenames);
+        let filesUploadedsSubject = new BehaviorSubject<Uploaded[]>([]);
 
-          if (count == filenames.size) {
-            if (alredySending)
-              return;
-            alredySending = true;
-            let htmlLinks: String = this.fileNamesToLink(filenames);
-            comment.text = comment.text + "<br/>" + htmlLinks;
-            this.addComment(comment, undefined, undefined).subscribe(res => {
-              console.debug("addComment ", comment);
-              observer.next(res);
-              observer.complete();
-            });
-          }
+        this.sendSequentialUpload({},uploadings,encodedPath,"COMMENTS").subscribe(res => {
+          console.debug("fileUploaded");
+
         });
       }
       // commentaire avec des fichies
 
     });
   }
-
-  sendSequentialUpload(ups: Uploading[],filesUploaded:Set<Uploaded> ,directory: String,newDirectory:String): Observable<string> {
-    if (ups === undefined || ups.length === 0) {
-      return new Observable<string>(observer => {
-          observer.next(undefined);
+  uploadDocument(document:DocumentApp , encodedPath:String, uploadings:Uploading[], rewRepertoire:string) {
+   return new Observable<DocumentApp>(observer => {
+        this.saveDocument(document).subscribe( savedDocument => {
+          if (!uploadings || uploadings.length == 0) {
+            observer.next(savedDocument);
+            observer.complete();
+          } else {
+            this.sendSequentialUpload(savedDocument,uploadings,encodedPath,rewRepertoire).subscribe(uploades => {
+              if (uploades.type === undefined)
+                alert(JSON.stringify(uploades));
+              observer.next(savedDocument);
+              observer.complete();
+            },er => {
+              observer.error(er);
+              observer.complete();
+            })
+          }
+        })
+   })
+  }
+  saveDocument(document:DocumentApp) {
+    return new Observable<DocumentApp>(observer => {
+      this.apollo.mutate({
+        mutation: operation.ADD_ADD_DOCUMENT,
+        variables: {document},
+        fetchPolicy: 'network-only'
+      }).subscribe((res: any) => {
+          observer.next(supprimerTypename(res.data.addDocument));
           observer.complete();
-      });
+        },
+        error => {
+          observer.error(error);
+          observer.complete();
+        }
+      )
+    })
+  }
+  saveUploaded(uploaded:Uploaded) {
+    return new Observable<DocumentApp>(observer => {
+      this.apollo.mutate({
+        mutation: operation.SAVE_UPLOADED,
+        variables: {uploaded},
+        fetchPolicy: 'network-only'
+      }).subscribe((res: any) => {
+          observer.next(supprimerTypename(res.data.saveUploaded));
+          observer.complete();
+        },
+        error => {
+          observer.error(error);
+          observer.complete();
+        }
+      )
+    })
+  }
+  sendSequentialUpload(document:DocumentApp,uploadings: Uploading[] ,directory: String,newDirectory:String): Observable<any> {
+    console.debug("Saved document",document);
+
+    if (uploadings === undefined || uploadings.length === 0) {
+      console.debug("Toutes les uploadées");
+      return of('Toutes les uploadées');
     }
-    const up = ups.shift();
-    if(up) {
-      if (newDirectory){
-        let newDirectoryS = newDirectory.toString();
-        return this.uploadInNewDirertory(up.file,directory,newDirectoryS).pipe(
-          concatMap((response:any) => {
-            console.debug("uploadResponse",response);
-            this.removeElementAtIndex(ups, 0);
-            if (response.body) {
-              filesUploaded.add(JSON.parse(response.body));
-              console.debug("filesUploaded",filesUploaded);
+    let current = uploadings[0];
 
-            }
-            return this.sendSequentialUpload(ups,filesUploaded, directory,directory);
-          })
+    if (newDirectory) {
+      return this.uploadInNewDirertory(current.file,directory,newDirectory.toString()).pipe(
+        tap((event) => {
+          if (event.type === HttpEventType.UploadProgress) {
+            const progress = Math.round((event.loaded / (event.total || 1)) * 100);
+            console.log(`Progression de ${current.file.name}: ${progress}%`);
+            current.status = 'uploading';
+            current.progression = progress;
+          } else if (event.type === HttpEventType.Response) {
+            console.log(`Upload terminé pour ${current.file.name}`);
+            const uploaded:Uploaded = JSON.parse(event.body);
+            uploaded.document = document;
+            console.debug('uploaded to save',uploaded);
+
+            this.saveUploaded(uploaded).subscribe(() => {
+              current.status = 'success';
+              uploadings.shift();
+              console.log("ater shift",uploadings);
+            });
+          }
+        }),
+        catchError((error) => {
+          console.error(`Erreur lors de l'upload de ${current.file.name}:`, error);
+          current.status = 'error';
+          uploadings.shift();
+          return of(null);
+        }),
+        finalize(() => {
+          this.sendSequentialUpload(document,uploadings,directory,newDirectory).subscribe();
+        })
         );
-
-      } else {
-        return this.upload(up.file, directory).pipe(
-          concatMap((response:any) => {
-            console.debug("uploadResponse",response);
-            this.removeElementAtIndex(ups, 0);
-            if (response.body) {
-              filesUploaded.add(JSON.parse(response.body));
-              console.debug("filesUploaded",filesUploaded);
-            }
-            return this.sendSequentialUpload(ups,filesUploaded, directory,directory);
-          })
-        );
-      }
-
     } else {
-      return this.sendSequentialUpload(ups,filesUploaded,directory,newDirectory);
+      return this.upload(current.file,directory).pipe(
+        tap((event) => {
+          if (event.type === HttpEventType.UploadProgress) {
+            const progress = Math.round((event.loaded / (event.total || 1)) * 100);
+            console.log(`Progression de ${current.file.name}: ${progress}%`);
+            current.status = 'uploading';
+            current.progression = progress;
+          } else if (event.type === HttpEventType.Response) {
+            console.log(`Upload terminé pour ${current.file.name}`);
+            const uploaded:Uploaded = JSON.parse(event.body);
+            uploaded.document = document;
+            console.debug('uploaded to save',uploaded);
+            this.saveUploaded(uploaded).subscribe(() => {
+              current.status = 'success';
+              uploadings.shift();
+            });
+          }
+        }),
+        catchError((error) => {
+          console.error(`Erreur lors de l'upload de ${current.file.name}:`, error);
+          current.status = 'error';
+          uploadings.shift();
+          return of(null);
+        }),
+        finalize(() => {
+           this.sendSequentialUpload(document,uploadings,directory,newDirectory).subscribe();
+        })
+        );
     }
   }
 
@@ -741,7 +813,6 @@ export class IssueService implements OnInit{
           observer.next(supprimerTypename(res.data.saveOrUpdateConfig));
           observer.complete();
         }, error => {
-          alert(JSON.stringify(error));
 
           observer.error(error);
           observer.complete();
@@ -916,7 +987,7 @@ export class IssueService implements OnInit{
    })
   }
   searchIssues(criteria: IssueSearchCriteriaInput) {
-    criteria.projectId = this.projectSubject.value.id;
+    criteria.projectId = this.projectSubject.value?.id;
     return new Observable<Issue[]>(observer => {
       this.apollo.query({
         query:SEARCH_ISSUES,
@@ -1065,5 +1136,23 @@ export class IssueService implements OnInit{
       return '';
     }
     return fileName.substring(lastDotIndex + 1); // Retourne l'extension
+  }
+
+  getDocuments(issueId: number, typeDocument: string) {
+    console.debug('getDocument');
+    return new Observable<DocumentApp[]>(observer=>{
+      this.apollo.query({
+        query:operation.GET_DOCUMENTS,
+        variables:{issueId,typeDocument},
+        fetchPolicy:'network-only'
+      }).subscribe((res:any)=>{
+        observer.next(supprimerTypename(res.data.getDocuments));
+        observer.complete();
+      },error=> {
+        observer.error(error);
+        observer.complete();
+        }
+        )
+    })
   }
 }

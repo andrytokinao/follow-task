@@ -267,4 +267,16 @@ public class GQIssueController {
     public List<Project> getProjectByUser(@Argument String userId) {
         return projectService.getProjectByUser(userId);
     }
+   @MutationMapping
+    public Document addDocument(@Argument Document document){
+       return issueService.addDocument(document);
+    }
+    @QueryMapping
+    public List<Document> getDocuments(@Argument Long issueId, @Argument TypeDocument typeDocument) {
+        return issueService.getDocuments(issueId,typeDocument);
+    }
+    @MutationMapping
+    public Uploaded saveUploaded(@Argument Uploaded uploaded){
+        return issueService.saveUploaded(uploaded);
+    }
 }

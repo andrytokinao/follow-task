@@ -504,3 +504,38 @@ type RoleApp{
     description:String
     accessibilities:[String]
 }
+input DocumentInput{
+    id:Int
+    titre:String
+    description:String
+    typeDocument:String
+    uploadeds:[UploadedInput]
+    creation:String
+    userApp:UserAppInput
+    issues:IssueInput
+}
+input UploadedInput{
+    id:Int
+    name:String
+    encodedPath:String
+    path:String
+    document:DocumentInput
+}
+type Document{
+    id:Int
+    titre:String
+    description:String
+    typeDocument:String
+    uploadeds:[Uploaded]
+    creation:String
+    userApp:UserApp
+    issues:Issue
+
+}
+type Uploaded{
+    id:Int
+    name:String
+    encodedPath:String
+    path:String
+    document:Document
+}

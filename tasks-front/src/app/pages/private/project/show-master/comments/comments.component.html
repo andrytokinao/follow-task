@@ -10,24 +10,36 @@
 
       <mat-card-content>
         <div class="comment-list">
-          <div class="comment" *ngFor="let comment of comments">
+          <div class="comment" *ngFor="let document of documents">
             <div class="comment-header">
               <img
-                *ngIf="comment.user.photo"
-                [src]="userService.getUrlPhoto(comment.user)"
-                alt="{{ comment.user.username }}"
+                *ngIf="document.userApp.photo"
+                [src]="userService.getUrlPhoto(document.userApp)"
+                alt="{{ document.userApp.username }}"
                 class="user-photo"
               />
-              <span class="user-name">{{ comment.user.firstName }}
-                <small class="text-body-secondary" *ngIf="comment.date">{{ comment.date | date }}</small>
+              <span class="user-name">{{ document.userApp.firstName }}
+                <small class="text-body-secondary" *ngIf="document.creation">{{ document.creation | date }}</small>
             </span>
             </div>
-            <p class="comment-text" [innerHTML]="comment.text"></p>
+            <div style="border-left: solid #0a3622 2px; margin-left: 10px;padding-left: 10px">
+              <p class="comment-text" [innerHTML]="document.description"></p>
+              <div *ngIf="document.uploadeds" class="file-item-list">
+                <div> Fichier </div>
+
+                <div class="file-item" *ngFor="let up of document.uploadeds"><i class="fas fa-file-pdf"></i> {{up.name}}</div>
+                <!--<div class="file-item"><i class="fas fa-file-word"></i> fichier.docx</div>
+                <div class="file-item"><i class="fas fa-file-archive"></i> fichier.zip</div>
+                <div class="file-item"><i class="fas fa-file-audio"></i> fichier.mp3</div>
+                <div class="file-item"><i class="fas fa-file-video"></i> fichie.mp4</div>-->
+              </div>
+            </div>
+
           </div>
         </div>
 
-        <app-quill-editor [(content)]="comment.text" [theme]="'snow'"></app-quill-editor>
-        <div class="file-item" (dragover)="onDragOver($event)" (drop)="onDrop($event)">
+        <app-quill-editor [(content)]="document.description" [theme]="'snow'"></app-quill-editor>
+          <div class="file-item" (dragover)="onDragOver($event)" (drop)="onDrop($event)">
           <div>
             <div class="upload-area" (click)="selectFiles()">
               <div>
@@ -42,8 +54,13 @@
 
                 </ul>
               </div>
-
+              <!--<div *ngFor="let file of group.files" (click)="selectFile(file)" class="file-item">
+                          <p>{{ file.name }}</p>
+                          <p><small>{{ file.uploadDate }} - Par {{ file.uploadedBy }}</small></p>
+                          <p><small>{{ file.fileDescription }}</small></p>
+                        </div>-->
               <div
+
                 (click)="fileInput.click()"
 
 
@@ -54,8 +71,8 @@
 
             </div>
           </div>
-        </div>
-        <button mat-raised-button color="primary" class="float-end" (click)="addComment()">
+          </div>
+        <button mat-raised-button color="primary" class="float-end" (click)="addDocument()">
           Commenter
         </button>
       </mat-card-content>

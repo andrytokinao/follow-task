@@ -107,7 +107,8 @@ export class UploadedFilesComponent implements OnInit{
         let uploading: Uploading = new class implements Uploading {
           file: File = input.files.item(i)!;
           progression: number = 0;
-          status: string = '';
+          status:  '';
+
         }
         l.uploading.push(uploading);
       }
@@ -129,7 +130,7 @@ export class UploadedFilesComponent implements OnInit{
         let uploading: Uploading = new class implements Uploading {
           file: File = event.dataTransfer?.files.item(i)!;
           progression: number = 0;
-          status: string = '';
+          status :'';
         }
         l.uploading.push(uploading);
       }

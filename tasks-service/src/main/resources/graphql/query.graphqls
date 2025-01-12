@@ -41,4 +41,5 @@ type Query {
     getByEventId(eventId:Int):Event
     getProjectByUser(userId:String):[Project]
     loadPermissiontTask:Permission
+    getDocuments(issueId:Int,typeDocument:String):[Document]
 }

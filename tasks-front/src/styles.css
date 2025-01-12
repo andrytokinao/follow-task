@@ -513,4 +513,27 @@ h3 {
   .ql-editor {
     border: 2px solid red !important;
   }
+  .upload-btn {
+    display: block;
+    margin: 20px auto 0;
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-family: Arial, sans-serif;
+    background-color: #3f51b5;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s, transform 0.2s;
+  }
+
+  .upload-btn:hover {
+    background-color: #283593;
+    transform: scale(1.05);
+  }
+
+  .upload-btn:active {
+    transform: scale(1);
+  }
 }

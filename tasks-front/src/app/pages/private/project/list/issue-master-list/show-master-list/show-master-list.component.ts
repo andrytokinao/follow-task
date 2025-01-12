@@ -73,12 +73,15 @@ export class ShowMasterListComponent {
     });
     this.authService.connectedUser$.subscribe(user => {
       this.user = user;
-      this.mesTache ={
-        name:'Mes taches',
-        description:'Tache affecté a moi ',
-        user:undefined,
-        issueSearchCriteria:{assigneUsernames:[this.user.username]}
-      };
+      if (this.user) {
+        this.mesTache ={
+          name:'Mes taches',
+          description:'Tache affecté a moi ',
+          user:undefined,
+          issueSearchCriteria:{assigneUsernames:[this.user?.username || '']}
+        };
+      }
+
       this.aplayFilter(this.mesTache);
     })
 

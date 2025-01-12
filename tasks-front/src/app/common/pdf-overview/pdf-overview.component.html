@@ -1,3 +1,8 @@
-<div *ngIf="pdfSrc" style="width: 600px">
-  <ngx-extended-pdf-viewer [src]="pdfSrc" useBrowserLocale="true" height="600px"></ngx-extended-pdf-viewer>
+<div *ngIf="pdfSrc" style="width:900px">
+  <ngx-extended-pdf-viewer
+    [src]="pdfSrc"
+    [zoom]="100"
+     height="100vh"
+  ></ngx-extended-pdf-viewer>
+
 </div>

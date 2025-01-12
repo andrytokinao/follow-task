@@ -1757,6 +1757,59 @@ const LOAD_PERMISSION_TASK=gql`
     }
   }
 `
+export let ADD_ADD_DOCUMENT = gql`
+  mutation addDocument($document:DocumentInput){
+    addDocument(document:$document){
+      id
+      titre
+      description
+      uploadeds {
+        name
+        encodedPath
+        path
+      }
+      issues {
+        id
+      }
+    }
+  }
+`;
+const GET_DOCUMENTS = gql`
+    query getDocuments($issueId:Int,$typeDocument:String) {
+       getDocuments(issueId:$issueId,typeDocument:$typeDocument) {
+         titre
+         description
+         creation
+         issues {
+           id
+         }
+         userApp {
+           id
+           username
+           lastName
+           firstName
+           photo
+         }
+         uploadeds {
+           path
+           name
+           encodedPath
+         }
+      }
+    }
+`
+const SAVE_UPLOADED = gql`
+   mutation saveUploaded($uploaded:UploadedInput){
+     saveUploaded(uploaded:$uploaded){
+        id
+       name
+       encodedPath
+       document {
+         id
+       }
+     }
+   }
+`
 export {
   supprimerTypename,
   SAVE_USER,
@@ -1815,7 +1868,9 @@ export {
   DELETE_EVENT_TYPE,
   EVENT_BY_ID,
   GET_PROJECT_BY_USER,
-  LOAD_PERMISSION_TASK
+  LOAD_PERMISSION_TASK,
+  GET_DOCUMENTS,
+  SAVE_UPLOADED
 }
 function  supprimerTypename<T>(objet: T): T {
   if (!objet || typeof objet !== 'object') {

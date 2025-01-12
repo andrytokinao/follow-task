@@ -36,6 +36,7 @@ import {QuillEditorComponent} from "ngx-quill";
 import {EditorComponent} from "./quill-editor/quill-editor.component";
 import {PdfOverviewComponent} from "./pdf-overview/pdf-overview.component";
 import {NgxExtendedPdfViewerModule} from "ngx-extended-pdf-viewer";
+import {NgbCollapse} from "@ng-bootstrap/ng-bootstrap";
 
 @NgModule({
   declarations: [
@@ -61,34 +62,35 @@ import {NgxExtendedPdfViewerModule} from "ngx-extended-pdf-viewer";
     PdfOverviewComponent
 
   ],
-  imports: [
-    CommonModule,
-    MatMenuModule,
-    MatIconModule,
-    MatSelectModule,
-    MatFormFieldModule,
-    MatCardModule,
-    MatDialogModule,
-    MatToolbarModule,
-    MatSelectModule,
-    FormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    FormsModule,
-    MatFormField,
-    MatInput,
-    MatLabel,
-    NgIf,
-    NgClass,
-    ReactiveFormsModule,
-    MatAutocompleteTrigger,
-    MatAutocomplete,
-    RouterLink,
-    MatCheckbox,
-    QuillEditorComponent,
-    NgxExtendedPdfViewerModule,
-  ],
+    imports: [
+        CommonModule,
+        MatMenuModule,
+        MatIconModule,
+        MatSelectModule,
+        MatFormFieldModule,
+        MatCardModule,
+        MatDialogModule,
+        MatToolbarModule,
+        MatSelectModule,
+        FormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatButtonModule,
+        FormsModule,
+        MatFormField,
+        MatInput,
+        MatLabel,
+        NgIf,
+        NgClass,
+        ReactiveFormsModule,
+        MatAutocompleteTrigger,
+        MatAutocomplete,
+        RouterLink,
+        MatCheckbox,
+        QuillEditorComponent,
+        NgxExtendedPdfViewerModule,
+        NgbCollapse,
+    ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA
   ],
