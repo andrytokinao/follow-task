@@ -48,6 +48,9 @@ import {PlanningIssueComponent} from "../pages/private/project/modal/planning-is
 import {AuthService} from "./auth.service";
 import {id} from "@swimlane/ngx-charts";
 import {List} from "gojs";
+import {sequence} from "@angular/animations";
+import _default from "chart.js/dist/plugins/plugin.tooltip";
+import numbers = _default.defaults.animations.numbers;
 
 @Injectable({
   providedIn: 'root',
@@ -186,8 +189,8 @@ export class IssueService implements OnInit{
         let count = uploadings.length;
         let alredySending = false;
         let filesUploadedsSubject = new BehaviorSubject<Uploaded[]>([]);
-
-        this.sendSequentialUpload({},uploadings,encodedPath,"COMMENTS").subscribe(res => {
+        let sequenciel  =0;
+        this.sendSequentialUpload(sequenciel,{},uploadings,encodedPath,"COMMENTS").subscribe(res => {
           console.debug("fileUploaded");
 
         });
@@ -196,18 +199,34 @@ export class IssueService implements OnInit{
 
     });
   }
+  isAllUploaded(uploadings:Uploading[]){
+     if (uploadings === undefined || uploadings.length ===0) {
+       return true ;
+     }
+     uploadings.forEach(u =>{
+       console.debug('isAllUploaded',u.status);
+
+     })
+
+    let notOk =uploadings.some(u => u.status !== 'success');
+     console.debug('isAllUploaded',notOk);
+     return !notOk;
+  }
   uploadDocument(document:DocumentApp , encodedPath:String, uploadings:Uploading[], rewRepertoire:string) {
+    let index = 0;
    return new Observable<DocumentApp>(observer => {
         this.saveDocument(document).subscribe( savedDocument => {
           if (!uploadings || uploadings.length == 0) {
             observer.next(savedDocument);
             observer.complete();
           } else {
-            this.sendSequentialUpload(savedDocument,uploadings,encodedPath,rewRepertoire).subscribe(uploades => {
-              if (uploades.type === undefined)
-                alert(JSON.stringify(uploades));
-              observer.next(savedDocument);
-              observer.complete();
+            savedDocument.uploadeds =[];
+            this.sendSequentialUpload(index,savedDocument,uploadings,encodedPath,rewRepertoire).subscribe(uploades => {
+              if (this.isAllUploaded(uploadings)) {
+                observer.next(document);
+                observer.complete();
+              }
+
             },er => {
               observer.error(er);
               observer.complete();
@@ -234,7 +253,7 @@ export class IssueService implements OnInit{
     })
   }
   saveUploaded(uploaded:Uploaded) {
-    return new Observable<DocumentApp>(observer => {
+    return new Observable<Uploaded>(observer => {
       this.apollo.mutate({
         mutation: operation.SAVE_UPLOADED,
         variables: {uploaded},
@@ -250,33 +269,29 @@ export class IssueService implements OnInit{
       )
     })
   }
-  sendSequentialUpload(document:DocumentApp,uploadings: Uploading[] ,directory: String,newDirectory:String): Observable<any> {
-    console.debug("Saved document",document);
+  sendSequentialUpload(index:number,document:DocumentApp,uploadings: Uploading[] ,directory: String,newDirectory:String): Observable<any> {
 
-    if (uploadings === undefined || uploadings.length === 0) {
-      console.debug("Toutes les uploadées");
+    if (uploadings === undefined || uploadings.length === index) {
       return of('Toutes les uploadées');
+
     }
-    let current = uploadings[0];
+    let current = uploadings[index];
 
     if (newDirectory) {
       return this.uploadInNewDirertory(current.file,directory,newDirectory.toString()).pipe(
         tap((event) => {
           if (event.type === HttpEventType.UploadProgress) {
             const progress = Math.round((event.loaded / (event.total || 1)) * 100);
-            console.log(`Progression de ${current.file.name}: ${progress}%`);
             current.status = 'uploading';
             current.progression = progress;
           } else if (event.type === HttpEventType.Response) {
-            console.log(`Upload terminé pour ${current.file.name}`);
             const uploaded:Uploaded = JSON.parse(event.body);
             uploaded.document = document;
-            console.debug('uploaded to save',uploaded);
-
-            this.saveUploaded(uploaded).subscribe(() => {
+            index ++;
+            this.saveUploaded(uploaded).subscribe((up) => {
               current.status = 'success';
-              uploadings.shift();
-              console.log("ater shift",uploadings);
+              document.uploadeds.push(up);
+
             });
           }
         }),
@@ -287,7 +302,7 @@ export class IssueService implements OnInit{
           return of(null);
         }),
         finalize(() => {
-          this.sendSequentialUpload(document,uploadings,directory,newDirectory).subscribe();
+          this.sendSequentialUpload(index,document,uploadings,directory,newDirectory).subscribe();
         })
         );
     } else {
@@ -302,21 +317,21 @@ export class IssueService implements OnInit{
             console.log(`Upload terminé pour ${current.file.name}`);
             const uploaded:Uploaded = JSON.parse(event.body);
             uploaded.document = document;
-            console.debug('uploaded to save',uploaded);
-            this.saveUploaded(uploaded).subscribe(() => {
+            index ++;
+            this.saveUploaded(uploaded).subscribe((up) => {
+              document.uploadeds.push(up);
               current.status = 'success';
-              uploadings.shift();
             });
           }
         }),
         catchError((error) => {
           console.error(`Erreur lors de l'upload de ${current.file.name}:`, error);
           current.status = 'error';
-          uploadings.shift();
+          index ++;
           return of(null);
         }),
         finalize(() => {
-           this.sendSequentialUpload(document,uploadings,directory,newDirectory).subscribe();
+           this.sendSequentialUpload(index,document,uploadings,directory,newDirectory).subscribe();
         })
         );
     }

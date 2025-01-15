@@ -140,7 +140,10 @@ export class CommentsComponent {
     if (this.profile){
       this.document.userApp = {id:this.profile.id}
     }
+
     this.issueService.uploadDocument(this.document,this.parentIssue.encodedPath,this.uploadings,this.typeDocument).subscribe(document => {
+      this.document.titre ="";
+      this.document.description ="";
       this.loadDocument();
     })
   }
