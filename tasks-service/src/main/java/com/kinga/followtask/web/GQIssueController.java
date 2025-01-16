@@ -96,12 +96,12 @@ public class GQIssueController {
     }
     @PostMapping("/api/upload")
     @ResponseBody
-    public ResponseEntity<String> uploadFile(@RequestPart("file") MultipartFile file,@RequestParam String directory,@RequestParam(name = "newDirectory")  String newDirectory) {
+    public ResponseEntity<String> uploadFile(@RequestPart("file") MultipartFile file,@RequestParam String directory,@RequestParam(name = "newDirectory")  String newDirectory,@RequestParam(name = "documentId") Long documentId) {
         if (file.isEmpty()) {
             return ResponseEntity.badRequest().body("Le fichier est vide.");
         }
         try{
-           Uploaded uploaded = projectService.uplodoadFile(file, directory, newDirectory);
+           Uploaded uploaded = projectService.uplodoadFile(file, directory, newDirectory,documentId);
            String json = (new Gson()).toJson(new UploadedDto(uploaded.getId(),uploaded.getName(),uploaded.getPath(),uploaded.getEncodedPath()));
             return ResponseEntity.ok().body(json);
 

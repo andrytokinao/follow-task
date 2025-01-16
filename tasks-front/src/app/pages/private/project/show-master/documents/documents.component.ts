@@ -6,6 +6,7 @@ import {ConfigService} from "../../../../../services/config.service";
 import {IssueService} from "../../../../../services/issue.service";
 import {UserService} from "../../../../../services/user.service";
 import {AuthService} from "../../../../../services/auth.service";
+import {BehaviorSubject} from "rxjs";
 
 
 @Component({
@@ -24,7 +25,7 @@ export class DocumentsComponent {
   protected uploadeds: Set<Uploaded>;
   private profile: any;
   private project:Project
-
+  private uploadingDoc ;
   constructor(private router: Router,
               private modalService: NgbModal,
               private configService: ConfigService,
@@ -111,8 +112,19 @@ export class DocumentsComponent {
       this.document.userApp = {id:this.profile.id}
     }
     this.issueService.uploadDocument(this.document,this.issue.encodedPath,this.uploadings,this.typeDocument).subscribe(document => {
-      this.loadDocument();
+    });
+    if (!this.issueService.uploadingDocumentSubject) {
+      this.issueService.uploadingDocumentSubject = new BehaviorSubject<DocumentApp>(this.document);
+    }
+     this.uploadingDoc = this.issueService.uploadingDocumentSubject.asObservable();
+    this.uploadingDoc.subscribe(doc=> {
+      if (doc.id){
+        this.issueService.uploadingDocumentSubject.complete();
+        this.uploadings = [];
+        this.loadDocument();
+      }
     })
+
   }
 
   private loadDocument() {

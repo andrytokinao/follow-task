@@ -44,6 +44,7 @@ export class UploadedFilesComponent implements OnInit{
     paths:string[] =[];
   };
   selected: number = 0;
+  private documentId: number;
 
   selectFiles() {
     document.querySelector<HTMLInputElement>('#fileInput')?.click();
@@ -155,7 +156,7 @@ export class UploadedFilesComponent implements OnInit{
     }
     const up = ups.shift();
     if(up) {
-      return this.issueService.upload(up.file, directory).pipe(
+      return this.issueService.upload(up.file, directory,this.documentId).pipe(
         concatMap(() => {
           this.removeElementAtIndex(ups, 0);
           return this.sendSequentialUpload(ups, directory,l);

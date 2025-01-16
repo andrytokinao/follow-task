@@ -487,7 +487,7 @@ public class ProjectService {
     }
 
 
-    public Uploaded uplodoadFile(MultipartFile file, String directory, String newDirectory) throws IOException {
+    public Uploaded uplodoadFile(MultipartFile file, String directory, String newDirectory, Long documentId) throws IOException {
         String fileName = file.getOriginalFilename();
         String uploadDir = KingaUtils.decodeText(directory);
         Files.createDirectories(Paths.get(uploadDir));
@@ -500,6 +500,9 @@ public class ProjectService {
         Path filePath = Paths.get(uploadDir,newFileName);
         Files.write(filePath, file.getBytes());
         Uploaded uploaded = new Uploaded(fileName, filePath.toString());
+        Document document = new Document();
+        document.setId(documentId);
+        uploaded.setDocument(document);
         return uploadedRepository.save(uploaded);
     }
 }

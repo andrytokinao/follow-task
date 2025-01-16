@@ -76,6 +76,7 @@ export class IssueService implements OnInit{
 
   private issuesSubject = new BehaviorSubject<Issue[]>([]);
   issues$ = this.issuesSubject.asObservable();
+  uploadingDocumentSubject : BehaviorSubject<DocumentApp>;
   setIssues(issues: Issue[]) {
     this.issuesSubject.next(issues);
   }
@@ -189,8 +190,8 @@ export class IssueService implements OnInit{
         let count = uploadings.length;
         let alredySending = false;
         let filesUploadedsSubject = new BehaviorSubject<Uploaded[]>([]);
-        let sequenciel  =0;
-        this.sendSequentialUpload(sequenciel,{},uploadings,encodedPath,"COMMENTS").subscribe(res => {
+        let index  =0;
+        this.sendSequentialUpload(index,{},uploadings,encodedPath,"COMMENTS").subscribe(res => {
           console.debug("fileUploaded");
 
         });
@@ -204,16 +205,18 @@ export class IssueService implements OnInit{
        return true ;
      }
      uploadings.forEach(u =>{
-       console.debug('isAllUploaded',u.status);
+       console.debug('uploadings-status',u.status,u);
 
      })
 
     let notOk =uploadings.some(u => u.status !== 'success');
-     console.debug('isAllUploaded',notOk);
+     console.debug('isAllUploaded',!notOk);
      return !notOk;
   }
   uploadDocument(document:DocumentApp , encodedPath:String, uploadings:Uploading[], rewRepertoire:string) {
+    this.uploadingDocumentSubject= new BehaviorSubject<DocumentApp>(document);
     let index = 0;
+    let count = 0;
    return new Observable<DocumentApp>(observer => {
         this.saveDocument(document).subscribe( savedDocument => {
           if (!uploadings || uploadings.length == 0) {
@@ -222,11 +225,10 @@ export class IssueService implements OnInit{
           } else {
             savedDocument.uploadeds =[];
             this.sendSequentialUpload(index,savedDocument,uploadings,encodedPath,rewRepertoire).subscribe(uploades => {
-              if (this.isAllUploaded(uploadings)) {
+              if (uploades.type === HttpEventType.Response) {
                 observer.next(document);
                 observer.complete();
               }
-
             },er => {
               observer.error(er);
               observer.complete();
@@ -272,13 +274,14 @@ export class IssueService implements OnInit{
   sendSequentialUpload(index:number,document:DocumentApp,uploadings: Uploading[] ,directory: String,newDirectory:String): Observable<any> {
 
     if (uploadings === undefined || uploadings.length === index) {
+      this.uploadingDocumentSubject.next(document);
       return of('Toutes les uploadées');
 
     }
     let current = uploadings[index];
 
     if (newDirectory) {
-      return this.uploadInNewDirertory(current.file,directory,newDirectory.toString()).pipe(
+      return this.uploadInNewDirertory(uploadings[index].file,directory,newDirectory.toString(),document.id).pipe(
         tap((event) => {
           if (event.type === HttpEventType.UploadProgress) {
             const progress = Math.round((event.loaded / (event.total || 1)) * 100);
@@ -286,13 +289,11 @@ export class IssueService implements OnInit{
             current.progression = progress;
           } else if (event.type === HttpEventType.Response) {
             const uploaded:Uploaded = JSON.parse(event.body);
+            current.status = 'success';
+
             uploaded.document = document;
             index ++;
-            this.saveUploaded(uploaded).subscribe((up) => {
-              current.status = 'success';
-              document.uploadeds.push(up);
 
-            });
           }
         }),
         catchError((error) => {
@@ -303,10 +304,13 @@ export class IssueService implements OnInit{
         }),
         finalize(() => {
           this.sendSequentialUpload(index,document,uploadings,directory,newDirectory).subscribe();
+          if ( this.isAllUploaded(uploadings)) {
+            this.uploadingDocumentSubject.next(document);
+          }
         })
         );
     } else {
-      return this.upload(current.file,directory).pipe(
+      return this.upload(current.file,directory,document.id).pipe(
         tap((event) => {
           if (event.type === HttpEventType.UploadProgress) {
             const progress = Math.round((event.loaded / (event.total || 1)) * 100);
@@ -317,11 +321,9 @@ export class IssueService implements OnInit{
             console.log(`Upload terminé pour ${current.file.name}`);
             const uploaded:Uploaded = JSON.parse(event.body);
             uploaded.document = document;
+            current.status = 'success';
+
             index ++;
-            this.saveUploaded(uploaded).subscribe((up) => {
-              document.uploadeds.push(up);
-              current.status = 'success';
-            });
           }
         }),
         catchError((error) => {
@@ -432,19 +434,19 @@ export class IssueService implements OnInit{
     return environment.apiURL + `api/download${queryString}`;
   }
 
-  upload(file: File, root: String): Observable<HttpEvent<any>> {
+  upload(file: File, root: String,documentId:number): Observable<HttpEvent<any>> {
     const formData: FormData = new FormData();
     formData.append('file', file);
-    const req = new HttpRequest('POST', `${environment.apiURL}api/upload?directory=` + root, formData, {
+    const req = new HttpRequest('POST', `${environment.apiURL}api/upload?directory=` + root+"&documentId="+documentId, formData, {
       reportProgress: true,
       responseType: 'text'
     });
     return this.http.request(req);
   }
-  uploadInNewDirertory(file: File, root: String,newDirectory:string): Observable<HttpEvent<any>> {
+  uploadInNewDirertory(file: File, root: String,newDirectory:string, documentId:number): Observable<HttpEvent<any>> {
     const formData: FormData = new FormData();
     formData.append('file', file);
-    const req = new HttpRequest('POST', `${environment.apiURL}api/upload?directory=` + root+'&newDirectory='+newDirectory, formData, {
+    const req = new HttpRequest('POST', `${environment.apiURL}api/upload?directory=` + root+'&newDirectory='+newDirectory+"&documentId="+documentId, formData, {
       reportProgress: true,
       responseType: 'text'
     });

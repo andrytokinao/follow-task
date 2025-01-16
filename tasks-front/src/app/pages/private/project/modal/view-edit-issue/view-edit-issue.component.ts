@@ -71,6 +71,7 @@ export class ViewEditIssueComponent implements OnInit{
   currentCustomFieldValue:any = null ;
   users: User[] = [];
   string: String = "tay be ";
+  private newDocumentId: number;
 
 
   constructor(
@@ -212,7 +213,7 @@ export class ViewEditIssueComponent implements OnInit{
     }
     const up = ups.shift();
     if(up) {
-      return this.issueService.upload(up.file, directory).pipe(
+      return this.issueService.upload(up.file, directory,this.newDocumentId).pipe(
         concatMap(() => {
           this.removeElementAtIndex(ups, 0);
           return this.sendSequentialUpload(ups, directory);

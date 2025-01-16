@@ -250,6 +250,7 @@ export interface Uploaded{
   path:String;
 }
 export interface DocumentApp{
+  id?:number;
   titre?:String;
   description?:string;
   typeDocument?:string;
