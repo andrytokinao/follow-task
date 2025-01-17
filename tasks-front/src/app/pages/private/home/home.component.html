@@ -1,28 +1,104 @@
-<div class="container">
-  <!-- Liste des projets avec une disposition moderne en grille -->
-  <div class="project-list grid-container">
+<div class="container modern-container">
+  <!-- Liste des projets avec une grille -->
+  <div class="row project-list">
     <div
-      class="grid-item card project-item d-flex flex-column align-items-center"
+      class="col-md-6 mb-4"
       *ngFor="let project of projects"
       (click)="selectProject(project)"
     >
-      <!-- Image de présentation -->
-      <img
-        class="project-image"
-        [src]="project.imageUrl || 'assets/default-placeholder.png'"
-        alt="{{ project.name }} Image"
-      />
-
-      <!-- Détails du projet -->
-      <div class="project-details text-center">
-        <a class="list-group-item-action">
-          <h5 class="mb-1">
-            <i class="fa fa-briefcase workspace-icon icon-spacing"></i>
-            <b>{{ project.prefix }}</b>
-            <i>{{ project.name }}</i>
+      <div class="modern-card">
+        <!-- Image de présentation -->
+        <div class="modern-card-image">
+          <img
+            [src]="project.imageUrl || 'assets/images/work-space/controle-equipe.jpg'"
+            alt="{{ project.name }} Image"
+          />
+        </div>
+        <!-- Détails du projet -->
+        <div class="modern-card-body">
+          <h5 class="modern-card-title">
+            <i class="fa fa-briefcase workspace-icon"></i>
+            <b>{{ project.prefix }}</b> - <i>{{ project.name }}</i>
           </h5>
-          <p class="project-description">{{ project.description }}</p>
-        </a>
+          <p class="modern-card-description">
+            {{ project.description }}
+          </p>
+        </div>
+      </div>
+    </div>
+    <div
+      class="col-md-6 mb-4"
+      *ngFor="let project of projects"
+      (click)="selectProject(project)"
+    >
+      <div class="modern-card">
+        <!-- Image de présentation -->
+        <div class="modern-card-image">
+          <img
+            [src]="project.imageUrl || 'assets/images/work-space/topo-route.jpeg'"
+            alt="{{ project.name }} Image"
+          />
+        </div>
+        <!-- Détails du projet -->
+        <div class="modern-card-body">
+          <h5 class="modern-card-title">
+            <i class="fa fa-briefcase workspace-icon"></i>
+            <b>{{ project.prefix }}</b> - <i>{{ project.name }}</i>
+          </h5>
+          <p class="modern-card-description">
+            {{ project.description }}
+          </p>
+        </div>
+      </div>
+    </div>
+    <div
+      class="col-md-6 mb-4"
+      *ngFor="let project of projects"
+      (click)="selectProject(project)"
+    >
+      <div class="modern-card">
+        <!-- Image de présentation -->
+        <div class="modern-card-image">
+          <img
+            [src]="project.imageUrl || 'assets/images/work-space/montage-video.png'"
+            alt="{{ project.name }} Image"
+          />
+        </div>
+        <!-- Détails du projet -->
+        <div class="modern-card-body">
+          <h5 class="modern-card-title">
+            <i class="fa fa-briefcase workspace-icon"></i>
+            <b>{{ project.prefix }}</b> - <i>{{ project.name }}</i>
+          </h5>
+          <p class="modern-card-description">
+            {{ project.description }}
+          </p>
+        </div>
+      </div>
+    </div>
+    <div
+      class="col-md-6 mb-4"
+      *ngFor="let project of projects"
+      (click)="selectProject(project)"
+    >
+      <div class="modern-card">
+        <!-- Image de présentation -->
+        <div class="modern-card-image">
+          <img
+            [src]="project.imageUrl || 'assets/images/work-space/comptabilite.png'"
+            alt="{{ project.name }} Image"
+          />
+        </div>
+        <!-- Détails du projet -->
+        <div class="modern-card-body">
+          <h5 class="modern-card-title">
+            <i class="fa fa-briefcase workspace-icon"></i>
+            <b>{{ project.prefix }}</b> - <i>{{ project.name }}</i>
+          </h5>
+          <p class="modern-card-description">
+            {{ project.description }}
+          </p>
+        </div>
       </div>
     </div>
   </div>
@@ -30,7 +106,7 @@
   <!-- Bouton pour créer un nouvel espace -->
   <div class="text-center mt-4">
     <button
-      class="btn btn-primary create-project-btn"
+      class="btn modern-create-btn"
       (click)="createProject()"
       *ngIf="authGuard.hasAutorityAsync(['ADMIN']) | async"
     >
