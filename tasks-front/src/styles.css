@@ -111,7 +111,6 @@ h1,h2,h3,h4 {
 }
 
 .menu-btn {
-  padding: 10px 20px;
   cursor: pointer;
   transition: background-color 0.3s;
 }
@@ -159,7 +158,9 @@ h1,h2,h3,h4 {
 }
 
 .navigation li {
+  /*
   margin-right: 20px;
+  */
   cursor: pointer;
 }
 
@@ -239,7 +240,6 @@ h1,h2,h3,h4 {
 
 .menu-item {
   display: block;
-  padding: 10px 0;
   color: #333;
   font-size: 16px;
   transition: background-color 0.3s ease;
@@ -255,7 +255,6 @@ h1,h2,h3,h4 {
 
 /* Styles pour les icônes */
 .menu-item i {
-  margin-right: 10px;
   font-size: 20px;
   color: #666;
 }
@@ -300,7 +299,6 @@ h3 {
   color: #777;
 }
 .item {
-  padding: 15px;
   color: #333;
   display: flex;
   align-items: center;

@@ -18,6 +18,8 @@
 }
 .file-list-full {
   width: 35%;
+  height: 100vh;
+  overflow-y: scroll;
 }
 .file-list-not {
   width: 100%;
@@ -43,10 +45,11 @@
   flex-direction: column;
   font-weight: bold;
   gap: 10px;
+  border: #5a5a5a solid 2px;
 }
 
 .file-item {
-  padding-left: 10px;
+  padding-left: 50px;
   border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.3s ease, transform 0.3s ease;
@@ -54,13 +57,17 @@
   font-size: 13px;
   font-family: sans-serif;
   color: #5a5a5a;
+  box-shadow: #5a5a5a;
 }
 
 .file-item:hover {
   background-color: #e0e0e0;
   transform: scale(1.05);
 }
-
+.selected-file{
+  background-color: #e0e0e0;
+  transform: scale(1.0005);
+}
 
 /* Aperçu du fichier sélectionné */
 .file-preview-container {

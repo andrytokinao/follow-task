@@ -41,6 +41,12 @@ import {CommentsComponent} from "./comments/comments.component";
 import {IssueChatsComponent} from "./issue-chats/issue-chats.component";
 import {QuillEditorComponent} from "ngx-quill";
 import {DocumentsComponent} from "./documents/documents.component";
+import {
+  MatExpansionModule,
+  MatExpansionPanel,
+  MatExpansionPanelDescription,
+  MatExpansionPanelTitle
+} from "@angular/material/expansion";
 
 
 @NgModule({
@@ -93,6 +99,10 @@ import {DocumentsComponent} from "./documents/documents.component";
     MatDivider,
     PlanningModule,
     QuillEditorComponent,
+    MatExpansionPanel,
+    MatExpansionPanelTitle,
+    MatExpansionPanelDescription,
+    MatExpansionModule,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })

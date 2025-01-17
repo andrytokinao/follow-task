@@ -1,20 +1,20 @@
-<div class="project-title">
-  <h1>{{parrentIssue.issueKey}} {{parrentIssue.summary}}
-    <span (click)="issueService.showPlanning(parrentIssue)" class="controle">
+
+<div class="master-container">
+
+  <ul class="navigation-master">
+    <h1>{{parrentIssue.issueKey}} {{parrentIssue.summary}}
+      <span (click)="issueService.showPlanning(parrentIssue)" class="controle">
       <i class="fas fa-calendar"></i> Planning
     </span>
-  </h1>
-</div>
-
-<div class="master-containers">
-  <ul class="navigation-master">
+    </h1>
     <li><a routerLink="details" routerLinkActive="active">Apropos</a></li>
     <li><a routerLink="sources-files" routerLinkActive="active">Dossier Client</a></li>
-    <li><a routerLink="subtask" routerLinkActive="active">Sous tâche</a></li>
+    <li><a routerLink="subtask" routerLinkActive="active">Tâches</a></li>
     <li><a routerLink="comments" routerLinkActive="active">Remarque</a></li>
     <li><a routerLink="chats" routerLinkActive="active">Discussion</a></li>
     <li><a routerLink="uploaded" routerLinkActive="active">Fichiers Téléchargées</a></li>
     <li><a routerLink="espace-livraison" routerLinkActive="active">Livrable</a></li>
+    <li><a routerLink="espace-livraison" routerLinkActive="planning"> <i class="fas fa-calendar"></i>Planning</a></li>
   </ul>
 
   <div class="containers">

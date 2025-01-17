@@ -1,17 +1,40 @@
-
 <div class="container">
+  <!-- Liste des projets avec une disposition moderne en grille -->
+  <div class="project-list grid-container">
+    <div
+      class="grid-item card project-item d-flex flex-column align-items-center"
+      *ngFor="let project of projects"
+      (click)="selectProject(project)"
+    >
+      <!-- Image de présentation -->
+      <img
+        class="project-image"
+        [src]="project.imageUrl || 'assets/default-placeholder.png'"
+        alt="{{ project.name }} Image"
+      />
 
-  <div class="project-list list-group card-content" >
-    <div class="ist-group card"  *ngFor=" let project of projects" (click)="selectProject(project)">
-      <a class="list-group-item list-group-item-action">
-        <div class="d-flex w-100 justify-content-between">
-          <h5 class="mb-1"> <i class="fa fa-briefcase workspace-icon icon-spacing">  </i> <b>{{project.prefix}} </b> <i> {{project.name}} </i></h5>
-        </div>
-        <p class="mb-1">{{project.description}}.</p>
-      </a>
+      <!-- Détails du projet -->
+      <div class="project-details text-center">
+        <a class="list-group-item-action">
+          <h5 class="mb-1">
+            <i class="fa fa-briefcase workspace-icon icon-spacing"></i>
+            <b>{{ project.prefix }}</b>
+            <i>{{ project.name }}</i>
+          </h5>
+          <p class="project-description">{{ project.description }}</p>
+        </a>
+      </div>
     </div>
   </div>
-  <div class="">
-    <a  class="btn" (click)="createProject()" *ngIf="authGuard.hasAutorityAsync(['ADMIN']) | async ">Creer une nouvelle espace de travails</a>
+
+  <!-- Bouton pour créer un nouvel espace -->
+  <div class="text-center mt-4">
+    <button
+      class="btn btn-primary create-project-btn"
+      (click)="createProject()"
+      *ngIf="authGuard.hasAutorityAsync(['ADMIN']) | async"
+    >
+      <i class="fa fa-plus-circle"></i> Créer une nouvelle espace de travail
+    </button>
   </div>
 </div>

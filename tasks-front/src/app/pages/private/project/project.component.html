@@ -1,59 +1,25 @@
 <div class="projet">
-  <div class="menu">
-    <div class="project-title">
-      <span>{{project?.name}}</span>
+  <div class="project-menu">
+   <div class="project-menu-item controle  menu-item-hover" routerLinkActive="active" routerLink="list/master">
+     <div>
+       <i class="fas fa-tasks "  style="font-size: 30px;text-align: center"></i>
+     </div>
+     <h2 style="display: block;text-align: center" class="menu-item" > Liste</h2>
+   </div>
+    <div class="project-menu-item controle  menu-item-hover" routerLinkActive="active" routerLink="planning">
+      <div>
+        <i class="fas fa-calendar-alt "  style="font-size: 30px;text-align: center"></i>
+      </div>
+      <h2 style="display: block;text-align: center" class="menu-item" > Calendrier</h2>
     </div>
-
-    <ul>
-      <li class="menu-item controle">
-        <span class="menu-item menu-item-hover" (click)="toggleList()" routerLinkActive="active">
-          <i class="fas fa-tasks"></i> Liste des tâches
-        </span>
-        <ul [ngClass]="{'open-child': openList, 'close-child': !openList}">
-          <li class="menu-item menu-item-hover" routerLinkActive="active" routerLink="list/master">
-            <i class="fas fa-folder-open"></i> Liste des projets
-          </li>
-          <li class="menu-item menu-item-hover" routerLinkActive="active" routerLink="list/issue">
-            <i class="fas fa-tasks"></i> Sous tâches
-          </li>
-        </ul>
-      </li>
-
-      <li class="menu-item controle" routerLinkActive="active" routerLink="planning">
-        <i class="fas fa-calendar-alt"></i> Calendrier et planning
-      </li>
-      <li class="menu-item controle" routerLinkActive="active" routerLink="gantt-chart">
-        <i class="fas fa-chart-line"></i> Diagramme de Gantt
-      </li>
-
-      <li class="menu-item controle" *ngIf="projectGuard.hasCredential(['CAN_EDIT_ALL', 'CAN_FONFIG_PROJECT']) | async">
-        <span class="menu-item menu-item-hover" (click)="toggleConfig()">
-          <i class="fas fa-cog"></i> Config
-        </span>
-        <ul [ngClass]="{'open-child': openConfig, 'close-child': !openConfig}">
-          <li class="menu-item menu-item-hover" routerLinkActive="active" routerLink="config/issue-type">
-            <i class="fas fa-wrench"></i> Type des tâches
-          </li>
-          <li class="menu-item menu-item-hover" routerLinkActive="active" routerLink="config/work-flow">
-            <i class="fas fa-project-diagram"></i> Flux de travaux
-          </li>
-          <li class="menu-item menu-item-hover" routerLinkActive="active" routerLink="config/custom-field">
-            <i class="fas fa-edit"></i> Champ personnalisé
-          </li>
-          <li class="menu-item menu-item-hover" routerLinkActive="active" routerLink="config/storage">
-            <i class="fas fa-database"></i> Stockage
-          </li>
-          <li class="menu-item menu-item-hover" routerLinkActive="active" routerLink="config/accessibility">
-            <i class="fas fa-user-cog"></i> Equipes
-          </li>
-        </ul>
-      </li>
-
-      <li class="menu-item controle" *ngIf="projectGuard.hasCredential(['CAN_EDIT_ALL', 'CAN_FONFIG_PROJECT']) | async" routerLinkActive="active" routerLink="document">
-        <i class="fas fa-file-alt"></i> Guide de configuration
-      </li>
-    </ul>
+    <div class="project-menu-item controle  menu-item-hover" routerLinkActive="active" routerLink="config">
+      <div>
+        <i class="fas fa-cog "  style="font-size: 30px;text-align: center"></i>
+      </div>
+      <h2 style="display: block;text-align: center" class="menu-item" > Config</h2>
+    </div>
   </div>
+
 
   <div class="project-content">
     <app-breadcrumb (createMaster)="createMaster()"></app-breadcrumb>

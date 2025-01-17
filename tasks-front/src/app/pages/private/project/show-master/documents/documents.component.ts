@@ -1,4 +1,4 @@
-import {Component, Input} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input, signal} from '@angular/core';
 import {DocumentApp, Issue, Project, Uploaded, Uploading} from "../../../../../type/issue";
 import {ActivatedRoute, Router} from "@angular/router";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
@@ -12,7 +12,7 @@ import {BehaviorSubject} from "rxjs";
 @Component({
   selector: 'app-documents',
   templateUrl: './documents.component.html',
-  styleUrl: './documents.component.css'
+  styleUrl: './documents.component.css',
 })
 export class DocumentsComponent {
   @Input()
@@ -172,4 +172,29 @@ export class DocumentsComponent {
         return 'fas fa-file';
     }
   }
+  getFiletype(fileName:string){
+    return fileName.split('.').pop()?.toLowerCase();
+   }
+  step = signal(0);
+  defaultOpen: boolean = true;
+
+  setStep(index: number) {
+    this.step.set(index);
+  }
+
+  nextStep() {
+    this.step.update(i => i + 1);
+  }
+
+  prevStep() {
+    this.step.update(i => i - 1);
+  }
+
+  isPdfSelected() {
+    if( !this.selectedFile) {
+      return false;
+    }
+   return  'pdf' === this.getFiletype(this.selectedFile.name.toString())
+  }
+
 }

@@ -1,22 +1,22 @@
 <div class="card-list menu-btn">
-  <!-- Mes tâches Card -->
+<!--  &lt;!&ndash; Mes tâches Card &ndash;&gt;
   <div class="card menu-btn" (click)="aplayFilter(mesTache)" [ngClass]="isActiveFilter(mesTache)">
     <div class="card-content">
       <h3>Mes tâches</h3>
-      <p>{{mesTache?.name}}</p>
+      <p>{{ mesTache?.name }}</p>
     </div>
   </div>
 
-  <!-- Filters Cards -->
+  &lt;!&ndash; Filters Cards &ndash;&gt;
   <div class="card" *ngFor="let filter of fileters" [ngClass]="isActiveFilter(filter)">
     <div class="card-content">
       <h3 class="edit" (click)="aplayFilter(filter)">Filtre</h3>
       <p (click)="editFilter(filter)">
-        {{filter.name}}
+        {{ filter.name }}
         <i class="fas fa-edit"></i>
       </p>
     </div>
-  </div>
+  </div>-->
 </div>
 
 <!-- Type View Selector -->
@@ -29,13 +29,15 @@
     </i>
   </div>
 </div>
+<div style="margin-left:15px">
+  <div *ngIf="currentView ==='list'">
+    <app-issue-liste></app-issue-liste>
+  </div>
+  <div *ngIf="currentView ==='board'">
+    <app-board-list [searchCriteria]="searchCriteria"></app-board-list>
+  </div>
+  <div *ngIf="currentView ==='calendar'">
+    <app-calendar-list></app-calendar-list>
+  </div>
+</div>
 
-<div *ngIf="currentView ==='list'">
-  <app-issue-liste></app-issue-liste>
-</div>
-<div *ngIf="currentView ==='board'">
-  <app-board-list [searchCriteria]="searchCriteria"></app-board-list>
-</div>
-<div *ngIf="currentView ==='calendar'">
-  <app-calendar-list></app-calendar-list>
-</div>

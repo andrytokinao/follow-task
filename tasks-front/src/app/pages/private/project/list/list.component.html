@@ -1,28 +1,23 @@
-<div class="card-list menu-btn">
- <!-- <div class="card menue-btn" routerLinkActive="active" routerLink="master">
-    <div class="card-content">
-      <h3>Projets</h3>
-      <p></p>
-    </div>
+<div class="content-with-left-menue">
+  <div>
+    <ul class="navigation-list">
+      <li><a routerLink="master" routerLinkActive="active">Project </a></li>
+      <h1> Filtre des projets</h1>
+
+      <li><a routerLink="issue" routerLinkActive="active">Taches</a></li>
+      <h1> Filtre des taches</h1>
+      <li *ngFor="let filter of fileters">
+        <a (click)="editFilter(filter)"> {{filter.name}}  <i class="fas fa-edit" ></i> </a>
+
+      </li>
+    </ul>
   </div>
--->
-  <!--<div class="card menu-btn" (click)="loadMySubtask()" routerLinkActive="active"  routerLink="issue">
-    <div class="card-content " >
-      <h3>Mes taches</h3>
-      <p>Tous mes tache</p>
-    </div>
+  <div>
+    <ng-container>
+      <router-outlet></router-outlet>
+    </ng-container>
   </div>
 
-  <div class="card" *ngFor="let filter of fileters" >
-
-    <div class="card-content">
-      <h3 class="edit" (click)="aplayFilter(filter)">Filtre </h3>
-      <p (click)="editFilter(filter)"> {{filter.name}}  <i class="fas fa-edit" ></i> </p>
-
-    </div>
-  </div>-->
 </div>
 
-<ng-container>
-  <router-outlet></router-outlet>
-</ng-container>
+

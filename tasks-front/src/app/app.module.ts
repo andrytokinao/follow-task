@@ -1,4 +1,4 @@
-import {CUSTOM_ELEMENTS_SCHEMA, NgModule} from '@angular/core';
+import {ChangeDetectionStrategy, CUSTOM_ELEMENTS_SCHEMA, NgModule} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {ProjectModule} from "./pages/private/project/project.module";
 import {AppRoutingModule} from "./app.routing.module";
@@ -14,7 +14,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
+import {MatNativeDateModule, provideNativeDateAdapter} from '@angular/material/core';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
@@ -92,8 +92,8 @@ import {MyCommonModule} from "./common/common.module";
     },
     provideAnimations(), // required animations providers
     provideToastr(), // Toastr providers
+    provideNativeDateAdapter(),
   ]
-
 
 })
 export class AppModule { }

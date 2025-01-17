@@ -1,19 +1,61 @@
-.container {
-  width: 100%;
-  margin: auto;
-  font-family: Arial, sans-serif;
+.config-project  {
+  display: grid;
+  grid-template-columns: 250px auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add subtle shadow */
+  background-color: #fff;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+/* navigation-config */
+.navigation-config {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  background-color: #f8f9fa; /* Light background */
   border-radius: 8px;
   overflow: hidden;
   min-height: 80vh;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.navigation li a {
-  text-decoration: none;
-  color: #333333;
-  font-size: 16px;
-  transition: color 0.3s ease;
+.navigation-config li {
+  margin: 0;
+  transition: background-color 0.3s ease;
+  min-width: 200px;
 }
+
+.navigation-config a {
+  display: block;
+  padding: 12px 20px;
+  text-decoration: none;
+  color: #333;
+  font-weight: 600;
+  transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+.navigation-config a:hover {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.navigation-config a.active {
+  background-color: #5a5a5a;
+  color: #fff;
+  border-radius: 5px;
+}
+
+/* Add focus for accessibility */
+.navigation-config a:focus {
+  outline: none;
+  box-shadow: 0 0 3px 3px rgba(38, 143, 255, 0.5);
+}
+
+/* Hover effect on list items */
+.navigation-config:hover {
+  background-color: #e9ecef;
+}
+
 .menu {
   display: flex;
   justify-content: space-around;

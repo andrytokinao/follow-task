@@ -120,6 +120,7 @@ export interface ConfigEntry{
   projectPrefix:String
 }
 export interface Project {
+  imageUrl: string;
   id:Number;
   name:String;
   prefix:String;
@@ -244,6 +245,7 @@ export interface EventSearchCriteria {
   end?: string
 }
 export interface Uploaded{
+  id:number;
   encodedPath:String;
   name:String;
   document:DocumentApp;

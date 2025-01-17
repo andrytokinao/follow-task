@@ -6,48 +6,40 @@
         <p><i class="fas fa-plus"></i> Creer une uploads </p>
       </div>
     </div>
-    <div *ngFor="let document of documents">
-      <span>
-        <small>{{ document.creation | date | date }} - Par {{ document.userApp.username }}</small>
-      </span>
-      <div class="file-group">
-        <h4>{{document.titre}}</h4>
+    <div *ngFor="let document of documents let i = index" >
 
+      <mat-expansion-panel   [expanded]="step() === i || defaultOpen" (opened)="setStep(1)" >
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <span>
+              <small>{{ document.creation | date | date }} - Par {{ document.userApp.username }}</small>
+          </span>
+          </mat-panel-title>
+          <mat-panel-description>
+            <h2>{{document.titre}}</h2>
+          </mat-panel-description>
+
+        </mat-expansion-panel-header>
         <div [innerHTML]="document.description "></div>
+
+        <div *ngIf="document.uploadeds && document.uploadeds.length != 0"> Fichier </div>
         <div class="file-item-list">
-          <div> Fichier </div>
-          <div class="file-item" *ngFor="let up of document.uploadeds" (click)="selectFile(up)">
+          <div class="file-item" *ngFor="let up of document.uploadeds" (click)="selectFile(up)"  [ngClass]="{'selected-file':up.id === selectedFile?.id}">
             <i [class]="getFileIconClass(up.name.toString())"></i> {{ up.name }}
           </div>
-
-          <!--<div class="file-item"><i class="fas fa-file-word"></i> fichier.docx</div>
-          <div class="file-item"><i class="fas fa-file-archive"></i> fichier.zip</div>
-          <div class="file-item"><i class="fas fa-file-audio"></i> fichier.mp3</div>
-          <div class="file-item"><i class="fas fa-file-video"></i> fichie.mp4</div>-->
         </div>
-      </div>
-
+        <mat-action-row>
+          <button mat-button (click)="prevStep()">Previous</button>
+          <button mat-button (click)="nextStep()">End</button>
+        </mat-action-row>
+      </mat-expansion-panel>
+      <mat-divider style="margin: 24px 0;"></mat-divider>
     </div>
   </div>
 
   <div class="file-preview-container" *ngIf="selectedFile || isNewFile" >
     <div class="file-preview" *ngIf="!isNewFile" >
-     <app-pdf-overview *ngIf="selectedFile" [setUploaded]="selectedFile"> </app-pdf-overview>
-      <!--<ng-container [ngSwitch]="selectedFile.name">
-        <div *ngSwitchCase="'image'" class="image-preview">
-          <img [src]="selectedFile.encodedPath" alt="File Preview">
-        </div>
-        <div *ngSwitchCase="'pdf'" class="pdf-preview">
-          <object [data]="selectedFile.encodedPath" type="application/pdf" width="100%" height="200px"></object>
-        </div>
-        <div *ngSwitchCase="'word'" class="default-preview">
-          <p>Fichier Word - Aucun aperçu disponible</p>
-        </div>
-        <div *ngSwitchDefault class="default-preview">
-          <p>Aperçu non disponible</p>
-        </div>
-
-      </ng-container>-->
+     <app-pdf-overview *ngIf="isPdfSelected()" [setUploaded]="selectedFile"> </app-pdf-overview>
     </div>
     <div *ngIf="isNewFile" (dragover)="onDragOver($event)" (drop)="onDrop($event)">
       <div>
@@ -77,7 +69,7 @@
       <div>
         <ul *ngIf="filesToUploads">
           <div *ngFor="let up of uploadings; let i = index" class="file" [ngClass]="up.status">
-            <label class="file"> <i class="fa fa-file-text"> </i>
+            <label class="file" > <i class="fa fa-file-text"> </i>
               {{ up.file.name}}
             </label>
             <span (click)="removeFile(i)" style="float: right;"> {{ up.status }} <i class="fa fa-remove"></i></span>

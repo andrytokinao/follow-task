@@ -1,10 +1,12 @@
-<div class="config-project container">
-  <ul class="navigation">
-    <li class="menu-btn" routerLink="issue-type"routerLinkActive="active" *ngIf="projectGuard.hasCredential(['CAN_CONFIG_ISSUE_TYPE'])"><a  >Type de tache </a></li>
-    <li class="menu-btn" routerLink="work-flow" routerLinkActive="active" *ngIf="projectGuard.hasCredential(['CAN_CONFIG_WORKFLOW'])"><a  >Flux de travail </a></li>
-    <li class="menu-btn" routerLink="custom-field" routerLinkActive="active" *ngIf="projectGuard.hasCredential(['CAN_CONFIG_CUSTOM_FIELD'])"><a  >Champ personnalisé</a></li>
-    <li class="menu-btn" routerLink="storage" routerLinkActive="active" *ngIf="projectGuard.hasCredential(['CAN_CONFIG_STORAGE'])"><a  >Stockage </a></li>
-    <li class="menu-btn" routerLink="accessibility" routerLinkActive="active" *ngIf="projectGuard.hasCredential(['CAN_EDIT_ROLE_USER'])"><a  >Accessibilité </a></li>
+<div class="config-project">
+  <ul class="navigation-config">
+    <li class="" routerLink="issue-type"routerLinkActive="active" *ngIf="projectGuard.hasCredential(['CAN_CONFIG_ISSUE_TYPE'])"><a  >Type de tache </a></li>
+    <li class="" routerLink="work-flow" routerLinkActive="active" *ngIf="projectGuard.hasCredential(['CAN_CONFIG_WORKFLOW'])"><a  >Flux de travail </a></li>
+    <li class="" routerLink="custom-field" routerLinkActive="active" *ngIf="projectGuard.hasCredential(['CAN_CONFIG_CUSTOM_FIELD'])"><a  >Champ personnalisé</a></li>
+    <li class="" routerLink="storage" routerLinkActive="active" *ngIf="projectGuard.hasCredential(['CAN_CONFIG_STORAGE'])"><a  >Stockage </a></li>
+    <li class="" routerLink="accessibility" routerLinkActive="active" *ngIf="projectGuard.hasCredential(['CAN_EDIT_ROLE_USER'])"><a  >Accessibilité </a></li>
   </ul>
-  <router-outlet></router-outlet>
+  <div>
+    <router-outlet></router-outlet>
+  </div>
 </div>
