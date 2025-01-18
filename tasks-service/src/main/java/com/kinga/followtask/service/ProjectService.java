@@ -51,6 +51,7 @@ public class ProjectService {
     final MemberGroupeRepository memberGroupeRepository;
     final UserService userService;
     final UploadedRepository uploadedRepository;
+    final DomainActivityRepository domainActivityRepository;
     static Logger logger = LoggerFactory.getLogger (ProjectService.class);
 
     public Status saveStatus (Status status) {
@@ -179,6 +180,19 @@ public class ProjectService {
         }
         issueTypes.add(soutache);
         return issueTypes;
+    }
+    public void initDomaineActivity(){
+        List<DomainActivity> domainActivities = new ArrayList<>();
+        domainActivities.add(new DomainActivity(01L,"DEFAULT","Type par defaut",null));
+        domainActivities.add(new DomainActivity(02L,"BATIMENT","Batiment et traveau public ",null));
+        domainActivities.add(new DomainActivity(03L,"TOPO","Service topographie et amenagement teritoire ",null));
+        domainActivities.add(new DomainActivity(04L,"DEV","Service , et developpement informatique ",null));
+        domainActivities.add(new DomainActivity(05L,"COMPTABILITE","Gestion et contabilité",null));
+        domainActivities.add(new DomainActivity(06L,"MEDIA","Traitement media",null));
+        domainActivityRepository.saveAll(domainActivities);
+    }
+    public DomainActivity getDefaultDomaineActivity(){
+        return domainActivityRepository.getById(01l);
     }
     // Etape 1 : Creation projet
     public Project createProjectOrSave (Project project) throws IOException {

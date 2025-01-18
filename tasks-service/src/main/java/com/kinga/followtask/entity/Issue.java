@@ -20,6 +20,7 @@ public class Issue {
     private Date updateDate;
     private String summary;
     private String issueKey;
+    @Lob
     private String description;
     private String directory;
     @ManyToMany

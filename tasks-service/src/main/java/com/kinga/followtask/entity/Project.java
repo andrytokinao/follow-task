@@ -14,25 +14,18 @@ import java.util.List;
 @AllArgsConstructor
 public class Project {
 
-    public static String BASE_DIRECTORY = "FOLLOW_TASK";
-    public static String DEFAULT_PREFIX = "TASK";
-
-    public static String CONFIG_STATE1 = "create";
-    public static String CONFIG_STATE2 = "issue-type";
-    public static String CONFIG_STATE3 ="create_work-flow";
-    public static String CONFIG_STATE4 ="config_work-flow";
-    public static String CONFIG_OK ="OK";
-
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
     private String prefix;
+    @Lob
     private String description;
     private Integer dernierNumero ;
     private String path;
     private String statusConfig;
+    @ManyToOne
+    private DomainActivity domainActivity;
     @OneToMany(mappedBy = "project")
     private List<IssueType> issueTypes;
     @OneToMany(mappedBy = "project")

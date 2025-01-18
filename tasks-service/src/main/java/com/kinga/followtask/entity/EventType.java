@@ -16,6 +16,7 @@ public class EventType {
     private String name;
 
     @Column(nullable = true)
+    @Lob
     private String description;
     @Column(nullable = true)
     private String defaultColor;

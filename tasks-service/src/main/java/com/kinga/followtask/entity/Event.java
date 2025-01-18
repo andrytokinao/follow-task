@@ -28,7 +28,7 @@ public class Event {
 
     @Column(name = "title", nullable = false)
     private String title;
-
+    @Lob
     @Column(name = "description", nullable = true)
     private String description;
 

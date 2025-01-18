@@ -43,5 +43,6 @@ public class Initializer implements CommandLineRunner {
                  groupeUserRepository.save(groupe);
              }
          }
+         projectService.initDomaineActivity();
     }
 }

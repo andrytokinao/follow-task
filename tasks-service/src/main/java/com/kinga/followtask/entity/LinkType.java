@@ -1,5 +1,7 @@
 package com.kinga.followtask.entity;
 
+import jakarta.persistence.Lob;
+
 public enum LinkType {
 
    PARENT("PARENT","Relation ant parent and childr"),
