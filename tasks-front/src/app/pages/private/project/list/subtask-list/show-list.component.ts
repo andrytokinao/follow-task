@@ -50,7 +50,7 @@ export class ShowListComponent implements OnInit, AfterViewInit{
   }
   search(){
     this.searchCriteria.issueTypeLevels=['SUB_TASK'];
-    this.issueService.searchIssues(this.searchCriteria).subscribe(issues => {
+    this.issueService.searchIssues(this.searchCriteria,this.project.id).subscribe(issues => {
       this.issueService.setIssues(issues);
 
     })
@@ -84,7 +84,7 @@ export class ShowListComponent implements OnInit, AfterViewInit{
         user:undefined,
         issueSearchCriteria:{assigneUsernames:[this.user.username]}
       };
-      this.aplayFilter(this.mesTache);
+     // this.aplayFilter(this.mesTache);
     })
 
     this.fileters.push({
@@ -111,6 +111,7 @@ export class ShowListComponent implements OnInit, AfterViewInit{
     this.selectedFilter = filter;
     this.searchIssue(filter.issueSearchCriteria);
   }
+
 
   editFilter(filter) {
     this.essueService.editFilter(filter.issueSearchCriteria).subscribe(filter => {

@@ -39,7 +39,8 @@ export class HomeComponent implements OnInit{
   createProject(){
     const dialogRef = this.modalService.open(PopupCreateProjectComponent,);
     throw dialogRef.result.then(res=> {
-      this.selectProject(res);
+      this.issueService.loadProjectList();
+     // this.selectProject(res);
     })
   }
 }

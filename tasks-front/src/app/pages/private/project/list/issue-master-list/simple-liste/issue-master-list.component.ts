@@ -55,7 +55,6 @@ export class IssueMasterListComponent {
       this.project = project;
       console.debug(project);
       if (this.project) {
-        this.essueService.loadIssueMasterByProject(this.project.id);
       }
     })
   }

@@ -65,15 +65,16 @@ export class ProjectComponent implements OnInit{
       this.issues = <Issue[]>(result.issues)
      dialogRef.result.then(res=> {
        if (res != null) {
-           if( res.step == "next") {
-             this.issueService.loadIssueMasterByProject(this.project.id);
-             this.editIssue(res.issue);
-           } else if (res.step == "complete") {
-         //  this.router.navigate(['/issue/:res.issue.issueKey]);
-             const currentPath = this.route.snapshot.url.map(segment => segment.path);
-
-             this.router.navigate(["/private/working/"+this.project.prefix+" /list/master"]);
-           }
+         this.issueService.reloadMasterList();
+         //   if( res.step == "next") {
+         //    // this.issueService.loadIssueMasterByProject(this.project.id);
+         //     this.editIssue(res.issue);
+         //   } else if (res.step == "complete") {
+         // //  this.router.navigate(['/issue/:res.issue.issueKey]);
+         //     const currentPath = this.route.snapshot.url.map(segment => segment.path);
+         //
+         //    // this.router.navigate(["/private/working/"+this.project.prefix+"/list/master"]);
+         //   }
        }
      })
     })

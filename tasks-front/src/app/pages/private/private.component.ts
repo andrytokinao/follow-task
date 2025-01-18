@@ -10,6 +10,7 @@ import {UserService} from "../../services/user.service";
 import {AuthGuard} from "../../services/SystemGuard";
 import {IssueTypeComponent} from "./admins/config-project/issue-type/issue-type.component";
 import {PopupCreateProjectComponent} from "./popup-create-project/popup-create-project.component";
+import {IssueSearchCriteriaInput} from "../../type/issue-search-criteria.util";
 
 @Component({
   selector: 'private-root',
@@ -22,6 +23,7 @@ export class PrivateComponent {
   projects:Project[] = [];
   project:Project | undefined;
   connectedUser:User | undefined;
+  subtaskFilter:IssueSearchCriteriaInput = {};
   constructor(private router: Router,
               private authService: AuthService,
               private modalService: NgbModal,

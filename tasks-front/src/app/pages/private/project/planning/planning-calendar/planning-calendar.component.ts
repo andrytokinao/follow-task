@@ -8,7 +8,7 @@ import {
 import {EventsService} from "../../../../../services/events.service";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {NewIssueComponent} from "../../modal/new-issue/new-issue.component";
-import {EventApp, EventSearchCriteria, Issue, User} from "../../../../../type/issue";
+import {EventApp, EventSearchCriteria, Issue, Project, User} from "../../../../../type/issue";
 import {AuthService} from "../../../../../services/auth.service";
 import {MatCheckboxChange} from "@angular/material/checkbox";
 import {stripTypename} from "@apollo/client/utilities";
@@ -310,6 +310,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
   };
   private user: User;
   private masterCriteria: IssueSearchCriteriaInput = {};
+  private project: Project;
   private resizeEvent(args: any){
     this.eventService.resizeEventAndLoad(args,this.eventCriteria);
   }
@@ -459,7 +460,10 @@ export class PlanningCalendarComponent implements AfterViewInit {
     this.eventService.events$.subscribe(events => {
       this.events = events;
         this.refreshView();
-    })
+    });
+    this.issueService.project$.subscribe(project => {
+      this.project = project;
+    });
     this.authService.connectedUser$.subscribe(user => {
       this.user = user;
       //   this.eventCriteria.userIds = [this.user.id];
@@ -661,7 +665,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
   editFilterMaster() {
     this.issueService.editFilter(this.masterCriteria).subscribe(
       criteria => {
-        this.issueService.searchIssues(criteria).subscribe(issues=> {
+        this.issueService.searchIssues(criteria,this.project?.id).subscribe(issues=> {
           this.issueService.setMasters(issues);
           this.issueService.setIssueMasterCriteria(criteria);
         })

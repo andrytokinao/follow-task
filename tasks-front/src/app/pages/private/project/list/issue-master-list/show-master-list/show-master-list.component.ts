@@ -56,7 +56,6 @@ export class ShowMasterListComponent {
       if (this.project && this.project.prefix) {
         this.route.queryParamMap.subscribe((params:ParamMap) => {
           this.searchCriteria = fromUrlParams(params);
-          this.loadIssueMasters();
         });
       }
     });
@@ -65,11 +64,13 @@ export class ShowMasterListComponent {
     });
     this.issueService.project$.subscribe(project=> {
       this.project = project;
+    if (this.project) {
+        this.loadIssueMasters();
+      }
     });
     this.route.queryParamMap.subscribe((params:ParamMap) => {
       this.searchCriteria = fromUrlParams(params);
 
-      this.loadIssueMasters();
     });
     this.authService.connectedUser$.subscribe(user => {
       this.user = user;
@@ -82,7 +83,7 @@ export class ShowMasterListComponent {
         };
       }
 
-      this.aplayFilter(this.mesTache);
+   //   this.aplayFilter(this.mesTache);
     })
 
     this.fileters.push({
@@ -135,8 +136,9 @@ export class ShowMasterListComponent {
   }
   loadIssueMasters(){
     this.searchCriteria.issueTypeLevels=['PARENT'];
+    this.searchCriteria.projectId = this.project?.id;
     this.issueService.setIssueMasterCriteria(this.searchCriteria);
-    this.issueService.searchIssues(this.searchCriteria).subscribe(masters => {
+    this.issueService.searchIssues(this.searchCriteria,this.project.id).subscribe(masters => {
       this.issueService.setMasters(masters);
     })
   }

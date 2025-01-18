@@ -95,6 +95,14 @@ export class IssueService implements OnInit{
     const initialProject: Project = null;
     this.authService.connectedUser$.subscribe(user => {
       this.user = user;
+    });
+    this.masterCriteria$.subscribe(criteria => {
+       this.loadIssueMasters(criteria)
+    })
+  }
+  loadIssueMasters(criteria:IssueSearchCriteriaInput){
+    this.searchIssues(criteria,this.project.id).subscribe(masters => {
+      this.setMasters(masters);
     })
   }
   updateProject(newProject: Project): void {
@@ -484,16 +492,21 @@ export class IssueService implements OnInit{
       if (this.project) {
         console.debug(this.project);
         this.projectSubject.next(this.project);
-        this.loadIssueMasterByProject(this.projectSubject.value.id);
         this.workFlowsByProject(this.projectSubject.value.id).subscribe();
         this.loadUsers();
         this.loadIssueType();
+
+
+
       }
     }, err => {
       console.error(err);
     })
   }
+  reloadMasterList(){
 
+    this.setIssueMasterCriteria(this.masterCriteriaSubject.value);
+  }
   saveIssueType(issueType: IssueType) {
     return new Observable<IssueType>((observer) => {
       if (issueType.project == undefined ){
@@ -984,27 +997,19 @@ export class IssueService implements OnInit{
       })
     });
   }
-  loadIssueMasterByProject(projectId: Number) {
-      this.apollo.query({
-        query:LOAD_ISSUE_MASTER_BY_PROJECT,
-        variables:{projectId},
-        fetchPolicy:"network-only"
-      }).subscribe((res:any)=>{
-        this.setMasters(supprimerTypename(res.data.loadIssueMasterByProject));
-      },error => {
-        console.error(error);
-      })
-  }
+
   setMasters(masters:Issue[]){
     this.issueMastersSubject.next(masters);
   }
   searchIssuesAnSet(criteria: IssueSearchCriteriaInput) {
-   this.searchIssues(criteria).subscribe(issues => {
+   this.searchIssues(criteria,criteria.projectId).subscribe(issues => {
      this.setIssues(issues);
    })
   }
-  searchIssues(criteria: IssueSearchCriteriaInput) {
-    criteria.projectId = this.projectSubject.value?.id;
+  searchIssues(criteria: IssueSearchCriteriaInput, projectId:Number) {
+    if(projectId){
+      criteria.projectId = projectId;
+    }
     return new Observable<Issue[]>(observer => {
       this.apollo.query({
         query:SEARCH_ISSUES,
@@ -1092,7 +1097,9 @@ export class IssueService implements OnInit{
   ngOnInit(): void {
 
   }
-
+  loadProjectList(){
+    this.getProjectByUser(this.user?.id);
+  }
   getProjectByUser(userId: string) {
       this.apollo.query({
         query:GET_PROJECT_BY_USER,

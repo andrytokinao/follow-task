@@ -472,7 +472,8 @@ public class ProjectService {
     }
     public List<Issue> searchIssues(IssueSearchCriteria criteria) {
         IssueSpecification specification = new IssueSpecification(criteria);
-            return issueRepository.findAll(specification);
+        List<Issue> issues = issueRepository.findAll(specification);
+        return issues;
     }
 
     public WorkFlow getWorkFlow (Long workFlowId) {

@@ -37,6 +37,8 @@ import {EditorComponent} from "./quill-editor/quill-editor.component";
 import {PdfOverviewComponent} from "./pdf-overview/pdf-overview.component";
 import {NgxExtendedPdfViewerModule} from "ngx-extended-pdf-viewer";
 import {NgbCollapse} from "@ng-bootstrap/ng-bootstrap";
+import {DocViewerComponent} from "./doc-viewer/doc-viewer.component";
+import {NgxDocViewerModule} from "ngx-doc-viewer";
 
 @NgModule({
   declarations: [
@@ -59,38 +61,40 @@ import {NgbCollapse} from "@ng-bootstrap/ng-bootstrap";
     NewEventComponent,
     IssueFilterFieldComponent,
     EditorComponent,
-    PdfOverviewComponent
+    PdfOverviewComponent,
+    DocViewerComponent
 
   ],
-    imports: [
-        CommonModule,
-        MatMenuModule,
-        MatIconModule,
-        MatSelectModule,
-        MatFormFieldModule,
-        MatCardModule,
-        MatDialogModule,
-        MatToolbarModule,
-        MatSelectModule,
-        FormsModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatButtonModule,
-        FormsModule,
-        MatFormField,
-        MatInput,
-        MatLabel,
-        NgIf,
-        NgClass,
-        ReactiveFormsModule,
-        MatAutocompleteTrigger,
-        MatAutocomplete,
-        RouterLink,
-        MatCheckbox,
-        QuillEditorComponent,
-        NgxExtendedPdfViewerModule,
-        NgbCollapse,
-    ],
+  imports: [
+    CommonModule,
+    MatMenuModule,
+    MatIconModule,
+    MatSelectModule,
+    MatFormFieldModule,
+    MatCardModule,
+    MatDialogModule,
+    MatToolbarModule,
+    MatSelectModule,
+    FormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    FormsModule,
+    MatFormField,
+    MatInput,
+    MatLabel,
+    NgIf,
+    NgClass,
+    ReactiveFormsModule,
+    MatAutocompleteTrigger,
+    MatAutocomplete,
+    RouterLink,
+    MatCheckbox,
+    QuillEditorComponent,
+    NgxExtendedPdfViewerModule,
+    NgbCollapse,
+    NgxDocViewerModule,
+  ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA
   ],
@@ -114,7 +118,8 @@ import {NgbCollapse} from "@ng-bootstrap/ng-bootstrap";
     NewEventComponent,
     QuillEditorComponent,
     EditorComponent,
-    PdfOverviewComponent
+    PdfOverviewComponent,
+    DocViewerComponent
   ]
 })
 export class MyCommonModule { }

@@ -29,6 +29,7 @@ import {provideToastr, ToastrModule} from "ngx-toastr";
 import {MarkdownModule} from "ngx-markdown";
 import {QuillModule} from "ngx-quill";
 import {MyCommonModule} from "./common/common.module";
+import {NgxDocViewerModule} from "ngx-doc-viewer";
 
 
 @NgModule({
@@ -59,6 +60,7 @@ import {MyCommonModule} from "./common/common.module";
     MatSortModule,
     MatSnackBarModule,
     MatMenuModule,
+    NgxDocViewerModule,
     ToastrModule.forRoot({
       positionClass: 'custom-toast-position', // Classe personnalisée pour le toast
       preventDuplicates: true,
