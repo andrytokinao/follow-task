@@ -463,6 +463,11 @@ export class PlanningCalendarComponent implements AfterViewInit {
     });
     this.issueService.project$.subscribe(project => {
       this.project = project;
+      if (this.project) {
+        this.eventCriteria.projectId = this.project.id;
+        this.loadEvents();
+
+      }
     });
     this.authService.connectedUser$.subscribe(user => {
       this.user = user;
@@ -630,6 +635,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
     } else {
       this.usersSelected = this.usersSelected.filter(u => u != id);
     }
+    this.eventCriteria.userIds = this.usersSelected;
     this.eventCriteria.userIds = this.usersSelected;
     this.eventService.searchEventsAndSet(this.eventCriteria);
   }

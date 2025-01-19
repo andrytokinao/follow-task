@@ -13,7 +13,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Project {
-
+    public static String BASE_DIRECTORY = "FOLLOW_TASK";
+    public static String DEFAULT_PREFIX = "TASK";
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

@@ -470,6 +470,7 @@ input EventInput {
     reminderOffset: Int
     user: UserAppInput
     issue: IssueInput
+    project:ProjectInput
 }
 type EventType {
     id: ID!

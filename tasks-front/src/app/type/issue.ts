@@ -239,6 +239,7 @@ export interface EventApp {
 }
 export interface EventSearchCriteria {
   userIds?:String[]
+  projectId?:Number;
   issueIds?: number[]
   parrentIds?:number[]
   start?: string
