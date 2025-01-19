@@ -57,11 +57,14 @@ export class CommentsComponent {
   }
   ngOnInit(): void {
     this.route.data.subscribe(data => {
-      this.parentIssue = data['parrentIssue'];
-  //    this.loadComments();
-      this.loadDocument();
+
 
     });
+    this.issueService.issueMaster$.subscribe(issue => {
+      this.parentIssue = issue;
+      this.loadDocument();
+
+    })
     this.issueService.project$.subscribe(project=> this.project = project)
     this.authService.getProfile().subscribe((res)=>{
       this.profile = res;

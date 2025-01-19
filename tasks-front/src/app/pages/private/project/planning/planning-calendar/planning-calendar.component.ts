@@ -480,7 +480,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
       this.refreshView();
     })
 
-    this.issueService.issueMasters$.subscribe((res: any) => {
+    this.issueService.issueMasterList$.subscribe((res: any) => {
       this.issueMasters = res;
     });
     this.userService.users$.subscribe(users => {

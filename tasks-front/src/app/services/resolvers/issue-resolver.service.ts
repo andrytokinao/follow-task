@@ -21,7 +21,7 @@ export class IssueResolverService  implements Resolve<any> {
          key:issueKey,
         projectPrefix:projectPrefix
       }
-      this.issueService.setIssueMasterCriteria(this.criteria);
+      this.issueService.getMaster(this.criteria);
     return {};
   }
 }

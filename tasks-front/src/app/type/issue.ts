@@ -6,7 +6,7 @@ export class Status {
   icone :Icone | undefined;
 }
 export class Issue {
-  id: number = 0;
+  id?: number = 0;
   summary?: String= "";
   type?: number= 0;
   description?: String ="";

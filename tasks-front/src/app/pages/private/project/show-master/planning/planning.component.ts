@@ -29,9 +29,12 @@ export class PlanningComponent implements OnInit{
   }
   ngOnInit(): void {
     this.route.data.subscribe(data => {
-      this.parentIssue = data['parrentIssue'];
-      this.loadSubtask();
     });
+    this.issueService.issueMaster$.subscribe(issue => {
+      this.parentIssue = issue;
+      this.loadSubtask();
+
+    })
 
   }
   protected loadSubtask() {

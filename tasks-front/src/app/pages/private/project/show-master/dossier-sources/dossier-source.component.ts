@@ -31,7 +31,10 @@ export class DossierSourceComponent implements OnInit{
   documents:DocumentApp[] = [ ];
   ngOnInit(): void {
     this.route.data.subscribe(data => {
-      this.parentIssue = data['parrentIssue'];
     });
+    this.issueService.issueMaster$.subscribe(issue => {
+      this.parentIssue = issue;
+
+    })
   }
 }

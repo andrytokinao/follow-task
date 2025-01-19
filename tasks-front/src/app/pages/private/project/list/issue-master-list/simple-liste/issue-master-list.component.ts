@@ -91,7 +91,7 @@ export class IssueMasterListComponent {
     setTimeout(() => {
       this.isLoading = false;
     }, 2000); // Attendre 2 secondes avant de masquer le spinner
-    this.essueService.issueMasters$.subscribe((res: any) => {
+    this.essueService.issueMasterList$.subscribe((res: any) => {
       this.issues = stripTypename(res);
       this.dataSource =  new MatTableDataSource<Issue>(this.issues);
       this.dataSource.paginator = this.paginator;

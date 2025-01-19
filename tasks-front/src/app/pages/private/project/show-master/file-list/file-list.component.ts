@@ -38,7 +38,10 @@ export class FileListComponent {
   documents:DocumentApp[] = [ ];
   ngOnInit(): void {
     this.route.data.subscribe(data => {
-      this.parentIssue = data['parrentIssue'];
+   //   this.parentIssue = data['parrentIssue'];
     });
+    this.issueService.issueMaster$.subscribe(issue => {
+      this.parentIssue = issue;
+    })
   }
 }

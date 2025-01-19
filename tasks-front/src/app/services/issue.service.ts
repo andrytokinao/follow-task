@@ -60,6 +60,7 @@ import {List} from "gojs";
 import {sequence} from "@angular/animations";
 import _default from "chart.js/dist/plugins/plugin.tooltip";
 import numbers = _default.defaults.animations.numbers;
+import {J} from "@angular/cdk/keycodes";
 
 @Injectable({
   providedIn: 'root',
@@ -70,18 +71,19 @@ export class IssueService implements OnInit{
   issueTypes:IssueType[]=[];
   user:User | undefined;
   private subtaskSubject= new BehaviorSubject<Issue[]>([]);
-  private issueMastersSubject = new BehaviorSubject<Issue[]>([]);
+  private issueMastersListSubject = new BehaviorSubject<Issue[]>([]);
   private projectSubject = new BehaviorSubject<Project>(undefined);
   private projectsSubject = new BehaviorSubject<Project[]>([]);
   private worksFlowsSubject = new BehaviorSubject<WorkFlow[]>([]);
-  private masterCriteriaSubject = new BehaviorSubject<IssueSearchCriteriaInput>({});
+  private masterListCriteriaSubject = new BehaviorSubject<IssueSearchCriteriaInput>({});
+  private issueMasterSubject = new BehaviorSubject<Issue>({});
   workFlows$ = this.worksFlowsSubject.asObservable();
   subtask$ = this.subtaskSubject.asObservable();
-
-  issueMasters$ = this.issueMastersSubject.asObservable();
+  issueMaster$ = this.issueMasterSubject.asObservable();
+  issueMasterList$ = this.issueMastersListSubject.asObservable();
   project$ = this.projectSubject.asObservable();
   projects$ = this.projectsSubject.asObservable();
-  masterCriteria$ = this.masterCriteriaSubject.asObservable();
+  masterCriteria$ = this.masterListCriteriaSubject.asObservable();
 
   private issuesSubject = new BehaviorSubject<Issue[]>([]);
   issues$ = this.issuesSubject.asObservable();
@@ -514,7 +516,7 @@ export class IssueService implements OnInit{
   }
   reloadMasterList(){
 
-    this.setIssueMasterCriteria(this.masterCriteriaSubject.value);
+    this.setIssueMasterCriteria(this.masterListCriteriaSubject.value);
   }
   saveIssueType(issueType: IssueType) {
     return new Observable<IssueType>((observer) => {
@@ -958,7 +960,7 @@ export class IssueService implements OnInit{
       })
     })
   }
-  
+
   editFilter(issueCriteria:IssueSearchCriteriaInput) {
     return new Observable<IssueSearchCriteriaInput>((observer) => {
       const dialogRef = this.modalService.open(IssueFilterFieldComponent);
@@ -993,7 +995,7 @@ export class IssueService implements OnInit{
   }
 
   setMasters(masters:Issue[]){
-    this.issueMastersSubject.next(masters);
+    this.issueMastersListSubject.next(masters);
   }
   searchIssuesAnSet(criteria: IssueSearchCriteriaInput) {
    this.searchIssues(criteria,criteria.projectId).subscribe(issues => {
@@ -1074,7 +1076,7 @@ export class IssueService implements OnInit{
     })
   }
   setIssueMasterCriteria(criteria:IssueSearchCriteriaInput){
-    this.masterCriteriaSubject.next(criteria);
+    this.masterListCriteriaSubject.next(criteria);
   }
   openEditIssue(issue:Issue){
     const dialogRef = this.modalService.open(ViewEditIssueComponent, {windowClass: "xlModal"});
@@ -1173,7 +1175,13 @@ export class IssueService implements OnInit{
         )
     })
   }
-
+ getMaster(criteria:IssueSearchCriteriaInput){
+    this.searchIssues(criteria,null).subscribe(issue => {
+       if (issue && issue.length !=0) {
+         this.issueMasterSubject.next(issue[0])
+       }
+    } )
+ }
   getDomainActivityList() {
     console.debug('getDocument');
     return new Observable<DomainActivity[]>(observer=>{

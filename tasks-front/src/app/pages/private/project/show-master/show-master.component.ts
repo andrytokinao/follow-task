@@ -61,9 +61,11 @@ export class ShowMasterComponent implements OnInit{
   ngOnInit(): void {
     this.issueService.project$.subscribe(project=> this.project = project)
     this.route.data.subscribe(data => {
-      this.parrentIssue = data['parrentIssue'];
+  //    this.parrentIssue = data['parrentIssue'];
     });
-
+    this.issueService.issueMaster$.subscribe(issue => {
+      this.parrentIssue = issue;
+    })
     this.issueService.allCustomField().subscribe(customFields=>{
       this.customFields = customFields;
 

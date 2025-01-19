@@ -93,12 +93,19 @@ export class UploadedFilesComponent implements OnInit{
   ngOnInit(): void {
     this.issueService.project$.subscribe(project=> this.project = project)
     this.route.data.subscribe(data => {
-      this.parentIssue = data['parrentIssue'];
-      this.loadDirectory();
+
     });
     this.authService.getProfile().subscribe((res)=>{
       this.profile = res;
     });
+    this.issueService.issueMaster$.subscribe(issue => {
+      this.parentIssue = issue;
+      if (this.parentIssue){
+        this.loadDirectory();
+      }
+
+    })
+
   }
   onFileSelected(event: Event,l:Livraison): void {
     const input = event.target as HTMLInputElement;
