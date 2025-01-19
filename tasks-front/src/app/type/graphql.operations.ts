@@ -813,6 +813,12 @@ const GET_PROJECT = gql`
           }
         }
       }
+      domainActivity {
+        id
+        name
+        description
+        image
+      }
     }
   }
 `;
@@ -1742,6 +1748,12 @@ const GET_PROJECT_BY_USER = gql`
             }
           }
         }
+        domainActivity {
+          id
+          name
+          description
+          image
+        }
       }
     }
 `
@@ -1811,6 +1823,17 @@ const SAVE_UPLOADED = gql`
      }
    }
 `
+const LIST_ACTIVITY = gql`
+  query listActivity{
+    listActivity {
+      id
+      name
+      description
+      image
+    }
+  }
+`;
+
 export {
   supprimerTypename,
   SAVE_USER,
@@ -1871,7 +1894,8 @@ export {
   GET_PROJECT_BY_USER,
   LOAD_PERMISSION_TASK,
   GET_DOCUMENTS,
-  SAVE_UPLOADED
+  SAVE_UPLOADED,
+  LIST_ACTIVITY
 }
 function  supprimerTypename<T>(objet: T): T {
   if (!objet || typeof objet !== 'object') {

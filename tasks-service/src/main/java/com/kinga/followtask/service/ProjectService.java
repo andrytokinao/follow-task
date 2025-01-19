@@ -524,4 +524,8 @@ public class ProjectService {
         uploaded.setDocument(document);
         return uploadedRepository.save(uploaded);
     }
+
+    public List<DomainActivity> listActivity() {
+        return domainActivityRepository.findAll();
+    }
 }

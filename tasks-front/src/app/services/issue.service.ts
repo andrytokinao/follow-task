@@ -12,7 +12,16 @@ import {
   Project,
   IssueType,
   WorkFlow,
-  Criteria, CustomField, UsingCustomField, CustomFieldValue, ConfigProject, GroupeUser, Uploading, Uploaded, DocumentApp
+  Criteria,
+  CustomField,
+  UsingCustomField,
+  CustomFieldValue,
+  ConfigProject,
+  GroupeUser,
+  Uploading,
+  Uploaded,
+  DocumentApp,
+  DomainActivity
 } from "../type/issue";
 import {Apollo} from "apollo-angular";
 import * as operation from "../type/graphql.operations";
@@ -1177,6 +1186,23 @@ export class IssueService implements OnInit{
         observer.complete();
         }
         )
+    })
+  }
+
+  getDomainActivityList() {
+    console.debug('getDocument');
+    return new Observable<DomainActivity[]>(observer=>{
+      this.apollo.query({
+        query:operation.LIST_ACTIVITY,
+        fetchPolicy:'cache-first'
+      }).subscribe((res:any)=>{
+          observer.next(supprimerTypename(res.data.listActivity));
+          observer.complete();
+        },error=> {
+          observer.error(error);
+          observer.complete();
+        }
+      )
     })
   }
 }

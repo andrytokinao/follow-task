@@ -42,4 +42,5 @@ type Query {
     getProjectByUser(userId:String):[Project]
     loadPermissiontTask:Permission
     getDocuments(issueId:Int,typeDocument:String):[Document]
+    listActivity:[DomainActivity]
 }

@@ -105,6 +105,7 @@ type Project{
     workFlows :[WorkFlow]
     events:[Event]
     issues:[Issue]
+    domainActivity:DomainActivity
 }
 
 
@@ -282,6 +283,7 @@ input ProjectInput{
     name:String
     description:String
     prefix:String
+    domainActivity:DomainActivityInput
     events:[EventInput]
 }
 
@@ -495,7 +497,12 @@ input EventSearchCriteriaInput {
     start: String  # Date/heure de début, facultatif
     end: String  # Date/heure de fin, facultatif
 }
-
+input DomainActivityInput {
+    id:Int
+    name:String
+    description:String
+    image:String
+}
 type Permission {
     name:String
     roles:[RoleApp]
@@ -539,4 +546,10 @@ type Uploaded{
     encodedPath:String
     path:String
     document:Document
+}
+type DomainActivity{
+    id:Int
+    name:String
+    description:String
+    image:String
 }

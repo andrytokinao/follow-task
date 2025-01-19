@@ -120,13 +120,14 @@ export interface ConfigEntry{
   projectPrefix:String
 }
 export interface Project {
-  imageUrl: string;
-  id:Number;
-  name:String;
-  prefix:String;
-  description:String;
-  issueTypes : IssueType[];
-  workFlows : WorkFlow[];
+  imageUrl?: string;
+  id?:Number;
+  name?:String;
+  prefix?:String;
+  domainActivity?:DomainActivity;
+  description?:String;
+  issueTypes? : IssueType[];
+  workFlows? : WorkFlow[];
 }
 export interface IssueType{
   id:number
@@ -262,4 +263,10 @@ export interface DocumentApp{
   issues?:Issue
   uploadeds?:Uploaded[]
 
+}
+export interface DomainActivity{
+  id?:number;
+  name?:string;
+  description?:string;
+  image?:String;
 }

@@ -46,6 +46,19 @@
         placeholder="Entrez la description"
       />
     </mat-form-field>
+      <h3>Domain activity </h3>
+    <mat-radio-group
+      aria-label="Select an option"
+      [(ngModel)]="domainActivity"
+    >
+      <mat-radio-button style="display: block"
+        *ngFor="let dm of domains"
+        [value]="dm.id"
+        (click)="selectActivity(dm)"
+      >
+        {{ dm.description }}
+      </mat-radio-button>
+    </mat-radio-group>
   </form>
 
   <div class="error-container">

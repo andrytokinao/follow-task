@@ -20,6 +20,7 @@ import {CustomFieldComponent} from "../../common/custom-field/custom-field.compo
 import {MatInputModule} from "@angular/material/input";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {BrowserModule} from "@angular/platform-browser";
+import {MatRadioButton, MatRadioGroup} from "@angular/material/radio";
 
 
 @NgModule({
@@ -44,8 +45,10 @@ import {BrowserModule} from "@angular/platform-browser";
         CommonModule,
         MyCommonModule,
         CustomFieldComponent,
-      MatInputModule,
-      ReactiveFormsModule,
+        MatInputModule,
+        ReactiveFormsModule,
+        MatRadioButton,
+        MatRadioGroup,
     ],
 
 })

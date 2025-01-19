@@ -279,4 +279,8 @@ public class GQIssueController {
     public Uploaded saveUploaded(@Argument Uploaded uploaded){
         return issueService.saveUploaded(uploaded);
     }
+    @QueryMapping
+    public List<DomainActivity> listActivity() {
+        return projectService.listActivity();
+    }
 }
