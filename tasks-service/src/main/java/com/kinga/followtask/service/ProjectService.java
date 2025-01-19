@@ -196,6 +196,10 @@ public class ProjectService {
     }
     // Etape 1 : Creation projet
     public Project createProjectOrSave (Project project) throws IOException {
+        if (project.getDomainActivity() == null) {
+            DomainActivity domainActivity = getDefaultDomaineActivity();
+            project.setDomainActivity(domainActivity);
+        }
         ConfigEntry configEntry = configRepository.getByActiveIs (true);
         String installation = configEntry.getInstalationState ();
 
