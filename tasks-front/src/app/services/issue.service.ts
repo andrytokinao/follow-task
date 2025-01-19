@@ -958,22 +958,7 @@ export class IssueService implements OnInit{
       })
     })
   }
-
-  getIssue(issueKey: string) {
-    return new Observable<Issue>(observer => {
-      this.apollo.query({
-        query:GET_ISSUE,
-        variables:{issueKey},
-        fetchPolicy:"network-only"
-      }).subscribe((res:any)=>{
-        observer.next(supprimerTypename(res.data.getIssue));
-        observer.complete();
-      },error => {
-        observer.error(error);
-        observer.complete();
-      })
-    })
-  }
+  
   editFilter(issueCriteria:IssueSearchCriteriaInput) {
     return new Observable<IssueSearchCriteriaInput>((observer) => {
       const dialogRef = this.modalService.open(IssueFilterFieldComponent);

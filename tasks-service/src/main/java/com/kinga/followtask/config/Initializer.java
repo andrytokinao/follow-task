@@ -33,7 +33,6 @@ public class Initializer implements CommandLineRunner {
             eventTypeRepository.save(new EventType("HOLIDAY", "#FFD700", "background-color: #FFD700;"));
             eventTypeRepository.save(new EventType("OTHER", "#D3D3D3", "background-color: #D3D3D3;"));
         }
-        projectService.getOrInitialiseDefaultIssueType();
         // Ratrappage des groupe user
          List<GroupeUser> groupeUsers = groupeUserRepository.findAll();
          for(GroupeUser groupe :groupeUsers) {

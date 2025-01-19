@@ -228,8 +228,8 @@ public class GQIssueController {
         return projectService.getNextKey(issueTypeId);
     }
     @QueryMapping
-    public Issue getIssue(@Argument String issueKey) {
-        return projectService.getIssue(issueKey);
+    public Issue getIssue(@Argument String issueKey, @Argument Long projectId) {
+        return issueService.getIssue(issueKey,projectId);
     }
     @QueryMapping
     public List<Issue> loadSubtask(@Argument Long parentId){
@@ -241,7 +241,7 @@ public class GQIssueController {
     }
     @QueryMapping
     public List<Issue> searchIssues(@Argument IssueSearchCriteria criteria) {
-        return  projectService.searchIssues (criteria);
+        return  issueService.searchIssues (criteria);
     }
     @QueryMapping
     public List<Event> searchEvents(@Argument EventSearchCriteriaDTO criteria) {

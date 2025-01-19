@@ -14,8 +14,8 @@ import java.util.Optional;
 public interface IssueRepository extends JpaRepository<Issue,Long>, JpaSpecificationExecutor<Issue> {
     public List<Issue> findByAssigneId(String id);
     public Optional<Issue> findTopByIssueTypeIdOrderByIssueKeyDesc(Long issueTypeId);
-    @Query("SELECT MAX(CAST(SUBSTRING(i.issueKey, LENGTH(:prefix) + 1) AS int)) FROM Issue i WHERE i.issueKey LIKE CONCAT(:prefix, '%')")
-    Integer findMaxProjectNumberWithPrefix(@Param("prefix") String prefix);
+    @Query("SELECT MAX(CAST(SUBSTRING(i.issueKey, LENGTH(:prefix) + 1) AS int)) FROM Issue i WHERE i.issueKey LIKE CONCAT(:prefix, '%') AND i.issueType.id = :issueType")
+    Integer findMaxProjectNumberWithPrefix(@Param("prefix") String prefix, @Param("issueType") Long issueType );
 
     public List<Issue> findByIssueTypeIdIn(List<Long> issueT);
     public Issue findByIssueKey(String issueKey);

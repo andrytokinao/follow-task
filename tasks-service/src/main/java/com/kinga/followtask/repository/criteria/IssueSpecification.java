@@ -64,6 +64,8 @@ public class IssueSpecification implements Specification<Issue> {
         }
         if (criteria.getProjectId() != null ) {
             predicates.add(root.join("project").get("id").in(criteria.getProjectId()));
+        }  if (criteria.getProjectPrefix() != null ) {
+            predicates.add(root.join("project").get("prefix").in(criteria.getProjectPrefix()));
         }
         Join<Issue, CustomFieldValue> customFieldJoin = root.join("values", JoinType.LEFT);
         if (criteria.getCustomFieldStringValues() != null) {

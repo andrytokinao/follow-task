@@ -7,6 +7,8 @@ import com.kinga.followtask.entity.CustomFieldValue;
 import com.kinga.followtask.entity.*;
 import com.kinga.followtask.entity.enumapp.Niveau;
 import com.kinga.followtask.repository.*;
+import com.kinga.followtask.repository.criteria.IssueSearchCriteria;
+import com.kinga.followtask.repository.criteria.IssueSpecification;
 import com.kinga.utils.KingaUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -70,13 +72,7 @@ public class IssueService {
 
 
     public Issue saveIssue(Issue issue) throws IOException {
-        if(issue.getId() ==null) {
-            issue.setCreationDate(new Date());
-            issue.setReporter(getCurrentUser());
 
-        } else {
-            issue.setUpdateDate( new Date());
-        }
 
         if (issue.getIssueType() == null) {
             throw new RuntimeException("type mast bee renseign");
@@ -92,11 +88,7 @@ public class IssueService {
         Project project = projectRepository.findById(tempProject.getId()).orElse(null);
 
         IssueType issueType = issueTypeRepository.getById(issue.getIssueType().getId());
-         if (StringUtils.isEmpty(issue.getIssueKey()))
-             issue.setIssueKey(getKeySuivente(issueType));
-        if (StringUtils.isEmpty(project.getPath())) {
-            throw new RemoteException(" Config non terminer ");
-        }
+
         WorkFlow workFlow = issueType.getCurentWorkFlow();
         List<Long> issueTypeIds = new ArrayList<>();
         if (workFlow != null) {
@@ -104,6 +96,28 @@ public class IssueService {
             for (IssueType it : issueTypes){
                 issueTypeIds.add(it.getId());
             }
+        }
+        if(issue.getId() ==null) {
+            issue.setCreationDate(new Date());
+            issue.setReporter(getCurrentUser());
+            if (!StringUtils.isEmpty(issue.getIssueKey())) {
+                IssueSearchCriteria criteria = new IssueSearchCriteria();
+                criteria.setKey(issue.getIssueKey());
+                criteria.setProjectId(project.getId());
+                List<Issue> existings = searchIssues(criteria);
+                if (!CollectionUtils.isEmpty(existings)) {
+                    throw new RemoteException(" Key "+issue.getIssueKey() +" is alredy use in sambe project ");
+                }
+
+            } else {
+                issue.setIssueKey(getKeySuivente(issueType));
+            }
+            if (StringUtils.isEmpty(project.getPath())) {
+                throw new RemoteException(" Config non terminer ");
+            }
+
+        } else {
+            issue.setUpdateDate( new Date());
         }
         issue = createDirectoryIfEmpty(issue,project);
         return issueRepository.save(issue);
@@ -422,5 +436,24 @@ public class IssueService {
     }
     public Uploaded saveUploaded(Uploaded uploaded) {
         return uploadedRepository.save(uploaded);
+    }
+    public List<Issue> searchIssues(IssueSearchCriteria criteria) {
+        IssueSpecification specification = new IssueSpecification(criteria);
+        List<Issue> issues = issueRepository.findAll(specification);
+        return issues;
+    }
+
+    public Issue getIssue(String issueKey, Long projectId) {
+        IssueSearchCriteria criteria = new IssueSearchCriteria();
+        criteria.setKey(issueKey);
+        criteria.setProjectId(projectId);
+        List<Issue> issues = searchIssues(criteria);
+        if (!CollectionUtils.isEmpty(issues)){
+            if (issues.size()> 1) {
+                throw new  RuntimeException("Result not unique ");
+            }
+            return issues.get(0);
+        }
+        return null;
     }
 }

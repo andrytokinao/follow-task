@@ -22,6 +22,7 @@ export interface IssueSearchCriteriaInput {
   customFieldIssueIds?: CustomFieldIssueIds[];
   customFieldTextValues?: CustomFieldTextValues[];
   projectId?:Number;
+  projectPrefix?:String
 }
 
 export interface CustomFieldStringValues {

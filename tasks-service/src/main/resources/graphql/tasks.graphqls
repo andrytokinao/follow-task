@@ -405,6 +405,7 @@ input IssueSearchCriteriaInput {
     customFieldIssueIds: [CustomFieldIssueIdsInput]
     customFieldTextValues: [CustomFieldTextValuesInput]
     projectId:Int
+    projectPrefix:String
 }
 
 input CustomFieldStringValuesInput {
