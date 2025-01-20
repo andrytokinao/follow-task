@@ -45,7 +45,12 @@ export class DocumentsComponent {
         this.document.userApp = {id:this.profile.id}
       }
     });
-    this.loadDocument();
+    this.issueService.issueMaster$.subscribe(master => {
+      this.issue = master ;
+      if (this.issue) {
+        this.loadDocument();
+      }
+    })
   }
 
   createUpload(){
@@ -107,7 +112,7 @@ export class DocumentsComponent {
   }
   upload() {
     this.document.typeDocument = this.typeDocument;
-    this.document.issues = {id:this.issue.id}
+    this.document.issues = {id:this.issue.id};
     if (this.profile){
       this.document.userApp = {id:this.profile.id}
     }

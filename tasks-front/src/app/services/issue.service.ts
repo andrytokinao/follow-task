@@ -452,7 +452,10 @@ export class IssueService implements OnInit{
     const queryString = `?fileNames=${fileNames.join(',')}` + "&directory=" + directory;
     return environment.apiURL + `api/download${queryString}`;
   }
-
+  downloadUploadedUrl(uploaded:Uploaded){
+    const queryString = '?fileNames='+uploaded.encodedPath+'&directory=okay&fileName='+uploaded.name ;
+    return environment.apiURL + 'api/download'+queryString;
+  }
   upload(file: File, root: String,documentId:number): Observable<HttpEvent<any>> {
     const formData: FormData = new FormData();
     formData.append('file', file);

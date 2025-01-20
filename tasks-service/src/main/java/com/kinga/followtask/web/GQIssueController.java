@@ -103,7 +103,7 @@ public class GQIssueController {
         try{
            Uploaded uploaded = projectService.uplodoadFile(file, directory, newDirectory,documentId);
            String json = (new Gson()).toJson(new UploadedDto(uploaded.getId(),uploaded.getName(),uploaded.getPath(),uploaded.getEncodedPath()));
-            return ResponseEntity.ok().body(json);
+           return ResponseEntity.ok().body(json);
 
         } catch (Exception ex){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Une erreur s'est produite lors du téléchargement du fichier."+ex.getMessage());

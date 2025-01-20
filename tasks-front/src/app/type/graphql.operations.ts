@@ -1484,6 +1484,7 @@ const SEARCH_ISSUES = gql`
       summary
       creationDate
       description
+      encodedPath
       status {
         id
         displayName
