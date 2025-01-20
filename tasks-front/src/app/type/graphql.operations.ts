@@ -1659,6 +1659,10 @@ const EVENT_BY_ID=gql`
       getByEventId(eventId:$eventId){
         id
         title
+        project {
+          id
+          prefix
+        }
         location
         start
         end
