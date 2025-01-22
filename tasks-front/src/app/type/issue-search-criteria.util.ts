@@ -1,9 +1,10 @@
 import {ParamMap} from "@angular/router";
 export interface CustomFilter {
   name?:String,
+  projectId?:Number,
   description?:String,
   user?:User,
-  issueSearchCriteria?:IssueSearchCriteriaInput
+  criteria?:IssueSearchCriteriaInput
 }
 export interface IssueSearchCriteriaInput {
   key?: string;

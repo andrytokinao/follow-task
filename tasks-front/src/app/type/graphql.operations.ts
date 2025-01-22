@@ -1,5 +1,52 @@
 import {Apollo, gql} from "apollo-angular";
 
+export let SAVE_CUSTOM_FILTER = gql`
+  mutation saveCustomFilter($customFilter:IssueFilterInput) {
+    saveCustomFilter(customFilter:$customFilter) {
+      id
+      name
+      description
+      criteria {
+        key
+        summary
+        projectId
+        assigneUsernames
+        customFieldDateValueFrom {
+          value
+          customFieldId
+        }
+        customFieldDateValues {
+          values
+          customFieldId
+        }
+        customFieldStringValues {
+          customFieldId
+          values
+        }
+        customFieldIssueIds {
+          issueIds
+          customFieldId
+        }
+        dateFrom
+        dateTo
+        customFieldUserIds {
+          customFieldId
+          userIds
+        }
+        customFieldTextValues {
+          customFieldId
+          textValues
+        }
+        projectPrefix
+
+      }
+      user {
+        id
+        username
+      }
+    }
+  }
+`;
 
 
 export type Maybe<T> = T | null;

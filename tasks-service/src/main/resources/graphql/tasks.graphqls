@@ -610,6 +610,7 @@ type DomainActivity{
 input IssueFilterInput {
     id:Int
     name:String
+    projectId:Int
     description:String
     criteria:IssueSearchCriteriaInput
     user:UserAppInput
@@ -617,6 +618,7 @@ input IssueFilterInput {
 type IssueFilter {
     id:Int
     name:String
+    projectId:Int
     description:String
     criteria:IssueSearchCriteria
     user:UserApp

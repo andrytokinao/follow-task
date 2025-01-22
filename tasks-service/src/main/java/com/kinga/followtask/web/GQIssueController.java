@@ -283,4 +283,8 @@ public class GQIssueController {
     public List<DomainActivity> listActivity() {
         return projectService.listActivity();
     }
+    @MutationMapping
+    public IssueFilter saveCustomFilter(@Argument IssueFilter customFilter) {
+        return projectService.saveCustomFilter(customFilter);
+    }
 }

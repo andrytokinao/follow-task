@@ -16,6 +16,7 @@ public class IssueFilter {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
+    private Long projectId;
     private String description;
     @Lob
     @Convert(converter = IssueCriteriaCoverter.class)

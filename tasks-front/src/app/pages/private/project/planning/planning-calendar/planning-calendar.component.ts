@@ -487,7 +487,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
       this.users = users;
     })
     this.issueService.masterCriteria$.subscribe(criteria => {
-      this.masterFilter.issueSearchCriteria = criteria;
+      this.masterFilter.criteria = criteria;
     })
   }
 

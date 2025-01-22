@@ -966,27 +966,24 @@ export class IssueService implements OnInit{
 
   editFilter(event: MouseEvent, customFilter: CustomFilter): Observable<IssueSearchCriteriaInput> {
     return new Observable<IssueSearchCriteriaInput>((observer) => {
-      // Ouvrir le dialogue
       const dialogRef = this.modalService.open(IssueFilterFieldComponent, {
-        windowClass: 'custom-dialog', // Classe personnalisée pour le style
-        backdrop: 'static', // Empêcher la fermeture en cliquant en dehors
-        keyboard: false, // Désactiver la fermeture avec la touche "Échap" si nécessaire
+        windowClass: 'custom-dialog',
+        backdrop: 'static',
+        keyboard: false,
+        animation:true
       });
-
-      // Passer le filtre personnalisé au composant de la boîte de dialogue
       dialogRef.componentInstance.customFilter = customFilter;
 
-      // Gérer le positionnement près du bouton cliqué
       setTimeout(() => {
         const buttonRect = (event.target as HTMLElement).getBoundingClientRect();
         const dialogElement = document.querySelector('.custom-dialog .modal-dialog') as HTMLElement;
 
         if (dialogElement) {
           dialogElement.style.position = 'absolute';
-          dialogElement.style.left = `${buttonRect.right + 10}px`; // Décalage de 10px
-          dialogElement.style.top = `${buttonRect.top}px`;
-          dialogElement.style.margin = '0'; // Retirer les marges par défaut
-          dialogElement.style.transform = 'none'; // Désactiver la transformation par défaut
+          dialogElement.style.left = `${buttonRect.right + 10}px`;
+          dialogElement.style.top = `${buttonRect.top -20}px`;
+          dialogElement.style.margin = '0';
+          dialogElement.style.transform = 'none';
         }
       }, 0);
 
@@ -996,7 +993,7 @@ export class IssueService implements OnInit{
           if (result?.criteria) {
             observer.next(result.criteria);
           } else {
-            observer.next(null); // Si aucun critère n'est retourné
+            observer.next(null);
           }
           observer.complete();
         },
@@ -1231,6 +1228,24 @@ export class IssueService implements OnInit{
           observer.complete();
         }
       )
+    })
+  }
+
+  saveCustomFilter(customFilter: CustomFilter) {
+    return new Observable<CustomFilter>(observer => {
+      this.apollo.mutate({
+           mutation:operation.SAVE_CUSTOM_FILTER,
+           fetchPolicy:'network-only',
+          variables:{customFilter},
+        }
+      ).subscribe( (res:any)=> {
+        observer.next(supprimerTypename(res.data.saveCustomFilter));
+        observer.complete();
+      }, error => {
+        console.error(error);
+        observer.error(error);
+        observer.complete();
+      })
     })
   }
 }

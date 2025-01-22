@@ -79,7 +79,7 @@ export class ShowMasterListComponent {
           name:'Mes taches',
           description:'Tache affecté a moi ',
           user:undefined,
-          issueSearchCriteria:{assigneUsernames:[this.user?.username || '']}
+          criteria:{assigneUsernames:[this.user?.username || '']}
         };
       }
 
@@ -90,7 +90,7 @@ export class ShowMasterListComponent {
       name:'Non tesminé',
       description:'Description',
       user:undefined,
-      issueSearchCriteria:{
+      criteria:{
         statusIds:[1,2,3,4]
       }
     });
@@ -110,12 +110,12 @@ export class ShowMasterListComponent {
 
   aplayFilter(filter) {
     this.selectedFilter = filter;
-    this.searchIssue(filter.issueSearchCriteria);
+    this.searchIssue(filter.criteria);
   }
 
   editFilter(ev,filter:CustomFilter) {
     this.essueService.editFilter(ev,filter).subscribe(criteria => {
-      filter.issueSearchCriteria = criteria;
+      filter.criteria = criteria;
       this.searchCriteria = criteria;
       this.searchIssue(criteria);
     })

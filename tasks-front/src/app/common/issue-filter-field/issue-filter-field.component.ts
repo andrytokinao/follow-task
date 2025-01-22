@@ -2,7 +2,7 @@ import {AfterViewInit, Component} from '@angular/core';
 import {FormArray, FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {stripTypename} from "@apollo/client/utilities";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
-import {Status, User, WorkFlow} from "../../type/issue";
+import {Project, Status, User, WorkFlow} from "../../type/issue";
 import {IssueService} from "../../services/issue.service";
 import {CustomFilter, IssueSearchCriteriaInput} from "../../type/issue-search-criteria.util";
 import {UserService} from "../../services/user.service";
@@ -15,6 +15,7 @@ import {id} from "@swimlane/ngx-charts";
 })
 export class IssueFilterFieldComponent implements AfterViewInit{
   customFilter:CustomFilter ={};
+  project:Project ;
   searchForm: FormGroup;
   issueCriteria:IssueSearchCriteriaInput = {} ;
   status:Status[] = [];
@@ -68,7 +69,6 @@ export class IssueFilterFieldComponent implements AfterViewInit{
 
   save() {
     this.issueCriteria.statusIds = this.statusIds;
-
     this.issueCriteria.assigneUsernames = this.selectedAssign;
 
     if (this.creationFrom) {
@@ -77,7 +77,14 @@ export class IssueFilterFieldComponent implements AfterViewInit{
     if (this.creationTo) {
       this.issueCriteria.dateTo = this.creationTo;
     }
-    this.activeModal.close( {criteria: this.issueCriteria});
+    this.customFilter.criteria = this.issueCriteria;
+    this.customFilter.projectId = this.project?.id;
+    alert(this.customFilter.projectId);
+    this.issueService.saveCustomFilter(this.customFilter).subscribe(customFilter => {
+      this.customFilter = customFilter;
+      this.activeModal.close( {criteria: this.issueCriteria});
+
+    })
 
   }
 
@@ -102,5 +109,8 @@ export class IssueFilterFieldComponent implements AfterViewInit{
     if (this.issueCriteria.assigneUsernames) {
       this.selectedAssign = this.issueCriteria.assigneUsernames;
     }
+    this.issueService.project$.subscribe(project => {
+      this.project = project;
+    })
   }
 }

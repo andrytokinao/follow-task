@@ -84,7 +84,7 @@ export class ShowListComponent implements OnInit, AfterViewInit{
         name:'Mes taches',
         description:'Tache affecté a moi ',
         user:undefined,
-        issueSearchCriteria:{assigneUsernames:[this.user.username]}
+        criteria:{assigneUsernames:[this.user.username]}
       };
      // this.aplayFilter(this.mesTache);
     })
@@ -93,7 +93,7 @@ export class ShowListComponent implements OnInit, AfterViewInit{
       name:'Premier filtre',
       description:'Description',
       user:undefined,
-      issueSearchCriteria:{}
+      criteria:{}
     });
 
   }
@@ -111,7 +111,7 @@ export class ShowListComponent implements OnInit, AfterViewInit{
 
   aplayFilter(filter) {
     this.selectedFilter = filter;
-    this.searchIssue(filter.issueSearchCriteria);
+    this.searchIssue(filter.criteria);
   }
 
 

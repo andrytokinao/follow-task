@@ -32,7 +32,7 @@ export class ListComponent  implements OnInit{
   }
 
   aplayFilter(filter) {
-    this.searchIssue(filter.issueSearchCriteria);
+    this.searchIssue(filter.criteria);
   }
   searchIssue(searchCriteria:IssueSearchCriteriaInput){
     const queryParams = toQueryParams(searchCriteria);
@@ -67,7 +67,7 @@ export class ListComponent  implements OnInit{
       name:'Premier filtre',
       description:'Description',
       user:undefined,
-      issueSearchCriteria:{}
+      criteria:{}
     });
   }
 

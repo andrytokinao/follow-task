@@ -26,6 +26,7 @@ type Mutation {
     deleteEvent(eventId:Int):Event
     addDocument(document:DocumentInput):Document
     saveUploaded(uploaded:UploadedInput):Uploaded
+    saveCustomFilter(customFilter:IssueFilterInput):IssueFilter
 }
 
 

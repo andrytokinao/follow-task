@@ -52,6 +52,7 @@ public class ProjectService {
     final UserService userService;
     final UploadedRepository uploadedRepository;
     final DomainActivityRepository domainActivityRepository;
+    final CustomIssueFilterRepository customIssueFilterRepository;
     static Logger logger = LoggerFactory.getLogger(ProjectService.class);
 
     public Status saveStatus(Status status) {
@@ -538,5 +539,9 @@ public class ProjectService {
 
     public List<DomainActivity> listActivity() {
         return domainActivityRepository.findAll();
+    }
+
+    public IssueFilter saveCustomFilter(IssueFilter customFilter) {
+        return customIssueFilterRepository.save(customFilter);
     }
 }
