@@ -3,7 +3,7 @@ import {ListModule} from "../../list.module";
 import {NgForOf, NgIf} from "@angular/common";
 import {Issue, Project, User} from "../../../../../../type/issue";
 import {
-  Filter,
+  CustomFilter,
   fromUrlParams,
   IssueSearchCriteriaInput,
   toQueryParams
@@ -33,10 +33,10 @@ export class ShowMasterListComponent {
 
   searchCriteria: IssueSearchCriteriaInput | any = {
   };
-  fileters:Filter[]=[] ;
-  mesTache:Filter ;
+  fileters:CustomFilter[]=[] ;
+  mesTache:CustomFilter ;
   private user: User;
-  private selectedFilter: Filter;
+  private selectedFilter: CustomFilter;
   constructor(
     private modalService: NgbModal,
     protected issueService: IssueService,
@@ -113,8 +113,8 @@ export class ShowMasterListComponent {
     this.searchIssue(filter.issueSearchCriteria);
   }
 
-  editFilter(filter:Filter) {
-    this.essueService.editFilter(filter.issueSearchCriteria).subscribe(criteria => {
+  editFilter(filter:CustomFilter) {
+    this.essueService.editFilter(filter).subscribe(criteria => {
       filter.issueSearchCriteria = criteria;
       this.searchCriteria = criteria;
       this.searchIssue(criteria);
@@ -129,7 +129,7 @@ export class ShowMasterListComponent {
     });
   }
 
-  isActiveFilter(filter: Filter) {
+  isActiveFilter(filter: CustomFilter) {
     if (this.selectedFilter == null)
       return '';
     return (filter.name == this.selectedFilter.name)? "active" : "";

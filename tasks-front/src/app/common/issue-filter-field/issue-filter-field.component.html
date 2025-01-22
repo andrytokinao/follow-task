@@ -1,6 +1,10 @@
 <div class="form-container">
   <form>
     <div class="card" style="margin-top: 15px;padding-top: 5px;padding-bottom: 5px">
+     <mat-form-field style="width: 100%;">
+        <mat-label> Nom </mat-label>
+       <input matInput [(ngModel)]="myfilter.name">
+     </mat-form-field>
       <h1> Status </h1>
       <div class="sidebar-heding ">
       <span *ngFor="let st of status" [class]="selectStatus(st.id) ? 'selected' : ''">
@@ -42,6 +46,6 @@
     </div>
   </div>-->
 
-  <button type="submit" class="btn btn-primary" (click)="save()">Search</button>
+  <button type="submit" class="btn btn-primary" (click)="save()">Save</button>
   <button type="button" class="btn btn-secondary" (click)="activeModal.dismiss('cancel')">Cancel</button>
 </div>

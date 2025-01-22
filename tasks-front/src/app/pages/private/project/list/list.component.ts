@@ -4,7 +4,7 @@ import {IssueService} from "../../../../services/issue.service";
 import {UserService} from "../../../../services/user.service";
 import {AuthService} from "../../../../services/auth.service";
 import {ActivatedRoute, Router} from "@angular/router";
-import {Filter, IssueSearchCriteriaInput, toQueryParams} from "../../../../type/issue-search-criteria.util";
+import {CustomFilter, IssueSearchCriteriaInput, toQueryParams} from "../../../../type/issue-search-criteria.util";
 import {BreadcrumbService} from "../../../../services/breadcrumb.service";
 import {Breadcrumb, Project} from "../../../../type/issue";
 
@@ -17,7 +17,7 @@ export class ListComponent  implements OnInit{
   private project:Project ;
   searchCriteria: IssueSearchCriteriaInput | any = {
   };
-  fileters:Filter[]=[] ;
+  fileters:CustomFilter[]=[] ;
   constructor(
     private modalService: NgbModal,
     private issueService: IssueService,
@@ -42,7 +42,7 @@ export class ListComponent  implements OnInit{
     });
   }
   editFilter(filter) {
-    this.essueService.editFilter(filter.issueSearchCriteria).subscribe(filter => {
+    this.essueService.editFilter(filter).subscribe(filter => {
       this.searchIssue(filter);
     })
   }

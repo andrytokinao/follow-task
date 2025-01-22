@@ -9,6 +9,7 @@
       <li *ngFor="let filter of fileters">
         <a (click)="editFilter(filter)"> {{filter.name}}  <i class="fas fa-edit" ></i> </a>
       </li>
+      <app-issue-filter></app-issue-filter>
     </ul>
   </div>
   <div>

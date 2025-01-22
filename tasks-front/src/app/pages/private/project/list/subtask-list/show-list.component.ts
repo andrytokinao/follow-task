@@ -8,7 +8,7 @@ import {UserService} from "../../../../../services/user.service";
 import {AuthService} from "../../../../../services/auth.service";
 import {ActivatedRoute, ParamMap, Router} from "@angular/router";
 import {
-  Filter,
+  CustomFilter,
   fromUrlParams,
   IssueSearchCriteriaInput,
   toQueryParams
@@ -33,10 +33,10 @@ export class ShowListComponent implements OnInit, AfterViewInit{
 
   searchCriteria: IssueSearchCriteriaInput | any = {
   };
-  fileters:Filter[]=[] ;
-  mesTache:Filter ;
+  fileters:CustomFilter[]=[] ;
+  mesTache:CustomFilter ;
   private user: User;
-  private selectedFilter: Filter;
+  private selectedFilter: CustomFilter;
   constructor(
     private modalService: NgbModal,
     protected issueService: IssueService,
@@ -116,7 +116,7 @@ export class ShowListComponent implements OnInit, AfterViewInit{
 
 
   editFilter(filter) {
-    this.essueService.editFilter(filter.issueSearchCriteria).subscribe(filter => {
+    this.essueService.editFilter(filter).subscribe(filter => {
       this.searchIssue(filter);
     })
   }
@@ -129,7 +129,7 @@ export class ShowListComponent implements OnInit, AfterViewInit{
     });
   }
 
-  isActiveFilter(filter: Filter) {
+  isActiveFilter(filter: CustomFilter) {
     if (this.selectedFilter == null)
       return '';
    return (filter.name == this.selectedFilter.name)? "active" : "";

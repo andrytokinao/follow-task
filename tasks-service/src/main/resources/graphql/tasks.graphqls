@@ -407,7 +407,25 @@ input IssueSearchCriteriaInput {
     projectId:Int
     projectPrefix:String
 }
-
+type IssueSearchCriteria {
+    key: String
+    summary: String
+    dateFrom: String
+    dateTo: String
+    statusIds: [ID]
+    issueTypeIds: [ID]
+    issueTypeLevels:[String]
+    assigneUsernames: [String]
+    customFieldStringValues: [CustomFieldStringValues]
+    customFieldDateValues: [CustomFieldDateValues]
+    customFieldDateValueFrom: [CustomFieldDateValueFrom]
+    customFieldDateValueTo: [CustomFieldDateValueTo]
+    customFieldUserIds: [CustomFieldUserIds]
+    customFieldIssueIds: [CustomFieldIssueIds]
+    customFieldTextValues: [CustomFieldTextValues]
+    projectId:Int
+    projectPrefix:String
+}
 input CustomFieldStringValuesInput {
     customFieldId: ID
     values: [String]
@@ -439,6 +457,40 @@ input CustomFieldIssueIdsInput {
 }
 
 input CustomFieldTextValuesInput {
+    customFieldId: ID
+    textValues: [String]
+}
+type CustomFieldStringValues {
+    customFieldId: ID
+    values: [String]
+}
+
+type CustomFieldDateValues {
+    customFieldId: ID
+    values: [String]
+}
+
+type CustomFieldDateValueFrom {
+    customFieldId: ID
+    value: String
+}
+
+type CustomFieldDateValueTo {
+    customFieldId: ID
+    value: String
+}
+
+type CustomFieldUserIds {
+    customFieldId: ID
+    userIds: [String]
+}
+
+type CustomFieldIssueIds {
+    customFieldId: ID
+    issueIds: [ID]
+}
+
+type CustomFieldTextValues {
     customFieldId: ID
     textValues: [String]
 }
@@ -554,4 +606,18 @@ type DomainActivity{
     name:String
     description:String
     image:String
+}
+input IssueFilterInput {
+    id:Int
+    name:String
+    description:String
+    criteria:IssueSearchCriteriaInput
+    user:UserAppInput
+}
+type IssueFilter {
+    id:Int
+    name:String
+    description:String
+    criteria:IssueSearchCriteria
+    user:UserApp
 }

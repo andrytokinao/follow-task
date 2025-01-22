@@ -4,7 +4,7 @@ import {stripTypename} from "@apollo/client/utilities";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {Status, User, WorkFlow} from "../../type/issue";
 import {IssueService} from "../../services/issue.service";
-import {IssueSearchCriteriaInput} from "../../type/issue-search-criteria.util";
+import {CustomFilter, IssueSearchCriteriaInput} from "../../type/issue-search-criteria.util";
 import {UserService} from "../../services/user.service";
 import {id} from "@swimlane/ngx-charts";
 
@@ -14,6 +14,7 @@ import {id} from "@swimlane/ngx-charts";
   styleUrl: './issue-filter-field.component.css'
 })
 export class IssueFilterFieldComponent implements AfterViewInit{
+  customFilter:CustomFilter ={};
   searchForm: FormGroup;
   issueCriteria:IssueSearchCriteriaInput = {} ;
   status:Status[] = [];
@@ -22,6 +23,7 @@ export class IssueFilterFieldComponent implements AfterViewInit{
   selectedAssign:string[] = [];
   creationFrom: string;
   creationTo: string ;
+  myfilter: CustomFilter = {};
 
   constructor(
     public activeModal: NgbActiveModal,

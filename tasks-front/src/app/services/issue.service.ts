@@ -46,7 +46,7 @@ import {
   WORK_FLOWS_BY_PROJECT
 } from "../type/graphql.operations";
 import {environment} from "../../environments/environment";
-import {Filter, IssueSearchCriteriaInput} from "../type/issue-search-criteria.util";
+import {CustomFilter, IssueSearchCriteriaInput} from "../type/issue-search-criteria.util";
 import {ActivatedRoute, Router} from "@angular/router";
 import {UserService} from "./user.service";
 import {NewIssueComponent} from "../pages/private/project/modal/new-issue/new-issue.component";
@@ -964,10 +964,10 @@ export class IssueService implements OnInit{
     })
   }
 
-  editFilter(issueCriteria:IssueSearchCriteriaInput) {
+  editFilter(customFilter:CustomFilter) {
     return new Observable<IssueSearchCriteriaInput>((observer) => {
       const dialogRef = this.modalService.open(IssueFilterFieldComponent);
-      dialogRef.componentInstance.issueCriteria = issueCriteria;
+      dialogRef.componentInstance.customFilter = customFilter;
       dialogRef.result.then((result) => {
         observer.next(result.criteria);
         observer.complete();

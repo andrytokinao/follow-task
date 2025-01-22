@@ -16,7 +16,7 @@ import {MatTableDataSource} from "@angular/material/table";
 import {IssueService} from "../../../../../services/issue.service";
 import {UserService} from "../../../../../services/user.service";
 import {BehaviorSubject, forkJoin} from "rxjs";
-import {IssueSearchCriteriaInput} from "../../../../../type/issue-search-criteria.util";
+import {CustomFilter, IssueSearchCriteriaInput} from "../../../../../type/issue-search-criteria.util";
 import {AuthGuard} from "../../../../../services/SystemGuard";
 import {ProjectGuard} from "../../../../../services/ProjectGuard";
 
@@ -309,7 +309,6 @@ export class PlanningCalendarComponent implements AfterViewInit {
     },
   };
   private user: User;
-  private masterCriteria: IssueSearchCriteriaInput = {};
   private project: Project;
   private resizeEvent(args: any){
     this.eventService.resizeEventAndLoad(args,this.eventCriteria);
@@ -433,6 +432,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
     ),
   };
   issueMasters: Issue[]=[];
+  private masterFilter: CustomFilter = {} ;
 
   constructor(
     protected eventService: EventsService,
@@ -487,7 +487,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
       this.users = users;
     })
     this.issueService.masterCriteria$.subscribe(criteria => {
-      this.masterCriteria = criteria;
+      this.masterFilter.issueSearchCriteria = criteria;
     })
   }
 
@@ -669,7 +669,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
   }
 
   editFilterMaster() {
-    this.issueService.editFilter(this.masterCriteria).subscribe(
+    this.issueService.editFilter(this.masterFilter).subscribe(
       criteria => {
         this.issueService.searchIssues(criteria,this.project?.id).subscribe(issues=> {
           this.issueService.setMasters(issues);

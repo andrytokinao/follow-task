@@ -39,6 +39,7 @@ import {NgxExtendedPdfViewerModule} from "ngx-extended-pdf-viewer";
 import {NgbCollapse} from "@ng-bootstrap/ng-bootstrap";
 import {DocViewerComponent} from "./doc-viewer/doc-viewer.component";
 import {NgxDocViewerModule} from "ngx-doc-viewer";
+import {IssueFilterComponent} from "./issue-filter/issue-filter.component";
 
 @NgModule({
   declarations: [
@@ -62,7 +63,8 @@ import {NgxDocViewerModule} from "ngx-doc-viewer";
     IssueFilterFieldComponent,
     EditorComponent,
     PdfOverviewComponent,
-    DocViewerComponent
+    DocViewerComponent,
+    IssueFilterComponent
 
   ],
   imports: [
@@ -119,7 +121,8 @@ import {NgxDocViewerModule} from "ngx-doc-viewer";
     QuillEditorComponent,
     EditorComponent,
     PdfOverviewComponent,
-    DocViewerComponent
+    DocViewerComponent,
+    IssueFilterComponent
   ]
 })
 export class MyCommonModule { }

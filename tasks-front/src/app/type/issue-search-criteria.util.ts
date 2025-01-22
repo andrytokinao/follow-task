@@ -1,9 +1,9 @@
 import {ParamMap} from "@angular/router";
-export interface Filter {
-  name:String,
+export interface CustomFilter {
+  name?:String,
   description?:String,
-  user:User,
-  issueSearchCriteria:IssueSearchCriteriaInput
+  user?:User,
+  issueSearchCriteria?:IssueSearchCriteriaInput
 }
 export interface IssueSearchCriteriaInput {
   key?: string;
@@ -59,7 +59,13 @@ export interface CustomFieldTextValues {
   customFieldId?: number;
   textValues?: string[];
 }
-
+export interface IssueFilter {
+  id:Number
+  name:String
+  description:String
+  criteria:IssueSearchCriteriaInput
+  user:User
+}
 // Conversion en paramètres d'URL
 import { HttpParams } from '@angular/common/http';
 import {User} from "./issue";
