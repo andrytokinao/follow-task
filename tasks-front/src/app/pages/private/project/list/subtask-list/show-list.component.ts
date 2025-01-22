@@ -115,8 +115,8 @@ export class ShowListComponent implements OnInit, AfterViewInit{
   }
 
 
-  editFilter(filter) {
-    this.essueService.editFilter(filter).subscribe(filter => {
+  editFilter(ev,filter) {
+    this.essueService.editFilter(ev,filter).subscribe(filter => {
       this.searchIssue(filter);
     })
   }

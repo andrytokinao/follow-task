@@ -964,18 +964,50 @@ export class IssueService implements OnInit{
     })
   }
 
-  editFilter(customFilter:CustomFilter) {
+  editFilter(event: MouseEvent, customFilter: CustomFilter): Observable<IssueSearchCriteriaInput> {
     return new Observable<IssueSearchCriteriaInput>((observer) => {
-      const dialogRef = this.modalService.open(IssueFilterFieldComponent);
+      // Ouvrir le dialogue
+      const dialogRef = this.modalService.open(IssueFilterFieldComponent, {
+        windowClass: 'custom-dialog', // Classe personnalisée pour le style
+        backdrop: 'static', // Empêcher la fermeture en cliquant en dehors
+        keyboard: false, // Désactiver la fermeture avec la touche "Échap" si nécessaire
+      });
+
+      // Passer le filtre personnalisé au composant de la boîte de dialogue
       dialogRef.componentInstance.customFilter = customFilter;
-      dialogRef.result.then((result) => {
-        observer.next(result.criteria);
-        observer.complete();
-      }, err => {
-        observer.complete();
-      })
+
+      // Gérer le positionnement près du bouton cliqué
+      setTimeout(() => {
+        const buttonRect = (event.target as HTMLElement).getBoundingClientRect();
+        const dialogElement = document.querySelector('.custom-dialog .modal-dialog') as HTMLElement;
+
+        if (dialogElement) {
+          dialogElement.style.position = 'absolute';
+          dialogElement.style.left = `${buttonRect.right + 10}px`; // Décalage de 10px
+          dialogElement.style.top = `${buttonRect.top}px`;
+          dialogElement.style.margin = '0'; // Retirer les marges par défaut
+          dialogElement.style.transform = 'none'; // Désactiver la transformation par défaut
+        }
+      }, 0);
+
+      // Gestion des résultats et fermeture du dialogue
+      dialogRef.result.then(
+        (result) => {
+          if (result?.criteria) {
+            observer.next(result.criteria);
+          } else {
+            observer.next(null); // Si aucun critère n'est retourné
+          }
+          observer.complete();
+        },
+        (err) => {
+          console.error('Dialogue fermé avec une erreur ou annulé :', err);
+          observer.error(err); // Informer l'observable en cas d'erreur
+        }
+      );
     });
   }
+
   loadSubtaskAndSet(parentId: Number) {
       this.loadSubtask(parentId).subscribe(
        issues =>  this.subtaskSubject.next(issues)

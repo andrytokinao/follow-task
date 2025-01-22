@@ -113,8 +113,8 @@ export class ShowMasterListComponent {
     this.searchIssue(filter.issueSearchCriteria);
   }
 
-  editFilter(filter:CustomFilter) {
-    this.essueService.editFilter(filter).subscribe(criteria => {
+  editFilter(ev,filter:CustomFilter) {
+    this.essueService.editFilter(ev,filter).subscribe(criteria => {
       filter.issueSearchCriteria = criteria;
       this.searchCriteria = criteria;
       this.searchIssue(criteria);

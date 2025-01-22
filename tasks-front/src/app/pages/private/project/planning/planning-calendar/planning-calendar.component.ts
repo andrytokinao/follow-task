@@ -28,7 +28,7 @@ import {ProjectGuard} from "../../../../../services/ProjectGuard";
         <daypilot-navigator [config]="configNavigator" [events]="events" [(date)]="date" (dateChange)="changeDate($event)" #navigator></daypilot-navigator>
        <div >
          <form class="card" style="margin-top: 15px;padding-top: 5px;padding-bottom: 5px" >
-           <h1> Projets <i class="fas fa-edit" (click)="editFilterMaster()"></i></h1>
+           <h1> Projets <i class="fas fa-edit" (click)="editFilterMaster($event)"></i></h1>
            <div class="sidebar-heding ">
              <div
                *ngFor="let parent of issueMasters"
@@ -668,8 +668,8 @@ export class PlanningCalendarComponent implements AfterViewInit {
     })
   }
 
-  editFilterMaster() {
-    this.issueService.editFilter(this.masterFilter).subscribe(
+  editFilterMaster(ev) {
+    this.issueService.editFilter(ev,this.masterFilter).subscribe(
       criteria => {
         this.issueService.searchIssues(criteria,this.project?.id).subscribe(issues=> {
           this.issueService.setMasters(issues);

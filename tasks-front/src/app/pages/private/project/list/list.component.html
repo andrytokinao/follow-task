@@ -7,7 +7,7 @@
       <li><a routerLink="issue" routerLinkActive="active">Taches</a></li>
       <h1> Filtre des taches</h1>
       <li *ngFor="let filter of fileters">
-        <a (click)="editFilter(filter)"> {{filter.name}}  <i class="fas fa-edit" ></i> </a>
+        <a (click)="editFilter($event,filter)"> {{filter.name}}  <i class="fas fa-edit" ></i> </a>
       </li>
       <app-issue-filter></app-issue-filter>
     </ul>

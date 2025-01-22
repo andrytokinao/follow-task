@@ -378,6 +378,12 @@ h3 {
 .social-icons a:hover {
   color: #bbb;
 }
+.custom-dialog .modal-dialog {
+  margin: 0;
+  transform: none;
+  transition: all 0.3s ease;
+  z-index: 1050;
+}
 
 @media (max-width: 768px) {
   .grid-container {
