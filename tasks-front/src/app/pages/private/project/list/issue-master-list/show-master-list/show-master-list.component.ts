@@ -38,6 +38,8 @@ export class ShowMasterListComponent implements OnInit{
   private user: User;
   protected selectedFilter: CustomFilter;
   masterFilter:CustomFilter[] = [];
+  noFilter:CustomFilter  ={};
+
   constructor(
     private modalService: NgbModal,
     protected issueService: IssueService,
@@ -67,6 +69,14 @@ export class ShowMasterListComponent implements OnInit{
       this.project = project;
     if (this.project) {
         this.loadIssueMasters();
+        this.noFilter = {
+          id:0,
+          criteria:{issueTypeLevels:['PARENT']},
+          user:this.issueService.user,
+          projectId:this.issueService.project.id,
+          name:'Tous'
+        }
+
       }
     });
     this.route.queryParamMap.subscribe((params:ParamMap) => {

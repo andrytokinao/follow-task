@@ -170,6 +170,7 @@ export class IssueService implements OnInit{
   }
 
   saveIssue(issue: any) {
+    delete issue.encodedPath;
     if (issue.issueType.project == null || issue.project ) {
       issue.issueType.project = {
         id:this.projectSubject.value.id,

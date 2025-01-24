@@ -21,6 +21,7 @@ import {
 })
 export class ShowListComponent implements OnInit, AfterViewInit{
   issues:Issue[] =[];
+  noFilter:CustomFilter ={};
   project: Project | undefined;
   currentView: string = 'list';
   views = [
@@ -74,6 +75,18 @@ export class ShowListComponent implements OnInit, AfterViewInit{
     });
     this.issueService.project$.subscribe(project=> {
       this.project = project;
+      if (project) {
+        if (this.project) {
+          this.noFilter = {
+            id:0,
+            criteria:{issueTypeLevels:['PARENT']},
+            user:this.issueService.user,
+            projectId:this.issueService.project.id,
+            name:'Tous'
+          }
+
+        }
+      }
     });
     this.route.queryParamMap.subscribe((params:ParamMap) => {
       this.searchCriteria = fromUrlParams(params);

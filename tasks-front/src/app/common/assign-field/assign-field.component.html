@@ -1,4 +1,4 @@
-<span class="assigne">
+<span class="assigne"  style="cursor: pointer">
   <span [matMenuTriggerFor]="menu2" mat-icon-button>
      <img *ngIf="issue.assigne != null" [src]="userService.getUrlPhoto(issue.assigne)" class="image" alt="l'assigné a"/>
   <img *ngIf="issue.assigne ==null" src="/assets/nonAssigner.jpg" alt="non assigner" mat-icon-button class="image"/>

@@ -4,6 +4,11 @@
     <div class="filter-container">
       <h1 class="filter-title">Gérer les filtres de recherche</h1>
       <ul class="navigation-list">
+        <li  class="filter-item"  [ngClass]="{'active':noFilter.id === selectedFilter?.id}">
+          <a class="filter-link" (click)="selectFilter(noFilter)" >
+            {{ noFilter.name }}
+          </a>
+        </li>
         <li *ngFor="let filter of masterFilter" class="filter-item" [ngClass]="{'active':filter?.id === selectedFilter?.id}">
           <a class="filter-link" (click)="selectFilter(filter)" >
             {{ filter.name }}
