@@ -74,7 +74,7 @@
   background-color: #e9ecef;
 }
 .logo-card {
-  width: 80px;
+  width: 100%;
   border: 1px solid #ddd;
   border-radius: 8px;
   overflow: hidden;
@@ -82,6 +82,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
+  cursor: pointer;
 }
 
 .logo-card-logo {

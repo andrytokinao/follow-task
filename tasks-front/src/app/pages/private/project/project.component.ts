@@ -28,6 +28,7 @@ export class ProjectComponent implements OnInit{
   breadcrumbs: Breadcrumb[] = [];
   openConfig:boolean = false;
   openList:boolean = true;
+  projects:Project[]= [];
 
   constructor(
     protected route:ActivatedRoute,
@@ -60,6 +61,9 @@ export class ProjectComponent implements OnInit{
       if (this.project) {
         this.userService.loadGroupeUserForProject(this.project.prefix);
       }
+    });
+    this.issueService.projects$.subscribe(projectes => {
+      this.projects = projectes;
     })
   }
   createMaster() {
@@ -86,5 +90,9 @@ export class ProjectComponent implements OnInit{
 
   toggleConfig() {
     this.openConfig = !this.openConfig;
+  }
+  selectProject(project: Project) {
+    this.project = project;
+    this.router.navigate(["/private/working/"+project.prefix+"/list/master"])
   }
 }

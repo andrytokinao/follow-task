@@ -1,8 +1,8 @@
 <div class="projet">
   <div class="project-menu">
-    <div class="logo-card">
+    <div class="logo-card" >
       <!-- Logo -->
-      <div class="logo-card-logo">
+      <div class="logo-card-logo" [matMenuTriggerFor]="work_space">
         <img
           [src]="issueService.getImageProject(project)"
           alt="{{ project?.name }} Logo"
@@ -45,7 +45,25 @@
      <li><a routerLink="list/search-issue" routerLinkActive="active">Taches </a></li>
 
    </ul> </mat-menu>
-
+  <mat-menu #work_space ="matMenu"  yPosition="below" #parentMenu="matMenu" xPosition="after" class="liste-menu">
+    <div class="logo-card" *ngFor="let p of projects" (click)="selectProject(p)" [class]="p?.id === project?.id? 'selected' : ''">
+      <!-- Logo -->
+      <div class="logo-card-logo">
+        <img
+          [src]="issueService.getImageProject(p)"
+          alt="{{ p?.name }} Logo"
+          class="logo-image"
+        />
+      </div>
+      <!-- Titre du projet -->
+      <div class="logo-card-body">
+        <h5 class="logo-card-title">
+          <i class="fa fa-briefcase workspace-icon"></i>
+          <b>{{ p.prefix }}</b> - <i>{{ p?.name }}</i>
+        </h5>
+      </div>
+    </div>
+  </mat-menu>
   <div class="project-content">
 <!--
     <app-breadcrumb (createMaster)="createMaster()"></app-breadcrumb>
