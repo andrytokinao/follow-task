@@ -77,6 +77,12 @@ export class IssueService implements OnInit{
   private worksFlowsSubject = new BehaviorSubject<WorkFlow[]>([]);
   private masterListCriteriaSubject = new BehaviorSubject<IssueSearchCriteriaInput>({});
   private issueMasterSubject = new BehaviorSubject<Issue>({});
+  private myFiltersSubject = new BehaviorSubject<CustomFilter[]>([]);
+  private masterFiltersSubject = new BehaviorSubject<CustomFilter[]>([]);
+  private subtaskFiltersSubject = new BehaviorSubject<CustomFilter[]>([]);
+  masterFilters$ = this.masterFiltersSubject.asObservable();
+  subtaskFilter$ = this.subtaskFiltersSubject.asObservable();
+  myFilters$ = this.myFiltersSubject.asObservable();
   workFlows$ = this.worksFlowsSubject.asObservable();
   subtask$ = this.subtaskSubject.asObservable();
   issueMaster$ = this.issueMasterSubject.asObservable();
@@ -106,9 +112,11 @@ export class IssueService implements OnInit{
     const initialProject: Project = null;
     this.authService.connectedUser$.subscribe(user => {
       this.user = user;
+      this.loadMyFilters();
     });
     this.masterCriteria$.subscribe(criteria => {
-       this.loadIssueMasters(criteria)
+     if (this.project)
+        this.loadIssueMasters(criteria)
     })
   }
   loadIssueMasters(criteria:IssueSearchCriteriaInput){
@@ -509,6 +517,7 @@ export class IssueService implements OnInit{
         this.workFlowsByProject(this.projectSubject.value.id).subscribe();
         this.loadUsers();
         this.loadIssueType();
+        this.loadMyFilters();
 
 
 
@@ -1247,5 +1256,67 @@ export class IssueService implements OnInit{
         observer.complete();
       })
     })
+  }
+  getMyFilters(projectId,userId){
+
+    return new Observable<CustomFilter[]>(observer => {
+      this.apollo.query({
+          query:operation.GET_MY_FILTERS,
+          fetchPolicy:'network-only',
+          variables:{projectId,userId},
+        }
+      ).subscribe( (res:any)=> {
+        observer.next(supprimerTypename(res.data.getMyFilters));
+        observer.complete();
+      }, error => {
+        console.error(error);
+        observer.error(error);
+        observer.complete();
+      })
+    })
+  }
+  loadMyFilters(){
+    if (this.project == null || this.user === null)
+      return
+    let projectId =  this.project.id;
+    let userId = this.user.id;
+    this.getMyFilters(projectId,userId).subscribe(filters=> {
+      this.myFiltersSubject.next(filters);
+      let masterFilter = filters.filter(f=> (f.criteria.issueTypeLevels && f.criteria.issueTypeLevels[0] ==='PARENT'));
+      this.masterFiltersSubject.next(masterFilter);
+      let subtaskFilter = filters.filter(f=> (f.criteria.issueTypeLevels && f.criteria.issueTypeLevels[0] ==='SUB_TASK'));
+      this.subtaskFiltersSubject.next(subtaskFilter);
+    })
+  }
+  getImageProject(project: Project) {
+    if (project && project.imageUrl != null) {
+      return environment.apiURL + 'photo/' + project.imageUrl;
+    }
+    if (project && project.domainActivity) {
+      if (project.domainActivity.image) {
+        return environment.apiURL + 'photo/' + project.domainActivity.image;
+      }
+      return this.getImagetP(project.domainActivity.name);
+    }
+    return 'assets/images/work-space/controle-equipe.jpg';
+  }
+  getImagetP(domain: string): string {
+
+    switch (domain) {
+      case 'TOPO':
+        return 'assets/images/work-space/topo-route.jpeg';
+      case 'BATIMENT':
+        return 'assets/images/work-space/btp.jpg';
+      case 'DEV':
+        return 'assets/images/work-space/equipe-dev.jpg';
+      case 'COMPTABILITE':
+        return 'assets/images/work-space/comptabilite.png';
+      case 'MEDIA':
+        return 'assets/images/work-space/montage-video.png';
+      case 'DEFAULT':
+        return 'assets/images/work-space/controle-equipe.jpg';
+      default:
+        return 'assets/images/work-space/controle-equipe.jpg';
+    }
   }
 }

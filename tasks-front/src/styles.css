@@ -183,11 +183,122 @@ h1,h2,h3,h4 {
   font-size: 1.5rem;
   font-weight: bold;
 }
-
-/* Style the user section */
+.liste-menu{
+  position: relative !important;
+  top: -60px !important;
+  left: 75px !important;
+  margin: 0 !important;
+  width: 200px;
+}
 .user-section {
   display: flex;
   align-items: center;
+}
+.content-with-left-menue{
+  display: grid;
+  grid-template-columns: 250px auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add subtle shadow */
+  background-color: #fff;
+  padding: 20px;
+  margin-top: 20px;
+}
+.list-menu-with-left-right{
+  display: grid;
+  grid-template-columns: 250px auto 80px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add subtle shadow */
+  background-color: #fff;
+  padding: 20px;
+  margin-top: 20px;
+  min-height: 80vh;
+}
+/* Conteneur principal de la carte */
+.card-list.menu-btn {
+  background-color: #f8f9fa; /* Couleur de fond clair */
+  border-radius: 8px; /* Coins arrondis */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Ombre légère */
+  padding: 20px;
+  width: 100%;
+  max-width: 400px; /* Limiter la largeur de la carte */
+  margin: 20px auto; /* Centrer la carte horizontalement */
+}
+
+/* Conteneur des filtres */
+.filter-container {
+  padding: 10px;
+}
+
+/* Titre des filtres */
+.filter-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: #343a40;
+  margin-bottom: 15px;
+}
+
+/* Liste des éléments */
+.navigation-list {
+  list-style-type: none; /* Supprimer les puces */
+  padding: 0;
+  margin: 0;
+}
+
+/* Élément individuel de filtre */
+.filter-item {
+  background-color: #ffffff; /* Fond blanc */
+  border: 1px solid #ddd; /* Bordure subtile */
+  border-radius: 5px; /* Coins arrondis */
+  margin-bottom: 10px; /* Espacement entre les éléments */
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s ease; /* Transition fluide */
+}
+
+.filter-item:hover {
+  background-color: #f1f1f1;
+  border-color: #007bff;
+}
+.filter-item.active {
+  background-color: #f1f1f1;
+  border-color: #007bff;
+}
+.filter-link {
+  color: #007bff;
+  text-decoration: none;
+  font-size: 16px;
+  flex-grow: 1;
+}
+
+.edit-icon {
+  font-size: 16px;
+  cursor: pointer;
+  color: #007bff;
+}
+
+.new-filter-btn {
+  background-color: #e9f7e9;
+  color: #0f5132;
+  padding: 12px;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.new-filter-btn:hover {
+  background-color: #d4edda;
+}
+
+.add-icon {
+  font-size: 18px;
+  margin-left: 8px;
+  color: #0f5132;
 }
 
 .user-section img {

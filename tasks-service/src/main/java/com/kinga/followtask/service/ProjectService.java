@@ -544,4 +544,8 @@ public class ProjectService {
     public IssueFilter saveCustomFilter(IssueFilter customFilter) {
         return customIssueFilterRepository.save(customFilter);
     }
+
+    public List<IssueFilter> getMyFilters(Long projectId, String userId) {
+        return customIssueFilterRepository.findByProjectIdAndUserId(projectId,userId);
+    }
 }

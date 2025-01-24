@@ -1,23 +1,9 @@
-<div class="content-with-left-menue">
-  <div>
-    <ul class="navigation-list">
-      <li><a routerLink="master" routerLinkActive="active">Project </a></li>
-      <h1> Filtre des projets</h1>
 
-      <li><a routerLink="issue" routerLinkActive="active">Taches</a></li>
-      <h1> Filtre des taches</h1>
-      <li *ngFor="let filter of fileters">
-        <a (click)="editFilter($event,filter)"> {{filter.name}}  <i class="fas fa-edit" ></i> </a>
-      </li>
-      <app-issue-filter></app-issue-filter>
-    </ul>
-  </div>
   <div>
     <ng-container>
       <router-outlet></router-outlet>
     </ng-container>
   </div>
 
-</div>
 
 

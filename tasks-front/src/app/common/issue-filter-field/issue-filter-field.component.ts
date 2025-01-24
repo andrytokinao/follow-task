@@ -1,12 +1,10 @@
 import {AfterViewInit, Component} from '@angular/core';
 import {FormArray, FormBuilder, FormGroup, Validators} from "@angular/forms";
-import {stripTypename} from "@apollo/client/utilities";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {Project, Status, User, WorkFlow} from "../../type/issue";
 import {IssueService} from "../../services/issue.service";
 import {CustomFilter, IssueSearchCriteriaInput} from "../../type/issue-search-criteria.util";
 import {UserService} from "../../services/user.service";
-import {id} from "@swimlane/ngx-charts";
 
 @Component({
   selector: 'app-issue-filter-field',
@@ -56,50 +54,55 @@ export class IssueFilterFieldComponent implements AfterViewInit{
   }
 
   isSelectedStatus(id: number) {
-    return this.statusIds.some(selected => selected=== id);
+    if (!this.customFilter.criteria.statusIds) {
+      return false;
+    }
+    return this.customFilter.criteria.statusIds.some(selected => selected == id);
   }
 
   changeStatuesSelected(event: any, id:number) {
     if (event.checked) {
-      this.statusIds.push(id);
+      if (!this.customFilter.criteria.statusIds) {
+        this.customFilter.criteria.statusIds = [];
+      }
+      this.customFilter.criteria.statusIds.push(id);
     } else {
       this.statusIds = this.statusIds.filter(item => item !== id);
     }
   }
 
   save() {
-    this.issueCriteria.statusIds = this.statusIds;
-    this.issueCriteria.assigneUsernames = this.selectedAssign;
-
-    if (this.creationFrom) {
-      this.issueCriteria.dateFrom = this.creationFrom;
-    }
-    if (this.creationTo) {
-      this.issueCriteria.dateTo = this.creationTo;
-    }
-    this.customFilter.criteria = this.issueCriteria;
     this.customFilter.projectId = this.project?.id;
-    alert(this.customFilter.projectId);
     this.issueService.saveCustomFilter(this.customFilter).subscribe(customFilter => {
       this.customFilter = customFilter;
+      this.issueService.loadMyFilters();
       this.activeModal.close( {criteria: this.issueCriteria});
-
     })
-
   }
 
   isSelectedUser(id: String) {
-    return  this.selectedAssign.some(userId => userId === id)
+    if (!this.customFilter.criteria.assigneUsernames)
+      return false;
+    return  this.customFilter.criteria.assigneUsernames.some(userId => userId === id)
   }
 
   changeUsersSelected(event: any, id: string) {
     if (event.checked) {
-      this.selectedAssign.push(id);
+      if (!this.customFilter.criteria.assigneUsernames) {
+        this.customFilter.criteria.assigneUsernames = [];
+      }
+      this.customFilter.criteria.assigneUsernames .push(id);
     } else {
       this.selectedAssign = this.selectedAssign.filter(u => u != id);
     }
   }
-
+  setCustomFilter(customFilter:CustomFilter) {
+    this.customFilter = customFilter;
+    if (customFilter.criteria ) {
+      this. selectedAssign = customFilter.criteria.assigneUsernames? customFilter.criteria.assigneUsernames :[];
+      this.statusIds = customFilter.criteria.statusIds? customFilter.criteria.statusIds :[];
+    }
+  }
   ngAfterViewInit(): void {
     this.loadAllStatus();
     this.userService.users$.subscribe((users: any) => {this.users = users});
@@ -111,6 +114,12 @@ export class IssueFilterFieldComponent implements AfterViewInit{
     }
     this.issueService.project$.subscribe(project => {
       this.project = project;
-    })
+    });
+  }
+
+  cancel() {
+    this.issueService.loadMyFilters();
+    this.activeModal.dismiss('cancel');
+
   }
 }

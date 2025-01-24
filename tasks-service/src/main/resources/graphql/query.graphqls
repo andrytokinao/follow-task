@@ -43,4 +43,5 @@ type Query {
     loadPermissiontTask:Permission
     getDocuments(issueId:Int,typeDocument:String):[Document]
     listActivity:[DomainActivity]
+    getMyFilters(projectId:Int,userId:String):[IssueFilter]
 }

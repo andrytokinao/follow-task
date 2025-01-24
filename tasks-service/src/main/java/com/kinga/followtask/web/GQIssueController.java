@@ -287,4 +287,10 @@ public class GQIssueController {
     public IssueFilter saveCustomFilter(@Argument IssueFilter customFilter) {
         return projectService.saveCustomFilter(customFilter);
     }
+    @QueryMapping
+    public List<IssueFilter> getMyFilters(@Argument  Long projectId , @Argument String userId) {
+        List filters = projectService.getMyFilters(projectId,userId);
+        return filters;
+    }
+
 }

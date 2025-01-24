@@ -21,7 +21,7 @@ export class HomeComponent implements OnInit{
   constructor(private router: Router,
               private authService: AuthService,
               private modalService: NgbModal,
-              private issueService:IssueService,
+              protected issueService:IssueService,
               protected userService:UserService,
               protected authGuard:AuthGuard
 
@@ -46,37 +46,5 @@ export class HomeComponent implements OnInit{
     })
   }
 
-  getImageProject(project: Project) {
 
-    if (project.imageUrl != null) {
-      return environment.apiURL + 'photo/' + project.imageUrl;
-    }
-    if (project.domainActivity) {
-      if (project.domainActivity.image) {
-        return environment.apiURL + 'photo/' + project.domainActivity.image;
-      }
-      return this.getImagetP(project.domainActivity.name);
-    }
-    return 'assets/images/work-space/controle-equipe.jpg';
-
-  }
-  getImagetP(domain: string): string {
-
-    switch (domain) {
-      case 'TOPO':
-        return 'assets/images/work-space/topo-route.jpeg';
-      case 'BATIMENT':
-        return 'assets/images/work-space/btp.jpg';
-      case 'DEV':
-        return 'assets/images/work-space/equipe-dev.jpg';
-      case 'COMPTABILITE':
-        return 'assets/images/work-space/comptabilite.png';
-      case 'MEDIA':
-        return 'assets/images/work-space/montage-video.png';
-      case 'DEFAULT':
-        return 'assets/images/work-space/controle-equipe.jpg';
-      default:
-        return 'assets/images/work-space/controle-equipe.jpg';
-    }
-  }
 }

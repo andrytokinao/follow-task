@@ -1,11 +1,15 @@
 <div class="form-container">
   <div>
-    <div class="card" style="margin-top: 15px;padding-top: 5px;padding-bottom: 5px">
-     <mat-form-field style="width: 100%;">
-        <mat-label> Nom </mat-label>
-       <input matInput [(ngModel)]="customFilter.name">
-     </mat-form-field>
+    <div class="card">
       <h1> Status </h1>
+
+      <mat-form-field style="width: 100%;">
+        <mat-label> Nom </mat-label>
+        <input matInput [(ngModel)]="customFilter.name">
+      </mat-form-field>
+    </div>
+    <div class="card" style="margin-top: 15px;padding-top: 5px;padding-bottom: 5px">
+
       <div class="sidebar-heding ">
       <span *ngFor="let st of status" [class]="selectStatus(st.id) ? 'selected' : ''">
         <mat-checkbox
@@ -47,5 +51,5 @@
   </div>-->
 
   <button type="submit" class="btn btn-primary" (click)="save()">Save</button>
-  <button type="button" class="btn btn-secondary" (click)="activeModal.dismiss('cancel')">Cancel</button>
+  <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
 </div>

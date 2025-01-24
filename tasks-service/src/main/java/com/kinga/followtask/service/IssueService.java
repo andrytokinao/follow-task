@@ -136,7 +136,7 @@ public class IssueService {
             if (!Files.exists(dossier)) {
                 Files.createDirectory(dossier);
             } else {
-                System.out.println("Le répertoire '" + dossier + "' existe déjà.");
+                System.out.println("La répertoire '" + dossier + "' existe déjà.");
             }
             issue.setDirectory(dossier.toString());
             return issue;
@@ -152,7 +152,7 @@ public class IssueService {
         if (!Files.exists(dossier)) {
             Files.createDirectory(dossier);
         } else {
-            System.out.println("Le répertoire '" + dossier + "' existe déjà.");
+            System.out.println("La répertoire '" + dossier + "' existe déjà.");
         }
         issue.setDirectory(dossier.toString());
         return issueRepository.save(issue);

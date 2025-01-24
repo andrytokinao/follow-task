@@ -1,35 +1,34 @@
-<!--<div class="card-list menu-btn">
-  <div class="card menu-btn" (click)="aplayFilter(mesTache)" [ngClass]="isActiveFilter(mesTache)">
-    <div class="card-content ">
-      <h3>Mes taches</h3>
-      <p>{{ mesTache?.name }}</p>
+
+<div class="list-menu-with-left-right">
+  <div class="card-list menu-btn">
+    <div class="filter-container">
+      <h1 class="filter-title">Gérer les filtres de recherche</h1>
+      <ul class="navigation-list">
+        <li *ngFor="let filter of masterFilter" class="filter-item" [ngClass]="{'active':filter?.id === selectedFilter?.id}">
+          <a class="filter-link" (click)="selectFilter(filter)" >
+            {{ filter.name }}
+            <i class="fas fa-edit edit-icon"  style="float: right" (click)="editFilter($event, filter)"></i>
+          </a>
+        </li>
+        <li class="new-filter-btn" (click)="newParentFilter($event)">
+          Nouveau filtrse <i class="fas fa-plus add-icon"></i>
+        </li>
+      </ul>
     </div>
   </div>
 
-  <div class="card" *ngFor="let filter of fileters" [ngClass]="isActiveFilter(filter)">
-
-    <div class="card-content">
-      <h3 class="edit" (click)="aplayFilter(filter)">Filtre </h3>
-      <p (click)="editFilter(filter)"> {{ filter.name }}  <i class="fas fa-edit"></i></p>
-
+  <div>
+    <div *ngIf="currentView ==='list'">
+      <app-issue-master-list ></app-issue-master-list>
     </div>
+    <div *ngIf="currentView ==='board'">
+      <app-board-list [searchCriteria] = "searchCriteria"></app-board-list>
+    </div>
+    <div *ngIf="currentView ==='calendar'">
+      <app-calendar-list ></app-calendar-list>
+    </div>  </div>
+  <div>
+    type
   </div>
-</div>-->
-<!--<div class="type-view">
-  <div class="menu-item" *ngFor="let view of views" [class.active]="currentView === view.id">
-    <i
-      [class]="view.icon"
-      [title]="view.title"
-      (click)="changeView(view.id)">
-    </i>
-  </div>
-</div>-->
-<div *ngIf="currentView ==='list'">
-  <app-issue-master-list ></app-issue-master-list>
 </div>
-<div *ngIf="currentView ==='board'">
-  <app-board-list [searchCriteria] = "searchCriteria"></app-board-list>
-</div>
-<div *ngIf="currentView ==='calendar'">
-  <app-calendar-list ></app-calendar-list>
-</div>
+

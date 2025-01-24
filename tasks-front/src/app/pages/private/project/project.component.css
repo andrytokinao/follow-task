@@ -15,15 +15,15 @@
   */
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   grid-column: 2 / 3;
-  background-color: #ffffff;  /* Light content background */
+  background-color: #ffffff;
   border-radius: 8px;
 }
 
-/* Title styling */
+
 .project-title {
   font-size: 20px;
   font-weight: 600;
-  color: #007bff;  /* Bright blue for title */
+  color: #007bff;
   text-transform: uppercase;
   letter-spacing: 1px;
   margin-top: 15px;
@@ -35,9 +35,87 @@
   border-bottom: 2px solid #007bff;
 }
 
+.navigation-list {
+  list-style: none;
+
+}
+
+.navigation-list li {
+  margin: 0;
+  transition: background-color 0.3s ease;
+}
+
+.navigation-list a {
+  display: block;
+  padding: 12px 20px;
+  text-decoration: none;
+  color: #333;
+  font-weight: 600;
+  transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+.navigation-list a:hover {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.navigation-list a.active {
+  background-color: #5a5a5a;
+  color: #fff;
+  border-radius: 5px;
+}
+
+.navigation-list a:focus {
+  outline: none;
+  box-shadow: 0 0 3px 3px rgba(38, 143, 255, 0.5);
+}
+
+.navigation-list:hover {
+  background-color: #e9ecef;
+}
+.logo-card {
+  width: 80px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.logo-card-logo {
+  width: 100%;
+  overflow: hidden;
+}
+
+.logo-image {
+  width: 80px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+.logo-card-body {
+  width: 100%;
+  text-align: center;
+  padding: 10px;
+}
+
+.logo-card-title {
+  font-size: 12px;
+  line-height: 1.2;
+  margin: 0;
+  color: #333;
+}
+
+.workspace-icon {
+  font-size: 16px;
+  margin-right: 5px;
+}
+
 /* Menu styles */
 .project-menu {
-  padding-top: 50px;
   padding-bottom: 20px;
   border-radius: 8px;
 
@@ -72,7 +150,6 @@
   margin-bottom: 10px;
 }
 
-/* Sub-menu styles */
 .menu-item > ul {
   display: none;
   list-style: none;
@@ -140,4 +217,13 @@
     margin-top: 80px;
     padding-left: 0px;
   }
+  ::ng-deep .mat-menu-panel .mat-mdc-menu-panel {
+    position: absolute !important;
+    top: 0 ;
+    left: 100% ;
+    margin: 100px;
+    transform: none ;
+    color: red;
+  }
+
 }

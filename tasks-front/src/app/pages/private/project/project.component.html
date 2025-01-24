@@ -1,10 +1,30 @@
 <div class="projet">
   <div class="project-menu">
-   <div class="project-menu-item controle  menu-item-hover" routerLinkActive="active" routerLink="list/master">
+    <div class="logo-card">
+      <!-- Logo -->
+      <div class="logo-card-logo">
+        <img
+          [src]="issueService.getImageProject(project)"
+          alt="{{ project?.name }} Logo"
+          class="logo-image"
+        />
+      </div>
+      <!-- Titre du projet -->
+      <div class="logo-card-body">
+        <h5 class="logo-card-title">
+          <i class="fa fa-briefcase workspace-icon"></i>
+          <b>{{ project.prefix }}</b> - <i>{{ project?.name }}</i>
+        </h5>
+      </div>
+    </div>
+
+
+    <div class="project-menu-item controle  menu-item-hover"  [matMenuTriggerFor]="list_menue">
      <div>
        <i class="fas fa-tasks "  style="font-size: 30px;text-align: center"></i>
      </div>
      <h2 style="display: block;text-align: center" class="menu-item" > Liste</h2>
+
    </div>
     <div class="project-menu-item controle  menu-item-hover" routerLinkActive="active" routerLink="planning">
       <div>
@@ -19,10 +39,17 @@
       <h2 style="display: block;text-align: center" class="menu-item" > Config</h2>
     </div>
   </div>
+ <mat-menu #list_menue ="matMenu"  yPosition="below" #parentMenu="matMenu" xPosition="after" class="liste-menu">
+   <ul class="navigation-list">
+     <li><a routerLink="list/master" routerLinkActive="active">Project </a></li>
+     <li><a routerLink="list/search-issue" routerLinkActive="active">Taches </a></li>
 
+   </ul> </mat-menu>
 
   <div class="project-content">
+<!--
     <app-breadcrumb (createMaster)="createMaster()"></app-breadcrumb>
+-->
     <router-outlet></router-outlet>
   </div>
 </div>

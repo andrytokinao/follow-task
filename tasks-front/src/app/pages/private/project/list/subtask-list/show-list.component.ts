@@ -37,6 +37,7 @@ export class ShowListComponent implements OnInit, AfterViewInit{
   mesTache:CustomFilter ;
   private user: User;
   private selectedFilter: CustomFilter;
+  subtaskFilters: CustomFilter[] = [];
   constructor(
     private modalService: NgbModal,
     protected issueService: IssueService,
@@ -89,16 +90,15 @@ export class ShowListComponent implements OnInit, AfterViewInit{
      // this.aplayFilter(this.mesTache);
     })
 
-    this.fileters.push({
-      name:'Premier filtre',
-      description:'Description',
-      user:undefined,
-      criteria:{}
+
+    this.issueService.subtaskFilter$.subscribe( filters => {
+      this.subtaskFilters = filters;
     });
 
   }
 
   ngOnInit(): void {
+
   }
 
   changeView(view: string) {
@@ -133,5 +133,9 @@ export class ShowListComponent implements OnInit, AfterViewInit{
     if (this.selectedFilter == null)
       return '';
    return (filter.name == this.selectedFilter.name)? "active" : "";
+  }
+
+  newSubtaskFilter($event: MouseEvent) {
+
   }
 }

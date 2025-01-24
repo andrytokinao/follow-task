@@ -10,6 +10,7 @@ import {ViewEditIssueComponent} from "./modal/view-edit-issue/view-edit-issue.co
 import {BreadcrumbService} from "../../../services/breadcrumb.service";
 import {UserService} from "../../../services/user.service";
 import {ProjectGuard} from "../../../services/ProjectGuard";
+import {MatButton} from "@angular/material/button";
 
 @Component({
   selector: 'app-project',
@@ -26,7 +27,7 @@ export class ProjectComponent implements OnInit{
 
   constructor(
     private route:ActivatedRoute,
-    private issueService:IssueService,
+    protected issueService:IssueService,
     protected authGuard:AuthGuard,
     private modalService: NgbModal,
     private router: Router,

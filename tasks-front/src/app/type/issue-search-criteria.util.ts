@@ -1,5 +1,6 @@
 import {ParamMap} from "@angular/router";
 export interface CustomFilter {
+  id?:Number
   name?:String,
   projectId?:Number,
   description?:String,

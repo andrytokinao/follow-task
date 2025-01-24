@@ -7,6 +7,7 @@ import {ActivatedRoute, Router} from "@angular/router";
 import {CustomFilter, IssueSearchCriteriaInput, toQueryParams} from "../../../../type/issue-search-criteria.util";
 import {BreadcrumbService} from "../../../../services/breadcrumb.service";
 import {Breadcrumb, Project} from "../../../../type/issue";
+import {filter} from "rxjs";
 
 @Component({
   selector: 'app-list',
@@ -17,7 +18,8 @@ export class ListComponent  implements OnInit{
   private project:Project ;
   searchCriteria: IssueSearchCriteriaInput | any = {
   };
-  fileters:CustomFilter[]=[] ;
+  masterFilters: CustomFilter[] = [];
+  subtaskFilters: CustomFilter[] = [];
   constructor(
     private modalService: NgbModal,
     private issueService: IssueService,
@@ -31,8 +33,8 @@ export class ListComponent  implements OnInit{
 
   }
 
-  aplayFilter(filter) {
-    this.searchIssue(filter.criteria);
+  aplayMasterFilter(filter) {
+    this.searchIssueMaster(filter.criteria);
   }
   searchIssue(searchCriteria:IssueSearchCriteriaInput){
     const queryParams = toQueryParams(searchCriteria);
@@ -40,6 +42,18 @@ export class ListComponent  implements OnInit{
       queryParams ,
       relativeTo: this.route
     });
+  }
+  searchIssueMaster(searchCriteria:IssueSearchCriteriaInput){
+  /*  const queryParams = toQueryParams(searchCriteria);
+    this.router.navigate(['master'], {
+      queryParams ,
+      relativeTo: this.route
+    });*/
+    this.issueService.searchIssues(searchCriteria,this.project.id) .subscribe(
+      issues => {
+        this.issueService.setMasters(issues);
+      }
+    )
   }
   editFilter(ev,filter) {
     this.essueService.editFilter(ev,filter).subscribe(filter => {
@@ -63,13 +77,26 @@ export class ListComponent  implements OnInit{
   }
   ngOnInit(): void {
     this.issueService.project$.subscribe(project => {this.project = project});
-    this.fileters.push({
+    this.subtaskFilters.push({
       name:'Premier filtre',
       description:'Description',
       user:undefined,
       criteria:{}
     });
+
+    this.issueService.loadMyFilters();
   }
 
 
+  newSaubaskFilter(event: MouseEvent) {
+    let filter:CustomFilter = {
+      criteria:{issueTypeLevels:['SUB_TASK']},
+      user:this.issueService.user,
+      projectId:this.issueService.project.id,
+      name:''
+    }
+    this.issueService.editFilter(event,filter).subscribe(fi=> {
+      this.issueService.loadMyFilters();
+    })
+  }
 }

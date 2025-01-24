@@ -1,5 +1,62 @@
 import {Apollo, gql} from "apollo-angular";
 
+export let GET_MY_FILTERS = gql`
+  query getMyFilters($projectId:Int!,$userId:String!){
+    getMyFilters(projectId: $projectId, userId: $userId){
+      id
+      name
+      description
+      projectId
+      user {
+        id
+        username
+      }
+      criteria {
+        projectId
+        key
+        projectPrefix
+        dateTo
+        dateFrom
+        summary
+        issueTypeLevels
+        issueTypeIds
+        assigneUsernames
+        statusIds
+        customFieldTextValues {
+          textValues
+          customFieldId
+        }
+        customFieldUserIds {
+          userIds
+          customFieldId
+        }
+        customFieldIssueIds {
+          customFieldId
+          issueIds
+        }
+        customFieldStringValues {
+          customFieldId
+          values
+        }
+        customFieldDateValues {
+          customFieldId
+          values
+        }
+        customFieldDateValueFrom {
+          customFieldId
+          value
+        }
+        customFieldDateValueTo {
+          customFieldId
+          value
+        }
+      }
+
+    }
+  }
+`;
+
+
 export let SAVE_CUSTOM_FILTER = gql`
   mutation saveCustomFilter($customFilter:IssueFilterInput) {
     saveCustomFilter(customFilter:$customFilter) {

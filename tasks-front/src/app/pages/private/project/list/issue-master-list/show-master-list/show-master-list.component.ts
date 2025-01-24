@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {ListModule} from "../../list.module";
 import {NgForOf, NgIf} from "@angular/common";
 import {Issue, Project, User} from "../../../../../../type/issue";
@@ -19,7 +19,7 @@ import {ActivatedRoute, ParamMap, Router} from "@angular/router";
   templateUrl: './show-master-list.component.html',
   styleUrl: './show-master-list.component.css'
 })
-export class ShowMasterListComponent {
+export class ShowMasterListComponent implements OnInit{
   issues:Issue[] =[];
   project: Project | undefined;
   currentView: string = 'list';
@@ -36,7 +36,8 @@ export class ShowMasterListComponent {
   fileters:CustomFilter[]=[] ;
   mesTache:CustomFilter ;
   private user: User;
-  private selectedFilter: CustomFilter;
+  protected selectedFilter: CustomFilter;
+  masterFilter:CustomFilter[] = [];
   constructor(
     private modalService: NgbModal,
     protected issueService: IssueService,
@@ -98,8 +99,38 @@ export class ShowMasterListComponent {
   }
 
   ngOnInit(): void {
-  }
+    this.issueService.masterFilters$.subscribe(filters => {
+      this.masterFilter = filters;
+    });
 
+  }
+  selectFilter(fileter:CustomFilter) {
+    this.selectedFilter = fileter;
+    this.searchIssueMaster(this.selectedFilter.criteria);
+  }
+  searchIssueMaster(searchCriteria:IssueSearchCriteriaInput){
+    /*  const queryParams = toQueryParams(searchCriteria);
+      this.router.navigate(['master'], {
+        queryParams ,
+        relativeTo: this.route
+      });*/
+    this.issueService.searchIssues(searchCriteria,this.project.id) .subscribe(
+      issues => {
+        this.issueService.setMasters(issues);
+      }
+    )
+  }
+  newParentFilter(event: MouseEvent) {
+    let filter:CustomFilter = {
+      criteria:{issueTypeLevels:['PARENT']},
+      user:this.issueService.user,
+      projectId:this.issueService.project.id,
+      name:''
+    }
+    this.issueService.editFilter(event,filter).subscribe(fi=> {
+      this.issueService.loadMyFilters();
+    })
+  }
   changeView(view: string) {
     this.currentView = view;
   }
@@ -108,7 +139,7 @@ export class ShowMasterListComponent {
 
   }
 
-  aplayFilter(filter) {
+  aplayMasterFilter(filter) {
     this.selectedFilter = filter;
     this.searchIssue(filter.criteria);
   }
@@ -142,4 +173,5 @@ export class ShowMasterListComponent {
       this.issueService.setMasters(masters);
     })
   }
+
 }

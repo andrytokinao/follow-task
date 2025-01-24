@@ -1,43 +1,40 @@
-<div class="card-list menu-btn">
-<!--  &lt;!&ndash; Mes tâches Card &ndash;&gt;
-  <div class="card menu-btn" (click)="aplayFilter(mesTache)" [ngClass]="isActiveFilter(mesTache)">
-    <div class="card-content">
-      <h3>Mes tâches</h3>
-      <p>{{ mesTache?.name }}</p>
+<div class="list-menu-with-left-right">
+  <div class="card-list menu-btn">
+    <div class="filter-container">
+      <h1 class="filter-title">Gérer les filtres de recherche</h1>
+      <ul class="navigation-list">
+        <li *ngFor="let filter of subtaskFilters" class="filter-item">
+          <a class="filter-link">
+            {{ filter.name }}
+            <i class="fas fa-edit edit-icon" style="float: right" (click)="editFilter($event, filter)"></i>
+          </a>
+        </li>
+        <li class="new-filter-btn" (click)="newSubtaskFilter($event)">
+          Nouveau filtrse <i class="fas fa-plus add-icon"></i>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div style="margin-left:15px">
+    <div *ngIf="currentView ==='list'">
+      <app-issue-liste></app-issue-liste>
+    </div>
+    <div *ngIf="currentView ==='board'">
+      <app-board-list [searchCriteria]="searchCriteria"></app-board-list>
+    </div>
+    <div *ngIf="currentView ==='calendar'">
+      <app-calendar-list></app-calendar-list>
+    </div>
+  </div>
+  <!-- Type View Selector -->
+  <div class="type-view">
+    <div class="menu-item" *ngFor="let view of views" [class.active]="currentView === view.id">
+      <i
+        [class]="view.icon"
+        [title]="view.title"
+        (click)="changeView(view.id)">
+      </i>
     </div>
   </div>
 
-  &lt;!&ndash; Filters Cards &ndash;&gt;
-  <div class="card" *ngFor="let filter of fileters" [ngClass]="isActiveFilter(filter)">
-    <div class="card-content">
-      <h3 class="edit" (click)="aplayFilter(filter)">Filtre</h3>
-      <p (click)="editFilter(filter)">
-        {{ filter.name }}
-        <i class="fas fa-edit"></i>
-      </p>
-    </div>
-  </div>-->
 </div>
-
-<!-- Type View Selector -->
-<div class="type-view">
-  <div class="menu-item" *ngFor="let view of views" [class.active]="currentView === view.id">
-    <i
-      [class]="view.icon"
-      [title]="view.title"
-      (click)="changeView(view.id)">
-    </i>
-  </div>
-</div>
-<div style="margin-left:15px">
-  <div *ngIf="currentView ==='list'">
-    <app-issue-liste></app-issue-liste>
-  </div>
-  <div *ngIf="currentView ==='board'">
-    <app-board-list [searchCriteria]="searchCriteria"></app-board-list>
-  </div>
-  <div *ngIf="currentView ==='calendar'">
-    <app-calendar-list></app-calendar-list>
-  </div>
-</div>
-

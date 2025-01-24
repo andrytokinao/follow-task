@@ -6,11 +6,11 @@
       *ngFor="let project of projects"
       (click)="selectProject(project)"
     >
-      <div class="modern-card">
+      <div class="card">
         <!-- Image de présentation -->
-        <div class="modern-card-image">
-          <img
-            [src]="getImageProject(project) "
+        <div class="image">
+          <img style="width:10px"
+            [src]="issueService.getImageProject(project) "
             alt="{{ project.name }} Image"
           />
         </div>
