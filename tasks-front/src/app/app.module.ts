@@ -1,7 +1,7 @@
 import {ChangeDetectionStrategy, CUSTOM_ELEMENTS_SCHEMA, NgModule} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {ProjectModule} from "./pages/private/project/project.module";
-import {AppRoutingModule} from "./app.routing.module";
+import {appRoutes, AppRoutingModule} from "./app.routing.module";
 import {AppComponent} from "./app.component";
 import {NgbModal, NgbModule} from "@ng-bootstrap/ng-bootstrap";
 import {MatMenuModule} from "@angular/material/menu";
@@ -30,6 +30,8 @@ import {MarkdownModule} from "ngx-markdown";
 import {QuillModule} from "ngx-quill";
 import {MyCommonModule} from "./common/common.module";
 import {NgxDocViewerModule} from "ngx-doc-viewer";
+import {provideRouter} from "@angular/router";
+import {routeTransition} from "../route-transition";
 
 
 @NgModule({
@@ -83,6 +85,7 @@ import {NgxDocViewerModule} from "ngx-doc-viewer";
     FormsModule,
 
   ],
+
   bootstrap: [AppComponent],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
   providers :[
@@ -95,7 +98,10 @@ import {NgxDocViewerModule} from "ngx-doc-viewer";
     provideAnimations(), // required animations providers
     provideToastr(), // Toastr providers
     provideNativeDateAdapter(),
-  ]
+    provideRouter(appRoutes),
+  ],
+
+
 
 })
 export class AppModule { }

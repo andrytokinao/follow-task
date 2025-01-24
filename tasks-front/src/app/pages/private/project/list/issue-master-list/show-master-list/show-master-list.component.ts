@@ -13,6 +13,7 @@ import {IssueService} from "../../../../../../services/issue.service";
 import {UserService} from "../../../../../../services/user.service";
 import {AuthService} from "../../../../../../services/auth.service";
 import {ActivatedRoute, ParamMap, Router} from "@angular/router";
+import {NewIssueComponent} from "../../../modal/new-issue/new-issue.component";
 
 @Component({
   selector: 'app-show-master-list',
@@ -184,4 +185,18 @@ export class ShowMasterListComponent implements OnInit{
     })
   }
 
+  createIssueMaster() {
+    const dialogRef = this.modalService.open(NewIssueComponent);
+    dialogRef.componentInstance.listIssueTypeMaster(this.project.id);
+    dialogRef.componentInstance.project = this.project;
+    dialogRef.result.then((result) => {
+      this.issues = <Issue[]>(result.issues)
+      dialogRef.result.then(res => {
+        if (res != null) {
+          this.issueService.reloadMasterList();
+
+        }
+      })
+    })
+  }
 }

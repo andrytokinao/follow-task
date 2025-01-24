@@ -13,32 +13,33 @@ import {
   IssueSearchCriteriaInput,
   toQueryParams
 } from "../../../../../type/issue-search-criteria.util";
+import {NewIssueComponent} from "../../modal/new-issue/new-issue.component";
 
 @Component({
   selector: 'app-show',
   templateUrl: './show-list.component.html',
   styleUrl: './show-list.component.css'
 })
-export class ShowListComponent implements OnInit, AfterViewInit{
-  issues:Issue[] =[];
-  noFilter:CustomFilter ={};
+export class ShowListComponent implements OnInit, AfterViewInit {
+  issues: Issue[] = [];
+  noFilter: CustomFilter = {};
   project: Project | undefined;
   currentView: string = 'list';
   views = [
-    { id: 'list', icon: 'fas fa-list', title: 'Liste de tâches' },
-    { id: 'board', icon: 'fas fa-columns', title: 'Kanban' },
-/*
-    { id: 'calendar', icon: 'fas fa-calendar-alt', title: 'Calendrier' }
-*/
+    {id: 'list', icon: 'fas fa-list', title: 'Liste de tâches'},
+    {id: 'board', icon: 'fas fa-columns', title: 'Kanban'},
+    /*
+        { id: 'calendar', icon: 'fas fa-calendar-alt', title: 'Calendrier' }
+    */
   ];
 
-  searchCriteria: IssueSearchCriteriaInput | any = {
-  };
-  fileters:CustomFilter[]=[] ;
-  mesTache:CustomFilter ;
+  searchCriteria: IssueSearchCriteriaInput | any = {};
+  fileters: CustomFilter[] = [];
+  mesTache: CustomFilter;
   private user: User;
   private selectedFilter: CustomFilter;
   subtaskFilters: CustomFilter[] = [];
+
   constructor(
     private modalService: NgbModal,
     protected issueService: IssueService,
@@ -50,9 +51,10 @@ export class ShowListComponent implements OnInit, AfterViewInit{
   ) {
 
   }
-  search(){
-    this.searchCriteria.issueTypeLevels=['SUB_TASK'];
-    this.issueService.searchIssues(this.searchCriteria,this.project.id).subscribe(issues => {
+
+  search() {
+    this.searchCriteria.issueTypeLevels = ['SUB_TASK'];
+    this.issueService.searchIssues(this.searchCriteria, this.project.id).subscribe(issues => {
       this.issueService.setIssues(issues);
 
     })
@@ -62,9 +64,9 @@ export class ShowListComponent implements OnInit, AfterViewInit{
     this.route.data.subscribe(data => {
       this.project = data['project'];
       if (this.project && this.project.prefix) {
-        this.route.queryParamMap.subscribe((params:ParamMap) => {
+        this.route.queryParamMap.subscribe((params: ParamMap) => {
           this.searchCriteria = fromUrlParams(params);
-  //        this.search();
+          //        this.search();
         });
       }
     });
@@ -73,38 +75,38 @@ export class ShowListComponent implements OnInit, AfterViewInit{
       this.search();
 
     });
-    this.issueService.project$.subscribe(project=> {
+    this.issueService.project$.subscribe(project => {
       this.project = project;
       if (project) {
         if (this.project) {
           this.noFilter = {
-            id:0,
-            criteria:{issueTypeLevels:['PARENT']},
-            user:this.issueService.user,
-            projectId:this.issueService.project.id,
-            name:'Tous'
+            id: 0,
+            criteria: {issueTypeLevels: ['PARENT']},
+            user: this.issueService.user,
+            projectId: this.issueService.project.id,
+            name: 'Tous'
           }
 
         }
       }
     });
-    this.route.queryParamMap.subscribe((params:ParamMap) => {
+    this.route.queryParamMap.subscribe((params: ParamMap) => {
       this.searchCriteria = fromUrlParams(params);
       this.search();
     });
     this.authService.connectedUser$.subscribe(user => {
       this.user = user;
-      this.mesTache ={
-        name:'Mes taches',
-        description:'Tache affecté a moi ',
-        user:undefined,
-        criteria:{assigneUsernames:[this.user.username]}
+      this.mesTache = {
+        name: 'Mes taches',
+        description: 'Tache affecté a moi ',
+        user: undefined,
+        criteria: {assigneUsernames: [this.user.username]}
       };
-     // this.aplayFilter(this.mesTache);
+      // this.aplayFilter(this.mesTache);
     })
 
 
-    this.issueService.subtaskFilter$.subscribe( filters => {
+    this.issueService.subtaskFilter$.subscribe(filters => {
       this.subtaskFilters = filters;
     });
 
@@ -128,16 +130,16 @@ export class ShowListComponent implements OnInit, AfterViewInit{
   }
 
 
-  editFilter(ev,filter) {
-    this.essueService.editFilter(ev,filter).subscribe(filter => {
+  editFilter(ev, filter) {
+    this.essueService.editFilter(ev, filter).subscribe(filter => {
       this.searchIssue(filter);
     })
   }
 
-  searchIssue(searchCriteria:IssueSearchCriteriaInput){
+  searchIssue(searchCriteria: IssueSearchCriteriaInput) {
     const queryParams = toQueryParams(searchCriteria);
     this.router.navigate(['../issue'], {
-      queryParams ,
+      queryParams,
       relativeTo: this.route
     });
   }
@@ -145,10 +147,13 @@ export class ShowListComponent implements OnInit, AfterViewInit{
   isActiveFilter(filter: CustomFilter) {
     if (this.selectedFilter == null)
       return '';
-   return (filter.name == this.selectedFilter.name)? "active" : "";
+    return (filter.name == this.selectedFilter.name) ? "active" : "";
   }
 
   newSubtaskFilter($event: MouseEvent) {
 
   }
+
+
+
 }

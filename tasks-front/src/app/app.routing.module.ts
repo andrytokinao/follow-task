@@ -7,7 +7,7 @@ import {NotFoundComponent} from "./pages/not-found/not-found.component";
 import {AuthGuard} from "./services/SystemGuard";
 
 
-const appRoutes: Routes = [
+export const appRoutes: Routes = [
   { path: '',   redirectTo: 'public/home', pathMatch: 'full'  },
   { path: 'login',   redirectTo: 'public/login', pathMatch: 'full'  },
   {path: 'public', component: PublicComponent}, {

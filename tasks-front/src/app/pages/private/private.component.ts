@@ -11,11 +11,15 @@ import {AuthGuard} from "../../services/SystemGuard";
 import {IssueTypeComponent} from "./admins/config-project/issue-type/issue-type.component";
 import {PopupCreateProjectComponent} from "./popup-create-project/popup-create-project.component";
 import {IssueSearchCriteriaInput} from "../../type/issue-search-criteria.util";
+import {routeTransition} from "../../../route-transition";
 
 @Component({
   selector: 'private-root',
   templateUrl: './private.component.html',
-  styleUrl: './private.component.css'
+  styleUrl: './private.component.css',
+  animations: [
+    routeTransition
+  ]
 })
 export class PrivateComponent {
   profile:any  = {};

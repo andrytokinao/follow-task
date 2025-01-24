@@ -11,12 +11,16 @@ import {BreadcrumbService} from "../../../services/breadcrumb.service";
 import {UserService} from "../../../services/user.service";
 import {ProjectGuard} from "../../../services/ProjectGuard";
 import {MatButton} from "@angular/material/button";
+import {routeTransition} from "../../../../route-transition";
 
 @Component({
   selector: 'app-project',
   standalone: false,
   templateUrl: './project.component.html',
-  styleUrl: './project.component.css'
+  styleUrl: './project.component.css',
+  animations: [
+    routeTransition
+  ]
 })
 export class ProjectComponent implements OnInit{
   project:Project | undefined;
@@ -26,7 +30,7 @@ export class ProjectComponent implements OnInit{
   openList:boolean = true;
 
   constructor(
-    private route:ActivatedRoute,
+    protected route:ActivatedRoute,
     protected issueService:IssueService,
     protected authGuard:AuthGuard,
     private modalService: NgbModal,
@@ -67,15 +71,7 @@ export class ProjectComponent implements OnInit{
      dialogRef.result.then(res=> {
        if (res != null) {
          this.issueService.reloadMasterList();
-         //   if( res.step == "next") {
-         //    // this.issueService.loadIssueMasterByProject(this.project.id);
-         //     this.editIssue(res.issue);
-         //   } else if (res.step == "complete") {
-         // //  this.router.navigate(['/issue/:res.issue.issueKey]);
-         //     const currentPath = this.route.snapshot.url.map(segment => segment.path);
-         //
-         //    // this.router.navigate(["/private/working/"+this.project.prefix+"/list/master"]);
-         //   }
+
        }
      })
     })
