@@ -1,12 +1,9 @@
 
+  <issue-master-breadcrumb></issue-master-breadcrumb>
 <div class="master-container">
 
   <ul class="navigation-master">
-    <h1>{{parrentIssue.issueKey}} {{parrentIssue.summary}}
-      <span (click)="issueService.showPlanning(parrentIssue)" class="controle">
-      <i class="fas fa-calendar"></i> Planning
-    </span>
-    </h1>
+
     <li><a routerLink="details" routerLinkActive="active">Apropos</a></li>
     <li><a routerLink="sources-files" routerLinkActive="active">Dossier Client</a></li>
     <li><a routerLink="subtask" routerLinkActive="active">Tâches</a></li>

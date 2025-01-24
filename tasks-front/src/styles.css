@@ -193,6 +193,13 @@ selected{
   margin: 0 !important;
   width: 200px;
 }
+.master-breadcrumb {
+  position: relative !important;
+  left: 100px !important;
+  margin: 0 !important;
+  min-width: 2000px;
+
+}
 .user-section {
   display: flex;
   align-items: center;

@@ -26,7 +26,7 @@ import {StatesFormComponent} from "./states-form/states-form.component";
 import {AssignFieldComponent} from "./assign-field/assign-field.component";
 import {MatAutocomplete, MatAutocompleteTrigger} from "@angular/material/autocomplete";
 import {BreadcrumbComponent} from "./navigation/breadcrumb.component";
-import {RouterLink} from "@angular/router";
+import {RouterLink, RouterLinkActive} from "@angular/router";
 import {StatusFieldComponent} from "./status-field/status-field.component";
 import {EditEventComponent} from "./edit-event/edit-event.component";
 import {NewEventComponent} from "./new-event/new-event.component";
@@ -40,6 +40,7 @@ import {NgbCollapse} from "@ng-bootstrap/ng-bootstrap";
 import {DocViewerComponent} from "./doc-viewer/doc-viewer.component";
 import {NgxDocViewerModule} from "ngx-doc-viewer";
 import {IssueFilterComponent} from "./issue-filter/issue-filter.component";
+import {IssueMasterBreadcrumbComponent} from "./issue-master-breadcrumb/issue-master-breadcrumb.component";
 
 @NgModule({
   declarations: [
@@ -64,7 +65,8 @@ import {IssueFilterComponent} from "./issue-filter/issue-filter.component";
     EditorComponent,
     PdfOverviewComponent,
     DocViewerComponent,
-    IssueFilterComponent
+    IssueFilterComponent,
+    IssueMasterBreadcrumbComponent
 
   ],
   imports: [
@@ -96,6 +98,7 @@ import {IssueFilterComponent} from "./issue-filter/issue-filter.component";
     NgxExtendedPdfViewerModule,
     NgbCollapse,
     NgxDocViewerModule,
+    RouterLinkActive,
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA
@@ -122,7 +125,8 @@ import {IssueFilterComponent} from "./issue-filter/issue-filter.component";
     EditorComponent,
     PdfOverviewComponent,
     DocViewerComponent,
-    IssueFilterComponent
+    IssueFilterComponent,
+    IssueMasterBreadcrumbComponent
   ]
 })
 export class MyCommonModule { }

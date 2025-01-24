@@ -1,0 +1,14 @@
+<div class="breadcrumb"[matMenuTriggerFor]="master_list">
+  <ng-container >
+    <div class="breadcrumb-item" >
+      <a>{{issue?.issueKey+':'+issue?.summary}}   </a>
+    </div>
+  </ng-container>
+
+</div>
+<mat-menu #master_list ="matMenu"  yPosition="below" #parentMenu="matMenu" xPosition="after" class="master-breadcrumb">
+  <ul class="navigation-list" >
+    <li *ngFor="let im of issueMasters" (click)="issueService.browsIssueMaster(im)"><a > <app-icone-view [icon]="im.issueType.icone"></app-icone-view> {{im.issueKey+':'+im.summary}}</a></li>
+
+  </ul>
+</mat-menu>
