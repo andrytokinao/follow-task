@@ -378,8 +378,8 @@ public class ProjectService {
         return customFieldRepository.save(customField);
     }
 
-    public List<CustomField> allCustomField() {
-        return customFieldRepository.findAll();
+    public List<CustomField> allCustomField(Long projectId) {
+        return customFieldRepository.findByProjectId(projectId);
     }
 
     public List<UsingCustomField> useCustomField(UsingCustomField usingCustomField) {

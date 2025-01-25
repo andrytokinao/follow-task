@@ -25,4 +25,6 @@ public class CustomField {
     @EqualsAndHashCode.Exclude
     private List<UsingCustomField> issueTypes;
     private String type;
+    @ManyToOne
+    private Project project;
 }

@@ -46,16 +46,14 @@ export class ConfigCustomFieldComponent implements OnInit{
     dialogRef.componentInstance.project = this.project;
     dialogRef.componentInstance.issueTypes = this.project.issueTypes;
     dialogRef.result.then((result) => {
-      this.issueService.allCustomField().subscribe(customFields=>{
-        this.customFields = customFields;
-      })
+      this.issueService.loadAllCustomField()
     })
   }
   saveCustomField(customField:CustomField) {
     this.issueService.saveCustomField(customField).subscribe(customField=> {
-      this.issueService.allCustomField().subscribe(customFields=>{
-        this.customFields = customFields;
-      })
+      if (this.project) {
+        this.issueService.loadAllCustomField();
+      }
 
     })
   }
@@ -64,7 +62,7 @@ export class ConfigCustomFieldComponent implements OnInit{
     this.route.data.subscribe(data => {
       this.project = data['project'];
     });
-    this.issueService.allCustomField().subscribe(customFields=>{
+    this.issueService.allCustomField$.subscribe(customFields => {
       this.customFields = customFields;
     })
   }

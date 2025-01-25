@@ -8,7 +8,7 @@ import {
 import {EventsService} from "../../../../../services/events.service";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {NewIssueComponent} from "../../modal/new-issue/new-issue.component";
-import {EventApp, EventSearchCriteria, Issue, Project, User} from "../../../../../type/issue";
+import {CustomField, EventApp, EventSearchCriteria, Issue, Project, User} from "../../../../../type/issue";
 import {AuthService} from "../../../../../services/auth.service";
 import {MatCheckboxChange} from "@angular/material/checkbox";
 import {stripTypename} from "@apollo/client/utilities";
@@ -27,7 +27,28 @@ import {ProjectGuard} from "../../../../../services/ProjectGuard";
       <div class="navigator">
         <daypilot-navigator [config]="configNavigator" [events]="events" [(date)]="date" (dateChange)="changeDate($event)" #navigator></daypilot-navigator>
        <div >
-         <form class="card" style="margin-top: 15px;padding-top: 5px;padding-bottom: 5px" >
+         <div class="card" style="margin-top: 15px;padding-top: 5px;padding-bottom: 5px" >
+           <h1> Date personnalisé </h1>
+           <div class="sidebar-heding ">
+             <div
+               *ngFor="let dateField of dateCustomFields"
+               class="parent-container"
+               (mouseenter)="hoveredParent = dateField.id"
+               (mouseleave)="hoveredParent = null"
+             >
+               <mat-checkbox
+                 [checked]="isSelectedCustomFieldDate(dateField.id)"
+                 (change)="selectField($event, dateField)"
+                 class="custom-checkbox"
+               >
+                 {{  dateField.name }}
+               </mat-checkbox>
+
+             </div>
+
+           </div>
+         </div>
+         <div class="card" style="margin-top: 15px;padding-top: 5px;padding-bottom: 5px" >
            <h1> Projets <i class="fas fa-edit" (click)="editFilterMaster($event)"></i></h1>
            <div class="sidebar-heding ">
              <div
@@ -55,7 +76,8 @@ import {ProjectGuard} from "../../../../../services/ProjectGuard";
              </div>
 
            </div>
-         </form>
+         </div>
+
        </div>
         <form class="card" style="margin-top: 15px;padding-top: 5px;padding-bottom: 5px">
           <h1> Equipe </h1>
@@ -310,6 +332,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
   };
   private user: User;
   private project: Project;
+  private selectedCustomFields: number[] = [];
   private resizeEvent(args: any){
     this.eventService.resizeEventAndLoad(args,this.eventCriteria);
   }
@@ -433,6 +456,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
   };
   issueMasters: Issue[]=[];
   private masterFilter: CustomFilter = {} ;
+  dateCustomFields: CustomField[] = [];
 
   constructor(
     protected eventService: EventsService,
@@ -488,6 +512,9 @@ export class PlanningCalendarComponent implements AfterViewInit {
     })
     this.issueService.masterCriteria$.subscribe(criteria => {
       this.masterFilter.criteria = criteria;
+    });
+    this.issueService.allCustomField$.subscribe(customFields=> {
+      this.dateCustomFields = customFields.filter(cf=> (cf.type === 'Date'))
     })
   }
 
@@ -716,6 +743,14 @@ export class PlanningCalendarComponent implements AfterViewInit {
 
     // Rafraîchir le calendrier
     this.configDay = { ...this.configDay };
+  }
+
+  isSelectedCustomFieldDate(id: number) {
+    return this.selectedCustomFields.some(cf=> cf === id);
+  }
+
+  selectField($event: MatCheckboxChange, dateField: CustomField) {
+
   }
 }
 

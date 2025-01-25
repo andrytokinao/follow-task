@@ -183,7 +183,7 @@ export class IssueTypeStepperComponent {
     })
   }
   loadAllCustomField(){
-    this.issueService.allCustomField().subscribe(customFields=>{
+    this.issueService.allCustomField$.subscribe(customFields=>{
       this.customFields = customFields;
       this.customFieldsSelected = this.issueType.usingCustomFields;
 

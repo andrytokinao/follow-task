@@ -66,7 +66,7 @@ export class ShowMasterComponent implements OnInit{
     this.issueService.issueMaster$.subscribe(issue => {
       this.parrentIssue = issue;
     })
-    this.issueService.allCustomField().subscribe(customFields=>{
+    this.issueService.allCustomField$.subscribe(customFields=>{
       this.customFields = customFields;
 
     })

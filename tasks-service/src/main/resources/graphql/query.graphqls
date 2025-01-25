@@ -26,7 +26,7 @@ type Query {
     getIssueType(issueTypeId:Int):IssueType
     allIssueType(projectId:Int):[IssueType]
     issueByCriteria(criterias:[CriteriaInput]):[Issue]
-    allCustomField:[CustomField]
+    allCustomField(projectId:Int):[CustomField]
     customFieldsByIssueType(issueTypeId:Int):[UsingCustomField]
     getGroupeUserForProject(prefix:String):[GroupeUser]
     listIssueTypeMaster(projectId:Int):[IssueType]

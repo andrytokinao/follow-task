@@ -3,6 +3,7 @@ type CustomField {
     name:String
     type:String
     options:[String]
+    project:Project
     configDisplay:[String]
     issueTypes:[UsingCustomField]
 }
@@ -203,6 +204,7 @@ input CustomFieldImput {
     name:String
     description:String
     type:String
+    project:ProjectInput
     options:[String]
     configDisplay:[String]
     issueTypes:[CustomFieldImput]

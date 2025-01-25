@@ -127,7 +127,7 @@ export class IssueTypeModalComponent implements OnInit{
       this.project = data['project'];
       alert(this.project.name);
     });*/
-    this.issueService.allCustomField().subscribe(customFields=>{
+    this.issueService.allCustomField$.subscribe(customFields=>{
       this.customFields = customFields;
       this.customFieldsSelected = this.issueType.usingCustomFields;
 

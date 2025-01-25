@@ -96,6 +96,8 @@ export class IssueService implements OnInit{
   private issuesSubject = new BehaviorSubject<Issue[]>([]);
   issues$ = this.issuesSubject.asObservable();
   uploadingDocumentSubject : BehaviorSubject<DocumentApp>;
+  private allCustomFieldSubject = new BehaviorSubject<CustomField[]>([]);
+  allCustomField$ = this.allCustomFieldSubject.asObservable();
   setIssues(issues: Issue[]) {
     this.issuesSubject.next(issues);
   }
@@ -123,6 +125,7 @@ export class IssueService implements OnInit{
       this.loadUsers();
       this.loadIssueType();
       this.loadMyFilters();
+      this.loadAllCustomField();
       this.setCurrentMasterFilter({
         id:0,
         name:'Tous',
@@ -743,6 +746,7 @@ export class IssueService implements OnInit{
   };
 
   saveCustomField(customField: CustomField) {
+    customField.project = {id:this.project.id}
     return new Observable<CustomField>(observer => {
       this.apollo.mutate(
         {
@@ -760,10 +764,11 @@ export class IssueService implements OnInit{
     });
   }
 // TODO : Modifier sur la custom field pour une projet
-  allCustomField() {
+  allCustomField(projectId:Number) {
     return new Observable<CustomField[]>(observer => {
       this.apollo.query({
         query: ALL_CUSTOM_FIELD,
+        variables:{projectId:projectId},
         fetchPolicy:"network-only"
       }).subscribe((res: any) => {
           observer.next(supprimerTypename(res.data.allCustomField));
@@ -775,7 +780,6 @@ export class IssueService implements OnInit{
           observer.complete();
         })
     })
-
   }
 
   getCustomField(id) {
@@ -1337,5 +1341,11 @@ export class IssueService implements OnInit{
       default:
         return 'assets/images/work-space/controle-equipe.jpg';
     }
+  }
+
+  loadAllCustomField() {
+    this.allCustomField(this.project.id).subscribe(customFields => {
+      this.allCustomFieldSubject.next(customFields);
+    });
   }
 }

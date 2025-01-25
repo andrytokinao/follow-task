@@ -1079,8 +1079,8 @@ const SEVE_CUSTOM_FIELD = gql`
 `
 
 const ALL_CUSTOM_FIELD = gql`
-   query allCustomField{
-     allCustomField{
+   query allCustomField($projectId:Int!){
+     allCustomField(projectId: $projectId){
        id
        name
        options

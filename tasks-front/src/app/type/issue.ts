@@ -75,11 +75,13 @@ export class Comment {
 export interface CustomField {
   id:number;
   name:String;
-  type:string;
+  type:'String' | 'Date' | 'Number' | 'User' | 'Selection' | 'Checkbox';
   options:String[];
   configDisplay:String[];
   issueTypes:UsingCustomField[],
+  project:Project
 }
+
 
 export interface CustomFieldValue {
   id: number;

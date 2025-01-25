@@ -178,8 +178,8 @@ public class GQIssueController {
         return projectService.customFieldsByIssueType (issueTypeId);
     }
      @QueryMapping
-     public List<CustomField> allCustomField(){
-        return projectService.allCustomField();
+     public List<CustomField> allCustomField(@Argument Long projectId){
+        return projectService.allCustomField(projectId);
      }
      @MutationMapping
      public Issue assigneToUser(@Argument Issue issue) {
