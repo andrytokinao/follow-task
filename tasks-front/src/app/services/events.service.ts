@@ -231,7 +231,7 @@ export class EventsService {
   searchEventsAndSet(criteria: EventSearchCriteria) {
     this.searchEvents(criteria).subscribe(events => {
       this.setEvents(events);
-    })
+    });
   }
   searchEvents(criteria: EventSearchCriteria) {
     return new Observable<EventApp[]>(observer => {
@@ -282,7 +282,6 @@ export class EventsService {
       })
 
     })
-    let ev =  this.eventApps.find((event) => event.id == args.e.cache.id);
 
   }
 
@@ -304,24 +303,30 @@ export class EventsService {
     return this.users.find((user)=> resource === user.username)
   }
 
-  mouveEventAtResources(args: any, eventCriteria: EventSearchCriteria) {
-    let ev =  this.eventApps.find((event) => event.id == args.e.data.id);
-    ev.start = args.newStart.toString();
-    ev.end = args.newEnd.toString();
-   if (args.newResource) {
-     ev.user = this.getUserByResource(args.newResource)
-   }
-    this.saveEvent(ev).subscribe(res => {
-      this.searchEventsAndSet(eventCriteria);
-    })
+  mouveEventAtResources(args: any, criteria: EventSearchCriteria) {
+    this.getByEventById(args.cache.id).subscribe(ev=>{
+      ev.start = args.newStart.toString();
+      ev.end = args.newEnd.toString();
+      if (args.newResource) {
+        ev.user = this.getUserByResource(args.newResource)
+      }
+      this.saveEvent(ev).subscribe(res => {
+        this.searchEventsAndSet(criteria);
+      } , error =>{
+        console.error(error);
+      })
+    });
   }
   updateBackColor(eventData,colors,criteria:EventSearchCriteria){
     console.debug(eventData);
-    let ev =  this.eventApps.find((event) => event.id == eventData.cache.id);
-    ev.customColor = colors;
-    this.saveEvent(ev).subscribe(rap => {
-      this.searchEventsAndSet(criteria);
-    })
+    this.getByEventById(eventData.cache.id).subscribe(ev=>{
+      ev.customColor = colors;
+      this.saveEvent(ev).subscribe(res => {
+        this.searchEventsAndSet(criteria);
+      } , error =>{
+        console.error(error);
+      })
+    });
   }
 
   deleteEvent(data, eventCriteria: EventSearchCriteria) {
