@@ -76,6 +76,7 @@ export class IssueService implements OnInit{
   private projectsSubject = new BehaviorSubject<Project[]>([]);
   private worksFlowsSubject = new BehaviorSubject<WorkFlow[]>([]);
   private masterListCriteriaSubject = new BehaviorSubject<IssueSearchCriteriaInput>({});
+  masterCriteria$ = this.masterListCriteriaSubject.asObservable();
   private issueMasterSubject = new BehaviorSubject<Issue>({});
   private myFiltersSubject = new BehaviorSubject<CustomFilter[]>([]);
   private masterFiltersSubject = new BehaviorSubject<CustomFilter[]>([]);
@@ -87,10 +88,11 @@ export class IssueService implements OnInit{
   subtask$ = this.subtaskSubject.asObservable();
   issueMaster$ = this.issueMasterSubject.asObservable();
   issueMasterList$ = this.issueMastersListSubject.asObservable();
+
   project$ = this.projectSubject.asObservable();
   projects$ = this.projectsSubject.asObservable();
-  masterCriteria$ = this.masterListCriteriaSubject.asObservable();
-
+  private masterCurrentMasterFilterSubject = new BehaviorSubject<CustomFilter>(null);
+  currentMasterFilter$ = this.masterCurrentMasterFilterSubject.asObservable();
   private issuesSubject = new BehaviorSubject<Issue[]>([]);
   issues$ = this.issuesSubject.asObservable();
   uploadingDocumentSubject : BehaviorSubject<DocumentApp>;
@@ -114,10 +116,30 @@ export class IssueService implements OnInit{
       this.user = user;
       this.loadMyFilters();
     });
-    this.masterCriteria$.subscribe(criteria => {
-     if (this.project)
-        this.loadIssueMasters(criteria)
-    })
+
+    this.project$.subscribe(project => {
+      this.project = project;
+      this.workFlowsByProject(this.projectSubject.value.id).subscribe();
+      this.loadUsers();
+      this.loadIssueType();
+      this.loadMyFilters();
+      this.setCurrentMasterFilter({
+        id:0,
+        name:'Tous',
+        projectId:this.project.id,
+        criteria:{
+
+        }
+      });
+    });
+    this.currentMasterFilter$.subscribe(filter => {
+
+      if (filter && this.project) {
+        this.searchIssues(filter.criteria,this.project.id).subscribe(issues => {
+          this.setMasters(issues);
+        });
+      }
+    });
   }
   loadIssueMasters(criteria:IssueSearchCriteriaInput){
     this.searchIssues(criteria,this.project.id).subscribe(masters => {
@@ -513,12 +535,7 @@ export class IssueService implements OnInit{
     }).subscribe((res: any) => {
       this.project = stripTypename(res.data.getProject);
       if (this.project) {
-        console.debug(this.project);
         this.projectSubject.next(this.project);
-        this.workFlowsByProject(this.projectSubject.value.id).subscribe();
-        this.loadUsers();
-        this.loadIssueType();
-        this.loadMyFilters();
 
 
 
@@ -698,9 +715,7 @@ export class IssueService implements OnInit{
           fetchPolicy:"network-only"
         }).subscribe((res:any)=>{
          let wf =  supprimerTypename(res.data.workFlowsByProject);
-         let project = {...this.projectSubject.value};
-         project.workFlows = wf;
-         this.projectSubject.next(project);
+         this.worksFlowsSubject.next(wf);
          observer.next(supprimerTypename(res.data.workFlowsByProject));
          this.worksFlowsSubject.next(wf);
           observer.complete();
@@ -1134,6 +1149,9 @@ export class IssueService implements OnInit{
   }
   ngOnInit(): void {
 
+  }
+  setCurrentMasterFilter(filter:CustomFilter){
+    this.masterCurrentMasterFilterSubject.next(filter);
   }
   loadProjectList(){
     this.getProjectByUser(this.user?.id);
