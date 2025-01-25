@@ -33,3 +33,27 @@ button {
 button:hover {
   background-color: #1565c0;
 }
+.issue-choose {
+
+}
+.issue-choose-list{
+  display: flex;
+  grid-template-columns: 1fr 2fr;
+  grid-gap: 10px;
+}
+.master , .sub-task {
+  padding: 12px 20px;
+  color: #333;
+  font-weight: 600;
+  transition: color 0.3s ease, background-color 0.3s ease;
+  border-radius: 1px;
+  cursor: pointer;
+}
+.master:hover , .sub-task:hover {
+  background-color: #777777;
+  color: #fff;
+}
+.navigation-list li  {
+   min-width: 100%;
+
+}

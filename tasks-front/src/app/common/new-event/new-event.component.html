@@ -13,19 +13,38 @@
         <mat-option *ngFor="let type of eventTypes" [value]="type">{{ type.name }}</mat-option>
       </mat-select>
     </mat-form-field>
-    <mat-form-field appearance="fill" class="form-field">
-      <mat-label>Tache </mat-label>
-      <mat-select [(ngModel)]="issue" name="issue" >
-        <mat-option *ngFor="let issue of issues" [value]="issue">{{ issue.issueKey }} {{ issue.summary }}</mat-option>
-      </mat-select>
-    </mat-form-field>
+
     <mat-form-field appearance="fill" class="form-field" required>
       <mat-label>User </mat-label>
       <mat-select [(ngModel)]="user"   name="user" [compareWith]="issueService.defaultCompare" [ngModelOptions]="{standalone: true}">
         <mat-option *ngFor="let user of users" [value]="user" >{{ user.firstName }} {{ user.lastName }} </mat-option>
       </mat-select>
     </mat-form-field>
-
+    <div class="issue-choose cart">
+      <h1>Tache: </h1>
+      <div class="issue-choose-list">
+        <div class="master" [matMenuTriggerFor]="master_list">
+           <span *ngIf="selectedMaster != undefined"> {{selectedMaster.issueKey+':'+selectedMaster.summary}}</span>
+           <span *ngIf="selectedMaster == undefined"> Choisir projet </span>
+        </div>
+        <div class="sub-task" *ngIf="selectedMaster != undefined">
+          <span *ngIf="selectedSubtask != undefined"> {{selectedSubtask.issueKey+':'+selectedSubtask.summary}}</span>
+          <span *ngIf="selectedSubtask == undefined"> Choisir tache  </span>
+        </div>
+        </div>
+    </div>
     <button mat-raised-button color="primary" type="submit">Créer l'événement</button>
   </form>
+  <mat-menu #master_list ="matMenu"  yPosition="below" #parentMenu="matMenu" xPosition="after" class="master-breadcrumb">
+    <ul class="navigation-list" >
+      <li *ngFor="let im of masters" (click)="selectMaster(im)"><a > <app-icone-view [icon]="im.issueType.icone"></app-icone-view> {{im.issueKey+':'+im.summary}}</a></li>
+
+    </ul>
+  </mat-menu>
+  <mat-menu #master_list ="matMenu"  yPosition="below" #parentMenu="matMenu" xPosition="after" class="master-breadcrumb">
+    <ul class="navigation-list" >
+      <li *ngFor="let im of subtasksList" (click)="selectSubtask(im)"><a > <app-icone-view [icon]="im.issueType.icone"></app-icone-view> {{im.issueKey+':'+im.summary}}</a></li>
+
+    </ul>
+  </mat-menu>
 </div>

@@ -25,6 +25,11 @@ export class NewEventComponent implements OnInit, AfterViewInit{
   // Fonction pour gérer la soumission du formulaire
   issues: Issue[]= [];
   private project: Project;
+  protected masters: Issue[]=[];
+  selectedMaster: Issue ;
+  selectedSubtask: Issue ;
+  protected subtasksList: Issue[] = [];
+
 
   constructor(private eventService: EventsService,
               private autService:AuthService,
@@ -36,8 +41,12 @@ export class NewEventComponent implements OnInit, AfterViewInit{
 
   onSubmit(): void {
     if (this.event.title && this.event.eventType && this.user) {
-      if (this.issue != null) {
-        let issue = {id:this.issue.id}
+      if (this.selectedMaster != null) {
+        let issue = {id:this.selectedMaster.id}
+        this.event.issue = issue;
+      }
+      if (this.selectedSubtask != null) {
+        let issue = {id:this.selectedSubtask.id}
         this.event.issue = issue;
       }
       this.event.user = this.user;
@@ -57,7 +66,9 @@ export class NewEventComponent implements OnInit, AfterViewInit{
   }
 
   ngOnInit(): void {
-
+    this.issueService.issueMasterList$.subscribe(masters=> {
+      this.masters = masters;
+    });
   }
 
   ngAfterViewInit(): void {
@@ -95,6 +106,17 @@ export class NewEventComponent implements OnInit, AfterViewInit{
     } else {
       console.debug("issue is null");
     }
+  }
+
+  selectMaster(im: Issue) {
+    this.selectedMaster = im;
+    this.issueService.loadSubtask(this.selectedMaster.id).subscribe( issues => {
+      this.subtasksList = issues;
+    })
+  }
+
+  selectSubtask(im: Issue) {
+    this.selectedSubtask = im;
   }
 }
 

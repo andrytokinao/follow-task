@@ -250,13 +250,17 @@ selected{
   padding: 0;
   margin: 0;
 }
+.navigation-list li:hover {
+  background-color: #cccccc;
+  cursor: pointer;
 
+}
 /* Élément individuel de filtre */
 .filter-item {
-  background-color: #ffffff; /* Fond blanc */
-  border: 1px solid #ddd; /* Bordure subtile */
-  border-radius: 5px; /* Coins arrondis */
-  margin-bottom: 10px; /* Espacement entre les éléments */
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-bottom: 10px;
   padding: 10px;
   display: flex;
   justify-content: space-between;
