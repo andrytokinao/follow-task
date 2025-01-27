@@ -4,4 +4,5 @@ import com.kinga.followtask.entity.EventType;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface EventTypeRepository extends JpaRepository<EventType , Long> {
+    public EventType getByName(String name);
 }

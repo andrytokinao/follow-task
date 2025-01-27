@@ -150,6 +150,17 @@ type CustomFieldValue {
     values:[String]
     text:String
 }
+input CustomFieldValueInput {
+    id:Int,
+    customField:CustomFieldImput
+    issue:IssueInput
+    date:String
+    string:String
+    user:UserAppInput
+    numeric:Float
+    values:[String]
+    text:String
+}
 type Repertoire{
     path:String
     fileName:String
@@ -497,7 +508,7 @@ type CustomFieldTextValues {
     textValues: [String]
 }
 type Event {
-    id: ID!
+    id: ID
     title: String!
     description: String
     eventType: EventType!
@@ -509,9 +520,10 @@ type Event {
     customColor: String
     customStyle: String
     reminderOffset: Int
-    user: UserApp!
+    user: UserApp
     issue: Issue
     project:Project
+    dateValue:CustomFieldValue
 }
 input EventInput {
     id: ID
@@ -529,9 +541,11 @@ input EventInput {
     user: UserAppInput
     issue: IssueInput
     project:ProjectInput
+    dateValue:CustomFieldValueInput
+
 }
 type EventType {
-    id: ID!
+    id: ID
     name: String!
     description: String
     defaultColor: String
@@ -552,6 +566,7 @@ input EventSearchCriteriaInput {
     projectId:Int
     start: String  # Date/heure de début, facultatif
     end: String  # Date/heure de fin, facultatif
+    customFieldIds:[Int]
 }
 input DomainActivityInput {
     id:Int

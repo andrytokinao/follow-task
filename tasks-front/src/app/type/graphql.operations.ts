@@ -1691,6 +1691,19 @@ const SAVE_EVENT = gql`
       reminderOffset
       start
       end
+      dateValue {
+        id
+        date
+        text
+        customField {
+          id
+          name
+        }
+        issue {
+          id
+          issueKey
+        }
+      }
       user {
         id
         firstName
@@ -1815,6 +1828,15 @@ const EVENT_BY_ID=gql`
           firstName
           lastName
           photo
+        }
+        dateValue {
+          id
+          issue {
+            id
+          }
+          customField {
+            id
+          }
         }
       }
     }

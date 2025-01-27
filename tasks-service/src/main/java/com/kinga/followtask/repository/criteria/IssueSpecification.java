@@ -80,7 +80,7 @@ public class IssueSpecification implements Specification<Issue> {
             criteria.getCustomFieldDateValues().forEach((fieldId, dates) -> {
                 predicates.add(criteriaBuilder.and(
                         criteriaBuilder.equal(customFieldJoin.get("customField").get("id"), fieldId),
-                        customFieldJoin.get("dateValue").in(dates)
+                        customFieldJoin.get("date").in(dates)
                 ));
             });
         }
@@ -95,7 +95,7 @@ public class IssueSpecification implements Specification<Issue> {
         if (criteria.getCustomFieldDateValueFrom() != null || criteria.getCustomFieldDateValueTo() != null) {
             criteria.getCustomFieldDateValueFrom().forEach((fieldId, fromDate) -> {
                 Predicate dateFromPredicate = criteriaBuilder.greaterThanOrEqualTo(
-                        customFieldJoin.get("dateValue"),
+                        customFieldJoin.get("date"),
                         fromDate
                 );
                 Predicate fieldIdPredicate = criteriaBuilder.equal(customFieldJoin.get("customField").get("id"), fieldId);
@@ -104,7 +104,7 @@ public class IssueSpecification implements Specification<Issue> {
 
             criteria.getCustomFieldDateValueTo().forEach((fieldId, toDate) -> {
                 Predicate dateToPredicate = criteriaBuilder.lessThanOrEqualTo(
-                        customFieldJoin.get("dateValue"),
+                        customFieldJoin.get("date"),
                         toDate
                 );
                 Predicate fieldIdPredicate = criteriaBuilder.equal(customFieldJoin.get("customField").get("id"), fieldId);

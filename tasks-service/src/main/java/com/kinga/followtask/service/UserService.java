@@ -233,4 +233,16 @@ public class UserService {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Une erreur s'est produite lors du téléchargement du fichier.");
         }
     }
+    public UserApp getAnonymeUser() {
+        UserApp anonyme = userRepository.findByUsername("anonyme");
+        if (anonyme != null) {
+            return anonyme;
+        }
+        anonyme = new UserApp();
+        anonyme.setUsername("anonyme");
+        anonyme.setPassword("pass");
+        anonyme.setPassword("pass");
+        anonyme.setContact("0340000000");
+        return save(anonyme);
+    }
 }

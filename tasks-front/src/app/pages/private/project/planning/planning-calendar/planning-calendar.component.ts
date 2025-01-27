@@ -749,8 +749,20 @@ export class PlanningCalendarComponent implements AfterViewInit {
     return this.selectedCustomFields.some(cf=> cf === id);
   }
 
-  selectField($event: MatCheckboxChange, dateField: CustomField) {
-
+  selectField(event: any, dateField: CustomField) {
+    if (event.checked) {
+      if (!this.selectedCustomFields)
+         this.selectedCustomFields = [];
+      this.selectedCustomFields.push(dateField.id);
+    } else {
+      this.selectedCustomFields = this.selectedCustomFields.filter(cf => cf != dateField.id);
+    }
+    if (this.selectedCustomFields && this.selectedCustomFields.length != 0) {
+      this.eventCriteria.customFieldIds = this.selectedCustomFields ;
+    } else {
+      this.eventCriteria.customFieldIds = [];
+    }
+    this.loadEvents();
   }
 }
 

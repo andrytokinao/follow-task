@@ -268,6 +268,7 @@ export class EventsService {
   }
 
   resizeEvent(args: any){
+    console.log(args);
     return new Observable<EventApp>(observer => {
       this.getByEventById(args.e.cache.id).subscribe(ev=>{
         ev.start = args.newStart.toString();
@@ -280,9 +281,7 @@ export class EventsService {
           observer.complete();
         })
       })
-
     })
-
   }
 
   loadUserResource(){

@@ -4,11 +4,23 @@ import com.kinga.followtask.dto.ValueDto;
 import com.kinga.followtask.entity.CustomFieldValue;
 import com.kinga.followtask.entity.*;
 import com.kinga.followtask.repository.CustomFieldRepository;
+import com.kinga.followtask.repository.criteria.IssueSearchCriteria;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.ZoneOffset;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
@@ -87,6 +99,22 @@ class IssueServiceTest {
 
     @Test
     void allCustomField() {
+    }
+    @Test
+    void searchIssues() throws ParseException {
+        IssueSearchCriteria iCriteria = new IssueSearchCriteria();
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        iCriteria.setProjectId(1l);
+        Map<Long, Date> froms = new HashMap<>();
+        Map<Long, Date> tos = new HashMap<>();
+        tos.put(1l,df.parse("2025-01-01"));
+        froms.put(1l,df.parse("2025-01-31"));
+        iCriteria.setCustomFieldDateValueFrom(froms);
+        iCriteria.setCustomFieldDateValueTo(tos);
+        List<Issue> issues = issueService.searchIssues(iCriteria);
+        assertNotNull(issues);
+        assertNotEquals(0,issues.size());
+
     }
 
 }

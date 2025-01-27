@@ -20,6 +20,10 @@ import java.util.Objects;
 @Table(name = "events")
 @Data
 public class Event {
+    public static String dateTimeFormaterPattern =  "yyyy-MM-dd'T'HH:mm:ss";
+    private static String dateTimeFormaterPattern2=  "yyyy-MM-dd' 'HH:mm:ss";
+    public static DateTimeFormatter dateTimeFormater =  DateTimeFormatter.ofPattern(dateTimeFormaterPattern);
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -71,6 +75,8 @@ public class Event {
     @ManyToOne
     @JoinColumn(name = "project_id")
     private Project project ;
+    @ManyToOne
+    private DateCustomFieldValue dateValue;
 
     public Event() {}
 
@@ -112,12 +118,10 @@ public class Event {
         return Objects.equals(id, event.id);
     }
     public String getEnd(){
-        DateTimeFormatter f = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-        return f.format(this.end);
+        return dateTimeFormater.format(this.end);
     }
     public String getStart(){
-        DateTimeFormatter f = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-        return f.format(this.start);
+        return dateTimeFormater.format(this.start);
     }
     public String getType() {
         return this.eventType.getName();

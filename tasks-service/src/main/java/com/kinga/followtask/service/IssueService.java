@@ -5,7 +5,6 @@ import com.kinga.followtask.dto.Repertoire;
 import com.kinga.followtask.dto.ValueDto;
 import com.kinga.followtask.entity.CustomFieldValue;
 import com.kinga.followtask.entity.*;
-import com.kinga.followtask.entity.enumapp.Niveau;
 import com.kinga.followtask.repository.*;
 import com.kinga.followtask.repository.criteria.IssueSearchCriteria;
 import com.kinga.followtask.repository.criteria.IssueSpecification;
@@ -13,8 +12,6 @@ import com.kinga.utils.KingaUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-import org.springframework.graphql.data.method.annotation.Argument;
-import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -50,7 +47,7 @@ public class IssueService {
     @Autowired
     public StatusRepository statusRepository;
     @Autowired
-    public ValueDeoRepository valueDeoRepository;
+    public ValueDaoRepository valueDaoRepository;
     @Autowired
     public CommentRepository commentRepository;
     @Autowired
@@ -201,8 +198,8 @@ public class IssueService {
         else if (value instanceof  SelectionCustomFieldValue)
             value.setValue (v.getString ());
 
-        valueDeoRepository.save(value);
-        return valueDeoRepository.findCustomFieldValueByIssueId(value.getIssue().getId());
+        valueDaoRepository.save(value);
+        return valueDaoRepository.findCustomFieldValueByIssueId(value.getIssue().getId());
     }
 
     public Project getDefaultProject() throws IOException {
@@ -319,7 +316,7 @@ public class IssueService {
         return customFieldRepository.findAll();
     }
     public List<CustomFieldValue> getValues(Long id) {
-        return valueDeoRepository.findCustomFieldValueByIssueId(id);
+        return valueDaoRepository.findCustomFieldValueByIssueId(id);
     }
 
     public ResponseEntity<Resource> downloadFiles(List<String> fileNames, String directory,String newFileName) throws MalformedURLException {

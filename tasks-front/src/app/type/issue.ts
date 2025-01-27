@@ -239,11 +239,13 @@ export interface EventApp {
   reminderOffset?: number;
   user?: User;
   issue?: Issue;
+  dateValue?:CustomFieldValue;
 }
 export interface EventSearchCriteria {
   userIds?:String[]
   projectId?:Number;
   issueIds?: number[]
+  customFieldIds?:number[]
   parrentIds?:number[]
   start?: string
   end?: string

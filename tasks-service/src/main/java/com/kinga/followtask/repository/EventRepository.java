@@ -39,5 +39,5 @@ public interface EventRepository extends JpaRepository<Event,Long> {
 
     );
 
-
+    public Event findByDateValueId(Long valueId);
 }
