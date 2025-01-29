@@ -20,6 +20,11 @@ export const appRoutes: Routes = [
     loadChildren: () => import('./pages/private/private.module').then(m => m.PrivateModule),
     //  canMatch: [userAdmin]
   },
+  {
+    path: 'exemple-animation',
+    loadChildren: () => import('./animation-examples/animation-examples.module').then(m => m.AnimationExamplesModule),
+    //  canMatch: [userAdmin]
+  },
   { path: '**',   component: NotFoundComponent ,data: { num: 0 } },
 
 ];

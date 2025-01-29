@@ -32,59 +32,61 @@ import {MyCommonModule} from "./common/common.module";
 import {NgxDocViewerModule} from "ngx-doc-viewer";
 import {provideRouter} from "@angular/router";
 import {routeTransition} from "../route-transition";
+import {AnimationExamplesModule} from "./animation-examples/animation-examples.module";
 
 
 @NgModule({
   declarations: [
     AppComponent,
   ],
-  imports: [
-    CommonModule,
-    AppRoutingModule,
-    ProjectModule,
-    BrowserAnimationsModule,
-    NgbModule,
-    HttpClientModule,
-    GraphQLModule,
-    MatToolbarModule,
-    MatIconModule,
-    MatButtonModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatRadioModule,
-    MatSelectModule,
-    ReactiveFormsModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatSortModule,
-    MatSnackBarModule,
-    MatMenuModule,
-    NgxDocViewerModule,
-    ToastrModule.forRoot({
-      positionClass: 'custom-toast-position', // Classe personnalisée pour le toast
-      preventDuplicates: true,
-      timeOut: 10000, // Temps d'affichage du toast
-      closeButton: true, // Afficher le bouton de fermeture
-      progressBar: true // Afficher la barre de progression
-    }),
-    MarkdownModule.forRoot(),
-    QuillModule.forRoot({
-      modules: {
-        toolbar: [
-          ['bold', 'italic', 'underline'], // Outils de style
-          [{header: [1, 2, 3, false]}], // En-têtes
-          [{list: 'ordered'}, {list: 'bullet'}], // Listes
-          ['link', 'image'], // Liens et images
-        ],
-      },
-    }),
-    MyCommonModule,
-    FormsModule,
+    imports: [
+        CommonModule,
+        AppRoutingModule,
+        ProjectModule,
+        BrowserAnimationsModule,
+        NgbModule,
+        HttpClientModule,
+        GraphQLModule,
+        MatToolbarModule,
+        MatIconModule,
+        MatButtonModule,
+        MatDialogModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
+        MatRadioModule,
+        MatSelectModule,
+        ReactiveFormsModule,
+        MatTableModule,
+        MatPaginatorModule,
+        MatSortModule,
+        MatSnackBarModule,
+        MatMenuModule,
+        NgxDocViewerModule,
+        ToastrModule.forRoot({
+            positionClass: 'custom-toast-position', // Classe personnalisée pour le toast
+            preventDuplicates: true,
+            timeOut: 10000, // Temps d'affichage du toast
+            closeButton: true, // Afficher le bouton de fermeture
+            progressBar: true // Afficher la barre de progression
+        }),
+        MarkdownModule.forRoot(),
+        QuillModule.forRoot({
+            modules: {
+                toolbar: [
+                    ['bold', 'italic', 'underline'], // Outils de style
+                    [{header: [1, 2, 3, false]}], // En-têtes
+                    [{list: 'ordered'}, {list: 'bullet'}], // Listes
+                    ['link', 'image'], // Liens et images
+                ],
+            },
+        }),
+        MyCommonModule,
+        FormsModule,
+        AnimationExamplesModule,
 
-  ],
+    ],
 
   bootstrap: [AppComponent],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
