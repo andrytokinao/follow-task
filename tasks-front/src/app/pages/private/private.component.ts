@@ -12,16 +12,40 @@ import {IssueTypeComponent} from "./admins/config-project/issue-type/issue-type.
 import {PopupCreateProjectComponent} from "./popup-create-project/popup-create-project.component";
 import {IssueSearchCriteriaInput} from "../../type/issue-search-criteria.util";
 import {routeTransition} from "../../../route-transition";
+import {animate, keyframes, state, style, transition, trigger, useAnimation} from "@angular/animations";
+import {moveFromLeft} from "../../../../projects/router-animations/src/lib/router-animations";
+import {moveFromLeftKeyframes} from "../../../../projects/router-animations/src/lib/shared-keyframes";
 
 @Component({
   selector: 'private-root',
   templateUrl: './private.component.html',
   styleUrl: './private.component.css',
   animations: [
-    routeTransition
+
+    trigger('workspace', [
+      state('start', style({
+        transform: 'translateX(0%)'
+      })),
+      state('end', style({
+
+      })),
+      transition('start => end', [
+        animate('0.8s 0s ease', keyframes([
+          style({ opacity: '0.3', transform: 'translateX(100%) rotateY(-90deg)', offset: 0}),
+          style({opacity: '1', transform: 'translateX(0%) rotateY(0deg)', offset: 1 })
+        ]))
+      ]),
+      transition('end => start', [
+        animate('0.8s 0s ease',  keyframes([
+          style({ opacity: '1', transform: ' translateX(0%) rotateY(0deg)', offset: 0 }),
+          style({opacity: '0.3', transform: 'translateX(-100%) rotateY(90deg)',offset: 1 })
+        ]))
+      ])
+    ])
   ]
 })
 export class PrivateComponent {
+  workspace="";
   profile:any  = {};
   title = 'tasks-front';
   projects:Project[] = [];
@@ -47,6 +71,9 @@ export class PrivateComponent {
     });
     this.issueService.projects$.subscribe(projectes => {
       this.projects = projectes;
+    });
+    this.issueService.loadedWorkspace$.subscribe(value => {
+      this.isworkspace = value.valueOf();
     })
   }
   logout(){
@@ -69,7 +96,22 @@ export class PrivateComponent {
   }
 
   selectProject(project: Project) {
+    this.workspace= project.prefix.toString();
     this.project = project;
     this.router.navigate(["/private/working/"+project.prefix+"/list"])
   }
+
+  getState(o: any) {
+    return this.workspace;
+  }
+  isworkspace: boolean = false;
+  buttonText: string = "workspace";
+  triggerAnimation() {
+    this.issueService.nextIsLoadingWorkspace(!this.isworkspace);
+    if(this.isworkspace)
+      this.buttonText = "Shrink";
+    else
+      this.buttonText = "workspace";
+  }
+
 }

@@ -18,9 +18,9 @@ const list: Routes = [
         path: '',
         children: [
           { path: '',   redirectTo: 'master', pathMatch: 'full'  },
-          { path: 'master', component: ShowMasterListComponent , title:'Liste des projet' },
-          { path: 'issue', component: ShowListComponent ,  title:'Mes tache' },
-          { path: 'search-issue', component: ShowListComponent ,  title:'Recherche des taches ' },
+          { path: 'master', component: ShowMasterListComponent , title:'Liste des projet',data:{state:'master'} },
+          { path: 'issue', component: ShowListComponent ,  title:'Mes tache',data:{state:'subtask'} },
+          { path: 'search-issue', component: ShowListComponent ,  title:'Recherche des taches ', data:{state:'subtask'} },
         ]
       }
     ]

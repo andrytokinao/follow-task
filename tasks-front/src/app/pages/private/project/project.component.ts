@@ -12,6 +12,9 @@ import {UserService} from "../../../services/user.service";
 import {ProjectGuard} from "../../../services/ProjectGuard";
 import {MatButton} from "@angular/material/button";
 import {routeTransition} from "../../../../route-transition";
+import {animate, keyframes, state, style, transition, trigger, useAnimation} from "@angular/animations";
+import {fromBottomEasing, fromTopEasing,moveFromLeft} from "../../../../../projects/router-animations/src/lib/router-animations";
+import formatters from "chart.js/dist/core/core.ticks";
 
 @Component({
   selector: 'app-project',
@@ -19,16 +22,40 @@ import {routeTransition} from "../../../../route-transition";
   templateUrl: './project.component.html',
   styleUrl: './project.component.css',
   animations: [
-    routeTransition
+
+    trigger('workspace', [
+      state('start', style({
+        transform: 'translateX(0%)'
+      })),
+      state('end', style({
+
+      })),
+      transition('* => *', [
+        animate('0.8s 0s ease', keyframes([
+          style({ opacity: '0.3', transform: 'translateX(100%) rotateY(-90deg)', offset: 0}),
+          style({opacity: '1', transform: 'translateX(0%) rotateY(0deg)', offset: 1 })
+        ]))
+      ]),
+     /* transition('end => start', [
+        animate('0.8s 0s ease',  keyframes([
+          style({ opacity: '1', transform: ' translateX(0%) rotateY(0deg)', offset: 0 }),
+          style({opacity: '0.3', transform: 'translateX(-100%) rotateY(90deg)',offset: 1 })
+        ]))
+      ])*/
+    ])
   ]
+
 })
-export class ProjectComponent implements OnInit{
+export class ProjectComponent {
+  workSpace='';
   project:Project | undefined;
   private issues: Issue[]=[];
   breadcrumbs: Breadcrumb[] = [];
   openConfig:boolean = false;
   openList:boolean = true;
   projects:Project[]= [];
+  isworkspace: Boolean = false;
+  protected buttonTriger: string  ='Loading';
 
   constructor(
     protected route:ActivatedRoute,
@@ -41,17 +68,17 @@ export class ProjectComponent implements OnInit{
     protected projectGuard:ProjectGuard
 
   ) {
-  }
-
-  ngOnInit(): void {
+    this.issueService.loadedWorkspace$.subscribe(value => {
+      this.isworkspace = value.valueOf();
+    });
     this.route.data.subscribe(data => {
       console.debug(data);
       const breadcrumb: Breadcrumb[] = data['breadcrumb'];
       this.project = data['project'];
-     /* console.debug(breadcrumb);
-      this.breadcrumbService.setBreadcrumbs(breadcrumb);
-      this.breadcrumbs = breadcrumb;
-      this.breadcrumbService.setBreadcrumbs(breadcrumb);*/
+      /* console.debug(breadcrumb);
+       this.breadcrumbService.setBreadcrumbs(breadcrumb);
+       this.breadcrumbs = breadcrumb;
+       this.breadcrumbService.setBreadcrumbs(breadcrumb);*/
     });
     this.route.data.subscribe(data => {
 
@@ -62,10 +89,12 @@ export class ProjectComponent implements OnInit{
         this.userService.loadGroupeUserForProject(this.project.prefix);
       }
     });
+
     this.issueService.projects$.subscribe(projectes => {
       this.projects = projectes;
     })
   }
+
   createMaster() {
     const dialogRef = this.modalService.open(NewIssueComponent);
     dialogRef.componentInstance.listIssueTypeMaster(this.project.id);
@@ -92,7 +121,17 @@ export class ProjectComponent implements OnInit{
     this.openConfig = !this.openConfig;
   }
   selectProject(project: Project) {
+    this.workSpace = project.prefix.toString();
     this.project = project;
     this.router.navigate(["/private/working/"+project.prefix+"/list/master"])
+  }
+
+
+  triggerAnimation() {
+    this.issueService.nextIsLoadingWorkspace( !this.isworkspace);
+    if(this.isworkspace)
+      this.buttonTriger = "Loeded";
+    else
+      this.buttonTriger = "Loading";
   }
 }

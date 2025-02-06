@@ -8,11 +8,55 @@ import {CustomFilter, IssueSearchCriteriaInput, toQueryParams} from "../../../..
 import {BreadcrumbService} from "../../../../services/breadcrumb.service";
 import {Breadcrumb, Project} from "../../../../type/issue";
 import {filter} from "rxjs";
+import {transition, trigger, useAnimation} from "@angular/animations";
+import {
+  fromBottomEasing,
+  fromLeftEasing,
+  fromRightEasing,
+  fromTopEasing,
+  moveFromBottom,
+  moveFromBottomFade,
+  moveFromLeft,
+  moveFromLeftFade,
+  moveFromRight,
+  moveFromRightFade,
+  moveFromTop,
+  moveFromTopFade, rotateCarouselToBottom,
+  rotateCarouselToLeft,
+  rotateCarouselToRight, rotateCarouselToTop,
+  rotateCubeToBottom,
+  rotateCubeToLeft,
+  rotateCubeToRight,
+  rotateCubeToTop,
+  rotateFlipToBottom,
+  rotateFlipToLeft,
+  rotateFlipToRight,
+  rotateFlipToTop,
+  rotateGlueFromBottom,
+  rotateGlueFromLeft,
+  rotateGlueFromRight,
+  rotateGlueFromTop,
+  rotateRoomToBottom,
+  rotateRoomToLeft,
+  rotateRoomToRight,
+  rotateRoomToTop, rotateSides,
+  scaleDownFromBottom,
+  scaleDownFromLeft,
+  scaleDownFromRight,
+  scaleDownFromTop, slide
+} from "../../../../../../projects/router-animations/src/lib/router-animations";
 
 @Component({
   selector: 'app-list',
   templateUrl: './list.component.html',
-  styleUrl: './list.component.css'
+  styleUrl: './list.component.css',
+  animations: [
+    trigger('routlist', [
+      transition('subtask => master', useAnimation(fromTopEasing)),
+      transition('master => subtask', useAnimation(fromBottomEasing))
+    ],),
+
+  ]
 })
 export class ListComponent  implements OnInit{
   private project:Project ;
@@ -98,5 +142,8 @@ export class ListComponent  implements OnInit{
     this.issueService.editFilter(event,filter).subscribe(fi=> {
       this.issueService.loadMyFilters();
     })
+  }
+  getState(outlet) {
+    return outlet.activatedRouteData.state;
   }
 }

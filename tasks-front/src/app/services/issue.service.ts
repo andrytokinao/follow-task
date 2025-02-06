@@ -81,6 +81,8 @@ export class IssueService implements OnInit{
   private myFiltersSubject = new BehaviorSubject<CustomFilter[]>([]);
   private masterFiltersSubject = new BehaviorSubject<CustomFilter[]>([]);
   private subtaskFiltersSubject = new BehaviorSubject<CustomFilter[]>([]);
+  private loadedWorkspaceSubject = new BehaviorSubject<Boolean>(false);
+  loadedWorkspace$ = this.loadedWorkspaceSubject.asObservable();
   masterFilters$ = this.masterFiltersSubject.asObservable();
   subtaskFilter$ = this.subtaskFiltersSubject.asObservable();
   myFilters$ = this.myFiltersSubject.asObservable();
@@ -161,6 +163,9 @@ export class IssueService implements OnInit{
       'Content-Type': 'application/json',
     }),
   };
+  nextIsLoadingWorkspace(value:Boolean){
+    this.loadedWorkspaceSubject.next(value);
+  }
 
   getIssesTest(): Observable<Issue[]> {
     let url = "assets/issues.json";
@@ -530,6 +535,7 @@ export class IssueService implements OnInit{
   }
 
   getProject(prefix: string) {
+    this.loadedWorkspaceSubject.next(false);
     console.debug("loading project "+prefix);
     this.apollo.query({
       query: operation.GET_PROJECT,
@@ -538,6 +544,7 @@ export class IssueService implements OnInit{
     }).subscribe((res: any) => {
       this.project = stripTypename(res.data.getProject);
       if (this.project) {
+        this.loadedWorkspaceSubject.next(true);
         this.projectSubject.next(this.project);
 
 

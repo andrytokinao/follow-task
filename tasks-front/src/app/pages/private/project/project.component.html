@@ -64,12 +64,13 @@
       </div>
     </div>
   </mat-menu>
+
   <div class="project-content">
 <!--
     <app-breadcrumb (createMaster)="createMaster()"></app-breadcrumb>
 -->
-    <div [@routeTransition]="route.snapshot.data" style="display: contents">
-      <router-outlet></router-outlet>
+    <div class="content"  [@workspace]="isworkspace ? 'end' : 'start'"  >
+      <router-outlet ></router-outlet>
     </div>
   </div>
 </div>
