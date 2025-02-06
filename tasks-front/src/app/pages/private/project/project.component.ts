@@ -32,7 +32,7 @@ import formatters from "chart.js/dist/core/core.ticks";
       })),
       transition('* => *', [
         animate('0.8s 0s ease', keyframes([
-          style({ opacity: '0.3', transform: 'translateX(100%) rotateY(-90deg)', offset: 0}),
+          style({ opacity: '0.3', transform: 'translateX(-10%) rotateY(90deg)', offset: 0}),
           style({opacity: '1', transform: 'translateX(0%) rotateY(0deg)', offset: 1 })
         ]))
       ]),
