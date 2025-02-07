@@ -1,19 +1,22 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, Resolve, RouterStateSnapshot } from '@angular/router';
 import { Breadcrumb } from '../../../type/issue';
-import { Observable, of } from 'rxjs';
+import {BehaviorSubject, Observable, of} from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProjectBreadcrumbResolverService implements Resolve<Breadcrumb[]> {
+  private curentBreadcrumbSubject = new BehaviorSubject<Breadcrumb>(undefined);
+  curentBreadcrumb$ = this.curentBreadcrumbSubject.asObservable();
   alls: Breadcrumb[] = [
-    { name: 'Home', path: 'list', others: [] },
-    { name: 'Diagram', path: 'gantt-chart', others: [] },
-    { name: 'Document', path: 'document', others: [] },
-    { name: 'Dashboard', path: 'board', others: [] },
-    { name: 'Calendar', path: 'calendar', others: [] },
-    { name: 'Configuration', path: 'config', others: [] },
+    { name:  'Home', path: 'list', others: [] ,order:1 },
+    { name: 'Diagram', path: 'gantt-chart', others: [],order:2 },
+    { name: 'Dashboard', path: 'board', others: [],order:3 },
+    { name: 'Raport', path: 'rapport', others: [],order:4 },
+    { name: 'Calendar', path: 'planning', others: [],order:7 },
+    { name: 'Document', path: 'document', others: [],order:8 },
+    { name: 'Configuration', path: 'config', others: [],order:9 },
   ];
 
   resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<Breadcrumb[]> {
@@ -27,13 +30,15 @@ export class ProjectBreadcrumbResolverService implements Resolve<Breadcrumb[]> {
     while (currentRoute) {
       const path = currentRoute.url.map((segment) => segment.path).join('/');
       const projectPrefix = route.paramMap.get('project');
-        const breadcrumb = this.getByPath(path);
+      const breadcrumb = this.getByPath(path);
         if (breadcrumb) {
           breadcrumbs.unshift({
             name: breadcrumb.name,
             path: '/' + path,
             others: this.getOtherLinks(path),
+            order:breadcrumb.order,
           });
+          this.curentBreadcrumbSubject.next(breadcrumb);
         }
 
       currentRoute = currentRoute.parent;
@@ -50,13 +55,15 @@ export class ProjectBreadcrumbResolverService implements Resolve<Breadcrumb[]> {
     return this.alls.find((breadcrumb) =>  path.includes(breadcrumb?.path));
   }
   getAll(path:string) : Breadcrumb[]{
+    alert(path);
     return [
-      { name:  'Home', path: path+'list', others: [] },
-      { name: 'Diagram', path: path+'/gantt-chart', others: [] },
-      { name: 'Document', path: path+'/document', others: [] },
-      { name: 'Dashboard', path: path+'/board', others: [] },
-      { name: 'Calendar', path: path+'/calendar', others: [] },
-      { name: 'Configuration', path: path+'/config', others: [] },
+      { name:  'Home', path: path+'list', others: [] ,order:1 },
+      { name: 'Diagram', path: path+'/gantt-chart', others: [],order:2 },
+      { name: 'Dashboard', path: path+'/board', others: [],order:3 },
+      { name: 'Raport', path: path+'/rapport', others: [],order:4 },
+      { name: 'Calendar', path: path+'/planning', others: [],order:7 },
+      { name: 'Document', path: path+'/document', others: [],order:8 },
+      { name: 'Configuration', path: path+'/config', others: [],order:9 },
     ];
   }
 }

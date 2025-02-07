@@ -214,6 +214,7 @@ export interface SeatsAvailability {
 export interface Breadcrumb {
   name: string;
   path:string;
+  order:number;
   others:Breadcrumb[];
 }
 export interface EventTypeApp {

@@ -56,7 +56,7 @@ export class ConfigurationComponent implements OnInit, OnDestroy {
   }
 
   openModal(url:string) {
-     this.showDialogue('/private/admin/config/'+url);
+     this.showDialogue('/working/admin/config/'+url);
   }
   ngOnDestroy() {
     this.router.events.subscribe().unsubscribe();

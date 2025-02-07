@@ -1,5 +1,5 @@
-import {Component, OnInit} from '@angular/core';
-import {ActivatedRoute, Route, Router} from "@angular/router";
+import {AfterViewInit, Component, OnInit} from '@angular/core';
+import {ActivatedRoute, Route, Router, RouterOutlet} from "@angular/router";
 import {IssueService} from "../../../services/issue.service";
 import {Breadcrumb, Issue, Project} from "../../../type/issue";
 import {AuthGuard} from "../../../services/SystemGuard";
@@ -13,8 +13,14 @@ import {ProjectGuard} from "../../../services/ProjectGuard";
 import {MatButton} from "@angular/material/button";
 import {routeTransition} from "../../../../route-transition";
 import {animate, keyframes, state, style, transition, trigger, useAnimation} from "@angular/animations";
-import {fromBottomEasing, fromTopEasing,moveFromLeft} from "../../../../../projects/router-animations/src/lib/router-animations";
+import {
+  fromBottomEasing,
+  fromTopEasing,
+  moveFromLeft, rotateGlueFromBottom,
+  rotateGlueFromTop
+} from "../../../../../projects/router-animations/src/lib/router-animations";
 import formatters from "chart.js/dist/core/core.ticks";
+import {ProjectBreadcrumbResolverService} from "./project-breadcrumb-resolver.service";
 
 @Component({
   selector: 'app-project',
@@ -22,7 +28,6 @@ import formatters from "chart.js/dist/core/core.ticks";
   templateUrl: './project.component.html',
   styleUrl: './project.component.css',
   animations: [
-
     trigger('workspace', [
       state('start', style({
         transform: 'translateX(0%)'
@@ -30,19 +35,17 @@ import formatters from "chart.js/dist/core/core.ticks";
       state('end', style({
 
       })),
-      transition('* => *', [
+      transition('* => end', [
         animate('0.8s 0s ease', keyframes([
           style({ opacity: '0.3', transform: 'translateX(-10%) rotateY(90deg)', offset: 0}),
           style({opacity: '1', transform: 'translateX(0%) rotateY(0deg)', offset: 1 })
         ]))
       ]),
-     /* transition('end => start', [
-        animate('0.8s 0s ease',  keyframes([
-          style({ opacity: '1', transform: ' translateX(0%) rotateY(0deg)', offset: 0 }),
-          style({opacity: '0.3', transform: 'translateX(-100%) rotateY(90deg)',offset: 1 })
-        ]))
-      ])*/
-    ])
+    ]),
+    trigger('routeAnimations', [
+      transition('* => bottom', useAnimation(rotateGlueFromTop)),
+      transition('* => top', useAnimation(rotateGlueFromBottom))
+    ]),
   ]
 
 })
@@ -56,6 +59,8 @@ export class ProjectComponent {
   projects:Project[]= [];
   isworkspace: Boolean = false;
   protected buttonTriger: string  ='Loading';
+  private previousOrder: number;
+  private projectBreadcrumb: Breadcrumb;
 
   constructor(
     protected route:ActivatedRoute,
@@ -65,7 +70,8 @@ export class ProjectComponent {
     private router: Router,
     private userService:UserService,
     private breadcrumbService: BreadcrumbService,
-    protected projectGuard:ProjectGuard
+    protected projectGuard:ProjectGuard,
+    private breadcrumb:ProjectBreadcrumbResolverService
 
   ) {
     this.issueService.loadedWorkspace$.subscribe(value => {
@@ -75,13 +81,19 @@ export class ProjectComponent {
       console.debug(data);
       const breadcrumb: Breadcrumb[] = data['breadcrumb'];
       this.project = data['project'];
+      this.previousOrder = data['order']
       /* console.debug(breadcrumb);
        this.breadcrumbService.setBreadcrumbs(breadcrumb);
        this.breadcrumbs = breadcrumb;
        this.breadcrumbService.setBreadcrumbs(breadcrumb);*/
     });
+    this.route.data.subscribe(data=> {
+      this.previousOrder = data['order'];
+      console.log('orrrder ',this.previousOrder);
+    })
     this.route.data.subscribe(data => {
-
+      let path = this.route.snapshot.pathFromRoot;
+      console.log(path);
     });
     this.issueService.project$.subscribe(project => {
       this.project = project;
@@ -92,6 +104,9 @@ export class ProjectComponent {
 
     this.issueService.projects$.subscribe(projectes => {
       this.projects = projectes;
+    });
+    this.breadcrumb.curentBreadcrumb$.subscribe(b => {
+      this.projectBreadcrumb = b;
     })
   }
 
@@ -123,7 +138,7 @@ export class ProjectComponent {
   selectProject(project: Project) {
     this.workSpace = project.prefix.toString();
     this.project = project;
-    this.router.navigate(["/private/working/"+project.prefix+"/list/master"])
+    this.router.navigate(["/working/"+project.prefix+"/list/master"])
   }
 
 
@@ -133,5 +148,14 @@ export class ProjectComponent {
       this.buttonTriger = "Loeded";
     else
       this.buttonTriger = "Loading";
+  }
+  getAnimationState(o: any) {
+    if (!this.projectBreadcrumb) {
+      return '';
+    }
+    const routeOrder = o.activatedRouteData['order'] ;
+    const stat =  routeOrder >= this.projectBreadcrumb.order ? 'top' :'bottom';
+    console.log(stat,this.projectBreadcrumb.order,routeOrder,o);
+    return stat;
   }
 }

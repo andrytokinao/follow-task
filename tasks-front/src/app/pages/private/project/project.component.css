@@ -14,7 +14,6 @@
   padding-left: 15px;
   */
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  grid-column: 2 / 3;
   background-color: #ffffff;
   border-radius: 8px;
 }
@@ -214,7 +213,6 @@
   }
 
   .project-content {
-    grid-column: 1 / 2;
     margin-top: 0px;
     padding-left: 0px;
   }

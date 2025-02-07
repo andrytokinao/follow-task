@@ -52,7 +52,7 @@ export class AuthGuard implements CanActivate {
           } else {
             observer.next(false);
             observer.complete();
-            this.router.navigate(["private/access-denied"]);
+            this.router.navigate(["working/access-denied"]);
           }
         } else {
           alert("non data");
@@ -76,7 +76,7 @@ export class AuthGuard implements CanActivate {
             } else {
               observer.next(false);
               observer.complete();
-              this.router.navigate(["private/access-denied"]);
+              this.router.navigate(["working/access-denied"]);
             }
           } else {
             console.error("non data");

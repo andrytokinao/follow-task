@@ -1,6 +1,6 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {BreadcrumbService} from "../../services/breadcrumb.service";
-import {NewIssueComponent} from "../../pages/private/project/modal/new-issue/new-issue.component";
+import {NewIssueComponent} from "../../pages/private//project/modal/new-issue/new-issue.component";
 import {Breadcrumb, Issue, Project} from "../../type/issue";
 import {ActivatedRoute, Router} from "@angular/router";
 import {IssueService} from "../../services/issue.service";

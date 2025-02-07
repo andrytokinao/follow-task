@@ -49,7 +49,7 @@ public class GQUserController {
     public List<UserApp> allUsers(){
        return userService.findAll();
     }
-    @GetMapping({"/", "/public/**", "/private/**"})
+    @GetMapping({"/", "/public/**", "/working/**"})
     public String publicRedirection(){
         logger.info("loading page frontend  ");
         return "/index.html";

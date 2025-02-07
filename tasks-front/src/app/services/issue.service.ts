@@ -49,10 +49,10 @@ import {environment} from "../../environments/environment";
 import {CustomFilter, IssueSearchCriteriaInput} from "../type/issue-search-criteria.util";
 import {ActivatedRoute, Router} from "@angular/router";
 import {UserService} from "./user.service";
-import {NewIssueComponent} from "../pages/private/project/modal/new-issue/new-issue.component";
+import {NewIssueComponent} from "../pages/private//project/modal/new-issue/new-issue.component";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {IssueFilterFieldComponent} from "../common/issue-filter-field/issue-filter-field.component";
-import {ViewEditIssueComponent} from "../pages/private/project/modal/view-edit-issue/view-edit-issue.component";
+import {ViewEditIssueComponent} from "../pages/private//project/modal/view-edit-issue/view-edit-issue.component";
 import {PlanningIssueComponent} from "../pages/private/project/modal/planning-issue/planning-issue.component";
 import {AuthService} from "./auth.service";
 import {id} from "@swimlane/ngx-charts";
@@ -1092,7 +1092,7 @@ export class IssueService implements OnInit{
 
 
   browsIssueMaster(issue: Issue) {
-    this.router.navigate(["private/working/"+this.projectSubject.value.prefix+"/issue/"+issue.issueKey+"/details"])
+    this.router.navigate(["working/"+this.projectSubject.value.prefix+"/issue/"+issue.issueKey+"/details"])
 
   }
   allIssueType(projectId:Number) {

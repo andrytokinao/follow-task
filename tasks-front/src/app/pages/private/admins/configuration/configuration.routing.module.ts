@@ -8,7 +8,7 @@ import {SwitchVersionComponent} from "./switch-version/switch-version.component"
 import {MediaSpaceComponent} from "./media-space/media-space.component";
 
 const configRoute: Routes = [
-  // "/private/admin/config"
+  // "/working/admin/config"
   {
     path: '',
     component: ConfigurationComponent,

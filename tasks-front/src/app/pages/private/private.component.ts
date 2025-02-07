@@ -98,7 +98,7 @@ export class PrivateComponent {
   selectProject(project: Project) {
     this.workspace= project.prefix.toString();
     this.project = project;
-    this.router.navigate(["/private/working/"+project.prefix+"/list"])
+    this.router.navigate(["/working/"+project.prefix+"/list"])
   }
 
   getState(o: any) {

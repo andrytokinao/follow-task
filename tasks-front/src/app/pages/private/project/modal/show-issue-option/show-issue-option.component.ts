@@ -47,7 +47,7 @@ export class ShowIssueOptionComponent {
     }
   }
   browsIssue(issue:Issue){
-    this.router.navigate(["private/working/"+this.project.prefix+"/issue/"+issue.issueKey+"/details"])
+    this.router.navigate(["working/"+this.project.prefix+"/issue/"+issue.issueKey+"/details"])
 
   }
   openDialogIssue(issue:Issue){

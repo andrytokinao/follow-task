@@ -134,11 +134,11 @@ public class ConfigService {
         configEntry = TypeConfig.setValue(configEntry,type,value);
         configEntry.getMediaDirectory();
         if (StringUtils.isEmpty(configEntry.getMediaDirectory())) {
-            configEntry.setInstalationState("private/admin/config/media-space");
+            configEntry.setInstalationState("working/admin/config/media-space");
         } else if (StringUtils.isEmpty(configEntry.getWorkDirectory())) {
-            configEntry.setInstalationState("private/admin/config/work-space");
+            configEntry.setInstalationState("working/admin/config/work-space");
         } else if(!"completed".equalsIgnoreCase(configEntry.getInstalationState())) {
-            configEntry.setInstalationState("private/admin/working/create");
+            configEntry.setInstalationState("working/admin/working/create");
         }
         return configRepository.save(configEntry);
      }
@@ -174,7 +174,7 @@ public class ConfigService {
         }
         userApp = userService.save(userApp);
         authorizationService.addUserToAdminSystem(userApp);
-        configEntry.setInstalationState("private/admin/config/media-space");
+        configEntry.setInstalationState("working/admin/config/media-space");
         configRepository.save(configEntry);
         return userApp;
     }

@@ -220,7 +220,7 @@ public class ProjectService {
         }
         if (StringUtils.isEmpty(project.getPath())) {
             if (StringUtils.isEmpty(configEntry.getWorkDirectory())) {
-                configEntry.setInstalationState("private/admin/config/work-space");
+                configEntry.setInstalationState("working/admin/config/work-space");
                 configRepository.save(configEntry);
                 project.setPath(KingaUtils.encodeText(KingaUtils.getDefaultWorkSpaceDirectory() + File.separator + project.getPrefix()));
             } else {

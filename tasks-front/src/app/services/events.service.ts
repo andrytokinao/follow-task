@@ -10,14 +10,14 @@ import {stripTypename} from "@apollo/client/utilities";
 import {Apollo} from "apollo-angular";
 import {ALL_CUSTOM_FIELD, SEARCH_EVENTS, supprimerTypename} from "../type/graphql.operations";
 import _default from "chart.js/dist/plugins/plugin.legend";
-import {NewIssueComponent} from "../pages/private/project/modal/new-issue/new-issue.component";
+import {NewIssueComponent} from "../pages/private//project/modal/new-issue/new-issue.component";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {EditEventComponent} from "../common/edit-event/edit-event.component";
 import {NewEventComponent} from "../common/new-event/new-event.component";
 import {UserService} from "./user.service";
 import {query} from "@angular/animations";
 import {IssueService} from "./issue.service";
-import {ViewEventComponent} from "../pages/private/project/modal/view-event/view-event.component";
+import {ViewEventComponent} from "../pages/private//project/modal/view-event/view-event.component";
 import {error} from "@angular/compiler-cli/src/transformers/util";
 
 @Injectable({

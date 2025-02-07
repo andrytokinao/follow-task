@@ -47,7 +47,7 @@ public class WebSecurityConfig2 {
                         .requestMatchers(new AntPathRequestMatcher("/api/**")).authenticated()
                         .requestMatchers(new AntPathRequestMatcher("/")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/public/**")).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher("/private/**")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/working/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher( "/**",HttpMethod.OPTIONS.name())).permitAll()
                         .anyRequest().permitAll())
                 .formLogin(form-> form

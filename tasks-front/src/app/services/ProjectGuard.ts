@@ -46,7 +46,7 @@ export class ProjectGuard implements CanActivate {
           observer.next(autorize);
           console.debug("canActivate -> checkCredencialForProject : autorize",autorize);
           if (!autorize) {
-            this.router.navigate(["private/access-denied"]);
+            this.router.navigate(["working/access-denied"]);
           }
           observer.complete();
         });
@@ -59,7 +59,7 @@ export class ProjectGuard implements CanActivate {
             observer.next(autorize);
             console.debug("canActivate -> getProfile -> checkCredencialForProject : autorize",autorize);
             if (!autorize) {
-              this.router.navigate(["private/access-denied"]);
+              this.router.navigate(["working/access-denied"]);
             }
             observer.complete();
           });

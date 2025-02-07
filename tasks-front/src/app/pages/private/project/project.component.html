@@ -65,12 +65,18 @@
     </div>
   </mat-menu>
 
-  <div class="project-content">
+  <div class="project-content"
+       [@workspace]="isworkspace ? 'end' : 'start'"
+  >
 <!--
     <app-breadcrumb (createMaster)="createMaster()"></app-breadcrumb>
 -->
-    <div class="content"  [@workspace]="isworkspace ? 'end' : 'start'"  >
-      <router-outlet ></router-outlet>
-    </div>
+       <div  style="display: contents"
+
+            [@routeAnimations]="getAnimationState(o)"
+       >
+         <router-outlet #o="outlet" ></router-outlet>
+       </div>
+
   </div>
 </div>

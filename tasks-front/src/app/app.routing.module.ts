@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import {RouterModule, Routes} from "@angular/router";
 import {BrowserModule} from "@angular/platform-browser";
 import {PublicComponent} from "./pages/public/public.component";
-import {PrivateComponent} from "./pages/private/private.component";
+import {PrivateComponent} from "./pages/private//private.component";
 import {NotFoundComponent} from "./pages/not-found/not-found.component";
 import {AuthGuard} from "./services/SystemGuard";
 
@@ -16,8 +16,8 @@ export const appRoutes: Routes = [
     //  canMatch: [userAdmin]
   },
   {
-    path: 'private',
-    loadChildren: () => import('./pages/private/private.module').then(m => m.PrivateModule),
+    path: 'working',
+    loadChildren: () => import('./pages/private//private.module').then(m => m.PrivateModule),
     //  canMatch: [userAdmin]
   },
   {

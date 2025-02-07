@@ -1,6 +1,6 @@
 import {ChangeDetectionStrategy, CUSTOM_ELEMENTS_SCHEMA, NgModule} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {ProjectModule} from "./pages/private/project/project.module";
+import {ProjectModule} from "./pages/private//project/project.module";
 import {appRoutes, AppRoutingModule} from "./app.routing.module";
 import {AppComponent} from "./app.component";
 import {NgbModal, NgbModule} from "@ng-bootstrap/ng-bootstrap";

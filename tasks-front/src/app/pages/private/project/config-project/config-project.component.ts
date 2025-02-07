@@ -18,8 +18,8 @@ import {ProjectGuard} from "../../../../services/ProjectGuard";
 export class ConfigProjectComponent implements OnInit{
   project:Project | any = {};
   dialogMap: { [regex: string]: any } = {
-    'private/admin/working/create$': ProjectNameComponent,
-    'private/admin/project/issue-type': IssueTypeComponent,
+    'working/admin/working/create$': ProjectNameComponent,
+    'working/admin/project/issue-type': IssueTypeComponent,
   };
   constructor(private router: Router,
               private modalService: NgbModal,

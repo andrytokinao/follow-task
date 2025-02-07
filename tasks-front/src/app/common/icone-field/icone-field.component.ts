@@ -1,6 +1,6 @@
 import {Component, ElementRef, EventEmitter, HostListener, Output, ViewChild} from '@angular/core';
 import {Icone, Issue} from "../../type/issue";
-import {ViewEditIssueComponent} from "../../pages/private/project/modal/view-edit-issue/view-edit-issue.component";
+import {ViewEditIssueComponent} from "../../pages/private//project/modal/view-edit-issue/view-edit-issue.component";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {ChooseDialogComponent} from "./choose-dialog/choose-dialog.component";
 

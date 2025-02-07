@@ -21,8 +21,8 @@ import {InstallDataComponent} from "../configuration/install-data/install-data.c
 export class CreateProjectComponent {
   project:Project | any = {};
   dialogMap: { [regex: string]: any } = {
-    'private/admin/working/create$': ProjectNameComponent,
-    'private/admin/working/issue-type': IssueTypeComponent,
+    'working/admin/working/create$': ProjectNameComponent,
+    'working/admin/working/issue-type': IssueTypeComponent,
     'switch-version$': SwitchVersionComponent,
     '\/media-space$': MediaSpaceComponent,
     '\/install-data$': InstallDataComponent,
@@ -33,7 +33,7 @@ export class CreateProjectComponent {
               private issueService:IssueService,
               private route: ActivatedRoute
   ) {
-    if(router.url.includes('/private/admin/working/create')) {
+    if(router.url.includes('/working/admin/working/create')) {
       const dialogRef = this.modalService.open(ProjectNameComponent);
       dialogRef.result.then((result)=>{
         this.project.name = stripTypename(result.name);

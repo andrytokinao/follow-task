@@ -21,7 +21,7 @@ const privateRoute: Routes = [
           { path: 'profile', component: ProfileComponent  },
           { path: 'access-denied', component: AccessDeniedComponent },
           {
-            path: 'working/:project',resolve:{project:ProjectResolverService,breadcrumb: ProjectBreadcrumbResolverService,},
+            path: ':project',resolve:{project:ProjectResolverService,breadcrumb: ProjectBreadcrumbResolverService,},
             loadChildren: () => import('./project/project.module').then(m => m.ProjectModule),
              canActivate: [ProjectGuard] , data:{roles:['USER']}
           },
