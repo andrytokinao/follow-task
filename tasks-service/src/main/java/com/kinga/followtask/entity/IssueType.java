@@ -24,6 +24,8 @@ public class IssueType {
     private Icone icone;
     @ManyToOne
     private Project project;
+    private String style;
+    private String color;
 
     @OneToMany(mappedBy = "issueType")
     private List<Issue> issues;

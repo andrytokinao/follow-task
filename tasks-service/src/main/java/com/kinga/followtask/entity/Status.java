@@ -18,6 +18,8 @@ public class Status {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String displayName;
+    private String style;
+    private String color;
     @ManyToOne
     Icone icone;
     @ManyToMany

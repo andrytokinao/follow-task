@@ -26,6 +26,7 @@ import {error} from "@angular/compiler-cli/src/transformers/util";
 export class EventsService {
   private eventsSubject = new BehaviorSubject<any[]>([]);
   private resourceSubject = new BehaviorSubject<any[]>([]);
+  private loadingEventSubject = new BehaviorSubject<any>([]);
   private users:User[] = [];
   private eventTypes:EventTypeApp[] = [];
   events$=this.eventsSubject.asObservable();
@@ -234,6 +235,7 @@ export class EventsService {
     });
   }
   searchEvents(criteria: EventSearchCriteria) {
+
     return new Observable<EventApp[]>(observer => {
       if (criteria.userIds != null && criteria.userIds.length == 0) {
         criteria.userIds = undefined;
