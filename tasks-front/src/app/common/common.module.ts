@@ -41,6 +41,7 @@ import {DocViewerComponent} from "./doc-viewer/doc-viewer.component";
 import {NgxDocViewerModule} from "ngx-doc-viewer";
 import {IssueFilterComponent} from "./issue-filter/issue-filter.component";
 import {IssueMasterBreadcrumbComponent} from "./issue-master-breadcrumb/issue-master-breadcrumb.component";
+import {LoadingComponent} from "./loading/loading.component";
 
 @NgModule({
   declarations: [
@@ -66,7 +67,8 @@ import {IssueMasterBreadcrumbComponent} from "./issue-master-breadcrumb/issue-ma
     PdfOverviewComponent,
     DocViewerComponent,
     IssueFilterComponent,
-    IssueMasterBreadcrumbComponent
+    IssueMasterBreadcrumbComponent,
+    LoadingComponent
 
   ],
   imports: [
@@ -126,7 +128,8 @@ import {IssueMasterBreadcrumbComponent} from "./issue-master-breadcrumb/issue-ma
     PdfOverviewComponent,
     DocViewerComponent,
     IssueFilterComponent,
-    IssueMasterBreadcrumbComponent
+    IssueMasterBreadcrumbComponent,
+    LoadingComponent
   ]
 })
 export class MyCommonModule { }

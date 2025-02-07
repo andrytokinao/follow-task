@@ -40,6 +40,7 @@ export class ShowMasterListComponent implements OnInit{
   protected selectedFilter: CustomFilter;
   masterFilter:CustomFilter[] = [];
   noFilter:CustomFilter  ={};
+  isLoading: boolean = false;
 
   constructor(
     private modalService: NgbModal,
@@ -106,7 +107,9 @@ export class ShowMasterListComponent implements OnInit{
         statusIds:[1,2,3,4]
       }
     });
-
+    this.issueService.loadingListSubtask$.subscribe(isLoading => {
+      this.isLoading = isLoading.valueOf();
+    });
   }
 
   ngOnInit(): void {

@@ -14,11 +14,13 @@ import {
   toQueryParams
 } from "../../../../../type/issue-search-criteria.util";
 import {NewIssueComponent} from "../../modal/new-issue/new-issue.component";
+import {animate, state, style, transition, trigger} from "@angular/animations";
 
 @Component({
   selector: 'app-show',
   templateUrl: './show-list.component.html',
-  styleUrl: './show-list.component.css'
+  styleUrl: './show-list.component.css',
+
 })
 export class ShowListComponent implements OnInit, AfterViewInit {
   issues: Issue[] = [];
@@ -39,6 +41,7 @@ export class ShowListComponent implements OnInit, AfterViewInit {
   private user: User;
   private selectedFilter: CustomFilter;
   subtaskFilters: CustomFilter[] = [];
+  isLoading: boolean = false;
 
   constructor(
     private modalService: NgbModal,
@@ -109,6 +112,9 @@ export class ShowListComponent implements OnInit, AfterViewInit {
     this.issueService.subtaskFilter$.subscribe(filters => {
       this.subtaskFilters = filters;
     });
+    this.issueService.loadingListSubtask$.subscribe(isLoading => {
+      this.isLoading = isLoading.valueOf();
+    })
 
   }
 
@@ -153,7 +159,5 @@ export class ShowListComponent implements OnInit, AfterViewInit {
   newSubtaskFilter($event: MouseEvent) {
 
   }
-
-
 
 }

@@ -82,6 +82,8 @@ export class IssueService implements OnInit{
   private masterFiltersSubject = new BehaviorSubject<CustomFilter[]>([]);
   private subtaskFiltersSubject = new BehaviorSubject<CustomFilter[]>([]);
   private loadedWorkspaceSubject = new BehaviorSubject<Boolean>(false);
+  private loadingListSubtaskSubject = new BehaviorSubject<Boolean>(false);
+  loadingListSubtask$ = this.loadingListSubtaskSubject.asObservable();
   loadedWorkspace$ = this.loadedWorkspaceSubject.asObservable();
   masterFilters$ = this.masterFiltersSubject.asObservable();
   subtaskFilter$ = this.subtaskFiltersSubject.asObservable();
@@ -1071,8 +1073,10 @@ export class IssueService implements OnInit{
    })
   }
   searchIssues(criteria: IssueSearchCriteriaInput, projectId:Number) {
+    const startTime = Date.now();
     if(projectId){
       criteria.projectId = projectId;
+      this.loadingListSubtaskSubject.next(true);
     }
     return new Observable<Issue[]>(observer => {
       this.apollo.query({
@@ -1080,12 +1084,18 @@ export class IssueService implements OnInit{
         variables:{criteria},
         fetchPolicy:"network-only"
       }).subscribe((res:any)=>{
-        observer.next(supprimerTypename(res.data.searchIssues));
-        observer.complete();
-        observer.complete();
+        const elapsedTime = Date.now() - startTime; // Temps écoulé
+        const minLoadTime = 800;
+        const remainingTime = Math.max(0, minLoadTime - elapsedTime);
+        setTimeout(() => {
+          this.loadingListSubtaskSubject.next(false);
+          observer.next(supprimerTypename(res.data.searchIssues));
+          observer.complete();
+          observer.complete();
+        }, remainingTime);
       },error => {
-        observer.error(error);
-        observer.complete();
+        this.loadingListSubtaskSubject.next(false);
+
       })
     })
   }
