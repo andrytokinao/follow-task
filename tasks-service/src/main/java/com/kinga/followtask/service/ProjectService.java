@@ -53,6 +53,7 @@ public class ProjectService {
     final UploadedRepository uploadedRepository;
     final DomainActivityRepository domainActivityRepository;
     final CustomIssueFilterRepository customIssueFilterRepository;
+    final LabelRepository labelRepository;
     static Logger logger = LoggerFactory.getLogger(ProjectService.class);
 
     public Status saveStatus(Status status) {
@@ -233,6 +234,25 @@ public class ProjectService {
         }
         completConfig(project);
         return project;
+    }
+    private List<Label> getDefaultLabel() {
+        List<Label> labels =  labelRepository.findByName("Urgent");
+        if (CollectionUtils.isEmpty(labels)) {
+            Label label = new Label();
+            label.setColor("#856404");
+            label.setName("Urgent");
+            labelRepository.save(label);
+        }
+        return labelRepository.findByNameIn(Arrays.asList("Urgent"));
+    }
+    public List<Label> getLabelByProject(Long projetId) {
+
+        List<Label> defaults = getDefaultLabel();
+        List<Label> labels = labelRepository.findByProjectId(projetId);
+        if (CollectionUtils.isEmpty(labels)) {
+            defaults.addAll(labels);
+        }
+        return defaults;
     }
 
     public List<ConfigProject> completConfig(Project project) throws IOException {

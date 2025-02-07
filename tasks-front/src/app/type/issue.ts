@@ -2,6 +2,8 @@ import {EventEmitter, Input} from "@angular/core";
 
 export class Status {
   id: number =0;
+  color:String
+  style:String
   displayName: String  ="";
   icone :Icone | undefined;
 }
@@ -137,6 +139,8 @@ export interface IssueType{
   prefix:String
   level:String
   project:Project
+  color:String
+  style:String
  curentWorkFlow:WorkFlow;
   usingCustomFields : UsingCustomField[]
   icone :Icone | undefined;
@@ -274,4 +278,13 @@ export interface DomainActivity{
   name?:string;
   description?:string;
   image?:String;
+}
+export interface Label{
+  id?:number
+  name?:string
+  style?:string
+  color?:string
+  icone?:Icone
+  project?:Project
+
 }

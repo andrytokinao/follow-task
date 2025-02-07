@@ -1,4 +1,24 @@
 import {Apollo, gql} from "apollo-angular";
+export let GET_LABEL_BY_PROJECT = gql`
+    query getLabelByProject($projectId:Int!) {
+      getLabelByProject(projectId: $projectId) {
+        id
+        name
+        icone {
+          id
+          value
+          typeIcone
+        }
+        color
+        style
+        project {
+          id
+          prefix
+        }
+      }
+    }
+`;
+
 
 export let GET_MY_FILTERS = gql`
   query getMyFilters($projectId:Int!,$userId:String!){

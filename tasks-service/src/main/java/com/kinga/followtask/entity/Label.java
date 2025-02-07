@@ -19,6 +19,6 @@ public class Label {
     private String color;
     @ManyToOne
     private Icone icone;
-    @ManyToMany
-    private List<Project> projects;
+    @ManyToOne
+    private Project project;
 }

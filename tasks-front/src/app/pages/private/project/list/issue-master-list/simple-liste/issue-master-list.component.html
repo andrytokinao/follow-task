@@ -19,6 +19,7 @@
           </p>
         </small>      </div>
       <p class="mb-1">{{master.description}}.</p>
+      <app-label-form></app-label-form>
       <span  *ngFor="let value of master.values">
         <app-custom-field *ngIf="canShowInList(value)"
                           [customFieldValue]="value" (save)="saveCustomFieldValue($event)"

@@ -292,5 +292,8 @@ public class GQIssueController {
         List filters = projectService.getMyFilters(projectId,userId);
         return filters;
     }
-
+    @QueryMapping
+    public List<Label> getLabelByProject(@Argument Long projectId) {
+        return projectService.getLabelByProject(projectId);
+    }
 }

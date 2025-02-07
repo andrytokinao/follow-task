@@ -21,7 +21,7 @@ import {
   Uploading,
   Uploaded,
   DocumentApp,
-  DomainActivity
+  DomainActivity, Label
 } from "../type/issue";
 import {Apollo} from "apollo-angular";
 import * as operation from "../type/graphql.operations";
@@ -83,6 +83,8 @@ export class IssueService implements OnInit{
   private subtaskFiltersSubject = new BehaviorSubject<CustomFilter[]>([]);
   private loadedWorkspaceSubject = new BehaviorSubject<Boolean>(false);
   private loadingListSubtaskSubject = new BehaviorSubject<Boolean>(false);
+  private allLabelSubject = new BehaviorSubject<Label[]>([]);
+  allLabel$ = this.allLabelSubject.asObservable();
   loadingListSubtask$ = this.loadingListSubtaskSubject.asObservable();
   loadedWorkspace$ = this.loadedWorkspaceSubject.asObservable();
   masterFilters$ = this.masterFiltersSubject.asObservable();
@@ -1364,5 +1366,18 @@ export class IssueService implements OnInit{
     this.allCustomField(this.project.id).subscribe(customFields => {
       this.allCustomFieldSubject.next(customFields);
     });
+  }
+
+  getLabelByProject(projectId: Number) {
+    this.apollo.query({
+        query:operation.GET_LABEL_BY_PROJECT,
+        fetchPolicy:"cache-first",
+        variables:{projectId},
+      }
+    ).subscribe( (res:any)=> {
+      this.allLabelSubject.next(supprimerTypename(res.data.getLabelByProject));
+    }, error => {
+      console.error(error);
+    })
   }
 }

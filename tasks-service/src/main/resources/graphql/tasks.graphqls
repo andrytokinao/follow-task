@@ -73,6 +73,8 @@ type IssueType{
     level:String
     prefix:String
     project:Project
+    color:String 
+    style:String
     curentWorkFlow:WorkFlow
     usingCustomFields:[UsingCustomField]
     parent:IssueType
@@ -114,6 +116,8 @@ type Project{
 type Status{
     id:Int
     displayName:String
+    color:String
+    style:String
     icone:Icone
     types:[IssueType]
     fromeStates:[CrossingState]
@@ -265,6 +269,8 @@ input IssueTypeInput{
     name:String
     prefix:String
     level:String
+    color:String
+    style:String
     parent:IssueTypeInput
     children:[IssueTypeInput]
     usingCustomFields:[UsingCustomFieldInput]
@@ -312,6 +318,8 @@ input StatusInput{
     displayName:String
     icone:IconeInput
     types:[Int]
+    color:String
+    style:String
     fromeStates:[Int]
     acctionPossible:[Int]
 
@@ -639,4 +647,20 @@ type IssueFilter {
     description:String
     criteria:IssueSearchCriteria
     user:UserApp
+}
+type Label{
+    id:Int
+    name:String
+    style:String
+    color:String
+    icone:Icone
+    project:Project
+}
+input LabelInput{
+    id:Int
+    name:String
+    style:String
+    color:String
+    icone:IconeInput
+    project:ProjectInput
 }

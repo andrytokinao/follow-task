@@ -1,0 +1,8 @@
+<span class="controle" [matMenuTriggerFor]="lebelMenu" mat-icon-button>
+  Label
+<i class="fas fa-edit"></i>
+</span>
+
+<mat-menu #lebelMenu="matMenu">
+  <div *ngFor="let label of labels">{{label.name}}</div>
+</mat-menu>

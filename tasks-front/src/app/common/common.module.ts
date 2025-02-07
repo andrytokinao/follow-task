@@ -42,6 +42,7 @@ import {NgxDocViewerModule} from "ngx-doc-viewer";
 import {IssueFilterComponent} from "./issue-filter/issue-filter.component";
 import {IssueMasterBreadcrumbComponent} from "./issue-master-breadcrumb/issue-master-breadcrumb.component";
 import {LoadingComponent} from "./loading/loading.component";
+import {LabelFormComponent} from "./label-form/label-form.component";
 
 @NgModule({
   declarations: [
@@ -68,7 +69,8 @@ import {LoadingComponent} from "./loading/loading.component";
     DocViewerComponent,
     IssueFilterComponent,
     IssueMasterBreadcrumbComponent,
-    LoadingComponent
+    LoadingComponent,
+    LabelFormComponent
 
   ],
   imports: [
@@ -129,7 +131,8 @@ import {LoadingComponent} from "./loading/loading.component";
     DocViewerComponent,
     IssueFilterComponent,
     IssueMasterBreadcrumbComponent,
-    LoadingComponent
+    LoadingComponent,
+    LabelFormComponent,
   ]
 })
 export class MyCommonModule { }

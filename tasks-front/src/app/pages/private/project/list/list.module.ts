@@ -35,6 +35,7 @@ import {CalandarListComponent} from "./subtask-list/calendar-list/calandar-list.
 import {DayPilotModule} from "@daypilot/daypilot-lite-angular";
 import {ProjectModule} from "../project.module";
 import {ShowMasterListComponent} from "./issue-master-list/show-master-list/show-master-list.component";
+import {LabelFormComponent} from "../../../../common/label-form/label-form.component";
 
 @NgModule({
   declarations: [
@@ -79,7 +80,8 @@ import {ShowMasterListComponent} from "./issue-master-list/show-master-list/show
         CustomFieldComponent,
         DataRowOutlet,
         DayPilotModule,
-        ProjectModule
+        ProjectModule,
+
     ]
 })
 export class ListModule { }
