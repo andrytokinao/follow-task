@@ -1,10 +1,14 @@
-<div class="breadcrumb"[matMenuTriggerFor]="master_list">
+<div class="breadcrumb">
   <ng-container >
-    <div class="breadcrumb-item" >
+    <div class="breadcrumb-item" [matMenuTriggerFor]="master_list" >
       <a>{{issue?.issueKey+':'+issue?.summary}}   </a>
     </div>
   </ng-container>
-
+  <ng-container>
+    <div class="breadcrumb-item"  (click)="issueService.createIssueMaster()" >
+      <a> Créer   </a>
+    </div>
+  </ng-container>
 </div>
 <mat-menu #master_list ="matMenu"  yPosition="below" #parentMenu="matMenu" xPosition="after" class="master-breadcrumb">
   <ul class="navigation-list" >

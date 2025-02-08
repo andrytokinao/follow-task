@@ -21,4 +21,7 @@ export class IssueMasterBreadcrumbComponent implements OnInit{
      })
   }
 
+  createMaster() {
+
+  }
 }

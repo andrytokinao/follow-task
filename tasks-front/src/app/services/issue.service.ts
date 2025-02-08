@@ -200,9 +200,30 @@ export class IssueService implements OnInit{
           observer.complete();
       })
     })
-
   }
+  createMaster() {
+    const dialogRef = this.modalService.open(NewIssueComponent);
+    dialogRef.componentInstance.listIssueTypeMaster(this.project.id);
+    dialogRef.componentInstance.project = this.project;
+    dialogRef.result.then((result) => {
+      this.searchIssues(this.masterListCriteriaSubject.value,this.project.id).subscribe(issues => {
+        this.setMasters(issues);
+      })
+    })
+  }
+  createIssueMaster() {
+    const dialogRef = this.modalService.open(NewIssueComponent);
+    dialogRef.componentInstance.listIssueTypeMaster(this.project.id);
+    dialogRef.componentInstance.project = this.project;
+    dialogRef.result.then((result) => {
+      dialogRef.result.then(res => {
+        if (res != null) {
+          this.reloadMasterList();
 
+        }
+      })
+    })
+  }
   saveIssue(issue: any) {
     delete issue.encodedPath;
     if (issue.issueType.project == null || issue.project ) {

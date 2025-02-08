@@ -3,9 +3,9 @@
 <div class="list-menu-with-left-right">
   <div class="card-list menu-btn">
     <div class="filter-container">
-      <div (click)="createIssueMaster()">
-        Nouveau projet
-      </div>
+      <b (click)="issueService.createIssueMaster()" class="bouton" style="color:#007BFF;text-align: center">
+       Nouveau projet <i class="fas fa-plus"  ></i>
+      </b>
       <h1 class="filter-title">Gérer les filtres de recherche</h1>
       <ul class="navigation-list">
         <li  class="filter-item"  [ngClass]="{'active':noFilter.id === selectedFilter?.id}">

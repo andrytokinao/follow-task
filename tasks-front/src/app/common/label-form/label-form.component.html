@@ -1,8 +1,26 @@
-<span class="controle" [matMenuTriggerFor]="lebelMenu" mat-icon-button>
-  Label
-<i class="fas fa-edit"></i>
-</span>
+<div class="controle" style="height: 20px;width: 0px;overflow-x: visible;overflow-y:visible " mat-icon-button>
+  <div style="width: fit-content;background-color: #0f5132;z-index: 9999;"  >
+    <app-text-field [inputModel]="newLabel.name" [editing] ="true"></app-text-field>
+<!--
+    <app-icone-field (iconSelected)="selectIcone($event)"></app-icone-field>
+-->
+  </div>
+
+</div>
 
 <mat-menu #lebelMenu="matMenu">
-  <div *ngFor="let label of labels">{{label.name}}</div>
+  <div class="issue-children-config" >
+    <h3>Etiquette </h3>
+    <mat-checkbox *ngFor="let label of labels"
+                  (change)="checkLabel($event,label)"
+                  [checked]="checkedChildren(label)"
+    >
+      {{ label.name }}
+    </mat-checkbox>
+  </div>
 </mat-menu>
+
+<div>
+  Titre :
+
+</div>

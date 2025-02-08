@@ -188,18 +188,5 @@ export class ShowMasterListComponent implements OnInit{
     })
   }
 
-  createIssueMaster() {
-    const dialogRef = this.modalService.open(NewIssueComponent);
-    dialogRef.componentInstance.listIssueTypeMaster(this.project.id);
-    dialogRef.componentInstance.project = this.project;
-    dialogRef.result.then((result) => {
-      this.issues = <Issue[]>(result.issues)
-      dialogRef.result.then(res => {
-        if (res != null) {
-          this.issueService.reloadMasterList();
 
-        }
-      })
-    })
-  }
 }

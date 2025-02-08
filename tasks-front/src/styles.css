@@ -96,18 +96,8 @@ selected{
 .xlModal{
   height: 4000px;
 }
-.bouton{
-  opacity: 1;
-  transition: opacity 0.3s ease 0s;
-  margin: 0px 2px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  background-color: #388BFF;
-  border-radius: 10px;
-  min-width: 1500px;
-  padding: 5px;
 
-}
+
 .mini-menu{
   padding: 10px 0;
   text-align: center;
@@ -662,5 +652,16 @@ h3 {
 
   .upload-btn:active {
     transform: scale(1);
+  }
+  .bouton{
+    color: #007BFF;
+    text-decoration: none;
+    font-weight: bold;
+    padding: 8px 15px;
+    background-color: #f7f9fc;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    transition: color 0.3s, box-shadow 0.3s;
+    margin-right: 10px;
   }
 }

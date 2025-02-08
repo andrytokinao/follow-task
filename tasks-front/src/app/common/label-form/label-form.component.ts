@@ -13,6 +13,7 @@ import {IssueService} from "../../services/issue.service";
 export class LabelFormComponent implements OnInit{
   project:Project;
   labels:Label[] = [];
+  newLabel: Label ={};
   constructor(private issueService:IssueService) {
   }
 
@@ -26,5 +27,19 @@ export class LabelFormComponent implements OnInit{
     this.issueService.allLabel$.subscribe(labels => {
       this.labels = labels;
     })
+  }
+
+  checkedChildren(label: Label) {
+    return true;
+  }
+
+  checkLabel($event: any, label: Label) {
+
+  }
+
+
+  selectIcone(icone: any) {
+    this.newLabel.icone = icone;
+
   }
 }

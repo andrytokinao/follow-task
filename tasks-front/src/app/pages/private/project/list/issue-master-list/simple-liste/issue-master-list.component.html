@@ -17,9 +17,12 @@
             <span (click)="issueService.showPlanning(master)" class="controle">  <i class="fas fa-calendar">  </i>  Planing </span>
             <span (click)="editIssue(master)" class="controle" >  <i class="fas fa-calendar" > </i>  Details </span>
           </p>
+<!--
+          <app-label-form></app-label-form>
+-->
+
         </small>      </div>
       <p class="mb-1">{{master.description}}.</p>
-      <app-label-form></app-label-form>
       <span  *ngFor="let value of master.values">
         <app-custom-field *ngIf="canShowInList(value)"
                           [customFieldValue]="value" (save)="saveCustomFieldValue($event)"
