@@ -13,6 +13,7 @@
           <p style="text-align: right"> Etat:
             <app-status-field  [issue]="master"></app-status-field>
           </p>
+          <app-label-form [issue]="master"></app-label-form>
           <p  style="text-align:right">
             <span (click)="issueService.showPlanning(master)" class="controle">  <i class="fas fa-calendar">  </i>  Planing </span>
             <span (click)="editIssue(master)" class="controle" >  <i class="fas fa-calendar" > </i>  Details </span>

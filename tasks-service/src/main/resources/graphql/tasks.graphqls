@@ -65,6 +65,13 @@ type  Issue {
     encodedPath:String
     values:[CustomFieldValue]
     project:Project
+    labels:[IssueLabels]
+}
+
+type IssueLabels {
+    id:Int
+    issue:Issue
+    label:Label
 }
 type IssueType{
     id:Int
@@ -263,6 +270,13 @@ input  IssueInput {
     status:StatusInput
     reporter:StatusInput
     project:ProjectInput
+    labels:[IssueLabelsInput]
+}
+
+input IssueLabelsInput {
+    id:Int
+    issue:IssueInput
+    label:LabelInput
 }
 input IssueTypeInput{
     id:Int

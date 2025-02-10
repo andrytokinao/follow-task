@@ -10,4 +10,5 @@ public interface LabelRepository extends JpaRepository<Label, Long> {
     List<Label> findByNameIn(List<String> names);
 
     List<Label> findByProjectId(Long projetId);
+    List<Label> findByNameAndProjectId(String name,Long projectId);
 }

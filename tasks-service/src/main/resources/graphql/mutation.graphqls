@@ -27,6 +27,9 @@ type Mutation {
     addDocument(document:DocumentInput):Document
     saveUploaded(uploaded:UploadedInput):Uploaded
     saveCustomFilter(customFilter:IssueFilterInput):IssueFilter
+    saveLabel(label:LabelInput):Label
+    addLabelInIssue(issueId:Int,labelId:Int):IssueLabels
+    removeLabelInIssue(issueId:Int,labelId:Int):IssueLabels
 }
 
 

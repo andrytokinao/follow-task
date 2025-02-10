@@ -6,8 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.File;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Entity
 @Data
@@ -49,6 +48,8 @@ public class Issue {
     private List<CustomFieldValue> values;
     @OneToMany(mappedBy = "issue")
     private List<Event> events;
+    @OneToMany(mappedBy = "issue")
+    private List<IssueLabels> labels = new ArrayList<>();
     @ManyToOne
     private Project project;
     public String getEncodedPath(){

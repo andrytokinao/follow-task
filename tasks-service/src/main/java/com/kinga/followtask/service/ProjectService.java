@@ -44,6 +44,7 @@ public class ProjectService {
     final WorkFlowRepository workFlowRepository;
     final ConfigRepository configRepository;
     final IconeRepository iconeRepository;
+    final IssueLabelsRepository issueLabelsRepository;
     final UsingCustomFieldRepository usingCustomFieldRepository;
     public final CustomFieldRepository customFieldRepository;
     final ConfigProjectRepo configProjectRepo;
@@ -249,7 +250,7 @@ public class ProjectService {
 
         List<Label> defaults = getDefaultLabel();
         List<Label> labels = labelRepository.findByProjectId(projetId);
-        if (CollectionUtils.isEmpty(labels)) {
+        if (!CollectionUtils.isEmpty(labels)) {
             defaults.addAll(labels);
         }
         return defaults;
@@ -567,5 +568,45 @@ public class ProjectService {
 
     public List<IssueFilter> getMyFilters(Long projectId, String userId) {
         return customIssueFilterRepository.findByProjectIdAndUserId(projectId,userId);
+    }
+
+    public Label saveLabel(Label label) {
+        if (label.getId() == null) {
+            List<Label> existing =  labelRepository.findByNameAndProjectId(label.getName(),label.getProject().getId());
+            if(!CollectionUtils.isEmpty(existing)) {
+                throw new RuntimeException("Label "+label.getName() +" is alredy exist ");
+            }
+        }
+        return labelRepository.save(label);
+    }
+
+    public Issue getIssueById(Long issueId) {
+        return issueRepository.getById(issueId);
+    }
+
+    public List<IssueLabels> addLabelInIssue(Long issueId, Long labelId) {
+       List<IssueLabels> labels = issueLabelsRepository.findByIssueIdAndLabelId(issueId,labelId);
+       if (!CollectionUtils.isEmpty(labels))
+           return issueLabelsRepository.findByIssueId(issueId);
+
+        Issue issue = new Issue();
+        issue.setId(issueId);
+        Label label = new Label();
+        label.setId(labelId);
+        IssueLabels issueLabels = new IssueLabels();
+        issueLabels.setLabel(label);
+        issueLabels.setIssue(issue);
+        issueLabelsRepository.save(issueLabels);
+        return issueLabelsRepository.findByIssueId(issueId);
+    }
+    public List<IssueLabels> removeLabelInIssue(Long issueId, Long labelId) {
+        List<IssueLabels> labels = issueLabelsRepository.findByIssueIdAndLabelId(issueId,labelId);
+        if (CollectionUtils.isEmpty(labels))
+            return new ArrayList<>();
+        labels.forEach(l->{
+            issueLabelsRepository.delete(l);
+        });
+        return labels;
+
     }
 }

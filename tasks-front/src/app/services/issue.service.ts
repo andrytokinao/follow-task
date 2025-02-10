@@ -21,7 +21,7 @@ import {
   Uploading,
   Uploaded,
   DocumentApp,
-  DomainActivity, Label
+  DomainActivity, Label, IssueLabels
 } from "../type/issue";
 import {Apollo} from "apollo-angular";
 import * as operation from "../type/graphql.operations";
@@ -1392,13 +1392,81 @@ export class IssueService implements OnInit{
   getLabelByProject(projectId: Number) {
     this.apollo.query({
         query:operation.GET_LABEL_BY_PROJECT,
-        fetchPolicy:"cache-first",
+        fetchPolicy:"network-only",
         variables:{projectId},
       }
     ).subscribe( (res:any)=> {
       this.allLabelSubject.next(supprimerTypename(res.data.getLabelByProject));
     }, error => {
       console.error(error);
+    })
+  }
+
+  saveLabel(label: Label) {
+    label.project = {id:this.project.id};
+    this.apollo.mutate({
+        mutation:operation.SAVE_LABEL,
+        fetchPolicy:"network-only",
+        variables:{label},
+      }
+    ).subscribe( (res:any)=> {
+      this.getLabelByProject(this.project.id);
+    }, error => {
+      console.error(error);
+    })
+  }
+
+  getIssueById(issueId: number) {
+    return new Observable<Issue>(observer => {
+      this.apollo.query({
+          query:operation.GET_ISSUE_BY_ID,
+          fetchPolicy:"network-only",
+          variables:{issueId},
+        }
+      ).subscribe( (res:any)=> {
+        observer.next(supprimerTypename(res.data.getIssueById));
+        observer.complete();
+      }, error => {
+        console.error(error);
+        observer.error(error);
+        observer.complete();
+      })
+    })
+
+  }
+
+  addLabelInIssue(issueId: number, labelId: Number) {
+    return new Observable<IssueLabels[]>(observer => {
+      this.apollo.mutate({
+          mutation:operation.ADD_LABEL_IN_ISSUE,
+          fetchPolicy:"network-only",
+          variables:{issueId,labelId},
+        }
+      ).subscribe( (res:any)=> {
+        observer.next(supprimerTypename(res.data.addLabelInIssue));
+        observer.complete();
+      }, error => {
+        console.error(error);
+        observer.error(error);
+        observer.complete();
+      })
+    })
+  }
+  removeLabelInIssue(issueId: number, labelId: Number) {
+    return new Observable<IssueLabels[]>(observer => {
+      this.apollo.mutate({
+          mutation:operation.REMOVE_LABEL_IN_ISSUE,
+          fetchPolicy:"network-only",
+          variables:{issueId,labelId},
+        }
+      ).subscribe( (res:any)=> {
+        observer.next(supprimerTypename(res.data.removeLabelInIssue));
+        observer.complete();
+      }, error => {
+        console.error(error);
+        observer.error(error);
+        observer.complete();
+      })
     })
   }
 }

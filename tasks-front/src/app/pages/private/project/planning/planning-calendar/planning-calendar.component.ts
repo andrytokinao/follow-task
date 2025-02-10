@@ -49,7 +49,7 @@ import {ProjectGuard} from "../../../../../services/ProjectGuard";
            </div>
          </div>
          <div class="card" style="margin-top: 15px;padding-top: 5px;padding-bottom: 5px" >
-           <h1> Projets <i class="fas fa-edit" (click)="editFilterMaster($event)"></i></h1>
+           <h1> Projets </h1>
            <div class="sidebar-heding ">
              <div
                *ngFor="let parent of issueMasters"
@@ -374,7 +374,9 @@ export class PlanningCalendarComponent implements AfterViewInit {
     businessEndsHour: 17,
     contextMenu: this.contextMenu,
     onTimeRangeSelected: this.newEvent.bind(this),
+/*
     onBeforeEventRender: this.onBeforeEventRender.bind(this),
+*/
     onEventClick:(args) =>this.viewEvent(args),
     onEventResize: (args) => this.resizeEvent(args),
     onEventMove: (args) => this.moveEvent(args),
@@ -694,18 +696,6 @@ export class PlanningCalendarComponent implements AfterViewInit {
       this.loadEvents();
     })
   }
-
-  editFilterMaster(ev) {
-    this.issueService.editFilter(ev,this.masterFilter).subscribe(
-      criteria => {
-        this.issueService.searchIssues(criteria,this.project?.id).subscribe(issues=> {
-          this.issueService.setMasters(issues);
-          this.issueService.setIssueMasterCriteria(criteria);
-        })
-      }
-    )
-  }
-
   detailsIssue(issue:Issue) {
     this.issueService.browsIssueMaster(issue)
   }
@@ -732,14 +722,14 @@ export class PlanningCalendarComponent implements AfterViewInit {
     // Supprimer l'ancien événement de l'heure actuelle
     this.events = this.events.filter((event) => event.id !== "current-time");
 
-    // Ajouter un nouvel événement pour représenter l'heure actuelle
+/*    // Ajouter un nouvel événement pour représenter l'heure actuelle
     this.events.push({
       id: "current-time",
       text: "",
       start: now,
       end: now.addMinutes(1),
       cssClass: "current-time-event",
-    });
+    });*/
 
     // Rafraîchir le calendrier
     this.configDay = { ...this.configDay };

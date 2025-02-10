@@ -1,4 +1,77 @@
 import {Apollo, gql} from "apollo-angular";
+
+export let ADD_LABEL_IN_ISSUE = gql`
+  mutation addLabelInIssue($issueId:Int,$labelId:Int){
+    addLabelInIssue(issueId: $issueId,labelId: $labelId) {
+        id
+        issue {
+          id
+        }
+        label {
+          id
+          name
+          color
+          style
+          icone {
+            id
+            typeIcone
+            value
+          }
+          project {
+            id
+          }
+        }
+    }
+  }
+
+  `;
+export let REMOVE_LABEL_IN_ISSUE = gql`
+  mutation removeLabelInIssue($issueId:Int,$labelId:Int){
+    removeLabelInIssue(issueId: $issueId,labelId: $labelId) {
+        id
+        issue {
+          id
+        }
+        label {
+          id
+          name
+          color
+          style
+          icone {
+            id
+            typeIcone
+            value
+          }
+          project {
+            id
+          }
+        }
+    }
+  }
+
+  `;
+
+
+export let SAVE_LABEL = gql`
+   mutation saveLabel($label:LabelInput) {
+    saveLabel(label: $label) {
+      id
+      name
+      icone {
+        id
+        value
+        typeIcone
+      }
+      color
+      style
+      project {
+        id
+        prefix
+      }
+    }
+   }
+`;
+
 export let GET_LABEL_BY_PROJECT = gql`
     query getLabelByProject($projectId:Int!) {
       getLabelByProject(projectId: $projectId) {
@@ -1609,6 +1682,27 @@ const SEARCH_ISSUES = gql`
       creationDate
       description
       encodedPath
+      labels {
+        id
+        issue {
+          id
+        }
+        label {
+          id
+          name
+          color
+          style
+          icone {
+            id
+            typeIcone
+            value
+          }
+          project {
+            id
+          }
+        }
+
+      }
       status {
         id
         displayName
@@ -1983,6 +2077,124 @@ const LIST_ACTIVITY = gql`
       image
     }
   }
+`;
+export const GET_ISSUE_BY_ID = gql`
+  query getIssueById($issueId:Int){
+    getIssueById(issueId: $issueId) {
+      id
+      issueKey
+      summary
+      creationDate
+      description
+      encodedPath
+      labels {
+        id
+        issue {
+          id
+        }
+        label {
+          id
+          name
+          color
+          style
+          icone {
+            id
+            typeIcone
+            value
+          }
+          project {
+            id
+          }
+        }
+
+      }
+      status {
+        id
+        displayName
+        icone {
+          id
+          typeIcone
+          value
+        }
+      }
+      issueType {
+        id
+        name
+        icone {
+          id
+          typeIcone
+          value
+        }
+        curentWorkFlow {
+          id
+          name
+          statuses {
+            id
+            displayName
+            icone {
+              id
+              typeIcone
+              value
+            }
+          }
+        }
+        level
+      }
+      reporter {
+        id
+        username
+        lastName
+        firstName
+        photo
+      }
+      values {
+        id
+        numeric
+        date
+        text
+        values
+        customField {
+          id
+          name
+          configDisplay
+          options
+          type
+        }
+        user {
+          id
+          username
+          lastName
+          firstName
+        }
+        issue {
+          id
+          issueKey
+        }
+
+      }
+      assigne {
+        id
+        username
+        lastName
+        firstName
+        photo
+      }
+      parent {
+        id
+        issueKey
+        summary
+        issueType {
+          id
+          name
+          icone {
+            id
+            value
+            typeIcone
+          }
+        }
+      }
+    }
+    }
 `;
 
 export {

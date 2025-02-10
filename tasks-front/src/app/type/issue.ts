@@ -7,6 +7,13 @@ export class Status {
   displayName: String  ="";
   icone :Icone | undefined;
 }
+
+export class IssueLabels {
+  id:number
+  issue:Issue
+  label:Label
+}
+
 export class Issue {
   id?: number = 0;
   summary?: String= "";
@@ -21,6 +28,7 @@ export class Issue {
   reporter?:User = new User();
   issueType?:IssueType | any = {};
   parent?:Issue
+  labels?:IssueLabels[]
   comments? :Comment[] = [];
   project?:Project;
   constructor() {

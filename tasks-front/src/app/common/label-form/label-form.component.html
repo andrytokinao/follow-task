@@ -1,23 +1,32 @@
-<div class="controle" style="height: 20px;width: 0px;overflow-x: visible;overflow-y:visible " mat-icon-button>
+<div class="controle" style="height: 20px;width: 0px;overflow-x: visible;overflow-y:visible " mat-icon-button [matMenuTriggerFor]="lebelMenu">
   <div style="width: fit-content;background-color: #0f5132;z-index: 9999;"  >
-    <app-text-field [inputModel]="newLabel.name" [editing] ="true"></app-text-field>
-<!--
-    <app-icone-field (iconSelected)="selectIcone($event)"></app-icone-field>
--->
   </div>
-
+    Label
 </div>
 
 <mat-menu #lebelMenu="matMenu">
-  <div class="issue-children-config" >
-    <h3>Etiquette </h3>
-    <mat-checkbox *ngFor="let label of labels"
-                  (change)="checkLabel($event,label)"
-                  [checked]="checkedChildren(label)"
-    >
-      {{ label.name }}
-    </mat-checkbox>
+  <div (click)="clickMenu($event)" >
+    <div class="issue-children-config" >
+      <h3>Etiquette </h3>
+      <mat-checkbox *ngFor="let label of labels"
+                    (change)="checkLabel($event,label)"
+                    [checked]="checkedLabel(label)"
+      >
+        {{ label.name }}
+      </mat-checkbox>
+      <p (click)="createLabel()"><i class="fas fa-plus"></i> Créer </p> </div>
+    <div style="padding-left: 20px" *ngIf="iscreateLabel" >
+      <form [formGroup]="myForm" (ngSubmit)="onSubmit();">
+        <mat-form-field>
+          <mat-label>Nom</mat-label>
+          <input matInput formControlName="name">
+        </mat-form-field>
+        <button mat-button type="submit" >Valider</button>
+      </form>
+    </div>
   </div>
+
+
 </mat-menu>
 
 <div>

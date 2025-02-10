@@ -45,4 +45,5 @@ type Query {
     listActivity:[DomainActivity]
     getMyFilters(projectId:Int,userId:String):[IssueFilter]
     getLabelByProject(projectId:Int):[Label]
+    getIssueById(issueId:Int):Issue
 }

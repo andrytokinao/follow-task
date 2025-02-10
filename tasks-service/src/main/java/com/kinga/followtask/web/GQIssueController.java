@@ -296,4 +296,20 @@ public class GQIssueController {
     public List<Label> getLabelByProject(@Argument Long projectId) {
         return projectService.getLabelByProject(projectId);
     }
+    @QueryMapping
+    public Issue getIssueById(@Argument Long issueId) {
+        return projectService.getIssueById(issueId);
+    }
+    @MutationMapping
+    public Label saveLabel(@Argument Label label) {
+        return projectService.saveLabel(label);
+    }
+    @MutationMapping
+    public List<IssueLabels> addLabelInIssue(@Argument Long issueId, @Argument Long labelId) {
+        return projectService.addLabelInIssue(issueId,labelId);
+    }
+    @MutationMapping
+    public List<IssueLabels>  removeLabelInIssue(@Argument Long issueId, @Argument Long labelId) {
+        return projectService.removeLabelInIssue(issueId,labelId);
+    }
 }
