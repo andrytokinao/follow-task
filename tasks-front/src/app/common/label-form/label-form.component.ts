@@ -7,6 +7,7 @@ import {IssueService} from "../../services/issue.service";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import _default from "chart.js/dist/plugins/plugin.legend";
 import labels = _default.defaults.labels;
+import {AuthGuard} from "../../services/SystemGuard";
 
 @Component({
   selector: 'app-label-form',
@@ -20,7 +21,10 @@ export class LabelFormComponent implements OnInit,AfterViewInit{
 
   newLabel: Label ={};
   private toClose: boolean;
-  constructor(private issueService:IssueService,private fb:FormBuilder) {
+  constructor(private issueService:IssueService,
+              private fb:FormBuilder,
+              protected authGuard:AuthGuard,
+  ) {
     this.myForm = this.fb.group({
       name: ['', Validators.required],
     });

@@ -50,3 +50,10 @@
   color: #666666;
   margin-top: 10px;
 }
+.master-item{
+  display: grid;
+  grid-template-columns: auto 300px;
+}
+.master-controle{
+   text-align: right;
+}

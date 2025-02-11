@@ -1,8 +1,8 @@
 <div class="projet">
   <div class="project-menu">
-    <div class="logo-card" >
+    <div class="logo-card" [matMenuTriggerFor]="work_space">
       <!-- Logo -->
-      <div class="logo-card-logo" [matMenuTriggerFor]="work_space">
+      <div class="logo-card-logo" >
         <img
           [src]="issueService.getImageProject(project)"
           alt="{{ project?.name }} Logo"

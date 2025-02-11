@@ -1,11 +1,12 @@
-<div class="controle" style="height: 20px;width: 0px;overflow-x: visible;overflow-y:visible " mat-icon-button [matMenuTriggerFor]="lebelMenu">
-  <div style="width: fit-content;background-color: #0f5132;z-index: 9999;"  >
-  </div>
-    Label
+<div style="height: 40px;overflow-x: visible;overflow-y:visible " mat-icon-button [matMenuTriggerFor]="lebelMenu">
+  <span *ngIf="!issue.labels || issue.labels.length == 0"><span  class="btn fas fa-plus"> Etq </span> </span>
+  <span class="label-chip" *ngFor="let ils of issue.labels">
+    {{ils.label.name}}
+  </span>
 </div>
 
-<mat-menu #lebelMenu="matMenu">
-  <div (click)="clickMenu($event)" >
+<mat-menu #lebelMenu="matMenu" >
+  <div (click)="clickMenu($event)" *ngIf="authGuard.hasAutorityAsync(['CAN_CREATE_TASK']) | async">
     <div class="issue-children-config" >
       <h3>Etiquette </h3>
       <mat-checkbox *ngFor="let label of labels"
@@ -29,7 +30,3 @@
 
 </mat-menu>
 
-<div>
-  Titre :
-
-</div>
