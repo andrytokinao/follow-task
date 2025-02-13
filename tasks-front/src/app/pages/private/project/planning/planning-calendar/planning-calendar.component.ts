@@ -49,7 +49,10 @@ import {ProjectGuard} from "../../../../../services/ProjectGuard";
            </div>
          </div>
          <div class="card" style="margin-top: 15px;padding-top: 5px;padding-bottom: 5px" >
-           <h1> Projets </h1>
+           <h1> Projets <span style="cursor:pointer" [matMenuTriggerFor]="filter"> {{curentFilter?.name}}...</span> </h1>
+           <mat-menu #filter="matMenu">
+             <felter-mastert-menue></felter-mastert-menue>
+           </mat-menu>
            <div class="sidebar-heding ">
              <div
                *ngFor="let parent of issueMasters"
@@ -110,6 +113,7 @@ import {ProjectGuard} from "../../../../../services/ProjectGuard";
         <daypilot-calendar [config]="configResource" #calendar></daypilot-calendar>
       </div>
     </div>
+
 <!--    <div
       id="current-time-marker"
       style="position: absolute; width: 100%; height: 2px; background-color: red; z-index: 1000;">
@@ -459,6 +463,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
   issueMasters: Issue[]=[];
   private masterFilter: CustomFilter = {} ;
   dateCustomFields: CustomField[] = [];
+  curentFilter: CustomFilter ;
 
   constructor(
     protected eventService: EventsService,
@@ -517,6 +522,9 @@ export class PlanningCalendarComponent implements AfterViewInit {
     });
     this.issueService.allCustomField$.subscribe(customFields=> {
       this.dateCustomFields = customFields.filter(cf=> (cf.type === 'Date'))
+    });
+    this.issueService.currentMasterFilter$.subscribe(curentFilter=> {
+      this.curentFilter = curentFilter;
     })
   }
 

@@ -10,6 +10,8 @@ import {FormsModule} from "@angular/forms";
 import {MatButton} from "@angular/material/button";
 import {MatCheckbox} from "@angular/material/checkbox";
 import {MatStepLabel, MatStepperNext} from "@angular/material/stepper";
+import {MatMenu, MatMenuTrigger} from "@angular/material/menu";
+import {MyCommonModule} from "../../../../common/common.module";
 
 
 
@@ -22,16 +24,19 @@ import {MatStepLabel, MatStepperNext} from "@angular/material/stepper";
     exports: [
         PlanningCalendarComponent
     ],
-    imports: [
-        CommonModule,
-        RouterOutlet,
-        PlanningRoutingModule,
-        DayPilotModule,
-        FormsModule,
-        MatButton,
-        MatCheckbox,
-        MatStepLabel,
-        MatStepperNext
-    ]
+  imports: [
+    CommonModule,
+    RouterOutlet,
+    PlanningRoutingModule,
+    DayPilotModule,
+    FormsModule,
+    MatButton,
+    MatCheckbox,
+    MatStepLabel,
+    MatStepperNext,
+    MatMenu,
+    MyCommonModule,
+    MatMenuTrigger
+  ]
 })
 export class PlanningModule { }

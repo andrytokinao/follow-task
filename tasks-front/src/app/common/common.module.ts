@@ -43,6 +43,7 @@ import {IssueFilterComponent} from "./issue-filter/issue-filter.component";
 import {IssueMasterBreadcrumbComponent} from "./issue-master-breadcrumb/issue-master-breadcrumb.component";
 import {LoadingComponent} from "./loading/loading.component";
 import {LabelFormComponent} from "./label-form/label-form.component";
+import {FelterMatMenueComponent} from "./felter-mat-menue/felter-mat-menue.component";
 
 @NgModule({
   declarations: [
@@ -70,7 +71,8 @@ import {LabelFormComponent} from "./label-form/label-form.component";
     IssueFilterComponent,
     IssueMasterBreadcrumbComponent,
     LoadingComponent,
-    LabelFormComponent
+    LabelFormComponent,
+  FelterMatMenueComponent
 
   ],
   imports: [
@@ -133,6 +135,7 @@ import {LabelFormComponent} from "./label-form/label-form.component";
     IssueMasterBreadcrumbComponent,
     LoadingComponent,
     LabelFormComponent,
+    FelterMatMenueComponent
   ]
 })
 export class MyCommonModule { }

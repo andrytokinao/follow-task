@@ -164,9 +164,9 @@ export class IssueService implements OnInit{
     this.projectGuard.hasCredential(["USER"]).subscribe( isUser => {
       if (isUser) {
         this.projectGuard.hasSimpleCredential(["CAN_VIEW_ASSIGN_ONLY"]).subscribe( isUser => {
-          criteria.assigneUsernames = [this.user.username];
+           // criteria.assigneUsernames = [this.user.username]; TODO : Les admin ne peut pas voir les autre ticket
           this.searchIssues(criteria,this.project.id).subscribe(masters => {
-            this.setMasters(masters);
+          this.setMasters(masters);
           })
         });
         this.projectGuard.hasSimpleCredential(["CAN_VIEW_ONLY"]).subscribe( isUser => {
