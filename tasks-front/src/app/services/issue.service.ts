@@ -61,6 +61,7 @@ import {sequence} from "@angular/animations";
 import _default from "chart.js/dist/plugins/plugin.tooltip";
 import numbers = _default.defaults.animations.numbers;
 import {J} from "@angular/cdk/keycodes";
+import {ProjectGuard} from "./ProjectGuard";
 
 @Injectable({
   providedIn: 'root',
@@ -117,7 +118,9 @@ export class IssueService implements OnInit{
               private router: Router,
               private userService:UserService,
               private modalService:NgbModal,
-              private authService:AuthService
+              private authService:AuthService,
+              protected projectGuard:ProjectGuard,
+
   ) {
     const initialProject: Project = null;
     this.authService.connectedUser$.subscribe(user => {
@@ -127,19 +130,22 @@ export class IssueService implements OnInit{
 
     this.project$.subscribe(project => {
       this.project = project;
-      this.workFlowsByProject(this.projectSubject.value.id).subscribe();
-      this.loadUsers();
-      this.loadIssueType();
-      this.loadMyFilters();
-      this.loadAllCustomField();
-      this.setCurrentMasterFilter({
-        id:0,
-        name:'Tous',
-        projectId:this.project.id,
-        criteria:{
+      if (this.project && this.project.id) {
+        this.workFlowsByProject(this.projectSubject.value.id).subscribe();
+        this.loadUsers();
+        this.loadIssueType();
+        this.loadMyFilters();
+        this.loadAllCustomField();
+        this.setCurrentMasterFilter({
+          id:0,
+          name:'Tous',
+          projectId:this.project.id,
+          criteria:{
 
-        }
-      });
+          }
+        });
+      }
+
     });
     this.currentMasterFilter$.subscribe(filter => {
 
@@ -150,11 +156,35 @@ export class IssueService implements OnInit{
       }
     });
   }
+
   loadIssueMasters(criteria:IssueSearchCriteriaInput){
-    this.searchIssues(criteria,this.project.id).subscribe(masters => {
-      this.setMasters(masters);
+    criteria.issueTypeLevels=['PARENT'];
+    criteria.projectId = this.project?.id;
+    this.setIssueMasterCriteria(criteria);
+    this.projectGuard.hasCredential(["USER"]).subscribe( isUser => {
+      if (isUser) {
+        this.projectGuard.hasSimpleCredential(["CAN_VIEW_ASSIGN_ONLY"]).subscribe( isUser => {
+          criteria.assigneUsernames = [this.user.username];
+          this.searchIssues(criteria,this.project.id).subscribe(masters => {
+            this.setMasters(masters);
+          })
+        });
+        this.projectGuard.hasSimpleCredential(["CAN_VIEW_ONLY"]).subscribe( isUser => {
+          // TODO : Ajout ici le filtre pour les observateur externe ,
+         /* this.searchIssues(criteria,this.project.id).subscribe(masters => {
+            this.setMasters(masters);
+          })*/
+        });
+        this.projectGuard.hasCredential(["PROJECT_MANAGER","ADMIN","VIEW_ALL_TASK"]).subscribe( isUser => {
+          this.searchIssues(criteria,this.project.id).subscribe(masters => {
+            this.setMasters(masters);
+          })
+        });
+        }
     })
+
   }
+
   updateProject(newProject: Project): void {
     this.projectSubject.next(newProject);
   }
@@ -1154,7 +1184,7 @@ export class IssueService implements OnInit{
   }
 
   private loadUsers() {
-    this.userService.getUsers(this.projectSubject.value.prefix);
+    this.userService.getUsersForProject(this.projectSubject.value.prefix);
   }
 
   private loadIssueType() {

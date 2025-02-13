@@ -269,7 +269,7 @@ public class GQIssueController {
     }
    @MutationMapping
     public Document addDocument(@Argument Document document){
-       return issueService.addDocument(document);
+       return issueService. addDocument(document);
     }
     @QueryMapping
     public List<Document> getDocuments(@Argument Long issueId, @Argument TypeDocument typeDocument) {

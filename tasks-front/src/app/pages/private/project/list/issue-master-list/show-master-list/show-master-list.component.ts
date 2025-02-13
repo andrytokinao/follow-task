@@ -123,16 +123,8 @@ export class ShowMasterListComponent implements OnInit{
     this.searchIssueMaster(this.selectedFilter.criteria);
   }
   searchIssueMaster(searchCriteria:IssueSearchCriteriaInput){
-    /*  const queryParams = toQueryParams(searchCriteria);
-      this.router.navigate(['master'], {
-        queryParams ,
-        relativeTo: this.route
-      });*/
-    this.issueService.searchIssues(searchCriteria,this.project.id) .subscribe(
-      issues => {
-        this.issueService.setMasters(issues);
-      }
-    )
+   this.issueService.loadIssueMasters(searchCriteria);
+
   }
   newParentFilter(event: MouseEvent) {
     let filter:CustomFilter = {
@@ -180,12 +172,7 @@ export class ShowMasterListComponent implements OnInit{
     return (filter.name == this.selectedFilter.name)? "active" : "";
   }
   loadIssueMasters(){
-    this.searchCriteria.issueTypeLevels=['PARENT'];
-    this.searchCriteria.projectId = this.project?.id;
-    this.issueService.setIssueMasterCriteria(this.searchCriteria);
-    this.issueService.searchIssues(this.searchCriteria,this.project.id).subscribe(masters => {
-      this.issueService.setMasters(masters);
-    })
+    this.issueService.loadIssueMasters(this.searchCriteria);
   }
 
 

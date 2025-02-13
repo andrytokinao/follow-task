@@ -56,6 +56,7 @@ public class ProjectService {
     final CustomIssueFilterRepository customIssueFilterRepository;
     final LabelRepository labelRepository;
     static Logger logger = LoggerFactory.getLogger(ProjectService.class);
+    private final DocumentRepository documentRepository;
 
     public Status saveStatus(Status status) {
         return statusRepository.save(status);
@@ -552,10 +553,13 @@ public class ProjectService {
         Path filePath = Paths.get(uploadDir, newFileName);
         Files.write(filePath, file.getBytes());
         Uploaded uploaded = new Uploaded(fileName, filePath.toString());
+        Document doc = documentRepository.getById(documentId);
         Document document = new Document();
+        document.setTitre(doc.getTitre());
         document.setId(documentId);
         uploaded.setDocument(document);
-        return uploadedRepository.save(uploaded);
+        uploaded = uploadedRepository.save(uploaded);
+        return uploaded;
     }
 
     public List<DomainActivity> listActivity() {

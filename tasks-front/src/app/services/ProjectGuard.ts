@@ -42,7 +42,7 @@ export class ProjectGuard implements CanActivate {
       if (this.profile) {
         let permissions: string[] = this.profile.permissions;
         let data: any = route.data;
-        this.checkCredencialForProject(data.roles,permissions).subscribe(autorize => {
+        this.checkAccessForProject(data.roles,permissions).subscribe(autorize => {
           observer.next(autorize);
           console.debug("canActivate -> checkCredencialForProject : autorize",autorize);
           if (!autorize) {
@@ -55,7 +55,7 @@ export class ProjectGuard implements CanActivate {
           this.profile = profile;
           let permissions: string[] = this.profile.permissions;
           let data:any = route.data;
-          this.checkCredencialForProject(data.roles,permissions).subscribe(autorize => {
+          this.checkAccessForProject(data.roles,permissions).subscribe(autorize => {
             observer.next(autorize);
             console.debug("canActivate -> getProfile -> checkCredencialForProject : autorize",autorize);
             if (!autorize) {
@@ -72,7 +72,7 @@ export class ProjectGuard implements CanActivate {
     return new Observable<boolean>((observer) => {
       if (this.profile) {
         let permissions: string[] = this.profile.permissions;
-        this.checkCredencialForProject(roles,permissions).subscribe(autorize => {
+        this.checkAccessForProject(roles,permissions).subscribe(autorize => {
           observer.next(autorize);
           observer.complete();
         });
@@ -80,7 +80,7 @@ export class ProjectGuard implements CanActivate {
         this.authService.getProfile().subscribe((profile) => {
           this.profile = profile;
           let permissions: string[] = this.profile.permissions;
-          this.checkCredencialForProject(roles,permissions).subscribe(autorize => {
+          this.checkAccessForProject(roles,permissions).subscribe(autorize => {
             observer.next(autorize);
             observer.complete();
           });
@@ -89,7 +89,28 @@ export class ProjectGuard implements CanActivate {
       }
     });
   }
-  checkCredencialForProject(toCheck:string[], permissions: string[]){
+  hasSimpleCredential(roles:string[]){
+    return new Observable<boolean>((observer) => {
+      if (this.profile) {
+        let permissions: string[] = this.profile.permissions;
+        this.checkPersmisionsForProject(roles,permissions).subscribe(autorize => {
+          observer.next(autorize);
+          observer.complete();
+        });
+      } else {
+        this.authService.getProfile().subscribe((profile) => {
+          this.profile = profile;
+          let permissions: string[] = this.profile.permissions;
+          this.checkPersmisionsForProject(roles,permissions).subscribe(autorize => {
+            observer.next(autorize);
+            observer.complete();
+          });
+
+        })
+      }
+    });
+  }
+  checkAccessForProject(toCheck:string[], permissions: string[]){
     return new Observable<boolean>(observer => {
       let authorized = false;
       if (toCheck) {
@@ -105,6 +126,24 @@ export class ProjectGuard implements CanActivate {
             observer.complete();
           });
         }
+      } else {
+        console.error("non data");
+        observer.next(false);
+        observer.complete();
+      }
+    })
+  }
+  checkPersmisionsForProject(toCheck:string[], permissions: string[]){
+    return new Observable<boolean>(observer => {
+      let authorized = false;
+      if (toCheck) {
+          this.addPrefix([...toCheck]).subscribe(projectRole => {
+            projectRole.every((role: string) => {
+              authorized = permissions.includes(role);
+            })
+            observer.next(authorized);
+            observer.complete();
+          });
       } else {
         console.error("non data");
         observer.next(false);

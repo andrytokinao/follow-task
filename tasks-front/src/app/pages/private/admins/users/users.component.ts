@@ -16,7 +16,6 @@ export class UsersComponent implements OnInit{
   currentUser: User | null = null;
   users:User[] =[];
   constructor(private modalService: NgbModal, private userService: UserService) {
-    this.loadList();
   }
 
   editProfile(user:User) {
@@ -30,7 +29,7 @@ export class UsersComponent implements OnInit{
   }
 
   loadList() {
-    this.userService.getUsers("projet");
+    this.userService.allUsers();
   }
 
   create() {

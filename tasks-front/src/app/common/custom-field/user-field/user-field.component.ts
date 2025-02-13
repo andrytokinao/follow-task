@@ -83,8 +83,7 @@ export class UserFieldComponent implements DisplayCustomField , OnInit{
     this.user = this.value.user;
   }
   loadList() {
-    // TODO : Configuration des utilisateurs peut etre entrer ici
-    this.userService.getUsers("project");
+
   }
 
   private _filterUsers(value: string): User[] {

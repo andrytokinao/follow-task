@@ -31,6 +31,7 @@ export class UserService {
   groupeUsers$=this.groupeUsersSubject.asObservable();
 
   constructor(private http: HttpClient, private apollo: Apollo) {
+    this.allUsers();
   }
   baseUrl:string = "http://localhost:8081";
 
@@ -46,12 +47,13 @@ export class UserService {
       .get<User[]>(url)
       .pipe(retry(1), catchError(this.handleError));
   }
-  getUsers(projet:String) {
+  allUsers() {
       this.apollo
         .query({
           query: ALL_USERS ,
         }).subscribe((res:any)=> {
-          this.usersSubject.next(stripTypename(res.data.allUsers));
+          let users:User[] = stripTypename(res.data.allUsers);
+          this.usersSubject.next(users.filter(u => u.username && u.firstName && u.lastName));
         },error => {
           error.error(error);
         })
@@ -180,5 +182,10 @@ export class UserService {
         console.error(error);
       }
     )
+  }
+
+  getUsersForProject(prefix: String) {
+    // Todo : A profondir
+    this.allUsers();
   }
 }

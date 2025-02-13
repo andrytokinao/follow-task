@@ -57,6 +57,7 @@ export class AddMamberGroupeComponent implements OnInit {
     })
     this.userService.loadPermissiontTask();
 
+
   }
 
   private _filterUsers(value: string): User[] {
