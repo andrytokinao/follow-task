@@ -142,7 +142,6 @@ export class ProjectComponent {
     }
     const routeOrder = o.activatedRouteData['order'] ;
     const stat =  routeOrder >= this.projectBreadcrumb.order ? 'top' :'bottom';
-    console.log(stat,this.projectBreadcrumb.order,routeOrder,o);
     return stat;
   }
 }

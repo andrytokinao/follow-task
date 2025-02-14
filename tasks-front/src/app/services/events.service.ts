@@ -270,9 +270,9 @@ export class EventsService {
   }
 
   resizeEvent(args: any){
-    console.log(args);
     return new Observable<EventApp>(observer => {
-      this.getByEventById(args.e.cache.id).subscribe(ev=>{
+      let id:number = (args.e.cache)? args.e.cache.id : args.e.id();
+      this.getByEventById(id).subscribe(ev=>{
         ev.start = args.newStart.toString();
         ev.end = args.newEnd.toString();
         this.saveEvent(ev).subscribe(res => {
@@ -305,7 +305,8 @@ export class EventsService {
   }
 
   mouveEventAtResources(args: any, criteria: EventSearchCriteria) {
-    this.getByEventById(args.cache.id).subscribe(ev=>{
+    let id:Number = args.e.id();
+    this.getByEventById(id).subscribe(ev=>{
       ev.start = args.newStart.toString();
       ev.end = args.newEnd.toString();
       if (args.newResource) {
@@ -318,9 +319,10 @@ export class EventsService {
       })
     });
   }
-  updateBackColor(eventData,colors,criteria:EventSearchCriteria){
-    console.debug(eventData);
-    this.getByEventById(eventData.cache.id).subscribe(ev=>{
+  updateBackColor(args,colors,criteria:EventSearchCriteria){
+    console.log('updateBackColor',args);
+    let id:Number = args.id();
+    this.getByEventById(id).subscribe(ev=>{
       ev.customColor = colors;
       this.saveEvent(ev).subscribe(res => {
         this.searchEventsAndSet(criteria);

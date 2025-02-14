@@ -49,7 +49,7 @@ import {ProjectGuard} from "../../../../../services/ProjectGuard";
            </div>
          </div>
          <div class="card" style="margin-top: 15px;padding-top: 5px;padding-bottom: 5px" >
-           <h1> Projets <span style="cursor:pointer" [matMenuTriggerFor]="filter"> {{curentFilter?.name}}...</span> </h1>
+           <h1> Projets  (<i style="cursor:pointer" [matMenuTriggerFor]="filter"> {{curentFilter?.name}}...</i>) </h1>
            <mat-menu #filter="matMenu">
              <felter-mastert-menue></felter-mastert-menue>
            </mat-menu>
