@@ -11,9 +11,10 @@
         description
       </div>
       <div class="container" >
-        <p class="w-100" (click)="editDescription()" *ngIf="!editingDescription">{{ issue.description }}</p>
+        <p class="w-100" (click)="editDescription()" *ngIf="!editingDescription" [innerHTML]="issue.description"></p>
         <p>
-          <textarea class="w-100 border-0" *ngIf="editingDescription" [(ngModel)]="issue.description"></textarea>
+          <app-quill-editor *ngIf="editingDescription" [(content)]="issue.description" [theme]="'snow'"></app-quill-editor>
+
         </p>
         <p>
           <span *ngIf="editingDescription" (click)="editDescription()" class="bouton">Save</span>

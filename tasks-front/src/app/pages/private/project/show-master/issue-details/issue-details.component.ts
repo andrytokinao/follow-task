@@ -122,6 +122,8 @@ export class IssueDetailsComponent {
   }
 
   comments :Comment[] = [];
+  editDescription: boolean = false;
+  editSummary: boolean = false;
 
   addComment() {
     this.comment.issue.id = this.parentIssue.id;
@@ -139,4 +141,12 @@ export class IssueDetailsComponent {
     );
   }
 
+  saveIssue() {
+    this.issueService.saveIssue(this.parentIssue).subscribe(issue => {
+      this.parentIssue = issue;
+      this.editDescription = false;
+      this.editSummary = false;
+    });
+
+  }
 }

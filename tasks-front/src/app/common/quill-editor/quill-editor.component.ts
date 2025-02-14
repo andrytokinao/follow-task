@@ -7,7 +7,7 @@ import Quill from "quill";
   styleUrls: ['./quill-editor.component.css']
 })
 export class EditorComponent {
-  @Input()  content = '';
+  @Input()  content:String = '';
   @Output() html = new EventEmitter<string>();
   @Output() delta = new EventEmitter<any>();
   @Output() text = new EventEmitter<string>();
