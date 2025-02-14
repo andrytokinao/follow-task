@@ -79,6 +79,7 @@ export class IssueDetailsComponent {
   loadIssueType(){
     this.issueService.getIssueTypeById(this.parentIssue.issueType.id).subscribe(issueType => {
       this.issueType = issueType;
+      this.values = [];
       for( let usingCf of this.issueType.usingCustomFields){
         this.values.push(this.getCustomFieldValue(usingCf.customField));
       }
