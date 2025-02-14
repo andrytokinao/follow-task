@@ -163,22 +163,31 @@ export class IssueService implements OnInit{
     this.setIssueMasterCriteria(criteria);
     this.projectGuard.hasCredential(["USER"]).subscribe( isUser => {
       if (isUser) {
-        this.projectGuard.hasSimpleCredential(["CAN_VIEW_ASSIGN_ONLY"]).subscribe( isUser => {
-           // criteria.assigneUsernames = [this.user.username]; TODO : Les admin ne peut pas voir les autre ticket
-          this.searchIssues(criteria,this.project.id).subscribe(masters => {
-          this.setMasters(masters);
-          })
-        });
-        this.projectGuard.hasSimpleCredential(["CAN_VIEW_ONLY"]).subscribe( isUser => {
+        this.projectGuard.hasSimpleCredential(["CAN_VIEW_ASSIGN_ONLY"]).subscribe( viewOnly => {
+          if (viewOnly) {
+            criteria.assigneUsernames = [this.user.username];
+            this.searchIssues(criteria,this.project.id).subscribe(masters => {
+              this.setMasters(masters);
+              return;
+            })
+          }
+        })
+        this.projectGuard.hasSimpleCredential(["CAN_VIEW_ONLY"]).subscribe( vewOnly => {
+          if (vewOnly){
+            return ;
+          }
           // TODO : Ajout ici le filtre pour les observateur externe ,
          /* this.searchIssues(criteria,this.project.id).subscribe(masters => {
             this.setMasters(masters);
           })*/
         });
-        this.projectGuard.hasCredential(["PROJECT_MANAGER","ADMIN","VIEW_ALL_TASK"]).subscribe( isUser => {
-          this.searchIssues(criteria,this.project.id).subscribe(masters => {
-            this.setMasters(masters);
-          })
+        this.projectGuard.hasCredential(["PROJECT_MANAGER","ADMIN","VIEW_ALL_TASK"]).subscribe( canVieAll => {
+          if (canVieAll){
+            this.searchIssues(criteria,this.project.id).subscribe(masters => {
+              this.setMasters(masters);
+            })
+          }
+
         });
         }
     })
