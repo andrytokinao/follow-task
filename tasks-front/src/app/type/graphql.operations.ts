@@ -297,6 +297,7 @@ const SAVE_ISSUE = gql`
           typeIcone
           value
         }
+        color
       }
       reporter {
         id
@@ -411,6 +412,7 @@ const ALL_ISSUE = gql`
           typeIcone
           value
         }
+        color
       }
       reporter {
         id
@@ -534,6 +536,7 @@ const  GET_ISSUE_BY_ASSIGN = gql`
            typeIcone
            value
          }
+         color
        }
     }
   }
@@ -549,6 +552,7 @@ const  ALL_STATUS = gql`
         typeIcone
         value
       }
+      color
       }
     }
 `;
@@ -1144,6 +1148,7 @@ const GET_ISSUE_TYPE_BY_ID = gql`
            value
            typeIcone
          }
+         color
        }
      }
    }
@@ -1352,6 +1357,7 @@ const ASSIGNE_TO_USER =  gql `
             typeIcone
             value
           }
+          color
         }
         issueType {
           id
@@ -1547,6 +1553,7 @@ const LOAD_SUBTASK = gql`
             typeIcone
             value
           }
+          color
         }
         issueType {
           id
@@ -1620,6 +1627,7 @@ const LOAD_ISSUE_MASTER_BY_PROJECT = gql`
           typeIcone
           value
         }
+        color
       }
       issueType {
         id
@@ -1711,6 +1719,7 @@ const SEARCH_ISSUES = gql`
           typeIcone
           value
         }
+        color
       }
       issueType {
         id
@@ -1924,6 +1933,7 @@ const EVENT_BY_ID=gql`
               id
               value
             }
+            color
           }
           parent {
             id
@@ -2116,6 +2126,7 @@ export const GET_ISSUE_BY_ID = gql`
           typeIcone
           value
         }
+        color
       }
       issueType {
         id

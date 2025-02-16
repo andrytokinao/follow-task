@@ -43,5 +43,6 @@ public class Initializer implements CommandLineRunner {
              }
          }
          projectService.initDomaineActivity();
+       //  projectService.initCollorStatus();
     }
 }

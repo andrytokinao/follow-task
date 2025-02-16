@@ -4,7 +4,7 @@
 
 <div *ngIf="!isLoading" class="project-list list-group">
   <div class="list-group"  *ngFor="let master of issues" class="project-card" >
-    <a class="list-group-item list-group-item-action">
+    <a class="list-group-item list-group-item-action" [ngStyle]="getStyleByStatus(master)">
       <div class="master-item">
         <div>
           <h5 class="mb-1">

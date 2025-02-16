@@ -1,4 +1,4 @@
-<span class="controle" [matMenuTriggerFor]="menu2" mat-icon-button>
+<span class="controle" [matMenuTriggerFor]="menu2" mat-icon-button [ngStyle]="statusStyle()">
   <span  *ngIf="issue.status != null "><app-icone-view [icon]="issue.status.icone" ></app-icone-view> {{issue.status.displayName}} </span>
 <span *ngIf="issue.status == null " >No status </span>
 <i class="fas fa-chevron-down"></i>

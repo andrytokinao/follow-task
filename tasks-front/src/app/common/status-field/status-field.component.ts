@@ -79,4 +79,13 @@ export class StatusFieldComponent implements OnInit , AfterViewInit{
       })
     })
   }
+
+  statusStyle() {
+      if (this.issue.status && this.issue.status.color){
+        console.log('iconeStyle',this.issue.status.color);
+        return {['color']:this.issue.status.color};
+      }
+      return undefined;
+    }
+
 }

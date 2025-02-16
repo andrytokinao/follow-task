@@ -152,6 +152,43 @@ public class ProjectService {
         }
         return statuses;
     }
+   public void initCollorStatus() {
+        List<Status> enAttente = statusRepository.findByDisplayName("En Attente");
+        List<Status> ouvert = statusRepository.findByDisplayName("Ouvert");
+        List<Status> prog = statusRepository.findByDisplayName("En Cours");
+        List<Status> corr = statusRepository.findByDisplayName("Corrigé");
+        List<Status> res = statusRepository.findByDisplayName("Résolue");
+        List<Status> term = statusRepository.findByDisplayName("Terminé");
+        List<Status> ab = statusRepository.findByDisplayName("Abandonné");
+        for(Status s : enAttente){
+            s.setColor("#5a5a5a");
+            statusRepository.save(s);
+        }
+       for(Status s : ouvert){
+           s.setColor("#3dd5f3");
+           statusRepository.save(s);
+       }
+       for(Status s : prog){
+           s.setColor("#1c4587");
+           statusRepository.save(s);
+       }
+       for(Status s : corr){
+           s.setColor("#0f5132");
+           statusRepository.save(s);
+       }
+       for(Status s : res){
+           s.setColor("#0f5132");
+           statusRepository.save(s);
+       }
+       for(Status s : term){
+           s.setColor("#0a3622");
+           statusRepository.save(s);
+       }
+       for(Status s : ab){
+           s.setColor("#000000");
+           statusRepository.save(s);
+       }
+    }
 
     public List<IssueType> getOrInitialiseDefaultIssueType(Project project) {
         List<IssueType> issueTypes = new ArrayList<>();

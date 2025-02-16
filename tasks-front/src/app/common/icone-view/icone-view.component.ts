@@ -10,5 +10,14 @@ import {extractClass} from "@angular/compiler-cli/src/ngtsc/docs/src/class_extra
 export class IconeViewComponent {
   @Input() icon: Icone | any = {};
   @Input() width: string ="";
+  @Input() color:String;
 
+
+  iconeStyle() {
+    if (this.color) {
+      console.log('iconeStyle',this.color);
+      return {['color']:this.color};
+    }
+    return undefined;
+  }
 }

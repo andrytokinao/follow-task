@@ -114,4 +114,10 @@ export class IssueMasterListComponent {
     }
     return (value.customField.configDisplay.find(cf =>  cf == 'DisplayInList') != null)
   }
+  getStyleByStatus(issue:Issue){
+    if (issue.status && issue.status.color) {
+      return {['border-color']:issue.status.color}
+    }
+    return undefined;
+  }
 }
