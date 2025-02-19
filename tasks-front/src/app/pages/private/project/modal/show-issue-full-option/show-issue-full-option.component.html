@@ -1,0 +1,14 @@
+<span class="controle" style="width: 100%;height: 100%"  [matMenuTriggerFor]="showIssue" >
+  <i class="fas fa-bars float-end"> </i>
+</span>
+
+
+<mat-menu #showIssue="matMenu">
+  <div >
+    <button mat-menu-item  (click)="showPlanning()" > <span>Planning </span> </button>
+    <button mat-menu-item  (click)="showDetails()" ><span>Details </span> </button>
+    <div (click)="stopPropagation($event)" style="margin: 10px"> <app-status-field [issue]="issue"></app-status-field> </div>
+    <div (click)="stopPropagation($event)" style="margin: 10px"> <app-assign-field [issue]="issue"></app-assign-field> </div>
+  </div>
+</mat-menu>
+

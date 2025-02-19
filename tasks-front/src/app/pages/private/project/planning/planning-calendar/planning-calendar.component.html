@@ -1,9 +1,9 @@
-
 <div class="contenue">
   <div class="navigator">
-    <daypilot-navigator [config]="configNavigator" [events]="events" [(date)]="date" (dateChange)="changeDate($event)" #navigator></daypilot-navigator>
-    <div >
-      <div class="card" style="margin-top: 15px;padding-top: 5px;padding-bottom: 5px" >
+    <daypilot-navigator [config]="configNavigator" [events]="events" [(date)]="date" (dateChange)="changeDate($event)"
+                        #navigator></daypilot-navigator>
+    <div>
+      <div class="card" style="margin-top: 15px;padding-top: 5px;padding-bottom: 5px">
         <h1> Date personnalisé </h1>
         <div class="sidebar-heding ">
           <div
@@ -17,15 +17,15 @@
               (change)="selectField($event, dateField)"
               class="custom-checkbox"
             >
-              {{  dateField.name }}
+              {{ dateField.name }}
             </mat-checkbox>
 
           </div>
 
         </div>
       </div>
-      <div class="card" style="margin-top: 15px;padding-top: 5px;padding-bottom: 5px" >
-        <h1> Projets  (<i style="cursor:pointer" [matMenuTriggerFor]="filter"> {{curentFilter?.name}}...</i>) </h1>
+      <div class="card" style="margin-top: 15px;padding-top: 5px;padding-bottom: 5px">
+        <h1> Projets (<i style="cursor:pointer" [matMenuTriggerFor]="filter"> {{ curentFilter?.name }}...</i>) </h1>
         <mat-menu #filter="matMenu">
           <felter-mastert-menue></felter-mastert-menue>
         </mat-menu>
@@ -43,15 +43,8 @@
             >
               {{ parent.issueKey + ' ' + parent.summary }}
             </mat-checkbox>
-            <i
-              class="fas fa-bars float-end"
-              [ngClass]="{
-      'icon-visible': hoveredParent === parent.id,
-      'icon-hidden': hoveredParent !== parent.id
-    }"
-              (click)="detailsIssue(parent)"
-            >
-            </i>
+            <show-issue-full-option [issue]="parent" [label]="'...'">  </show-issue-full-option>
+
           </div>
 
         </div>
@@ -66,7 +59,7 @@
             [checked]="isSelectedUser(user.id)"
             (change)="changeUsersSelected($event,user.id)"
           >
-            {{ user.lastName +' '+user.firstName }}
+            {{ user.lastName + ' ' + user.firstName }}
           </mat-checkbox>
         </div>
       </div>
@@ -74,13 +67,16 @@
   </div>
 
   <div class="my-content">
-    <span class="selected-date" > <b> {{this.navigator.date.toDate() | date}} </b></span>
+    <span class="selected-date"> <b> {{ this.navigator.date.toDate() | date }} </b></span>
 
     <div class="buttons">
-      <button (click)="viewResources()" *ngIf="projectGuard.hasCredential(['CAN_VIEW_TEAM_AGENDA']) | async" [class]="this.configNavigator.selectMode == 'None' ? 'selected' : ''">Equipe</button>
+      <button (click)="viewResources()" *ngIf="projectGuard.hasCredential(['CAN_VIEW_TEAM_AGENDA']) | async"
+              [class]="this.configNavigator.selectMode == 'None' ? 'selected' : ''">Equipe
+      </button>
       <button (click)="viewDay()" [class]="this.configNavigator.selectMode == 'Day' ? 'selected' : ''">Day</button>
       <button (click)="viewWeek()" [class]="this.configNavigator.selectMode == 'Week' ? 'selected' : ''">Week</button>
-      <button (click)="viewMonth()" [class]="this.configNavigator.selectMode == 'Month' ? 'selected' : ''">Month</button>
+      <button (click)="viewMonth()" [class]="this.configNavigator.selectMode == 'Month' ? 'selected' : ''">Month
+      </button>
     </div>
 
     <daypilot-calendar [config]="configDay" [events]="events" #day></daypilot-calendar>

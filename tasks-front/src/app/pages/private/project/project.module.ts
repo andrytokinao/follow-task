@@ -41,6 +41,7 @@ import {ViewEventComponent} from "./modal/view-event/view-event.component";
 import {DayPilotModule} from "@daypilot/daypilot-lite-angular";
 import {PlanningIssueComponent} from "./modal/planning-issue/planning-issue.component";
 import {ShowIssueOptionComponent} from "./modal/show-issue-option/show-issue-option.component";
+import {ShowIssueFullOptionComponent} from "./modal/show-issue-full-option/show-issue-full-option.component";
 
 @NgModule({
   declarations: [
@@ -56,10 +57,11 @@ import {ShowIssueOptionComponent} from "./modal/show-issue-option/show-issue-opt
     DocumentComponent,
     ViewEventComponent,
     PlanningIssueComponent,
-    ShowIssueOptionComponent
+    ShowIssueOptionComponent,
+    ShowIssueFullOptionComponent
   ],
   exports: [
-    StatusComponent, RepartitionComponent, ProjectComponent, ShowIssueOptionComponent
+    StatusComponent, RepartitionComponent, ProjectComponent, ShowIssueOptionComponent, ShowIssueFullOptionComponent
   ],
     imports: [
         ProjectRoutingModule,
