@@ -1,1 +1,96 @@
-<p>planning-calendar works!</p>
+
+<div class="contenue">
+  <div class="navigator">
+    <daypilot-navigator [config]="configNavigator" [events]="events" [(date)]="date" (dateChange)="changeDate($event)" #navigator></daypilot-navigator>
+    <div >
+      <div class="card" style="margin-top: 15px;padding-top: 5px;padding-bottom: 5px" >
+        <h1> Date personnalisé </h1>
+        <div class="sidebar-heding ">
+          <div
+            *ngFor="let dateField of dateCustomFields"
+            class="parent-container"
+            (mouseenter)="hoveredParent = dateField.id"
+            (mouseleave)="hoveredParent = null"
+          >
+            <mat-checkbox
+              [checked]="isSelectedCustomFieldDate(dateField.id)"
+              (change)="selectField($event, dateField)"
+              class="custom-checkbox"
+            >
+              {{  dateField.name }}
+            </mat-checkbox>
+
+          </div>
+
+        </div>
+      </div>
+      <div class="card" style="margin-top: 15px;padding-top: 5px;padding-bottom: 5px" >
+        <h1> Projets  (<i style="cursor:pointer" [matMenuTriggerFor]="filter"> {{curentFilter?.name}}...</i>) </h1>
+        <mat-menu #filter="matMenu">
+          <felter-mastert-menue></felter-mastert-menue>
+        </mat-menu>
+        <div class="sidebar-heding ">
+          <div
+            *ngFor="let parent of issueMasters"
+            class="parent-container"
+            (mouseenter)="hoveredParent = parent.id"
+            (mouseleave)="hoveredParent = null"
+          >
+            <mat-checkbox
+              [checked]="isSelectedParent(parent.id)"
+              (change)="changesParents($event, parent)"
+              class="custom-checkbox"
+            >
+              {{ parent.issueKey + ' ' + parent.summary }}
+            </mat-checkbox>
+            <i
+              class="fas fa-bars float-end"
+              [ngClass]="{
+      'icon-visible': hoveredParent === parent.id,
+      'icon-hidden': hoveredParent !== parent.id
+    }"
+              (click)="detailsIssue(parent)"
+            >
+            </i>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+    <form class="card" style="margin-top: 15px;padding-top: 5px;padding-bottom: 5px">
+      <h1> Equipe </h1>
+      <div class="sidebar-heding ">
+        <div *ngFor="let user of users" [class]="isSelectedUser(user.id) ? 'selected' : ''">
+          <mat-checkbox
+            [checked]="isSelectedUser(user.id)"
+            (change)="changeUsersSelected($event,user.id)"
+          >
+            {{ user.lastName +' '+user.firstName }}
+          </mat-checkbox>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="my-content">
+    <span class="selected-date" > <b> {{this.navigator.date.toDate() | date}} </b></span>
+
+    <div class="buttons">
+      <button (click)="viewResources()" *ngIf="projectGuard.hasCredential(['CAN_VIEW_TEAM_AGENDA']) | async" [class]="this.configNavigator.selectMode == 'None' ? 'selected' : ''">Equipe</button>
+      <button (click)="viewDay()" [class]="this.configNavigator.selectMode == 'Day' ? 'selected' : ''">Day</button>
+      <button (click)="viewWeek()" [class]="this.configNavigator.selectMode == 'Week' ? 'selected' : ''">Week</button>
+      <button (click)="viewMonth()" [class]="this.configNavigator.selectMode == 'Month' ? 'selected' : ''">Month</button>
+    </div>
+
+    <daypilot-calendar [config]="configDay" [events]="events" #day></daypilot-calendar>
+    <daypilot-calendar [config]="configWeek" [events]="events" #week></daypilot-calendar>
+    <daypilot-month [config]="configMonth" [events]="events" #month></daypilot-month>
+    <daypilot-calendar [config]="configResource" #calendar></daypilot-calendar>
+  </div>
+</div>
+
+<!--    <div
+      id="current-time-marker"
+      style="position: absolute; width: 100%; height: 2px; background-color: red; z-index: 1000;">
+    </div>-->
