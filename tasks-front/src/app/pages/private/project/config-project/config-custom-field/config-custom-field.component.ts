@@ -44,7 +44,7 @@ export class ConfigCustomFieldComponent implements OnInit{
   newCustomField(){
     const dialogRef = this.modalService.open(CustomFieldStepperComponent);
     dialogRef.componentInstance.project = this.project;
-    dialogRef.componentInstance.issueTypes = this.project.issueTypes;
+    dialogRef.componentInstance.allIssueTypes = this.project.allIssueTypes;
     dialogRef.result.then((result) => {
       this.issueService.loadAllCustomField()
     })
@@ -130,7 +130,7 @@ export class ConfigCustomFieldComponent implements OnInit{
   }
   editCustomField(customField:CustomField) {
     const dialogRef = this.modalService.open(CustomFieldStepperComponent);
-    dialogRef.componentInstance.issueTypes = this.project.issueTypes;
+    dialogRef.componentInstance.allIssueTypes = this.project.allIssueTypes;
     dialogRef.componentInstance.getCustomField(customField.id) ;
     dialogRef.componentInstance.desabledTypeField() ;
     dialogRef.result.then((res) => {

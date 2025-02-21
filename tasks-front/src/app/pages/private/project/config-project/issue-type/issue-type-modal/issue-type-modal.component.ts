@@ -203,7 +203,7 @@ export class IssueTypeModalComponent implements OnInit{
   };
 
   getFilteredChildrenOptions() {
-   return this.project.issueTypes.filter(type=>this.issueType.id != type.id );
+   return this.project.allIssueTypes.filter(type=>this.issueType.id != type.id );
   }
   loadIssueType(){
     this.issueService.getIssueTypeById(this.issueType.id).subscribe(issueType => {

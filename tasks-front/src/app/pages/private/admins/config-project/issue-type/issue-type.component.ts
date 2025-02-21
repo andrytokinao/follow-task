@@ -37,8 +37,8 @@ export class IssueTypeComponent {
     issueType.project = project;
     this.issueService.saveIssueType(issueType).subscribe(
       (issueTypes: any) => {
-        this.project.issueTypes = [];
-        this.project.issueTypes = supprimerTypename(issueTypes)
+        this.project.allIssueTypes = [];
+        this.project.allIssueTypes = supprimerTypename(issueTypes)
       }, error => {
       }
     );

@@ -106,7 +106,7 @@ export class IssueTypeStepperComponent {
     return this.getFilteredChildrenOptions().filter(type => !this.checkedChildren(type));
   }
   getFilteredChildrenOptions() {
-    return this.project.issueTypes.filter(type=>this.issueType.id != type.id );
+    return this.project.allIssueTypes.filter(type=>this.issueType.id != type.id );
   }
   checkChildren(event: any, issueType: IssueType) {
     if( event.checked){

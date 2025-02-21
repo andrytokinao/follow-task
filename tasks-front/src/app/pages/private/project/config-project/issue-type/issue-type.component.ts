@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {Icone, Issue, IssueType, Project, Status, WorkFlow} from "../../../../../type/issue";
 import {ConfigService} from "../../../../../services/config.service";
 import {IssueService} from "../../../../../services/issue.service";
@@ -15,11 +15,12 @@ import {IssueTypeStepperComponent} from "./issue-type-stepper/issue-type-stepper
   templateUrl: './issue-type.component.html',
   styleUrl: './issue-type.component.css'
 })
-export class IssueTypeComponent {
+export class IssueTypeComponent implements OnInit{
   test :String = "test okay ";
   issueType: IssueType | any = {};
   newIssueType:IssueType | any = {};
   project:Project | any = {};
+  issueTypes:IssueType [] =[];
   workFlow: any = {};
   action: String = "";
   activeModal: any;
@@ -48,8 +49,8 @@ export class IssueTypeComponent {
     issueType.project = project;
     this.issueService.saveIssueType(issueType).subscribe(
       (issueTypes: any) => {
-        this.project.issueTypes = [];
-        this.project.issueTypes = supprimerTypename(issueTypes)
+        this.project.allIssueTypes = [];
+        this.project.allIssueTypes = supprimerTypename(issueTypes)
       }
     );
   }
@@ -143,6 +144,7 @@ export class IssueTypeComponent {
   }
   ngOnInit(): void {
     this.issueService.project$.subscribe(project => {this.project = project});
+    this.issueService.issueType$.subscribe( issueTypes => this.issueTypes = issueTypes)
 }
   loadIssueType(){
     this.issueType.getIssueTypeById(this.issueType.id).subscribe(issueType => {
@@ -160,10 +162,8 @@ export class IssueTypeComponent {
     dialogRef.componentInstance.loadWorkFlows();
     dialogRef.result.then((res) => {
       this.issueType = res;
-      this.issueService.allIssueType(this.project.id).subscribe(issueTypes => {
-        this.project.issueTypes = issueTypes;
-        this.issueService.updateProject(this.project);
-      })
+      this.issueService.loadIssueType();
+
     })
   }
 }

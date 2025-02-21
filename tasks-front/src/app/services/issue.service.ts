@@ -95,7 +95,10 @@ export class IssueService implements OnInit{
   subtask$ = this.subtaskSubject.asObservable();
   issueMaster$ = this.issueMasterSubject.asObservable();
   issueMasterList$ = this.issueMastersListSubject.asObservable();
-
+  private issueTypesSubject = new BehaviorSubject<IssueType[]>([]);
+  issueType$ = this.issueTypesSubject.asObservable();
+  private issueTypesParentSubject = new BehaviorSubject<IssueType[]>([]);
+  issueTypeParent$ = this.issueTypesParentSubject.asObservable();
   project$ = this.projectSubject.asObservable();
   projects$ = this.projectsSubject.asObservable();
   private masterCurrentMasterFilterSubject = new BehaviorSubject<CustomFilter>(null);
@@ -144,6 +147,11 @@ export class IssueService implements OnInit{
 
           }
         });
+        this.loadIssueType();
+        this.issueType$.subscribe( issueTypes=> {
+          let parentType = issueTypes.filter(it => it.level === 'PARENT');
+          this.issueTypesParentSubject.next(parentType);
+        })
       }
 
     });
@@ -240,20 +248,9 @@ export class IssueService implements OnInit{
       })
     })
   }
-  createMaster() {
-    const dialogRef = this.modalService.open(NewIssueComponent);
-    dialogRef.componentInstance.listIssueTypeMaster(this.project.id);
-    dialogRef.componentInstance.project = this.project;
-    dialogRef.result.then((result) => {
-      this.searchIssues(this.masterListCriteriaSubject.value,this.project.id).subscribe(issues => {
-        this.setMasters(issues);
-      })
-    })
-  }
   createIssueMaster() {
     const dialogRef = this.modalService.open(NewIssueComponent);
-    dialogRef.componentInstance.listIssueTypeMaster(this.project.id);
-    dialogRef.componentInstance.project = this.project;
+    dialogRef.componentInstance.isMaster = true;
     dialogRef.result.then((result) => {
       dialogRef.result.then(res => {
         if (res != null) {
@@ -1168,23 +1165,17 @@ export class IssueService implements OnInit{
 
   }
   allIssueType(projectId:Number) {
-    return new Observable<Issue[]>(observer => {
       this.apollo.query({
         query:ALL_ISSUE_TYPE,
         variables:{projectId},
         fetchPolicy:"network-only"
       }).subscribe((res:any)=>{
         this.issueTypes = supprimerTypename(res.data.allIssueType);
-        let project:Project = {...this.projectSubject.value}
-        project.issueTypes = this.issueTypes;
-        this.projectSubject.next(project);
-        observer.next(supprimerTypename(res.data.allIssueType));
-        observer.complete();
+        this.issueTypesSubject.next(this.issueTypes);
+
       },error => {
-        observer.error(error);
-        observer.complete();
+        console.error(error);
       })
-    })
   }
 
   defaultCompare(option1:any,option2){
@@ -1196,8 +1187,8 @@ export class IssueService implements OnInit{
     this.userService.getUsersForProject(this.projectSubject.value.prefix);
   }
 
-  private loadIssueType() {
-    this.allIssueType(this.projectSubject.value.id);
+  loadIssueType() {
+    this.allIssueType(this.project.id);
   }
 
   findAllStatus() {

@@ -1,4 +1,4 @@
-import {Component, inject, Inject, Injector, Input, ViewChild,afterNextRender} from '@angular/core';
+import {Component, inject, Inject, Injector, Input, ViewChild, afterNextRender, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {FormsModule} from "@angular/forms";
@@ -11,12 +11,14 @@ import {JsonpInterceptor} from "@angular/common/http";
   templateUrl: './new-issue.component.html',
   styleUrl: './new-issue.component.css'
 })
-export class NewIssueComponent {
+export class NewIssueComponent implements OnInit{
   issue : any = {
     summary:"Test test  ",
     description :"description ",
   };
+  isMaster=false;
   parent:Issue | undefined;
+  issueTypesMasters:IssueType[]=[];
   step:string ="";
   status : Status|null = null ;
   summary: string = '';
@@ -24,7 +26,8 @@ export class NewIssueComponent {
   type: string = '';
   issueKey:String ="";
   issueType: IssueType | any = {};
-  issueTypes: IssueType[] = [];
+  allIssueTypes: IssueType[] = [];
+  useIssueType:IssueType [] = [];
   project:Project | undefined;
   protected  isDesable = false;
 
@@ -71,25 +74,17 @@ export class NewIssueComponent {
 
   change() {
     console.log(JSON.stringify(this.issueType));
-
   }
-  public listIssueTypeMaster(project:Number){
+  public createMaster(){
     this.isDesable = true;
-    this.issueService.listIssueTypeMaster(project).subscribe(types=>{
-      this.issueTypes = types;
-      if (this.issueTypes != null && this.issueTypes.length != 0) {
-        this.issueType = this.issueTypes[0];
-        this.loadNextKey(this.issueType.id);
-      }
-    });
   }
   public listIssueTypeSubtasks(masterId:Number){
     this.isDesable = true;
 
     this.issueService.listIssueTypeSubtasks(masterId).subscribe(types=>{
-      this.issueTypes = types;
-      if (this.issueTypes != null && this.issueTypes.length != 0) {
-        this.issueType = this.issueTypes[0];
+      this.useIssueType = types;
+      if (this.allIssueTypes != null && this.allIssueTypes.length != 0) {
+        this.issueType = this.allIssueTypes[0];
         this.loadNextKey(this.issueType.id);
       }
     });
@@ -105,5 +100,21 @@ export class NewIssueComponent {
   changeType() {
     this.isDesable = true;
     this.loadNextKey(this.issueType.id);
+  }
+
+  ngOnInit(): void {
+    this.issueService.issueTypeParent$.subscribe(issueTypesm =>  {
+      this.issueTypesMasters = issueTypesm;
+      if(this.isMaster){
+        this.useIssueType = this.issueTypesMasters;
+      }
+      this.allIssueTypes = issueTypesm;
+    });
+    this.issueService.issueType$.subscribe(issueTypes =>  {
+      this.allIssueTypes = issueTypes;
+    });
+    this.issueService.project$.subscribe(project=>{
+      this.project = project;
+    })
   }
 }

@@ -60,7 +60,7 @@ export class BoardComponent implements OnInit {
 
   newIssue(status: Status) {
     const dialogRef = this.modalService.open(NewIssueComponent);
-    dialogRef.componentInstance.issueTypes = this.currentWorkflow.issueTypes;
+    dialogRef.componentInstance.allIssueTypes = this.currentWorkflow.allIssueTypes;
     dialogRef.componentInstance.status = status;
     dialogRef.result.then((result) => {
       this.issues = <Issue[]>stripTypename(result.issues)

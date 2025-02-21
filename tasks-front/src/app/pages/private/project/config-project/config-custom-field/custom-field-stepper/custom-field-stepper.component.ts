@@ -99,10 +99,10 @@ export class CustomFieldStepperComponent {
   }
 
   isUsing(it: IssueType) {
-    if (this.customField == null || this.customField.issueTypes == undefined || this.customField.issueTypes.length == 0) {
+    if (this.customField == null || this.customField.allIssueTypes == undefined || this.customField.allIssueTypes.length == 0) {
       return false;
     }
-    return this.customField.issueTypes.some(selected => selected.issueType.id === it.id);
+    return this.customField.allIssueTypes.some(selected => selected.issueType.id === it.id);
   }
 
   toggleCheck(it: IssueType) {

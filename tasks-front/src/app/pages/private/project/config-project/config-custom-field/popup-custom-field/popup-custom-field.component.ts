@@ -74,7 +74,7 @@ export class PopupCustomFieldComponent implements OnInit{
   }
 
   isUsing(it: IssueType) {
-   return this.customField.issueTypes.some(selected => selected.issueType.id === it.id);
+   return this.customField.allIssueTypes.some(selected => selected.issueType.id === it.id);
   }
 
   toggleCheck(it: IssueType) {
