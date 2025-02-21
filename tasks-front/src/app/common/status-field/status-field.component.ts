@@ -43,6 +43,11 @@ export class StatusFieldComponent implements OnInit , AfterViewInit{
          (result) => {
           this.issue = result;
           this.onUpdateIssue.emit(this.issue);
+          if (issue.issueType.level === 'PARENT') {
+            this.issueService.refreshIssueListMasters();
+          } else {
+            this.issueService.refreshIssueListSubtask();
+          }
         }
 
 

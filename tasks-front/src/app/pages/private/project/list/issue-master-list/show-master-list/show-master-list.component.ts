@@ -120,12 +120,9 @@ export class ShowMasterListComponent implements OnInit{
   }
   selectFilter(fileter:CustomFilter) {
     this.selectedFilter = fileter;
-    this.searchIssueMaster(this.selectedFilter.criteria);
+    this.issueService.filterMasterIssue(this.selectedFilter);
   }
-  searchIssueMaster(searchCriteria:IssueSearchCriteriaInput){
-   this.issueService.loadIssueMasters(searchCriteria);
 
-  }
   newParentFilter(event: MouseEvent) {
     let filter:CustomFilter = {
       criteria:{issueTypeLevels:['PARENT']},

@@ -102,12 +102,15 @@ export class IssueService implements OnInit{
   project$ = this.projectSubject.asObservable();
   projects$ = this.projectsSubject.asObservable();
   private masterCurrentMasterFilterSubject = new BehaviorSubject<CustomFilter>(null);
+  private currentSubtaskFilterSubject = new BehaviorSubject<CustomFilter>(null);
+  private currentSubtaskFilter$ = this.currentSubtaskFilterSubject.asObservable();
   currentMasterFilter$ = this.masterCurrentMasterFilterSubject.asObservable();
   private issuesSubject = new BehaviorSubject<Issue[]>([]);
   issues$ = this.issuesSubject.asObservable();
   uploadingDocumentSubject : BehaviorSubject<DocumentApp>;
   private allCustomFieldSubject = new BehaviorSubject<CustomField[]>([]);
   allCustomField$ = this.allCustomFieldSubject.asObservable();
+  private masterCurrentMasterFilter: CustomFilter;
   setIssues(issues: Issue[]) {
     this.issuesSubject.next(issues);
   }
@@ -115,7 +118,7 @@ export class IssueService implements OnInit{
     this.subtaskSubject.next(issues);
   }
   // Exposed as an observable for components to subscribe
-
+  curentMasterCriteria  : IssueSearchCriteriaInput = {};
   constructor(private http: HttpClient,
               private apollo: Apollo,
               private router: Router,
@@ -164,7 +167,12 @@ export class IssueService implements OnInit{
       }
     });
   }
-
+  filterMasterIssue(customFilter:CustomFilter){
+    this.setCurrentMasterFilter(customFilter);
+    if (customFilter && customFilter.criteria) {
+      this.loadIssueMasters(customFilter.criteria);
+    }
+  }
   loadIssueMasters(criteria:IssueSearchCriteriaInput){
     criteria.issueTypeLevels=['PARENT'];
     criteria.projectId = this.project?.id;
@@ -1225,7 +1233,8 @@ export class IssueService implements OnInit{
 
   }
   setCurrentMasterFilter(filter:CustomFilter){
-    this.masterCurrentMasterFilterSubject.next(filter);
+    this.masterCurrentMasterFilter = filter;
+     this.masterCurrentMasterFilterSubject.next(filter);
   }
   loadProjectList(){
     this.getProjectByUser(this.user?.id);
@@ -1498,5 +1507,20 @@ export class IssueService implements OnInit{
         observer.complete();
       })
     })
+  }
+
+  refreshIssueListMasters() {
+    if (this.masterCurrentMasterFilter ) {
+      this.loadIssueMasters(this.masterCurrentMasterFilterSubject.value.criteria);
+    }
+  }
+
+  refreshIssueListSubtask() {
+    // TODO : Metre ici la refresh List lors d'application du filtre
+    if (this.currentSubtaskFilterSubject.value && this.project.id) {
+      this.searchIssues(this.masterCurrentMasterFilterSubject.value , this.project.id).subscribe( issues => {
+        this.setIssues(issues);
+      })
+    }
   }
 }
