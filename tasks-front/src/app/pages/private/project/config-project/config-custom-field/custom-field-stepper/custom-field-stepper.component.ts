@@ -138,6 +138,7 @@ export class CustomFieldStepperComponent {
       this.customField = customField;
       this.options = customField.options;
       this.displayOptionSelected = customField.configDisplay;
+      this.issueService.loadAllCustomField();
     })
   }
   protected displayOptionSelected:String[] = [];

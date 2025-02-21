@@ -46,7 +46,7 @@ export class ConfigCustomFieldComponent implements OnInit{
     dialogRef.componentInstance.project = this.project;
     dialogRef.componentInstance.allIssueTypes = this.project.allIssueTypes;
     dialogRef.result.then((result) => {
-      this.issueService.loadAllCustomField()
+      this.issueService.loadAllCustomField();
     })
   }
   saveCustomField(customField:CustomField) {
@@ -59,11 +59,12 @@ export class ConfigCustomFieldComponent implements OnInit{
   }
 
   ngOnInit(): void {
-    this.route.data.subscribe(data => {
-      this.project = data['project'];
-    });
+
     this.issueService.allCustomField$.subscribe(customFields => {
       this.customFields = customFields;
+    });
+    this.issueService.project$.subscribe(prj=>{
+      this.project = prj;
     })
   }
   selectIssueType(issueType: any) {
@@ -134,7 +135,7 @@ export class ConfigCustomFieldComponent implements OnInit{
     dialogRef.componentInstance.getCustomField(customField.id) ;
     dialogRef.componentInstance.desabledTypeField() ;
     dialogRef.result.then((res) => {
-      this.issueType = res;
+      this.issueService.loadAllCustomField();
     })
   }
 }
