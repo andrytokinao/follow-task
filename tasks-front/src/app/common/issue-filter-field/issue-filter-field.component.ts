@@ -67,7 +67,7 @@ export class IssueFilterFieldComponent implements AfterViewInit{
       }
       this.customFilter.criteria.statusIds.push(id);
     } else {
-      this.statusIds = this.statusIds.filter(item => item !== id);
+      this.customFilter.criteria.statusIds = this.customFilter.criteria.statusIds.filter(item => item != id);
     }
   }
 
