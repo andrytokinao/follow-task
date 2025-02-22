@@ -26,7 +26,7 @@
         <div class="file-item-list">
           <div class="file-item" *ngFor="let up of document.uploadeds"   [ngClass]="{'selected-file':up.id === selectedFile?.id}">
             <i [class]="getFileIconClass(up.name.toString())"></i> <span (click)="selectFile(up)"> {{up.name}} </span>
-            <a [href]="issueService.downloadUploadedUrl(up)" style="float: right;" > telecharger <i class="fa fa-download"></i></a>
+            <a [href]="issueService.downloadUploadedUrl(up)" style="float: right;" > . <i class="fa fa-download"></i></a>
           </div>
         </div>
         <mat-action-row>
