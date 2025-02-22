@@ -46,7 +46,7 @@
           <mat-form-field appearance="outline" class="parent-issue-type">
             <label>Type d'Issue Parent</label>
             <mat-select [(ngModel)]="selectedParentIssueType" [compareWith]="issueService.defaultCompare" [ngModelOptions]="{standalone: true}">
-              <mat-option *ngFor="let type of getFilteredParentOptions()" [value]="type" (click)="addParrent(type)">
+              <mat-option *ngFor="let type of issueTypesParents" [value]="type" (click)="addParrent(type)">
                 {{ type.name }}
               </mat-option>
             </mat-select>

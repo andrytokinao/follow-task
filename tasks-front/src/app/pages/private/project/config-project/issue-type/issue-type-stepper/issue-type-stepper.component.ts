@@ -16,13 +16,16 @@ import {NgbActiveModal, NgbModal} from "@ng-bootstrap/ng-bootstrap";
   styleUrl: './issue-type-stepper.component.css'
 })
 export class IssueTypeStepperComponent {
+  issueTypesParents: IssueType[] = [];
   constructor(private configService:ConfigService,
               protected issueService :IssueService,
               private route: ActivatedRoute,
               public activeModal: NgbActiveModal,
 
   ) {
-
+      this.issueService.issueTypeParent$.subscribe(parent => {
+        this.issueTypesParents = parent ;
+      })
   }
   private _formBuilder = inject(FormBuilder);
   creationFormGroupe = this._formBuilder.group({
