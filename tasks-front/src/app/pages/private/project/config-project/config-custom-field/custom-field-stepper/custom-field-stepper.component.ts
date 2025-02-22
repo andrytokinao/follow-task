@@ -48,6 +48,9 @@ export class CustomFieldStepperComponent {
               private route: ActivatedRoute,
               public activeModal: NgbActiveModal,
   ) {
+    this.issueService.issueType$.subscribe(issueTypes => {
+      this.issueTypes = issueTypes;
+    })
   }
   onCancelClick() {
     this.activeModal.close({customField:this.customField });
