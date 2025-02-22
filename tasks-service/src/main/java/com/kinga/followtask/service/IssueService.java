@@ -112,7 +112,10 @@ public class IssueService {
             if (StringUtils.isEmpty(project.getPath())) {
                 throw new RemoteException(" Config non terminer ");
             }
-
+            if (issue.getStatus() == null ) {
+                Status defaultStatus = workFlow.getStatuses().get(0);
+                issue.setStatus(defaultStatus);
+            }
         } else {
             issue.setUpdateDate( new Date());
         }
