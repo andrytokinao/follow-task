@@ -68,6 +68,7 @@ task-authorization:
         - "CAN_CONFIG_CUSTOM_FIELD"
         - "CAN_CONFIG_ISSUE_TYPE"
         - "CAN_ASSIGN_TASK"
+        - "CAN_EDIT_FIELD"
         - "CAN_CREATE_TASK"
         - "CAN_CLOSE_TASK"
         - "CAN_APPROVE_TASK"

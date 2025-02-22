@@ -11,6 +11,7 @@ import {DisplayCustomfielFactoryService} from "../../services/display-customfiel
 import {CustomField, CustomFieldValue, DisplayCustomField, Icone, Issue} from "../../type/issue";
 import {CommonModule, NgIf} from "@angular/common";
 import {MyCommonModule} from "../common.module";
+import {ProjectGuard} from "../../services/ProjectGuard";
 
 @Component({
   selector: 'app-custom-field',
@@ -47,7 +48,8 @@ export class CustomFieldComponent implements OnInit{
   constructor(
     private resolver: ComponentFactoryResolver,
     private factory: DisplayCustomfielFactoryService,
-  ) {
+    protected   projectCuard: ProjectGuard
+) {
   }
 
   private onEdit(newData: any) {
