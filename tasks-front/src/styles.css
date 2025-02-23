@@ -132,7 +132,7 @@ selected{
 .top-menu {
   grid-row: 1 / 2;
   grid-column: 1 / 3;
-  background-image: linear-gradient(-45deg, #14418f 0%, #515a5d 100%);
+  background-image: linear-gradient(-45deg, #4f8a5c 0%, #4f8a5c 100%);
   color: #fff;
   padding: 10px;
   display: flex;
@@ -260,14 +260,14 @@ selected{
 
 .filter-item:hover {
   background-color: #f1f1f1;
-  border-color: #007bff;
+  border-color: #4f8a5c;
 }
 .filter-item.active {
   background-color: #f1f1f1;
-  border-color: #007bff;
+  border-color: #4f8a5c;
 }
 .filter-link {
-  color: #007bff;
+  color: #4f8a5c;
   text-decoration: none;
   font-size: 16px;
   flex-grow: 1;
@@ -276,7 +276,7 @@ selected{
 .edit-icon {
   font-size: 16px;
   cursor: pointer;
-  color: #007bff;
+  color: #4f8a5c;
 }
 
 .new-filter-btn {
@@ -646,7 +646,7 @@ h3 {
   }
 
   .upload-btn:hover {
-    background-color: #283593;
+    background-color: #4f8a5c;
     transform: scale(1.05);
   }
 
@@ -654,7 +654,7 @@ h3 {
     transform: scale(1);
   }
   .bouton{
-    color: #007BFF;
+    color: #4f8a5c;
     text-decoration: none;
     font-weight: bold;
     padding: 8px 15px;
