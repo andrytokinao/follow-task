@@ -10,13 +10,7 @@
           <h5 class="mb-1">
             <app-icone-view [icon]="master.issueType.icone"></app-icone-view> {{master.issueKey}}  {{master.summary}}</h5>
           <p class="mb-2" [innerHTML]="master.description"></p>
-          <span  *ngFor="let value of master.values">
-        <app-custom-field *ngIf="canShowInList(value)"
-                          [customFieldValue]="value" (save)="saveCustomFieldValue($event)"
-                          [viewMode]="viewModeField"
-        > </app-custom-field>
-      </span>
-          <div> <app-label-form [issue]="master"></app-label-form> </div>
+
 
         </div>
         <small class="master-controle" >
@@ -31,6 +25,16 @@
             <span (click)="editIssue(master)" class="controle" >  <i class="fas fa-calendar" > </i>  Details </span>
           </p>
         </small>
+
+      </div>
+      <div>
+        <span  *ngFor="let value of master.values">
+        <app-custom-field *ngIf="canShowInList(value)"
+                          [customFieldValue]="value" (save)="saveCustomFieldValue($event)"
+                          [viewMode]="viewModeField"
+        > </app-custom-field>
+      </span>
+        <div> <app-label-form [issue]="master"></app-label-form> </div>
       </div>
 
 

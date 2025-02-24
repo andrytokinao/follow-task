@@ -49,7 +49,7 @@ export class CommentsComponent {
   constructor(private router: Router,
               private modalService: NgbModal,
               private configService:ConfigService,
-              private issueService:IssueService,
+              protected issueService:IssueService,
               protected userService:UserService,
               private route: ActivatedRoute,
               private authService: AuthService

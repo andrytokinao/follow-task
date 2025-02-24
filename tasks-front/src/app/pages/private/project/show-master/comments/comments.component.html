@@ -22,18 +22,17 @@
                 <small class="text-body-secondary" *ngIf="document.creation">{{ document.creation | date }}</small>
             </span>
             </div>
-            <div style="border-left: solid #0a3622 2px; margin-left: 10px;padding-left: 10px">
+            <div style=" margin-left: 10px;padding-left: 1px">
               <p class="comment-text" [innerHTML]="document.description"></p>
-              <div *ngIf="document.uploadeds" class="file-item-list">
+              <div *ngIf="document.uploadeds && document.uploadeds.length != 0" class="file-item-list">
                 <div> Fichier </div>
 
-                <div class="file-item" *ngFor="let up of document.uploadeds"><i class="fas fa-file-pdf"></i> {{up.name}}</div>
-                <!--<div class="file-item"><i class="fas fa-file-word"></i> fichier.docx</div>
-                <div class="file-item"><i class="fas fa-file-archive"></i> fichier.zip</div>
-                <div class="file-item"><i class="fas fa-file-audio"></i> fichier.mp3</div>
-                <div class="file-item"><i class="fas fa-file-video"></i> fichie.mp4</div>-->
+                <div class="file-item" *ngFor="let up of document.uploadeds" style="padding-left:50px"><i class="fas fa-file-pdf"></i> {{up.name}}
+                  <a [href]="issueService.downloadUploadedUrl(up)" style="margin-left: 20px" > <i class="fa fa-download"></i></a>
+                </div>
               </div>
             </div>
+            <mat-divider _ngcontent-ng-c3949266393="" role="separator" class="mat-divider mat-divider-horizontal" style="margin: 24px 0;" aria-orientation="horizontal"></mat-divider>
 
           </div>
         </div>

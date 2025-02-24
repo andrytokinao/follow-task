@@ -6,7 +6,37 @@
         <p><i class="fas fa-plus"></i> Creer une uploads </p>
       </div>
     </div>
-    <div *ngFor="let document of documents let i = index" >
+<!--
+    <mat-divider _ngcontent-ng-c3949266393="" role="separator" class="mat-divider mat-divider-horizontal" style="margin: 24px 0;" aria-orientation="horizontal"></mat-divider>
+-->
+    <div style="height:100vh;">
+      <div *ngFor="let document of documents let i = index"   >
+        <div>
+          <div class="cards">
+            <div class="card-title">
+             <span>
+              <small>{{ document.creation | date | date }} - Par {{ document.userApp.username }}</small>
+          </span>
+              <h1>{{document.titre}}</h1>
+
+              <p [innerHTML]="document.description">
+              </p>
+            </div>
+            <div *ngIf="document.uploadeds && document.uploadeds.length != 0"> Fichier </div>
+            <div class="file-item-list">
+              <div class="file-item" *ngFor="let up of document.uploadeds"   [ngClass]="{'selected-file':up.id === selectedFile?.id}">
+                <i [class]="getFileIconClass(up.name.toString())"></i> <span (click)="selectFile(up)"> {{up.name}} </span>
+                <a [href]="issueService.downloadUploadedUrl(up)" style="float: right;margin-right: 20px" > <i class="fa fa-download"></i></a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <mat-divider _ngcontent-ng-c3949266393="" role="separator" class="mat-divider mat-divider-horizontal" style="margin: 24px 0;" aria-orientation="horizontal"></mat-divider>
+      </div>
+    </div>
+
+
+    <!--<div *ngFor="let document of documents let i = index" >
 
       <mat-expansion-panel   [expanded]="step() === i || defaultOpen" (opened)="setStep(1)" >
         <mat-expansion-panel-header>
@@ -35,7 +65,7 @@
         </mat-action-row>
       </mat-expansion-panel>
       <mat-divider style="margin: 24px 0;"></mat-divider>
-    </div>
+    </div>-->
   </div>
 
   <div class="file-preview-container" *ngIf="selectedFile || isNewFile" >

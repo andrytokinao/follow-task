@@ -47,6 +47,7 @@ import {
   MatExpansionPanelDescription,
   MatExpansionPanelTitle
 } from "@angular/material/expansion";
+import {DocumentUploaderComponent} from "./document-uploader/document-uploader.component";
 
 
 @NgModule({
@@ -60,7 +61,8 @@ import {
     DossierSourceComponent,
     CommentsComponent,
     IssueChatsComponent,
-    DocumentsComponent
+    DocumentsComponent,
+    DocumentUploaderComponent
   ],
   exports: [
   ],

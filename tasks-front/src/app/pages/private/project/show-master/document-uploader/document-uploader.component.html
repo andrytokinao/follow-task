@@ -1,0 +1,38 @@
+<div class="container">
+  <div class="document-list">
+    <h3>Liste des Documents</h3>
+    <ul>
+      <li *ngFor="let doc of documents" (click)="selectDocument(doc)">
+        <div>
+          <strong>{{ doc.title }}</strong><br />
+          <span>{{ doc.uploadedBy }} - {{ doc.uploadedDate }}</span><br />
+          <em>{{ doc.description }}</em>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <div class="file-preview">
+    <h3>Aperçu du Document</h3>
+    <div id="file-preview">
+      <p *ngIf="!fileInput && selectedDocument">
+        Sélectionnez un fichier ou un document à gauche pour l'aperçu.
+      </p>
+      <p *ngIf="fileInput">
+        <strong>Aperçu de : {{ fileInput.name }}</strong>
+        <br />
+        <em>{{ fileInput.size / 1024 | number: '1.0-0' }} Ko</em>
+      </p>
+    </div>
+
+    <div *ngIf="selectedDocument" class="document-info">
+      <strong>{{ selectedDocument.title }}</strong>
+      <p>{{ selectedDocument.description }}</p>
+      <p><strong>Téléchargé par:</strong> {{ selectedDocument.uploadedBy }} - {{ selectedDocument.uploadedDate }}</p>
+    </div>
+
+    <div>
+      <input type="file" (change)="onFileSelect($event)" />
+    </div>
+  </div>
+</div>

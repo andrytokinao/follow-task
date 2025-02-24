@@ -1,0 +1,39 @@
+.container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.document-list {
+  width: 40%;
+  border-right: 2px solid #ddd;
+}
+
+.document-list ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.document-list li {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.document-list li:hover {
+  background-color: #f0f0f0;
+}
+
+.file-preview {
+  width: 55%;
+  padding-left: 20px;
+}
+
+#file-preview {
+  border: 1px solid #ddd;
+  margin-top: 10px;
+  padding: 10px;
+  height: 450px;
+}
+
+.document-info {
+  margin-top: 20px;
+}

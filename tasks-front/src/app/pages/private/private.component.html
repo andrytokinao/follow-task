@@ -1,6 +1,16 @@
 <div class="grid-container">
   <div class="top-menu">
-    <div class="logo">Logo</div>
+    <div class="logo" [routerLink]=""><img [src]="logoUrl()" alt="VOTRE LOGO" height="45px" [matMenuTriggerFor]="choixLogo">
+
+    </div>
+    <mat-menu #choixLogo = "matMenu" (click) = "$event.stopPropagation()">
+      <div
+        (click)="fileInput.click()"
+        class="file-drop-zone">
+        <input type="file"  (change)="selectLogo($event)" hidden #fileInput>
+        <p>Selectionner une image </p>
+      </div>
+    </mat-menu>
     <ul class="navigation">
       <li><a routerLink="" ariaCurrentWhenActive="page">Home</a></li>
       <!--<li>
@@ -21,7 +31,7 @@
         <div class="user-dropdown-content">
           <div class="item controle" (click)="myProfile()" >Profile</div>
           <div class="item controle" href="#">Settings</div>
-          <div class="item controle" (click)="logout()" >Logout</div>
+          <div class="item controle" (click)="logout()" >Logout </div>
         </div>
       </div>
     </div>

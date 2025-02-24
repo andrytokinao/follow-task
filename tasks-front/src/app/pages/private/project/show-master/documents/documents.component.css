@@ -18,7 +18,6 @@
 }
 .file-list-full {
   width: 35%;
-  height: 100vh;
   overflow-y: scroll;
 }
 .file-list-not {
@@ -45,7 +44,6 @@
   flex-direction: column;
   font-weight: bold;
   gap: 10px;
-  border: #5a5a5a solid 2px;
 }
 
 .file-item {

@@ -3,7 +3,11 @@
     <mat-card class="task-card">
       <mat-card-header>
         <mat-card-title>{{parentIssue.issueKey}} {{ parentIssue.summary }}</mat-card-title>
-        <app-status-field [issue]="parentIssue"></app-status-field>
+        <span style="display: inline;margin-right: 1px">
+          <app-status-field [issue]="parentIssue"></app-status-field>
+         <app-assign-field [issue]="parentIssue"></app-assign-field>
+        </span>
+
         <mat-card-subtitle>
           Description de la tâche
         </mat-card-subtitle>

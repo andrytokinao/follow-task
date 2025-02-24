@@ -4,7 +4,7 @@ import {AuthService} from "../../services/auth.service";
 import {LocalStorageService} from "../../services/local-storage.service";
 import {ProfileComponent} from "./profile/profile.component";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
-import {Project, User} from "../../type/issue";
+import {Project, Uploading, User} from "../../type/issue";
 import {IssueService} from "../../services/issue.service";
 import {UserService} from "../../services/user.service";
 import {AuthGuard} from "../../services/SystemGuard";
@@ -15,6 +15,7 @@ import {routeTransition} from "../../../route-transition";
 import {animate, keyframes, state, style, transition, trigger, useAnimation} from "@angular/animations";
 import {moveFromLeft} from "../../../../projects/router-animations/src/lib/router-animations";
 import {moveFromLeftKeyframes} from "../../../../projects/router-animations/src/lib/shared-keyframes";
+import {environment} from "../../../environments/environment";
 
 @Component({
   selector: 'private-root',
@@ -45,22 +46,26 @@ import {moveFromLeftKeyframes} from "../../../../projects/router-animations/src/
   ]
 })
 export class PrivateComponent {
-  workspace="";
-  profile:any  = {};
+  workspace = "";
+  profile: any = {};
   title = 'tasks-front';
-  projects:Project[] = [];
-  project:Project | undefined;
-  connectedUser:User | undefined;
-  subtaskFilter:IssueSearchCriteriaInput = {};
+  projects: Project[] = [];
+  project: Project | undefined;
+  connectedUser: User | undefined;
+  subtaskFilter: IssueSearchCriteriaInput = {};
+  private filesToUploads: FileList;
+  private uploadings: any;
+  tempLogo: string | ArrayBuffer | null = null;
+  private selectedLogo: File;
+
   constructor(private router: Router,
               private authService: AuthService,
               private modalService: NgbModal,
-              private issueService:IssueService,
-              protected userService:UserService,
-              protected authGuard:AuthGuard
-
+              private issueService: IssueService,
+              protected userService: UserService,
+              protected authGuard: AuthGuard
   ) {
-    this.authService.getProfile().subscribe(profile=>{
+    this.authService.getProfile().subscribe(profile => {
       this.profile = profile;
     });
     this.authService.connectedUser$.subscribe(user => {
@@ -76,11 +81,12 @@ export class PrivateComponent {
       this.isworkspace = value.valueOf();
     })
   }
-  logout(){
+
+  logout() {
     this.authService.logout().subscribe(
       res => {
         this.router.navigate(["/login"]);
-      },error => {
+      }, error => {
         this.router.navigate(["/login"]);
       }
     );
@@ -89,29 +95,56 @@ export class PrivateComponent {
   myProfile() {
     const dialogRef = this.modalService.open(ProfileComponent, {windowClass: "xlModal"});
     dialogRef.componentInstance.loadUser(this.profile.id);
-    dialogRef.componentInstance.action ="Edition d'un utilisateur";
+    dialogRef.componentInstance.action = "Edition d'un utilisateur";
     dialogRef.componentInstance.loadGroupeMember();
     dialogRef.result.then((result) => {
     })
   }
 
   selectProject(project: Project) {
-    this.workspace= project.prefix.toString();
+    this.workspace = project.prefix.toString();
     this.project = project;
-    this.router.navigate(["/working/"+project.prefix+"/list"])
+    this.router.navigate(["/working/" + project.prefix + "/list"])
   }
 
   getState(o: any) {
     return this.workspace;
   }
+
   isworkspace: boolean = false;
   buttonText: string = "workspace";
+
   triggerAnimation() {
     this.issueService.nextIsLoadingWorkspace(!this.isworkspace);
-    if(this.isworkspace)
+    if (this.isworkspace)
       this.buttonText = "Shrink";
     else
       this.buttonText = "workspace";
   }
 
+  logoUrl() {
+    if (this.tempLogo)
+      return this.tempLogo;
+    return 'media/logo.png';
+  }
+
+  selectLogo($event: Event) {
+    const input = event.target as HTMLInputElement;
+    console.debug("drop ici ");
+    if (input.files) {
+      const file: File = input.files[0];
+      if (file) {
+        this.selectedLogo = file;
+        this.previewImage(file);
+      }
+    }
+  }
+
+  previewImage(file: File): void {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      this.tempLogo = reader.result;
+    };
+  }
 }
