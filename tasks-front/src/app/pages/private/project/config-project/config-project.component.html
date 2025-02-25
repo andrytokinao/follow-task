@@ -1,10 +1,10 @@
 <div class="config-project">
   <ul class="navigation-config">
-    <li class="" routerLink="issue-type"routerLinkActive="active" *ngIf="projectGuard.hasCredential(['CAN_CONFIG_ISSUE_TYPE'])"><a  >Type de tache </a></li>
-    <li class="" routerLink="work-flow" routerLinkActive="active" *ngIf="projectGuard.hasCredential(['CAN_CONFIG_WORKFLOW'])"><a  >Flux de travail </a></li>
-    <li class="" routerLink="custom-field" routerLinkActive="active" *ngIf="projectGuard.hasCredential(['CAN_CONFIG_CUSTOM_FIELD'])"><a  >Champ personnalisé</a></li>
-    <li class="" routerLink="storage" routerLinkActive="active" *ngIf="projectGuard.hasCredential(['CAN_CONFIG_STORAGE'])"><a  >Stockage </a></li>
-    <li class="" routerLink="accessibility" routerLinkActive="active" *ngIf="projectGuard.hasCredential(['CAN_EDIT_ROLE_USER'])"><a  >Accessibilité </a></li>
+    <li class="" routerLink="issue-type"routerLinkActive="active" *ngIf="projectGuard.hasCredential(['CAN_CONFIG_ISSUE_TYPE'])"><a > <i class="fas fa-list-dots" > </i> Type de tache </a></li>
+    <li class="" routerLink="work-flow" routerLinkActive="active" *ngIf="projectGuard.hasCredential(['CAN_CONFIG_WORKFLOW'])"><a  ><i class="fas fa-chart-gantt" > </i> Flux de travail </a></li>
+    <li class="" routerLink="custom-field" routerLinkActive="active" *ngIf="projectGuard.hasCredential(['CAN_CONFIG_CUSTOM_FIELD'])"><a  ><i class="fas fa-edit" > </i> Champ personnalisé</a></li>
+    <li class="" routerLink="storage" routerLinkActive="active" *ngIf="projectGuard.hasCredential(['CAN_CONFIG_STORAGE'])"><a>     <i class="fas fa-laptop"></i> Stockage </a></li>
+    <li class="" routerLink="accessibility" routerLinkActive="active" *ngIf="projectGuard.hasCredential(['CAN_EDIT_ROLE_USER'])"><a><i class="fas fa-people-group"></i> Equipe  </a></li>
   </ul>
   <div>
     <router-outlet></router-outlet>
