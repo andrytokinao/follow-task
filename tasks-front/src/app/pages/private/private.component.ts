@@ -57,13 +57,15 @@ export class PrivateComponent {
   private uploadings: any;
   tempLogo: string | ArrayBuffer | null = null;
   private selectedLogo: File;
+  protected logoUrl: string | ArrayBuffer | null = null;
 
   constructor(private router: Router,
               private authService: AuthService,
               private modalService: NgbModal,
               private issueService: IssueService,
               protected userService: UserService,
-              protected authGuard: AuthGuard
+              protected authGuard: AuthGuard,
+              protected systemGuerd :AuthGuard
   ) {
     this.authService.getProfile().subscribe(profile => {
       this.profile = profile;
@@ -79,6 +81,13 @@ export class PrivateComponent {
     });
     this.issueService.loadedWorkspace$.subscribe(value => {
       this.isworkspace = value.valueOf();
+    });
+    this.issueService.globalSettings$.subscribe(settings => {
+      settings.forEach(s => {
+        if (s.cle === 'logo' && s.active) {
+          this.logoUrl =  environment.apiURL+'photo/'+s.settingsValue
+        }
+      })
     })
   }
 
@@ -122,7 +131,7 @@ export class PrivateComponent {
       this.buttonText = "workspace";
   }
 
-  logoUrl() {
+  getLogoUrl() {
     if (this.tempLogo)
       return this.tempLogo;
     return 'media/logo.png';
@@ -145,6 +154,14 @@ export class PrivateComponent {
     reader.readAsDataURL(file);
     reader.onload = () => {
       this.tempLogo = reader.result;
+      this.logoUrl = reader.result;
     };
+  }
+
+  saveLogo() {
+    this.issueService.uploadLogo(this.selectedLogo).subscribe( res => {
+      this.issueService.loadSettings();
+      this.tempLogo = null;
+    });
   }
 }

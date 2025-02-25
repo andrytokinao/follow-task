@@ -678,3 +678,25 @@ input LabelInput{
     icone:IconeInput
     project:ProjectInput
 }
+type AppSettings{
+    id:Int
+    cle:String
+    created:String
+    updated:String
+    active:Boolean
+    settingType:String
+    settingsValue:String
+    user:UserApp
+    project:Project
+}
+input AppSettingsInput{
+    id:Int
+    cle:String
+    created:String
+    updated:String
+    active:Boolean
+    settingType:String
+    settingsValue:String
+    user:UserAppInput
+    project:ProjectInput
+}

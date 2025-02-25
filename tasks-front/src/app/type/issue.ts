@@ -296,3 +296,14 @@ export interface Label{
   project?:Project
 
 }
+export interface AppSettings {
+  id?:number
+  cle:String
+  created?:string;
+  updated?:string;
+  active?:Boolean;
+  settingType?:String;
+  settingsValue?:String
+  user?:User;
+  project?:Project
+}

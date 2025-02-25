@@ -57,6 +57,9 @@ public class ProjectService {
     final LabelRepository labelRepository;
     static Logger logger = LoggerFactory.getLogger(ProjectService.class);
     private final DocumentRepository documentRepository;
+    private final GlobalSettingsRepository globalSettingsRepository;
+    private final UserSettingsRepository userSettingsRepository;
+    private final WorkspaceSettingsRepository workspaceSettingsRepository;
 
     public Status saveStatus(Status status) {
         return statusRepository.save(status);
@@ -649,5 +652,17 @@ public class ProjectService {
         });
         return labels;
 
+    }
+    public List<AppSettings> getSettings(String userId) {
+        List<AppSettings> all = new ArrayList<>();
+        List<GlobalSettings> global = globalSettingsRepository.findAll();
+        if (!CollectionUtils.isEmpty(global)) {
+            all.addAll(global);
+        }
+        List<UserSettings> userSettings = userSettingsRepository.findByUserId( userId);
+        if (!CollectionUtils.isEmpty(userSettings)) {
+            all.addAll(userSettings);
+        }
+        return all;
     }
 }

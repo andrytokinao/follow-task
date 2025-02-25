@@ -46,4 +46,6 @@ type Query {
     getMyFilters(projectId:Int,userId:String):[IssueFilter]
     getLabelByProject(projectId:Int):[Label]
     getIssueById(issueId:Int):Issue
+    getSettings(userId:String):[AppSettings]
+
 }

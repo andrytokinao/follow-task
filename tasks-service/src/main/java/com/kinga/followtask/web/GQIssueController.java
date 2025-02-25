@@ -94,6 +94,10 @@ public class GQIssueController {
 
         return issueService.fechFile(fileName,fileType);
     }
+    @PostMapping("/api/upload/logo")
+    public ResponseEntity<String> uploadFile(@RequestPart("file") MultipartFile file) {
+        return issueService.uploadLogo(file);
+    }
     @PostMapping("/api/upload")
     @ResponseBody
     public ResponseEntity<String> uploadFile(@RequestPart("file") MultipartFile file,@RequestParam String directory,@RequestParam(name = "newDirectory")  String newDirectory,@RequestParam(name = "documentId") Long documentId) {
@@ -311,5 +315,9 @@ public class GQIssueController {
     @MutationMapping
     public List<IssueLabels>  removeLabelInIssue(@Argument Long issueId, @Argument Long labelId) {
         return projectService.removeLabelInIssue(issueId,labelId);
+    }
+    @QueryMapping
+    public List<AppSettings>  getSettings(@Argument String userId) {
+        return projectService.getSettings(userId);
     }
 }

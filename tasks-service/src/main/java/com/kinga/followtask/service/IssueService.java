@@ -1,5 +1,6 @@
 package com.kinga.followtask.service;
 
+import com.kinga.followtask.config.ConfigSystem;
 import com.kinga.followtask.dto.Dossier;
 import com.kinga.followtask.dto.Repertoire;
 import com.kinga.followtask.dto.ValueDto;
@@ -18,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
@@ -66,7 +68,16 @@ public class IssueService {
     private DocumentRepository documentRepository;
     @Autowired
     private UploadedRepository uploadedRepository;
-
+    @Autowired
+    private ConfigSystem configSystem;
+    @Autowired
+    private AppSettingsRepository appSettingsRepository;
+    @Autowired
+    private GlobalSettingsRepository globalSettingsRepository;
+    @Autowired
+    private UserSettingsRepository userSettingsRepository;
+    @Autowired
+    private WorkspaceSettingsRepository workspaceSettingsRepository;
 
     public Issue saveIssue(Issue issue) throws IOException {
 
@@ -455,5 +466,68 @@ public class IssueService {
             return issues.get(0);
         }
         return null;
+    }
+
+    public ResponseEntity<String> uploadLogo(MultipartFile file) {
+        if (file.isEmpty()) {
+            return ResponseEntity.badRequest().body("Le fichier est vide.");
+        }
+        try {
+            String origineName = file.getOriginalFilename();
+
+            String uploadDir = null;
+
+                uploadDir = StringUtils.isEmpty (configSystem.getProfileDirectories()) ?
+                        KingaUtils.getDefaultMediaSpaceDirectory () :
+                        configSystem.getProfileDirectories ();
+                Files.createDirectories(Paths.get(uploadDir));
+                Path filePath = Paths.get(uploadDir, origineName);
+                Files.write(filePath, file.getBytes());
+                AppSettings global = new GlobalSettings();
+                global.setCle("logo");
+                global.setActive(true);
+                global.setSettingsValue(KingaUtils.encodeText(filePath.toString()));
+                saveSettings(global);
+                return ResponseEntity.ok().body("Le fichier a été téléchargé avec succès : " + origineName);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+    }
+    public AppSettings saveSettings(AppSettings appSettings) {
+        if (appSettings.getId() == null) {
+            appSettings.setCreated(new Date());
+        } else {
+            appSettings.setUpdated(new Date());
+        }
+        if (appSettings.getActive()) {
+            if (appSettings instanceof GlobalSettings) {
+                List<GlobalSettings> globalSettings = globalSettingsRepository.findByActiveAndCle(true,appSettings.getCle());
+                if (!CollectionUtils.isEmpty(globalSettings)) {
+                    globalSettings.forEach(gs -> {
+                        gs.setActive(false);
+                        this.globalSettingsRepository.save(gs);
+                    });
+                }
+            }
+           else if (appSettings instanceof UserSettings) {
+                List<UserSettings> userSettings = userSettingsRepository.findByActiveAndCleAndUserId(true,appSettings.getCle(),((UserSettings)appSettings).getUser().getId());
+                if (!CollectionUtils.isEmpty(userSettings)) {
+                    userSettings.forEach(gs -> {
+                        gs.setActive(false);
+                        this.userSettingsRepository.save(gs);
+                    });
+                }
+            }
+            else if (appSettings instanceof WorkspaceSettings) {
+                List<WorkspaceSettings> workspaceSettings = workspaceSettingsRepository.findByProjectIdAndActiveAndCle(((WorkspaceSettings) appSettings).getProject().getId(),true,appSettings.getCle());
+                if (!CollectionUtils.isEmpty(workspaceSettings)) {
+                    workspaceSettings.forEach(gs -> {
+                        gs.setActive(false);
+                        this.workspaceSettingsRepository.save(gs);
+                    });
+                }
+            }
+        }
+       return appSettingsRepository.save(appSettings);
     }
 }

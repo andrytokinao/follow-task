@@ -21,7 +21,7 @@ import {
   Uploading,
   Uploaded,
   DocumentApp,
-  DomainActivity, Label, IssueLabels
+  DomainActivity, Label, IssueLabels, AppSettings
 } from "../type/issue";
 import {Apollo} from "apollo-angular";
 import * as operation from "../type/graphql.operations";
@@ -70,6 +70,7 @@ export class IssueService implements OnInit{
   projects: Project[] = [];
   project: Project | null = null;
   issueTypes:IssueType[]=[];
+  appSettings:AppSettings[]=[];
   user:User | undefined;
   private subtaskSubject= new BehaviorSubject<Issue[]>([]);
   private issueMastersListSubject = new BehaviorSubject<Issue[]>([]);
@@ -84,6 +85,8 @@ export class IssueService implements OnInit{
   private subtaskFiltersSubject = new BehaviorSubject<CustomFilter[]>([]);
   private loadedWorkspaceSubject = new BehaviorSubject<Boolean>(false);
   private loadingListSubtaskSubject = new BehaviorSubject<Boolean>(false);
+  private globalSettingsSubject = new BehaviorSubject<AppSettings[]>([]);
+  globalSettings$ = this.globalSettingsSubject.asObservable();
   private allLabelSubject = new BehaviorSubject<Label[]>([]);
   allLabel$ = this.allLabelSubject.asObservable();
   loadingListSubtask$ = this.loadingListSubtaskSubject.asObservable();
@@ -131,6 +134,7 @@ export class IssueService implements OnInit{
     const initialProject: Project = null;
     this.authService.connectedUser$.subscribe(user => {
       this.user = user;
+      this.loadSettings();
       this.loadMyFilters();
     });
 
@@ -1522,5 +1526,43 @@ export class IssueService implements OnInit{
         this.setIssues(issues);
       })
     }
+  }
+  uploadLogo(file: File): Observable<HttpEvent<any>> {
+    const formData: FormData = new FormData();
+    formData.append('file', file);
+    const req = new HttpRequest('POST', `${environment.apiURL}api/upload/logo`, formData, {
+      reportProgress: true,
+      withCredentials:true,
+      responseType: 'text'
+    });
+    return this.http.request(req);
+  }
+  loadSettings() {
+    if (this.user === null) {
+      return
+    }
+    let userId = this.user.id;
+    this.getSettings(userId).subscribe( settings => {
+        this.globalSettingsSubject.next(settings);
+    });
+  }
+  getSettings(userId:String){
+    return new Observable<AppSettings[]>(observer => {
+     this.apollo.query({
+       query:operation.GET_SETTINGS,
+       fetchPolicy:'network-only',
+       variables:{
+         userId
+       }
+     }).subscribe( (res:any) => {
+       observer.next(res.data.getSettings);
+         observer.next(supprimerTypename(res.data.getSettings));
+         observer.complete();
+     }, error => {
+       observer.error(error);
+       observer.complete();
+       }
+      )
+   } )
   }
 }

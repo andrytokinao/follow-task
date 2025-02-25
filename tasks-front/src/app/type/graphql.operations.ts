@@ -1,5 +1,26 @@
 import {Apollo, gql} from "apollo-angular";
 
+export let GET_SETTINGS = gql`
+    query getSettings($userId:String) {
+      getSettings(userId:$userId) {
+        id
+        cle
+        user {
+          id
+          username
+        }
+        project {
+          id
+          prefix
+        }
+        active
+        settingType
+        settingsValue
+      }
+    }
+`;
+
+
 export let ADD_LABEL_IN_ISSUE = gql`
   mutation addLabelInIssue($issueId:Int,$labelId:Int){
     addLabelInIssue(issueId: $issueId,labelId: $labelId) {
