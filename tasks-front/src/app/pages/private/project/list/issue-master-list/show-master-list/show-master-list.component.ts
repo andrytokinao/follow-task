@@ -14,6 +14,7 @@ import {UserService} from "../../../../../../services/user.service";
 import {AuthService} from "../../../../../../services/auth.service";
 import {ActivatedRoute, ParamMap, Router} from "@angular/router";
 import {NewIssueComponent} from "../../../modal/new-issue/new-issue.component";
+import {ProjectGuard} from "../../../../../../services/ProjectGuard";
 
 @Component({
   selector: 'app-show-master-list',
@@ -49,8 +50,9 @@ export class ShowMasterListComponent implements OnInit{
     public userService: UserService,
     public authService: AuthService,
     private route: ActivatedRoute,
-    private router: Router
-  ) {
+    private router: Router,
+    protected projectGuard: ProjectGuard
+) {
 
   }
 

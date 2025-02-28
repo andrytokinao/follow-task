@@ -4,7 +4,7 @@
       <a>{{issue?.issueKey+':'+issue?.summary}}   </a>
     </div>
   </ng-container>
-  <ng-container>
+  <ng-container *ngIf="projectGuard.hasCredential(['PROJECT_MANAGER']) | async">
     <div class="breadcrumb-item"  (click)="issueService.createIssueMaster()" >
       <a> Créer   </a>
     </div>

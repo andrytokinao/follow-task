@@ -136,7 +136,6 @@ export class CommentsComponent {
   }
 
   addDocument() {
-    alert("add document");
     this.document.typeDocument = this.typeDocument;
     this.document.titre ="Commentaire";
     this.document.issues = {id:this.parentIssue.id}

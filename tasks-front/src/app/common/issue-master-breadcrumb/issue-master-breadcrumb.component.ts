@@ -1,6 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {Issue, Project} from "../../type/issue";
 import {IssueService} from "../../services/issue.service";
+import {ProjectGuard} from "../../services/ProjectGuard";
 
 @Component({
   selector: 'issue-master-breadcrumb',
@@ -10,7 +11,8 @@ import {IssueService} from "../../services/issue.service";
 export class IssueMasterBreadcrumbComponent implements OnInit{
    protected issue:Issue;
   issueMasters: Issue[]=[];
-   constructor(protected issueService:IssueService) {
+   constructor(protected issueService:IssueService,
+  protected projectGuard:ProjectGuard) {
    }
   ngOnInit(): void {
      this.issueService.issueMaster$.subscribe(issue => {
