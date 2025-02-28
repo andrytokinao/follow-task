@@ -1454,6 +1454,7 @@ export class IssueService implements OnInit{
       }
     ).subscribe( (res:any)=> {
       this.getLabelByProject(this.project.id);
+      this.refreshIssueListMasters();
     }, error => {
       console.error(error);
     })

@@ -17,7 +17,7 @@ export const appRoutes: Routes = [
   },
   {
     path: 'working',
-    loadChildren: () => import('./pages/private//private.module').then(m => m.PrivateModule),
+    loadChildren: () => import('./pages/private/private.module').then(m => m.PrivateModule),
     //  canMatch: [userAdmin]
   },
   {
