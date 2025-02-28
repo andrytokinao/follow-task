@@ -33,6 +33,7 @@ import {NgxDocViewerModule} from "ngx-doc-viewer";
 import {provideRouter} from "@angular/router";
 import {routeTransition} from "../route-transition";
 import {AnimationExamplesModule} from "./animation-examples/animation-examples.module";
+import {NgxColorsModule} from "ngx-colors";
 
 
 @NgModule({

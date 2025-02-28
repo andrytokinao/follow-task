@@ -18,6 +18,7 @@ export class HomeComponent implements OnInit{
   projects:Project[]= [];
 
   private project = null;
+  leftColor: any;
   constructor(private router: Router,
               private authService: AuthService,
               private modalService: NgbModal,

@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.format.DateTimeFormatter;
 import java.util.Random;
 import java.util.StringJoiner;
 import java.util.regex.Matcher;
@@ -19,8 +20,11 @@ import static com.kinga.followtask.entity.Project.BASE_DIRECTORY;
 public class KingaUtils {
     private static final String WORKWPACE = "WORK_SPACE";
     private static final String MEDIA_SPACE = "MEDIA_SPACE" ;
-    private static String SUFFLE_STRING ="tLR4hpeTaQjvGHC0S2zogWPkyq5d3cuMKXlm7FDfiI-BAEJ_Uns/6ZO9YVb1wxrN8@";
-    private static String NORMAL_STRING = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/-_\\";
+    public static String dateTimeFormaterPattern =  "yyyy-MM-dd'T'HH:mm:ss";
+    private static String dateTimeFormaterPattern2=  "yyyy-MM-dd' 'HH:mm:ss";
+    public static DateTimeFormatter dateTimeFormater =  DateTimeFormatter.ofPattern(dateTimeFormaterPattern);
+    private static String SUFFLE_STRING ="tLR4hpeTaQjvGHC0S2zogWPkyq5d3cuMKXlm7FDfiI-BAEJ_Uns/6ZO9YVb1wxrN8@&";
+    private static String NORMAL_STRING = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/-_\\=";
     public static boolean isValidPhoneNumber(String phoneNumber) {
         if (StringUtils.isEmpty(phoneNumber))
             return true;

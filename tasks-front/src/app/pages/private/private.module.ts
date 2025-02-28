@@ -21,6 +21,7 @@ import {MatInputModule} from "@angular/material/input";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {BrowserModule} from "@angular/platform-browser";
 import {MatRadioButton, MatRadioGroup} from "@angular/material/radio";
+import {NgxColorsModule} from "ngx-colors";
 
 
 @NgModule({
@@ -49,6 +50,7 @@ import {MatRadioButton, MatRadioGroup} from "@angular/material/radio";
         ReactiveFormsModule,
         MatRadioButton,
         MatRadioGroup,
+        NgxColorsModule,
     ],
 
 })

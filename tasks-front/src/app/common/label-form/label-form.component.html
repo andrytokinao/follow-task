@@ -21,6 +21,7 @@
         <mat-form-field>
           <mat-label>Nom</mat-label>
           <input matInput formControlName="name">
+          <ngx-colors ngx-colors-trigger [(ngModel)]="labColor"></ngx-colors>
         </mat-form-field>
         <button mat-button type="submit" >Valider</button>
       </form>

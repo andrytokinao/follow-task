@@ -44,6 +44,7 @@ import {IssueMasterBreadcrumbComponent} from "./issue-master-breadcrumb/issue-ma
 import {LoadingComponent} from "./loading/loading.component";
 import {LabelFormComponent} from "./label-form/label-form.component";
 import {FelterMatMenueComponent} from "./felter-mat-menue/felter-mat-menue.component";
+import {NgxColorsModule} from "ngx-colors";
 
 @NgModule({
   declarations: [
@@ -75,37 +76,38 @@ import {FelterMatMenueComponent} from "./felter-mat-menue/felter-mat-menue.compo
   FelterMatMenueComponent
 
   ],
-  imports: [
-    CommonModule,
-    MatMenuModule,
-    MatIconModule,
-    MatSelectModule,
-    MatFormFieldModule,
-    MatCardModule,
-    MatDialogModule,
-    MatToolbarModule,
-    MatSelectModule,
-    FormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    FormsModule,
-    MatFormField,
-    MatInput,
-    MatLabel,
-    NgIf,
-    NgClass,
-    ReactiveFormsModule,
-    MatAutocompleteTrigger,
-    MatAutocomplete,
-    RouterLink,
-    MatCheckbox,
-    QuillEditorComponent,
-    NgxExtendedPdfViewerModule,
-    NgbCollapse,
-    NgxDocViewerModule,
-    RouterLinkActive,
-  ],
+    imports: [
+        CommonModule,
+        MatMenuModule,
+        MatIconModule,
+        MatSelectModule,
+        MatFormFieldModule,
+        MatCardModule,
+        MatDialogModule,
+        MatToolbarModule,
+        MatSelectModule,
+        FormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatButtonModule,
+        FormsModule,
+        MatFormField,
+        MatInput,
+        MatLabel,
+        NgIf,
+        NgClass,
+        ReactiveFormsModule,
+        MatAutocompleteTrigger,
+        MatAutocomplete,
+        RouterLink,
+        MatCheckbox,
+        QuillEditorComponent,
+        NgxExtendedPdfViewerModule,
+        NgbCollapse,
+        NgxDocViewerModule,
+        RouterLinkActive,
+        NgxColorsModule,
+    ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA
   ],

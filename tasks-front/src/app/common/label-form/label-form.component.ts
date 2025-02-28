@@ -63,6 +63,7 @@ export class LabelFormComponent implements OnInit,AfterViewInit{
 
   protected readonly alert = alert;
   iscreateLabel = false;
+  labColor: any;
 
   save($event: MouseEvent) {
     this.toClose = true;
