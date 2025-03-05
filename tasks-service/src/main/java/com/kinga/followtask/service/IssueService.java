@@ -31,7 +31,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.rmi.RemoteException;
+import java.sql.Timestamp;
 import java.text.ParseException;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -106,7 +108,7 @@ public class IssueService {
             }
         }
         if(issue.getId() ==null) {
-            issue.setCreationDate(new Date());
+            issue.setCreationDate(((new Date()).toInstant()).atZone(ZoneId.systemDefault()).toLocalDateTime());
             issue.setReporter(getCurrentUser());
             if (!StringUtils.isEmpty(issue.getIssueKey())) {
                 IssueSearchCriteria criteria = new IssueSearchCriteria();
@@ -128,7 +130,8 @@ public class IssueService {
                 issue.setStatus(defaultStatus);
             }
         } else {
-            issue.setUpdateDate( new Date());
+            issue.setUpdateDate(((new Date()).toInstant()).atZone(ZoneId.systemDefault()).toLocalDateTime());
+
         }
         issue = createDirectoryIfEmpty(issue,project);
         return issueRepository.save(issue);

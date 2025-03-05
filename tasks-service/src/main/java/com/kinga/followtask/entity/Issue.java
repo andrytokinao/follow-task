@@ -6,7 +6,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.File;
+import java.time.LocalDateTime;
 import java.util.*;
+
+import static com.kinga.utils.KingaUtils.dateTimeFormater;
 
 @Entity
 @Data
@@ -15,8 +18,8 @@ public class Issue {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Date creationDate;
-    private Date updateDate;
+    private LocalDateTime creationDate;
+    private LocalDateTime updateDate;
     private String summary;
     private String issueKey;
     @Lob

@@ -7,6 +7,8 @@ import {IssueService} from "../../../../../services/issue.service";
 import {UserService} from "../../../../../services/user.service";
 import {AuthService} from "../../../../../services/auth.service";
 import {CustomFieldComponent} from "../../../../../common/custom-field/custom-field.component";
+import {ProjectGuard} from "../../../../../services/ProjectGuard";
+import {async} from "rxjs";
 
 @Component({
   selector: 'app-issue-details',
@@ -39,7 +41,9 @@ export class IssueDetailsComponent {
               private issueService:IssueService,
               protected userService:UserService,
               private route: ActivatedRoute,
-              private authService: AuthService
+              private authService: AuthService,
+              protected projectGuard: ProjectGuard
+
   ) {
   }
   subtasks: Issue[];
@@ -148,5 +152,21 @@ export class IssueDetailsComponent {
       this.editSummary = false;
     });
 
+  }
+
+  editIssueDescription() {
+    this.projectGuard.hasCredential(['CAN_CREATE_TASK']).pipe().subscribe(hasRole => {
+      if (hasRole) {
+        this.editDescription = true;
+      }
+    })
+  }
+
+  editIssueSummary() {
+      this.projectGuard.hasCredential(['CAN_CREATE_TASK']).pipe().subscribe(hasRole => {
+        if (hasRole) {
+          this.editSummary = true;
+        }
+      })
   }
 }
