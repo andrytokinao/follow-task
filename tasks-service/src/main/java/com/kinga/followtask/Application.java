@@ -17,11 +17,6 @@ public class Application  {
     public static void main(String[] args) throws ParseException, ClassNotFoundException, InstantiationException, IllegalAccessException {
         ConfigurableApplicationContext ctx = SpringApplication.run(Application.class, args);
         ConfigService configService = (ConfigService) ctx.getBean(ConfigService.class);
-       /* try {
-           configService.initalizeData();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }*/
     }
    // @Bean
     public CommandLineRunner run(DNSService dnsService) {

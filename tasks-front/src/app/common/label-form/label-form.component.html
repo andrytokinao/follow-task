@@ -1,6 +1,6 @@
 <div style="height: 40px;overflow-x: visible;overflow-y:visible " mat-icon-button [matMenuTriggerFor]="lebelMenu">
   <span *ngIf="!issue.labels || issue.labels.length == 0"><span  class="btn fas fa-plus"> Etq </span> </span>
-  <span class="label-chip" *ngFor="let ils of issue.labels" [style]="getLabelStyle(ils)" >
+  <span class="label-chip" *ngFor="let ils of issue.labels" [style]="getLabelStyle(ils.label)" >
     {{ils.label.name}}
   </span>
 </div>
@@ -10,12 +10,15 @@
     <div class="issue-children-config" >
       <h3>Etiquette </h3>
 
-      <div *ngFor="let label of labels">
+      <div *ngFor="let label of labels" >
         <mat-checkbox (change)="checkLabel($event,label)"
                       [checked]="checkedLabel(label)"
                       *ngIf="!isEdit(label)"
         >
-          {{ label.name }}
+          <span [style]="getLabelStyle(label)" style = "border-radius: 20px;padding: 5px">
+            {{ label.name }}
+          </span>
+
         </mat-checkbox>
         <span style="float:right" *ngIf="projectGuard.hasCredential(['PROJECT_MANAGER'])">
                 <i  class="fas fa-edit" (click)="editLabel(label)" *ngIf="!isEdit(label)"> </i>
@@ -26,7 +29,7 @@
           <form [formGroup]="myForm" (ngSubmit)="update();">
             <mat-form-field>
               <mat-label>Nom</mat-label>
-              <input matInput formControlName="name" [(ngModel)]="currentLabel.name" >
+              <input matInput formControlName="name" [(ngModel)]="currentLabel.name" [style]="getLabelStyle(currentLabel)">
               <ngx-colors ngx-colors-trigger
                           [(ngModel)]="currentLabel.color"
                           [ngModelOptions]="{standalone: true}" >

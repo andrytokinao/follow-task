@@ -277,24 +277,25 @@ public class ProjectService {
         completConfig(project);
         return project;
     }
-    private List<Label> getDefaultLabel() {
-        List<Label> labels =  labelRepository.findByName("Urgent");
+    private List<Label> getDefaultLabel(Long projectId) {
+        List<Label> labels =  labelRepository.findByNameAndProjectId("Urgent",projectId);
         if (CollectionUtils.isEmpty(labels)) {
             Label label = new Label();
             label.setColor("#856404");
             label.setName("Urgent");
+            Project p = new Project();
+            p.setId(projectId);
+            label.setProject(p);
             labelRepository.save(label);
         }
-        return labelRepository.findByNameIn(Arrays.asList("Urgent"));
+        return labelRepository.findByNameAndProjectId("Urgent",projectId);
     }
     public List<Label> getLabelByProject(Long projetId) {
-
-        List<Label> defaults = getDefaultLabel();
         List<Label> labels = labelRepository.findByProjectId(projetId);
-        if (!CollectionUtils.isEmpty(labels)) {
-            defaults.addAll(labels);
+        if (CollectionUtils.isEmpty(labels)) {
+            return getDefaultLabel(projetId);
         }
-        return defaults;
+        return labels;
     }
 
     public List<ConfigProject> completConfig(Project project) throws IOException {

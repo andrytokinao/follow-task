@@ -92,6 +92,7 @@ export class LabelFormComponent implements OnInit,AfterViewInit{
 
   update() {
     if (this.myForm.valid) {
+      this.currentLabel.name = this.myForm.value.name;
       this.issueService.saveLabel(this.currentLabel);
       this.iscreateLabel = false;
       this.myForm.reset();
@@ -113,16 +114,18 @@ export class LabelFormComponent implements OnInit,AfterViewInit{
     })
   }
   createLabel() {
+    this.currentLabel = {};
     this.iscreateLabel = !this.iscreateLabel;
   }
 
   protected readonly getStyle = getStyle;
 
-  getLabelStyle(ils: IssueLabels) {
-    if (!ils.label.color) {
+  getLabelStyle(label) {
+    if (!label.color) {
       return '';
     }
-    return 'background-color:'+ils?.label.color;
+    console.debug("getLabelStyle",'background-color:'+label.color);
+    return 'background-color:'+label.color;
   }
 
   isEdit(label: Label) {
