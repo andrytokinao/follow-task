@@ -21,7 +21,7 @@
       </span>
       </div>
     </div>
-    <div class="card" style="margin-top: 15px;padding-top: 5px;padding-bottom: 5px">
+    <div class="card" style="margin-top: 15px;padding-top: 5px;padding-bottom: 5px"  *ngIf="!(projectGruard.hasCredential(['CAN_VIEW_ASSIGN_ONLY']) | async)" >
       <h1> Assigné  </h1>
       <div class="sidebar-heding ">
         <span *ngFor="let user of users" [class]="isSelectedUser(user.id) ? 'selected' : ''">

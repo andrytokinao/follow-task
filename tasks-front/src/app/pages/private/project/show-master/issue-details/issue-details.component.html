@@ -3,17 +3,16 @@
     <mat-card class="task-card">
       <mat-card-header>
         <mat-card-title>
-          <h1 *ngIf="!editSummary" (click)="editIssueSummary()" style="cursor: pointer" (close)="editIssueSummary()">{{parentIssue.issueKey}} {{ parentIssue.summary }}</h1>
+          <h1 *ngIf="!editSummary"  style="cursor: pointer" >{{parentIssue.issueKey}} {{ parentIssue.summary }} <i class="fas fa-edit" (click)="editIssueSummary()" *ngIf="projectGuard.hasCredential(['CAN_EDIT_FIELD']) | async"></i> </h1>
           <h1 *ngIf="editSummary">
             <mat-form-field class="example-full-width">
               <input
                 [(ngModel)]="parentIssue.summary"
                 type="text"
                 matInput
-                placeholder="Summary  "
+                placeholder="Summary"
               >
               <i style="float:right;cursor: pointer" class="fas fa-save" (click)="saveIssue()" *ngIf="editSummary"> </i>
-
             </mat-form-field>
             </h1>
         </mat-card-title>
@@ -22,13 +21,13 @@
          <app-assign-field [issue]="parentIssue"></app-assign-field>
         </span>
 
-        <mat-card-subtitle (click)="editIssueDescription()">
-          Description de la tâche
+        <mat-card-subtitle>
+          Description de la tâche <i class="fas fa-edit" *ngIf="(projectGuard.hasCredential(['CAN_EDIT_FIELD']) | async) && !editDescription" (click)="editIssueDescription()"></i>
         </mat-card-subtitle>
       </mat-card-header>
 
       <mat-card-content>
-        <p *ngIf="!editDescription" [innerHTML]="parentIssue.description" (click)="editIssueDescription()" style="cursor: pointer"></p>
+        <p *ngIf="!editDescription" [innerHTML]="parentIssue.description"  style="cursor: pointer"> </p>
         <app-quill-editor *ngIf="editDescription" [(content)]="parentIssue.description" [theme]="'snow'"></app-quill-editor>
         <button *ngIf="editDescription || editSummary" (click)="saveIssue()" >                <i style="float:right;cursor: pointer" class="fas fa-save" (click)="saveIssue()" *ngIf="editSummary"> </i>
           Save </button>

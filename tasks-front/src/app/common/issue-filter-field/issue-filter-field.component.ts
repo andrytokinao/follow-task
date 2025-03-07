@@ -5,6 +5,7 @@ import {Project, Status, User, WorkFlow} from "../../type/issue";
 import {IssueService} from "../../services/issue.service";
 import {CustomFilter, IssueSearchCriteriaInput} from "../../type/issue-search-criteria.util";
 import {UserService} from "../../services/user.service";
+import {ProjectGuard} from "../../services/ProjectGuard";
 
 @Component({
   selector: 'app-issue-filter-field',
@@ -28,7 +29,8 @@ export class IssueFilterFieldComponent implements AfterViewInit{
     public activeModal: NgbActiveModal,
     private issueService:IssueService,
     private userService: UserService,
-  ) {
+    protected projectGruard: ProjectGuard
+) {
 
   }
 
