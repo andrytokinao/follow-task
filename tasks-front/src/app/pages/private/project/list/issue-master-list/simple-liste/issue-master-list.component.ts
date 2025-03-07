@@ -9,6 +9,7 @@ import {MatPaginator} from "@angular/material/paginator";
 import {stripTypename} from "@apollo/client/utilities";
 import {ViewEditIssueComponent} from "../../../modal/view-edit-issue/view-edit-issue.component";
 import {ProjectGuard} from "../../../../../../services/ProjectGuard";
+import {ConfirmationDialogService} from "../../../../../../services/confirmation-dialog.service";
 
 @Component({
   selector: 'app-issue-master-list',
@@ -23,7 +24,8 @@ export class IssueMasterListComponent {
     public userService: UserService,
     private route: ActivatedRoute,
     protected projectGruard:ProjectGuard,
-    private router: Router
+    private router: Router,
+    private confirmationDialogService:ConfirmationDialogService
   ) {
 
   }
@@ -123,7 +125,10 @@ export class IssueMasterListComponent {
     return undefined;
   }
 
-  deleteIssue(master: Issue) {
-    this.issueService.deleteIssue(master.id);
+
+  public deleteIssue(master) {
+    this.confirmationDialogService.confirm('Suppression de "'+master.summary+'"', 'Tous les dossier et information seront perdue  !!! Voulez vous supprimer cette demande ? ')
+      .then((confirmed) => this.issueService.deleteIssue(master.id))
+      .catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
   }
 }

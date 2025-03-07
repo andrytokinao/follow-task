@@ -45,6 +45,7 @@ import {LoadingComponent} from "./loading/loading.component";
 import {LabelFormComponent} from "./label-form/label-form.component";
 import {FelterMatMenueComponent} from "./felter-mat-menue/felter-mat-menue.component";
 import {NgxColorsModule} from "ngx-colors";
+import {ConfirmationDialogComponent} from "./confirmation-dialog/confirmation-dialog.component";
 
 @NgModule({
   declarations: [
@@ -73,7 +74,8 @@ import {NgxColorsModule} from "ngx-colors";
     IssueMasterBreadcrumbComponent,
     LoadingComponent,
     LabelFormComponent,
-  FelterMatMenueComponent
+  FelterMatMenueComponent,
+    ConfirmationDialogComponent
 
   ],
     imports: [
