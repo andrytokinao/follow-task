@@ -8,6 +8,7 @@ import {MatTableDataSource} from "@angular/material/table";
 import {MatPaginator} from "@angular/material/paginator";
 import {stripTypename} from "@apollo/client/utilities";
 import {ViewEditIssueComponent} from "../../../modal/view-edit-issue/view-edit-issue.component";
+import {ProjectGuard} from "../../../../../../services/ProjectGuard";
 
 @Component({
   selector: 'app-issue-master-list',
@@ -21,6 +22,7 @@ export class IssueMasterListComponent {
     private essueService: IssueService,
     public userService: UserService,
     private route: ActivatedRoute,
+    protected projectGruard:ProjectGuard,
     private router: Router
   ) {
 
@@ -119,5 +121,9 @@ export class IssueMasterListComponent {
       return {['border-color']:issue.status.color}
     }
     return undefined;
+  }
+
+  deleteIssue(master: Issue) {
+    this.issueService.deleteIssue(master.id);
   }
 }

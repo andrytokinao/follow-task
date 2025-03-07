@@ -80,6 +80,10 @@ public class IssueService {
     private UserSettingsRepository userSettingsRepository;
     @Autowired
     private WorkspaceSettingsRepository workspaceSettingsRepository;
+    @Autowired
+    private IssueLabelsRepository issueLabelsRepository;
+    @Autowired
+    private CustomFieldValueRepository customFieldValueRepository;
 
     public Issue saveIssue(Issue issue) throws IOException {
 
@@ -136,6 +140,11 @@ public class IssueService {
         issue = createDirectoryIfEmpty(issue,project);
         return issueRepository.save(issue);
 
+    }
+    public List<Issue> loadSubtask(Long parentId) {
+        IssueSearchCriteria criteria = new IssueSearchCriteria();
+        criteria.setParentId(parentId);
+        return searchIssues(criteria);
     }
     private Issue createDirectoryIfEmpty(Issue issue, Project project) throws IOException {
         if (!StringUtils.isEmpty (issue.getDirectory ()))
@@ -532,5 +541,35 @@ public class IssueService {
             }
         }
        return appSettingsRepository.save(appSettings);
+    }
+    public void deleteDocument(Document document) {
+        document.getUploadeds().forEach(up -> {
+            uploadedRepository.deleteById(up.getId());
+        });
+        documentRepository.delete(document);
+    }
+    public void deleteIssue(Long issueId) {
+        Issue issue = issueRepository.findById(issueId).orElse(null);
+        if (issue == null) {
+            return;
+        }
+         commentRepository.findByIssueId(issueId).forEach(comm -> {
+             commentRepository.delete(comm);
+         });
+        issue.getDocuments().forEach(doc -> {
+            deleteDocument(doc);
+        });
+
+        issue.getLabels().forEach( l -> {
+            issueLabelsRepository.delete(l);
+        });
+        issue.getValues().forEach( v -> {
+            customFieldValueRepository.delete(v);
+        });
+        issue.getChildren().forEach( is -> {
+            deleteIssue(is.getId());
+        });
+        issueRepository.delete(issue);
+
     }
 }

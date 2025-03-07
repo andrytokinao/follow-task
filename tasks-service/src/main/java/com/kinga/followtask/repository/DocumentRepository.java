@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface DocumentRepository extends JpaRepository<Document,Long> {
     public List<Document> findByIssuesIdAndTypeDocument(Long issueId, TypeDocument typeDocument);
+    public List<Document> findByIssuesId(Long issueId);
 }

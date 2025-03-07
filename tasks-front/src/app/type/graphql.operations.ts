@@ -1,5 +1,13 @@
 import {Apollo, gql} from "apollo-angular";
 
+export let DELETE_ISSUE = gql`
+  mutation deleteIssue($issueId:Int) {
+    deleteIssue(issueId: $issueId) {
+      message
+    }
+  }
+`;
+
 export let GET_SETTINGS = gql`
     query getSettings($userId:String) {
       getSettings(userId:$userId) {
@@ -364,6 +372,7 @@ const ALL_ISSUE = gql`
       summary
       description
       issueKey
+      deleded
       creationDate
       parent {
         id

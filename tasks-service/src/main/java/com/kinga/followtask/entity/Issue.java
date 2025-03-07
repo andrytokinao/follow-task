@@ -9,7 +9,6 @@ import java.io.File;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static com.kinga.utils.KingaUtils.dateTimeFormater;
 
 @Entity
 @Data
@@ -32,7 +31,8 @@ public class Issue {
     @ManyToOne
     @JoinColumn(name = "type")
     private IssueType issueType;
-
+    @OneToMany(mappedBy = "issues")
+    private List<Document>  documents;
     @ManyToOne
     @JoinColumn(name = "assigne")
     private UserApp assigne;

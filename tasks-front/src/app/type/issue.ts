@@ -19,6 +19,7 @@ export class Issue {
   summary?: String= "";
   type?: number= 0;
   description?: String ="";
+  deleted?:Boolean;
   issueKey?:String ="";
   creationDate?:string;
   encodedPath?:String;

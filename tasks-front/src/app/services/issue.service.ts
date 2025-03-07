@@ -1136,7 +1136,8 @@ export class IssueService implements OnInit{
   }
 
   setMasters(masters:Issue[]){
-    this.issueMastersListSubject.next(masters);
+    let filtered = masters.filter(m=> !m.deleted );
+    this.issueMastersListSubject.next(filtered);
   }
   searchIssuesAnSet(criteria: IssueSearchCriteriaInput) {
    this.searchIssues(criteria,criteria.projectId).subscribe(issues => {
@@ -1565,5 +1566,19 @@ export class IssueService implements OnInit{
        }
       )
    } )
+  }
+
+  deleteIssue(issueId: Number) {
+    this.apollo.mutate({
+      mutation:operation.DELETE_ISSUE,
+      variables:{issueId},
+      fetchPolicy:'network-only'
+    }).subscribe((res:any)=>{
+        this.refreshIssueListMasters();
+      },error=> {
+       console.error(error);
+      this.refreshIssueListMasters();
+      }
+    )
   }
 }

@@ -31,6 +31,10 @@ public class IssueSpecification implements Specification<Issue> {
         if (criteria.getKey() != null) {
             predicates.add(criteriaBuilder.equal(root.get("issueKey"), criteria.getKey()));
         }
+
+        if (criteria.getParentId() != null) {
+            predicates.add(criteriaBuilder.equal(root.get("parentId"), criteria.getParentId()));
+        }
         if (criteria.getSummary() != null) {
             predicates.add(criteriaBuilder.like(root.get("summary"), "%" + criteria.getSummary() + "%"));
         }

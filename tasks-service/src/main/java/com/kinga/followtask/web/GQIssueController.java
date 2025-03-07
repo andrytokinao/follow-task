@@ -29,7 +29,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
@@ -237,7 +239,7 @@ public class GQIssueController {
     }
     @QueryMapping
     public List<Issue> loadSubtask(@Argument Long parentId){
-        return projectService.loadSubtask(parentId);
+        return issueService.loadSubtask(parentId);
     }
     @QueryMapping
     public List<Issue> loadIssueMasterByProject(@Argument Long projectId) {
@@ -319,5 +321,13 @@ public class GQIssueController {
     @QueryMapping
     public List<AppSettings>  getSettings(@Argument String userId) {
         return projectService.getSettings(userId);
+    }
+    @MutationMapping
+    public Map<String,String> deleteIssue(@Argument Long issueId){
+        issueService.deleteIssue(issueId);
+        Map<String,String> map = new HashMap<>();
+        map.put("status","success");
+        map.put("message","success");
+        return map;
     }
 }

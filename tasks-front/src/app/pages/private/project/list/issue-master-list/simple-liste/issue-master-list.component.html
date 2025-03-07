@@ -23,6 +23,7 @@
           <p  style="text-align:right">
             <span (click)="issueService.showPlanning(master)" class="controle">  <i class="fas fa-calendar">  </i>  Planing </span>
             <span (click)="editIssue(master)" class="controle" >  <i class="fas fa-calendar" > </i>  Details </span>
+            <span (click)="deleteIssue(master)" class="controle" *ngIf="projectGruard.hasCredential(['CAN_DELETE_TASK']) | async"  >  <i class="fas fa-remove" > </i>  supprimer </span>
           </p>
         </small>
 

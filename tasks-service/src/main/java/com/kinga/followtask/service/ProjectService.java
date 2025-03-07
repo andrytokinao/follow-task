@@ -6,8 +6,6 @@ import com.kinga.followtask.dto.UserDetailsDeto;
 import com.kinga.followtask.entity.*;
 import com.kinga.followtask.entity.enumapp.Niveau;
 import com.kinga.followtask.repository.*;
-import com.kinga.followtask.repository.criteria.IssueSearchCriteria;
-import com.kinga.followtask.repository.criteria.IssueSpecification;
 import com.kinga.utils.KingaUtils;
 import com.nimbusds.jose.shaded.gson.Gson;
 import lombok.RequiredArgsConstructor;
@@ -60,6 +58,7 @@ public class ProjectService {
     private final GlobalSettingsRepository globalSettingsRepository;
     private final UserSettingsRepository userSettingsRepository;
     private final WorkspaceSettingsRepository workspaceSettingsRepository;
+    private IssueService issueService;
 
     public Status saveStatus(Status status) {
         return statusRepository.save(status);
@@ -554,9 +553,7 @@ public class ProjectService {
         return this.issueRepository.findByIssueKey(issueKey);
     }
 
-    public List<Issue> loadSubtask(Long parentId) {
-        return this.issueRepository.findByParentId(parentId);
-    }
+
 
     public List<Issue> allByProject(String prefix) {
         return this.issueRepository.findByIssueTypeProjectPrefix(prefix);
