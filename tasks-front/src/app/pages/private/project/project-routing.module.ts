@@ -20,6 +20,7 @@ import {PlanningModule} from "./planning/planning.module";
 import {ProjectGuard} from "../../../services/ProjectGuard";
 import _default from "chart.js/dist/core/core.interaction";
 import dataset = _default.modes.dataset;
+import {MessagesComponent} from "./messages/messages.component";
 
 
 
@@ -53,6 +54,7 @@ const projectRoute: Routes = [
           { path: 'issue/:parrentIssue',resolve:{parrentIssue:IssueResolverService ,breadcrumb: ProjectBreadcrumbResolverService,},data:{order:12},
             loadChildren: () => import('./show-master/issue-master.module').then(m => m.IssueMasterModule),
           },
+          { path: 'messages', component: MessagesComponent , resolve: { breadcrumb: ProjectBreadcrumbResolverService  } , canActivate :[ProjectGuard] , data:{order:13  }},
         ]
       }
     ]

@@ -1,0 +1,44 @@
+<div class="list-menu-with-left-right">
+  <!-- Liste des discussions -->
+  <div class="chat-list">
+    <div *ngFor="let chat of chats"
+         class="chat-item"
+         [class.active]="chat === selectedChat"
+         (click)="selectChat(chat)">
+      <img [src]="chat.photo" alt="Avatar" class="avatar">
+      <div class="chat-info">
+        <div class="chat-name">{{ chat.name }}</div>
+        <div class="chat-last-message">{{ chat.messages[chat.messages.length - 1]?.text || 'Aucun message' }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Zone de chat -->
+  <div class="chat-container">
+    <div class="chat-header">
+      <img *ngIf="selectedChat" [src]="selectedChat.photo" alt="Avatar" class="avatar">
+      {{ selectedChat?.name || 'Sélectionnez une discussion' }}
+    </div>
+
+    <div class="messages">
+      <div style="align-items: center">
+        <span style="align-items: center">
+                  Achange avec {{ selectedChat?.name}}
+
+        </span>
+      </div>
+      <div *ngFor="let message of selectedChat?.messages" class="message" [class.sent]="message.sender === 'me'">
+        <span >
+         <img *ngIf="message.sender !== 'me'" [src]="selectedChat.photo" alt="Avatar" class="avatar">
+        <span class="message-content">{{ message.text }}</span>
+        </span>
+
+      </div>
+    </div>
+
+    <div class="input-container">
+      <input [(ngModel)]="newMessage" placeholder="Tapez un message..." />
+      <button (click)="sendMessage()">Envoyer</button>
+    </div>
+  </div>
+</div>
