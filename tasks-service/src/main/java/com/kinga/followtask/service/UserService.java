@@ -38,10 +38,8 @@ import static com.kinga.utils.KingaUtils.*;
 @RequiredArgsConstructor
 public class UserService {
 
-   private final UserRepository userRepository;
-   private final MemberGroupeRepository memberGroupeRepository;
-   private final GroupeUserRepository groupeUserRepository;
    private final AuthorizationService authorizationService;
+    private final UserRepository userRepository;
 
    private final ConfigSystem  configSystem;
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);

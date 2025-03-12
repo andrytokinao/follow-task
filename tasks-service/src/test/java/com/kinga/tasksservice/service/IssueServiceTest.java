@@ -1,10 +1,12 @@
-package com.kinga.followtask.service;
+package com.kinga.tasksservice.service;
 
 import com.kinga.followtask.dto.ValueDto;
 import com.kinga.followtask.entity.CustomFieldValue;
 import com.kinga.followtask.entity.*;
+
 import com.kinga.followtask.repository.CustomFieldRepository;
-import com.kinga.followtask.repository.criteria.IssueSearchCriteria;
+import com.kinga.followtask.service.IssueService;
+import com.kinga.followtask.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;

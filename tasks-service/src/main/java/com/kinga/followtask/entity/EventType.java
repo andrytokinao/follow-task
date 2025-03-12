@@ -36,4 +36,8 @@ public class EventType {
         this.name = name;
         this.description = description;
     }
+
+    public void setName(String eventName) {
+        this.name = name;
+    }
 }

@@ -308,3 +308,26 @@ export interface AppSettings {
   user?:User;
   project?:Project
 }
+
+class CanalMember {
+  id:Number
+  user:User
+  canall:Canall
+  credentials?:String[]
+}
+
+interface Canall {
+  id:Number
+  messageApp:MessageApp
+  members:CanalMember
+  typeCanal:'PROJECT' | 'ISSUE' | 'DEFAULT'
+  projects?:Project
+  issueMaster?:Issue
+}
+export interface MessageApp {
+  id:Number
+  canall:Canall
+  created:String
+  sender:User
+  userReades:String[];
+}
