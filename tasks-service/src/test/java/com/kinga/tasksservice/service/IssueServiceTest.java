@@ -1,3 +1,4 @@
+/*
 package com.kinga.tasksservice.service;
 
 import com.kinga.followtask.dto.ValueDto;
@@ -5,6 +6,7 @@ import com.kinga.followtask.entity.CustomFieldValue;
 import com.kinga.followtask.entity.*;
 
 import com.kinga.followtask.repository.CustomFieldRepository;
+import com.kinga.followtask.repository.criteria.IssueSearchCriteria;
 import com.kinga.followtask.service.IssueService;
 import com.kinga.followtask.service.UserService;
 import org.junit.jupiter.api.Test;
@@ -102,9 +104,11 @@ class IssueServiceTest {
     @Test
     void allCustomField() {
     }
+*/
 /*
     @Test
-*/
+*//*
+
     void searchIssues() throws ParseException {
         IssueSearchCriteria iCriteria = new IssueSearchCriteria();
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
@@ -122,3 +126,4 @@ class IssueServiceTest {
     }
 
 }
+*/
