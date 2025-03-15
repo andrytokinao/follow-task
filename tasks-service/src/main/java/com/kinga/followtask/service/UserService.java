@@ -11,6 +11,7 @@ import com.kinga.utils.KingaUtils;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -37,9 +38,11 @@ import static com.kinga.utils.KingaUtils.*;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+    @Autowired
 
-   private final AuthorizationService authorizationService;
-    private final UserRepository userRepository;
+    AuthorizationService authorizationService;
+    @Autowired
+    UserRepository userRepository;
 
    private final ConfigSystem  configSystem;
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);

@@ -10,6 +10,7 @@ import com.kinga.followtask.repository.GroupeUserRepository;
 import com.kinga.followtask.repository.MemberGroupeRepository;
 import com.kinga.followtask.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -19,12 +20,17 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class AuthorizationService {
-    final PermissionSystem permissionSystem;
-    final PermissionTask permissionTask;
-    final MemberGroupeRepository memberGroupeRepository;
-    final GroupeUserRepository groupeUserRepository;
-    private final ConfigMenue configMenue;
-    private final UserRepository userRepository;
+    @Autowired
+    PermissionSystem permissionSystem;
+    @Autowired
+    PermissionTask permissionTask;
+    MemberGroupeRepository memberGroupeRepository;
+    @Autowired
+    GroupeUserRepository groupeUserRepository;
+    @Autowired
+    ConfigMenue configMenue;
+    @Autowired
+    UserRepository userRepository;
 
     public List<MemberGroupe> addStandarUser(UserApp userApp) {
         MemberGroupe memberGroupe = new MemberGroupe();
