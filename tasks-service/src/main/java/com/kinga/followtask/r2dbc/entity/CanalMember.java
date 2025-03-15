@@ -1,3 +1,4 @@
+/*
 package com.kinga.followtask.r2dbc.entity;
 
 import com.kinga.followtask.entity.Canall;
@@ -21,3 +22,4 @@ public class CanalMember {
     private List<String> credentials;
 
 }
+*/

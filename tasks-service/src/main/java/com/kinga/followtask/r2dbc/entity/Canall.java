@@ -1,3 +1,4 @@
+/*
 package com.kinga.followtask.r2dbc.entity;
 
 import com.kinga.followtask.entity.*;
@@ -16,3 +17,4 @@ public class Canall {
     private Project projects;
     private Issue issueMaster;
 }
+*/

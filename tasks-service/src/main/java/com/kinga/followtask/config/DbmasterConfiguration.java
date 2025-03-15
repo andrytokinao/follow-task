@@ -51,7 +51,7 @@ public class DbmasterConfiguration {
         return dataSourceBuilder.build();
     }
     @Bean(name = "masterDbEntityManager")
-    public LocalContainerEntityManagerFactoryBean masterDbEntityManager( @Qualifier("masterDbDataSource") DataSource masterDataSource) throws NamingException {
+    public LocalContainerEntityManagerFactoryBean masterDbEntityManager() throws NamingException {
 
         LocalContainerEntityManagerFactoryBean entityManager = new LocalContainerEntityManagerFactoryBean();
         entityManager.setDataSource(masterDbDataSource());
@@ -66,6 +66,8 @@ public class DbmasterConfiguration {
     private Properties jpaProperties(){
         Properties properties = new Properties();
         properties.setProperty("hibernate.dialect", masterDialect);
+        properties.setProperty("hibernate.hbm2ddl.auto", "update");
+
         return properties;
     }
 
@@ -76,9 +78,5 @@ public class DbmasterConfiguration {
         transactionManager.setEntityManagerFactory(entityManager);
         return transactionManager;
     }
-    @Primary
-    @Bean(name = "jpaSharedEM_masterDbEntityManager")
-    public EntityManager entityManager(@Qualifier("masterDbEntityManager") EntityManagerFactory entityManagerFactory) {
-        return entityManagerFactory.createEntityManager();
-    }
+
 }

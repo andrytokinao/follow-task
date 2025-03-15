@@ -1,3 +1,4 @@
+/*
 package com.kinga.followtask.reactiverepository;
 
 import com.kinga.followtask.r2dbc.entity.Canall;
@@ -13,3 +14,4 @@ public interface CanallReactiveRepository  extends ReactiveCrudRepository<Canall
             "WHERE cm.user_id = :userId")
     Flux<Canall> findByUserId(String userId);
 }
+*/

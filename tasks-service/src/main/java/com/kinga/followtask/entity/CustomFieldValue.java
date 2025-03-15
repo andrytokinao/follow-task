@@ -22,10 +22,13 @@ public abstract class CustomFieldValue {
     @ManyToOne
     private Issue issue;
     private Date date;
+    @Column(name = "string_value")
     private String string;
+    @Column(name = "text_value")
     private String text;
     @ManyToOne
     private UserApp user;
+    @Column(name = "numeric_value")
     private Integer numeric;
     @Convert(converter = StringListConverter.class)
     @Column(name = "string_values")

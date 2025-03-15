@@ -1,3 +1,4 @@
+/*
 package com.kinga.followtask.r2dbc.entity;
 
 import com.kinga.followtask.entity.*;
@@ -37,3 +38,4 @@ public class Project {
                 '}';
     }
 }
+*/

@@ -24,6 +24,7 @@ public class AuthorizationService {
     PermissionSystem permissionSystem;
     @Autowired
     PermissionTask permissionTask;
+    @Autowired
     MemberGroupeRepository memberGroupeRepository;
     @Autowired
     GroupeUserRepository groupeUserRepository;
