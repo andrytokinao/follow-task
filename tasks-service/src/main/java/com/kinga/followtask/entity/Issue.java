@@ -22,6 +22,7 @@ public class Issue {
     private String summary;
     private String issueKey;
     @Lob
+    @Column(columnDefinition = "LONGTEXT")
     private String description;
     private String directory;
     @ManyToMany
