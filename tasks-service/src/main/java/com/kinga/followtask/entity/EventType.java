@@ -15,7 +15,7 @@ public class EventType {
     @Column(nullable = false, unique = true)
     private String name;
 
-    @Column(nullable = true)
+    @Column(nullable = true,columnDefinition = "LONGTEXT")
     @Lob
     private String description;
     @Column(nullable = true)

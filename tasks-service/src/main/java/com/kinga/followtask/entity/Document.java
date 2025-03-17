@@ -18,6 +18,7 @@ public class Document {
     private Long id;
     private String titre;
     @Lob
+    @Column(columnDefinition = "LONGTEXT")
     private String description;
     private TypeDocument typeDocument;
     private Date creation;

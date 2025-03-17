@@ -21,6 +21,7 @@ public class Project {
     private String name;
     private String prefix;
     @Lob
+    @Column(nullable = true,columnDefinition = "LONGTEXT")
     private String description;
     private Integer dernierNumero ;
     private String path;

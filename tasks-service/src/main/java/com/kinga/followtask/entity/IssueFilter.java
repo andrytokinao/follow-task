@@ -20,6 +20,7 @@ public class IssueFilter {
     private String description;
     @Lob
     @Convert(converter = IssueCriteriaCoverter.class)
+    @Column(columnDefinition = "LONGTEXT")
     private IssueSearchCriteria criteria;
     @ManyToOne
     private UserApp user;

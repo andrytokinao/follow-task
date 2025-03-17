@@ -33,7 +33,7 @@ public class Event {
     @Column(name = "title", nullable = false)
     private String title;
     @Lob
-    @Column(name = "description", nullable = true)
+    @Column(name = "description", nullable = true,columnDefinition = "LONGTEXT")
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)

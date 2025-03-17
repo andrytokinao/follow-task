@@ -14,7 +14,7 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Lob
-    @Column(name = "text")
+    @Column(columnDefinition = "LONGTEXT")
     private String text;
     @ManyToOne
     private UserApp user;
