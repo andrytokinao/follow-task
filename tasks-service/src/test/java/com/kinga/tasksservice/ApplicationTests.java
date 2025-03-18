@@ -1,4 +1,4 @@
-package com.kinga.followtask;
+package com.kinga.tasksservice;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
