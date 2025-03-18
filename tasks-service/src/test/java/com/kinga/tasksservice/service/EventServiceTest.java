@@ -1,5 +1,6 @@
 package com.kinga.tasksservice.service;
 
+import com.kinga.followtask.Application;
 import com.kinga.followtask.dto.ValueDto;
 import com.kinga.followtask.entity.CustomField;
 import com.kinga.followtask.entity.TypeField;
@@ -14,7 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@SpringBootTest
+@SpringBootTest(classes = Application.class)
 @ExtendWith(SpringExtension.class)
 @TestPropertySource(properties = "spring.liquibase.enabled=false")
 class EventServiceTest {
