@@ -47,5 +47,6 @@ type Query {
     getLabelByProject(projectId:Int):[Label]
     getIssueById(issueId:Int):Issue
     getSettings(userId:String):[AppSettings]
+    getCanalByProject(projectId:Int,userIds:[String]):[Canall]
 
 }

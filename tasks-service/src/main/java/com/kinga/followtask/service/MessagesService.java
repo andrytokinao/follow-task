@@ -2,10 +2,7 @@ package com.kinga.followtask.service;
 
 
 import com.kinga.followtask.entity.*;
-import com.kinga.followtask.repository.CanalMemberRepository;
-import com.kinga.followtask.repository.CanalRepository;
-import com.kinga.followtask.repository.GroupeUserRepository;
-import com.kinga.followtask.repository.ProjectRepository;
+import com.kinga.followtask.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -19,6 +16,8 @@ public class MessagesService {
     private final CanalRepository canalRepository;
     private final ProjectRepository projectRepository;
     private final GroupeUserRepository groupeUserRepository;
+    private final UserRepository userRepository;
+
 
 
     public MessageApp sendMessage(MessageApp message, Long cannalId ) {
@@ -90,5 +89,40 @@ public class MessagesService {
             canall = canalls.get(0);
         }
         return canall;
+    }
+
+    public Canall createCanal(Canall canall) {
+       List<Canall> existings =  canalRepository.exactChannelByMembers(canall.getProjects().getId(),canall.getMembersIds(),canall.getMembersIds().size());
+       Canall existing = canall;
+       if (!CollectionUtils.isEmpty(existings)) {
+           existing = existings.get(0);
+           existing.setProjects(canall.getProjects());
+           existing.setMembers(canall.getMembers());
+           existing.setTypeCanal(TypeCanal.PROJECT);
+           existing.setIssueMaster(canall.getIssueMaster());
+           existing.setPseudo(canall.getPseudo());
+           existing.setMembersIds(canall.getMembersIds());
+           return canalRepository.save(existing);
+       } else {
+           if (CollectionUtils.isEmpty(canall.getMembersIds())
+                || canall.getMembersIds().size() < 1){
+               throw new RuntimeException("members is required and must both be 2");
+           }
+           canall = canalRepository.save(canall);
+           Canall finalCanall = canall;
+           canall.getMembersIds().forEach(id -> {
+               CanalMember cm = new CanalMember();
+               UserApp u = new UserApp();
+               u.setId(id);
+               cm.setUser(u);
+               cm.setCanall(finalCanall);
+               canalMemberRepository.save(cm);
+           });
+       }
+       return canalRepository.save(canall);
+    }
+
+    public List<Canall> getCanalByProject(Long projectId, List<String> userId) {
+        return canalRepository.findByProjectsIdAndMembersUserIdIn(projectId,userId);
     }
 }

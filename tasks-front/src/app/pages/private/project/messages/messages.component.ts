@@ -1,4 +1,10 @@
 import { Component } from '@angular/core';
+import {BehaviorSubject} from "rxjs";
+import {Canall, Project, User} from "../../../../type/issue";
+import {MessagesService} from "../../../../services/messages.service";
+import {UserService} from "../../../../services/user.service";
+import {IssueService} from "../../../../services/issue.service";
+import {getDisplayName} from "@apollo/client/react/hoc/hoc-utils";
 
 @Component({
   selector: 'app-messages',
@@ -6,68 +12,76 @@ import { Component } from '@angular/core';
   styleUrl: './messages.component.scss'
 })
 export class MessagesComponent {
-  chats = [
-    {
-      name: 'Alice',
-      photo: 'https://randomuser.me/api/portraits/women/1.jpg',
-      messages: [
-        { text: 'Salut !', sender: 'Alice' },
-        { text: 'Comment vas-tu ?', sender: 'Alice' },
-        { text: 'Comment vas-tu ?', sender: 'Alice' },
-        { text: 'Comment vas-tu ?', sender: 'Alice' },
-        { text: 'Comment vas-tu ?', sender: 'Alice' },
-        { text: 'Comment vas-tu ?', sender: 'Alice' },
-        { text: 'Comment vas-tu ?', sender: 'Alice' },
-        { text: 'Comment vas-tu ?', sender: 'Alice' },
-        { text: 'Comment vas-tu ?', sender: 'Alice' },
-        { text: 'Comment vas-tu ?', sender: 'Alice' },
-        { text: 'Comment vas-tu ?', sender: 'Alice' },
-        { text: 'Comment vas-tu ?', sender: 'Alice' },
-        { text: 'Comment vas-tu ?', sender: 'Alice' },
-        { text: 'Comment vas-tu ?', sender: 'Alice' },
-        { text: 'Comment vas-tu ?', sender: 'Alice' },
-        { text: 'Comment vas-tu ?', sender: 'Alice' },
-        { text: 'Comment vas-tu ?', sender: 'Alice' },
-        { text: 'Comment vas-tu ?', sender: 'Alice' },
-        { text: 'Comment vas-tu ?', sender: 'Alice' },
-        { text: 'Comment vas-tu ?', sender: 'Alice' },
-        { text: 'Comment vas-tu ?', sender: 'Alice' },
-        { text: 'Comment vas-tu ?', sender: 'Alice' },
-        { text: 'Comment vas-tu ?', sender: 'Alice' },
-        { text: 'Comment vas-tu ?', sender: 'Alice' },
-        { text: 'Comment vas-tu ?', sender: 'Alice' },
-        { text: 'Comment vas-tu ?', sender: 'mee' },
-        { text: 'Comment vas-tu ?', sender: 'Alice' },
-      ]
-    },
-    {
-      name: 'Bob',
-      photo: 'https://randomuser.me/api/portraits/men/1.jpg',
-      messages: [
-        { text: 'Salut !', sender: 'Bob' },
-        { text: 'Tu es dispo ?', sender: 'Bob' }
-      ]
-    },
-    {
-      name: 'Charlie',
-      photo: 'https://randomuser.me/api/portraits/men/2.jpg',
-      messages: [
-        { text: 'Hey !', sender: 'Charlie' }
-      ]
-    }
-  ];
+  private project: Project;
+  protected hasSelectedUsers: boolean = false;
 
-  selectedChat = this.chats[0]; // Sélection par défaut
+  constructor(protected messageService:MessagesService,
+              public userService:UserService,
+              private issueService:IssueService
+  ) {
+    this.messageService.canals$.subscribe(canales => {
+      this.canals = canales;
+    });
+    this.userService.users$.subscribe(users=> {
+      this.users = users;
+    });
+    this.issueService.project$.subscribe(project => {
+      this.project = project;
+    });
+
+  }
+
+  canals:Canall[] = [];
+
+  selectedCanall = this.canals[0]; // Sélection par défaut
   newMessage: string = '';
+  users:User[] = [];
+  selectedUsers:String[] = [];
 
   selectChat(chat: any) {
-    this.selectedChat = chat;
+    this.selectedCanall = chat;
   }
 
   sendMessage() {
     if (this.newMessage.trim()) {
-      this.selectedChat.messages.push({ text: this.newMessage, sender: 'me' });
+      this.messageService.sendMessage(this.newMessage,this.selectedCanall.id);
       this.newMessage = '';
     }
+  }
+
+
+  isSelectedUser(id: string) {
+    return this.selectedUsers.some(usr=> usr === id);
+  }
+
+  selectUser(event: any, user: User) {
+    if (event.checked) {
+      if (!this.selectedUsers)
+        this.selectedUsers = [];
+      this.selectedUsers.push(user.id);
+    } else {
+      this.selectedUsers = this.selectedUsers.filter(cf => cf != user.id);
+    }
+    return true;
+  }
+
+  createCanal() {
+    let canall:Canall = {
+      membersIds:this.selectedUsers,
+      typeCanal:'PROJECT',
+      projects:{id:this.project.id}
+    };
+    this.messageService.createCanal(canall).subscribe( c =>{
+
+    });
+  }
+
+  stopPropagation($event: MouseEvent) {
+    event.stopPropagation();
+  }
+  chatName(canal:Canall) {
+    if (!canal)
+      return "Selected";
+    return this.messageService.chatName(canal)
   }
 }

@@ -31,6 +31,7 @@ type Mutation {
     addLabelInIssue(issueId:Int,labelId:Int):IssueLabels
     removeLabelInIssue(issueId:Int,labelId:Int):IssueLabels
     deleteIssue(issueId:Int):Response
+    createCanal(canall:CanallInput):Canall
 }
 
 

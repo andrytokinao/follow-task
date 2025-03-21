@@ -43,6 +43,7 @@ import {PlanningIssueComponent} from "./modal/planning-issue/planning-issue.comp
 import {ShowIssueOptionComponent} from "./modal/show-issue-option/show-issue-option.component";
 import {ShowIssueFullOptionComponent} from "./modal/show-issue-full-option/show-issue-full-option.component";
 import {MessagesComponent} from "./messages/messages.component";
+import {MatCheckbox} from "@angular/material/checkbox";
 
 @NgModule({
   declarations: [
@@ -94,7 +95,8 @@ import {MessagesComponent} from "./messages/messages.component";
         MatRow,
         CustomFieldComponent,
         MarkdownComponent,
-        DayPilotModule
+        DayPilotModule,
+        MatCheckbox
     ]
 })
 export class ProjectModule { }

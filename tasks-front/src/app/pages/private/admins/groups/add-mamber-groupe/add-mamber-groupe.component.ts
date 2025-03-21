@@ -50,7 +50,7 @@ export class AddMamberGroupeComponent implements OnInit {
     this.userService.users$.subscribe((users: any) => {
       this.users = users;
       this.filteredUsers = this.userControl.valueChanges.pipe(
-        map(value => this._filterUsers(value || '')));
+        map(value => this.filterUsers(value || '')));
     });
     this.userService.permissionTask$.subscribe(permission=> {
       this.permission = permission;
@@ -60,16 +60,7 @@ export class AddMamberGroupeComponent implements OnInit {
 
   }
 
-  private _filterUsers(value: string): User[] {
-    const filterValue = value.toLowerCase();
-    let fileted= this.users.filter( user =>
-      user.firstName.toLowerCase().includes(filterValue) ||
-      user.lastName.toLowerCase().includes(filterValue) ||
-      user.username.toLowerCase().includes(filterValue));
-    console.debug("_filterUsers => ",fileted)
 
-    return fileted;
-  }
 
   displayFn(user: User): string {
     return user && user.username ? user.username : '';
@@ -113,5 +104,16 @@ export class AddMamberGroupeComponent implements OnInit {
 
   selectUsert(user: User) {
     this.user = user;
+  }
+
+  filterUsers(value: string): User[] {
+    const filterValue = value.toLowerCase();
+    let fileted= this.users.filter( user =>
+      user.firstName.toLowerCase().includes(filterValue) ||
+      user.lastName.toLowerCase().includes(filterValue) ||
+      user.username.toLowerCase().includes(filterValue));
+    console.debug("_filterUsers => ",fileted)
+
+    return fileted;
   }
 }

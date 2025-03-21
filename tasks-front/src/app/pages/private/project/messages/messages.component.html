@@ -1,38 +1,40 @@
 <div class="list-menu-with-left-right">
   <!-- Liste des discussions -->
   <div class="chat-list">
-    <div *ngFor="let chat of chats"
+    <div *ngFor="let canal of canals"
          class="chat-item"
-         [class.active]="chat === selectedChat"
-         (click)="selectChat(chat)">
-      <img [src]="chat.photo" alt="Avatar" class="avatar">
+         [class.active]="canal === selectedCanall"
+         (click)="selectChat(canal)">
+      <img [src]="messageService.getPhoto(canal)" alt="Avatar" class="avatar">
       <div class="chat-info">
-        <div class="chat-name">{{ chat.name }}</div>
-        <div class="chat-last-message">{{ chat.messages[chat.messages.length - 1]?.text || 'Aucun message' }}</div>
+        <div class="chat-name">{{ chatName(canal) }}</div>
+        <div class="chat-last-message" *ngIf="canal.messageApp">{{ canal.messageApp[canal.messageApp.length - 1]?.text || 'Aucun message' }}</div>
       </div>
+    </div>
+    <div class="chat-item" [matMenuTriggerFor]="newCanal">
+      Nouveau message
     </div>
   </div>
 
   <!-- Zone de chat -->
   <div class="chat-container">
     <div class="chat-header">
-      <img *ngIf="selectedChat" [src]="selectedChat.photo" alt="Avatar" class="avatar">
-      {{ selectedChat?.name || 'Sélectionnez une discussion' }}
+      <img *ngIf="selectedCanall" [src]="messageService.getPhoto(selectedCanall)" alt="Avatar" class="avatar">
+      {{chatName(selectedCanall) || 'Sélectionnez une discussion' }}
     </div>
 
     <div class="messages">
       <div style="align-items: center">
         <span style="align-items: center">
-                  Achange avec {{ selectedChat?.name}}
+                  Achange avec {{ chatName(selectedCanall)}}
 
         </span>
       </div>
-      <div *ngFor="let message of selectedChat?.messages" class="message" [class.sent]="message.sender === 'me'">
+      <div *ngFor="let message of selectedCanall?.messageApp" class="message" [class.sent]="messageService.senderIsMe(message)">
         <span >
-         <img *ngIf="message.sender !== 'me'" [src]="selectedChat.photo" alt="Avatar" class="avatar">
+         <img *ngIf="messageService.senderIsMe(message)" [src]="messageService.getPhoto(selectedCanall)" alt="Avatar" class="avatar">
         <span class="message-content">{{ message.text }}</span>
         </span>
-
       </div>
     </div>
 
@@ -42,3 +44,21 @@
     </div>
   </div>
 </div>
+<mat-menu #newCanal="matMenu">
+  <div class="card" style="margin-top: 15px;padding-top: 5px;padding-bottom: 5px">
+    <h1> Membre  </h1>
+    <div class="sidebar-heding ">
+      <div *ngFor="let user of users" (click)="stopPropagation($event)">
+        <mat-checkbox
+          [checked]="isSelectedUser(user.id)"
+          (change)="selectUser($event, user)"
+          class="custom-checkbox"
+        >
+          {{ user.username }}
+        </mat-checkbox>
+
+      </div>
+     <div (click)="createCanal()" *ngIf="this.selectedUsers.length > 0">  Créer</div>
+    </div>
+  </div>
+</mat-menu>

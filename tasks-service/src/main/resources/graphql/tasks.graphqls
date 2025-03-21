@@ -703,3 +703,61 @@ input AppSettingsInput{
 type Response{
     message:String
 }
+type CanalMember {
+    id: ID!
+    user: UserApp!
+    canall: Canall!
+    credentials: [String]
+}
+
+input CanalMemberInput {
+    userId: ID!
+    canallId: ID!
+    credentials: [String]
+}
+
+type Canall {
+    id: ID
+    messageApp: [MessageApp]
+    members: [CanalMember]
+    typeCanal: TypeCanal!
+    pseudo: String
+    projects: Project
+    issueMaster: Issue
+    membersIds: [ID]
+}
+
+input CanallInput {
+    id: ID
+    messageApp: [MessageAppInput]
+    members: [CanalMemberInput]
+    typeCanal: TypeCanal!
+    pseudo: String
+    projects: ProjectInput
+    issueMaster: IssueInput
+    membersIds: [ID]
+}
+
+enum TypeCanal {
+    PROJECT
+    ISSUE
+    DEFAULT
+}
+
+type MessageApp {
+    id: ID!
+    canall: Canall!
+    created: String!
+    text: String!
+    sender: UserApp!
+    userReades: [ID]
+}
+
+input MessageAppInput {
+    canallId: ID!
+    created: String
+    text: String!
+    senderId: ID!
+    userReades: [ID]
+}
+

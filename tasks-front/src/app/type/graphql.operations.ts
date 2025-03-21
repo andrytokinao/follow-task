@@ -1,4 +1,5 @@
 import {Apollo, gql} from "apollo-angular";
+import {Canall, CanalMember, Issue, MessageApp, Project} from "./issue";
 
 export let DELETE_ISSUE = gql`
   mutation deleteIssue($issueId:Int) {
@@ -2237,7 +2238,70 @@ export const GET_ISSUE_BY_ID = gql`
     }
     }
 `;
-
+export const CREATE_CANAL = gql`
+  mutation createCanal($canall:CanallInput) {
+    createCanal(canall: $canall) {
+      id,
+      members{
+        id,
+        user {
+          id,
+          username,
+          firstName,
+          lastName,
+          photo
+        }
+      }
+      typeCanal,
+      pseudo,
+      projects {
+        id
+      }
+      issueMaster{
+        id
+      },
+      membersIds
+      messageApp{
+        canallId
+        created
+        text
+        senderId
+        userReades
+      }
+    }
+  }
+`;
+export const GET_CANAL_BY_PROJECT = gql`
+    query getCanalByProject($projectId:Int,$userIds:[String]){
+      getCanalByProject(projectId: $projectId,userIds:$userIds) {
+        id,
+        members{
+          id,
+          user{
+            id,
+            firstName,
+            photo
+          }
+        }
+        typeCanal,
+        pseudo,
+        projects {
+          id
+        }
+        issueMaster{
+          id
+        },
+        messageApp{
+          canallId
+          created
+          text
+          senderId
+          userReades
+        }
+        membersIds
+      }
+    }
+`
 export {
   supprimerTypename,
   SAVE_USER,

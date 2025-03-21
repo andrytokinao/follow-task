@@ -12,16 +12,14 @@ public interface CanalRepository extends JpaRepository<Canall, Long> {
     public List<Canall> findByProjectsIdAndMembersUserIdIn(Long projectsIds, List<String> membersIds);
 
         @Query("""
-        SELECT c FROM Canall c 
-        WHERE c.id IN (
-            SELECT cm.canall.id FROM CanalMember cm
-            WHERE cm.user.id IN :userIds
-            GROUP BY cm.canall.id
-            HAVING COUNT(DISTINCT cm.user.id) = :size
-        )
-        AND SIZE(c.members) = :size 
-        AND c.projects.id = :projectsIds
+        SELECT c FROM CanalMember cm
+        JOIN cm.user u
+        JOIN cm.canall c
+        WHERE u.id IN (:userIds)
+        AND c.projects.id = :projectsId
+        GROUP BY c
+        HAVING COUNT(u.id) = :userCount
     """)
-    List<Canall> exactChannelByMembers(@Param("projectsIds") Long projectsIds,  @Param("userIds") List<String> userIds, @Param("size") long size);
+    List<Canall> exactChannelByMembers(@Param("projectsId") Long projectsId,  @Param("userIds") List<String> userIds, @Param("userCount") long userCount);
 
 }

@@ -12,12 +12,15 @@ import java.util.List;
 @AllArgsConstructor
 public class Canall {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
-    @OneToMany
+    @OneToMany(mappedBy = "canall")
     List<MessageApp> messageApp;
-    @OneToMany
+    private String pseudo;
+    @OneToMany(mappedBy = "canall")
     List<CanalMember> members;
+    @Transient
+    List<String> membersIds;
     TypeCanal typeCanal;
     @ManyToOne
     private Project projects;

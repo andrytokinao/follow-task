@@ -18,6 +18,9 @@ public class MessageApp {
    @ManyToOne
    private Canall canall;
    private Date created;
+   @Lob
+   @Column(nullable = false,columnDefinition = "LONGTEXT")
+   private String text;
    @ManyToOne
    private UserApp sender;
    @Convert(converter = StringListConverter.class)
