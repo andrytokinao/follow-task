@@ -747,17 +747,18 @@ enum TypeCanal {
 type MessageApp {
     id: ID!
     canall: Canall!
-    created: String!
+    created: String
     text: String!
     sender: UserApp!
     userReades: [ID]
 }
 
 input MessageAppInput {
-    canallId: ID!
+    id: ID
+    canall: CanallInput
     created: String
-    text: String!
-    senderId: ID!
+    text: String
+    sender: UserAppInput
     userReades: [ID]
 }
 

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import {BehaviorSubject} from "rxjs";
-import {Canall, Project, User} from "../../../../type/issue";
+import {Canall, MessageApp, Project, User} from "../../../../type/issue";
 import {MessagesService} from "../../../../services/messages.service";
 import {UserService} from "../../../../services/user.service";
 import {IssueService} from "../../../../services/issue.service";
@@ -28,6 +28,9 @@ export class MessagesComponent {
     this.issueService.project$.subscribe(project => {
       this.project = project;
     });
+    this.messageService.newMessage$.subscribe(message => {
+      this.pushNewMessage(message);
+    })
 
   }
 
@@ -83,5 +86,16 @@ export class MessagesComponent {
     if (!canal)
       return "Selected";
     return this.messageService.chatName(canal)
+  }
+
+  pushNewMessage(message: MessageApp) {
+    if (!message)
+      return;
+    let canall = this.canals.find( canal => message.canall.id === canal.id);
+    if (!canall)
+      return;
+    if (!canall.messageApp)
+      canall.messageApp =[];
+    canall.messageApp.push(message);
   }
 }

@@ -1,9 +1,15 @@
 import { Injectable } from '@angular/core';
-import {Canall, Issue, MessageApp, Project} from "../type/issue";
+import {Canall, Issue, MessageApp, Project, User} from "../type/issue";
 import {BehaviorSubject, Observable} from "rxjs";
 import {HttpClient, HttpEvent, HttpRequest} from "@angular/common/http";
 import {environment} from "../../environments/environment";
-import {ADD_USER_IN_GROUPE, CREATE_CANAL, GET_CANAL_BY_PROJECT, supprimerTypename} from "../type/graphql.operations";
+import {
+  ADD_USER_IN_GROUPE,
+  CREATE_CANAL,
+  GET_CANAL_BY_PROJECT,
+  SEND_MESSAGE,
+  supprimerTypename
+} from "../type/graphql.operations";
 import {Apollo} from "apollo-angular";
 import {IssueService} from "./issue.service";
 import {AuthService} from "./auth.service";
@@ -19,6 +25,7 @@ export class MessagesService {
   newMessage$ = this.newMessageSubject.asObservable();
   project:Project;
   canals:Canall[] = [];
+  users:User[] = [];
   connectedUser
   constructor(
     private http:HttpClient,
@@ -39,12 +46,15 @@ export class MessagesService {
         this.loadCanals(this.project.id , [this.connectedUser.id]);
       }
     });
+    this.userService.users$.subscribe( users => {
+      this.users = users;
+    })
   }
   getCanall(workspaceId:Number, userIds:String[]) {
 
   }
   sendMessage(text:String , cannalId:Number) {
-    let message:MessageApp ={
+    let newMessage:MessageApp ={
       canall:{id:cannalId,typeCanal:'PROJECT'},
       sender:{id:this.connectedUser.id},
       text:text,
@@ -52,7 +62,7 @@ export class MessagesService {
     this.apollo.mutate(
       {
         mutation:SEND_MESSAGE,
-        variables:{message},
+        variables:{newMessage},
         fetchPolicy:'network-only'
       }
     ).subscribe((res:any)=> {
@@ -66,6 +76,12 @@ export class MessagesService {
     let otherUsers = this.getOtherUsers(canall);
     return this.userService.getUrlPhoto(otherUsers[0]);
   }
+  getSenderPhoto(message:MessageApp){
+   let sender = this.users.find(user => user.id === message.sender.id );
+   if (sender)
+     return this.userService.getUrlPhoto(sender);
+   return '';
+  }
   getOtherUsers(cannel:Canall) {
     return  cannel.members.map(member => member.user).filter(user => user.id !== this.connectedUser.id)
   }
@@ -74,7 +90,7 @@ export class MessagesService {
     return othersUsers.map(user => user.firstName).join(",")
   }
   senderIsMe(message: MessageApp) {
-    return false;
+    return this.connectedUser.id === message.sender.id;
   }
 
   private loadCanalsReactive() {

@@ -4,7 +4,6 @@ type Mutation {
     initUser(userApp:UserAppInput):UserApp
 
     saveIssue(issue:IssueInput) :Issue
-
     updateIssue(issue:IssueInput) : Issue
     saveValue(value:ValueInput):[CustomFieldValue]
     addComment(comment:CommentInput):[Comment]
@@ -32,6 +31,7 @@ type Mutation {
     removeLabelInIssue(issueId:Int,labelId:Int):IssueLabels
     deleteIssue(issueId:Int):Response
     createCanal(canall:CanallInput):Canall
+    sendMessage(newMessage:MessageAppInput):MessageApp
 }
 
 

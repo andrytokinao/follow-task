@@ -1,6 +1,7 @@
 package com.kinga.followtask.web;
 
 import com.kinga.followtask.entity.Canall;
+import com.kinga.followtask.entity.MessageApp;
 import com.kinga.followtask.service.MessagesService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -21,5 +22,9 @@ public class MessagesController {
     @QueryMapping
     public List<Canall> getCanalByProject(@Argument Long projectId, @Argument List<String> userIds) {
         return messagesService.getCanalByProject(projectId, userIds);
+    }
+    @MutationMapping
+    public MessageApp sendMessage(@Argument MessageApp newMessage){
+        return messagesService.sendMessage(newMessage);
     }
 }

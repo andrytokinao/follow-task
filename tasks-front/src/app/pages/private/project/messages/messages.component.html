@@ -32,7 +32,7 @@
       </div>
       <div *ngFor="let message of selectedCanall?.messageApp" class="message" [class.sent]="messageService.senderIsMe(message)">
         <span >
-         <img *ngIf="messageService.senderIsMe(message)" [src]="messageService.getPhoto(selectedCanall)" alt="Avatar" class="avatar">
+         <img *ngIf="!messageService.senderIsMe(message)" [src]="messageService.getSenderPhoto(message)" alt="Avatar" class="avatar">
         <span class="message-content">{{ message.text }}</span>
         </span>
       </div>

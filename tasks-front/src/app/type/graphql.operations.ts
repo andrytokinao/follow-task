@@ -2262,10 +2262,14 @@ export const CREATE_CANAL = gql`
       },
       membersIds
       messageApp{
-        canallId
+        canall{
+          id
+        }
         created
         text
-        senderId
+        sender{
+          id
+        }
         userReades
       }
     }
@@ -2292,15 +2296,36 @@ export const GET_CANAL_BY_PROJECT = gql`
           id
         },
         messageApp{
-          canallId
+          id
+          canall{
+            id
+          }
           created
           text
-          senderId
+          sender{
+            id
+          }
           userReades
         }
         membersIds
       }
     }
+`
+export const SEND_MESSAGE = gql`
+   mutation sendMessage($newMessage:MessageAppInput) {
+     sendMessage(newMessage:$newMessage) {
+       id
+       canall{
+         id
+       }
+       created
+       text
+       sender{
+         id
+       }
+       userReades
+     }
+   }
 `
 export {
   supprimerTypename,

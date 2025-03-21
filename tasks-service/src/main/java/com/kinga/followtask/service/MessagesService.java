@@ -17,11 +17,11 @@ public class MessagesService {
     private final ProjectRepository projectRepository;
     private final GroupeUserRepository groupeUserRepository;
     private final UserRepository userRepository;
+    private final MessagesRepository messagesRepository;
 
 
-
-    public MessageApp sendMessage(MessageApp message, Long cannalId ) {
-        return message;
+    public MessageApp sendMessage(MessageApp message) {
+        return messagesRepository.save(message);
     }
     public MessageApp readMessage(Long messageId, String userId) {
         return new MessageApp();
