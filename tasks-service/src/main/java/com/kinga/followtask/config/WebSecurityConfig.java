@@ -31,8 +31,8 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
         prePostEnabled = true,
         securedEnabled = true,
         jsr250Enabled = true)
-public class WebSecurityConfig2 {
-    private static final Logger logger = LoggerFactory.getLogger(WebSecurityConfig2.class);
+public class WebSecurityConfig {
+    private static final Logger logger = LoggerFactory.getLogger(WebSecurityConfig.class);
 
     @Autowired
     private CustomUserDetailsService userDetailsService;
@@ -45,6 +45,8 @@ public class WebSecurityConfig2 {
                         .requestMatchers(new AntPathRequestMatcher("/graphql")).permitAll () // TODO : regler le probleme d'autorisation
                         .requestMatchers(new AntPathRequestMatcher("/api/upload")).permitAll ()
                         .requestMatchers(new AntPathRequestMatcher("/api/**")).authenticated()
+                        .requestMatchers(new AntPathRequestMatcher("/wsocket/**")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/topic/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/public/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/working/**")).permitAll()

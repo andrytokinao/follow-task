@@ -1,9 +1,13 @@
 package com.kinga.followtask.service;
 
 
+import com.kinga.followtask.dto.OutputMessage;
 import com.kinga.followtask.entity.*;
 import com.kinga.followtask.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -18,11 +22,20 @@ public class MessagesService {
     private final GroupeUserRepository groupeUserRepository;
     private final UserRepository userRepository;
     private final MessagesRepository messagesRepository;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
 
     public MessageApp sendMessage(MessageApp message) {
-        return messagesRepository.save(message);
+      MessageApp  mes = messagesRepository.save(message);
+      sendMessageTo(mes);
+      return mes;
     }
+
+    private void sendMessageTo(MessageApp mes) {
+        OutputMessage output = new OutputMessage(mes);
+            simpMessagingTemplate.convertAndSend("/topic/messages", output);
+    }
+
     public MessageApp readMessage(Long messageId, String userId) {
         return new MessageApp();
     }
@@ -125,4 +138,15 @@ public class MessagesService {
     public List<Canall> getCanalByProject(Long projectId, List<String> userId) {
         return canalRepository.findByProjectsIdAndMembersUserIdIn(projectId,userId);
     }
+    @Scheduled(fixedRate = 5000)
+    public void scheduledMessage() {
+        MessageApp message = new MessageApp();
+        message.setCreated(new Date());
+        message.setText("By bot");
+        UserApp userApp = new UserApp();
+        userApp.setId("idd");
+        message.setSender(userApp);
+        sendMessageTo(message);
+    }
+
 }
