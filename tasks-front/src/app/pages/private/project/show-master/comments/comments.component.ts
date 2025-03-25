@@ -17,6 +17,7 @@ import {AuthService} from "../../../../../services/auth.service";
 import {Observable} from "rxjs";
 
 @Component({
+  standalone:false,
   selector: 'comments-componets',
   templateUrl: './comments.component.html',
   styleUrl: './comments.component.css'

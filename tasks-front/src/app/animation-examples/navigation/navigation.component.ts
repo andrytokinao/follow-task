@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'navigation',
+  standalone: false,
   templateUrl: './navigation.component.html',
   styleUrls: ['./navigation.component.scss']
 })

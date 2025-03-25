@@ -14,6 +14,7 @@ import {MediaSpaceComponent} from "../configuration/media-space/media-space.comp
 import {InstallDataComponent} from "../configuration/install-data/install-data.component";
 
 @Component({
+  standalone:false,
   selector: 'app-create-project',
   templateUrl: './create-project.component.html',
   styleUrl: './create-project.component.css'

@@ -7,6 +7,7 @@ import {IssueService} from "../../../../../services/issue.service";
 import {CdkTextareaAutosize} from "@angular/cdk/text-field";
 import {JsonpInterceptor} from "@angular/common/http";
 @Component({
+  standalone:false,
   selector: 'app-edit-issue',
   templateUrl: './new-issue.component.html',
   styleUrl: './new-issue.component.css'

@@ -3,6 +3,7 @@ import { RouterOutlet } from '@angular/router';
 import {routeTransition} from "../route-transition";
 
 @Component({
+  standalone:false,
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',

@@ -25,6 +25,7 @@ import {fromUrlParams, IssueSearchCriteriaInput} from "../../../../../../type/is
 
 @Component({
   selector: 'app-issue-liste',
+  standalone: false,
   templateUrl: './simple-liste.component.html',
   styleUrl: './simple-liste.component.css'
 })

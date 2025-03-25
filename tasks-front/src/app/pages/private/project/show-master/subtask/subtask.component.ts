@@ -17,6 +17,7 @@ interface Task {
   assignedTo: string;
 }
 @Component({
+  standalone:false,
   selector: 'app-subtask',
   templateUrl: './subtask.component.html',
   styleUrl: './subtask.component.css'

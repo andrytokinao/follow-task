@@ -4,6 +4,7 @@ import {environment} from "../../../environments/environment";
 import {HttpClient} from "@angular/common/http";
 
 @Component({
+  standalone: false,
   selector: 'app-pdf-overview',
   templateUrl: './pdf-overview.component.html',
   styleUrl: './pdf-overview.component.css'

@@ -5,6 +5,7 @@ import {IssueService} from "../../../../../services/issue.service";
 import {supprimerTypename} from "../../../../../type/graphql.operations";
 
 @Component({
+  standalone:false,
   selector: 'app-issue-type',
   templateUrl: './issue-type.component.html',
   styleUrl: './issue-type.component.css'

@@ -14,6 +14,9 @@ import {Apollo} from "apollo-angular";
 import {IssueService} from "./issue.service";
 import {AuthService} from "./auth.service";
 import {UserService} from "./user.service";
+import * as SockJS from 'sockjs-client';
+import { Client, Message, Stomp } from '@stomp/stompjs';
+
 
 @Injectable({
   providedIn: 'root'
@@ -26,6 +29,8 @@ export class MessagesService {
   project:Project;
   canals:Canall[] = [];
   users:User[] = [];
+  private client: Client;
+
   connectedUser
   constructor(
     private http:HttpClient,
@@ -48,7 +53,23 @@ export class MessagesService {
     });
     this.userService.users$.subscribe( users => {
       this.users = users;
-    })
+    });
+    this.client = new Client({
+      webSocketFactory: () => new SockJS(environment.apiURL+'wsocket'),
+      debug: (str) => console.log(str),
+    });
+    this.client.onConnect = (frame) => {
+      console.log('Connected: ' + frame);
+      this.client.subscribe('/topic/messages', (message: Message) => {
+       alert("from server ");
+      });
+    };
+    this.client.onStompError = (frame) => {
+      console.error('Broker reported error: ' + frame.headers['message']);
+      console.error('Additional details: ' + frame.body);
+    };
+    this.client.activate();
+
   }
   getCanall(workspaceId:Number, userIds:String[]) {
 

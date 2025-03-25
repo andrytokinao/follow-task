@@ -3,6 +3,7 @@ import {IssueService} from "../../../../../services/issue.service";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
+  standalone:false,
   selector: 'app-project-name',
   templateUrl: './project-name.component.html',
   styleUrl: './project-name.component.css'

@@ -12,6 +12,7 @@ import _default from "chart.js/dist/plugins/plugin.tooltip";
 import reset = _default.reset;
 
 @Component({
+  standalone: false,
   selector: 'app-status-field',
   templateUrl: './status-field.component.html',
   styleUrl: './status-field.component.css'

@@ -13,6 +13,7 @@ import {ConfirmationDialogService} from "../../../../../../services/confirmation
 
 @Component({
   selector: 'app-issue-master-list',
+  standalone: false,
   templateUrl: './issue-master-list.component.html',
   styleUrl: './issue-master-list.component.css'
 })

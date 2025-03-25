@@ -18,6 +18,7 @@ import {animate, state, style, transition, trigger} from "@angular/animations";
 
 @Component({
   selector: 'app-show',
+  standalone: false,
   templateUrl: './show-list.component.html',
   styleUrl: './show-list.component.css',
 

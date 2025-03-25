@@ -10,6 +10,7 @@ import {BehaviorSubject} from "rxjs";
 
 
 @Component({
+  standalone:false,
   selector: 'app-documents',
   templateUrl: './documents.component.html',
   styleUrl: './documents.component.css',

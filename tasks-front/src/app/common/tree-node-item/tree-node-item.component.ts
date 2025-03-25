@@ -4,6 +4,7 @@ import {CommonModule} from "@angular/common";
 
 @Component({
   selector: 'app-tree-node-item',
+  standalone: false,
   templateUrl: './tree-node-item.component.html',
   styleUrls: ['./tree-node-item.component.css']
 })

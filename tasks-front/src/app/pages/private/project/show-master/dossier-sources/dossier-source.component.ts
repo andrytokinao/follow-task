@@ -8,6 +8,7 @@ import {UserService} from "../../../../../services/user.service";
 import {AuthService} from "../../../../../services/auth.service";
 
 @Component({
+  standalone:false,
   selector: 'app-dossier-source',
   templateUrl: './dossier-source.component.html',
   styleUrl: './dossier-source.component.css'

@@ -8,6 +8,7 @@ import {AuthGuard} from "../../services/SystemGuard";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
+  standalone: false,
   selector: 'app-breadcrumb',
   templateUrl: './breadcrumb.component.html',
   styleUrls: ['./breadcrumb.component.css']

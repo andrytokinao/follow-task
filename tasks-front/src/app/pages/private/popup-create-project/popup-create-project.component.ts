@@ -7,7 +7,7 @@ import {error} from "@angular/compiler-cli/src/transformers/util";
 
 @Component({
   selector: 'app-popup-create-project',
-
+  standalone: false,
   templateUrl: './popup-create-project.component.html',
   styleUrl: './popup-create-project.component.css'
 })

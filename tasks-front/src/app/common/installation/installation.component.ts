@@ -3,6 +3,7 @@ import {ConfigService} from "../../services/config.service";
 import {Router, RouterModule} from "@angular/router";
 
 @Component({
+  standalone: false,
   selector: 'app-installation',
   templateUrl: './installation.component.html',
   styleUrl: './installation.component.css'

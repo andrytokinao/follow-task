@@ -9,6 +9,7 @@ import {UserService} from "../../services/user.service";
 import {IssueService} from "../../services/issue.service";
 
 @Component({
+  standalone: false,
   selector: 'app-new-event',
   templateUrl: './new-event.component.html',
   styleUrl: './new-event.component.css'

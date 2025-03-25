@@ -9,6 +9,7 @@ import {AuthService} from "../../../../../services/auth.service";
 import Date = DayPilot.Date;
 
 @Component({
+  standalone:false,
   selector: 'app-planning-issue',
   templateUrl: './planning-issue.component.html',
   styleUrl: './planning-issue.component.css'

@@ -2,6 +2,7 @@ import {Component, Input} from '@angular/core';
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
+  standalone: false,
   selector: 'app-confirmation-dialog',
   templateUrl: './confirmation-dialog.component.html',
   styleUrl: './confirmation-dialog.component.css'

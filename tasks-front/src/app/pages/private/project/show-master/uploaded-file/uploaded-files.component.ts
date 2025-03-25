@@ -13,6 +13,7 @@ interface Livraison {
   filesToUpload?: FileList;
 }
 @Component({
+  standalone:false,
   selector: 'app-uploaded-files',
   templateUrl: './uploaded-files.component.html',
   styleUrl: './uploaded-files.component.css'

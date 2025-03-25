@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import Quill from "quill";
 
 @Component({
+  standalone: false,
   selector: 'app-quill-editor',
   templateUrl: './quill-editor.component.html',
   styleUrls: ['./quill-editor.component.css']

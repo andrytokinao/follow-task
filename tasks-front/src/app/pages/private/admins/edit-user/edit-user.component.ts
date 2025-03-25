@@ -5,6 +5,7 @@ import {environment} from "../../../../../environments/environment";
 import {supprimerTypename} from "../../../../type/graphql.operations";
 
 @Component({
+  standalone: false,
   selector: 'app-edit-user',
   templateUrl: './edit-user.component.html',
   styleUrl: './edit-user.component.css'

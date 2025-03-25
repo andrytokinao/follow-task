@@ -48,6 +48,7 @@ import {
 
 @Component({
   selector: 'app-list',
+  standalone: false,
   templateUrl: './list.component.html',
   styleUrl: './list.component.css',
   animations: [

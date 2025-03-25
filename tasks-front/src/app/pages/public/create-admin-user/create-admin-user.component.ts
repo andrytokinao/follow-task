@@ -18,6 +18,7 @@ import {map, Observable} from "rxjs";
 import {EventGateway} from "../../../type/event-gatway";
 
 @Component({
+  standalone:false,
   selector: 'app-create-admin-user',
   templateUrl: './create-admin-user.component.html',
   styleUrl: './create-admin-user.component.css'

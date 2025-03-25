@@ -1,7 +1,12 @@
 <div class="contenue">
   <div class="navigator">
-    <daypilot-navigator [config]="configNavigator" [events]="events" [(date)]="date" (dateChange)="changeDate($event)"
-                        #navigator></daypilot-navigator>
+    <daypilot-navigator
+      [config]="configNavigator"
+      [events]="events"
+      [(date)]="date"
+      (dateChange)="changeDate($event)"
+      #navigator>
+    </daypilot-navigator>
     <div>
       <div class="card" style="margin-top: 15px;padding-top: 5px;padding-bottom: 5px">
         <h1> Date personnalisé </h1>
@@ -67,7 +72,9 @@
   </div>
 
   <div class="my-content">
+<!--
     <span class="selected-date"> <b> {{ this.navigator.date.toDate() | date }} </b></span>
+-->
 
     <div class="buttons">
       <button (click)="viewResources()" *ngIf="projectGuard.hasCredential(['CAN_VIEW_TEAM_AGENDA']) | async"

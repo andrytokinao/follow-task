@@ -12,6 +12,7 @@ import {IssueTypeStepperComponent} from "./issue-type-stepper/issue-type-stepper
 
 @Component({
   selector: 'app-issue-type',
+  standalone: false,
   templateUrl: './issue-type.component.html',
   styleUrl: './issue-type.component.css'
 })

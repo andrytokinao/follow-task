@@ -10,6 +10,7 @@ import {BackupComponent} from "./backup/backup.component";
 import {InstallDataComponent} from "./install-data/install-data.component";
 
 @Component({
+  standalone: false,
   selector: 'app-configuration',
   templateUrl: './configuration.component.html',
   styleUrl: './configuration.component.css'

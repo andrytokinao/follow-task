@@ -55,6 +55,7 @@ import { Router } from '@angular/router';
 
 @Component({
   selector: 'animation-examples',
+  standalone: false,
   templateUrl: './animation-examples.component.html',
   styleUrls: ['./animation-examples.component.scss'],
   animations: [

@@ -9,6 +9,7 @@ import {AuthService} from "../../../../../services/auth.service";
 import {EventsService} from "../../../../../services/events.service";
 
 @Component({
+  standalone:false,
   selector: 'app-planning',
   templateUrl: './planning.component.html',
   styleUrl: './planning.component.css'

@@ -21,6 +21,7 @@ import {AuthGuard} from "../../../../../services/SystemGuard";
 import {ProjectGuard} from "../../../../../services/ProjectGuard";
 
 @Component({
+  standalone:false,
   selector: 'calendar-planning-component',
   templateUrl:'planning-calendar.component.html',
   styleUrl:'planning-calendar.component.css'

@@ -10,6 +10,7 @@ interface Document {
 }
 
 @Component({
+  standalone:false,
   selector: 'app-document-uploader',
   templateUrl: './document-uploader.component.html',
   styleUrls: ['./document-uploader.component.css']

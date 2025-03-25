@@ -12,6 +12,7 @@ import {StepperWorkflowComponent} from "./stepper-workflow/stepper-workflow.comp
 
 @Component({
   selector: 'app-work-flow',
+  standalone: false,
   templateUrl: './work-flow.component.html',
   styleUrl: './work-flow.component.css'
 })

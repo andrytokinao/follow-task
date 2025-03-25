@@ -8,6 +8,7 @@ import {UserService} from "../../services/user.service";
 import {ProjectGuard} from "../../services/ProjectGuard";
 
 @Component({
+  standalone: false,
   selector: 'app-issue-filter-field',
   templateUrl: './issue-filter-field.component.html',
   styleUrl: './issue-filter-field.component.css'

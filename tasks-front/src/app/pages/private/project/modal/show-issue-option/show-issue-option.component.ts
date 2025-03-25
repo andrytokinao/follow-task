@@ -10,6 +10,7 @@ import {AuthService} from "../../../../../services/auth.service";
 import {ActivatedRoute, Router} from "@angular/router";
 
 @Component({
+  standalone:false,
   selector: 'show-issue-option',
   templateUrl: './show-issue-option.component.html',
   styleUrl: './show-issue-option.component.css'

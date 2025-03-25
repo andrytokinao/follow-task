@@ -8,6 +8,7 @@ import {UserService} from "../../../../services/user.service";
 import {EditUserComponent} from "../edit-user/edit-user.component";
 
 @Component({
+  standalone: false,
   selector: 'app-users',
   templateUrl: './users.component.html',
   styleUrl: './users.component.css'

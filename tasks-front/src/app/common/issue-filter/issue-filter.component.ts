@@ -4,6 +4,7 @@ import {MatMenu, MatMenuItem, MatMenuTrigger, MenuPositionX} from "@angular/mate
 import {CustomFilter} from "../../type/issue-search-criteria.util";
 
 @Component({
+  standalone: false,
   selector: 'app-issue-filter',
   templateUrl: './issue-filter.component.html',
   styleUrl: './issue-filter.component.css'

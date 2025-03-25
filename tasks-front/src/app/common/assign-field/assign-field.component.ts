@@ -13,6 +13,7 @@ import {AuthGuard} from "../../services/SystemGuard";
 import {AuthService} from "../../services/auth.service";
 
 @Component({
+  standalone: false,
   selector: 'app-assign-field',
   templateUrl: './assign-field.component.html',
   styleUrl: './assign-field.component.css'

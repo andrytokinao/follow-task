@@ -7,6 +7,7 @@ import {MyCommonModule} from "../common.module";
 import {Icone, IssueType} from "../../type/issue";
 
 @Component({
+  standalone: false,
   selector: 'app-issuetype-form',
   templateUrl: './issuetype-form.component.html',
   styleUrl: './issuetype-form.component.css'

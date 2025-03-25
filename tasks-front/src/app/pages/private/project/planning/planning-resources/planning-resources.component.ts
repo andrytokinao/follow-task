@@ -10,6 +10,7 @@ import {EventsService} from "../../../../../services/events.service";
 import {EventApp, EventSearchCriteria} from "../../../../../type/issue";
 
 @Component({
+  standalone:false,
   selector: 'calendar-component-resources',
   template: `
     <div class="contenue">

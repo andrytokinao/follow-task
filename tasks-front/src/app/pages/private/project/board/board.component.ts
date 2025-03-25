@@ -13,6 +13,7 @@ import {ToastrService} from "ngx-toastr";
 import {AuthGuard} from "../../../../services/SystemGuard";
 
 @Component({
+  standalone:false,
   selector: 'app-board',
   templateUrl: './board.component.html',
   styleUrl: './board.component.css'

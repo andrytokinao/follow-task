@@ -8,6 +8,7 @@ interface Task {
 }
 
 @Component({
+  standalone:false,
   selector: 'app-gantt-chart',
   templateUrl: './gantt-chart.component.html',
   styleUrls: ['./gantt-chart.component.css']

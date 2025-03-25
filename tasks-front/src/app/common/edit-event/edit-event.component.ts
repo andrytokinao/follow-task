@@ -6,6 +6,7 @@ import {EventsService} from "../../services/events.service";
 import {IssueService} from "../../services/issue.service";
 
 @Component({
+  standalone: false,
   selector: 'app-edit-event',
   templateUrl: './edit-event.component.html',
   styleUrl: './edit-event.component.css'

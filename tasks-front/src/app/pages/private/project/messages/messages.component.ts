@@ -7,6 +7,7 @@ import {IssueService} from "../../../../services/issue.service";
 import {getDisplayName} from "@apollo/client/react/hoc/hoc-utils";
 
 @Component({
+  standalone:false,
   selector: 'app-messages',
   templateUrl: './messages.component.html',
   styleUrl: './messages.component.scss'

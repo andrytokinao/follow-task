@@ -4,7 +4,6 @@ import {UsersComponent} from "./users/users.component";
 import {GroupsComponent} from "./groups/groups.component";
 import {AdminComponent} from "./admin.component";
 import {CreateProjectComponent} from "./config-project/create-project.component";
-import {ConfigurationModule} from "./configuration/configuration.module";
 import {ConfigurationComponent} from "./configuration/configuration.component";
 
 const adminRoute: Routes = [

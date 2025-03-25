@@ -11,7 +11,7 @@ import {NgbActiveModal, NgbModal} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
   selector: 'app-issue-type-stepper',
-
+  standalone: false,
   templateUrl: './issue-type-stepper.component.html',
   styleUrl: './issue-type-stepper.component.css'
 })

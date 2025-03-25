@@ -17,6 +17,7 @@ import {AuthService} from "../../../../../services/auth.service";
 import {concatMap, Observable} from "rxjs";
 
 @Component({
+  standalone:false,
   selector: 'app-file-list',
   templateUrl: './file-list.component.html',
   styleUrl: './file-list.component.css'

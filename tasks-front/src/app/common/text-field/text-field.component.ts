@@ -1,8 +1,7 @@
 import {Component, EventEmitter, input, Input, Output} from '@angular/core';
-import {CommonModule}  from "@angular/common";
-import FormsModule from "@angular/forms"
 
 @Component({
+  standalone: false,
   selector: 'app-text-field',
   templateUrl: './text-field.component.html',
   styleUrl: './text-field.component.css'

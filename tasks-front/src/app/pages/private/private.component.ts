@@ -19,6 +19,7 @@ import {environment} from "../../../environments/environment";
 
 @Component({
   selector: 'private-root',
+  standalone: false,
   templateUrl: './private.component.html',
   styleUrl: './private.component.css',
   animations: [

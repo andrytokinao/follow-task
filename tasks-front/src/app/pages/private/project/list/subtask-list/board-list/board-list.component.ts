@@ -13,6 +13,7 @@ import {AuthGuard} from "../../../../../../services/SystemGuard";
 
 @Component({
   selector: 'app-board-list',
+  standalone: false,
   templateUrl: './board-list.component.html',
   styleUrl: './board-list.component.css'
 })

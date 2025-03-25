@@ -9,6 +9,7 @@ import {EventsService} from "../../../../../../services/events.service";
 
 @Component({
   selector: 'app-calendar-list',
+  standalone: false,
   template: `
     <div class="container-list">
       <div class="navigator">

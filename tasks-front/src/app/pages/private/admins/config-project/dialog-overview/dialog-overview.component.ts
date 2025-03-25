@@ -10,6 +10,7 @@ import {stripTypename} from "@apollo/client/utilities";
 import {IssueTypeComponent} from "../issue-type/issue-type.component";
 
 @Component({
+  standalone:false,
   selector: 'app-dialog-overview',
   templateUrl: './dialog-overview.component.html',
   styleUrl: './dialog-overview.component.css'

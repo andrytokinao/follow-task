@@ -8,6 +8,7 @@ import {FormControl} from "@angular/forms";
 import {MatCheckboxChange} from "@angular/material/checkbox";
 
 @Component({
+  standalone: false,
   selector: 'app-add-mamber-groupe',
   templateUrl: './add-mamber-groupe.component.html',
   styleUrl: './add-mamber-groupe.component.css'

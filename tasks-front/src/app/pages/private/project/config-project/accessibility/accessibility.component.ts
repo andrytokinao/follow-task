@@ -13,6 +13,7 @@ import {UserService} from "../../../../../services/user.service";
 
 @Component({
   selector: 'app-accessibility',
+  standalone: false,
   templateUrl: './accessibility.component.html',
   styleUrl: './accessibility.component.css'
 })

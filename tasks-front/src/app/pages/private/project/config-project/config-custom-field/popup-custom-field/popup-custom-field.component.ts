@@ -8,8 +8,7 @@ import {CustomFieldComponent} from "../../../../../../common/custom-field/custom
 
 @Component({
   selector: 'app-popup-custom-field',
-
-
+  standalone: false,
   templateUrl: './popup-custom-field.component.html',
   styleUrl: './popup-custom-field.component.css'
 })

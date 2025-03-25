@@ -12,6 +12,7 @@ import {getStyle} from "highcharts";
 import {ProjectGuard} from "../../services/ProjectGuard";
 
 @Component({
+  standalone: false,
   selector: 'app-label-form',
   templateUrl: './label-form.component.html',
   styleUrl: './label-form.component.css'

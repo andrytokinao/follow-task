@@ -11,6 +11,7 @@ import {environment} from "../../../../environments/environment";
 
 @Component({
   selector: 'app-home',
+  standalone: false,
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })

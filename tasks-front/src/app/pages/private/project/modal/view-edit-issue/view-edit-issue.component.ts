@@ -20,6 +20,7 @@ import {concatMap, Observable} from "rxjs";
 import {error} from "@angular/compiler-cli/src/transformers/util";
 import {AuthService} from "../../../../../services/auth.service";
 @Component({
+  standalone:false,
   selector: 'app-view-edit-issue',
   templateUrl: './view-edit-issue.component.html',
   styleUrl: './view-edit-issue.component.css'

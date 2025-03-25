@@ -2,6 +2,7 @@ import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {Icone, IssueType, Status} from "../../type/issue";
 
 @Component({
+  standalone: false,
   selector: 'app-states-form',
   templateUrl: './states-form.component.html',
   styleUrl: './states-form.component.css'

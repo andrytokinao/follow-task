@@ -7,6 +7,7 @@ import {Observable} from "rxjs";
 import {subscribe} from "graphql/execution";
 
 @Component({
+  standalone: false,
   selector: 'app-dossier-node-item',
   templateUrl: './tree-dossier-item.component.html',
   styleUrls: ['./tree-dossier-item.component.css']

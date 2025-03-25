@@ -3,6 +3,7 @@ import {Icone, Issue} from "../../type/issue";
 import {extractClass} from "@angular/compiler-cli/src/ngtsc/docs/src/class_extractor";
 
 @Component({
+  standalone: false,
   selector: 'app-icone-view',
   templateUrl: './icone-view.component.html',
   styleUrl: './icone-view.component.css'

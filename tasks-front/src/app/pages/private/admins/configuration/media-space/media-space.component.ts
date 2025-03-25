@@ -5,6 +5,7 @@ import {ConfigService} from "../../../../../services/config.service";
 import {environment} from "../../../../../../environments/environment";
 
 @Component({
+  standalone: false,
   selector: 'app-media-space',
   templateUrl: './media-space.component.html',
   styleUrl: './media-space.component.css'

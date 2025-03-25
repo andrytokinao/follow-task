@@ -18,6 +18,7 @@ import {ProjectGuard} from "../../../../../../services/ProjectGuard";
 
 @Component({
   selector: 'app-show-master-list',
+  standalone: false,
   templateUrl: './show-master-list.component.html',
   styleUrl: './show-master-list.component.css'
 })

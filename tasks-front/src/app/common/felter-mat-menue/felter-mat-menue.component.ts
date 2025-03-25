@@ -9,6 +9,7 @@ import {ActivatedRoute, Router} from "@angular/router";
 import {CustomFilter} from "../../type/issue-search-criteria.util";
 
 @Component({
+  standalone: false,
   selector: 'felter-mastert-menue',
   templateUrl: './felter-mat-menue.component.html',
   styleUrl: './felter-mat-menue.component.css'

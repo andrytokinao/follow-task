@@ -5,6 +5,7 @@ import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {ChooseDialogComponent} from "./choose-dialog/choose-dialog.component";
 
 @Component({
+  standalone: false,
   selector: 'app-icone-field',
   templateUrl: './icone-field.component.html',
   styleUrl: './icone-field.component.css'

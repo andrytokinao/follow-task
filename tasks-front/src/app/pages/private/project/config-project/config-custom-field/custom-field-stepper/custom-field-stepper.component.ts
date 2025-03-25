@@ -13,6 +13,7 @@ interface Field {
 }
 @Component({
   selector: 'app-custom-field-sepper',
+  standalone: false,
   templateUrl: './custom-field-stepper.component.html',
   styleUrl: './custom-field-stepper.component.css',
 

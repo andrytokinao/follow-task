@@ -11,6 +11,7 @@ import {ProjectGuard} from "../../../../../services/ProjectGuard";
 import {async} from "rxjs";
 
 @Component({
+  standalone:false,
   selector: 'app-issue-details',
   templateUrl: './issue-details.component.html',
   styleUrl: './issue-details.component.css'

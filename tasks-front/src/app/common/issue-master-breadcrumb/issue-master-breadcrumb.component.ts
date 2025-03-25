@@ -4,6 +4,7 @@ import {IssueService} from "../../services/issue.service";
 import {ProjectGuard} from "../../services/ProjectGuard";
 
 @Component({
+  standalone: false,
   selector: 'issue-master-breadcrumb',
   templateUrl: './issue-master-breadcrumb.component.html',
   styleUrl: './issue-master-breadcrumb.component.css'

@@ -5,6 +5,7 @@ import {ConfigEntry, Project, WorkFlow} from "../../../../../type/issue";
 
 @Component({
   selector: 'app-work-flow-status',
+  standalone: false,
   templateUrl: './work-flow-status.component.html',
   styleUrl: './work-flow-status.component.css'
 })

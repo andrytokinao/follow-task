@@ -25,6 +25,7 @@ import {EditEventComponent} from "../../../common/edit-event/edit-event.componen
 export type Nullable<T> = T | null;
 
 @Component({
+  standalone:false,
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'

@@ -9,6 +9,7 @@ import {IssueService} from "../../../../../services/issue.service";
 import {MyCommonModule} from "../../../../../common/common.module";
 
 @Component({
+  standalone:false,
   selector: 'app-view-event',
   templateUrl: './view-event.component.html',
   styleUrl: './view-event.component.css'

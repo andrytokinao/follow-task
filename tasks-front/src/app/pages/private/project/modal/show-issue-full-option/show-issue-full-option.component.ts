@@ -9,6 +9,7 @@ import {ViewEditIssueComponent} from "../view-edit-issue/view-edit-issue.compone
 import {MatMenu, MatMenuItem, MatMenuTrigger} from "@angular/material/menu";
 
 @Component({
+  standalone:false,
   selector: 'show-issue-full-option',
   templateUrl: './show-issue-full-option.component.html',
   styleUrl: './show-issue-full-option.component.css'

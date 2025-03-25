@@ -7,6 +7,7 @@ import {IssueService} from "../../../../services/issue.service";
 import {CustomField, Issue, Project} from "../../../../type/issue";
 
 @Component({
+  standalone:false,
   selector: 'app-show-master',
   templateUrl: './show-master.component.html',
   styleUrl: './show-master.component.css',

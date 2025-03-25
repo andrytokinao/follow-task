@@ -12,6 +12,7 @@ import {ProjectGuard} from "../../../../services/ProjectGuard";
 
 @Component({
   selector: 'app-create-project',
+  standalone: false,
   templateUrl: './config-project.component.html',
   styleUrl: './config-project.component.css'
 })

@@ -6,6 +6,7 @@ import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
   selector: 'app-popup-work-flow',
+  standalone: false,
   templateUrl: './popup-work-flow.component.html',
   styleUrl: './popup-work-flow.component.css'
 })

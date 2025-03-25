@@ -7,6 +7,7 @@ import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
   selector: 'app-stepper-workflow',
+  standalone: false,
   templateUrl: './stepper-workflow.component.html',
   styleUrl: './stepper-workflow.component.css'
 })

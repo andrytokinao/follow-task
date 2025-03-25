@@ -2,6 +2,7 @@ import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 
 @Component({
   selector: 'animation-select-menu',
+  standalone: false,
   templateUrl: './animation-select-menu.component.html',
   styleUrls: ['./animation-select-menu.component.scss']
 })
