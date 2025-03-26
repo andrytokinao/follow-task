@@ -36,6 +36,7 @@ public class OutputMessage {
         setCreated(mes.getCreated());
         setText(mes.getText());
         setSender(mes.getSender());
+        setCanall(mes.getCanall());
         setUserReades(mes.getUserReades());
     }
 }

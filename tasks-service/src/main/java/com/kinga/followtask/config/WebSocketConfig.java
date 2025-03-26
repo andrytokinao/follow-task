@@ -1,4 +1,5 @@
 
+
 package com.kinga.followtask.config;
 
 import org.slf4j.Logger;
@@ -17,14 +18,14 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(final MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/send-message");
-        config.setApplicationDestinationPrefixes("/follow-task");
+        config.enableSimpleBroker("/topic");
+        config.setApplicationDestinationPrefixes("/app");
     }
 
     @Override
     public void registerStompEndpoints(final StompEndpointRegistry registry) {
-        registry.addEndpoint("/wsocket");
-        registry.addEndpoint("/wsocket").withSockJS();
+        registry.addEndpoint("/ws");
+        registry.addEndpoint("/ws").withSockJS();
 
     }
     @Override
@@ -32,4 +33,5 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     }
 
 }
+
 

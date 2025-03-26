@@ -11,12 +11,17 @@ import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import {ToastrService} from "ngx-toastr";
+import {MessagesService} from "./messages.service";
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+  }
+)
 export class HttpInterceptorService implements HttpInterceptor {
 
   constructor(private router: Router,
-              private toastr: ToastrService
+              private toastr: ToastrService,
+            //  private messageService:MessagesService
   ) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {

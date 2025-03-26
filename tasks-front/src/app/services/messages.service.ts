@@ -47,6 +47,9 @@ export class MessagesService {
     });
     this.authService.connectedUser$.subscribe(user => {
       this.connectedUser = user;
+      if (this.connectedUser && this.connectedUser.id) {
+         this.connectWs();
+      }
       if (this.project && this.project.id && this.connectedUser && this.connectedUser.id) {
         this.loadCanals(this.project.id , [this.connectedUser.id]);
       }
@@ -54,16 +57,7 @@ export class MessagesService {
     this.userService.users$.subscribe( users => {
       this.users = users;
     });
-    this.client = new Client({
-      webSocketFactory: () => new SockJS(environment.apiURL+'wsocket'),
-      debug: (str) => console.log(str),
-    });
-    this.client.onConnect = (frame) => {
-      console.log('Connected: ' + frame);
-      this.client.subscribe('/topic/messages', (message: Message) => {
-       alert("from server ");
-      });
-    };
+
     this.client.onStompError = (frame) => {
       console.error('Broker reported error: ' + frame.headers['message']);
       console.error('Additional details: ' + frame.body);
@@ -162,5 +156,27 @@ export class MessagesService {
         observer.complete();
       })
     })
+  };
+  connectWs(){
+    if (this.client) {
+      if (this.client.connected) {
+        return;
+      }
+    }
+    this.client = new Client({
+      webSocketFactory: () => new SockJS(environment.apiURL+'ws'),
+      debug: (str) => console.log(str),
+    });
+    this.client.onConnect = (frame) => {
+      console.log('Connected: ' + frame);
+      this.client.subscribe('/topic/messages/'+this.connectedUser.id, (message: Message) => {
+        console.info("from server ",message.body);
+      });
+    };
+  }
+  disconnectWs() {
+    if(this.client != null) {
+      this.client.deactivate().then(() => console.log('Déconnecté du serveur WebSocket'));
+    }
   }
 }

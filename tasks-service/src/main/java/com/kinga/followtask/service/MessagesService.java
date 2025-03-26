@@ -26,14 +26,22 @@ public class MessagesService {
 
 
     public MessageApp sendMessage(MessageApp message) {
+      message.setCreated(new Date());
       MessageApp  mes = messagesRepository.save(message);
-      sendMessageTo(mes);
+      sendMessageTo(mes,"newMessage");
       return mes;
     }
 
-    private void sendMessageTo(MessageApp mes) {
+    private void sendMessageTo(MessageApp mes,String methode) {
+        MessageApp message = messagesRepository.save(mes);
         OutputMessage output = new OutputMessage(mes);
-            simpMessagingTemplate.convertAndSend("/topic/messages", output);
+        Map<String, Object> map = new HashMap<>();
+        map.put(methode,Arrays.asList(output));
+        message.getCanall().getMembers().forEach(m -> {
+            if (!mes.getSender().getId().equals(m.getUser().getId())) {
+                simpMessagingTemplate.convertAndSend("/topic/messages/"+m.getUser().getId(), output);
+            }
+        });
     }
 
     public MessageApp readMessage(Long messageId, String userId) {
@@ -138,15 +146,14 @@ public class MessagesService {
     public List<Canall> getCanalByProject(Long projectId, List<String> userId) {
         return canalRepository.findByProjectsIdAndMembersUserIdIn(projectId,userId);
     }
-    @Scheduled(fixedRate = 5000)
+  //  @Scheduled(fixedRate = 10000)
     public void scheduledMessage() {
         MessageApp message = new MessageApp();
         message.setCreated(new Date());
-        message.setText("By bot");
+        message.setText("Message scheduled");
         UserApp userApp = new UserApp();
         userApp.setId("idd");
         message.setSender(userApp);
-        sendMessageTo(message);
+        sendMessageTo(message,"scheduledMessage");
     }
-
 }
