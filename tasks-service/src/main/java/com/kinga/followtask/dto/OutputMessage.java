@@ -1,9 +1,6 @@
 package com.kinga.followtask.dto;
 
-import com.kinga.followtask.entity.Canall;
-import com.kinga.followtask.entity.MessageApp;
-import com.kinga.followtask.entity.StringListConverter;
-import com.kinga.followtask.entity.UserApp;
+import com.kinga.followtask.entity.*;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,7 +19,12 @@ public class OutputMessage {
 
     public void setCanall(Canall canall) {
         Canall c = new Canall();
+        Project project = new Project();
+        project.setId(canall.getProjects().getId());
+        project.setPrefix(canall.getProjects().getPrefix());
+        project.setName(canall.getProjects().getName());
         c.setId(canall.getId());
+        c.setProjects(project);
         this.canall = c;
     }
 

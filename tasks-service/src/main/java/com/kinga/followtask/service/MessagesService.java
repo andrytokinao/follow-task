@@ -4,6 +4,7 @@ package com.kinga.followtask.service;
 import com.kinga.followtask.dto.OutputMessage;
 import com.kinga.followtask.entity.*;
 import com.kinga.followtask.repository.*;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -24,7 +25,6 @@ public class MessagesService {
     private final MessagesRepository messagesRepository;
     private final SimpMessagingTemplate simpMessagingTemplate;
 
-
     public MessageApp sendMessage(MessageApp message) {
       message.setCreated(new Date());
       MessageApp  mes = messagesRepository.save(message);
@@ -33,13 +33,15 @@ public class MessagesService {
     }
 
     private void sendMessageTo(MessageApp mes,String methode) {
-        MessageApp message = messagesRepository.save(mes);
+        Canall canall = canalRepository.getById(mes.getCanall().getId());
+        mes.setCanall(canall);
         OutputMessage output = new OutputMessage(mes);
         Map<String, Object> map = new HashMap<>();
         map.put(methode,Arrays.asList(output));
-        message.getCanall().getMembers().forEach(m -> {
+        canall.getMembers().forEach(m -> {
             if (!mes.getSender().getId().equals(m.getUser().getId())) {
-                simpMessagingTemplate.convertAndSend("/topic/messages/"+m.getUser().getId(), output);
+                System.out.println(m.getUser().getId());
+                simpMessagingTemplate.convertAndSend("/topic/messages/"+m.getUser().getId(), map);
             }
         });
     }

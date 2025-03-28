@@ -92,7 +92,7 @@ export class MessagesComponent {
   pushNewMessage(message: MessageApp) {
     if (!message)
       return;
-    let canall = this.canals.find( canal => message.canall.id === canal.id);
+    let canall = this.canals.find( canal => message.canall.id == canal.id);
     if (!canall)
       return;
     if (!canall.messageApp)

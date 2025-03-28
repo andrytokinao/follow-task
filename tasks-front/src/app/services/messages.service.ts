@@ -47,9 +47,6 @@ export class MessagesService {
     });
     this.authService.connectedUser$.subscribe(user => {
       this.connectedUser = user;
-      if (this.connectedUser && this.connectedUser.id) {
-         this.connectWs();
-      }
       if (this.project && this.project.id && this.connectedUser && this.connectedUser.id) {
         this.loadCanals(this.project.id , [this.connectedUser.id]);
       }
@@ -57,12 +54,6 @@ export class MessagesService {
     this.userService.users$.subscribe( users => {
       this.users = users;
     });
-
-    this.client.onStompError = (frame) => {
-      console.error('Broker reported error: ' + frame.headers['message']);
-      console.error('Additional details: ' + frame.body);
-    };
-    this.client.activate();
 
   }
   getCanall(workspaceId:Number, userIds:String[]) {
@@ -81,7 +72,7 @@ export class MessagesService {
         fetchPolicy:'network-only'
       }
     ).subscribe((res:any)=> {
-      this.newMessageSubject.next(supprimerTypename(res.data.sendMessage()));
+      this.newMessageSubject.next(supprimerTypename(res.data.sendMessage));
     },error => {
       console.error(error);
     })
@@ -157,7 +148,7 @@ export class MessagesService {
       })
     })
   };
-  connectWs(){
+  connectWs(connectedUserId:String){
     if (this.client) {
       if (this.client.connected) {
         return;
@@ -168,15 +159,34 @@ export class MessagesService {
       debug: (str) => console.log(str),
     });
     this.client.onConnect = (frame) => {
-      console.log('Connected: ' + frame);
-      this.client.subscribe('/topic/messages/'+this.connectedUser.id, (message: Message) => {
-        console.info("from server ",message.body);
+      this.client.subscribe('/topic/messages/'+connectedUserId, (message: Message) => {
+        this.processMessage(message.body);
       });
     };
+    this.client.onStompError = (frame) => {
+      console.error('Broker reported error: ' + frame.headers['message']);
+      console.error('Additional details: ' + frame.body);
+    };
+    this.client.activate();
+
   }
   disconnectWs() {
     if(this.client != null) {
       this.client.deactivate().then(() => console.log('Déconnecté du serveur WebSocket'));
+    }
+  }
+  processMessage(body:any) {
+    let newMessages:MessageApp[] =   JSON.parse(body,(key, value:MessageApp[]) => {
+      return value;
+    }).newMessage;
+
+    if (newMessages) {
+       newMessages.forEach( nm=> {
+         this.newMessageSubject.next(nm);
+
+       })
+    } else {
+      alert('body is empty');
     }
   }
 }

@@ -21,6 +21,7 @@ import {
 } from "../../../../../projects/router-animations/src/lib/router-animations";
 import formatters from "chart.js/dist/core/core.ticks";
 import {ProjectBreadcrumbResolverService} from "./project-breadcrumb-resolver.service";
+import {MessagesService} from "../../../services/messages.service";
 
 @Component({
   selector: 'app-project',
@@ -71,8 +72,8 @@ export class ProjectComponent {
     private userService:UserService,
     private breadcrumbService: BreadcrumbService,
     protected projectGuard:ProjectGuard,
-    private breadcrumb:ProjectBreadcrumbResolverService
-
+    private breadcrumb:ProjectBreadcrumbResolverService,
+    private messagesService:MessagesService
   ) {
     this.issueService.loadedWorkspace$.subscribe(value => {
       this.isworkspace = value.valueOf();
@@ -107,7 +108,7 @@ export class ProjectComponent {
     });
     this.breadcrumb.curentBreadcrumb$.subscribe(b => {
       this.projectBreadcrumb = b;
-    })
+    });
   }
 
 

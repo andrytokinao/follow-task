@@ -54,4 +54,4 @@ import {NgxColorsModule} from "ngx-colors";
     ],
 
 })
-export class PrivateModule { }
+export class PrivateModule {}

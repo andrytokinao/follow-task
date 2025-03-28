@@ -16,6 +16,7 @@ import {animate, keyframes, state, style, transition, trigger, useAnimation} fro
 import {moveFromLeft} from "../../../../projects/router-animations/src/lib/router-animations";
 import {moveFromLeftKeyframes} from "../../../../projects/router-animations/src/lib/shared-keyframes";
 import {environment} from "../../../environments/environment";
+import {MessagesService} from "../../services/messages.service";
 
 @Component({
   selector: 'private-root',
@@ -66,15 +67,19 @@ export class PrivateComponent {
               private issueService: IssueService,
               protected userService: UserService,
               protected authGuard: AuthGuard,
-              protected systemGuerd :AuthGuard
+              protected systemGuerd :AuthGuard,
+              protected messageService:MessagesService
   ) {
     this.authService.getProfile().subscribe(profile => {
       this.profile = profile;
     });
     this.authService.connectedUser$.subscribe(user => {
       this.connectedUser = user;
-      if (this.connectedUser) {
+      if (this.connectedUser && this.connectedUser.id) {
         this.issueService.getProjectByUser(this.connectedUser.id);
+        this.messageService.connectWs(this.connectedUser.id);
+      } else {
+        this.messageService.disconnectWs();
       }
     });
     this.issueService.projects$.subscribe(projectes => {
