@@ -5,6 +5,7 @@ import {MessagesService} from "../../../../services/messages.service";
 import {UserService} from "../../../../services/user.service";
 import {IssueService} from "../../../../services/issue.service";
 import {getDisplayName} from "@apollo/client/react/hoc/hoc-utils";
+import {AuthService} from "../../../../services/auth.service";
 
 @Component({
   standalone:false,
@@ -15,16 +16,26 @@ import {getDisplayName} from "@apollo/client/react/hoc/hoc-utils";
 export class MessagesComponent {
   private project: Project;
   protected hasSelectedUsers: boolean = false;
+  protected user:User;
 
   constructor(protected messageService:MessagesService,
               public userService:UserService,
-              private issueService:IssueService
+              private issueService:IssueService,
+              private authService:AuthService
   ) {
     this.messageService.canals$.subscribe(canales => {
       this.canals = canales;
     });
+    this.authService.connectedUser$.subscribe( user => {
+      this.user = user;
+    });
     this.userService.users$.subscribe(users=> {
       this.users = users;
+      if (this.user && this.user.id) {
+        this.userToCanal= [... this.users].filter(u => u.id != this.user.id);
+      } else {
+        this.userToCanal= [... this.users];
+      }
     });
     this.issueService.project$.subscribe(project => {
       this.project = project;
@@ -40,6 +51,7 @@ export class MessagesComponent {
   selectedCanall = this.canals[0]; // Sélection par défaut
   newMessage: string = '';
   users:User[] = [];
+  userToCanal:User[] = [];
   selectedUsers:String[] = [];
 
   selectChat(chat: any) {
@@ -70,13 +82,15 @@ export class MessagesComponent {
   }
 
   createCanal() {
+    let members:String[] = [... this.selectedUsers];
+    members.push(this.user.id);
     let canall:Canall = {
-      membersIds:this.selectedUsers,
+      membersIds:members,
       typeCanal:'PROJECT',
       projects:{id:this.project.id}
     };
     this.messageService.createCanal(canall).subscribe( c =>{
-
+      this.messageService.loadCanals();
     });
   }
 

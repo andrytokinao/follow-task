@@ -106,7 +106,7 @@ export class UserService {
   }
 
   getUrlPhoto(user: User) {
-    if (user.photo != null) {
+    if (user && user.photo) {
       return environment.apiURL+'photo/'+user.photo;
     }
     return environment.apiURL+'assets/user.png';

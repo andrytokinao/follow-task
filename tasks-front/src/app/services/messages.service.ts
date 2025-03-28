@@ -42,13 +42,13 @@ export class MessagesService {
     this.issueService.project$.subscribe(project => {
       this.project = project;
       if (this.project && this.project.id && this.connectedUser && this.connectedUser.id) {
-        this.loadCanals(this.project.id , [this.connectedUser.id]);
+        this.loadCanals();
       }
     });
     this.authService.connectedUser$.subscribe(user => {
       this.connectedUser = user;
       if (this.project && this.project.id && this.connectedUser && this.connectedUser.id) {
-        this.loadCanals(this.project.id , [this.connectedUser.id]);
+        this.loadCanals();
       }
     });
     this.userService.users$.subscribe( users => {
@@ -109,8 +109,8 @@ export class MessagesService {
       }
     );
   }
-   loadCanals(projectId:Number,userIds:String[]){
-    this.getCanalByProject(projectId,userIds).subscribe( canals => {
+   loadCanals(){
+    this.getCanalByProject(this.project.id,[this.connectedUser.id]).subscribe( canals => {
       this.canalsSubject.next(canals);
     })
    }
@@ -156,7 +156,6 @@ export class MessagesService {
     }
     this.client = new Client({
       webSocketFactory: () => new SockJS(environment.apiURL+'ws'),
-      debug: (str) => console.log(str),
     });
     this.client.onConnect = (frame) => {
       this.client.subscribe('/topic/messages/'+connectedUserId, (message: Message) => {

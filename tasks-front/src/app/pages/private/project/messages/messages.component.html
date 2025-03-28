@@ -48,7 +48,7 @@
   <div class="card" style="margin-top: 15px;padding-top: 5px;padding-bottom: 5px">
     <h1> Membre  </h1>
     <div class="sidebar-heding ">
-      <div *ngFor="let user of users" (click)="stopPropagation($event)">
+      <div *ngFor="let user of userToCanal" (click)="stopPropagation($event)">
         <mat-checkbox
           [checked]="isSelectedUser(user.id)"
           (change)="selectUser($event, user)"
