@@ -1,0 +1,41 @@
+.document-excange-container{
+  display: grid;
+  grid-template-columns:35% 60% ;
+}
+.chat-list {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #ddd;
+  overflow-y: auto;
+  background-color: #fff;
+
+}
+.document-details {
+  font-size: 12px;
+  color: gray;
+}
+.file-list-not {
+  width: 100%;
+}
+.file-list-full {
+  overflow-y: scroll;
+  background-color: #fff;
+  padding: 5px;
+
+}
+.document-container {
+  width: 60%;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+
+}
+.document-view-container{
+  background-color: white;
+  padding: 10px;
+  margin: 10px;
+}
+.cards{
+  cursor: pointer;
+}

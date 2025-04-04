@@ -62,6 +62,7 @@ import _default from "chart.js/dist/plugins/plugin.tooltip";
 import numbers = _default.defaults.animations.numbers;
 import {J} from "@angular/cdk/keycodes";
 import {ProjectGuard} from "./ProjectGuard";
+import {NewDocumentComponent} from "../pages/private/project/modal/new-document/new-document.component";
 
 @Injectable({
   providedIn: 'root',
@@ -1580,5 +1581,27 @@ export class IssueService implements OnInit{
       this.refreshIssueListMasters();
       }
     )
+  }
+  newDocument(  typeDocument:'ISSUE_FILES' | 'COMMENT_FILES' |  'MEDIA_FILES' | 'SOURCE_FILE' | 'DONNE_FILE' | 'MESSEGE_FILES' |'WIKI_FILES' | 'ISSUE_FILES',issue:Issue){
+    return new Observable<DocumentApp>(observer =>{
+      const dialogRef = this.modalService.open(NewDocumentComponent, {windowClass: "lModal"});
+      dialogRef.componentInstance.issue = issue;
+      dialogRef.componentInstance.typeDocument = typeDocument;
+      dialogRef.result.then((result) => {
+        dialogRef.result.then((res:any) => {
+          if (res != null) {
+            observer.next(res.newDocument);
+            observer.complete();
+          }
+        },
+          error=> {
+            console.error(error);
+            observer.error(error);
+            observer.complete();
+          }
+          )
+      })
+    });
+
   }
 }

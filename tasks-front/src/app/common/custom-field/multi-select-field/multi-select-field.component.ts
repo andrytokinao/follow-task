@@ -15,10 +15,6 @@ import {MatSelect} from "@angular/material/select";
     MatCheckbox,
     FormsModule,
     NgForOf,
-    MatFormField,
-    MatLabel,
-    MatOption,
-    MatSelect,
     NgIf
   ],
   templateUrl: './multi-select-field.component.html',

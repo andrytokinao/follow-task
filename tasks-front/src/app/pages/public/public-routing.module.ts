@@ -31,9 +31,7 @@ const publicRoute: Routes = [
   ],
   exports: [
     RouterModule
-  ],
-  providers: [],
-  bootstrap: []
+  ]
 })
 export class PublicRoutingModule {
 }

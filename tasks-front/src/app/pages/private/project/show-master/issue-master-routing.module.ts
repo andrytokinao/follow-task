@@ -9,6 +9,7 @@ import {FileListComponent} from "./file-list/file-list.component";
 import {DossierSourceComponent} from "./dossier-sources/dossier-source.component";
 import {CommentsComponent} from "./comments/comments.component";
 import {IssueChatsComponent} from "./issue-chats/issue-chats.component";
+import {ExchangeDocumentsComponent} from "./exchange-documents/exchange-documents.component";
 
 
 
@@ -28,7 +29,8 @@ const masterRoute: Routes = [
           { path: 'planning', component: PlanningComponent },
           { path: 'uploaded', component: UploadedFilesComponent },
           { path: 'comments', component: CommentsComponent },
-          { path: 'chats', component: IssueChatsComponent },
+          { path: 'chats', component: ExchangeDocumentsComponent },
+          { path: 'exchange-document', component: ExchangeDocumentsComponent },
           {path:'espace-livraison',component:FileListComponent}
         ]
       }

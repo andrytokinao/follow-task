@@ -70,7 +70,6 @@ export class AddMamberGroupeComponent implements OnInit {
   register() {
     this.user = this.user || this.memberGroupe.user;
     if (this.user == undefined) {
-      alert("Completer l'user  ");
       return;
     }
     this.userService.addUserInGroupe(this.user.username, this.groupeUser.id, this.selectedRoles).subscribe(res => {

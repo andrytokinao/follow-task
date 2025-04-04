@@ -44,6 +44,7 @@ import {ShowIssueOptionComponent} from "./modal/show-issue-option/show-issue-opt
 import {ShowIssueFullOptionComponent} from "./modal/show-issue-full-option/show-issue-full-option.component";
 import {MessagesComponent} from "./messages/messages.component";
 import {MatCheckbox} from "@angular/material/checkbox";
+import {NewDocumentComponent} from "./modal/new-document/new-document.component";
 
 @NgModule({
   declarations: [
@@ -61,7 +62,8 @@ import {MatCheckbox} from "@angular/material/checkbox";
     PlanningIssueComponent,
     ShowIssueOptionComponent,
     ShowIssueFullOptionComponent,
-    MessagesComponent
+    MessagesComponent,
+    NewDocumentComponent
   ],
   exports: [
     StatusComponent, RepartitionComponent, ProjectComponent, ShowIssueOptionComponent, ShowIssueFullOptionComponent

@@ -29,7 +29,7 @@ import {ShowMasterComponent} from "./show-master.component";
 import {SubtaskComponent} from "./subtask/subtask.component";
 import {UploadedFilesComponent} from "./uploaded-file/uploaded-files.component";
 import {MatChip, MatChipsModule} from "@angular/material/chips";
-import {MatCheckboxModule} from "@angular/material/checkbox";
+import {MatCheckbox, MatCheckboxModule} from "@angular/material/checkbox";
 import {MatButtonModule} from "@angular/material/button";
 import {MatDivider} from "@angular/material/divider";
 import {IssueDetailsComponent} from "./issue-details/issue-details.component";
@@ -49,6 +49,7 @@ import {
 } from "@angular/material/expansion";
 import {DocumentUploaderComponent} from "./document-uploader/document-uploader.component";
 import {MatAutocomplete, MatAutocompleteTrigger} from "@angular/material/autocomplete";
+import {ExchangeDocumentsComponent} from "./exchange-documents/exchange-documents.component";
 
 
 @NgModule({
@@ -63,7 +64,8 @@ import {MatAutocomplete, MatAutocompleteTrigger} from "@angular/material/autocom
     CommentsComponent,
     IssueChatsComponent,
     DocumentsComponent,
-    DocumentUploaderComponent
+    DocumentUploaderComponent,
+    ExchangeDocumentsComponent
   ],
   exports: [
   ],
@@ -108,6 +110,7 @@ import {MatAutocomplete, MatAutocompleteTrigger} from "@angular/material/autocom
         MatExpansionModule,
         MatAutocomplete,
         MatAutocompleteTrigger,
+        MatCheckbox,
     ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })

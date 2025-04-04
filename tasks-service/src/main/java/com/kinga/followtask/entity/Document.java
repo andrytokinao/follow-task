@@ -23,9 +23,13 @@ public class Document {
     private TypeDocument typeDocument;
     private Date creation;
     @ManyToOne
+    private Document parent;
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "document")
+    public List<DocumentMember> exchangeMembers;
+    @ManyToOne
     private UserApp userApp;
     @ManyToOne
     private Issue issues;
-  @OneToMany(mappedBy = "document")
+    @OneToMany(mappedBy = "document")
     private List<Uploaded> uploadeds;
 }

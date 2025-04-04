@@ -1,0 +1,53 @@
+<div  (dragover)="onDragOver($event)" (drop)="onDrop($event)">
+  <div>
+    <form #f="ngForm" (ngSubmit)="upload()">
+      <div class="form-group" #parent>
+        <mat-form-field style="width: 100%">
+          <mat-label>Titre </mat-label>
+          <input matInput
+                 cdkTextareaAutosize
+                 cdkAutosizeMinRows="1"
+                 [(ngModel)]="newDocument.titre"
+                 [ngModelOptions]="{standalone: true}"
+                 cdkAutosizeMaxRows="5"/>
+        </mat-form-field>
+        <div class="card" >
+          <div class="sidebar-heding ">
+            <span *ngFor="let user of userToSelect">
+              <mat-checkbox
+                [checked]="isSelectedUser(user.id)"
+                (change)="selectUser($event, user)"
+                class="custom-checkbox"
+              >
+                {{ user.username }}
+              </mat-checkbox>
+
+            </span>
+          </div>
+        </div>
+        <div style="width: 100%;min-height: 100px" >
+          <app-quill-editor [(content)]="newDocument.description"></app-quill-editor>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div
+    (click)="fileInput.click()"
+    class="file-drop-zone">
+    <input type="file" multiple (change)="onFileSelected($event)" hidden #fileInput>
+    <p>Glissez-déposez vos fichiers ou cliquez pour les sélectionner</p>
+  </div>
+  <div>
+    <ul *ngIf="filesToUploads">
+      <div *ngFor="let up of uploadings; let i = index" class="file" [ngClass]="up.status">
+        <label class="file" > <i class="fa fa-file-text"> </i>
+          {{ up.file.name}}
+        </label>
+        <span (click)="removeFile(i)" style="float: right;"> {{ up.status }} <i class="fa fa-remove"></i></span>
+      </div>
+      <div>
+        <button class="upload-btn" (click)="upload()">Uploader</button>
+      </div>
+    </ul>
+  </div>
+</div>

@@ -36,6 +36,10 @@
   max-width: 1490px !important;
   min-width: 971px !important;
 }
+.lModal > .modal-dialog {
+  max-width: 800px !important;
+  min-width: 500px !important;
+}
 
 .photo{
   width: 180px;

@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import {RouterModule, Routes,provideRouter,withComponentInputBinding} from "@angular/router";
-import {BrowserModule} from "@angular/platform-browser";
 import {PrivateComponent} from "./private.component";
 import {ProjectComponent} from "./project/project.component";
 import {AdminComponent} from "./admins/admin.component";

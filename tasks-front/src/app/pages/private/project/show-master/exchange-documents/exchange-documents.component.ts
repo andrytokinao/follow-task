@@ -1,5 +1,5 @@
-import {ChangeDetectionStrategy, Component, Input, signal} from '@angular/core';
-import {DocumentApp, Issue, Project, Uploaded, Uploading} from "../../../../../type/issue";
+import {Component, Input, signal} from '@angular/core';
+import {DocumentApp, Issue, Project, Uploaded, Uploading, User} from "../../../../../type/issue";
 import {ActivatedRoute, Router} from "@angular/router";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {ConfigService} from "../../../../../services/config.service";
@@ -8,21 +8,19 @@ import {UserService} from "../../../../../services/user.service";
 import {AuthService} from "../../../../../services/auth.service";
 import {BehaviorSubject} from "rxjs";
 
-
 @Component({
   standalone:false,
-  selector: 'app-documents',
-  templateUrl: './documents.component.html',
-  styleUrl: './documents.component.css',
+  selector: 'app-exchange-documents',
+  templateUrl: './exchange-documents.component.html',
+  styleUrl: './exchange-documents.component.css'
 })
-export class DocumentsComponent {
+export class ExchangeDocumentsComponent {
   @Input()
-  typeDocument:'ISSUE_FILES' | 'COMMENT_FILES' |  'MEDIA_FILES' | 'SOURCE_FILE' | 'DONNE_FILE' | 'MESSEGE_FILES' |'WIKI_FILES' | 'ISSUE_FILES' ="ISSUE_FILES"
+  typeDocument:'ISSUE_FILES' | 'COMMENT_FILES' |  'MEDIA_FILES' | 'SOURCE_FILE' | 'DONNE_FILE' | 'MESSEGE_FILES' |'WIKI_FILES' | 'ISSUE_FILES' ="SOURCE_FILE"
   @Input()
   issue: Issue;
   protected uploadings: Uploading[] = [];
   protected filesToUploads: FileList;
-  protected isNewFile = false;
   protected uploadeds: Set<Uploaded>;
   private profile: any;
   private project:Project
@@ -54,19 +52,16 @@ export class DocumentsComponent {
     })
   }
 
-  createUpload(){
-    this.isNewFile = true;
-    this.isApercu = !this.isApercu;
-    this.selectedFile = null;
+  createDocument(){
+    this.issueService.newDocument(this.typeDocument,this.issue).subscribe(doc =>{
+      // TODO: process new doc
+    });
   }
   selectedFile: Uploaded ;
   document: DocumentApp = {};
-  isApercu: boolean = false;
 
   selectFileThis(file: any) {
     this.selectedFile = file;
-    this.isNewFile = false;
-    this.isApercu = !this.isApercu;
   }
 
   onDragOver(event: DragEvent): void {
@@ -121,7 +116,7 @@ export class DocumentsComponent {
     if (!this.issueService.uploadingDocumentSubject) {
       this.issueService.uploadingDocumentSubject = new BehaviorSubject<DocumentApp>(this.document);
     }
-     this.uploadingDoc = this.issueService.uploadingDocumentSubject.asObservable();
+    this.uploadingDoc = this.issueService.uploadingDocumentSubject.asObservable();
     this.uploadingDoc.subscribe(doc=> {
       if (doc.id){
         this.issueService.uploadingDocumentSubject.complete();
@@ -140,9 +135,7 @@ export class DocumentsComponent {
 
 
   selectFile(up: Uploaded) {
-    this.isNewFile = false;
     this.selectedFile = up;
-    this.isApercu = !this.isApercu;
   }
   public
   getFileIconClass(fileName: string): string {
@@ -179,10 +172,12 @@ export class DocumentsComponent {
   }
   getFiletype(fileName:string){
     return fileName.split('.').pop()?.toLowerCase();
-   }
+  }
   step = signal(0);
   defaultOpen: boolean = true;
   fullMode: boolean = false;
+  membersDoc: User[] = [];
+  selectedDocument: DocumentApp;
 
   setStep(index: number) {
     this.step.set(index);
@@ -200,7 +195,26 @@ export class DocumentsComponent {
     if( !this.selectedFile) {
       return false;
     }
-   return  'pdf' === this.getFiletype(this.selectedFile.name.toString())
+    return  'pdf' === this.getFiletype(this.selectedFile.name.toString())
   }
 
+  stopPropagation($event: MouseEvent) {
+    $event.stopPropagation();
+  }
+
+  selectUser(event: any, user: User) {
+
+  }
+
+  isSelectedUser(id: string) {
+    return true;
+  }
+
+  createExcange() {
+
+  }
+
+  selectDoc(doc: DocumentApp) {
+    this.selectedDocument = doc;
+  }
 }

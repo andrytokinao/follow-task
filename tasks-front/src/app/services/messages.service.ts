@@ -185,7 +185,7 @@ export class MessagesService {
 
        })
     } else {
-      alert('body is empty');
+      console.error('body is empty');
     }
   }
 }
