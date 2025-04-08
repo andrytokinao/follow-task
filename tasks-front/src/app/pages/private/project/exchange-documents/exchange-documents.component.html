@@ -7,7 +7,7 @@
       </div>
     </div>
     <div style="height:100vh;">
-      <div *ngFor="let document of documents let i = index" >
+      <div *ngFor="let document of documents let i = index" (click)="selectDoc(document)">
         <div>
           <div class="cards">
             <div class="card-title">
@@ -15,17 +15,12 @@
               <h1>{{document.titre}}</h1>
               <span>
               <small>{{ document.userApp.username }} <span style="float:right"> {{ document.creation | date }}</span>  </small>
+               <small *ngFor="let member of document.documentMembers">{{ member.user.username }} ,  </small>
+
               </span>
-              <p [innerHTML]="document.description" *ngIf="fullMode" >
-              </p>
+
             </div>
-            <div *ngIf="document.uploadeds && document.uploadeds.length != 0 && fullMode"> Fichier </div>
-            <div class="file-item-list" *ngIf="fullMode">
-              <div class="file-item" *ngFor="let up of document.uploadeds"   [ngClass]="{'selected-file':up.id === selectedFile?.id}">
-                <i [class]="getFileIconClass(up.name.toString())"></i> <span (click)="selectFile(up)"> {{up.name}} </span>
-                <a [href]="issueService.downloadUploadedUrl(up)" style="float: right;margin-right: 20px" > <i class="fa fa-download"></i></a>
-              </div>
-            </div>
+
           </div>
         </div>
         <mat-divider _ngcontent-ng-c3949266393="" role="separator" class="mat-divider mat-divider-horizontal" style="margin: 24px 0;" aria-orientation="horizontal"></mat-divider>
@@ -34,8 +29,30 @@
   </div>
 
   <div class="document-view-container"  >
-      <div *ngFor="let document of documents let i = index" >
-        <div>
+
+      <div *ngIf="selectedDocument">
+        <div class="cards">
+          <div class="card-title">
+             <span>
+              <small>{{ selectedDocument.creation | date | date }} {{ selectedDocument.userApp.username }} {{ selectedDocument.creation | date | date }}</small>
+          </span>
+            <h1>{{selectedDocument.titre}}</h1>
+
+            <p [innerHTML]="selectedDocument.description"  >
+            </p>
+          </div>
+          <div *ngIf="document.uploadeds && document.uploadeds.length != 0 "> Fichier </div>
+          <div class="file-item-list" >
+            <div class="file-item" *ngFor="let up of document.uploadeds"   [ngClass]="{'selected-file':up.id === selectedFile?.id}">
+              <i [class]="getFileIconClass(up.name.toString())"></i> <span (click)="selectFile(up)"> {{up.name}} </span>
+              <a [href]="issueService.downloadUploadedUrl(up)" style="float: right;margin-right: 20px" > <i class="fa fa-download"></i></a>
+            </div>
+          </div>
+        </div>
+
+
+      <div  *ngIf="selectedDocument.responses">
+        <div *ngFor="let document of selectedDocument.responses let i = index">
           <div class="cards">
             <div class="card-title">
              <span>
@@ -43,11 +60,11 @@
           </span>
               <h1>{{document.titre}}</h1>
 
-              <p [innerHTML]="document.description" *ngIf="fullMode" >
+              <p [innerHTML]="document.description"  >
               </p>
             </div>
-            <div *ngIf="document.uploadeds && document.uploadeds.length != 0 && fullMode"> Fichier </div>
-            <div class="file-item-list" *ngIf="fullMode">
+            <div *ngIf="document.uploadeds && document.uploadeds.length != 0 "> Fichier </div>
+            <div class="file-item-list" >
               <div class="file-item" *ngFor="let up of document.uploadeds"   [ngClass]="{'selected-file':up.id === selectedFile?.id}">
                 <i [class]="getFileIconClass(up.name.toString())"></i> <span (click)="selectFile(up)"> {{up.name}} </span>
                 <a [href]="issueService.downloadUploadedUrl(up)" style="float: right;margin-right: 20px" > <i class="fa fa-download"></i></a>
@@ -57,5 +74,11 @@
         </div>
         <mat-divider _ngcontent-ng-c3949266393="" role="separator" class="mat-divider mat-divider-horizontal" style="margin: 24px 0;" aria-orientation="horizontal"></mat-divider>
       </div>
+        <div class="card" (click)="responseDocument(selectedDocument)">
+          <div class="content details" >
+            <p><i class="fas fa-plus"></i> Repondre </p>
+          </div>
+        </div>
     </div>
+  </div>
 </div>

@@ -271,6 +271,13 @@ export interface Uploaded{
   document:DocumentApp;
   path:String;
 }
+
+class DocumentMember {
+  id:Number;
+  user:User;
+  document:DocumentApp;
+}
+
 export interface DocumentApp{
   id?:number;
   titre?:String;
@@ -278,9 +285,13 @@ export interface DocumentApp{
   typeDocument?:string;
   creation?:string;
   userApp?:User;
-  issues?:Issue
-  uploadeds?:Uploaded[]
-
+  issues?:Issue;
+  documentMembers?:DocumentMember[];
+  members?:String[];
+  uploadeds?:Uploaded[];
+  project?:Project
+  parent?:DocumentApp
+  responses?:[DocumentApp]
 }
 export interface DomainActivity{
   id?:number;

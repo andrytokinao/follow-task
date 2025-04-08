@@ -1,5 +1,5 @@
 import {Component, Input} from '@angular/core';
-import {DocumentApp, Issue, Uploading, User} from "../../../../../type/issue";
+import {DocumentApp, Issue, Project, Uploading, User} from "../../../../../type/issue";
 import {ActivatedRoute, Router} from "@angular/router";
 import {NgbActiveModal, NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {ConfigService} from "../../../../../services/config.service";
@@ -18,15 +18,17 @@ export class NewDocumentComponent {
   uploadings: Uploading[]=[];
   filesToUploads: any;
   newDocument: DocumentApp = {};
+  parent:DocumentApp;
   private profile: any;
   private uploadingDoc ;
   protected user:User;
 
-  typeDocument:'ISSUE_FILES' | 'COMMENT_FILES' |  'MEDIA_FILES' | 'SOURCE_FILE' | 'DONNE_FILE' | 'MESSEGE_FILES' |'WIKI_FILES' | 'ISSUE_FILES' ="ISSUE_FILES"
+  typeDocument:'ISSUE_FILES' | 'COMMENT_FILES' |  'MEDIA_FILES' | 'SOURCE_FILE' | 'DONNE_FILE' | 'MESSEGE_FILES' |'WIKI_FILES' | 'ISSUE_FILES' | 'EXCHANGE_DOCUMENT' | 'RESPONSE_DOCUMENT' ="ISSUE_FILES"
   issue: Issue;
   private allUsers: User[]=[];
   protected userToSelect: User[]=[];
   selectedUsers:String[] = [];
+  private project: Project;
   constructor(private router: Router,
               private modalService: NgbModal,
               private configService: ConfigService,
@@ -53,6 +55,9 @@ export class NewDocumentComponent {
         this.userToSelect= [... this.allUsers];
       }
     });
+    this.issueService.project$.subscribe(project =>{
+      this.project = project;
+    })
   }
   onDragOver(event: DragEvent): void {
     event.preventDefault();
@@ -75,11 +80,21 @@ export class NewDocumentComponent {
     }
   }
 
-  upload() {
+  saveDocument() {
     this.newDocument.typeDocument = this.typeDocument;
-    this.newDocument.issues = {id:this.issue.id};
-    if (this.profile){
-      this.newDocument.userApp = {id:this.profile.id}
+    if (this.issue){
+      this.newDocument.issues = {id:this.issue.id};
+    }
+    if (this.user){
+      this.newDocument.userApp = {id:this.user.id}
+    }
+    if (this.selectedUsers && this.selectedUsers.length > 0){
+      let userIds = [...this.selectedUsers];
+      userIds.push(this.user.id);
+      this.newDocument.members = userIds;
+    }
+    if (this.parent){
+      this.newDocument.parent = {id:this.parent.id}
     }
     this.issueService.uploadDocument(this.newDocument,this.issue.encodedPath,this.uploadings,this.typeDocument).subscribe(document => {
     });

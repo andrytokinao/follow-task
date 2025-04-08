@@ -1,11 +1,11 @@
 import {Component, Input, signal} from '@angular/core';
-import {DocumentApp, Issue, Project, Uploaded, Uploading, User} from "../../../../../type/issue";
+import {DocumentApp, Issue, Project, Uploaded, Uploading, User} from "../../../../type/issue";
 import {ActivatedRoute, Router} from "@angular/router";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
-import {ConfigService} from "../../../../../services/config.service";
-import {IssueService} from "../../../../../services/issue.service";
-import {UserService} from "../../../../../services/user.service";
-import {AuthService} from "../../../../../services/auth.service";
+import {ConfigService} from "../../../../services/config.service";
+import {IssueService} from "../../../../services/issue.service";
+import {UserService} from "../../../../services/user.service";
+import {AuthService} from "../../../../services/auth.service";
 import {BehaviorSubject} from "rxjs";
 
 @Component({
@@ -16,7 +16,7 @@ import {BehaviorSubject} from "rxjs";
 })
 export class ExchangeDocumentsComponent {
   @Input()
-  typeDocument:'ISSUE_FILES' | 'COMMENT_FILES' |  'MEDIA_FILES' | 'SOURCE_FILE' | 'DONNE_FILE' | 'MESSEGE_FILES' |'WIKI_FILES' | 'ISSUE_FILES' ="SOURCE_FILE"
+  typeDocument:'ISSUE_FILES' | 'COMMENT_FILES' |  'MEDIA_FILES' | 'SOURCE_FILE' | 'DONNE_FILE' | 'MESSEGE_FILES' |'WIKI_FILES' | 'ISSUE_FILES' | 'EXCHANGE_DOCUMENT' ="SOURCE_FILE"
   @Input()
   issue: Issue;
   protected uploadings: Uploading[] = [];
@@ -178,6 +178,7 @@ export class ExchangeDocumentsComponent {
   fullMode: boolean = false;
   membersDoc: User[] = [];
   selectedDocument: DocumentApp;
+  responseDocuments: DocumentApp[];
 
   setStep(index: number) {
     this.step.set(index);
@@ -216,5 +217,11 @@ export class ExchangeDocumentsComponent {
 
   selectDoc(doc: DocumentApp) {
     this.selectedDocument = doc;
+  }
+
+  responseDocument(selectedDocument: DocumentApp) {
+      this.issueService.responseDocument(selectedDocument).subscribe(doc =>{
+        // TODO: process new doc
+      });
   }
 }

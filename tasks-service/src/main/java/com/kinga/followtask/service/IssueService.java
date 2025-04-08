@@ -7,6 +7,7 @@ import com.kinga.followtask.dto.ValueDto;
 import com.kinga.followtask.entity.CustomFieldValue;
 import com.kinga.followtask.entity.*;
 import com.kinga.followtask.repository.*;
+import com.kinga.followtask.repository.DocumentMemberRepository;
 import com.kinga.followtask.repository.criteria.IssueSearchCriteria;
 import com.kinga.followtask.repository.criteria.IssueSpecification;
 import com.kinga.utils.KingaUtils;
@@ -84,6 +85,8 @@ public class IssueService {
     private IssueLabelsRepository issueLabelsRepository;
     @Autowired
     private CustomFieldValueRepository customFieldValueRepository;
+    @Autowired
+    private DocumentMemberRepository documentMemberRepository;
 
     public Issue saveIssue(Issue issue) throws IOException {
 
@@ -452,6 +455,21 @@ public class IssueService {
             up.setDocument(document);
             uploadedRepository.save(up);
         }
+        if (!CollectionUtils.isEmpty(document.getMembers())) {
+            Document finalDocument = document;
+            document.getMembers().forEach(member -> {
+                List<DocumentMember> docMembers = documentMemberRepository.findByDocumentIdAndUserId(finalDocument.getId(), member);
+                if (!CollectionUtils.isEmpty(docMembers)) {
+                    return;
+                }
+                DocumentMember dm = new DocumentMember();
+                dm.setDocument(finalDocument);
+                UserApp userApp = new UserApp();
+                userApp.setId(member);
+                dm.setUser(userApp);
+                documentMemberRepository.save(dm);
+           });
+        };
         return this.documentRepository.getById(document.getId());
     }
     public List<Document> getDocuments(Long issueId, TypeDocument typeDocument) {

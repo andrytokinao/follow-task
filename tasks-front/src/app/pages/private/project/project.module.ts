@@ -45,6 +45,8 @@ import {ShowIssueFullOptionComponent} from "./modal/show-issue-full-option/show-
 import {MessagesComponent} from "./messages/messages.component";
 import {MatCheckbox} from "@angular/material/checkbox";
 import {NewDocumentComponent} from "./modal/new-document/new-document.component";
+import {ExchangeDocumentsComponent} from "./exchange-documents/exchange-documents.component";
+import {MatDivider} from "@angular/material/divider";
 
 @NgModule({
   declarations: [
@@ -63,42 +65,45 @@ import {NewDocumentComponent} from "./modal/new-document/new-document.component"
     ShowIssueOptionComponent,
     ShowIssueFullOptionComponent,
     MessagesComponent,
-    NewDocumentComponent
+    NewDocumentComponent,
+    ExchangeDocumentsComponent,
+
   ],
   exports: [
-    StatusComponent, RepartitionComponent, ProjectComponent, ShowIssueOptionComponent, ShowIssueFullOptionComponent
+    StatusComponent, RepartitionComponent, ProjectComponent, ShowIssueOptionComponent, ShowIssueFullOptionComponent, ExchangeDocumentsComponent
   ],
-    imports: [
-        ProjectRoutingModule,
-        MatTabsModule,
-        MatCardModule,
-        MatDialogModule,
-        MatToolbarModule,
-        MatFormFieldModule,
-        FormsModule,
-        MatMenuModule,
-        MatMenuModule,
-        MatIconModule,
-        MatSelectModule,
-        CommonModule,
-        MyCommonModule,
-        CdkTextareaAutosize,
-        MatInputModule,
-        MatTable,
-        MatHeaderRowDef,
-        MatRowDef,
-        MatCellDef,
-        MatHeaderCellDef,
-        MatColumnDef,
-        MatPaginatorModule,
-        MatCell,
-        MatHeaderCell,
-        MatHeaderRow,
-        MatRow,
-        CustomFieldComponent,
-        MarkdownComponent,
-        DayPilotModule,
-        MatCheckbox
-    ]
+  imports: [
+    ProjectRoutingModule,
+    MatTabsModule,
+    MatCardModule,
+    MatDialogModule,
+    MatToolbarModule,
+    MatFormFieldModule,
+    FormsModule,
+    MatMenuModule,
+    MatMenuModule,
+    MatIconModule,
+    MatSelectModule,
+    CommonModule,
+    MyCommonModule,
+    CdkTextareaAutosize,
+    MatInputModule,
+    MatTable,
+    MatHeaderRowDef,
+    MatRowDef,
+    MatCellDef,
+    MatHeaderCellDef,
+    MatColumnDef,
+    MatPaginatorModule,
+    MatCell,
+    MatHeaderCell,
+    MatHeaderRow,
+    MatRow,
+    CustomFieldComponent,
+    MarkdownComponent,
+    DayPilotModule,
+    MatCheckbox,
+    MatDivider
+  ]
 })
 export class ProjectModule { }

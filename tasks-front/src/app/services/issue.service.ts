@@ -1582,7 +1582,7 @@ export class IssueService implements OnInit{
       }
     )
   }
-  newDocument(  typeDocument:'ISSUE_FILES' | 'COMMENT_FILES' |  'MEDIA_FILES' | 'SOURCE_FILE' | 'DONNE_FILE' | 'MESSEGE_FILES' |'WIKI_FILES' | 'ISSUE_FILES',issue:Issue){
+  newDocument(  typeDocument:String,issue:Issue){
     return new Observable<DocumentApp>(observer =>{
       const dialogRef = this.modalService.open(NewDocumentComponent, {windowClass: "lModal"});
       dialogRef.componentInstance.issue = issue;
@@ -1603,5 +1603,27 @@ export class IssueService implements OnInit{
       })
     });
 
+  }
+
+  responseDocument(selectedDocument: DocumentApp ) {
+    return new Observable<DocumentApp>(observer =>{
+      const dialogRef = this.modalService.open(NewDocumentComponent, {windowClass: "lModal"});
+      dialogRef.componentInstance.typeDocument = 'RESPONSE_DOCUMENT';
+      dialogRef.componentInstance.parent = selectedDocument;
+      dialogRef.result.then((result) => {
+        dialogRef.result.then((res:any) => {
+            if (res != null) {
+              observer.next(res.newDocument);
+              observer.complete();
+            }
+          },
+          error=> {
+            console.error(error);
+            observer.error(error);
+            observer.complete();
+          }
+        )
+      })
+    });
   }
 }

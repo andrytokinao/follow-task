@@ -1,6 +1,6 @@
 <div  (dragover)="onDragOver($event)" (drop)="onDrop($event)">
   <div>
-    <form #f="ngForm" (ngSubmit)="upload()">
+    <form #f="ngForm" (ngSubmit)="saveDocument()">
       <div class="form-group" #parent>
         <mat-form-field style="width: 100%">
           <mat-label>Titre </mat-label>
@@ -46,8 +46,11 @@
         <span (click)="removeFile(i)" style="float: right;"> {{ up.status }} <i class="fa fa-remove"></i></span>
       </div>
       <div>
-        <button class="upload-btn" (click)="upload()">Uploader</button>
+        <button class="upload-btn" (click)="saveDocument()">Uploader</button>
       </div>
     </ul>
+  </div>
+  <div>
+    <button class="upload-btn" (click)="saveDocument()">Uploader</button>
   </div>
 </div>

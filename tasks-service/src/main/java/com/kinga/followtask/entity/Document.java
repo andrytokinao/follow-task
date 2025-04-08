@@ -21,13 +21,19 @@ public class Document {
     @Column(columnDefinition = "LONGTEXT")
     private String description;
     private TypeDocument typeDocument;
+    @ManyToOne
+    private Project project;
     private Date creation;
     @ManyToOne
     private Document parent;
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "document")
-    public List<DocumentMember> exchangeMembers;
+    @OneToMany(mappedBy = "parent")
+    private List<Document> responses;
+    @OneToMany( mappedBy = "document")
+    public List<DocumentMember> documentMembers;
     @ManyToOne
     private UserApp userApp;
+    @Transient
+    private List<String> members;
     @ManyToOne
     private Issue issues;
     @OneToMany(mappedBy = "document")

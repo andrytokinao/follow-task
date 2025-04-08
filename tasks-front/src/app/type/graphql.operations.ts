@@ -2094,6 +2094,40 @@ const GET_DOCUMENTS = gql`
            name
            encodedPath
          }
+         documentMembers {
+           id
+           user {
+             id
+             username
+             firstName
+             lastName
+             photo
+           }
+           document {
+             id
+           }
+         }
+         project {
+           id
+         }
+         parent {
+           id
+         }
+         responses {
+           id
+           description
+           parent {
+             id
+           }
+           description
+           userApp {
+             id
+             username
+             lastName
+             firstName
+             photo
+           }
+         }
       }
     }
 `

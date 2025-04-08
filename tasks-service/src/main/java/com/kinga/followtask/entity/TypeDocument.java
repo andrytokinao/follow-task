@@ -7,5 +7,7 @@ public enum TypeDocument {
     DONNE_FILE,
     MESSEGE_FILES,
     WIKI_FILES,
-    ISSUE_FILES
+    ISSUE_FILES,
+    EXCHANGE_DOCUMENT,
+    RESPONSE_DOCUMENT
 }

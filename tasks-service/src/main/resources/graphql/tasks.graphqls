@@ -613,7 +613,17 @@ input DocumentInput{
     uploadeds:[UploadedInput]
     creation:String
     userApp:UserAppInput
-    issues:IssueInput
+    issues:IssueInput,
+    documentMembers:[DocumentMemberInput]
+    members:[String]
+    project:ProjectInput
+    parent:DocumentInput
+    responses:[DocumentInput]
+}
+input DocumentMemberInput{
+    id:Int
+    user:UserAppInput
+    document:DocumentInput
 }
 input UploadedInput{
     id:Int
@@ -631,7 +641,17 @@ type Document{
     creation:String
     userApp:UserApp
     issues:Issue
+    documentMembers:[DocumentMember]
+    members:[String]
+    project:Project
+    parent:Document
+    responses:[Document]
 
+}
+type DocumentMember{
+    id:Int
+    user:UserApp
+    document:Document
 }
 type Uploaded{
     id:Int
