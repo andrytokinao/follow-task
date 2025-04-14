@@ -34,7 +34,7 @@
         <div class="cards">
           <div class="card-title">
              <span>
-              <small>{{ selectedDocument.creation | date | date }} {{ selectedDocument.userApp.username }} {{ selectedDocument.creation | date | date }}</small>
+              <small>{{ selectedDocument.userApp.username }} {{ selectedDocument.creation | date | date }}</small>
           </span>
             <h1>{{selectedDocument.titre}}</h1>
 
@@ -52,13 +52,14 @@
 
 
       <div  *ngIf="selectedDocument.responses">
+        <mat-divider _ngcontent-ng-c3949266393="" role="separator" class="mat-divider mat-divider-horizontal" style="margin: 24px 0;" aria-orientation="horizontal"></mat-divider>
         <div *ngFor="let document of selectedDocument.responses let i = index">
+
           <div class="cards">
             <div class="card-title">
              <span>
-              <small>{{ document.creation | date | date }} {{ document.userApp.username }} {{ document.creation | date | date }}</small>
+              <small> {{ document.userApp.username }} {{ document.creation | date | date }}</small>
           </span>
-              <h1>{{document.titre}}</h1>
 
               <p [innerHTML]="document.description"  >
               </p>
@@ -71,8 +72,9 @@
               </div>
             </div>
           </div>
+          <mat-divider _ngcontent-ng-c3949266393="" role="separator" class="mat-divider mat-divider-horizontal" style="margin: 24px 0;" aria-orientation="horizontal"></mat-divider>
+
         </div>
-        <mat-divider _ngcontent-ng-c3949266393="" role="separator" class="mat-divider mat-divider-horizontal" style="margin: 24px 0;" aria-orientation="horizontal"></mat-divider>
       </div>
         <div class="card" (click)="responseDocument(selectedDocument)">
           <div class="content details" >

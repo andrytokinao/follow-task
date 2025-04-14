@@ -28,9 +28,9 @@ public class Document {
     private Document parent;
     @OneToMany(mappedBy = "parent")
     private List<Document> responses;
-    @OneToMany( mappedBy = "document")
+    @OneToMany( mappedBy = "document",fetch = FetchType.EAGER)
     public List<DocumentMember> documentMembers;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private UserApp userApp;
     @Transient
     private List<String> members;

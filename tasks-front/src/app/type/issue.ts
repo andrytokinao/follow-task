@@ -291,7 +291,7 @@ export interface DocumentApp{
   uploadeds?:Uploaded[];
   project?:Project
   parent?:DocumentApp
-  responses?:[DocumentApp]
+  responses?:DocumentApp[]
 }
 export interface DomainActivity{
   id?:number;
@@ -344,4 +344,17 @@ export interface MessageApp {
   text:String
   sender:User
   userReades?:String[];
+}
+export interface ActionItem {
+  id?:Number
+  actionType : 'CHANGE_FIELD' | 'CUSTOM_FIELD' | 'STATUS' | 'ASSIGN'|'ADD_EVENT'| 'CHANGE_PROFILE' | 'UPLOAD' | 'COMMENT' | 'DOCUMENT'
+  actionGroupe:ActionGroupe,
+   details:any;
+}
+export interface ActionGroupe {
+   id:Number
+  actions:ActionItem[]
+  user:User
+  issue:Issue
+  created:Date
 }

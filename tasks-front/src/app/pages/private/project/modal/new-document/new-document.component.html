@@ -2,7 +2,7 @@
   <div>
     <form #f="ngForm" (ngSubmit)="saveDocument()">
       <div class="form-group" #parent>
-        <mat-form-field style="width: 100%">
+        <mat-form-field style="width: 100%" *ngIf="!parentDocument">
           <mat-label>Titre </mat-label>
           <input matInput
                  cdkTextareaAutosize
@@ -11,7 +11,7 @@
                  [ngModelOptions]="{standalone: true}"
                  cdkAutosizeMaxRows="5"/>
         </mat-form-field>
-        <div class="card" >
+        <div class="card" *ngIf="!parentDocument">
           <div class="sidebar-heding ">
             <span *ngFor="let user of userToSelect">
               <mat-checkbox

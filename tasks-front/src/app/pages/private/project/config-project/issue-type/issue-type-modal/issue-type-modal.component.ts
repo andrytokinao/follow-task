@@ -208,7 +208,7 @@ export class IssueTypeModalComponent implements OnInit{
   loadIssueType(){
     this.issueService.getIssueTypeById(this.issueType.id).subscribe(issueType => {
       this.issueType = issueType;
-      this.selectedParentIssueType = this.issueType.parent;
+      this.selectedParentIssueType = this.issueType.parentDocument;
       this.selectedChildIssueType = this.issueType.children;
     })
   }

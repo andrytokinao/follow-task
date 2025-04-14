@@ -77,6 +77,8 @@ public class KingaUtils {
         return passwordEncoder.encode(password);
     }
     public static String encodeText(String text) {
+        if (StringUtils.isEmpty(text))
+            return "";
         char[] toChange = text.toCharArray();
         char[] changes  = new char[toChange.length];
         int i = 0;

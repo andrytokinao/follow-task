@@ -67,13 +67,13 @@ import {NewDocumentComponent} from "../pages/private/project/modal/new-document/
 @Injectable({
   providedIn: 'root',
 })
-export class IssueService implements OnInit{
+export class IssueService implements OnInit {
   projects: Project[] = [];
   project: Project | null = null;
-  issueTypes:IssueType[]=[];
-  appSettings:AppSettings[]=[];
-  user:User | undefined;
-  private subtaskSubject= new BehaviorSubject<Issue[]>([]);
+  issueTypes: IssueType[] = [];
+  appSettings: AppSettings[] = [];
+  user: User | undefined;
+  private subtaskSubject = new BehaviorSubject<Issue[]>([]);
   private issueMastersListSubject = new BehaviorSubject<Issue[]>([]);
   private projectSubject = new BehaviorSubject<Project>(undefined);
   private projectsSubject = new BehaviorSubject<Project[]>([]);
@@ -111,26 +111,31 @@ export class IssueService implements OnInit{
   currentMasterFilter$ = this.masterCurrentMasterFilterSubject.asObservable();
   private issuesSubject = new BehaviorSubject<Issue[]>([]);
   issues$ = this.issuesSubject.asObservable();
-  uploadingDocumentSubject : BehaviorSubject<DocumentApp>;
+  uploadingDocumentSubject: BehaviorSubject<DocumentApp>;
   private allCustomFieldSubject = new BehaviorSubject<CustomField[]>([]);
   allCustomField$ = this.allCustomFieldSubject.asObservable();
   private masterCurrentMasterFilter: CustomFilter;
+  private documentsSubject = new BehaviorSubject<DocumentApp[]>([]);
+  documents$ = this.documentsSubject.asObservable();
+  private
+
   setIssues(issues: Issue[]) {
     this.issuesSubject.next(issues);
   }
-  setSubtask(issues:Issue[]){
+
+  setSubtask(issues: Issue[]) {
     this.subtaskSubject.next(issues);
   }
-  // Exposed as an observable for components to subscribe
-  curentMasterCriteria  : IssueSearchCriteriaInput = {};
+
+  curentMasterCriteria: IssueSearchCriteriaInput = {};
+
   constructor(private http: HttpClient,
               private apollo: Apollo,
               private router: Router,
-              private userService:UserService,
-              private modalService:NgbModal,
-              private authService:AuthService,
-              protected projectGuard:ProjectGuard,
-
+              private userService: UserService,
+              private modalService: NgbModal,
+              private authService: AuthService,
+              protected projectGuard: ProjectGuard,
   ) {
     const initialProject: Project = null;
     this.authService.connectedUser$.subscribe(user => {
@@ -148,15 +153,13 @@ export class IssueService implements OnInit{
         this.loadMyFilters();
         this.loadAllCustomField();
         this.setCurrentMasterFilter({
-          id:0,
-          name:'Tous',
-          projectId:this.project.id,
-          criteria:{
-
-          }
+          id: 0,
+          name: 'Tous',
+          projectId: this.project.id,
+          criteria: {}
         });
         this.loadIssueType();
-        this.issueType$.subscribe( issueTypes=> {
+        this.issueType$.subscribe(issueTypes => {
           let parentType = issueTypes.filter(it => it.level === 'PARENT');
           this.issueTypesParentSubject.next(parentType);
         })
@@ -166,51 +169,53 @@ export class IssueService implements OnInit{
     this.currentMasterFilter$.subscribe(filter => {
 
       if (filter && this.project) {
-        this.searchIssues(filter.criteria,this.project.id).subscribe(issues => {
+        this.searchIssues(filter.criteria, this.project.id).subscribe(issues => {
           this.setMasters(issues);
         });
       }
     });
   }
-  filterMasterIssue(customFilter:CustomFilter){
+
+  filterMasterIssue(customFilter: CustomFilter) {
     this.setCurrentMasterFilter(customFilter);
     if (customFilter && customFilter.criteria) {
       this.loadIssueMasters(customFilter.criteria);
     }
   }
-  loadIssueMasters(criteria:IssueSearchCriteriaInput){
-    criteria.issueTypeLevels=['PARENT'];
+
+  loadIssueMasters(criteria: IssueSearchCriteriaInput) {
+    criteria.issueTypeLevels = ['PARENT'];
     criteria.projectId = this.project?.id;
     this.setIssueMasterCriteria(criteria);
-    this.projectGuard.hasCredential(["USER"]).subscribe( isUser => {
+    this.projectGuard.hasCredential(["USER"]).subscribe(isUser => {
       if (isUser) {
-        this.projectGuard.hasSimpleCredential(["CAN_VIEW_ASSIGN_ONLY"]).subscribe( viewOnly => {
+        this.projectGuard.hasSimpleCredential(["CAN_VIEW_ASSIGN_ONLY"]).subscribe(viewOnly => {
           if (viewOnly) {
             criteria.assigneUsernames = [this.user.username];
-            this.searchIssues(criteria,this.project.id).subscribe(masters => {
+            this.searchIssues(criteria, this.project.id).subscribe(masters => {
               this.setMasters(masters);
               return;
             })
           }
         })
-        this.projectGuard.hasSimpleCredential(["CAN_VIEW_ONLY"]).subscribe( vewOnly => {
-          if (vewOnly){
-            return ;
+        this.projectGuard.hasSimpleCredential(["CAN_VIEW_ONLY"]).subscribe(vewOnly => {
+          if (vewOnly) {
+            return;
           }
           // TODO : Ajout ici le filtre pour les observateur externe ,
-         /* this.searchIssues(criteria,this.project.id).subscribe(masters => {
-            this.setMasters(masters);
-          })*/
+          /* this.searchIssues(criteria,this.project.id).subscribe(masters => {
+             this.setMasters(masters);
+           })*/
         });
-        this.projectGuard.hasCredential(["PROJECT_MANAGER","ADMIN","VIEW_ALL_TASK"]).subscribe( canVieAll => {
-          if (canVieAll){
-            this.searchIssues(criteria,this.project.id).subscribe(masters => {
+        this.projectGuard.hasCredential(["PROJECT_MANAGER", "ADMIN", "VIEW_ALL_TASK"]).subscribe(canVieAll => {
+          if (canVieAll) {
+            this.searchIssues(criteria, this.project.id).subscribe(masters => {
               this.setMasters(masters);
             })
           }
 
         });
-        }
+      }
     })
 
   }
@@ -222,12 +227,14 @@ export class IssueService implements OnInit{
   getCurrentProject(): Project {
     return this.projectSubject.value;
   }
+
   httpOptions = {
     headers: new HttpHeaders({
       'Content-Type': 'application/json',
     }),
   };
-  nextIsLoadingWorkspace(value:Boolean){
+
+  nextIsLoadingWorkspace(value: Boolean) {
     this.loadedWorkspaceSubject.next(value);
   }
 
@@ -247,20 +254,21 @@ export class IssueService implements OnInit{
 
 
   getIssues(projet: String | undefined) {
-    return new Observable<Issue[]>(observer=> {
+    return new Observable<Issue[]>(observer => {
       this.apollo
         .query({
           query: operation.ALL_ISSUE,
-        }).subscribe((res:any)=>{
-           observer.next(supprimerTypename(res.data.allIssue));
-           this.setIssues(supprimerTypename(res.data.allIssue));
-           observer.complete();
-        },error =>{
-          observer.error(error);
-          observer.complete();
+        }).subscribe((res: any) => {
+        observer.next(supprimerTypename(res.data.allIssue));
+        this.setIssues(supprimerTypename(res.data.allIssue));
+        observer.complete();
+      }, error => {
+        observer.error(error);
+        observer.complete();
       })
     })
   }
+
   createIssueMaster() {
     const dialogRef = this.modalService.open(NewIssueComponent);
     dialogRef.componentInstance.isMaster = true;
@@ -273,36 +281,37 @@ export class IssueService implements OnInit{
       })
     })
   }
+
   saveIssue(issue: any) {
     delete issue.encodedPath;
-    if (issue.issueType.project == null || issue.project ) {
+    if (issue.issueType.project == null || issue.project) {
       issue.issueType.project = {
-        id:this.projectSubject.value.id,
-        prefix:this.projectSubject.value.prefix,
-        name:this.projectSubject.value.name
+        id: this.projectSubject.value.id,
+        prefix: this.projectSubject.value.prefix,
+        name: this.projectSubject.value.name
       }
       issue.project = issue.issueType.project;
     }
     delete issue.values;
-   return new Observable<Issue>((observer) => {
-     this.apollo
-       .mutate({
-           mutation: operation.SAVE_ISSUE,
-           variables: {issue},
-           fetchPolicy:"network-only"
-         }
-       ).subscribe( (res:any)=>{
-         observer.next(supprimerTypename(res.data.saveIssue));
-         observer.complete();
-     },error=>{
-         observer.error(error);
-         observer.complete();
-     });
-   })
+    return new Observable<Issue>((observer) => {
+      this.apollo
+        .mutate({
+            mutation: operation.SAVE_ISSUE,
+            variables: {issue},
+            fetchPolicy: "network-only"
+          }
+        ).subscribe((res: any) => {
+        observer.next(supprimerTypename(res.data.saveIssue));
+        observer.complete();
+      }, error => {
+        observer.error(error);
+        observer.complete();
+      });
+    })
   }
 
-  addComment(comment: Comment, encodedPath:String,uploadings:Uploading[]) {
-    comment.user = {id:this.user.id}// TODO: Change to user connected recuperer coté serveur
+  addComment(comment: Comment, encodedPath: String, uploadings: Uploading[]) {
+    comment.user = {id: this.user.id}// TODO: Change to user connected recuperer coté serveur
     return new Observable<Comment[]>(observer => {
       if (uploadings === undefined || uploadings.length == 0) {
         this.apollo.mutate({
@@ -322,8 +331,8 @@ export class IssueService implements OnInit{
         let count = uploadings.length;
         let alredySending = false;
         let filesUploadedsSubject = new BehaviorSubject<Uploaded[]>([]);
-        let index  =0;
-        this.sendSequentialUpload(index,{},uploadings,encodedPath,"COMMENTS").subscribe(res => {
+        let index = 0;
+        this.sendSequentialUpload(index, {}, uploadings, encodedPath, "COMMENTS").subscribe(res => {
           console.debug("fileUploaded");
 
         });
@@ -332,51 +341,54 @@ export class IssueService implements OnInit{
 
     });
   }
-  isAllUploaded(uploadings:Uploading[]){
-     if (uploadings === undefined || uploadings.length ===0) {
-       return true ;
-     }
-     uploadings.forEach(u =>{
-       console.debug('uploadings-status',u.status,u);
 
-     })
+  isAllUploaded(uploadings: Uploading[]) {
+    if (uploadings === undefined || uploadings.length === 0) {
+      return true;
+    }
+    uploadings.forEach(u => {
+      console.debug('uploadings-status', u.status, u);
 
-    let notOk =uploadings.some(u => u.status !== 'success');
-     console.debug('isAllUploaded',!notOk);
-     return !notOk;
+    })
+
+    let notOk = uploadings.some(u => u.status !== 'success');
+    console.debug('isAllUploaded', !notOk);
+    return !notOk;
   }
-  uploadDocument(document:DocumentApp , encodedPath:String, uploadings:Uploading[], rewRepertoire:string) {
-    this.uploadingDocumentSubject= new BehaviorSubject<DocumentApp>(document);
+
+  uploadDocument(document: DocumentApp, encodedPath: String, uploadings: Uploading[], rewRepertoire: string) {
+    this.uploadingDocumentSubject = new BehaviorSubject<DocumentApp>(document);
     let index = 0;
     let count = 0;
-   return new Observable<DocumentApp>(observer => {
-        this.saveDocument(document).subscribe( savedDocument => {
-          if (!uploadings || uploadings.length == 0) {
-            observer.next(savedDocument);
-            observer.complete();
-          } else {
-            savedDocument.uploadeds =[];
-            this.sendSequentialUpload(index,savedDocument,uploadings,encodedPath,rewRepertoire).subscribe(uploades => {
-              if (uploades.type === HttpEventType.Response) {
-                observer.next(document);
-                observer.complete();
-              }
-            },er => {
-              observer.error(er);
+    return new Observable<DocumentApp>(observer => {
+      this.saveDocument(document).subscribe(savedDocument => {
+        if (!uploadings || uploadings.length == 0) {
+          observer.next(savedDocument);
+          observer.complete();
+        } else {
+          savedDocument.uploadeds = [];
+          this.sendSequentialUpload(index, savedDocument, uploadings, encodedPath, rewRepertoire).subscribe(uploades => {
+            if (uploades.type === HttpEventType.Response) {
+              observer.next(document);
               observer.complete();
-            })
-          }
-        })
-   })
+            }
+          }, er => {
+            observer.error(er);
+            observer.complete();
+          })
+        }
+      })
+    })
   }
-  saveDocument(document:DocumentApp) {
+
+  saveDocument(document: DocumentApp) {
     return new Observable<DocumentApp>(observer => {
       this.apollo.mutate({
         mutation: operation.ADD_ADD_DOCUMENT,
         variables: {document},
         fetchPolicy: 'network-only'
       }).subscribe((res: any) => {
-          observer.next(supprimerTypename(res.data.addDocument));
+          observer.next(supprimerTypename(supprimerTypename(res.data.addDocument)));
           observer.complete();
         },
         error => {
@@ -386,7 +398,8 @@ export class IssueService implements OnInit{
       )
     })
   }
-  saveUploaded(uploaded:Uploaded) {
+
+  saveUploaded(uploaded: Uploaded) {
     return new Observable<Uploaded>(observer => {
       this.apollo.mutate({
         mutation: operation.SAVE_UPLOADED,
@@ -403,7 +416,8 @@ export class IssueService implements OnInit{
       )
     })
   }
-  sendSequentialUpload(index:number,document:DocumentApp,uploadings: Uploading[] ,directory: String,newDirectory:String): Observable<any> {
+
+  sendSequentialUpload(index: number, document: DocumentApp, uploadings: Uploading[], directory: String, newDirectory: String): Observable<any> {
 
     if (uploadings === undefined || uploadings.length === index) {
       this.uploadingDocumentSubject.next(document);
@@ -413,18 +427,23 @@ export class IssueService implements OnInit{
     let current = uploadings[index];
 
     if (newDirectory) {
-      return this.uploadInNewDirertory(uploadings[index].file,directory,newDirectory.toString(),document.id).pipe(
+      return this.uploadInNewDirertory(uploadings[index].file, directory, newDirectory.toString(), document.id).pipe(
         tap((event) => {
           if (event.type === HttpEventType.UploadProgress) {
             const progress = Math.round((event.loaded / (event.total || 1)) * 100);
             current.status = 'uploading';
             current.progression = progress;
           } else if (event.type === HttpEventType.Response) {
-            const uploaded:Uploaded = JSON.parse(event.body);
+            const uploaded: Uploaded = JSON.parse(event.body);
             current.status = 'success';
 
             uploaded.document = document;
-            index ++;
+            index++;
+            if (!document.uploadeds) {
+              document.uploadeds = [];
+            }
+            document.uploadeds.push(uploaded);
+            this.updateOrAddDocument(document);
 
           }
         }),
@@ -435,14 +454,14 @@ export class IssueService implements OnInit{
           return of(null);
         }),
         finalize(() => {
-          this.sendSequentialUpload(index,document,uploadings,directory,newDirectory).subscribe();
-          if ( this.isAllUploaded(uploadings)) {
+          this.sendSequentialUpload(index, document, uploadings, directory, newDirectory).subscribe();
+          if (this.isAllUploaded(uploadings)) {
             this.uploadingDocumentSubject.next(document);
           }
         })
-        );
+      );
     } else {
-      return this.upload(current.file,directory,document.id).pipe(
+      return this.upload(current.file, directory, document.id).pipe(
         tap((event) => {
           if (event.type === HttpEventType.UploadProgress) {
             const progress = Math.round((event.loaded / (event.total || 1)) * 100);
@@ -451,56 +470,56 @@ export class IssueService implements OnInit{
             current.progression = progress;
           } else if (event.type === HttpEventType.Response) {
             console.log(`Upload terminé pour ${current.file.name}`);
-            const uploaded:Uploaded = JSON.parse(event.body);
+            const uploaded: Uploaded = JSON.parse(event.body);
             uploaded.document = document;
             current.status = 'success';
 
-            index ++;
+            index++;
           }
         }),
         catchError((error) => {
           console.error(`Erreur lors de l'upload de ${current.file.name}:`, error);
           current.status = 'error';
-          index ++;
+          index++;
           return of(null);
         }),
         finalize(() => {
-           this.sendSequentialUpload(index,document,uploadings,directory,newDirectory).subscribe();
+          this.sendSequentialUpload(index, document, uploadings, directory, newDirectory).subscribe();
         })
-        );
+      );
     }
   }
 
   allComment(issueId: number) {
-    return new Observable<Comment[]>((observer)=>{
+    return new Observable<Comment[]>((observer) => {
       this.apollo
         .query({
           query: operation.ALL_COMMENT,
           variables: {issueId},
-          fetchPolicy:'network-only'
-        }).subscribe((res:any)=>{
-          observer.next(supprimerTypename(res.data.allComment));
-          observer.complete();
-      },error=>{
-          observer.error(error);
-          observer.complete();
+          fetchPolicy: 'network-only'
+        }).subscribe((res: any) => {
+        observer.next(supprimerTypename(res.data.allComment));
+        observer.complete();
+      }, error => {
+        observer.error(error);
+        observer.complete();
       });
     })
   }
 
 
   getValues(issueId: number) {
-    return new Observable<CustomFieldValue[]>(observer=> {
+    return new Observable<CustomFieldValue[]>(observer => {
       this.apollo
         .query({
           query: operation.GET_VALUES,
           variables: {issueId}
-        }).subscribe((res:any)=>{
-          observer.next(supprimerTypename(res.data.getValues));
-          observer.complete();
-      },error=>{
-          observer.error(error);
-          observer.complete();
+        }).subscribe((res: any) => {
+        observer.next(supprimerTypename(res.data.getValues));
+        observer.complete();
+      }, error => {
+        observer.error(error);
+        observer.complete();
       })
     })
 
@@ -565,23 +584,26 @@ export class IssueService implements OnInit{
     const queryString = `?fileNames=${fileNames.join(',')}` + "&directory=" + directory;
     return environment.apiURL + `api/download${queryString}`;
   }
-  downloadUploadedUrl(uploaded:Uploaded){
-    const queryString = '?fileNames='+uploaded.encodedPath+'&directory=okay&fileName='+uploaded.name ;
-    return environment.apiURL + 'api/download'+queryString;
+
+  downloadUploadedUrl(uploaded: Uploaded) {
+    const queryString = '?fileNames=' + uploaded.encodedPath + '&directory=okay&fileName=' + uploaded.name;
+    return environment.apiURL + 'api/download' + queryString;
   }
-  upload(file: File, root: String,documentId:number): Observable<HttpEvent<any>> {
+
+  upload(file: File, root: String, documentId: number): Observable<HttpEvent<any>> {
     const formData: FormData = new FormData();
     formData.append('file', file);
-    const req = new HttpRequest('POST', `${environment.apiURL}api/upload?directory=` + root+"&documentId="+documentId, formData, {
+    const req = new HttpRequest('POST', `${environment.apiURL}api/upload?directory=` + root + "&documentId=" + documentId, formData, {
       reportProgress: true,
       responseType: 'text'
     });
     return this.http.request(req);
   }
-  uploadInNewDirertory(file: File, root: String,newDirectory:string, documentId:number): Observable<HttpEvent<any>> {
+
+  uploadInNewDirertory(file: File, root: String, newDirectory: string, documentId: number): Observable<HttpEvent<any>> {
     const formData: FormData = new FormData();
     formData.append('file', file);
-    const req = new HttpRequest('POST', `${environment.apiURL}api/upload?directory=` + root+'&newDirectory='+newDirectory+"&documentId="+documentId, formData, {
+    const req = new HttpRequest('POST', `${environment.apiURL}api/upload?directory=` + root + '&newDirectory=' + newDirectory + "&documentId=" + documentId, formData, {
       reportProgress: true,
       responseType: 'text'
     });
@@ -593,6 +615,7 @@ export class IssueService implements OnInit{
       array.splice(index, 1);
     }
   }
+
   createProjectOrSave(project: any) {
     return new Observable((observer) => {
       this.apollo.mutate({
@@ -610,11 +633,11 @@ export class IssueService implements OnInit{
 
   getProject(prefix: string) {
     this.loadedWorkspaceSubject.next(false);
-    console.debug("loading project "+prefix);
+    console.debug("loading project " + prefix);
     this.apollo.query({
       query: operation.GET_PROJECT,
       variables: {prefix},
-      fetchPolicy:"network-only"
+      fetchPolicy: "network-only"
     }).subscribe((res: any) => {
       this.project = stripTypename(res.data.getProject);
       if (this.project) {
@@ -622,28 +645,29 @@ export class IssueService implements OnInit{
         this.projectSubject.next(this.project);
 
 
-
       }
     }, err => {
       console.error(err);
     })
   }
-  reloadMasterList(){
+
+  reloadMasterList() {
 
     this.setIssueMasterCriteria(this.masterListCriteriaSubject.value);
   }
+
   saveIssueType(issueType: IssueType) {
     return new Observable<IssueType>((observer) => {
-      if (issueType.project == undefined ){
-       let  error :any = {message:"Saving issueType , project es undefined"}
+      if (issueType.project == undefined) {
+        let error: any = {message: "Saving issueType , project es undefined"}
         observer.error(error);
-       observer.complete();
-       return;
+        observer.complete();
+        return;
       }
       this.apollo.mutate({
         mutation: operation.SAVE_ISSUE_TYPE,
         variables: {issueType},
-        fetchPolicy:"network-only"
+        fetchPolicy: "network-only"
       }).subscribe((res: any) => {
           observer.next(supprimerTypename(res.data.saveIssueType));
           observer.complete();
@@ -723,10 +747,10 @@ export class IssueService implements OnInit{
     })
   }
 
-  assigneToUser(is: Issue,user:User) {
-    let issue :any= {
-      id:is.id,
-      assigne:{id:user.id},
+  assigneToUser(is: Issue, user: User) {
+    let issue: any = {
+      id: is.id,
+      assigne: {id: user.id},
     }
     return new Observable<Issue>((observer) => {
       this.apollo.mutate({
@@ -760,23 +784,25 @@ export class IssueService implements OnInit{
       );
     })
   }
+
   getWorkFlow(workFlowId: Number) {
     return new Observable<WorkFlow>(observer => {
       this.apollo
         .query({
           query: operation.GET_WORK_FLOW,
-          variables:{workFlowId},
-          fetchPolicy:"network-only"
-        }).subscribe((res:any)=>{
+          variables: {workFlowId},
+          fetchPolicy: "network-only"
+        }).subscribe((res: any) => {
           observer.next(supprimerTypename(res.data.getWorkFlow));
           observer.complete();
-      }, error => {
+        }, error => {
           observer.error(error);
           observer.complete();
         }
-        );
+      );
     })
   }
+
   getDistinctWorkflows(issues: Issue[]): WorkFlow[] {
     const workflowMap = new Map<number, WorkFlow>();
     issues.forEach(issue => {
@@ -790,18 +816,19 @@ export class IssueService implements OnInit{
     });
     return Array.from(workflowMap.values());
   }
+
   workFlowsByProject(projectId: Number) {
     return new Observable<WorkFlow[]>(observer => {
       this.apollo
         .query({
           query: operation.WORK_FLOWS_BY_PROJECT,
-          variables:{projectId},
-          fetchPolicy:"network-only"
-        }).subscribe((res:any)=>{
-         let wf =  supprimerTypename(res.data.workFlowsByProject);
-         this.worksFlowsSubject.next(wf);
-         observer.next(supprimerTypename(res.data.workFlowsByProject));
-         this.worksFlowsSubject.next(wf);
+          variables: {projectId},
+          fetchPolicy: "network-only"
+        }).subscribe((res: any) => {
+          let wf = supprimerTypename(res.data.workFlowsByProject);
+          this.worksFlowsSubject.next(wf);
+          observer.next(supprimerTypename(res.data.workFlowsByProject));
+          this.worksFlowsSubject.next(wf);
           observer.complete();
         }, error => {
           observer.error(error);
@@ -810,6 +837,7 @@ export class IssueService implements OnInit{
       );
     })
   }
+
   issueByCriteria(criterias: Criteria[]) {
     return new Observable<Issue[]>(observer => {
       this.apollo.query({
@@ -827,7 +855,7 @@ export class IssueService implements OnInit{
   };
 
   saveCustomField(customField: CustomField) {
-    customField.project = {id:this.project.id}
+    customField.project = {id: this.project.id}
     return new Observable<CustomField>(observer => {
       this.apollo.mutate(
         {
@@ -844,13 +872,14 @@ export class IssueService implements OnInit{
         })
     });
   }
+
 // TODO : Modifier sur la custom field pour une projet
-  allCustomField(projectId:Number) {
+  allCustomField(projectId: Number) {
     return new Observable<CustomField[]>(observer => {
       this.apollo.query({
         query: ALL_CUSTOM_FIELD,
-        variables:{projectId:projectId},
-        fetchPolicy:"network-only"
+        variables: {projectId: projectId},
+        fetchPolicy: "network-only"
       }).subscribe((res: any) => {
           observer.next(supprimerTypename(res.data.allCustomField));
           observer.complete();
@@ -983,7 +1012,7 @@ export class IssueService implements OnInit{
           variables: {issueTypeId},
           fetchPolicy: "network-only"
         }).subscribe((res: any) => {
-            observer.next(stripTypename( res.data.getIssueTypeById));
+            observer.next(stripTypename(res.data.getIssueTypeById));
             observer.complete();
           }, error => {
             observer.error(error);
@@ -993,16 +1022,17 @@ export class IssueService implements OnInit{
       }
     );
   }
-  affectIssueTypeForParent(childId:Number, parrentId:Number){
+
+  affectIssueTypeForParent(childId: Number, parrentId: Number) {
     return new Observable<IssueType>(observer => {
       this.apollo.mutate({
-        mutation:AFFECT_ISSUE_TYPE_FOR_PARENT,
-        variables:{childId,parrentId},
-        fetchPolicy:"network-only"
-      }).subscribe((res:any)=>{
+        mutation: AFFECT_ISSUE_TYPE_FOR_PARENT,
+        variables: {childId, parrentId},
+        fetchPolicy: "network-only"
+      }).subscribe((res: any) => {
         observer.next(supprimerTypename(res.data.affectIssueTypeForParent));
         observer.complete();
-      },error => {
+      }, error => {
         observer.error(error);
         observer.complete();
       })
@@ -1012,13 +1042,13 @@ export class IssueService implements OnInit{
   removeIssueTypeParent(childId: number) {
     return new Observable<IssueType>(observer => {
       this.apollo.mutate({
-        mutation:REMOVE_ISSUE_TYPE_PARENT,
-        variables:{childId},
-        fetchPolicy:"network-only"
-      }).subscribe((res:any)=>{
+        mutation: REMOVE_ISSUE_TYPE_PARENT,
+        variables: {childId},
+        fetchPolicy: "network-only"
+      }).subscribe((res: any) => {
         observer.next(supprimerTypename(res.data.affectIssueTypeForParent));
         observer.complete();
-      },error => {
+      }, error => {
         observer.error(error);
         observer.complete();
       })
@@ -1028,13 +1058,13 @@ export class IssueService implements OnInit{
   listIssueTypeMaster(projectId: Number) {
     return new Observable<IssueType[]>(observer => {
       this.apollo.query({
-        query:LIST_ISSUE_TYPE_MASTER,
-        variables:{projectId},
-        fetchPolicy:"network-only"
-      }).subscribe((res:any)=>{
+        query: LIST_ISSUE_TYPE_MASTER,
+        variables: {projectId},
+        fetchPolicy: "network-only"
+      }).subscribe((res: any) => {
         observer.next(supprimerTypename(res.data.listIssueTypeMaster));
         observer.complete();
-      },error => {
+      }, error => {
         observer.error(error);
         observer.complete();
       })
@@ -1044,13 +1074,13 @@ export class IssueService implements OnInit{
   listIssueTypeSubtasks(masterId: Number) {
     return new Observable<IssueType[]>(observer => {
       this.apollo.query({
-        query:LIST_ISSUE_TYPE_SUBTASKS,
-        variables:{masterId},
-        fetchPolicy:"network-only"
-      }).subscribe((res:any)=>{
+        query: LIST_ISSUE_TYPE_SUBTASKS,
+        variables: {masterId},
+        fetchPolicy: "network-only"
+      }).subscribe((res: any) => {
         observer.next(supprimerTypename(res.data.listIssueTypeSubtasks));
         observer.complete();
-      },error => {
+      }, error => {
         observer.error(error);
         observer.complete();
       })
@@ -1061,13 +1091,13 @@ export class IssueService implements OnInit{
 
     return new Observable<String>(observer => {
       this.apollo.query({
-        query:GET_NEXT_KEY,
-        variables:{issueTypeId},
-        fetchPolicy:"network-only"
-      }).subscribe((res:any)=>{
+        query: GET_NEXT_KEY,
+        variables: {issueTypeId},
+        fetchPolicy: "network-only"
+      }).subscribe((res: any) => {
         observer.next(supprimerTypename(res.data.getNextKey));
         observer.complete();
-      },error => {
+      }, error => {
         observer.error(error);
         observer.complete();
       })
@@ -1080,7 +1110,7 @@ export class IssueService implements OnInit{
         windowClass: 'custom-dialog',
         backdrop: 'static',
         keyboard: false,
-        animation:true
+        animation: true
       });
       dialogRef.componentInstance.customFilter = customFilter;
 
@@ -1091,7 +1121,7 @@ export class IssueService implements OnInit{
         if (dialogElement) {
           dialogElement.style.position = 'absolute';
           dialogElement.style.left = `${buttonRect.right + 10}px`;
-          dialogElement.style.top = `${buttonRect.top -20}px`;
+          dialogElement.style.top = `${buttonRect.top - 20}px`;
           dialogElement.style.margin = '0';
           dialogElement.style.transform = 'none';
         }
@@ -1116,47 +1146,50 @@ export class IssueService implements OnInit{
   }
 
   loadSubtaskAndSet(parentId: Number) {
-      this.loadSubtask(parentId).subscribe(
-       issues =>  this.subtaskSubject.next(issues)
-      )
+    this.loadSubtask(parentId).subscribe(
+      issues => this.subtaskSubject.next(issues)
+    )
   }
+
   loadSubtask(parentId: Number) {
     return new Observable<Issue[]>(observer => {
       this.apollo.query({
-        query:LOAD_SUBTASK,
-        variables:{parentId},
-        fetchPolicy:"network-only"
-      }).subscribe((res:any)=>{
+        query: LOAD_SUBTASK,
+        variables: {parentId},
+        fetchPolicy: "network-only"
+      }).subscribe((res: any) => {
         observer.next(supprimerTypename(res.data.loadSubtask));
         observer.complete();
-      },error => {
+      }, error => {
         console.error(error);
         observer.complete();
       })
     });
   }
 
-  setMasters(masters:Issue[]){
-    let filtered = masters.filter(m=> !m.deleted );
+  setMasters(masters: Issue[]) {
+    let filtered = masters.filter(m => !m.deleted);
     this.issueMastersListSubject.next(filtered);
   }
+
   searchIssuesAnSet(criteria: IssueSearchCriteriaInput) {
-   this.searchIssues(criteria,criteria.projectId).subscribe(issues => {
-     this.setIssues(issues);
-   })
+    this.searchIssues(criteria, criteria.projectId).subscribe(issues => {
+      this.setIssues(issues);
+    })
   }
-  searchIssues(criteria: IssueSearchCriteriaInput, projectId:Number) {
+
+  searchIssues(criteria: IssueSearchCriteriaInput, projectId: Number) {
     const startTime = Date.now();
-    if(projectId){
+    if (projectId) {
       criteria.projectId = projectId;
       this.loadingListSubtaskSubject.next(true);
     }
     return new Observable<Issue[]>(observer => {
       this.apollo.query({
-        query:SEARCH_ISSUES,
-        variables:{criteria},
-        fetchPolicy:"network-only"
-      }).subscribe((res:any)=>{
+        query: SEARCH_ISSUES,
+        variables: {criteria},
+        fetchPolicy: "network-only"
+      }).subscribe((res: any) => {
         const elapsedTime = Date.now() - startTime; // Temps écoulé
         const minLoadTime = 800;
         const remainingTime = Math.max(0, minLoadTime - elapsedTime);
@@ -1166,7 +1199,7 @@ export class IssueService implements OnInit{
           observer.complete();
           observer.complete();
         }, remainingTime);
-      },error => {
+      }, error => {
         this.loadingListSubtaskSubject.next(false);
 
       })
@@ -1175,25 +1208,26 @@ export class IssueService implements OnInit{
 
 
   browsIssueMaster(issue: Issue) {
-    this.router.navigate(["working/"+this.projectSubject.value.prefix+"/issue/"+issue.issueKey+"/details"])
+    this.router.navigate(["working/" + this.projectSubject.value.prefix + "/issue/" + issue.issueKey + "/details"])
 
   }
-  allIssueType(projectId:Number) {
-      this.apollo.query({
-        query:ALL_ISSUE_TYPE,
-        variables:{projectId},
-        fetchPolicy:"network-only"
-      }).subscribe((res:any)=>{
-        this.issueTypes = supprimerTypename(res.data.allIssueType);
-        this.issueTypesSubject.next(this.issueTypes);
 
-      },error => {
-        console.error(error);
-      })
+  allIssueType(projectId: Number) {
+    this.apollo.query({
+      query: ALL_ISSUE_TYPE,
+      variables: {projectId},
+      fetchPolicy: "network-only"
+    }).subscribe((res: any) => {
+      this.issueTypes = supprimerTypename(res.data.allIssueType);
+      this.issueTypesSubject.next(this.issueTypes);
+
+    }, error => {
+      console.error(error);
+    })
   }
 
-  defaultCompare(option1:any,option2){
-    console.debug('comparaison '+JSON.stringify(option1) + " == "+JSON.stringify(option2));
+  defaultCompare(option1: any, option2) {
+    console.debug('comparaison ' + JSON.stringify(option1) + " == " + JSON.stringify(option2));
     return option1.id === option2.id;
   }
 
@@ -1206,75 +1240,83 @@ export class IssueService implements OnInit{
   }
 
   findAllStatus() {
-    return new Observable<Status[]>((observer)=> {
+    return new Observable<Status[]>((observer) => {
       this.apollo.query({
-        query:operation.ALL_STATUS
-      }).subscribe((res:any)=>{
-        observer.next(supprimerTypename(res.data.findAllStatus));
-        observer.complete();
-      }, error =>{
-        observer.error(error);
-        console.error(error);
-        observer.complete();
-      }
+        query: operation.ALL_STATUS
+      }).subscribe((res: any) => {
+          observer.next(supprimerTypename(res.data.findAllStatus));
+          observer.complete();
+        }, error => {
+          observer.error(error);
+          console.error(error);
+          observer.complete();
+        }
       )
     })
   }
-  setIssueMasterCriteria(criteria:IssueSearchCriteriaInput){
+
+  setIssueMasterCriteria(criteria: IssueSearchCriteriaInput) {
     this.masterListCriteriaSubject.next(criteria);
   }
-  openEditIssue(issue:Issue){
+
+  openEditIssue(issue: Issue) {
     const dialogRef = this.modalService.open(ViewEditIssueComponent, {windowClass: "xlModal"});
     dialogRef.componentInstance.issue = issue;
     dialogRef.result.then((result) => {
     })
   }
+
   showPlanning(issue: Issue) {
     const dialogRef = this.modalService.open(PlanningIssueComponent, {windowClass: "xlModal"});
     dialogRef.componentInstance.issue = issue;
     dialogRef.result.then((result) => {
     })
   }
+
   ngOnInit(): void {
 
   }
-  setCurrentMasterFilter(filter:CustomFilter){
+
+  setCurrentMasterFilter(filter: CustomFilter) {
     this.masterCurrentMasterFilter = filter;
-     this.masterCurrentMasterFilterSubject.next(filter);
-  }
-  loadProjectList(){
-    this.getProjectByUser(this.user?.id);
-  }
-  getProjectByUser(userId: string) {
-      this.apollo.query({
-        query:GET_PROJECT_BY_USER,
-        variables:{userId},
-        fetchPolicy:"network-only"
-      }).subscribe((res:any)=>{
-        let projects:Project[] = supprimerTypename(res.data.getProjectByUser);
-        this.projectsSubject.next(projects);
-      },error => {
-        console.error(error);
-      })
+    this.masterCurrentMasterFilterSubject.next(filter);
   }
 
-  fileNamesToLink(uploadeds: Set<Uploaded>):String {
-    let links:String = "" ;
-    if (uploadeds && uploadeds.size != 0){
+  loadProjectList() {
+    this.getProjectByUser(this.user?.id);
+  }
+
+  getProjectByUser(userId: string) {
+    this.apollo.query({
+      query: GET_PROJECT_BY_USER,
+      variables: {userId},
+      fetchPolicy: "network-only"
+    }).subscribe((res: any) => {
+      let projects: Project[] = supprimerTypename(res.data.getProjectByUser);
+      this.projectsSubject.next(projects);
+    }, error => {
+      console.error(error);
+    })
+  }
+
+  fileNamesToLink(uploadeds: Set<Uploaded>): String {
+    let links: String = "";
+    if (uploadeds && uploadeds.size != 0) {
       for (let uploaded of uploadeds) {
         let str = '<label class="tnz-file-tree-item file">' +
           '    <span class="tnz-file-tree-label">' +
-                   '<a href="'+environment.apiURL +'api/download?fileNames='+uploaded.encodedPath+'&directory=metyfona&fileName='+uploaded.name+'">'+uploaded.name+'</a>';
-          '</span>' +
-          '</label>';
-          links += str;
+          '<a href="' + environment.apiURL + 'api/download?fileNames=' + uploaded.encodedPath + '&directory=metyfona&fileName=' + uploaded.name + '">' + uploaded.name + '</a>';
+        '</span>' +
+        '</label>';
+        links += str;
       }
     }
 
     return links;
   }
+
   onFileSelected(event: Event): void {
-    let fileCategory ;
+    let fileCategory;
     const input = event.target as HTMLInputElement;
 
     if (input.files && input.files.length > 0) {
@@ -1287,8 +1329,7 @@ export class IssueService implements OnInit{
         fileCategory = 'PDF';
       } else if (['doc', 'docx'].includes(fileExtension)) {
         fileCategory = 'Word';
-      }
-      else if (['xls', 'xlsx'].includes(fileExtension)) {
+      } else if (['xls', 'xlsx'].includes(fileExtension)) {
         fileCategory = 'Excel';
       } else if (['png', 'jpg', 'jpeg', 'gif', 'bmp', 'svg'].includes(fileExtension)) {
         fileCategory = 'Image';
@@ -1309,38 +1350,40 @@ export class IssueService implements OnInit{
 
   getDocuments(issueId: number, typeDocument: string) {
     console.debug('getDocument');
-    return new Observable<DocumentApp[]>(observer=>{
+    return new Observable<DocumentApp[]>(observer => {
       this.apollo.query({
-        query:operation.GET_DOCUMENTS,
-        variables:{issueId,typeDocument},
-        fetchPolicy:'network-only'
-      }).subscribe((res:any)=>{
-        observer.next(supprimerTypename(res.data.getDocuments));
-        observer.complete();
-      },error=> {
-        observer.error(error);
-        observer.complete();
+        query: operation.GET_DOCUMENTS,
+        variables: {issueId, typeDocument},
+        fetchPolicy: 'network-only'
+      }).subscribe((res: any) => {
+          observer.next(supprimerTypename(res.data.getDocuments));
+          observer.complete();
+        }, error => {
+          observer.error(error);
+          observer.complete();
         }
-        )
+      )
     })
   }
- getMaster(criteria:IssueSearchCriteriaInput){
-    this.searchIssues(criteria,null).subscribe(issue => {
-       if (issue && issue.length !=0) {
-         this.issueMasterSubject.next(issue[0])
-       }
-    } )
- }
+
+  getMaster(criteria: IssueSearchCriteriaInput) {
+    this.searchIssues(criteria, null).subscribe(issue => {
+      if (issue && issue.length != 0) {
+        this.issueMasterSubject.next(issue[0])
+      }
+    })
+  }
+
   getDomainActivityList() {
     console.debug('getDocument');
-    return new Observable<DomainActivity[]>(observer=>{
+    return new Observable<DomainActivity[]>(observer => {
       this.apollo.query({
-        query:operation.LIST_ACTIVITY,
-        fetchPolicy:'cache-first'
-      }).subscribe((res:any)=>{
+        query: operation.LIST_ACTIVITY,
+        fetchPolicy: 'cache-first'
+      }).subscribe((res: any) => {
           observer.next(supprimerTypename(res.data.listActivity));
           observer.complete();
-        },error=> {
+        }, error => {
           observer.error(error);
           observer.complete();
         }
@@ -1351,11 +1394,11 @@ export class IssueService implements OnInit{
   saveCustomFilter(customFilter: CustomFilter) {
     return new Observable<CustomFilter>(observer => {
       this.apollo.mutate({
-           mutation:operation.SAVE_CUSTOM_FILTER,
-           fetchPolicy:'network-only',
-          variables:{customFilter},
+          mutation: operation.SAVE_CUSTOM_FILTER,
+          fetchPolicy: 'network-only',
+          variables: {customFilter},
         }
-      ).subscribe( (res:any)=> {
+      ).subscribe((res: any) => {
         observer.next(supprimerTypename(res.data.saveCustomFilter));
         observer.complete();
       }, error => {
@@ -1365,15 +1408,16 @@ export class IssueService implements OnInit{
       })
     })
   }
-  getMyFilters(projectId,userId){
+
+  getMyFilters(projectId, userId) {
 
     return new Observable<CustomFilter[]>(observer => {
       this.apollo.query({
-          query:operation.GET_MY_FILTERS,
-          fetchPolicy:'network-only',
-          variables:{projectId,userId},
+          query: operation.GET_MY_FILTERS,
+          fetchPolicy: 'network-only',
+          variables: {projectId, userId},
         }
-      ).subscribe( (res:any)=> {
+      ).subscribe((res: any) => {
         observer.next(supprimerTypename(res.data.getMyFilters));
         observer.complete();
       }, error => {
@@ -1383,19 +1427,21 @@ export class IssueService implements OnInit{
       })
     })
   }
-  loadMyFilters(){
+
+  loadMyFilters() {
     if (this.project == null || this.user === null)
       return
-    let projectId =  this.project.id;
+    let projectId = this.project.id;
     let userId = this.user.id;
-    this.getMyFilters(projectId,userId).subscribe(filters=> {
+    this.getMyFilters(projectId, userId).subscribe(filters => {
       this.myFiltersSubject.next(filters);
-      let masterFilter = filters.filter(f=> (f.criteria.issueTypeLevels && f.criteria.issueTypeLevels[0] ==='PARENT'));
+      let masterFilter = filters.filter(f => (f.criteria.issueTypeLevels && f.criteria.issueTypeLevels[0] === 'PARENT'));
       this.masterFiltersSubject.next(masterFilter);
-      let subtaskFilter = filters.filter(f=> (f.criteria.issueTypeLevels && f.criteria.issueTypeLevels[0] ==='SUB_TASK'));
+      let subtaskFilter = filters.filter(f => (f.criteria.issueTypeLevels && f.criteria.issueTypeLevels[0] === 'SUB_TASK'));
       this.subtaskFiltersSubject.next(subtaskFilter);
     })
   }
+
   getImageProject(project: Project) {
     if (project && project.imageUrl != null) {
       return environment.apiURL + 'photo/' + project.imageUrl;
@@ -1408,6 +1454,7 @@ export class IssueService implements OnInit{
     }
     return 'assets/images/work-space/controle-equipe.jpg';
   }
+
   getImagetP(domain: string): string {
 
     switch (domain) {
@@ -1436,11 +1483,11 @@ export class IssueService implements OnInit{
 
   getLabelByProject(projectId: Number) {
     this.apollo.query({
-        query:operation.GET_LABEL_BY_PROJECT,
-        fetchPolicy:"network-only",
-        variables:{projectId},
+        query: operation.GET_LABEL_BY_PROJECT,
+        fetchPolicy: "network-only",
+        variables: {projectId},
       }
-    ).subscribe( (res:any)=> {
+    ).subscribe((res: any) => {
       this.allLabelSubject.next(supprimerTypename(res.data.getLabelByProject));
     }, error => {
       console.error(error);
@@ -1448,13 +1495,13 @@ export class IssueService implements OnInit{
   }
 
   saveLabel(label: Label) {
-    label.project = {id:this.project.id};
+    label.project = {id: this.project.id};
     this.apollo.mutate({
-        mutation:operation.SAVE_LABEL,
-        fetchPolicy:"network-only",
-        variables:{label},
+        mutation: operation.SAVE_LABEL,
+        fetchPolicy: "network-only",
+        variables: {label},
       }
-    ).subscribe( (res:any)=> {
+    ).subscribe((res: any) => {
       this.getLabelByProject(this.project.id);
       this.refreshIssueListMasters();
     }, error => {
@@ -1465,11 +1512,11 @@ export class IssueService implements OnInit{
   getIssueById(issueId: number) {
     return new Observable<Issue>(observer => {
       this.apollo.query({
-          query:operation.GET_ISSUE_BY_ID,
-          fetchPolicy:"network-only",
-          variables:{issueId},
+          query: operation.GET_ISSUE_BY_ID,
+          fetchPolicy: "network-only",
+          variables: {issueId},
         }
-      ).subscribe( (res:any)=> {
+      ).subscribe((res: any) => {
         observer.next(supprimerTypename(res.data.getIssueById));
         observer.complete();
       }, error => {
@@ -1484,11 +1531,11 @@ export class IssueService implements OnInit{
   addLabelInIssue(issueId: number, labelId: Number) {
     return new Observable<IssueLabels[]>(observer => {
       this.apollo.mutate({
-          mutation:operation.ADD_LABEL_IN_ISSUE,
-          fetchPolicy:"network-only",
-          variables:{issueId,labelId},
+          mutation: operation.ADD_LABEL_IN_ISSUE,
+          fetchPolicy: "network-only",
+          variables: {issueId, labelId},
         }
-      ).subscribe( (res:any)=> {
+      ).subscribe((res: any) => {
         observer.next(supprimerTypename(res.data.addLabelInIssue));
         observer.complete();
       }, error => {
@@ -1498,14 +1545,15 @@ export class IssueService implements OnInit{
       })
     })
   }
+
   removeLabelInIssue(issueId: number, labelId: Number) {
     return new Observable<IssueLabels[]>(observer => {
       this.apollo.mutate({
-          mutation:operation.REMOVE_LABEL_IN_ISSUE,
-          fetchPolicy:"network-only",
-          variables:{issueId,labelId},
+          mutation: operation.REMOVE_LABEL_IN_ISSUE,
+          fetchPolicy: "network-only",
+          variables: {issueId, labelId},
         }
-      ).subscribe( (res:any)=> {
+      ).subscribe((res: any) => {
         observer.next(supprimerTypename(res.data.removeLabelInIssue));
         observer.complete();
       }, error => {
@@ -1517,7 +1565,7 @@ export class IssueService implements OnInit{
   }
 
   refreshIssueListMasters() {
-    if (this.masterCurrentMasterFilter ) {
+    if (this.masterCurrentMasterFilter) {
       this.loadIssueMasters(this.masterCurrentMasterFilterSubject.value.criteria);
     }
   }
@@ -1525,99 +1573,80 @@ export class IssueService implements OnInit{
   refreshIssueListSubtask() {
     // TODO : Metre ici la refresh List lors d'application du filtre
     if (this.currentSubtaskFilterSubject.value && this.project.id) {
-      this.searchIssues(this.masterCurrentMasterFilterSubject.value , this.project.id).subscribe( issues => {
+      this.searchIssues(this.masterCurrentMasterFilterSubject.value, this.project.id).subscribe(issues => {
         this.setIssues(issues);
       })
     }
   }
+
   uploadLogo(file: File): Observable<HttpEvent<any>> {
     const formData: FormData = new FormData();
     formData.append('file', file);
     const req = new HttpRequest('POST', `${environment.apiURL}api/upload/logo`, formData, {
       reportProgress: true,
-      withCredentials:true,
+      withCredentials: true,
       responseType: 'text'
     });
     return this.http.request(req);
   }
+
   loadSettings() {
     if (this.user === null) {
       return
     }
     let userId = this.user.id;
-    this.getSettings(userId).subscribe( settings => {
-        this.globalSettingsSubject.next(settings);
+    this.getSettings(userId).subscribe(settings => {
+      this.globalSettingsSubject.next(settings);
     });
   }
-  getSettings(userId:String){
+
+  getSettings(userId: String) {
     return new Observable<AppSettings[]>(observer => {
-     this.apollo.query({
-       query:operation.GET_SETTINGS,
-       fetchPolicy:'network-only',
-       variables:{
-         userId
-       }
-     }).subscribe( (res:any) => {
-       observer.next(res.data.getSettings);
-         observer.next(supprimerTypename(res.data.getSettings));
-         observer.complete();
-     }, error => {
-       observer.error(error);
-       observer.complete();
-       }
+      this.apollo.query({
+        query: operation.GET_SETTINGS,
+        fetchPolicy: 'network-only',
+        variables: {
+          userId
+        }
+      }).subscribe((res: any) => {
+          observer.next(res.data.getSettings);
+          observer.next(supprimerTypename(res.data.getSettings));
+          observer.complete();
+        }, error => {
+          observer.error(error);
+          observer.complete();
+        }
       )
-   } )
+    })
   }
 
   deleteIssue(issueId: Number) {
     this.apollo.mutate({
-      mutation:operation.DELETE_ISSUE,
-      variables:{issueId},
-      fetchPolicy:'network-only'
-    }).subscribe((res:any)=>{
+      mutation: operation.DELETE_ISSUE,
+      variables: {issueId},
+      fetchPolicy: 'network-only'
+    }).subscribe((res: any) => {
         this.refreshIssueListMasters();
-      },error=> {
-       console.error(error);
-      this.refreshIssueListMasters();
+      }, error => {
+        console.error(error);
+        this.refreshIssueListMasters();
       }
     )
   }
-  newDocument(  typeDocument:String,issue:Issue){
-    return new Observable<DocumentApp>(observer =>{
+
+  newDocument(typeDocument: String, issue: Issue) {
+    return new Observable<DocumentApp>(observer => {
       const dialogRef = this.modalService.open(NewDocumentComponent, {windowClass: "lModal"});
       dialogRef.componentInstance.issue = issue;
       dialogRef.componentInstance.typeDocument = typeDocument;
       dialogRef.result.then((result) => {
-        dialogRef.result.then((res:any) => {
-          if (res != null) {
-            observer.next(res.newDocument);
-            observer.complete();
-          }
-        },
-          error=> {
-            console.error(error);
-            observer.error(error);
-            observer.complete();
-          }
-          )
-      })
-    });
-
-  }
-
-  responseDocument(selectedDocument: DocumentApp ) {
-    return new Observable<DocumentApp>(observer =>{
-      const dialogRef = this.modalService.open(NewDocumentComponent, {windowClass: "lModal"});
-      dialogRef.componentInstance.typeDocument = 'RESPONSE_DOCUMENT';
-      dialogRef.componentInstance.parent = selectedDocument;
-      dialogRef.result.then((result) => {
-        dialogRef.result.then((res:any) => {
+        dialogRef.result.then((res: any) => {
             if (res != null) {
-              observer.next(res.newDocument);
+         //     observer.next(res.newDocument); // ON RECUPÈRE SELEMENT AU NIVEAU DE WS
               observer.complete();
             }
           },
-          error=> {
+          error => {
             console.error(error);
             observer.error(error);
             observer.complete();
@@ -1625,5 +1654,90 @@ export class IssueService implements OnInit{
         )
       })
     });
+
+  }
+
+  responseDocument(selectedDocument: DocumentApp, issue) {
+    return new Observable<DocumentApp>(observer => {
+      const dialogRef = this.modalService.open(NewDocumentComponent, {windowClass: "lModal"});
+      dialogRef.componentInstance.typeDocument = 'RESPONSE_DOCUMENT';
+      dialogRef.componentInstance.parentDocument = selectedDocument;
+      dialogRef.componentInstance.issue = issue;
+      dialogRef.result.then((result) => {
+        dialogRef.result.then((res: any) => {
+            if (res != null) {
+              observer.next(res.newDocument);
+              observer.complete();
+            }
+          },
+          error => {
+            console.error(error);
+            observer.error(error);
+            observer.complete();
+          }
+        )
+      })
+    });
+  }
+
+  // Ajouter un document au tableau
+  addDocument(doc: DocumentApp) {
+    const currentDocs = this.documentsSubject.getValue();
+    this.documentsSubject.next([...currentDocs, doc]);
+  }
+  addDocuments(listeDesDocuments: DocumentApp[]) {
+    const currentDocs = this.documentsSubject.getValue();
+    const newDocs = listeDesDocuments.filter(newDoc =>
+      !currentDocs.some(existingDoc => existingDoc.id == newDoc.id)
+    );
+
+    if (newDocs.length > 0) {
+      this.documentsSubject.next([...currentDocs, ...newDocs]);
+    }
+  }
+  getDocumentsByType(type: string,issueId:Number): DocumentApp[] {
+    const currentDocs = this.documentsSubject.getValue();
+    return  currentDocs.filter(doc => doc.typeDocument == type && doc.issues.id == issueId) ;
+
+  }
+  updateOrAddDocument(updatedDoc: DocumentApp) {
+    const currentDocs = this.documentsSubject.getValue();
+    const existDoc = this.documentById(updatedDoc.id,updatedDoc.issues.id);
+    if (existDoc) {
+      const updatedDocs = currentDocs.map(doc =>
+        doc.id === updatedDoc.id ? updatedDoc : doc
+      );
+      this.documentsSubject.next(updatedDocs);
+    } else {
+      this.addDocument(updatedDoc);
+    }
+
+  }
+  documentById(id: Number,issueId:Number): DocumentApp | undefined {
+    const currentDocs = this.documentsSubject.getValue();
+    return currentDocs.find(doc => doc.id === id);
+  }
+  processDocumentResponse(response:DocumentApp) {
+    console.log("processDocumentResponse",response);
+
+    const parent = this.documentById(response.parent.id,response.issues.id);
+      if (parent != null) {
+        if (!parent.responses)
+          parent.responses = [];
+         const responses = [...parent.responses];
+         responses.push(response);
+         parent.responses = responses;
+         this.updateOrAddDocument(parent);
+      } else {
+        console.log("processResponse-> parent not found");
+      }
+  }
+
+  processDocument(document: DocumentApp) {
+    if (document.parent && document.parent.id) {
+      this.processDocumentResponse(document);
+    } else {
+      this.addDocument(document);
+    }
   }
 }

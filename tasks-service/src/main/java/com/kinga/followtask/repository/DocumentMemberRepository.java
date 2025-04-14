@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface DocumentMemberRepository extends JpaRepository<DocumentMember, Long> {
   public List<DocumentMember> findByDocumentIdAndUserId(Long documentId, String userId);
+  public List<DocumentMember> findByDocumentId(Long documentId);
 }

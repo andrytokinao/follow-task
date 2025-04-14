@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {Canall, Issue, MessageApp, Project, User} from "../type/issue";
+import {Canall, DocumentApp, Issue, MessageApp, Project, User} from "../type/issue";
 import {BehaviorSubject, Observable} from "rxjs";
 import {HttpClient, HttpEvent, HttpRequest} from "@angular/common/http";
 import {environment} from "../../environments/environment";
@@ -159,7 +159,7 @@ export class MessagesService {
     });
     this.client.onConnect = (frame) => {
       this.client.subscribe('/topic/messages/'+connectedUserId, (message: Message) => {
-        this.processMessage(message.body);
+        this.processRealTimeData(message.body);
       });
     };
     this.client.onStompError = (frame) => {
@@ -174,7 +174,7 @@ export class MessagesService {
       this.client.deactivate().then(() => console.log('Déconnecté du serveur WebSocket'));
     }
   }
-  processMessage(body:any) {
+  processRealTimeData(body:any) {
     let newMessages:MessageApp[] =   JSON.parse(body,(key, value:MessageApp[]) => {
       return value;
     }).newMessage;
@@ -184,8 +184,12 @@ export class MessagesService {
          this.newMessageSubject.next(nm);
 
        })
-    } else {
-      console.error('body is empty');
+    }
+    let documentData:DocumentApp = JSON.parse(body,(key,value:DocumentApp) => {
+      return value;
+    }).processDocument ;
+    if (documentData) {
+      this.issueService.processDocument(documentData);
     }
   }
 }

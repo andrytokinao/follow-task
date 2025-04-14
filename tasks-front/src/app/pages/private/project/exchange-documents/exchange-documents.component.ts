@@ -49,7 +49,12 @@ export class ExchangeDocumentsComponent {
       if (this.issue) {
         this.loadDocument();
       }
-    })
+    });
+    this.issueService.documents$.subscribe((docs: DocumentApp[]) => {
+
+      this.documents = this.issueService.getDocumentsByType(this.typeDocument,this.issue.id);
+      console.log("this.comument",this.documents);
+    });
   }
 
   createDocument(){
@@ -129,10 +134,9 @@ export class ExchangeDocumentsComponent {
 
   private loadDocument() {
     this.issueService.getDocuments(this.issue.id,this.typeDocument).subscribe(documents => {
-      this.documents = documents;
+      this.issueService.addDocuments(documents);
     })
   }
-
 
   selectFile(up: Uploaded) {
     this.selectedFile = up;
@@ -220,7 +224,7 @@ export class ExchangeDocumentsComponent {
   }
 
   responseDocument(selectedDocument: DocumentApp) {
-      this.issueService.responseDocument(selectedDocument).subscribe(doc =>{
+      this.issueService.responseDocument(selectedDocument,this.issue).subscribe(doc =>{
         // TODO: process new doc
       });
   }

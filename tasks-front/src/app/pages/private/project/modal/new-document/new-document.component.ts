@@ -18,7 +18,7 @@ export class NewDocumentComponent {
   uploadings: Uploading[]=[];
   filesToUploads: any;
   newDocument: DocumentApp = {};
-  parent:DocumentApp;
+  parentDocument:DocumentApp;
   private profile: any;
   private uploadingDoc ;
   protected user:User;
@@ -93,10 +93,13 @@ export class NewDocumentComponent {
       userIds.push(this.user.id);
       this.newDocument.members = userIds;
     }
-    if (this.parent){
-      this.newDocument.parent = {id:this.parent.id}
+    if (this.parentDocument){
+      this.newDocument.parent = {id:this.parentDocument.id};
+      this.newDocument.titre = 'Re:'+this.parentDocument.titre;
     }
     this.issueService.uploadDocument(this.newDocument,this.issue.encodedPath,this.uploadings,this.typeDocument).subscribe(document => {
+      this.activeModal.close({document:document});
+     // this.issueService.processDocument(document);
     });
     if (!this.issueService.uploadingDocumentSubject) {
       this.issueService.uploadingDocumentSubject = new BehaviorSubject<DocumentApp>(this.newDocument);
@@ -107,6 +110,9 @@ export class NewDocumentComponent {
         this.issueService.uploadingDocumentSubject.complete();
         this.uploadings = [];
         this.activeModal.close(doc);
+        if (doc.parentDocument) {
+      //   this.issueService.processDocumentResponse(doc);
+        }
       }
     })
 

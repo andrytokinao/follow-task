@@ -373,7 +373,6 @@ const ALL_ISSUE = gql`
       summary
       description
       issueKey
-      deleded
       creationDate
       parent {
         id
@@ -2061,13 +2060,62 @@ export let ADD_ADD_DOCUMENT = gql`
       id
       titre
       description
-      uploadeds {
-        name
-        encodedPath
-        path
-      }
+      creation
+      typeDocument
       issues {
         id
+      }
+      userApp {
+        id
+        username
+        lastName
+        firstName
+        photo
+      }
+      uploadeds {
+        id
+        name
+        encodedPath
+      }
+      documentMembers {
+        id
+        user {
+          id
+          username
+          firstName
+          lastName
+          photo
+        }
+        document {
+          id
+        }
+      }
+      project {
+        id
+      }
+      parent {
+        id
+      }
+      responses {
+        id
+        description
+        parent {
+          id
+        }
+        description
+        userApp {
+          id
+          username
+          lastName
+          firstName
+          photo
+        }
+        uploadeds {
+          id
+          name
+          path
+          encodedPath
+        }
       }
     }
   }
@@ -2075,9 +2123,11 @@ export let ADD_ADD_DOCUMENT = gql`
 const GET_DOCUMENTS = gql`
     query getDocuments($issueId:Int,$typeDocument:String) {
        getDocuments(issueId:$issueId,typeDocument:$typeDocument) {
+         id
          titre
          description
          creation
+         typeDocument
          issues {
            id
          }
@@ -2116,16 +2166,22 @@ const GET_DOCUMENTS = gql`
          responses {
            id
            description
+           creation
            parent {
              id
            }
-           description
            userApp {
              id
              username
              lastName
              firstName
              photo
+           }
+           uploadeds {
+             id
+             name
+             path
+             encodedPath
            }
          }
       }

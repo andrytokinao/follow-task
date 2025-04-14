@@ -17,6 +17,8 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class MessagesService {
+    public static String PROCESS_NEW_MESSAGE = "newMessage";
+    public static String PROCESS_DOCUMENT = "processDocument";
     private final CanalMemberRepository canalMemberRepository;
     private final CanalRepository canalRepository;
     private final ProjectRepository projectRepository;
@@ -28,7 +30,7 @@ public class MessagesService {
     public MessageApp sendMessage(MessageApp message) {
       message.setCreated(new Date());
       MessageApp  mes = messagesRepository.save(message);
-      sendMessageTo(mes,"newMessage");
+      sendMessageTo(mes,PROCESS_NEW_MESSAGE);
       return mes;
     }
 

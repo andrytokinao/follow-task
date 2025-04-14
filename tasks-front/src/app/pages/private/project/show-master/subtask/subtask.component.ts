@@ -46,7 +46,7 @@ export class SubtaskComponent implements OnInit {
 
   addSubtask() {
     const dialogRef = this.modalService.open(NewIssueComponent);
-    dialogRef.componentInstance.parent = this.parentIssue;
+    dialogRef.componentInstance.parentDocument = this.parentIssue;
     dialogRef.componentInstance.listIssueTypeSubtasks(this.parentIssue.issueType.id);
     dialogRef.result.then((result) => {
       this.loadSubtask();

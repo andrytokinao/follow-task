@@ -77,7 +77,7 @@ export class PrivateComponent {
       this.connectedUser = user;
       if (this.connectedUser && this.connectedUser.id) {
         this.issueService.getProjectByUser(this.connectedUser.id);
-       // this.messageService.connectWs(this.connectedUser.id);
+        this.messageService.connectWs(this.connectedUser.id);
       } else {
         this.messageService.disconnectWs();
       }

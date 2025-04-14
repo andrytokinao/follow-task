@@ -8,5 +8,6 @@ public enum ActionType {
     ADD_EVENT,
     CHANGE_PROFILE,
     UPLOAD,
-    COMMENT
+    COMMENT,
+    DOCUMENT
 }

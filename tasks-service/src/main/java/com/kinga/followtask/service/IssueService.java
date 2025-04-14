@@ -1,9 +1,7 @@
 package com.kinga.followtask.service;
 
 import com.kinga.followtask.config.ConfigSystem;
-import com.kinga.followtask.dto.Dossier;
-import com.kinga.followtask.dto.Repertoire;
-import com.kinga.followtask.dto.ValueDto;
+import com.kinga.followtask.dto.*;
 import com.kinga.followtask.entity.CustomFieldValue;
 import com.kinga.followtask.entity.*;
 import com.kinga.followtask.repository.*;
@@ -11,12 +9,15 @@ import com.kinga.followtask.repository.DocumentMemberRepository;
 import com.kinga.followtask.repository.criteria.IssueSearchCriteria;
 import com.kinga.followtask.repository.criteria.IssueSpecification;
 import com.kinga.utils.KingaUtils;
+import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -32,13 +33,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.rmi.RemoteException;
-import java.sql.Timestamp;
 import java.text.ParseException;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+@Slf4j
 @Service
 public class IssueService {
     @Autowired
@@ -87,6 +88,8 @@ public class IssueService {
     private CustomFieldValueRepository customFieldValueRepository;
     @Autowired
     private DocumentMemberRepository documentMemberRepository;
+    @Autowired
+    private  SimpMessagingTemplate simpMessagingTemplate;
 
     public Issue saveIssue(Issue issue) throws IOException {
 
@@ -445,6 +448,7 @@ public class IssueService {
             throw new RuntimeException("Erreur lors de la récupération du fichier PDF", e);
         }
     }
+    @Transactional
     public Document addDocument(Document document){
         if (document.getId() == null) {
             document.setCreation(new Date());
@@ -470,13 +474,23 @@ public class IssueService {
                 documentMemberRepository.save(dm);
            });
         };
-        return this.documentRepository.getById(document.getId());
+        Document d = this.documentRepository.findById(document.getId()).orElse(null);
+        UserApp userApp = new UserApp();
+        if (d != null ) {
+            userApp = userAppRepository.getById(d.getUserApp().getId());
+            d.setUserApp(userApp);
+        }
+        sendDocument(d);
+        return d;
     }
     public List<Document> getDocuments(Long issueId, TypeDocument typeDocument) {
         return documentRepository.findByIssuesIdAndTypeDocument(issueId,typeDocument);
     }
     public Uploaded saveUploaded(Uploaded uploaded) {
-        return uploadedRepository.save(uploaded);
+        Uploaded up = uploadedRepository.save(uploaded);
+        Document document = documentRepository.getById(up.getDocument().getId());
+        sendDocument(document);
+        return up;
     }
     public List<Issue> searchIssues(IssueSearchCriteria criteria) {
         IssueSpecification specification = new IssueSpecification(criteria);
@@ -589,5 +603,27 @@ public class IssueService {
         });
         issueRepository.delete(issue);
 
+    }
+    public void sendDocument(Document doc) {
+        doc = documentRepository.getOne(doc.getId());
+        OutputDocument output = new OutputDocument(doc);
+       Map<String,OutputDocument> mapDocument = new HashMap<>();
+       mapDocument.put(MessagesService.PROCESS_DOCUMENT,output);
+        List<DocumentMember> docMembers = new ArrayList<>();
+        if (doc.getParent() != null) {
+            docMembers = documentMemberRepository.findByDocumentId(doc.getParent().getId());
+        } else
+            docMembers = documentMemberRepository.findByDocumentId(doc.getId());
+
+        if (!CollectionUtils.isEmpty(docMembers)) {
+            docMembers.forEach( m -> {
+                try {
+                    simpMessagingTemplate.convertAndSend("/topic/messages/"+m.getUser().getId(), mapDocument);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    log.error(e.getMessage());
+                }
+        });
+        }
     }
 }

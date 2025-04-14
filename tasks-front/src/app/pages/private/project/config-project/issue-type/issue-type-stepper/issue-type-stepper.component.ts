@@ -84,8 +84,8 @@ export class IssueTypeStepperComponent {
       this.selectedWorkflowId = issueType.curentWorkFlow.id;
 
       this.issueType = issueType;
-      if (this.issueType.parent != undefined) {
-        this.selectedParentIssueType = this.issueType.parent;
+      if (this.issueType.parentDocument != undefined) {
+        this.selectedParentIssueType = this.issueType.parentDocument;
       }
       this.selectedChildIssueType = this.issueType.children;
      this.selectedWorkflow = this.issueType.curentWorkFlow;
