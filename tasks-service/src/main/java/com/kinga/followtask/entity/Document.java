@@ -1,12 +1,14 @@
 package com.kinga.followtask.entity;
 
+import com.kinga.followtask.repository.DocumentMemberRepository;
+import com.kinga.followtask.repository.IssueRepository;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Entity
 @AllArgsConstructor
@@ -32,10 +34,48 @@ public class Document {
     public List<DocumentMember> documentMembers;
     @ManyToOne(fetch = FetchType.LAZY)
     private UserApp userApp;
-    @Transient
-    private List<String> members;
+    @Convert(converter = StringSetConverter.class)
+    private Set<String> members;
     @ManyToOne
     private Issue issues;
     @OneToMany(mappedBy = "document")
     private List<Uploaded> uploadeds;
+    public String buildMessage(){
+        switch (this.typeDocument) {
+            case RESPONSE_DOCUMENT -> {
+                return userApp.getFirstName() + " replay " + this.getTitre();
+            }
+            case EXCHANGE_DOCUMENT -> {
+                return userApp.getFirstName() + " created an exchange " + this.getTitre();
+            }
+            case MEDIA_FILES, SOURCE_FILE -> {
+                return userApp.getFirstName() + " created a document " + this.getTitre();
+            }
+            default -> {
+                return userApp.getFirstName() + " created a document " + this.getTitre();
+            }
+        }
+    }
+    public Set<String> getMembers(DocumentMemberRepository documentMemberRepository, IssueRepository issueRepository) {
+        switch (this.typeDocument) {
+            case EXCHANGE_DOCUMENT -> {
+                if (this.members == null) {
+                    return new HashSet<>();
+                }
+                return this.members;
+            }
+            case RESPONSE_DOCUMENT -> {
+                if (this.parent ==  null || this.parent.getMembers() == null ) {
+                    return new HashSet<>();
+                }
+                return this.parent.getMembers();
+            }
+            default -> {
+                if (issues == null || issues.getObserverIds() == null) {
+                    return new HashSet<>();
+                }
+                return issues.getObserverIds();
+            }
+        }
+    }
 }

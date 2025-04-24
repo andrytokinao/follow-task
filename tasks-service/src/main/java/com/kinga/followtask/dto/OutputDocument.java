@@ -9,6 +9,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -25,7 +26,7 @@ public class OutputDocument {
     private List<Document> responses;
     public List<DocumentMember> documentMembers;
     private UserApp userApp;
-    private List<String> members;
+    private Set<String> members;
     private Issue issues;
     private List<Uploaded> uploadeds;
     public OutputDocument(Document document) {
@@ -78,7 +79,7 @@ public class OutputDocument {
             // TODO : A documenter le pipline
         });*/
     };
-    public void setMembers(List<String> members) {
+    public void setMembers(Set<String> members) {
         this.members = members;
     }
     public void setIssues(Issue issues) {

@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
@@ -17,10 +19,14 @@ public abstract class ActionItem {
     private Long id;
     @Column(name = "action_type")
     @Transient
-    private ActionType actionType;
+    protected ActionType actionType;
     @ManyToOne
-    private ActionGroupe actionGroupe;
+    protected ActionGroupe actionGroupe;
+    @ManyToOne
+    protected Issue issue;
     @Convert(converter = MapToJsonConverter.class)
-    private Map<String,String> details;
+    protected Map<String,String> details;
+    public abstract String buildMDetails();
 
+    public abstract Set<String> generateUserToNotify() ;
 }

@@ -25,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
+import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -90,6 +91,8 @@ public class IssueService {
     private DocumentMemberRepository documentMemberRepository;
     @Autowired
     private  SimpMessagingTemplate simpMessagingTemplate;
+    @Autowired
+    private ActionService actionService;
 
     public Issue saveIssue(Issue issue) throws IOException {
 
@@ -419,8 +422,10 @@ public class IssueService {
         if(optionalIssue.isPresent ()) {
             Issue issue = optionalIssue.get ();
             issue.setAssigne (userApp.get ());
+            issue.addObserverIds(is.getAssigne().getId ());
             issueRepository.save (issue);
         }
+        actionService.ceateAssigneAction(optionalIssue.get());
         return issueRepository.getById (is.getId ());
     }
     public CustomField getCustomField (Long id) {
@@ -625,5 +630,7 @@ public class IssueService {
                 }
         });
         }
+        Issue issue = issueRepository.findById(doc.getIssues().getId()).orElse(null);
+        actionService.addDocumentAction(doc,issue);
     }
 }

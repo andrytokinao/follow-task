@@ -21,7 +21,7 @@ import {
   Uploading,
   Uploaded,
   DocumentApp,
-  DomainActivity, Label, IssueLabels, AppSettings
+  DomainActivity, Label, IssueLabels, AppSettings, NotificationApp
 } from "../type/issue";
 import {Apollo} from "apollo-angular";
 import * as operation from "../type/graphql.operations";
@@ -117,7 +117,6 @@ export class IssueService implements OnInit {
   private masterCurrentMasterFilter: CustomFilter;
   private documentsSubject = new BehaviorSubject<DocumentApp[]>([]);
   documents$ = this.documentsSubject.asObservable();
-  private
 
   setIssues(issues: Issue[]) {
     this.issuesSubject.next(issues);

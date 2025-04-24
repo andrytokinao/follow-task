@@ -358,3 +358,12 @@ export interface ActionGroupe {
   issue:Issue
   created:Date
 }
+export interface NotificationApp{
+  id:Number
+  project:Project
+  titre:String
+  message:String
+  userIds:String[]
+  seenUserIds:String[]
+  action:ActionGroupe
+}

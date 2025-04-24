@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {Canall, DocumentApp, Issue, MessageApp, Project, User} from "../type/issue";
+import {Canall, DocumentApp, Issue, MessageApp, NotificationApp, Project, User} from "../type/issue";
 import {BehaviorSubject, Observable} from "rxjs";
 import {HttpClient, HttpEvent, HttpRequest} from "@angular/common/http";
 import {environment} from "../../environments/environment";
@@ -26,6 +26,8 @@ export class MessagesService {
   canals$ = this.canalsSubject.asObservable();
   private newMessageSubject = new BehaviorSubject<MessageApp>(undefined);
   newMessage$ = this.newMessageSubject.asObservable();
+  private notificationSubject = new BehaviorSubject<NotificationApp[]>([]);
+  notification$ = this.notificationSubject.asObservable();
   project:Project;
   canals:Canall[] = [];
   users:User[] = [];
@@ -175,21 +177,35 @@ export class MessagesService {
     }
   }
   processRealTimeData(body:any) {
+    alert("data");
+
     let newMessages:MessageApp[] =   JSON.parse(body,(key, value:MessageApp[]) => {
       return value;
     }).newMessage;
+    let documentData:DocumentApp = JSON.parse(body,(key,value:DocumentApp) => {
+      return value;
+    }).processDocument ;
+    let newNotification:NotificationApp = JSON.parse(body,(key,value:NotificationApp) => {
+      return value;
+    }).newNotification ;
+
 
     if (newMessages) {
        newMessages.forEach( nm=> {
          this.newMessageSubject.next(nm);
-
        })
     }
-    let documentData:DocumentApp = JSON.parse(body,(key,value:DocumentApp) => {
-      return value;
-    }).processDocument ;
     if (documentData) {
       this.issueService.processDocument(documentData);
     }
+
+    if (newNotification) {
+      alert("notification");
+      this.processNotification(newNotification);
+    }
+  }
+  processNotification(notification:NotificationApp){
+    const currentNotification = this.notificationSubject.getValue();
+    this.notificationSubject.next([...currentNotification, notification]);
   }
 }

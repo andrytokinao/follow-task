@@ -19,6 +19,7 @@ import java.util.*;
 public class MessagesService {
     public static String PROCESS_NEW_MESSAGE = "newMessage";
     public static String PROCESS_DOCUMENT = "processDocument";
+    public static String NEW_NOTIFICATION = "newNotification";
     private final CanalMemberRepository canalMemberRepository;
     private final CanalRepository canalRepository;
     private final ProjectRepository projectRepository;

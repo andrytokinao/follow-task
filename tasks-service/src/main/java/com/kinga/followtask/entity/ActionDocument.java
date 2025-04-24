@@ -3,23 +3,26 @@ package com.kinga.followtask.entity;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
+import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 @Entity
-@DiscriminatorValue("EVENT")
-public class ActionEventApp extends ActionItem {
+@DiscriminatorValue("DOCUMENT")
+@Data
+public class ActionDocument extends ActionItem {
     @ManyToOne
-    private Event event;
+    private Document document;
 
     @Override
     public String buildMDetails() {
-        return this.getActionGroupe().getUser()+ " add planification of  "+this.issue.getIssueKey()+" "+this.issue.getSummary();
+        return this.document.buildMessage();
     }
 
     @Override
     public Set<String> generateUserToNotify() {
-        return issue.getObserverIds();
+        return document.getMembers();
     }
 }

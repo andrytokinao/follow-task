@@ -27,6 +27,8 @@ public class Issue {
     private String directory;
     @ManyToMany
     private List<UserApp> observers;
+    @Convert(converter = StringSetConverter.class)
+    private Set<String> observerIds = new HashSet<>();
     @ManyToOne
     private Status status;
     @ManyToOne
@@ -58,6 +60,13 @@ public class Issue {
     private Project project;
     public String getEncodedPath(){
         return KingaUtils.encodeText(this.getDirectory());
+    }
+    public Set<String> addObserverIds(String observerId) {
+        if (this.observerIds == null) {
+            this.observerIds = new HashSet<>();
+        }
+        this.observerIds.add(observerId);
+        return this.observerIds;
     }
 
 }

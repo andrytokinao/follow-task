@@ -3,9 +3,9 @@ package com.kinga.followtask.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.util.CollectionUtils;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Entity
 @Data
@@ -21,4 +21,23 @@ public class ActionGroupe {
     @ManyToOne
     private Issue issue;
     private Date created;
+
+    public String buildMessage() {
+        StringBuilder message = new StringBuilder();
+        this.getActions().forEach(action -> {
+            message.append(action.buildMDetails());
+        });
+        return message.toString();
+    }
+    public Set<String> userToNotifies(){
+        Set<String> list = new HashSet<>();
+        this.getActions().forEach(action -> {
+            Set<String> us = action.generateUserToNotify();
+            if (CollectionUtils.isEmpty(us)) {
+                return;
+            }
+            list.addAll(us);
+        });
+        return list;
+    }
 }
