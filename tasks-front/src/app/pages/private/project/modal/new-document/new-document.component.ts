@@ -98,8 +98,7 @@ export class NewDocumentComponent {
       this.newDocument.titre = 'Re:'+this.parentDocument.titre;
     }
     this.issueService.uploadDocument(this.newDocument,this.issue.encodedPath,this.uploadings,this.typeDocument).subscribe(document => {
-      this.activeModal.close({document:document});
-     // this.issueService.processDocument(document);
+
     });
     if (!this.issueService.uploadingDocumentSubject) {
       this.issueService.uploadingDocumentSubject = new BehaviorSubject<DocumentApp>(this.newDocument);
@@ -109,7 +108,10 @@ export class NewDocumentComponent {
       if (doc.id){
         this.issueService.uploadingDocumentSubject.complete();
         this.uploadings = [];
-        this.activeModal.close(doc);
+        this.issueService.loadDocumentById(doc.id).subscribe(d => {
+         this.issueService.processDocument(d);
+         this.activeModal.close(d);
+        });
         if (doc.parentDocument) {
       //   this.issueService.processDocumentResponse(doc);
         }

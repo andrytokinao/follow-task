@@ -51,7 +51,6 @@ export class ExchangeDocumentsComponent {
       }
     });
     this.issueService.documents$.subscribe((docs: DocumentApp[]) => {
-
       this.documents = this.issueService.getDocumentsByType(this.typeDocument,this.issue.id);
       console.log("this.comument",this.documents);
     });

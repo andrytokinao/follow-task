@@ -4,12 +4,14 @@ import com.kinga.followtask.entity.*;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.util.CollectionUtils;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
@@ -91,7 +93,13 @@ public class OutputDocument {
         this.issues = issue;
     }
     public void setUploadeds(List<Uploaded> uploadeds) {
-        // TODO : A documenter le pipline
+        /*if (!CollectionUtils.isEmpty(uploadeds)) {
+            System.out.println("uploaded for "+getTitre() +" is not umpty");
+
+            this.uploadeds = uploadeds.stream().map(uploaded -> new Uploaded(uploaded.getName(),uploaded.getPath())).collect(Collectors.toList());
+        } else {
+            System.out.println("uploaded for "+getTitre() +" is umpty");
+        }*/
     }
 
     public void setCreation(Date date) {

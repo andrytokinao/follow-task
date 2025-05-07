@@ -2,6 +2,7 @@ package com.kinga.followtask.entity;
 
 import com.kinga.followtask.repository.DocumentMemberRepository;
 import com.kinga.followtask.repository.IssueRepository;
+import com.kinga.followtask.repository.UploadedRepository;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -38,7 +39,7 @@ public class Document {
     private Set<String> members;
     @ManyToOne
     private Issue issues;
-    @OneToMany(mappedBy = "document")
+    @OneToMany(mappedBy = "document" , fetch = FetchType.EAGER)
     private List<Uploaded> uploadeds;
     public String buildMessage(){
         switch (this.typeDocument) {
@@ -56,21 +57,29 @@ public class Document {
             }
         }
     }
-    public Set<String> getMembers(DocumentMemberRepository documentMemberRepository, IssueRepository issueRepository) {
+    public Set<String> buildMembers() {
+        if (this.typeDocument == null) {
+            System.out.println("typeDocument is null for "+this.getId());
+            return new HashSet<>();
+        }
         switch (this.typeDocument) {
             case EXCHANGE_DOCUMENT -> {
+                System.out.println("RESPONSE_DOCUMENT ");
                 if (this.members == null) {
                     return new HashSet<>();
                 }
                 return this.members;
             }
             case RESPONSE_DOCUMENT -> {
-                if (this.parent ==  null || this.parent.getMembers() == null ) {
+                System.out.println("RESPONSE_DOCUMENT ");
+                if (this.parent ==  null || this.parent.buildMembers() == null) {
                     return new HashSet<>();
                 }
                 return this.parent.getMembers();
             }
             default -> {
+                System.out.println("DEFAULT ");
+
                 if (issues == null || issues.getObserverIds() == null) {
                     return new HashSet<>();
                 }
@@ -78,4 +87,7 @@ public class Document {
             }
         }
     }
+ public void loadUploadeds(UploadedRepository uploadedRepository) {
+        this.setUploadeds(uploadedRepository.findByDocumentId(this.getId()));
+ }
 }

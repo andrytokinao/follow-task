@@ -330,4 +330,8 @@ public class GQIssueController {
         map.put("message","success");
         return map;
     }
+    @QueryMapping
+    public Document loadDocumentById(@Argument Long documentId) {
+        return issueService.loadDocumentById(documentId);
+    }
 }

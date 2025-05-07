@@ -23,6 +23,8 @@ public class ActionDocument extends ActionItem {
 
     @Override
     public Set<String> generateUserToNotify() {
-        return document.getMembers();
+        Set<String> member = document.buildMembers();
+        System.out.println(member);
+        return member;
     }
 }

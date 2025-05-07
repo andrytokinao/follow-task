@@ -619,11 +619,10 @@ public class IssueService {
             docMembers = documentMemberRepository.findByDocumentId(doc.getParent().getId());
         } else
             docMembers = documentMemberRepository.findByDocumentId(doc.getId());
-
         if (!CollectionUtils.isEmpty(docMembers)) {
             docMembers.forEach( m -> {
                 try {
-                    simpMessagingTemplate.convertAndSend("/topic/messages/"+m.getUser().getId(), mapDocument);
+                    simpMessagingTemplate.convertAndSend("/topic/datas/"+m.getUser().getId(), mapDocument);
                 } catch (Exception e) {
                     e.printStackTrace();
                     log.error(e.getMessage());
@@ -632,5 +631,33 @@ public class IssueService {
         }
         Issue issue = issueRepository.findById(doc.getIssues().getId()).orElse(null);
         actionService.addDocumentAction(doc,issue);
+    }
+
+    public void sendUploaded(Uploaded uploaded) {
+        Document doc = uploaded.getDocument();
+        OutputUploaded out = new OutputUploaded(uploaded);
+        Map<String,OutputUploaded> mapUploaded = new HashMap<>();
+        mapUploaded.put(MessagesService.NEW_UPLOADED,out);
+        List<DocumentMember> docMembers = new ArrayList<>();
+        if (doc.getParent() != null) {
+            Document parent = documentRepository.getById(doc.getParent().getId());
+            doc.setParent(parent);
+            docMembers = documentMemberRepository.findByDocumentId(doc.getParent().getId());
+        } else
+            docMembers = documentMemberRepository.findByDocumentId(doc.getId());
+        if (!CollectionUtils.isEmpty(docMembers)) {
+            docMembers.forEach( m -> {
+                try {
+                    simpMessagingTemplate.convertAndSend("/topic/datas/"+m.getUser().getId(), out);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    log.error(e.getMessage());
+                }
+            });
+        }
+    }
+
+    public Document loadDocumentById(Long documentId) {
+        return this.documentRepository.getById(documentId);
     }
 }

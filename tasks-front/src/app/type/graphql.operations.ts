@@ -1,6 +1,8 @@
 import {Apollo, gql} from "apollo-angular";
 import {Canall, CanalMember, Issue, MessageApp, Project} from "./issue";
 
+
+
 export let DELETE_ISSUE = gql`
   mutation deleteIssue($issueId:Int) {
     deleteIssue(issueId: $issueId) {
@@ -2187,6 +2189,74 @@ const GET_DOCUMENTS = gql`
       }
     }
 `
+export let LOAD_DOCUMENT_BY_ID =  gql`
+  query loadDocumentById($documentId:Int) {
+    loadDocumentById(documentId:$documentId) {
+      id
+      titre
+      description
+      creation
+      typeDocument
+      issues {
+        id
+      }
+      userApp {
+        id
+        username
+        lastName
+        firstName
+        photo
+      }
+      uploadeds {
+        id
+        path
+        name
+        encodedPath
+      }
+      documentMembers {
+        id
+        user {
+          id
+          username
+          firstName
+          lastName
+          photo
+        }
+        document {
+          id
+        }
+      }
+      project {
+        id
+      }
+      parent {
+        id
+      }
+      responses {
+        id
+        description
+        creation
+        parent {
+          id
+        }
+        userApp {
+          id
+          username
+          lastName
+          firstName
+          photo
+        }
+        uploadeds {
+          id
+          name
+          path
+          encodedPath
+        }
+      }
+    }
+  }
+` ;
+
 const SAVE_UPLOADED = gql`
    mutation saveUploaded($uploaded:UploadedInput){
      saveUploaded(uploaded:$uploaded){

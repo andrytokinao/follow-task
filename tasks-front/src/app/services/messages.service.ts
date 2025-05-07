@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {Canall, DocumentApp, Issue, MessageApp, NotificationApp, Project, User} from "../type/issue";
+import {Canall, DocumentApp, Issue, MessageApp, NotificationApp, Project, Uploaded, User} from "../type/issue";
 import {BehaviorSubject, Observable} from "rxjs";
 import {HttpClient, HttpEvent, HttpRequest} from "@angular/common/http";
 import {environment} from "../../environments/environment";
@@ -16,6 +16,7 @@ import {AuthService} from "./auth.service";
 import {UserService} from "./user.service";
 import * as SockJS from 'sockjs-client';
 import { Client, Message, Stomp } from '@stomp/stompjs';
+import {ActionService} from "./action.service";
 
 
 @Injectable({
@@ -39,7 +40,8 @@ export class MessagesService {
     private apollo:Apollo,
     private issueService:IssueService,
     private authService:AuthService,
-    private userService:UserService
+    private userService:UserService,
+    private actionService:ActionService
   ) {
     this.issueService.project$.subscribe(project => {
       this.project = project;
@@ -160,7 +162,7 @@ export class MessagesService {
       webSocketFactory: () => new SockJS(environment.apiURL+'ws'),
     });
     this.client.onConnect = (frame) => {
-      this.client.subscribe('/topic/messages/'+connectedUserId, (message: Message) => {
+      this.client.subscribe('/topic/datas/'+connectedUserId, (message: Message) => {
         this.processRealTimeData(message.body);
       });
     };
@@ -177,7 +179,6 @@ export class MessagesService {
     }
   }
   processRealTimeData(body:any) {
-    alert("data");
 
     let newMessages:MessageApp[] =   JSON.parse(body,(key, value:MessageApp[]) => {
       return value;
@@ -188,6 +189,10 @@ export class MessagesService {
     let newNotification:NotificationApp = JSON.parse(body,(key,value:NotificationApp) => {
       return value;
     }).newNotification ;
+    let newUploaded:Uploaded = JSON.parse(body,(key,value:Uploaded) => {
+      return value;
+    }).newUploaded;
+
 
 
     if (newMessages) {
@@ -196,16 +201,18 @@ export class MessagesService {
        })
     }
     if (documentData) {
+      console.info('documentData',documentData);
       this.issueService.processDocument(documentData);
     }
 
     if (newNotification) {
-      alert("notification");
-      this.processNotification(newNotification);
+      this.actionService.nextNotification(newNotification);
+    }
+    if (newUploaded) {
+      alert("new Uploaded "+JSON.stringify(newUploaded));
     }
   }
   processNotification(notification:NotificationApp){
-    const currentNotification = this.notificationSubject.getValue();
-    this.notificationSubject.next([...currentNotification, notification]);
+    this.actionService.nextNotification(notification);
   }
 }

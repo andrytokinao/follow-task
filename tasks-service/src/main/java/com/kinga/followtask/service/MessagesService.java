@@ -20,6 +20,7 @@ public class MessagesService {
     public static String PROCESS_NEW_MESSAGE = "newMessage";
     public static String PROCESS_DOCUMENT = "processDocument";
     public static String NEW_NOTIFICATION = "newNotification";
+    public static String NEW_UPLOADED = "newUploaded";
     private final CanalMemberRepository canalMemberRepository;
     private final CanalRepository canalRepository;
     private final ProjectRepository projectRepository;
@@ -44,7 +45,7 @@ public class MessagesService {
         canall.getMembers().forEach(m -> {
             if (!mes.getSender().getId().equals(m.getUser().getId())) {
                 System.out.println(m.getUser().getId());
-                simpMessagingTemplate.convertAndSend("/topic/messages/"+m.getUser().getId(), map);
+                simpMessagingTemplate.convertAndSend("/topic/datas/"+m.getUser().getId(), map);
             }
         });
     }

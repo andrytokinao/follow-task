@@ -5,6 +5,7 @@ import com.kinga.followtask.entity.*;
 import com.kinga.followtask.repository.ActionGroupeRepository;
 import com.kinga.followtask.repository.ActionItemRepository;
 import com.kinga.followtask.repository.NotificationRepository;
+import com.kinga.followtask.repository.UploadedRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ public class ActionService {
     private final ActionGroupeRepository actionGroupeRepository;
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final NotificationRepository notificationRepository;
+    private final UploadedRepository uploadedRepository;
 
     public ActionGroupe saveAction(ActionItem actionItem) {
         return new ActionGroupe();
@@ -40,7 +42,7 @@ public class ActionService {
         OutputNotification notif = new OutputNotification(notification);
         map.put(MessagesService.NEW_NOTIFICATION,notif);
         for (String toNotifyItem : notification.getUserIds()) {
-            simpMessagingTemplate.convertAndSend("/topic/notification/" + toNotifyItem, map);
+            simpMessagingTemplate.convertAndSend("/topic/datas/" + toNotifyItem, map);
         }
         return notificationRepository.save(notification);
     }

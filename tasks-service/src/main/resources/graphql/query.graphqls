@@ -42,6 +42,7 @@ type Query {
     getProjectByUser(userId:String):[Project]
     loadPermissiontTask:Permission
     getDocuments(issueId:Int,typeDocument:String):[Document]
+    loadDocumentById(documentId:Int):Document
     listActivity:[DomainActivity]
     getMyFilters(projectId:Int,userId:String):[IssueFilter]
     getLabelByProject(projectId:Int):[Label]

@@ -82,5 +82,11 @@ export class ActionService implements OnInit {
   ) {
 
   }
+  nextNotification(notification:NotificationApp){
+    const currentNotification = this.notificationSubject.getValue();
+    this.notificationSubject.next([...currentNotification, notification]);
+  }
 
+  ngOnInit(): void {
+  }
 }

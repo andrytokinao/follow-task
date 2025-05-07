@@ -435,15 +435,8 @@ export class IssueService implements OnInit {
           } else if (event.type === HttpEventType.Response) {
             const uploaded: Uploaded = JSON.parse(event.body);
             current.status = 'success';
-
             uploaded.document = document;
             index++;
-            if (!document.uploadeds) {
-              document.uploadeds = [];
-            }
-            document.uploadeds.push(uploaded);
-            this.updateOrAddDocument(document);
-
           }
         }),
         catchError((error) => {
@@ -1638,10 +1631,10 @@ export class IssueService implements OnInit {
       const dialogRef = this.modalService.open(NewDocumentComponent, {windowClass: "lModal"});
       dialogRef.componentInstance.issue = issue;
       dialogRef.componentInstance.typeDocument = typeDocument;
-      dialogRef.result.then((result) => {
-        dialogRef.result.then((res: any) => {
-            if (res != null) {
-         //     observer.next(res.newDocument); // ON RECUPÈRE SELEMENT AU NIVEAU DE WS
+      dialogRef.result.then((doc) => {
+            if (doc != null) {
+              observer.next(doc);
+              this.processDocument(doc)
               observer.complete();
             }
           },
@@ -1651,7 +1644,6 @@ export class IssueService implements OnInit {
             observer.complete();
           }
         )
-      })
     });
 
   }
@@ -1701,7 +1693,7 @@ export class IssueService implements OnInit {
   }
   updateOrAddDocument(updatedDoc: DocumentApp) {
     const currentDocs = this.documentsSubject.getValue();
-    const existDoc = this.documentById(updatedDoc.id,updatedDoc.issues.id);
+    const existDoc = this.filterDcumentById(updatedDoc.id);
     if (existDoc) {
       const updatedDocs = currentDocs.map(doc =>
         doc.id === updatedDoc.id ? updatedDoc : doc
@@ -1712,14 +1704,14 @@ export class IssueService implements OnInit {
     }
 
   }
-  documentById(id: Number,issueId:Number): DocumentApp | undefined {
+  filterDcumentById(id: Number): DocumentApp | undefined {
     const currentDocs = this.documentsSubject.getValue();
     return currentDocs.find(doc => doc.id === id);
   }
   processDocumentResponse(response:DocumentApp) {
     console.log("processDocumentResponse",response);
 
-    const parent = this.documentById(response.parent.id,response.issues.id);
+    const parent = this.filterDcumentById(response.parent.id);
       if (parent != null) {
         if (!parent.responses)
           parent.responses = [];
@@ -1733,10 +1725,42 @@ export class IssueService implements OnInit {
   }
 
   processDocument(document: DocumentApp) {
+    console.log("processDocument",document);
     if (document.parent && document.parent.id) {
       this.processDocumentResponse(document);
     } else {
       this.addDocument(document);
     }
+  }
+  processUploaded(uploaded:Uploaded){
+    let doc :DocumentApp= this.filterDcumentById(uploaded.document.id);
+    if (doc) {
+      if (doc.uploadeds && doc.uploadeds.length != 0) {
+        let uploades = [... doc.uploadeds, uploaded ];
+        doc.uploadeds = uploades;
+      } else {
+        doc.uploadeds = [uploaded];
+      }
+
+      this.updateOrAddDocument(doc);
+    }
+
+  }
+
+  loadDocumentById(documentId) {
+    return new Observable<DocumentApp>(observer => {
+      this.apollo.query({
+        query: operation.LOAD_DOCUMENT_BY_ID,
+        variables: {documentId},
+        fetchPolicy: 'network-only'
+      }).subscribe((res: any) => {
+          observer.next(res.data.loadDocumentById);
+          observer.complete();
+        }, error => {
+          console.error(error);
+          observer.complete();
+        }
+      )
+    });
   }
 }

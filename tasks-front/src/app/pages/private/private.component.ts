@@ -4,7 +4,7 @@ import {AuthService} from "../../services/auth.service";
 import {LocalStorageService} from "../../services/local-storage.service";
 import {ProfileComponent} from "./profile/profile.component";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
-import {Project, Uploading, User} from "../../type/issue";
+import {NotificationApp, Project, Uploading, User} from "../../type/issue";
 import {IssueService} from "../../services/issue.service";
 import {UserService} from "../../services/user.service";
 import {AuthGuard} from "../../services/SystemGuard";
@@ -17,6 +17,7 @@ import {moveFromLeft} from "../../../../projects/router-animations/src/lib/route
 import {moveFromLeftKeyframes} from "../../../../projects/router-animations/src/lib/shared-keyframes";
 import {environment} from "../../../environments/environment";
 import {MessagesService} from "../../services/messages.service";
+import {ActionService} from "../../services/action.service";
 
 @Component({
   selector: 'private-root',
@@ -60,6 +61,7 @@ export class PrivateComponent {
   tempLogo: string | ArrayBuffer | null = null;
   private selectedLogo: File;
   protected logoUrl: string | ArrayBuffer | null = null;
+  protected notifications:NotificationApp[] = [];
 
   constructor(private router: Router,
               private authService: AuthService,
@@ -68,7 +70,8 @@ export class PrivateComponent {
               protected userService: UserService,
               protected authGuard: AuthGuard,
               protected systemGuerd :AuthGuard,
-              protected messageService:MessagesService
+              protected messageService:MessagesService,
+              protected actionService:ActionService
   ) {
     this.authService.getProfile().subscribe(profile => {
       this.profile = profile;
@@ -94,6 +97,9 @@ export class PrivateComponent {
           this.logoUrl =  environment.apiURL+'photo/'+s.settingsValue
         }
       })
+    });
+    this.actionService.notification$.subscribe(nots => {
+      this.notifications = nots;
     })
   }
 
@@ -145,7 +151,6 @@ export class PrivateComponent {
 
   selectLogo($event: Event) {
     const input = event.target as HTMLInputElement;
-    console.debug("drop ici ");
     if (input.files) {
       const file: File = input.files[0];
       if (file) {
