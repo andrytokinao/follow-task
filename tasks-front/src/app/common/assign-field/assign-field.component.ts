@@ -11,6 +11,7 @@ import {ActivatedRoute} from "@angular/router";
 import {ToastrService} from "ngx-toastr";
 import {AuthGuard} from "../../services/SystemGuard";
 import {AuthService} from "../../services/auth.service";
+import {ProjectGuard} from "../../services/ProjectGuard";
 
 @Component({
   standalone: false,
@@ -36,6 +37,7 @@ export class AssignFieldComponent implements OnInit{
     private toastr: ToastrService,
     protected authGuard:AuthGuard,
     private authService: AuthService,
+    protected projectGuard:ProjectGuard
 
 
   ) {
