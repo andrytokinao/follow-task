@@ -492,7 +492,7 @@ public class IssueService {
         return d;
     }
     public List<Document> getDocuments(Long issueId, TypeDocument typeDocument) {
-        return documentRepository.findByIssuesIdAndTypeDocument(issueId,typeDocument);
+        return documentRepository.findByIssuesIdAndTypeDocumentAndDeleted(issueId,typeDocument,false);
     }
     public Uploaded saveUploaded(Uploaded uploaded) {
         Uploaded up = uploadedRepository.save(uploaded);
@@ -667,5 +667,16 @@ public class IssueService {
     public Document forwardDocument(Document document) {
         sendDocument(document);
         return document;
+    }
+
+    public Response deleteDocumentById(Long documentId) {
+        Document document = loadDocumentById(documentId);
+        document.setDeleted(true);
+        documentRepository.save(document);
+        Response response = new Response();
+        response.setMessage("Successfully deleted");
+        response.setCode("deleteDocumentById");
+        response.setStatus("success");
+        return response;
     }
 }

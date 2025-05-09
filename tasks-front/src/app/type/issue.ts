@@ -292,6 +292,7 @@ export interface DocumentApp{
   project?:Project
   parent?:DocumentApp
   responses?:DocumentApp[]
+  deleted?:Boolean
 }
 export interface DomainActivity{
   id?:number;
@@ -366,4 +367,9 @@ export interface NotificationApp{
   userIds:String[]
   seenUserIds:String[]
   action:ActionGroupe
+}
+export interface ResponseApp {
+  code:String
+  message:String
+  status:String
 }

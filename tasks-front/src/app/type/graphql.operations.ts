@@ -2169,6 +2169,7 @@ const GET_DOCUMENTS = gql`
            id
            description
            creation
+           deleted
            parent {
              id
            }
@@ -2238,6 +2239,7 @@ export let LOAD_DOCUMENT_BY_ID =  gql`
         id
         description
         creation
+        deleted
         parent {
           id
         }
@@ -2266,6 +2268,16 @@ export let FORWARD_DOCUMENT = gql`
     }
   }
 `;
+export let DELETE_DOCUMENT_BY_ID = gql`
+  mutation deleteDocumentById($documentId:Int) {
+    deleteDocumentById(documentId:$documentId) {
+      message,
+      status
+      code
+    }
+  }
+`;
+
 const SAVE_UPLOADED = gql`
    mutation saveUploaded($uploaded:UploadedInput){
      saveUploaded(uploaded:$uploaded){

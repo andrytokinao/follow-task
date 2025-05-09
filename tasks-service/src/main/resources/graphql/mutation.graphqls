@@ -29,10 +29,11 @@ type Mutation {
     saveLabel(label:LabelInput):Label
     addLabelInIssue(issueId:Int,labelId:Int):IssueLabels
     removeLabelInIssue(issueId:Int,labelId:Int):IssueLabels
-    deleteIssue(issueId:Int):Response
+    deleteIssue(issueId:Int):ResponseApp
     createCanal(canall:CanallInput):Canall
     sendMessage(newMessage:MessageAppInput):MessageApp
     forwardDocument(document:DocumentInput):Document
+    deleteDocumentById(documentId:Int) :ResponseApp
 }
 
 

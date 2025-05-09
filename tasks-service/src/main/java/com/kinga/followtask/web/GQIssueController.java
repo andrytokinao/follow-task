@@ -1,10 +1,7 @@
 package com.kinga.followtask.web;
 
-import com.kinga.followtask.dto.Criteria;
-import com.kinga.followtask.dto.EventSearchCriteriaDTO;
-import com.kinga.followtask.dto.UploadedDto;
+import com.kinga.followtask.dto.*;
 import com.kinga.followtask.entity.Uploaded;
-import com.kinga.followtask.dto.ValueDto;
 import com.kinga.followtask.entity.*;
 import com.kinga.followtask.repository.criteria.IssueSearchCriteria;
 import com.kinga.followtask.service.*;
@@ -337,5 +334,9 @@ public class GQIssueController {
     @MutationMapping
     public Document forwardDocument(@Argument Document document){
         return issueService.forwardDocument(document);
+    }
+    @MutationMapping
+    public Response deleteDocumentById(@Argument Long documentId) {
+        return issueService.deleteDocumentById(documentId);
     }
 }

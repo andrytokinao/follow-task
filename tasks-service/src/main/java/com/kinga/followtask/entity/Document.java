@@ -7,6 +7,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Formula;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
@@ -45,6 +47,8 @@ public class Document {
     private Issue issues;
     @OneToMany(mappedBy = "document" , fetch = FetchType.EAGER)
     private List<Uploaded> uploadeds;
+    @Column(name = "deleted", nullable = false)
+    private Boolean deleted = false;
     public String buildMessage(){
         switch (this.typeDocument) {
             case RESPONSE_DOCUMENT -> {
@@ -63,26 +67,22 @@ public class Document {
     }
     public Set<String> buildMembers() {
         if (this.typeDocument == null) {
-            System.out.println("typeDocument is null for "+this.getId());
             return new HashSet<>();
         }
         switch (this.typeDocument) {
             case EXCHANGE_DOCUMENT -> {
-                System.out.println("RESPONSE_DOCUMENT ");
                 if (this.members == null) {
                     return new HashSet<>();
                 }
                 return this.members;
             }
             case RESPONSE_DOCUMENT -> {
-                System.out.println("RESPONSE_DOCUMENT ");
                 if (this.parent ==  null || this.parent.buildMembers() == null) {
                     return new HashSet<>();
                 }
                 return this.parent.getMembers();
             }
             default -> {
-                System.out.println("DEFAULT ");
 
                 if (issues == null || issues.getObserverIds() == null) {
                     return new HashSet<>();
@@ -94,7 +94,7 @@ public class Document {
  public void loadUploadeds(UploadedRepository uploadedRepository) {
         this.setUploadeds(uploadedRepository.findByDocumentId(this.getId()));
  }
-  public String getCreString(){
+  public String getCreation (){
         return this.creation == null ? "" : dateTimeFormater.format(this.creation);
-    }
+  }
 }

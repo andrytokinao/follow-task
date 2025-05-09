@@ -622,6 +622,7 @@ input DocumentInput{
     project:ProjectInput
     parent:DocumentInput
     responses:[DocumentInput]
+    deleted:Boolean
 }
 input DocumentMemberInput{
     id:Int
@@ -649,6 +650,7 @@ type Document{
     project:Project
     parent:Document
     responses:[Document]
+    deleted:Boolean
 
 }
 type DocumentMember{
@@ -785,3 +787,8 @@ input MessageAppInput {
     userReades: [ID]
 }
 
+type ResponseApp {
+    status:String
+    message:String
+    code:String
+}

@@ -10,4 +10,9 @@
             ALTER TABLE Issue MODIFY description LONGTEXT;
         </sql>
     </changeSet>
+    <changeSet id="document-deleted" author="tokiniaina andriamahefasoa">
+        <sql>
+            UPDATE Document SET  deleted  = 0 WHERE deleted IS NULL
+        </sql>
+    </changeSet>
 </databaseChangeLog>

@@ -21,7 +21,7 @@ import {
   Uploading,
   Uploaded,
   DocumentApp,
-  DomainActivity, Label, IssueLabels, AppSettings, NotificationApp
+  DomainActivity, Label, IssueLabels, AppSettings, NotificationApp, ResponseApp
 } from "../type/issue";
 import {Apollo} from "apollo-angular";
 import * as operation from "../type/graphql.operations";
@@ -1775,5 +1775,22 @@ export class IssueService implements OnInit {
         console.error("forward document success ",error);
       }
     )
+  }
+
+  deleteDocumentById(documentId: number) {
+    return new Observable<ResponseApp>(observer => {
+      this.apollo.mutate({
+        mutation: operation.DELETE_DOCUMENT_BY_ID,
+        variables: {documentId},
+        fetchPolicy: 'network-only'
+      }).subscribe((res: any) => {
+          observer.next(supprimerTypename(res.data.deleteDocumentById));
+          observer.complete();
+        }, error => {
+          console.error(error);
+          observer.complete();
+        }
+      )
+    });
   }
 }

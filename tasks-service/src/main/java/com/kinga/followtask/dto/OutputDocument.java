@@ -106,8 +106,7 @@ public class OutputDocument {
         }
     }
 
-    public void setCreation(LocalDateTime date) {
-        if (date != null )
-            this.creation = dateTimeFormater.format(date);
+    public void setCreation(String creation ) {
+        this.creation = creation;
     }
 }

@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface DocumentRepository extends JpaRepository<Document,Long> {
-    public List<Document> findByIssuesIdAndTypeDocument(Long issueId, TypeDocument typeDocument);
+    public List<Document> findByIssuesIdAndTypeDocumentAndDeleted(Long issueId, TypeDocument typeDocument,Boolean deleted);
     public List<Document> findByIssuesId(Long issueId);
 }

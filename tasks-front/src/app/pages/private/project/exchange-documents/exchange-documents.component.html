@@ -56,23 +56,23 @@
 
       <div  *ngIf="selectedDocument.responses">
         <mat-divider _ngcontent-ng-c3949266393="" role="separator" class="mat-divider mat-divider-horizontal" style="margin: 24px 0;" aria-orientation="horizontal"></mat-divider>
-        <div *ngFor="let document of selectedDocument.responses let i = index">
-
+        <div *ngFor="let resp of selectedDocument.responses let i = index">
+          <div *ngIf="resp.deleted === false">
           <div class="cards">
             <span style="float:right">
-              <app-document-menu [document]="document"></app-document-menu>
+              <app-document-menu [document]="resp"></app-document-menu>
             </span>
             <div class="card-title">
              <span>
-              <small> {{ document.userApp.username }} {{ document.creation | date | date }}</small>
+              <small> {{ resp.userApp.username }} {{ resp.creation | date | date }}</small>
           </span>
 
-              <p [innerHTML]="document.description"  >
+              <p [innerHTML]="resp.description"  >
               </p>
             </div>
-            <div *ngIf="document.uploadeds && document.uploadeds.length != 0 "> Fichier </div>
+            <div *ngIf="resp.uploadeds && resp.uploadeds.length != 0 "> Fichier </div>
             <div class="file-item-list" >
-              <div class="file-item" *ngFor="let up of document.uploadeds"   [ngClass]="{'selected-file':up.id === selectedFile?.id}">
+              <div class="file-item" *ngFor="let up of resp.uploadeds" [ngClass]="{'selected-file':up.id === selectedFile?.id}">
                 <i [class]="getFileIconClass(up.name.toString())"></i> <span (click)="selectFile(up)"> {{up.name}} </span>
                 <a [href]="issueService.downloadUploadedUrl(up)" style="float: right;margin-right: 20px" > <i class="fa fa-download"></i></a>
               </div>
@@ -80,6 +80,7 @@
           </div>
           <mat-divider _ngcontent-ng-c3949266393="" role="separator" class="mat-divider mat-divider-horizontal" style="margin: 24px 0;" aria-orientation="horizontal"></mat-divider>
 
+        </div>
         </div>
       </div>
         <div class="card" (click)="responseDocument(selectedDocument)">

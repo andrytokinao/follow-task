@@ -4,6 +4,7 @@ import {UserService} from "../../services/user.service";
 import {AuthService} from "../../services/auth.service";
 import {Observable} from "rxjs";
 import {ProjectGuard} from "../../services/ProjectGuard";
+import {IssueService} from "../../services/issue.service";
 
 @Component({
   selector: 'app-document-menu',
@@ -18,7 +19,8 @@ export class DocumentMenuComponent implements OnInit{
   adminPermission$: Observable<boolean>;
    constructor(
      protected autService:AuthService,
-     protected projectGuard:ProjectGuard
+     protected projectGuard:ProjectGuard,
+     private issueService:IssueService
    ) {
      this.connected$ = this.autService.connectedUser$;
      this.adminPermission$ = this.projectGuard.hasCredential(['ADMIN']);
@@ -31,5 +33,9 @@ export class DocumentMenuComponent implements OnInit{
   isProprietaire(connected: User): boolean {
     return connected?.id === this.document.userApp?.id;
   }
-
+  deleteDocument(){
+     this.issueService.deleteDocumentById(this.document.id).subscribe( data => {
+       alert("Deleted ok ");
+     })
+  }
 }
