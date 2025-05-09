@@ -32,6 +32,7 @@ type Mutation {
     deleteIssue(issueId:Int):Response
     createCanal(canall:CanallInput):Canall
     sendMessage(newMessage:MessageAppInput):MessageApp
+    forwardDocument(document:DocumentInput):Document
 }
 
 

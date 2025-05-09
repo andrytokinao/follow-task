@@ -12,6 +12,7 @@ import com.kinga.utils.KingaUtils;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.aot.InstanceSupplierCodeGenerator;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -34,7 +35,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.rmi.RemoteException;
+import java.sql.Timestamp;
 import java.text.ParseException;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.zip.ZipEntry;
@@ -456,7 +459,7 @@ public class IssueService {
     @Transactional
     public Document addDocument(Document document){
         if (document.getId() == null) {
-            document.setCreation(new Date());
+            document.setCreation(((new Date()).toInstant()).atZone(ZoneId.systemDefault()).toLocalDateTime());
         }
         document = documentRepository.save(document);
         List<Uploaded> uploadeds = document.getUploadeds();
@@ -485,7 +488,7 @@ public class IssueService {
             userApp = userAppRepository.getById(d.getUserApp().getId());
             d.setUserApp(userApp);
         }
-        sendDocument(d);
+       // sendDocument(d);
         return d;
     }
     public List<Document> getDocuments(Long issueId, TypeDocument typeDocument) {
@@ -659,5 +662,10 @@ public class IssueService {
 
     public Document loadDocumentById(Long documentId) {
         return this.documentRepository.getById(documentId);
+    }
+
+    public Document forwardDocument(Document document) {
+        sendDocument(document);
+        return document;
     }
 }

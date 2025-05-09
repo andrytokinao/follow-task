@@ -1634,7 +1634,7 @@ export class IssueService implements OnInit {
       dialogRef.result.then((doc) => {
             if (doc != null) {
               observer.next(doc);
-              this.processDocument(doc)
+            //  this.processDocument(doc)
               observer.complete();
             }
           },
@@ -1657,7 +1657,7 @@ export class IssueService implements OnInit {
       dialogRef.result.then((result) => {
         dialogRef.result.then((res: any) => {
             if (res != null) {
-              observer.next(res.newDocument);
+              observer.next(supprimerTypename(res.newDocument));
               observer.complete();
             }
           },
@@ -1754,7 +1754,7 @@ export class IssueService implements OnInit {
         variables: {documentId},
         fetchPolicy: 'network-only'
       }).subscribe((res: any) => {
-          observer.next(res.data.loadDocumentById);
+          observer.next(supprimerTypename(res.data.loadDocumentById));
           observer.complete();
         }, error => {
           console.error(error);
@@ -1762,5 +1762,18 @@ export class IssueService implements OnInit {
         }
       )
     });
+  }
+
+  forwardDocument(document: DocumentApp) {
+    this.apollo.mutate({
+      mutation: operation.FORWARD_DOCUMENT,
+      variables: {document},
+      fetchPolicy: 'network-only'
+    }).subscribe((res: any) => {
+      console.info("forward document#"+document.id+ " successfulllll ");
+      }, error => {
+        console.error("forward document success ",error);
+      }
+    )
   }
 }

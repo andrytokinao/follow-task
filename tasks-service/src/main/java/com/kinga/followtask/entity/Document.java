@@ -7,9 +7,13 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.util.StringUtils;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.kinga.utils.KingaUtils.dateTimeFormater;
 
 @Entity
 @AllArgsConstructor
@@ -26,7 +30,7 @@ public class Document {
     private TypeDocument typeDocument;
     @ManyToOne
     private Project project;
-    private Date creation;
+    private LocalDateTime creation;
     @ManyToOne
     private Document parent;
     @OneToMany(mappedBy = "parent")
@@ -90,4 +94,7 @@ public class Document {
  public void loadUploadeds(UploadedRepository uploadedRepository) {
         this.setUploadeds(uploadedRepository.findByDocumentId(this.getId()));
  }
+  public String getCreString(){
+        return this.creation == null ? "" : dateTimeFormater.format(this.creation);
+    }
 }

@@ -8,10 +8,14 @@ import org.springframework.util.CollectionUtils;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.kinga.utils.KingaUtils.dateTimeFormater;
+import static com.kinga.utils.KingaUtils.dateTimeFormaterPattern;
 
 @Data
 @NoArgsConstructor
@@ -93,17 +97,17 @@ public class OutputDocument {
         this.issues = issue;
     }
     public void setUploadeds(List<Uploaded> uploadeds) {
-        /*if (!CollectionUtils.isEmpty(uploadeds)) {
+        if (!CollectionUtils.isEmpty(uploadeds)) {
             System.out.println("uploaded for "+getTitre() +" is not umpty");
 
             this.uploadeds = uploadeds.stream().map(uploaded -> new Uploaded(uploaded.getName(),uploaded.getPath())).collect(Collectors.toList());
         } else {
             System.out.println("uploaded for "+getTitre() +" is umpty");
-        }*/
+        }
     }
 
-    public void setCreation(Date date) {
+    public void setCreation(LocalDateTime date) {
         if (date != null )
-            this.creation = SDF_H.format(date);
+            this.creation = dateTimeFormater.format(date);
     }
 }

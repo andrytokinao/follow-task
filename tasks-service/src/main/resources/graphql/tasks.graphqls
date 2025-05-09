@@ -66,6 +66,8 @@ type  Issue {
     values:[CustomFieldValue]
     project:Project
     labels:[IssueLabels]
+    observerIds:[String]
+
 }
 
 type IssueLabels {
@@ -271,6 +273,7 @@ input  IssueInput {
     reporter:StatusInput
     project:ProjectInput
     labels:[IssueLabelsInput]
+    observerIds:[String]
 }
 
 input IssueLabelsInput {

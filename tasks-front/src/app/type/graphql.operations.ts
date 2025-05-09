@@ -2197,8 +2197,10 @@ export let LOAD_DOCUMENT_BY_ID =  gql`
       description
       creation
       typeDocument
+      members
       issues {
         id
+        observerIds
       }
       userApp {
         id
@@ -2256,7 +2258,14 @@ export let LOAD_DOCUMENT_BY_ID =  gql`
     }
   }
 ` ;
-
+export let FORWARD_DOCUMENT = gql`
+  mutation forwardDocument($document:DocumentInput) {
+    forwardDocument(document:$document) {
+      id
+      titre
+    }
+  }
+`;
 const SAVE_UPLOADED = gql`
    mutation saveUploaded($uploaded:UploadedInput){
      saveUploaded(uploaded:$uploaded){

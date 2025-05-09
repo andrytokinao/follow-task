@@ -334,4 +334,8 @@ public class GQIssueController {
     public Document loadDocumentById(@Argument Long documentId) {
         return issueService.loadDocumentById(documentId);
     }
+    @MutationMapping
+    public Document forwardDocument(@Argument Document document){
+        return issueService.forwardDocument(document);
+    }
 }

@@ -98,7 +98,10 @@ export class NewDocumentComponent {
       this.newDocument.titre = 'Re:'+this.parentDocument.titre;
     }
     this.issueService.uploadDocument(this.newDocument,this.issue.encodedPath,this.uploadings,this.typeDocument).subscribe(document => {
-
+       if (!this.uploadings || this.uploadings.length === 0) {
+         this.issueService.forwardDocument(document);
+         this.activeModal.close(document);
+       }
     });
     if (!this.issueService.uploadingDocumentSubject) {
       this.issueService.uploadingDocumentSubject = new BehaviorSubject<DocumentApp>(this.newDocument);
@@ -109,12 +112,9 @@ export class NewDocumentComponent {
         this.issueService.uploadingDocumentSubject.complete();
         this.uploadings = [];
         this.issueService.loadDocumentById(doc.id).subscribe(d => {
-         this.issueService.processDocument(d);
+         this.issueService.forwardDocument(d);
          this.activeModal.close(d);
         });
-        if (doc.parentDocument) {
-      //   this.issueService.processDocumentResponse(doc);
-        }
       }
     })
 
