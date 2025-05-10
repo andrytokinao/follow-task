@@ -1,0 +1,24 @@
+<span  *ngIf="(adminPermission$ | async) || isProprietaire(connected)" >
+  <button mat-icon-button [matMenuTriggerFor]="menu" class="menu-button ">
+    <i class="fas fa-ellipsis-v"></i>
+  </button>
+  <mat-menu  #menu="matMenu" class="side-menu liste-menu">
+  <button mat-menu-item>
+    Supprimer
+    <i class="fas fa-trash-alt menu-icon-right"></i>
+  </button>
+
+  <button mat-menu-item>
+    Editer
+    <i class="fas fa-edit menu-icon-right"></i>
+  </button>
+
+<!--  <button mat-menu-item *ngIf="document.typeDocument === 'EXCHANGE_DOCUMENT' ">
+    Edit membre
+    <i class="fas fa-users-cog menu-icon-right"></i>
+  </button>-->
+</mat-menu>
+</span>
+
+
+

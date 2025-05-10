@@ -54,6 +54,7 @@ task-authorization:
       accessibilities:
         - "USER"
         - "CAN_EDIT_ALL"
+        - "ADMIN"
     - name: "PROJECT_MANAGER"
       description: "Gestionnaire de projet"
       accessibilities:

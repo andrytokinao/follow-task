@@ -7,8 +7,11 @@
       </div>
     </div>
     <div style="height:100vh;">
-      <div *ngFor="let document of documents let i = index" (click)="selectDoc(document)">
-        <div>
+      <div *ngFor="let document of documents let i = index" >
+        <span style="float:right">
+              <app-document-menu [document]="document"></app-document-menu>
+         </span>
+        <div (click)="selectDoc(document)">
           <div class="cards">
             <div class="card-title">
 
@@ -56,6 +59,9 @@
         <div *ngFor="let document of selectedDocument.responses let i = index">
 
           <div class="cards">
+            <span style="float:right">
+              <app-document-menu [document]="document"></app-document-menu>
+            </span>
             <div class="card-title">
              <span>
               <small> {{ document.userApp.username }} {{ document.creation | date | date }}</small>

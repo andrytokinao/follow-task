@@ -46,6 +46,7 @@ import {LabelFormComponent} from "./label-form/label-form.component";
 import {FelterMatMenueComponent} from "./felter-mat-menue/felter-mat-menue.component";
 import {NgxColorsModule} from "ngx-colors";
 import {ConfirmationDialogComponent} from "./confirmation-dialog/confirmation-dialog.component";
+import {DocumentMenuComponent} from "./document-menu/document-menu.component";
 
 @NgModule({
   declarations: [
@@ -75,7 +76,8 @@ import {ConfirmationDialogComponent} from "./confirmation-dialog/confirmation-di
     LoadingComponent,
     LabelFormComponent,
   FelterMatMenueComponent,
-    ConfirmationDialogComponent
+    ConfirmationDialogComponent,
+    DocumentMenuComponent
 
   ],
     imports: [
@@ -139,7 +141,8 @@ import {ConfirmationDialogComponent} from "./confirmation-dialog/confirmation-di
     IssueMasterBreadcrumbComponent,
     LoadingComponent,
     LabelFormComponent,
-    FelterMatMenueComponent
+    FelterMatMenueComponent,
+    DocumentMenuComponent
   ]
 })
 export class MyCommonModule { }

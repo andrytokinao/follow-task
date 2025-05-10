@@ -1,0 +1,85 @@
+/* Style du menu (background, shadow, position) */
+.liste-menu {
+  background-color: #fff;  /* Fond blanc */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Ombre légère */
+  border-radius: 8px; /* Coins arrondis */
+  min-width: 180px; /* Largeur minimale du menu */
+  padding: 0; /* Supprime les marges internes */
+}
+
+/* Style des éléments du menu (boutons) */
+.mat-menu-item {
+  display: flex;
+  justify-content: space-between; /* Espace entre le texte et l'icône */
+  align-items: center; /* Centrer le texte et l'icône verticalement */
+  padding: 12px 16px; /* Espacement interne des boutons */
+  font-size: 14px; /* Taille de la police */
+  color: #333; /* Couleur de texte par défaut */
+  transition: all 0.3s ease; /* Transition douce */
+  border-radius: 6px; /* Coins arrondis pour chaque élément */
+  text-transform: capitalize; /* Capitalisation du texte */
+}
+
+/* Style des icônes à droite */
+.menu-icon-right {
+  font-size: 18px; /* Taille des icônes */
+  margin-left: 12px; /* Espace entre le texte et l'icône */
+  color: #666; /* Couleur de l'icône par défaut */
+  transition: color 0.3s ease; /* Animation de la couleur de l'icône */
+}
+
+/* Effet de survol (hover) sur les éléments du menu */
+.mat-menu-item:hover {
+  background-color: #f5f5f5; /* Fond clair au survol */
+  color: #007bff; /* Changer la couleur du texte au survol */
+  transform: scale(1.05); /* Agrandir légèrement l'élément */
+}
+
+/* Effet de survol sur les icônes */
+.mat-menu-item:hover .menu-icon-right {
+  color: #007bff; /* Changer la couleur de l'icône au survol */
+}
+
+/* Style spécifique pour "Supprimer" */
+.mat-menu-item:first-child {
+  background-color: #fbe9e7; /* Fond rose clair pour "Supprimer" */
+  color: #d32f2f; /* Texte rouge */
+}
+
+.mat-menu-item:first-child:hover {
+  background-color: #f44336; /* Fond rouge lors du survol */
+  color: #fff; /* Texte blanc lors du survol */
+}
+
+/* Style pour "Editer" */
+.mat-menu-item:nth-child(2) {
+  background-color: #e8f5e9; /* Fond vert clair pour "Editer" */
+  color: #388e3c; /* Texte vert */
+}
+
+.mat-menu-item:nth-child(2):hover {
+  background-color: #4caf50; /* Fond vert foncé lors du survol */
+  color: #fff; /* Texte blanc lors du survol */
+}
+
+/* Style pour "Edit membre" */
+.mat-menu-item:nth-child(3) {
+  background-color: #e3f2fd; /* Fond bleu clair pour "Edit membre" */
+  color: #1976d2; /* Texte bleu */
+}
+
+.mat-menu-item:nth-child(3):hover {
+  background-color: #2196f3; /* Fond bleu foncé lors du survol */
+  color: #fff; /* Texte blanc lors du survol */
+}
+
+@media (max-width: 600px) {
+  .liste-menu {
+    min-width: 150px;
+  }
+
+  .mat-menu-item {
+    padding: 10px 14px;
+    font-size: 12px;
+  }
+}
