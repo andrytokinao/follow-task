@@ -8,11 +8,11 @@
     </div>
     <div style="height:100vh;">
       <div *ngFor="let document of documents let i = index"   >
-        <div>
-          <div class="cards">
-             <span style="float:right">
+        <span style="float:right">
               <app-document-menu [document]="document"></app-document-menu>
             </span>
+        <div>
+          <div class="cards">
             <div class="card-title">
              <span>
               <small>{{ document.creation | date | date }} - Par {{ document.userApp.username }}</small>

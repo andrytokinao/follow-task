@@ -26,7 +26,7 @@ export class DocumentMenuComponent implements OnInit{
      this.adminPermission$ = this.projectGuard.hasCredential(['ADMIN']);
      this.connected$.subscribe(co => {
        this.connected = co;
-     })
+     });
    }
 
   ngOnInit(): void {}
@@ -37,5 +37,11 @@ export class DocumentMenuComponent implements OnInit{
      this.issueService.deleteDocumentById(this.document.id).subscribe( data => {
        alert("Deleted ok ");
      })
+  }
+
+  editDocument() {
+    this.issueService.editDocument(this.document).subscribe( doc => {
+      this.issueService.processDeleteDocument(doc);
+    })
   }
 }

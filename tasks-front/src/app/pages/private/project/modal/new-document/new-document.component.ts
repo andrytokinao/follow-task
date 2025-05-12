@@ -81,12 +81,15 @@ export class NewDocumentComponent {
   }
 
   saveDocument() {
-    this.newDocument.typeDocument = this.typeDocument;
+    if (this.typeDocument)
+      this.newDocument.typeDocument = this.typeDocument;
     if (this.issue){
       this.newDocument.issues = {id:this.issue.id};
     }
     if (this.user){
-      this.newDocument.userApp = {id:this.user.id}
+      if (!this.newDocument.userApp) {
+        this.newDocument.userApp = {id: this.user.id}
+      }
     }
     if (this.selectedUsers && this.selectedUsers.length > 0){
       let userIds = [...this.selectedUsers];

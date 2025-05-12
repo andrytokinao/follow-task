@@ -1793,4 +1793,20 @@ export class IssueService implements OnInit {
       )
     });
   }
+
+  editDocument(document: DocumentApp) {
+    return new Observable(observer => {
+      const dialogRef = this.modalService.open(NewDocumentComponent, {windowClass: "xlModal"});
+      dialogRef.componentInstance.newDocument = document;
+      dialogRef.result.then((result) => {
+        observer.next(result);
+        observer.complete();
+      });
+    })
+
+  }
+
+  processDeleteDocument(doc: unknown) {
+    
+  }
 }
