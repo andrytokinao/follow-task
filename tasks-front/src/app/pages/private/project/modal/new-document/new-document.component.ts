@@ -81,6 +81,18 @@ export class NewDocumentComponent {
   }
 
   saveDocument() {
+    if (this.newDocument.id) {
+      // Edition
+      this.issueService.uploadDocument(this.newDocument,this.issue?.encodedPath,this.uploadings,this.typeDocument).subscribe(document => {
+        if (!this.uploadings || this.uploadings.length === 0) {
+          this.issueService.forwardDocument(document);
+          this.activeModal.close(document);
+        }
+      });
+      return;
+    }
+
+
     if (this.typeDocument)
       this.newDocument.typeDocument = this.typeDocument;
     if (this.issue){
@@ -100,7 +112,7 @@ export class NewDocumentComponent {
       this.newDocument.parent = {id:this.parentDocument.id};
       this.newDocument.titre = 'Re:'+this.parentDocument.titre;
     }
-    this.issueService.uploadDocument(this.newDocument,this.issue.encodedPath,this.uploadings,this.typeDocument).subscribe(document => {
+    this.issueService.uploadDocument(this.newDocument,this.issue?.encodedPath,this.uploadings,this.typeDocument).subscribe(document => {
        if (!this.uploadings || this.uploadings.length === 0) {
          this.issueService.forwardDocument(document);
          this.activeModal.close(document);
