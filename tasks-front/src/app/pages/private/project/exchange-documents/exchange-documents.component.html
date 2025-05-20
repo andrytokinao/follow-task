@@ -44,9 +44,9 @@
             <p [innerHTML]="selectedDocument.description"  >
             </p>
           </div>
-          <div *ngIf="document.uploadeds && document.uploadeds.length != 0 "> Fichier </div>
+          <div *ngIf="selectedDocument.uploadeds && selectedDocument.uploadeds.length != 0 "> Fichier </div>
           <div class="file-item-list" >
-            <div class="file-item" *ngFor="let up of document.uploadeds"   [ngClass]="{'selected-file':up.id === selectedFile?.id}">
+            <div class="file-item" *ngFor="let up of selectedDocument.uploadeds"   [ngClass]="{'selected-file':up.id === selectedFile?.id}">
               <i [class]="getFileIconClass(up.name.toString())"></i> <span (click)="selectFile(up)"> {{up.name}} </span>
               <a [href]="issueService.downloadUploadedUrl(up)" style="float: right;margin-right: 20px" > <i class="fa fa-download"></i></a>
             </div>
@@ -55,7 +55,7 @@
 
 
       <div  *ngIf="selectedDocument.responses">
-        <mat-divider _ngcontent-ng-c3949266393="" role="separator" class="mat-divider mat-divider-horizontal" style="margin: 24px 0;" aria-orientation="horizontal"></mat-divider>
+        <mat-divider  role="separator" class="mat-divider mat-divider-horizontal" style="margin: 24px 0;" aria-orientation="horizontal"></mat-divider>
         <div *ngFor="let resp of selectedDocument.responses let i = index">
           <div *ngIf="resp.deleted === false">
           <div class="cards">
