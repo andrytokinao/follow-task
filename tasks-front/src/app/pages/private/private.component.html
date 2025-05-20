@@ -25,7 +25,10 @@
       <li><a routerLink="admin/users" *ngIf="authGuard.hasAutorityAsync(['CAN_CONFIGURE_SYSTEM']) | async" routerLinkActive="active" ariaCurrentWhenActive="page">Admin</a></li>
     </ul>
     <div class="user-section">
-      <span> {{notifications.length}}</span>
+      <div class="notification-icon">
+         <i class="fas fa-bell"></i> <!-- Icône de notification -->
+        <span class="badge" *ngIf="notifications.length > 0"> {{notifications.length}}</span>
+      </div>
       <div class="user-dropdown">
         <img [src]="userService.getUrlPhoto(profile)" alt="P">
         <span class="username">{{profile.firstName}} {{profile.lastName}}</span>
