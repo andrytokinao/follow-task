@@ -5,7 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <changeSet id="force-longtext" author="tokiniaina andriamahefasoa">
+<!--    <changeSet id="force-longtext" author="tokiniaina andriamahefasoa">
         <sql>
             ALTER TABLE Issue MODIFY description LONGTEXT;
         </sql>
@@ -14,5 +14,5 @@
         <sql>
             UPDATE Document SET  deleted  = 0 WHERE deleted IS NULL
         </sql>
-    </changeSet>
+    </changeSet>-->
 </databaseChangeLog>
