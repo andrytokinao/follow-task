@@ -253,7 +253,7 @@ input GroupeUserInput {
     mambers:[MemberGroupeInput]
 }
 input MemberGroupeInput{
-    d:Int!
+    id:Int!
     user:UserAppInput
     groupe:GroupeUserInput
     roles:[RoleAppInput]

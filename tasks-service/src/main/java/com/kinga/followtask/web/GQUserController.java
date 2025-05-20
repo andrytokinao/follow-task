@@ -3,6 +3,7 @@ package com.kinga.followtask.web;
 
 import com.kinga.followtask.config.PermissionSystem;
 import com.kinga.followtask.config.PermissionTask;
+import com.kinga.followtask.dto.Response;
 import com.kinga.followtask.entity.GroupeUser;
 import com.kinga.followtask.entity.MemberGroupe;
 import com.kinga.followtask.entity.UserApp;
@@ -65,5 +66,10 @@ public class GQUserController {
     @QueryMapping
     public PermissionTask loadPermissiontTask(){
        return permissionTask;
+    }
+
+    @MutationMapping
+    public Response deleteMember(@Argument Long memberId) {
+        return authorizationService.deleteMember(memberId);
     }
 }

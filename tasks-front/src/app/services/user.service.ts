@@ -11,7 +11,7 @@ import {
   LOAD_GROUPE_MEMBER,
   SAVE_CONFIG,
   LOAD_PERMISSION_TASK,
-  SAVE_USER, supprimerTypename
+  SAVE_USER, supprimerTypename, DELETE_MEMBER
 } from "../type/graphql.operations";
 import {Apollo} from "apollo-angular";
 import {environment} from "../../environments/environment";
@@ -190,4 +190,21 @@ export class UserService {
   }
 
 
+  deleteMember(memberId: Number) {
+    return new Observable<MemberGroupe>(observer =>{
+      this.apollo.mutate(
+        {
+          mutation:DELETE_MEMBER,
+          variables:{memberId},
+          fetchPolicy:"network-only"
+        }
+      ).subscribe((res:any)=>{
+        observer.next(supprimerTypename(res.data.deleteMember));
+        observer.complete();
+      },error => {
+        observer.error(error);
+        observer.complete();
+      })
+    })
+  }
 }

@@ -2,6 +2,7 @@ package com.kinga.followtask.service;
 
 import com.kinga.followtask.config.*;
 import com.kinga.followtask.dto.Accessibility;
+import com.kinga.followtask.dto.Response;
 import com.kinga.followtask.dto.UserDetailsDeto;
 import com.kinga.followtask.entity.GroupeUser;
 import com.kinga.followtask.entity.MemberGroupe;
@@ -193,5 +194,13 @@ public class AuthorizationService {
         newModule.setMenues(menus);
         newModule.setRoute(moduleMenue.getRoute());
      return newModule;
+    }
+
+    public Response deleteMember(Long memberId) {
+        this.memberGroupeRepository.deleteById(memberId);
+        Response response = new Response();
+        response.setStatus("success");
+        response.setMessage("Deleted ok ");
+        return response;
     }
 }

@@ -78,4 +78,9 @@ export class AccessibilityComponent implements OnInit{
     })
   }
 
+    deleteMember(memberId: Number) {
+      this.userService.deleteMember(memberId).subscribe(res => {
+        this.getGroupeUserForProject();
+      })
+  }
 }

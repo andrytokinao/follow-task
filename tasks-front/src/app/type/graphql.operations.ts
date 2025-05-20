@@ -601,6 +601,15 @@ const  LOAD_GROUPE_MEMBER = gql`
     }
   }
 `;
+export const DELETE_MEMBER = gql`
+  mutation deleteMember($memberId:Int) {
+    deleteMember( memberId: $memberId) {
+      code
+      message
+      status
+    }
+  }
+`
 const ALL_CUSTOMFIELD = gql`
   query allCustomField  {
     allCustomField{
@@ -1486,7 +1495,7 @@ const GET_GROUPE_USER_FOR_PROJECT=gql`
 const ADD_USER_IN_GROUPE = gql`
  mutation addUserInGroupe($username:String,$groupeId:Int,$roles:[String]) {
     addUserInGroupe(username:$username , groupeId: $groupeId,roles: $roles){
-     id
+      id
       user {
         id
         firstName
