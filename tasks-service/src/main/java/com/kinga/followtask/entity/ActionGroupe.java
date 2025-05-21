@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Entity
 @Data
@@ -38,6 +39,6 @@ public class ActionGroupe {
             }
             list.addAll(us);
         });
-        return list;
+        return list.stream().filter(u -> ! u.equalsIgnoreCase(user.getId())).collect(Collectors.toSet());
     }
 }
