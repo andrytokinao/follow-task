@@ -25,7 +25,7 @@
       <li><a routerLink="admin/users" *ngIf="authGuard.hasAutorityAsync(['CAN_CONFIGURE_SYSTEM']) | async" routerLinkActive="active" ariaCurrentWhenActive="page">Admin</a></li>
     </ul>
     <div class="user-section">
-      <div class="notification-icon">
+      <div class="notification-icon" [matMenuTriggerFor]="notificationMenu">
          <i class="fas fa-bell"></i> <!-- Icône de notification -->
         <span class="badge" *ngIf="notifications.length > 0"> {{notifications.length}}</span>
       </div>
@@ -40,6 +40,7 @@
       </div>
     </div>
   </div>
+
   <div class="content"   >
     <router-outlet ></router-outlet>
   </div>
@@ -60,6 +61,9 @@
       <a href="#" class="fa fa-linkedin"></a>
     </div>
   </div>
+  <mat-menu #notificationMenu ="matMenu">
+   <app-notifications [notifications]="notifications"></app-notifications>
+  </mat-menu>
 </div>
 
 

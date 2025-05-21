@@ -47,6 +47,7 @@ import {FelterMatMenueComponent} from "./felter-mat-menue/felter-mat-menue.compo
 import {NgxColorsModule} from "ngx-colors";
 import {ConfirmationDialogComponent} from "./confirmation-dialog/confirmation-dialog.component";
 import {DocumentMenuComponent} from "./document-menu/document-menu.component";
+import {NotificationsComponent} from "./notifications/notifications.component";
 
 @NgModule({
   declarations: [
@@ -77,7 +78,8 @@ import {DocumentMenuComponent} from "./document-menu/document-menu.component";
     LabelFormComponent,
   FelterMatMenueComponent,
     ConfirmationDialogComponent,
-    DocumentMenuComponent
+    DocumentMenuComponent,
+    NotificationsComponent
 
   ],
     imports: [
@@ -142,7 +144,8 @@ import {DocumentMenuComponent} from "./document-menu/document-menu.component";
     LoadingComponent,
     LabelFormComponent,
     FelterMatMenueComponent,
-    DocumentMenuComponent
+    DocumentMenuComponent,
+    NotificationsComponent
   ]
 })
 export class MyCommonModule { }

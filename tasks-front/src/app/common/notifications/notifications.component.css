@@ -1,0 +1,93 @@
+/* Container des notifications */
+.notification-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  max-width: 600px;
+  margin: auto;
+}
+
+/* Carte de notification */
+.notification-card {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+/* L'animation lorsque la notification est lue */
+.notification-card.read {
+  background-color: #e0e0e0;
+  opacity: 0.7;
+}
+
+/* Info utilisateur (photo et nom) */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.user-photo {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.message-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-weight: bold;
+  color: #333;
+  font-size: 1rem;
+}
+
+.message {
+  color: #555;
+  font-size: 0.9rem;
+  margin-top: 5px;
+}
+
+/* Bouton d'actions (optionnel, décommenté dans le HTML) */
+button.mat-icon-button {
+  background: none;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+button.mat-icon-button:hover {
+  color: #333;
+}
+
+/* Menu de commentaires (optionnel, décommenté dans le HTML) */
+.mat-menu {
+  background-color: #ffffff;
+  border-radius: 8px;
+}
+
+.mat-menu-item {
+  padding: 10px 20px;
+  transition: background-color 0.3s ease;
+}
+
+.mat-menu-item:hover {
+  background-color: #f1f1f1;
+}
+
+/* Effet hover sur les cartes de notification */
+.notification-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
