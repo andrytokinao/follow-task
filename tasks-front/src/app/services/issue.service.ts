@@ -1807,6 +1807,6 @@ export class IssueService implements OnInit {
   }
 
   processDeleteDocument(doc: unknown) {
-    
+
   }
 }

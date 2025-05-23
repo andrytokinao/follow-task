@@ -2517,6 +2517,33 @@ export const SEND_MESSAGE = gql`
      }
    }
 `
+export let GET_NOTIFICATIONS_BY_USER_ID = gql`
+    query getNotificationsByUserId($userId:String) {
+      getNotificationsByUserId(userId:$userId) {
+        id
+        message
+        project {
+          id
+          prefix
+          name
+        }
+        action {
+          id
+          user {
+            id
+            firstName
+            lastName
+            username
+            photo
+          }
+        }
+        seenUserIds
+        userIds
+        titre
+      }
+    }
+`;
+
 export {
   supprimerTypename,
   SAVE_USER,

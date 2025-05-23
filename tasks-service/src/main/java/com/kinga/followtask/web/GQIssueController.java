@@ -339,4 +339,8 @@ public class GQIssueController {
     public Response deleteDocumentById(@Argument Long documentId) {
         return issueService.deleteDocumentById(documentId);
     }
+    @QueryMapping
+    public List<Notification> getNotificationsByUserId(@Argument String userId) {
+        return issueService.getNotificationsByUserId(userId);
+    }
 }

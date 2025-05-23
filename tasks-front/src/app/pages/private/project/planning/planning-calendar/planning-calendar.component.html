@@ -30,7 +30,15 @@
         </div>
       </div>
       <div class="card" style="margin-top: 15px;padding-top: 5px;padding-bottom: 5px">
-        <h1> Projets (<i style="cursor:pointer" [matMenuTriggerFor]="filter"> {{ curentFilter?.name }}...</i>) </h1>
+        <div class="header" >
+          <span class="title" >Projets :</span>
+          <div class="filter-container">
+            <p class="filter-text" >
+              {{ curentFilter?.name }}
+            </p>
+            <i class="fas fa-angle-down" [matMenuTriggerFor]="filter" ></i>
+          </div>
+        </div>
         <mat-menu #filter="matMenu">
           <felter-mastert-menue></felter-mastert-menue>
         </mat-menu>

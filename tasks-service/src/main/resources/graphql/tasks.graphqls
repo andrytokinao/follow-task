@@ -792,3 +792,25 @@ type ResponseApp {
     message:String
     code:String
 }
+type Notification {
+    id: ID
+    titre: String
+    project: Project
+    message: String
+    userIds: [String]
+    seenUserIds: [String]
+    action: ActionGroupe
+}
+type ActionItem {
+    id: ID
+    description: String
+    actionGroupe: ActionGroupe
+}
+
+type ActionGroupe {
+    id: ID
+    actions: [ActionItem]
+    user: UserApp
+    issue: Issue
+    created: String
+}

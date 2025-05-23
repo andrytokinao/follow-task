@@ -125,7 +125,6 @@ export class LabelFormComponent implements OnInit,AfterViewInit{
     if (!label.color) {
       return '';
     }
-    console.debug("getLabelStyle",'background-color:'+label.color);
     return 'background-color:'+label.color;
   }
 

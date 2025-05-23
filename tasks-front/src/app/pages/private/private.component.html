@@ -27,7 +27,7 @@
     <div class="user-section">
       <div class="notification-icon" [matMenuTriggerFor]="notificationMenu">
          <i class="fas fa-bell"></i> <!-- Icône de notification -->
-        <span class="badge" *ngIf="notifications.length > 0"> {{notifications.length}}</span>
+        <span class="badge" *ngIf="hasEnredeadNotification"> {{enreadedNotifications()}}</span>
       </div>
       <div class="user-dropdown">
         <img [src]="userService.getUrlPhoto(profile)" alt="P">
@@ -61,7 +61,7 @@
       <a href="#" class="fa fa-linkedin"></a>
     </div>
   </div>
-  <mat-menu #notificationMenu ="matMenu">
+  <mat-menu #notificationMenu ="matMenu" [ngStyle]="{'width': '600px'}" >
    <app-notifications [notifications]="notifications"></app-notifications>
   </mat-menu>
 </div>

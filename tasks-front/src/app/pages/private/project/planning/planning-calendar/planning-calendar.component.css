@@ -124,3 +124,49 @@ mat-checkbox .mat-checkbox-label {
   font-size: 14px;
   color: inherit;
 }
+
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+/* Titre "Projets :" */
+.title {
+  color: #333;
+}
+
+/* Conteneur pour le texte du filtre et l'icône */
+.filter-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 200px; /* Ajuster la largeur selon le besoin */
+}
+
+/* Texte du filtre */
+.filter-text {
+  color: #777;
+  cursor: pointer;
+  margin: 0;
+  font-size: 16px;
+  flex-grow: 1; /* Laisse de l'espace à l'icône pour se placer à droite */
+}
+
+/* Icône à droite du filtre */
+.filter-container i {
+  font-size: 20px;
+  color: #0a3622;
+  cursor: pointer; /* L'icône est cliquable */
+}
+
+/* Menu déroulant style (pour l'exemple avec Angular Material) */
+.mat-menu-item {
+  font-size: 14px;
+  padding: 10px;
+  color: #333;
+}

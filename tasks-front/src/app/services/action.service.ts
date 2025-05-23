@@ -68,8 +68,8 @@ import {NewDocumentComponent} from "../pages/private/project/modal/new-document/
   providedIn: 'root',
 })
 export class ActionService implements OnInit {
- private notificationSubject = new BehaviorSubject<NotificationApp[]>([]);
- notification$ = this.notificationSubject.asObservable();
+ private notificationsSubject = new BehaviorSubject<NotificationApp[]>([]);
+ notification$ = this.notificationsSubject.asObservable();
 
 
   constructor(private http: HttpClient,
@@ -83,10 +83,31 @@ export class ActionService implements OnInit {
 
   }
   nextNotification(notification:NotificationApp){
-    const currentNotification = this.notificationSubject.getValue();
-    this.notificationSubject.next([...currentNotification, notification]);
+    const currentNotification = this.notificationsSubject.getValue();
+    this.notificationsSubject.next([...currentNotification, notification]);
   }
 
   ngOnInit(): void {
+  }
+  loadNotifications(id: string) {
+    this.getNotificationsByUserId(id).subscribe(notifications => {
+      this.notificationsSubject.next(notifications);
+    });
+  }
+  getNotificationsByUserId(userId:String) {
+    return new Observable<NotificationApp[]>(observer => {
+      this.apollo.query({
+        query: operation.GET_NOTIFICATIONS_BY_USER_ID,
+        variables: {userId},
+        fetchPolicy: 'network-only'
+      }).subscribe((res: any) => {
+          observer.next(supprimerTypename(res.data.getNotificationsByUserId));
+          observer.complete();
+        }, error => {
+          console.error(error);
+          observer.complete();
+        }
+      )
+    });
   }
 }

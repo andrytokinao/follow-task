@@ -1,6 +1,7 @@
 import {Component, Input} from '@angular/core';
 import {NotificationApp, User} from "../../type/issue";
 import {UserService} from "../../services/user.service";
+import {AuthService} from "../../services/auth.service";
 
 @Component({
   selector: 'app-notifications',
@@ -10,14 +11,24 @@ import {UserService} from "../../services/user.service";
 })
 export class NotificationsComponent {
   @Input() notifications:NotificationApp[] = [];
-  constructor(private userService:UserService) {
-
+  private connectedId : String;
+  constructor(private userService:UserService, private authService:AuthService) {
+    this.authService.connectedUser$.subscribe(u => {
+      if (u && u.id) {
+        this.connectedId = u.id;
+      }
+    })
   }
   urlPhoto(user:User) {
     return this.userService.getUrlPhoto(user);
   }
 
   isRedead(notification: NotificationApp) {
-    return 'redead';
+    if (!notification.seenUserIds || notification.seenUserIds.length == 0 )
+      return '';
+    if (notification.seenUserIds.includes(this.connectedId)) {
+      return 'redead';
+    }
+    return '';
   }
 }

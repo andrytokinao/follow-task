@@ -81,6 +81,7 @@ export class PrivateComponent {
       if (this.connectedUser && this.connectedUser.id) {
         this.issueService.getProjectByUser(this.connectedUser.id);
         this.messageService.connectWs(this.connectedUser.id);
+        this.actionService.loadNotifications(this.connectedUser.id);
       } else {
         this.messageService.disconnectWs();
       }
@@ -134,6 +135,7 @@ export class PrivateComponent {
 
   isworkspace: boolean = false;
   buttonText: string = "workspace";
+  hasEnredeadNotification: true;
 
   triggerAnimation() {
     this.issueService.nextIsLoadingWorkspace(!this.isworkspace);
@@ -174,5 +176,9 @@ export class PrivateComponent {
       this.issueService.loadSettings();
       this.tempLogo = null;
     });
+  }
+
+  enreadedNotifications() {
+    return "2";
   }
 }

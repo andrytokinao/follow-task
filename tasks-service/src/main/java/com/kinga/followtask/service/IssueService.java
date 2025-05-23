@@ -96,6 +96,8 @@ public class IssueService {
     private  SimpMessagingTemplate simpMessagingTemplate;
     @Autowired
     private ActionService actionService;
+    @Autowired
+    private NotificationRepository notificationRepository;
 
     public Issue saveIssue(Issue issue) throws IOException {
 
@@ -678,5 +680,9 @@ public class IssueService {
         response.setCode("deleteDocumentById");
         response.setStatus("success");
         return response;
+    }
+
+    public List<Notification> getNotificationsByUserId(String userId) {
+        return notificationRepository.findByUserId(userId);
     }
 }
