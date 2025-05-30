@@ -62,6 +62,7 @@ export class PrivateComponent {
   private selectedLogo: File;
   protected logoUrl: string | ArrayBuffer | null = null;
   protected notifications:NotificationApp[] = [];
+  protected unrededNofication = 0;
 
   constructor(private router: Router,
               private authService: AuthService,
@@ -101,6 +102,9 @@ export class PrivateComponent {
     });
     this.actionService.notification$.subscribe(nots => {
       this.notifications = nots;
+    });
+    this.actionService.unreadedNotification$.subscribe( nbr => {
+      this.unrededNofication = nbr;
     })
   }
 
@@ -178,7 +182,9 @@ export class PrivateComponent {
     });
   }
 
-  enreadedNotifications() {
-    return "2";
+  seenNotification() {
+    this.actionService.seenNotification(this.connectedUser.id).subscribe( res => {
+      console.log('seenNotification',res);
+    });
   }
 }

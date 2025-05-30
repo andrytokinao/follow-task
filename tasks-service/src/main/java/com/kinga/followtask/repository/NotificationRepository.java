@@ -11,4 +11,6 @@ import java.util.List;
 public interface NotificationRepository extends JpaRepository<Notification,Long> {
     @Query(value = "SELECT * FROM Notification WHERE userIds LIKE %?1%", nativeQuery = true)
     List<Notification> findByUserId(String userId);
+    @Query(value = "SELECT * FROM Notification WHERE userIds LIKE %?1% and ( seenUserIds NOT LIKE %?1% OR seenUserIds is null )  " , nativeQuery = true)
+    List<Notification> findUnseens(String userId);
 }

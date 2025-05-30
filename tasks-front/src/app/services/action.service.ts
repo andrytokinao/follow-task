@@ -21,7 +21,7 @@ import {
   Uploading,
   Uploaded,
   DocumentApp,
-  DomainActivity, Label, IssueLabels, AppSettings, NotificationApp
+  DomainActivity, Label, IssueLabels, AppSettings, NotificationApp, ResponseApp
 } from "../type/issue";
 import {Apollo} from "apollo-angular";
 import * as operation from "../type/graphql.operations";
@@ -69,7 +69,10 @@ import {NewDocumentComponent} from "../pages/private/project/modal/new-document/
 })
 export class ActionService implements OnInit {
  private notificationsSubject = new BehaviorSubject<NotificationApp[]>([]);
+ private unreadedNotificationSubject = new BehaviorSubject<number>(0);
+ unreadedNotification$ = this.unreadedNotificationSubject.asObservable();
  notification$ = this.notificationsSubject.asObservable();
+ connectedUser: User;
 
 
   constructor(private http: HttpClient,
@@ -80,7 +83,15 @@ export class ActionService implements OnInit {
               private authService: AuthService,
               protected projectGuard: ProjectGuard,
   ) {
-
+    this.notification$.subscribe( notifs => {
+      if (!notifs || notifs.length == 0 || !this.connectedUser)
+        return
+      let unreads = notifs.filter(n => !n.seenUserIds || !n.seenUserIds.includes(this.connectedUser.id));
+      this.unreadedNotificationSubject.next(unreads.length);
+    });
+    this.authService.connectedUser$.subscribe(user => {
+      this.connectedUser = user;
+    });
   }
   nextNotification(notification:NotificationApp){
     const currentNotification = this.notificationsSubject.getValue();
@@ -88,6 +99,8 @@ export class ActionService implements OnInit {
   }
 
   ngOnInit(): void {
+
+
   }
   loadNotifications(id: string) {
     this.getNotificationsByUserId(id).subscribe(notifications => {
@@ -110,4 +123,20 @@ export class ActionService implements OnInit {
       )
     });
   }
+
+  seenNotification(userId: String) {
+    return new Observable<ResponseApp>(observer => {
+      this.apollo.mutate({
+        mutation: operation.SEEN_NOTIFICATION,
+        variables: {userId}
+      }).subscribe((res: any) => {
+        observer.next(supprimerTypename(res.data.seenNotification));
+        observer.complete();
+      }, error => {
+        observer.error(error);
+        observer.complete();
+      })
+    });
+  }
+
 }

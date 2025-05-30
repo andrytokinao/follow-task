@@ -685,4 +685,18 @@ public class IssueService {
     public List<Notification> getNotificationsByUserId(String userId) {
         return notificationRepository.findByUserId(userId);
     }
+
+    public Response seenNotification(String userId) {
+        List<Notification> unseened = notificationRepository.findUnseens(userId);
+        unseened.forEach(n -> {
+            n.getSeenUserIds().add(userId);
+            notificationRepository.save(n);
+        });
+
+        Response response = new Response();
+        response.setMessage(unseened.size() + " are marked seen by " + userId);
+        response.setCode("seenNotification");
+        response.setStatus("success");
+        return response;
+    }
 }

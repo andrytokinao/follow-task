@@ -799,6 +799,7 @@ type Notification {
     message: String
     userIds: [String]
     seenUserIds: [String]
+    readUserIds:[String]
     action: ActionGroupe
 }
 type ActionItem {

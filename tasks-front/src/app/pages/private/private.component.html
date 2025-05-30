@@ -25,9 +25,9 @@
       <li><a routerLink="admin/users" *ngIf="authGuard.hasAutorityAsync(['CAN_CONFIGURE_SYSTEM']) | async" routerLinkActive="active" ariaCurrentWhenActive="page">Admin</a></li>
     </ul>
     <div class="user-section">
-      <div class="notification-icon" [matMenuTriggerFor]="notificationMenu">
+      <div class="notification-icon" [matMenuTriggerFor]="notificationMenu" (click)="seenNotification()">
          <i class="fas fa-bell"></i> <!-- Icône de notification -->
-        <span class="badge" *ngIf="hasEnredeadNotification"> {{enreadedNotifications()}}</span>
+        <span class="badge" *ngIf="unrededNofication != 0"> {{unrededNofication}}</span>
       </div>
       <div class="user-dropdown">
         <img [src]="userService.getUrlPhoto(profile)" alt="P">

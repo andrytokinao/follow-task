@@ -366,6 +366,7 @@ export interface NotificationApp{
   message:String
   userIds:String[]
   seenUserIds:String[]
+  readUserIds:String[]
   action:ActionGroupe
 }
 export interface ResponseApp {

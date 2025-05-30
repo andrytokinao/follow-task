@@ -343,4 +343,8 @@ public class GQIssueController {
     public List<Notification> getNotificationsByUserId(@Argument String userId) {
         return issueService.getNotificationsByUserId(userId);
     }
+    @MutationMapping
+    public Response seenNotification(@Argument String userId) {
+        return issueService.seenNotification(userId);
+    }
 }

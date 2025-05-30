@@ -2538,12 +2538,21 @@ export let GET_NOTIFICATIONS_BY_USER_ID = gql`
           }
         }
         seenUserIds
+        readUserIds
         userIds
         titre
       }
     }
 `;
-
+export let SEEN_NOTIFICATION = gql`
+  mutation seenNotification($userId:String) {
+  seenNotification(userId:$userId) {
+    code
+    status
+    message
+    }
+  }
+`;
 export {
   supprimerTypename,
   SAVE_USER,
