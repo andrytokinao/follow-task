@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import lombok.Data;
 import org.springframework.util.StringUtils;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -21,7 +22,16 @@ public class ActionField extends ActionItem {
     }
 
     @Override
+    public String buildMDetails(String userIdToNotify) {
+        return this.buildMDetails();
+    }
+
+    @Override
     public Set<String> generateUserToNotify() {
         return issue.getObserverIds();
+    }
+    @Override
+    public Set<String> generateUserToNotifySpecific() {
+        return new HashSet<>();
     }
 }

@@ -115,8 +115,10 @@ selected{
   background-color: #e8f3e8;
 }
 
-
-#content {
+.mat-mdc-menu-panel{
+  max-width: 500px !important;
+}
+content {
   margin-top: 20px;
   text-align: center;
 }

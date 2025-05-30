@@ -740,6 +740,7 @@ export class IssueService implements OnInit {
   }
 
   assigneToUser(is: Issue, user: User) {
+    let executor:String = this.user.id;
     let issue: any = {
       id: is.id,
       assigne: {id: user.id},
@@ -747,7 +748,7 @@ export class IssueService implements OnInit {
     return new Observable<Issue>((observer) => {
       this.apollo.mutate({
         mutation: operation.ASSIGNE_TO_USER,
-        variables: {issue}
+        variables: {issue,executor}
       }).subscribe((res: any) => {
         observer.next(supprimerTypename(res.data.assigneToUser));
         observer.complete();

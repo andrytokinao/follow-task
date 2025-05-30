@@ -23,10 +23,10 @@ public class ActionGroupe {
     private Issue issue;
     private Date created;
 
-    public String buildMessage() {
+    public String buildMessage(String userIdToNotify) {
         StringBuilder message = new StringBuilder();
         this.getActions().forEach(action -> {
-            message.append(action.buildMDetails());
+            message.append(action.buildMDetails(userIdToNotify));
         });
         return message.toString();
     }
@@ -34,6 +34,17 @@ public class ActionGroupe {
         Set<String> list = new HashSet<>();
         this.getActions().forEach(action -> {
             Set<String> us = action.generateUserToNotify();
+            if (CollectionUtils.isEmpty(us)) {
+                return;
+            }
+            list.addAll(us);
+        });
+        return list.stream().filter(u -> ! u.equalsIgnoreCase(user.getId())).collect(Collectors.toSet());
+    }
+    public Set<String> userSpecificToNotifies(){
+        Set<String> list = new HashSet<>();
+        this.getActions().forEach(action -> {
+            Set<String> us = action.generateUserToNotifySpecific();
             if (CollectionUtils.isEmpty(us)) {
                 return;
             }

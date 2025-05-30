@@ -421,7 +421,7 @@ public class IssueService {
             return "";
         }
     }
-    public Issue assigneToUser (Issue is) {
+    public Issue assigneToUser (Issue is , String executeUser) {
         Optional<Issue> optionalIssue = issueRepository.findById (is.getId ());
         Optional<UserApp> userApp = userAppRepository.findById (is.getAssigne ().getId ());
         if(optionalIssue.isPresent ()) {
@@ -430,7 +430,7 @@ public class IssueService {
             issue.addObserverIds(is.getAssigne().getId ());
             issueRepository.save (issue);
         }
-        actionService.ceateAssigneAction(optionalIssue.get());
+        actionService.ceateAssigneAction(executeUser,optionalIssue.get());
         return issueRepository.getById (is.getId ());
     }
     public CustomField getCustomField (Long id) {

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,8 +26,12 @@ public abstract class ActionItem {
     @ManyToOne
     protected Issue issue;
     @Convert(converter = MapToJsonConverter.class)
-    protected Map<String,String> details;
+    protected Map<String,String> details = new HashMap<>();
     public abstract String buildMDetails();
+    public abstract String buildMDetails(String userIdToNotify);
 
     public abstract Set<String> generateUserToNotify() ;
+
+    public abstract Set<String> generateUserToNotifySpecific() ;
+
 }

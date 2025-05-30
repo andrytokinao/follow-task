@@ -5,10 +5,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Data
@@ -46,5 +43,9 @@ public class Notification {
         if (this.readUserIds == null)
             this.readUserIds = new ArrayList<>();
         return readUserIds;
+    }
+    public List<String> getIssueLinks(){
+        return Arrays.asList("/working",project.getPrefix(),"issue",action.getIssue().getIssueKey(),"details");
+
     }
 }

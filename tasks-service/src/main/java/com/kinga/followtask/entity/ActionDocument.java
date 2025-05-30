@@ -6,6 +6,7 @@ import jakarta.persistence.ManyToOne;
 import lombok.Data;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -26,4 +27,15 @@ public class ActionDocument extends ActionItem {
         Set<String> member = document.buildMembers();
         return member;
     }
+
+    @Override
+    public Set<String> generateUserToNotifySpecific() {
+        return new HashSet<>();
+    }
+
+    @Override
+    public String buildMDetails(String userIdToNotify) {
+        return this.buildMDetails();
+    }
+
 }

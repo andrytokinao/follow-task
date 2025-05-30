@@ -3,6 +3,7 @@ package com.kinga.followtask.entity;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -20,4 +21,14 @@ public class ActionStatus extends ActionItem {
     public Set<String> generateUserToNotify() {
         return issue.getObserverIds();
     }
+
+    @Override
+    public String buildMDetails(String userIdToNotify) {
+        return this.buildMDetails();
+    }
+    @Override
+    public Set<String> generateUserToNotifySpecific() {
+        return new HashSet<>();
+    }
+
 }

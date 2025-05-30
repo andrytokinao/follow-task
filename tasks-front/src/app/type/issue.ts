@@ -368,6 +368,7 @@ export interface NotificationApp{
   seenUserIds:String[]
   readUserIds:String[]
   action:ActionGroupe
+  issueLinks:String[]
 }
 export interface ResponseApp {
   code:String

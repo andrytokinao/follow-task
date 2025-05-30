@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import lombok.Data;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -25,5 +26,13 @@ public class ActionCustomField extends ActionItem {
     @Override
     public Set<String> generateUserToNotify() {
         return issue.getObserverIds();
+    }
+    @Override
+    public String buildMDetails(String userIdToNotify) {
+        return this.buildMDetails();
+    }
+    @Override
+    public Set<String> generateUserToNotifySpecific() {
+        return new HashSet<>();
     }
 }

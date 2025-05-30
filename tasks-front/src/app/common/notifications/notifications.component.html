@@ -1,28 +1,16 @@
 <!-- notification.component.html -->
 <div class="notification-container">
   <div *ngFor="let notification of notifications" class="notification-card" [class.read]="isRedead(notification)">
+
     <div class="user-info">
       <img [src]="urlPhoto(notification.action.user)" alt="User photo" class="user-photo">
       <div class="message-info">
         <p class="user-name">{{notification.action.user.username }}</p>
         <p class="message">{{ notification.message }}</p>
       </div>
+      <div>
+      <a [routerLink]="notification.issueLinks"> {{notification.project.prefix}} / {{notification.action.issue.issueKey}}</a>
     </div>
-
-<!--    <button mat-icon-button [matMenuTriggerFor]="commentMenu" *ngIf="notification.action.actions?.length">
-      <mat-icon>more_vert</mat-icon>
-    </button>-->
-
-<!--    <mat-menu #commentMenu="matMenu">
-      <ng-container *ngFor="let action of notification.action.actions">
-        <button mat-menu-item (click)="toggleActionClick(comment)" [class.clicked]="comment.clicked">
-          <div class="comment-item">
-            <p class="commenter-name">{{ comment.userName }}</p>
-            <p class="comment-text">{{ comment.text }}</p>
-          </div>
-        </button>
-      </ng-container>
-    </mat-menu>-->
-
+    </div>
   </div>
 </div>

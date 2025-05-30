@@ -5,6 +5,7 @@ import com.kinga.followtask.entity.Notification;
 import com.kinga.followtask.entity.Project;
 import com.kinga.followtask.entity.UserApp;
 import lombok.Data;
+import lombok.Setter;
 
 import java.util.List;
 @Data
@@ -15,12 +16,14 @@ public class OutputNotification {
     private ActionGroupe action;
     private String title;
     private List<String> seenUserIds;
+    private List<String> issueLinks;
     public OutputNotification(Notification notification) {
         setId(notification.getId());
         setMessage(notification.getMessage());
         setSeenUserIds(notification.getSeenUserIds());
         setAction(notification.getAction());
         setProject(notification.getProject());
+        setIssueLinks(notification.getIssueLinks());
     }
 
     public void setAction(ActionGroupe action) {

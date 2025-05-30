@@ -4,9 +4,11 @@ import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import lombok.Data;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -26,10 +28,24 @@ public class ActionAssigne extends ActionItem {
         }
         return "";
     }
-
+    public String buildMDetails(String notify) {
+        if (this.issue != null  && this.assigne != null &&  !StringUtils.isEmpty(notify) ) {
+            assigne = this.issue.getAssigne();
+            this.details.put("assigne", "Assigne to "+ assigne.getId() );
+            return "Assigne "+issue.getIssueKey()+" to " + (assigne.getId().equalsIgnoreCase(notify)? " You" : assigne.getUsername());
+        }
+        return "";
+    }
     @Override
     public Set<String> generateUserToNotify() {
         return issue.getObserverIds();
+    }
+    @Override
+    public Set<String> generateUserToNotifySpecific() {
+        if (assigne != null) {
+            return Set.of(assigne.getId());
+        }
+        return new HashSet<>();
     }
 
 }

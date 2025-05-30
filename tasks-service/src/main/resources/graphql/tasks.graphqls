@@ -801,6 +801,7 @@ type Notification {
     seenUserIds: [String]
     readUserIds:[String]
     action: ActionGroupe
+    issueLinks:[String]
 }
 type ActionItem {
     id: ID

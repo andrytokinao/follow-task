@@ -1384,8 +1384,8 @@ const REMOVE_ISSUE_TYPE_PARENT=gql`
   }
 `
 const ASSIGNE_TO_USER =  gql `
-    mutation assigneToUser($issue:IssueInput) {
-      assigneToUser(issue: $issue){
+    mutation assigneToUser($issue:IssueInput,$executor:String) {
+      assigneToUser(issue: $issue,executor:$executor){
         id
         issueKey
         summary
@@ -2536,11 +2536,16 @@ export let GET_NOTIFICATIONS_BY_USER_ID = gql`
             username
             photo
           }
+          issue {
+            id
+            issueKey
+          }
         }
         seenUserIds
         readUserIds
         userIds
         titre
+        issueLinks
       }
     }
 `;

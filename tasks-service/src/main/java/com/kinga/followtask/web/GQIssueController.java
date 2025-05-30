@@ -185,8 +185,8 @@ public class GQIssueController {
         return projectService.allCustomField(projectId);
      }
      @MutationMapping
-     public Issue assigneToUser(@Argument Issue issue) {
-        return issueService.assigneToUser(issue);
+     public Issue assigneToUser(@Argument Issue issue , @Argument String executor) {
+        return issueService.assigneToUser(issue,executor);
      }
     @QueryMapping
      public CustomField getCustomField(@Argument Long id) {

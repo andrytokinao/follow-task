@@ -14,7 +14,7 @@
     </thead>
     <tbody *ngFor="let issue of issues">
     <tr>
-      <td><input type="checkbox" /></td>
+      <td></td>
       <td>
         <div class="company-name"> <a [routerLink]="['/working', project.prefix, 'issue', issue.issueKey,'details']" class="company-link">{{ issue.issueKey }}
         </a></div>

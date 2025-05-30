@@ -18,7 +18,7 @@ type Mutation {
     saveCustomField(customField:CustomFieldImput):CustomField
     useCustomField(usingCustomField:UsingCustomFieldInput):[UsingCustomField]
     unUseCustomField(usingCustomField:UsingCustomFieldInput):[UsingCustomField],
-    assigneToUser(issue:IssueInput):Issue
+    assigneToUser(issue:IssueInput,executor:String):Issue
     saveOrUpdateConfig(configProject:ConfigProjectInput):ConfigProject
     addUserInGroupe(username:String,groupeId:Int,roles:[String]):MemberGroupe
     deleteMember(memberId:Int):ResponseApp

@@ -18,4 +18,15 @@ public class ActionUpload extends ActionItem {
     public Set<String> generateUserToNotify() {
         return issue.getObserverIds();
     }
+
+    @Override
+    public Set<String> generateUserToNotifySpecific() {
+        return Set.of();
+    }
+
+    @Override
+    public String buildMDetails(String userIdToNotify) {
+        return this.buildMDetails();
+    }
+
 }
