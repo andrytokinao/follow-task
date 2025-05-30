@@ -48,6 +48,7 @@ import {NgxColorsModule} from "ngx-colors";
 import {ConfirmationDialogComponent} from "./confirmation-dialog/confirmation-dialog.component";
 import {DocumentMenuComponent} from "./document-menu/document-menu.component";
 import {NotificationsComponent} from "./notifications/notifications.component";
+import {TeamAvatarsComponent} from "./team-avatars/team-avatars.component";
 
 @NgModule({
   declarations: [
@@ -79,7 +80,8 @@ import {NotificationsComponent} from "./notifications/notifications.component";
   FelterMatMenueComponent,
     ConfirmationDialogComponent,
     DocumentMenuComponent,
-    NotificationsComponent
+    NotificationsComponent,
+    TeamAvatarsComponent
 
   ],
     imports: [
@@ -145,7 +147,8 @@ import {NotificationsComponent} from "./notifications/notifications.component";
     LabelFormComponent,
     FelterMatMenueComponent,
     DocumentMenuComponent,
-    NotificationsComponent
+    NotificationsComponent,
+    TeamAvatarsComponent
   ]
 })
 export class MyCommonModule { }

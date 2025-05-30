@@ -32,6 +32,7 @@ export class Issue {
   labels?:IssueLabels[]
   comments? :Comment[] = [];
   project?:Project;
+  observerIds?:String[];
   constructor() {
 
   }

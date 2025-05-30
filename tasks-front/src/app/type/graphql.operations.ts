@@ -1731,6 +1731,7 @@ const SEARCH_ISSUES = gql`
       creationDate
       description
       encodedPath
+      observerIds
       labels {
         id
         issue {

@@ -19,8 +19,11 @@
         <div class="company-name"> <a [routerLink]="['/working', project.prefix, 'issue', issue.issueKey,'details']" class="company-link">{{ issue.issueKey }}
         </a></div>
              </td>
+
       <td>{{ issue.summary }}</td>
       <td>
+        <app-team-avatars [teamsIds]="issue.observerIds"></app-team-avatars>
+
         <div class="team-avatars">
          <!-- <ng-container *ngFor="let avatar of item.teams">
             <img [src]="avatar" class="avatar" />

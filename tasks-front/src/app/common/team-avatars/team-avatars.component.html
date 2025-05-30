@@ -1,0 +1,11 @@
+<div class="avatar-container">
+  <div class="avatar"
+       *ngFor="let member of teamsMembers"
+       [ngStyle]="{'background-image':'url('+userService.getUrlPhoto(member)+')'}"
+  >
+
+    <span class="tooltip">
+            {{member.firstName}}
+    </span>
+  </div>
+</div>
