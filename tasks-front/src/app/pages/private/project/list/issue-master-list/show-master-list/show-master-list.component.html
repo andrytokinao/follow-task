@@ -35,9 +35,23 @@
     </div>
     <div *ngIf="currentView ==='calendar'">
       <app-calendar-list ></app-calendar-list>
-    </div>  </div>
+    </div>
+    <div *ngIf="currentView ==='table-master'">
+      <app-table-master ></app-table-master>
+    </div>
+  </div>
   <div>
-    type
+    <nav class="list-show-menue">
+      <button class="buttons" (click)="setView('board')">
+        <i class = "fas fa-th-large"> </i>
+      </button>
+      <button class="buttons" (click)="setView('table-master')">
+        <i class = "fas fa-list"> </i>
+      </button>
+      <button class="buttons" (click)="setView('list')">
+        <i class = "fas fa-info-circle"> </i>
+      </button>
+    </nav>
   </div>
 </div>
 

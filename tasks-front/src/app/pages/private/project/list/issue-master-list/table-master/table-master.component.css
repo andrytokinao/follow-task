@@ -1,0 +1,87 @@
+.container {
+  padding: 1rem;
+  background-color: #f9fafb;
+}
+
+.issue-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 0.5rem;
+}
+
+.issue-table th,
+.issue-table td {
+  padding: 1rem;
+  text-align: left;
+}
+
+.issue-name {
+  font-weight: bold;
+}
+
+.issue-link {
+  color: #3b82f6;
+  font-size: 0.875rem;
+}
+
+.team-avatars {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 9999px;
+}
+
+.performance-icon {
+  width: 40px;
+  height: 24px;
+  stroke: #6366f1;
+}
+
+.tag-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.tag {
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: white;
+}
+
+.bg-red {
+  background-color: #f87171;
+}
+
+.bg-blue {
+  background-color: #60a5fa;
+}
+
+.bg-green {
+  background-color: #34d399;
+}
+
+.bg-yellow {
+  background-color: #fbbf24;
+}
+
+.actions button {
+  margin-right: 0.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.edit-btn i,
+.delete-btn i {
+  font-size: 1rem;
+}
+.issue-table {
+  border-bottom: 2px solid #e5e7eb; /* gris clair */
+}

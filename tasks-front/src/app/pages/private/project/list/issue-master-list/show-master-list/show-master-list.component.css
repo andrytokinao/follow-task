@@ -39,3 +39,19 @@
 .edit:hover{
   color: #333333;
 }
+.list-show-menue{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 50px;
+}
+.buttons {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.5rem;
+  color: #444;
+}
+.buttons:hover {
+  color: #007BFF;
+}

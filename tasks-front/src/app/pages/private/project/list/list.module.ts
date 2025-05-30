@@ -36,6 +36,7 @@ import {DayPilotModule} from "@daypilot/daypilot-lite-angular";
 import {ProjectModule} from "../project.module";
 import {ShowMasterListComponent} from "./issue-master-list/show-master-list/show-master-list.component";
 import {LabelFormComponent} from "../../../../common/label-form/label-form.component";
+import {TableMasterComponent} from "./issue-master-list/table-master/table-master.component";
 
 @NgModule({
   declarations: [
@@ -45,43 +46,44 @@ import {LabelFormComponent} from "../../../../common/label-form/label-form.compo
     ShowListComponent,
     BoardListComponent,
     CalandarListComponent,
-    ShowMasterListComponent
+    ShowMasterListComponent,
+    TableMasterComponent
 
   ],
     exports: [
         SimpleListeComponent
     ],
-    imports: [
-        ListRoutingModule,
-        MatTabsModule,
-        MatCardModule,
-        MatDialogModule,
-        MatToolbarModule,
-        MatFormFieldModule,
-        FormsModule,
-        MatMenuModule,
-        MatIconModule,
-        MatSelectModule,
-        CommonModule,
-        MyCommonModule,
-        CdkTextareaAutosize,
-        MatInputModule,
-        MatTable,
-        MatHeaderRowDef,
-        MatRowDef,
-        MatCellDef,
-        MatHeaderCellDef,
-        MatColumnDef,
-        MatPaginatorModule,
-        MatCell,
-        MatHeaderCell,
-        MatHeaderRow,
-        MatRow,
-        CustomFieldComponent,
-        DataRowOutlet,
-        DayPilotModule,
-        ProjectModule,
+  imports: [
+    ListRoutingModule,
+    MatTabsModule,
+    MatCardModule,
+    MatDialogModule,
+    MatToolbarModule,
+    MatFormFieldModule,
+    FormsModule,
+    MatMenuModule,
+    MatIconModule,
+    MatSelectModule,
+    CommonModule,
+    MyCommonModule,
+    CdkTextareaAutosize,
+    MatInputModule,
+    MatTable,
+    MatHeaderRowDef,
+    MatRowDef,
+    MatCellDef,
+    MatHeaderCellDef,
+    MatColumnDef,
+    MatPaginatorModule,
+    MatCell,
+    MatHeaderCell,
+    MatHeaderRow,
+    MatRow,
+    CustomFieldComponent,
+    DataRowOutlet,
+    DayPilotModule,
+    ProjectModule,
 
-    ]
+  ]
 })
 export class ListModule { }

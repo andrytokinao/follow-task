@@ -1,0 +1,62 @@
+<div class="container">
+  <table class="company-table table">
+    <thead>
+    <tr>
+      <th></th>
+      <th>Clé </th>
+      <th>Titre</th>
+      <th>Teams</th>
+      <th style="min-width: 300px">Tags</th>
+      <th  style="min-width: 200px">assignée</th>
+      <th  style="min-width: 150px">Status</th>
+      <th></th>
+    </tr>
+    </thead>
+    <tbody *ngFor="let issue of issues">
+    <tr>
+      <td><input type="checkbox" /></td>
+      <td>
+        <div class="company-name"> <a [routerLink]="['/working', project.prefix, 'issue', issue.issueKey,'details']" class="company-link">{{ issue.issueKey }}
+        </a></div>
+             </td>
+      <td>{{ issue.summary }}</td>
+      <td>
+        <div class="team-avatars">
+         <!-- <ng-container *ngFor="let avatar of item.teams">
+            <img [src]="avatar" class="avatar" />
+          </ng-container>-->
+        </div>
+      </td>
+  <!--    <td>
+        <svg class="performance-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path d="M2 12h4l3 8 4-16 3 8h4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </td>-->
+      <td>
+        <div class="tag-container">
+          <app-label-form [issue] = "issue">
+
+          </app-label-form>
+<!--
+          <span *ngFor="let tag of issue.labels" class="tag" [ngClass]="tag.class">{{ tag.label }}</span>
+-->
+        </div>
+      </td>
+      <td>
+        <app-assign-field [issue]="issue"></app-assign-field>
+      </td>
+      <td>
+        <app-status-field [issue] = "issue"></app-status-field>
+      </td>
+      <td class="actions">
+        <button class="edit-btn">
+          <i class="fas fa-pen"></i>
+        </button>
+        <button class="delete-btn">
+          <i class="fas fa-trash"></i>
+        </button>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>

@@ -25,7 +25,7 @@ import {ProjectGuard} from "../../../../../../services/ProjectGuard";
 export class ShowMasterListComponent implements OnInit{
   issues:Issue[] =[];
   project: Project | undefined;
-  currentView: string = 'list';
+  currentView: string = 'table-master';
   views = [
     { id: 'list', icon: 'fas fa-list', title: 'Liste de tâches' },
     { id: 'board', icon: 'fas fa-columns', title: 'Kanban' },
@@ -176,4 +176,7 @@ export class ShowMasterListComponent implements OnInit{
   }
 
 
+  setView(view: string) {
+    this.currentView = view;
+  }
 }
