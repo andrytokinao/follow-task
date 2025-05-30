@@ -37,6 +37,7 @@ import {ProjectModule} from "../project.module";
 import {ShowMasterListComponent} from "./issue-master-list/show-master-list/show-master-list.component";
 import {LabelFormComponent} from "../../../../common/label-form/label-form.component";
 import {TableMasterComponent} from "./issue-master-list/table-master/table-master.component";
+import {IssueBoaardComponent} from "./issue-boaard/issue-boaard.component";
 
 @NgModule({
   declarations: [
@@ -47,7 +48,8 @@ import {TableMasterComponent} from "./issue-master-list/table-master/table-maste
     BoardListComponent,
     CalandarListComponent,
     ShowMasterListComponent,
-    TableMasterComponent
+    TableMasterComponent,
+    IssueBoaardComponent
 
   ],
     exports: [

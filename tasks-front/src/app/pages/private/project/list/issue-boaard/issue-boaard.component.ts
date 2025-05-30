@@ -1,0 +1,191 @@
+import { Component } from '@angular/core';
+import {IssueService} from "../../../../../services/issue.service";
+import {Criteria, Issue, IssueType, Project, Status, User, WorkFlow} from "../../../../../type/issue";
+import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import {UserService} from "../../../../../services/user.service";
+import {ActivatedRoute} from "@angular/router";
+import {ToastrService} from "ngx-toastr";
+import {AuthGuard} from "../../../../../services/SystemGuard";
+import {NewIssueComponent} from "../../modal/new-issue/new-issue.component";
+import {stripTypename} from "@apollo/client/utilities";
+import {ViewEditIssueComponent} from "../../modal/view-edit-issue/view-edit-issue.component";
+
+@Component({
+  standalone:false,
+  selector: 'app-issue-boaard',
+  templateUrl: './issue-boaard.component.html',
+  styleUrl: './issue-boaard.component.css'
+})
+export class IssueBoaardComponent {
+  public essueService: IssueService
+  public issuesBoard: [any, Issue[]][] = [];
+  public issues: Issue[] = [];
+  public users: User[] = [];
+  public currentIssue: Issue | null = null;
+  workflow: Status[] = [];
+  currentWorkflow: WorkFlow | any = {};
+  currentWorkflows: WorkFlow[]=[];
+  description: string = "";
+  summary: string = "";
+  nom: any;
+  email: any;
+  project: Project | undefined;
+  issueType: IssueType | any = {};
+
+  constructor(
+    private modalService: NgbModal,
+    private issueService: IssueService,
+    essueService: IssueService,
+    public userService: UserService,
+    private route: ActivatedRoute,
+    private toastr: ToastrService,
+    protected authGuard:AuthGuard
+
+  ) {
+    this.essueService = essueService;
+/*    this.issueService.issues$.subscribe(issues => {
+      alert(issues.length);
+      this.currentWorkflows = this.issueService.getDistinctWorkflows(issues);
+      if (this.currentWorkflows != null && this.currentWorkflows.length != 0) {
+        this.currentWorkflow = this.currentWorkflows[0];
+        this.loadByWorkFlow(this.currentWorkflow);
+      }
+      this.issues = issues;
+    });*/
+    this.essueService.issueMasterList$.subscribe(issues => {
+      this.issues = issues;
+      this.currentWorkflows = this.issueService.getDistinctWorkflows(issues);
+      if (this.currentWorkflows != null && this.currentWorkflows.length != 0) {
+        this.currentWorkflow = this.currentWorkflows[0];
+        this.loadByWorkFlow(this.currentWorkflow);
+      }
+      this.issues = issues;
+
+    });
+  }
+
+  newIssueTest(status: Status) {
+    const dialogRef = this.modalService.open(NewIssueComponent);
+    dialogRef.componentInstance.status = status;
+    dialogRef.componentInstance.project = this.project;
+    dialogRef.result.then((result) => {
+      this.issues.push(result.issue);
+      this.essueService.ajouterAuGroupe(this.issuesBoard, result.issue.status, result.issue);
+    }).catch((reason) => {
+      console.log('modal cancelled' + reason.message);
+    });
+  }
+
+  newIssue(status: Status) {
+    const dialogRef = this.modalService.open(NewIssueComponent);
+    dialogRef.componentInstance.allIssueTypes = this.currentWorkflow.allIssueTypes;
+    dialogRef.componentInstance.status = status;
+    dialogRef.result.then((result) => {
+      this.issues = <Issue[]>stripTypename(result.issues)
+
+    })
+  }
+
+  canCreate(status: Status): boolean {
+    // TODO : return false if user can not create
+    if (status.id === 1)
+      return true;
+    return true;
+  }
+
+  isActive(user: User): boolean {
+    if (this.currentIssue != null && this.currentIssue.assigne != null) {
+      return this.currentIssue.assigne.id == user.id;
+    }
+    return false;
+  }
+
+  onDragStart($event: DragEvent, issue: Issue) {
+    this.currentIssue = issue;
+  }
+
+  onDrop($event: DragEvent, status: any) {
+    if (this.currentIssue != null) {
+      this.currentIssue.status = status;
+      this.issueService.saveIssue(this.currentIssue).subscribe({
+          next: (result: any) => {
+            this.currentIssue = (result.data.saveIssue)
+          },
+          error: (err) => {
+            console.error(err)
+          }
+        }
+      );
+
+    }
+  }
+
+  onDragOver($event: DragEvent) {
+    $event.preventDefault();
+  }
+
+  filterByStatus(status: any): Issue[] {
+    return this.issues.filter(is => is.status != null && is.status.id == status.id);
+  }
+
+  filerWorkFlow(): Status[] {
+    // TODO : Filtrer l'affichage de workflow selon le role de l'utilisateur
+    let flows: number[] = [0, 1, 2, 3, 4, 5];
+    if (this.workflow != null)
+      return this.workflow.filter(wf => flows.indexOf(wf.id) != -1);
+    return [];
+  }
+
+  assign(issue: Issue) {
+    this.currentIssue = issue;
+  }
+
+
+  assigneToUser(user: User) {
+    if (this.currentIssue != null) {
+      this.currentIssue.assigne = user;
+      this.issueService.assigneToUser(this.currentIssue,user).subscribe((issue:Issue)=>{
+          this.currentIssue = issue;
+        }
+      );
+    }
+  }
+
+  submitForm() {
+
+  }
+
+  viewIssue(issue: Issue) {
+    if (true)
+      return; // desactiver pour le moment
+    const dialogRef = this.modalService.open(ViewEditIssueComponent, {windowClass: "xlModal"});
+    dialogRef.componentInstance.issue = issue;
+    dialogRef.componentInstance.users = this.users;
+    dialogRef.result.then((result) => {
+      this.currentIssue = null;
+    })
+  }
+
+  ngOnInit(): void {
+    this.issueService.project$.subscribe(project=> this.project = project);
+    this.userService.users$.subscribe((users) => {
+      this.users = users;
+    });
+  }
+
+  loadByWorkFlow(currentWorkflow:WorkFlow) {
+    let criterias: Criteria[] =[];
+    for (let type of currentWorkflow.issueTypes){
+      let criteria:Criteria | any = {};
+      criteria.field ="issueTypeId";
+      criteria.value = type.id;
+      criteria.operator ="eq";
+    }
+    this.issueService.issueByCriteria(criterias).subscribe(issues => {
+      this.issues = issues;
+    });
+  }
+  getUrlPhoto(user:User){
+    return this.userService.getUrlPhoto(user);
+  }
+}

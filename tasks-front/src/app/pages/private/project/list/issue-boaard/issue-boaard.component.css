@@ -1,0 +1,70 @@
+.board {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(20px, 1fr));
+  -moz-box-pack: start;
+  justify-content: flex-start;
+  -moz-box-align: stretch;
+  align-items: stretch;
+  user-select: none;
+  padding: 0px 0px 40px 34px;
+  min-width: fit-content;
+  gap: 0px;
+}
+.entete {
+  user-select: none;
+  width: 100%;
+  padding: 20px;
+  max-width: 100%;
+  box-sizing: border-box;
+  height: 48px;
+  position: relative;
+  background-color: #F4F5F7;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+  transition: background-color 0.2s ease 0s;
+  cursor: default;
+}
+.column {
+  position: relative;
+  display: flex;
+  margin: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  min-height: 100vh;
+  flex-direction: column;
+  align-self: auto;
+  flex: 1 1 auto;
+  min-width: 182px;
+  max-width: 282px;
+  transition: min-width 300ms ease 0s, max-width 300ms ease-in 0s;
+}
+
+.issie-board{
+  margin-top: 5px;
+}
+.myCard {
+  position: relative;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.content {
+  padding: 10px;
+}
+
+h3 {
+  margin-top: 0;
+}
+
+.image {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 30px;
+  height: auto;
+  border-radius: 4px;
+}
+.active {
+  background-color: #e0e0e0; /* Exemple de couleur de fond pour l'élément actif */
+}
