@@ -38,6 +38,7 @@
     "highcharts-angular": "^4.0.0",
     "lottie-web": "^5.12.2",
     "marked": "^5.1.0",
+    "ng-apexcharts": "^1.15.0",
     "ngx-breadcrumbs": "^0.0.3",
     "ngx-colors": "^3.6.0",
     "ngx-cookie-service": "^18.0.0",
@@ -53,9 +54,8 @@
     "rxjs": "~7.8.0",
     "sockjs-client": "^1.6.1",
     "tslib": "^2.6.0",
-    "zone.js": "~0.15.0",
-    "typescript": "5.8.2"
-
+    "typescript": "5.8.2",
+    "zone.js": "~0.15.0"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^19.0.0",

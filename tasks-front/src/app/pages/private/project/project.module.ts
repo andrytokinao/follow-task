@@ -47,6 +47,8 @@ import {MatCheckbox} from "@angular/material/checkbox";
 import {NewDocumentComponent} from "./modal/new-document/new-document.component";
 import {ExchangeDocumentsComponent} from "./exchange-documents/exchange-documents.component";
 import {MatDivider} from "@angular/material/divider";
+import {ProjectHomeComponent} from "./home/home.component";
+import {DashboardModule} from "../../../dashboard/dashboard.module";
 
 @NgModule({
   declarations: [
@@ -67,6 +69,7 @@ import {MatDivider} from "@angular/material/divider";
     MessagesComponent,
     NewDocumentComponent,
     ExchangeDocumentsComponent,
+    ProjectHomeComponent
 
   ],
   exports: [
@@ -103,7 +106,8 @@ import {MatDivider} from "@angular/material/divider";
     MarkdownComponent,
     DayPilotModule,
     MatCheckbox,
-    MatDivider
+    MatDivider,
+    DashboardModule
   ]
 })
 export class ProjectModule { }

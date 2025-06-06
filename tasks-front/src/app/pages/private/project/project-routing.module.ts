@@ -21,6 +21,7 @@ import {ProjectGuard} from "../../../services/ProjectGuard";
 import _default from "chart.js/dist/core/core.interaction";
 import dataset = _default.modes.dataset;
 import {MessagesComponent} from "./messages/messages.component";
+import {ProjectHomeComponent} from "./home/home.component";
 
 
 
@@ -38,6 +39,8 @@ const projectRoute: Routes = [
             loadChildren: () => import('./list/list.module').then(m => m.ListModule),
             //  canMatch: [userAdmin]
           },
+          { path: 'home', component: ProjectHomeComponent},
+
           { path: 'gantt-chart', component: GanttChartComponent, resolve: { breadcrumb: ProjectBreadcrumbResolverService ,data:{order:2}  }},
           { path: 'board', component: BoardComponent, resolve: { breadcrumb: ProjectBreadcrumbResolverService  } ,data:{order:3} },
           { path: 'rapport', component: RapportComponent, resolve: { breadcrumb: ProjectBreadcrumbResolverService  } ,data:{order:4} },
