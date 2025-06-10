@@ -185,7 +185,7 @@
                             <goal>npm</goal>
                         </goals>
                         <configuration>
-                            <arguments>install --legacy-peer-deps</arguments>
+                            <arguments>install --force</arguments>
                         </configuration>
                         <phase>generate-resources</phase>
                     </execution>

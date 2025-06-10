@@ -4,7 +4,7 @@ import {MatFormField} from "@angular/material/form-field";
 import {map, Observable} from "rxjs";
 import {UserService} from "../../services/user.service";
 import {FormControl} from "@angular/forms";
-import {CustomFieldValue, Issue, User} from "../../type/issue";
+import {ActionItem, CustomFieldValue, Issue, User} from "../../type/issue";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {IssueService} from "../../services/issue.service";
 import {ActivatedRoute} from "@angular/router";
@@ -57,13 +57,18 @@ export class AssignFieldComponent implements OnInit{
       user.lastName.toLowerCase().includes(filterValue) ||
       user.username.toLowerCase().includes(filterValue));
   }
-  assigneToUser(user: User) {
+  assigneToUserOld(user: User) {
     if (this.issue != null) {
       this.issueService.assigneToUser(this.issue,user).subscribe((issue:Issue)=>{
           this.issue = issue;
           this.save.emit(this.issue);
         }
       )
+    }
+  }
+  assigneToUser(user: User) {
+    if (this.issue != null) {
+      this.issueService.createActionAssign(this.issue,user);
     }
   }
   isActive(user: User): boolean {

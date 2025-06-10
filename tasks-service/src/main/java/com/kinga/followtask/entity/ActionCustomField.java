@@ -15,6 +15,7 @@ import java.util.Set;
 public class ActionCustomField extends ActionItem {
     @ManyToOne
     private CustomFieldValue customFieldValue;
+
     private String oldStringValue ;
     private String newStringValue ;
 

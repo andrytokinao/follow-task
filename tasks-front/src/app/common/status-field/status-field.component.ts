@@ -35,7 +35,7 @@ export class StatusFieldComponent implements OnInit , AfterViewInit{
 
   }
 
-  changeStatus(status: Status) {
+  changeStatusOld(status: Status) {
     let issue = {...this.issue};
     delete issue.values;
     delete issue.creationDate;
@@ -53,6 +53,9 @@ export class StatusFieldComponent implements OnInit , AfterViewInit{
 
 
     );
+  }
+  changeStatus(status: Status) {
+    this.issueService.createActionStatus(this.issue,status);
   }
 
   isActive(status: Status) {

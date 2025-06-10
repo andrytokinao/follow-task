@@ -21,7 +21,16 @@ import {
   Uploading,
   Uploaded,
   DocumentApp,
-  DomainActivity, Label, IssueLabels, AppSettings, NotificationApp, ResponseApp
+  DomainActivity,
+  Label,
+  IssueLabels,
+  AppSettings,
+  NotificationApp,
+  ResponseApp,
+  ActionItem,
+  ActionGroupe,
+  ActionAssigne,
+  ActionStatus
 } from "../type/issue";
 import {Apollo} from "apollo-angular";
 import * as operation from "../type/graphql.operations";
@@ -37,7 +46,7 @@ import {
   GET_ISSUE_TYPE_BY_ID,
   GET_NEXT_KEY, GET_PROJECT_BY_USER,
   ISSUE_BY_CRITERIA, LIST_ISSUE_TYPE_MASTER, LIST_ISSUE_TYPE_SUBTASKS, LOAD_ISSUE_MASTER_BY_PROJECT, LOAD_SUBTASK,
-  REMOVE_ISSUE_TYPE_PARENT,
+  REMOVE_ISSUE_TYPE_PARENT, SAVE_ACTION,
   SAVE_CONFIG,
   SAVE_CONFIG_PROJECT, SEARCH_ISSUES,
   supprimerTypename,
@@ -1809,5 +1818,87 @@ export class IssueService implements OnInit {
 
   processDeleteDocument(doc: unknown) {
 
+  }
+  createActionAssign(issue:Issue, assign:User){
+    let groupe:ActionGroupe = {
+      issue:{id:issue.id},
+      user:{
+        id:this.user.id
+      }
+    }
+    let action:ActionAssigne = new ActionAssigne(groupe,assign);
+    this.saveAction(action).subscribe(action =>{
+      this.processAction(action);
+    })
+  }
+  createActionStatus(issue:Issue, status:Status){
+    let groupe:ActionGroupe = {
+      issue:{id:issue.id},
+      user:{
+        id:this.user.id
+      }
+    }
+    let action:ActionStatus = new ActionStatus(groupe,status);
+    this.saveAction(action).subscribe(action =>{
+      this.processAction(action);
+    })
+  }
+  saveAction(action:ActionItem) {
+    return new Observable<ActionItem>(observer => {
+      this.apollo.mutate({
+         mutation:operation.SAVE_ACTION,
+         variables:{action},
+          fetchPolicy: "network-only",
+        }
+      ).subscribe((res:any) =>{
+        observer.next(supprimerTypename(res.data.saveAction));
+        observer.complete();
+      }, error =>{
+         console.log(error);
+         observer.error(error);
+         observer.complete();
+      }
+     )
+    })
+  }
+  filterIssueById(issueId:number){
+    const masters = this.issueMastersListSubject.getValue();
+    return masters.find(master => master.id === issueId);
+  }
+  processActionAssign(assign:User, issueId){
+    const currentMasters = this.issueMastersListSubject.getValue();
+    let existIssue:Issue = this.filterIssueById(issueId);
+    if (existIssue) {
+      existIssue.assigne = assign;
+      const updatedMasters = currentMasters.map( master =>
+        master.id === existIssue.id ? existIssue : master
+      );
+      this.issueMastersListSubject.next(updatedMasters);
+    }
+  }
+  processAction(action:ActionItem) {
+    switch (action.actionType) {
+      case "ASSIGN":{
+        let assign:ActionAssigne  = action as ActionAssigne;
+        this.processActionAssign(assign.assigne,assign.actionGroupe.issue.id);
+        break;
+      }
+      case "STATUS":{
+        let actionStatus :ActionStatus = action as ActionStatus;
+        this.processActionStatus(actionStatus.status,actionStatus.actionGroupe.issue.id);
+      }
+    }
+  }
+
+  private processActionStatus(status: Status, issueId: number) {
+    const currentMasters = this.issueMastersListSubject.getValue();
+    let existIssue:Issue = this.filterIssueById(issueId);
+    if (existIssue) {
+      existIssue.status = status;
+      const updatedMasters = currentMasters.map( master =>
+        master.id === existIssue.id ? existIssue : master
+      );
+      this.issueMastersListSubject.next(updatedMasters);
+    }
   }
 }

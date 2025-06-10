@@ -1,11 +1,11 @@
 package com.kinga.followtask.entity;
 
+import com.kinga.followtask.dto.ActionItemInput;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,6 +27,19 @@ public abstract class ActionItem {
     protected Issue issue;
     @Convert(converter = MapToJsonConverter.class)
     protected Map<String,String> details = new HashMap<>();
+
+    public static ActionItem fromInput(ActionItemInput action) {
+        switch (action.getActionType()) {
+            case ASSIGN -> {
+                return new ActionAssigne(action);
+            }
+            case STATUS -> {
+                return new ActionStatus(action);
+            }
+        }
+        return null;
+    }
+
     public abstract String buildMDetails();
     public abstract String buildMDetails(String userIdToNotify);
 

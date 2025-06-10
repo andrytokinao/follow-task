@@ -2,6 +2,7 @@ package com.kinga.followtask.entity;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
 import lombok.Data;
 import org.springframework.util.StringUtils;
 
@@ -16,6 +17,8 @@ public class ActionField extends ActionItem {
     private String fieldName;
     private String fieldValue;
     private String oldValue;
+    @ManyToOne
+    private CustomFieldValue value;
     @Override
     public String buildMDetails() {
         return actionGroupe.getUser().getFirstName() +" Change field "+fieldName + (oldValue == null ? "" : " "+oldValue) +" to "+fieldValue ;

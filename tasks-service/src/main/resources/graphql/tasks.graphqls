@@ -265,6 +265,7 @@ input  IssueInput {
     issueKey:String
     description : String
     directory:String
+    encodedPath:String
     parent:IssueInput,
     creationDate:String,
     issueType:IssueTypeInput
@@ -805,8 +806,24 @@ type Notification {
 }
 type ActionItem {
     id: ID
+    actionType:String
     description: String
+    profile:UserApp
+    assigne:UserApp
+    value:CustomFieldValue
     actionGroupe: ActionGroupe
+    status:Status
+
+}
+input ActionItemInput {
+    id: ID
+    actionType:String
+    description: String
+    profile:UserAppInput
+    assigne:UserAppInput
+    value:CustomFieldValueInput
+    actionGroupe: ActionGroupeInput
+    status:StatusInput
 }
 
 type ActionGroupe {
@@ -814,5 +831,12 @@ type ActionGroupe {
     actions: [ActionItem]
     user: UserApp
     issue: Issue
+    created: String
+}
+input ActionGroupeInput {
+    id: ID
+    actions: [ActionItemInput]
+    user: UserAppInput
+    issue: IssueInput
     created: String
 }

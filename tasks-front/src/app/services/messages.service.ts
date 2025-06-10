@@ -1,5 +1,15 @@
 import { Injectable } from '@angular/core';
-import {Canall, DocumentApp, Issue, MessageApp, NotificationApp, Project, Uploaded, User} from "../type/issue";
+import {
+  ActionItem,
+  Canall,
+  DocumentApp,
+  Issue,
+  MessageApp,
+  NotificationApp,
+  Project,
+  Uploaded,
+  User
+} from "../type/issue";
 import {BehaviorSubject, Observable} from "rxjs";
 import {HttpClient, HttpEvent, HttpRequest} from "@angular/common/http";
 import {environment} from "../../environments/environment";
@@ -192,6 +202,9 @@ export class MessagesService {
     let newUploaded:Uploaded = JSON.parse(body,(key,value:Uploaded) => {
       return value;
     }).newUploaded;
+    let actionItem:ActionItem = JSON.parse(body,(key,value:ActionItem) => {
+      return value;
+    }).processAction;
 
 
 
@@ -210,6 +223,9 @@ export class MessagesService {
     }
     if (newUploaded) {
       alert("new Uploaded "+JSON.stringify(newUploaded));
+    }
+    if (actionItem) {
+      this.issueService.processAction(actionItem);
     }
   }
   processNotification(notification:NotificationApp){

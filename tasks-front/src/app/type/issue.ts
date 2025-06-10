@@ -347,18 +347,58 @@ export interface MessageApp {
   sender:User
   userReades?:String[];
 }
-export interface ActionItem {
+export abstract class ActionItem {
   id?:Number
   actionType : 'CHANGE_FIELD' | 'CUSTOM_FIELD' | 'STATUS' | 'ASSIGN'|'ADD_EVENT'| 'CHANGE_PROFILE' | 'UPLOAD' | 'COMMENT' | 'DOCUMENT'
-  actionGroupe:ActionGroupe,
+  actionGroupe:ActionGroupe
    details:any;
+  constructor(groupe: ActionGroupe) {
+    this.actionGroupe = groupe;
+  }
+}
+export class ActionProfile extends ActionItem {
+  profile:User
+  constructor(groupe:ActionGroupe,profile:User) {
+    super(groupe);
+    this.actionType = "CHANGE_PROFILE";
+    this.profile = profile;
+  }
+}
+export class ActionAssigne extends ActionItem {
+  assigne:User
+  constructor(groupe:ActionGroupe,assigne:User) {
+    super(groupe);
+    this.actionType="ASSIGN";
+    this.assigne = assigne;
+  }
+}
+export class ActionField extends ActionItem {
+  fieldName:String
+  fieldValue:String
+  oldValue:String
+  value:CustomFieldValue
+  constructor(groupe:ActionGroupe,value:CustomFieldValue) {
+    super(groupe);
+    this.actionType="CUSTOM_FIELD";
+    this.value = value;
+  }
+}
+export class ActionStatus extends ActionItem {
+  oldStatus:String
+  newStatus:String
+  status:Status
+  constructor(groupe:ActionGroupe,status:Status) {
+    super(groupe);
+    this.actionType="STATUS";
+    this.status = status;
+  }
 }
 export interface ActionGroupe {
-   id:Number
-  actions:ActionItem[]
-  user:User
-  issue:Issue
-  created:Date
+  id?:Number
+  actions?:ActionItem[]
+  user?:User
+  issue?:Issue
+  created?:Date
 }
 export interface NotificationApp{
   id:Number

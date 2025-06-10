@@ -5,7 +5,6 @@ import com.kinga.followtask.entity.Uploaded;
 import com.kinga.followtask.entity.*;
 import com.kinga.followtask.repository.criteria.IssueSearchCriteria;
 import com.kinga.followtask.service.*;
-import com.kinga.utils.KingaUtils;
 import com.nimbusds.jose.shaded.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,15 +15,11 @@ import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
@@ -40,6 +35,9 @@ public class GQIssueController {
     final AuthorizationService authorizationService;
     final EventService eventService;
     final ConfigService configService;
+    @Autowired
+    private ActionService actionService;
+
     @QueryMapping
     public List<Issue> allIssue(){
         return issueService.findAllIssue();
@@ -346,5 +344,9 @@ public class GQIssueController {
     @MutationMapping
     public Response seenNotification(@Argument String userId) {
         return issueService.seenNotification(userId);
+    }
+    @MutationMapping
+    public ActionItem saveAction(@Argument ActionItemInput action) {
+        return actionService.saveAction(action);
     }
 }

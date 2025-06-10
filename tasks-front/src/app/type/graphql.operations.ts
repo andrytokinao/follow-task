@@ -2559,6 +2559,59 @@ export let SEEN_NOTIFICATION = gql`
     }
   }
 `;
+export let SAVE_ACTION = gql`
+    mutation saveAction($action:ActionItemInput) {
+      saveAction(action: $action){
+        id
+        description
+        actionType
+        assigne {
+          id
+          username
+          photo
+          firstName
+          lastName
+        }
+        profile {
+          id
+          username
+          photo
+        }
+        value {
+          customField {
+            id
+            name
+          }
+        }
+        status {
+          id
+          displayName
+          icone {
+            id
+            value
+            typeIcone
+          }
+          color
+        }
+        actionGroupe {
+          id
+          issue {
+            id
+            issueKey
+          }
+          user {
+            id
+            username
+            lastName
+            firstName
+            photo
+          }
+          created
+        }
+
+      }
+    }
+`
 export {
   supprimerTypename,
   SAVE_USER,
