@@ -6,6 +6,8 @@ import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -121,6 +123,24 @@ public class KingaUtils {
             Files.createDirectory(projectDirectory.toPath());
         }
         return directory;
+    }
+    public static String getMacAddress(){
+        StringBuilder sb = new StringBuilder();
+        InetAddress ip;
+        try {
+            ip = InetAddress.getLocalHost();
+            System.out.println("Adresse IP : " + ip.getHostAddress());
+            NetworkInterface network = NetworkInterface.getByInetAddress(ip);
+            byte[] mac = network.getHardwareAddress();
+            System.out.print("Adresse MAC : ");
+            for (int i = 0; i < mac.length; i++) {
+                sb.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? "-" : ""));
+            }
+            System.out.println(sb.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return sb.toString();
     }
 }
 
