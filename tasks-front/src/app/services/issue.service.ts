@@ -72,6 +72,7 @@ import numbers = _default.defaults.animations.numbers;
 import {J} from "@angular/cdk/keycodes";
 import {ProjectGuard} from "./ProjectGuard";
 import {NewDocumentComponent} from "../pages/private/project/modal/new-document/new-document.component";
+import {ImageModalContentComponent} from "../common/image-modal-content/image-modal-content.component";
 
 @Injectable({
   providedIn: 'root',
@@ -126,6 +127,8 @@ export class IssueService implements OnInit {
   private masterCurrentMasterFilter: CustomFilter;
   private documentsSubject = new BehaviorSubject<DocumentApp[]>([]);
   documents$ = this.documentsSubject.asObservable();
+  private slidingImageSubject = new BehaviorSubject<Repertoire>(undefined);
+  currentSlidingImage$ = this.slidingImageSubject.asObservable();
 
   setIssues(issues: Issue[]) {
     this.issuesSubject.next(issues);
@@ -1900,5 +1903,26 @@ export class IssueService implements OnInit {
       );
       this.issueMastersListSubject.next(updatedMasters);
     }
+  }
+  openImageModal() {
+    const modalRef = this.modalService.open(ImageModalContentComponent, { windowClass: 'xlModal' ,keyboard: false, backdrop:'static' });
+
+    modalRef.result.then((result) => {
+      console.log(`Closed with: ${result}`);
+    }, (reason) => {
+      console.log(`Dismissed with: ${reason}`);
+    });
+  }
+
+  nextImage(image:Repertoire) {
+    this.slidingImageSubject.next(image);
+  }
+  slideSuivanteImage() {
+    let currentSlide = this.slidingImageSubject.value;
+    if (currentSlide == null)
+      return;
+    this.http.get(environment.apiURL+"api/slide-next?path="+currentSlide.path+"&numero="+currentSlide.type).subscribe(res => {
+      console.log('okaaay ');
+    });
   }
 }

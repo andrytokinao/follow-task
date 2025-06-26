@@ -3,6 +3,7 @@ package com.kinga.followtask.web;
 import com.kinga.followtask.dto.UserDetailsDeto;
 import com.kinga.followtask.entity.Canall;
 import com.kinga.followtask.entity.UserApp;
+import com.kinga.followtask.service.ActionService;
 import com.kinga.followtask.service.MessagesService;
 import com.kinga.followtask.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller("/chat")

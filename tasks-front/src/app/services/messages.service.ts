@@ -6,7 +6,7 @@ import {
   Issue,
   MessageApp,
   NotificationApp,
-  Project,
+  Project, Repertoire,
   Uploaded,
   User
 } from "../type/issue";
@@ -205,6 +205,9 @@ export class MessagesService {
     let actionItem:ActionItem = JSON.parse(body,(key,value:ActionItem) => {
       return value;
     }).processAction;
+    let slideDossier:Repertoire = JSON.parse(body,(key,value:ActionItem) => {
+      return value;
+    }).slideDossier;
 
 
 
@@ -226,6 +229,9 @@ export class MessagesService {
     }
     if (actionItem) {
       this.issueService.processAction(actionItem);
+    }
+    if (slideDossier) {
+      this.issueService.nextImage(slideDossier);
     }
   }
   processNotification(notification:NotificationApp){

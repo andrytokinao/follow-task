@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.rmi.registry.LocateRegistry;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -75,7 +76,7 @@ public  class Dossier extends Repertoire {
         }
         return paths;
     }
-    private void listDirectory(String dir) {
+    public void listDirectory(String dir) {
         File file = new File(dir);
         File[] files = file.listFiles();
         List<Repertoire> repertoireList = new ArrayList<>();
@@ -88,6 +89,10 @@ public  class Dossier extends Repertoire {
                     Fichier fichier = new Fichier(files[i].getAbsolutePath(),files[i].getName());
                     repertoireList.add(fichier);
                 }
+            }
+            Collections.sort(repertoireList, new RepertoireComparator());
+            for (Repertoire repertoire : repertoireList) {
+                System.out.println(repertoire.getFileName());
             }
             this.setRepertoires(repertoireList);
         }

@@ -1,0 +1,8 @@
+<div class="modal-body">
+      <div class="picsum-img-wrapper">
+        <img [src]="current_image" alt="Slide " class="img-fluid">
+      </div>
+</div>
+<div class="modal-footer" *ngIf="authGuard.hasAutorityAsync(['CAN_ASSIGN_TASK']) | async">
+  <button type="button" class="btn btn-outline-dark" (click)="nextImage()">next-image</button>
+</div>

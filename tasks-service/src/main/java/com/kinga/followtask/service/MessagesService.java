@@ -22,6 +22,7 @@ public class MessagesService {
     public static String NEW_NOTIFICATION = "newNotification";
     public static String PROCESS_ACTION = "processAction";
     public static String NEW_UPLOADED = "newUploaded";
+    public static String SLIDE_DOSSIER = "slideDossier";
     private final CanalMemberRepository canalMemberRepository;
     private final CanalRepository canalRepository;
     private final ProjectRepository projectRepository;

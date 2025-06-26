@@ -1,0 +1,13 @@
+.picsum-img-wrapper {
+  max-height: 500px; /* Adjust as needed */
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.picsum-img-wrapper img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}

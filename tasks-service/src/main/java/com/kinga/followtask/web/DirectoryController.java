@@ -1,7 +1,9 @@
 package com.kinga.followtask.web;
 
 import com.kinga.followtask.dto.Dossier;
+import com.kinga.followtask.dto.Fichier;
 import com.kinga.followtask.dto.Repertoire;
+import com.kinga.followtask.service.ActionService;
 import com.kinga.followtask.service.IssueService;
 import com.kinga.utils.KingaUtils;
 import lombok.RequiredArgsConstructor;
@@ -15,12 +17,15 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 public class DirectoryController {
     final IssueService issueService;
+    private final ActionService actionService;
+
     @GetMapping(path = "/api/load-directory")
     @ResponseBody
     public Repertoire loadDirectory(@RequestParam(required = true) Long issueId){
@@ -56,5 +61,10 @@ public class DirectoryController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
+    }
+    @GetMapping("/api/slide-next")
+    public Fichier getSlideImage(@RequestParam String path, @RequestParam Integer numero ) throws IOException {
+       return  this.actionService.getSlideImage(path,numero);
+
     }
 }

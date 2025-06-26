@@ -1,0 +1,23 @@
+<div class="team-chat-container" [class.open]="isOpen">
+  <div class="chat-header" (click)="toggleChat()">
+    <span>Chat d’équipe</span>
+    <span class="toggle-icon">{{ isOpen ? '−' : '+' }}</span>
+  </div>
+
+  <div class="chat-body" *ngIf="isOpen">
+    <div class="chat-messages">
+      <div *ngFor="let msg of messages" [class.self]="msg.sender === currentUser" class="chat-message">
+        <strong>{{ msg.sender }}</strong>: {{ msg.content }}
+      </div>
+    </div>
+
+    <div class="chat-input">
+      <input
+        type="text"
+        placeholder="Écris un message..."
+        [(ngModel)]="newMessage"
+        (keydown.enter)="sendMessage()"
+      />
+    </div>
+  </div>
+</div>

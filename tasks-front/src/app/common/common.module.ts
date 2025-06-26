@@ -36,7 +36,7 @@ import {QuillEditorComponent} from "ngx-quill";
 import {EditorComponent} from "./quill-editor/quill-editor.component";
 import {PdfOverviewComponent} from "./pdf-overview/pdf-overview.component";
 import {NgxExtendedPdfViewerModule} from "ngx-extended-pdf-viewer";
-import {NgbCollapse} from "@ng-bootstrap/ng-bootstrap";
+import {NgbCarousel, NgbCollapse, NgbSlide} from "@ng-bootstrap/ng-bootstrap";
 import {DocViewerComponent} from "./doc-viewer/doc-viewer.component";
 import {NgxDocViewerModule} from "ngx-doc-viewer";
 import {IssueFilterComponent} from "./issue-filter/issue-filter.component";
@@ -49,6 +49,8 @@ import {ConfirmationDialogComponent} from "./confirmation-dialog/confirmation-di
 import {DocumentMenuComponent} from "./document-menu/document-menu.component";
 import {NotificationsComponent} from "./notifications/notifications.component";
 import {TeamAvatarsComponent} from "./team-avatars/team-avatars.component";
+import {ImageModalContentComponent} from "./image-modal-content/image-modal-content.component";
+import {ChatWidgetComponent} from "./chat-widget/chat-widget.component";
 
 @NgModule({
   declarations: [
@@ -81,41 +83,45 @@ import {TeamAvatarsComponent} from "./team-avatars/team-avatars.component";
     ConfirmationDialogComponent,
     DocumentMenuComponent,
     NotificationsComponent,
-    TeamAvatarsComponent
+    TeamAvatarsComponent,
+    ImageModalContentComponent,
+    ChatWidgetComponent
 
   ],
-    imports: [
-        CommonModule,
-        MatMenuModule,
-        MatIconModule,
-        MatSelectModule,
-        MatFormFieldModule,
-        MatCardModule,
-        MatDialogModule,
-        MatToolbarModule,
-        MatSelectModule,
-        FormsModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatButtonModule,
-        FormsModule,
-        MatFormField,
-        MatInput,
-        MatLabel,
-        NgIf,
-        NgClass,
-        ReactiveFormsModule,
-        MatAutocompleteTrigger,
-        MatAutocomplete,
-        RouterLink,
-        MatCheckbox,
-        QuillEditorComponent,
-        NgxExtendedPdfViewerModule,
-        NgbCollapse,
-        NgxDocViewerModule,
-        RouterLinkActive,
-        NgxColorsModule,
-    ],
+  imports: [
+    CommonModule,
+    MatMenuModule,
+    MatIconModule,
+    MatSelectModule,
+    MatFormFieldModule,
+    MatCardModule,
+    MatDialogModule,
+    MatToolbarModule,
+    MatSelectModule,
+    FormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    FormsModule,
+    MatFormField,
+    MatInput,
+    MatLabel,
+    NgIf,
+    NgClass,
+    ReactiveFormsModule,
+    MatAutocompleteTrigger,
+    MatAutocomplete,
+    RouterLink,
+    MatCheckbox,
+    QuillEditorComponent,
+    NgxExtendedPdfViewerModule,
+    NgbCollapse,
+    NgxDocViewerModule,
+    RouterLinkActive,
+    NgxColorsModule,
+    NgbCarousel,
+    NgbSlide,
+  ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA
   ],
@@ -148,7 +154,9 @@ import {TeamAvatarsComponent} from "./team-avatars/team-avatars.component";
     FelterMatMenueComponent,
     DocumentMenuComponent,
     NotificationsComponent,
-    TeamAvatarsComponent
+    TeamAvatarsComponent,
+    ImageModalContentComponent,
+    ChatWidgetComponent
   ]
 })
 export class MyCommonModule { }

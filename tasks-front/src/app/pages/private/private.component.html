@@ -43,7 +43,12 @@
 
   <div class="content"   >
     <router-outlet ></router-outlet>
+    <div class="container mt-5">
+      <h1>NgbModal with Image Carousel Example</h1>
+      <button class="btn btn-primary" (click)="openImageModal()">Presentation</button>
+    </div>
   </div>
+  <app-chat-widget></app-chat-widget>
 
   <div class="footer">
     <!-- Footer links -->
@@ -64,6 +69,7 @@
   <mat-menu #notificationMenu ="matMenu" [ngStyle]="{'width': '6000px'}" >
    <app-notifications [notifications]="notifications"></app-notifications>
   </mat-menu>
+
 </div>
 
 

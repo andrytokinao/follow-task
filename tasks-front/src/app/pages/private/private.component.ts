@@ -187,4 +187,8 @@ export class PrivateComponent {
       console.log('seenNotification',res);
     });
   }
+
+  openImageModal() {
+    this.issueService.openImageModal();
+  }
 }

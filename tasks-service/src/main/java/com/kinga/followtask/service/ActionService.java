@@ -1,15 +1,18 @@
 package com.kinga.followtask.service;
 
-import com.kinga.followtask.dto.ActionItemInput;
-import com.kinga.followtask.dto.OutputNotification;
+import com.kinga.followtask.dto.*;
 import com.kinga.followtask.entity.*;
 import com.kinga.followtask.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
+import java.io.IOException;
 import java.util.*;
+
+import static com.kinga.followtask.service.MessagesService.SLIDE_DOSSIER;
 
 @Service
 @RequiredArgsConstructor
@@ -23,8 +26,12 @@ public class ActionService {
     private final IssueRepository issueRepository;
     private final StatusRepository statusRepository;
     private final ProjectService projectService;
+    private final GroupeUserRepository groupeUserRepository;
+    private static List<String> slides = Arrays.asList(
 
+    );
 
+    private static int currentIndex = 0;
     public void generateAndSendNotification(ActionGroupe actionGroupe, Set<String> specificUsers) {
         Set<String> globalsUsers = actionGroupe.userToNotifies();
 
@@ -173,8 +180,15 @@ public class ActionService {
             simpMessagingTemplate.convertAndSend("/topic/datas/" + toNotifyItem, map);
         }
     }
+
     public Set<String> getMembers(String prefix) {
-        List<GroupeUser> groups = projectService.getGroupeUserForProject(prefix);
+        List<GroupeUser> groups = new ArrayList<>();
+
+        if (!StringUtils.isEmpty(prefix)) {
+            groups = projectService.getGroupeUserForProject(prefix);
+        } else {
+           groups = groupeUserRepository.findAll();
+        }
         Set<String> members = new HashSet<>();
         if (!CollectionUtils.isEmpty(groups)) {
             for (GroupeUser memberGroupe : groups) {
@@ -186,5 +200,42 @@ public class ActionService {
             }
         }
         return members;
+    }
+    public Fichier getSlideImage(String path, Integer numero) throws IOException {
+        if (numero == null)
+            numero = 0;
+
+        Dossier dossier = new Dossier(path);
+        dossier.listDirectory(path);
+        List<Repertoire> repertoires =  dossier.getRepertoires();
+        List<Fichier> fichiers = new ArrayList<>();
+
+        if (CollectionUtils.isEmpty(repertoires))
+            return null;
+
+        for (Repertoire repertoire : repertoires) {
+            if (repertoire instanceof Fichier) {
+                fichiers.add((Fichier) repertoire);
+            }
+        }
+        if (CollectionUtils.isEmpty(fichiers))
+            return null;
+        numero = (numero + 1) % fichiers.size();
+        Fichier fichier = fichiers.get(numero);
+        Map<String, Object> map = new HashMap<>();
+        map.put(SLIDE_DOSSIER,fichier);
+
+        fichier.setType(numero.toString());
+        fichier.setPath(path);
+
+
+        Set<String> members = getMembers("");
+
+        if (CollectionUtils.isEmpty(members))
+            return null;
+        for (String toNotifyItem : members) {
+            simpMessagingTemplate.convertAndSend("/topic/datas/" + toNotifyItem, map);
+        }
+        return fichier;
     }
 }
