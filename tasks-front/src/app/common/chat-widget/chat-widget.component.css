@@ -1,7 +1,6 @@
 .team-chat-container {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
+  bottom: 100%;
+  right: 10px;
   width: 320px;
   font-family: 'Segoe UI', sans-serif;
   border-radius: 10px;

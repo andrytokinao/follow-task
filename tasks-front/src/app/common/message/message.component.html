@@ -1,0 +1,32 @@
+<!-- Zone de chat -->
+<div class="chat-container">
+  <div class="header">
+    <div>
+      <img [src]="getPhoto()" alt="Avatar" class="avatar">
+      {{chatName() || 'Sélectionnez une discussion' }}
+    </div>
+      <span typeField="button" class="pointer" style="float:right" aria-label="Close"  (click)="closeChat()">
+    <i class="fas fa-close"></i>  <span aria-hidden="true"></span>
+    </span>
+  </div>
+
+  <div class="messages">
+    <div style="align-items: center">
+        <span style="align-items: center">
+                  Achange avec {{ chatName()}}
+
+        </span>
+    </div>
+    <div *ngFor="let message of canal?.messageApp" class="message" [class.sent]="messageService.senderIsMe(message)">
+        <span >
+         <img *ngIf="!messageService.senderIsMe(message)" [src]="messageService.getSenderPhoto(message)" alt="Avatar" class="avatar">
+        <span class="message-content">{{ message.text }}</span>
+        </span>
+    </div>
+  </div>
+
+  <div class="input-container">
+    <input [(ngModel)]="newMessage" placeholder="Tapez un message..." />
+    <button (click)="sendMessage()">Envoyer</button>
+  </div>
+</div>

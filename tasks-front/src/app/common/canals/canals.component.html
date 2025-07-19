@@ -1,0 +1,46 @@
+<div class="header">
+
+  <span typeField="button" class="pointer" aria-label="Close" >
+    <i class="fas fa-cog"></i> Créer  <span aria-hidden="true"></span>
+</span>
+  <span typeField="button" class="pointer" aria-label="Close" >
+    <i class="fas fa-plus"></i> Créer  <span aria-hidden="true"></span>
+</span>
+  <span typeField="button" class="pointer" style="float:right" aria-label="Close"  (click)="closeCanal()">
+    <i class="fas fa-close"></i>  <span aria-hidden="true"></span>
+</span>
+</div>
+<div class="chat-list">
+  <div *ngFor="let canal of canals"
+       class="chat-item"
+       [class.active]="canal === selectedCanall"
+       (click)="selectChat(canal)">
+    <img [src]="messageService.getPhoto(canal)" alt="Avatar" class="avatar">
+    <div class="chat-info">
+      <div class="chat-name">{{ chatName(canal) }}</div>
+      <div class="chat-last-message" *ngIf="canal.messageApp">{{ canal.messageApp[canal.messageApp.length - 1]?.text || 'Aucun message' }}</div>
+    </div>
+  </div>
+  <div class="chat-item" [matMenuTriggerFor]="newCanal">
+    Nouveau message
+  </div>
+</div>
+
+<mat-menu #newCanal="matMenu">
+  <div class="card" style="margin-top: 15px;padding-top: 5px;padding-bottom: 5px">
+    <h1> Membre  </h1>
+    <div class="sidebar-heding ">
+      <div *ngFor="let user of userToCanal" (click)="stopPropagation($event)">
+        <mat-checkbox
+          [checked]="isSelectedUser(user.id)"
+          (change)="selectUser($event, user)"
+          class="custom-checkbox"
+        >
+          {{ user.username }}
+        </mat-checkbox>
+
+      </div>
+      <div (click)="createCanal()" *ngIf="this.selectedUsers.length > 0">  Créer</div>
+    </div>
+  </div>
+</mat-menu>

@@ -35,6 +35,10 @@ import {ActionService} from "./action.service";
 export class MessagesService {
   private canalsSubject = new BehaviorSubject<Canall[]>([]);
   canals$ = this.canalsSubject.asObservable();
+  private showCanalsSubject = new BehaviorSubject<Canall>(undefined);
+  showCanals$ = this.showCanalsSubject.asObservable();
+  private closeCanalsSubject = new BehaviorSubject<Canall>(undefined);
+  closeCanals$ = this.closeCanalsSubject.asObservable();
   private newMessageSubject = new BehaviorSubject<MessageApp>(undefined);
   newMessage$ = this.newMessageSubject.asObservable();
   private notificationSubject = new BehaviorSubject<NotificationApp[]>([]);
@@ -45,6 +49,8 @@ export class MessagesService {
   private client: Client;
 
   connectedUser
+  private showSmartSubject = new BehaviorSubject<string>('');
+  showSmartRight$ = this.showSmartSubject.asObservable();
   constructor(
     private http:HttpClient,
     private apollo:Apollo,
@@ -236,5 +242,16 @@ export class MessagesService {
   }
   processNotification(notification:NotificationApp){
     this.actionService.nextNotification(notification);
+  }
+  showCanal(canal:Canall){
+    this.showCanalsSubject.next(canal);
+  }
+
+  showRight(s: string) {
+    this.showSmartSubject.next(s);
+  }
+
+  closeChat(canal: Canall) {
+    this.closeCanalsSubject.next(canal);
   }
 }

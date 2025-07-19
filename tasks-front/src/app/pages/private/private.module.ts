@@ -23,6 +23,9 @@ import {BrowserModule} from "@angular/platform-browser";
 import {MatRadioButton, MatRadioGroup} from "@angular/material/radio";
 import {NgxColorsModule} from "ngx-colors";
 import {ChatWidgetComponent} from "../../common/chat-widget/chat-widget.component";
+import {SmartFooterComponent} from "../../common/smart-footer/smart-footer.component";
+import {CanalsComponent} from "../../common/canals/canals.component";
+import {MessageComponent} from "../../common/message/message.component";
 
 
 @NgModule({
@@ -31,28 +34,32 @@ import {ChatWidgetComponent} from "../../common/chat-widget/chat-widget.componen
     ProfileComponent,
     AccessDeniedComponent,
     HomeComponent,
-    PopupCreateProjectComponent
+    PopupCreateProjectComponent,
+    SmartFooterComponent
   ],
-    imports: [
-        PrivateRoutingModule,
-        MatTabsModule,
-        MatCardModule,
-        MatDialogModule,
-        MatToolbarModule,
-        MatFormFieldModule,
-        FormsModule,
-        MatMenuModule,
-        MatIconModule,
-        MatSelectModule,
-        CommonModule,
-        MyCommonModule,
-        CustomFieldComponent,
-        MatInputModule,
-        ReactiveFormsModule,
-        MatRadioButton,
-        MatRadioGroup,
-        NgxColorsModule,
-    ],
+  imports: [
+    PrivateRoutingModule,
+    MatTabsModule,
+    MatCardModule,
+    MatDialogModule,
+    MatToolbarModule,
+    MatFormFieldModule,
+    FormsModule,
+    MatMenuModule,
+    MatIconModule,
+    MatSelectModule,
+    CommonModule,
+    MyCommonModule,
+    CustomFieldComponent,
+    MatInputModule,
+    ReactiveFormsModule,
+    MatRadioButton,
+    MatRadioGroup,
+    NgxColorsModule,
+    CanalsComponent,
+    MessageComponent,
+
+  ],
 
 })
 export class PrivateModule {}

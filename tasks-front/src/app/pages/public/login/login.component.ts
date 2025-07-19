@@ -18,10 +18,8 @@ import {
   Validators
 } from "@angular/forms";
 import {EventGateway} from "../../../type/event-gatway";
-import {isAdultValidator, PasswordMatchValidator} from "../../../type/validator";
 import {User} from "../../../type/issue";
 import {UserService} from "../../../services/user.service";
-import {EditEventComponent} from "../../../common/edit-event/edit-event.component";
 export type Nullable<T> = T | null;
 
 @Component({
@@ -187,7 +185,6 @@ export class LoginComponent {
        this.signup() ;
       }, error =>  {
       this.toast.error("Sign up error :"+error.message,"Sign up error");
-
     })
 
   }
