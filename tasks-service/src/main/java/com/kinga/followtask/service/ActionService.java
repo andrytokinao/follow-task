@@ -201,7 +201,7 @@ public class ActionService {
         }
         return members;
     }
-    public Fichier getSlideImage(String path, Integer numero) throws IOException {
+    public Fichier getSlideImage(String path, Integer numero, String action) throws IOException {
         if (numero == null)
             numero = 0;
 
@@ -222,6 +222,7 @@ public class ActionService {
             return null;
         numero = (numero + 1) % fichiers.size();
         Fichier fichier = fichiers.get(numero);
+        fichier.setFileName(action);
         Map<String, Object> map = new HashMap<>();
         map.put(SLIDE_DOSSIER,fichier);
 

@@ -142,6 +142,10 @@ public class KingaUtils {
         }
         return sb.toString();
     }
+
+    public static void main(String[] args) {
+        System.out.println(decodeText("GC4h0tzyt4GaH"));
+    }
 }
 
 

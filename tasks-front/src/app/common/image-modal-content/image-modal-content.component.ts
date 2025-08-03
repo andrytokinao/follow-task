@@ -20,6 +20,8 @@ export class ImageModalContentComponent {
     private issueService:IssueService
   ) {
     issueService.currentSlidingImage$.subscribe(image => {
+      if (image.fileName === 'close')
+        this.activeModal.close({});
       this.current_image = environment.apiURL+"photo/"+image.absolutePath;
     });
   }
@@ -29,6 +31,9 @@ export class ImageModalContentComponent {
 */
 
   nextImage() {
-    this.issueService.slideSuivanteImage();
+    this.issueService.slideSuivanteImage('open');
+  }
+  close() {
+    this.issueService.slideSuivanteImage('close');
   }
 }

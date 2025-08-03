@@ -18,6 +18,7 @@ import {moveFromLeftKeyframes} from "../../../../projects/router-animations/src/
 import {environment} from "../../../environments/environment";
 import {MessagesService} from "../../services/messages.service";
 import {ActionService} from "../../services/action.service";
+import {ImageModalContentComponent} from "../../common/image-modal-content/image-modal-content.component";
 
 @Component({
   selector: 'private-root',
@@ -105,7 +106,18 @@ export class PrivateComponent {
     });
     this.actionService.unreadedNotification$.subscribe( nbr => {
       this.unrededNofication = nbr;
-    })
+    });
+    issueService.currentSlidingImage$.subscribe(image => {
+      if (image.fileName === 'open') {
+        this.openImageModal();
+        return;
+      }
+      if (image.fileName === 'close') {
+        this.closeImageModal();
+        return;
+      }
+
+    });
   }
 
   logout() {
@@ -188,7 +200,22 @@ export class PrivateComponent {
     });
   }
 
+  private closeImageModal() {
+    if (this.modalService.hasOpenModals()) {
+      this.modalService.dismissAll();
+    }
+
+  }
   openImageModal() {
-    this.issueService.openImageModal();
+    if (this.modalService.hasOpenModals()) {
+      return;
+    }
+    const modalRef = this.modalService.open(ImageModalContentComponent, { windowClass: 'xlModal' ,keyboard: false, backdrop:'static' });
+
+    modalRef.result.then((result) => {
+      console.log(`Closed with: ${result}`);
+    }, (reason) => {
+      console.log(`Dismissed with: ${reason}`);
+    });
   }
 }

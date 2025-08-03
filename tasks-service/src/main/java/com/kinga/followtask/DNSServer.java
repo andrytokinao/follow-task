@@ -39,13 +39,13 @@ public class DNSServer {
     private static String extractDomainName(String dnsQuery) {
         // Extract domain name from DNS query (simplified)
         int index = dnsQuery.indexOf("www.controle.com");
-        return "www.controle.com";
+        return "www.controle.andry";
     }
 
     private static String resolveDNS(String domainName) {
         // Mock DNS resolution logic (replace with actual logic)
-        if (domainName.equals("www.controle.com")) {
-            return "192.168.1.105";
+        if (domainName.equals("www.controle.andry")) {
+            return "192.168.34.77";
         }
         return null; // Return null if domain not found
     }

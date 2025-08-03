@@ -34,6 +34,7 @@ import {provideRouter} from "@angular/router";
 import {routeTransition} from "../route-transition";
 import {AnimationExamplesModule} from "./animation-examples/animation-examples.module";
 import {NgxColorsModule} from "ngx-colors";
+import {DashboardModule} from "./dashboard/dashboard.module";
 
 
 @NgModule({
@@ -86,6 +87,7 @@ import {NgxColorsModule} from "ngx-colors";
         MyCommonModule,
         FormsModule,
         AnimationExamplesModule,
+        DashboardModule,
 
     ],
 

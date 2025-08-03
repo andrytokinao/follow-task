@@ -63,8 +63,7 @@ public class DirectoryController {
         }
     }
     @GetMapping("/api/slide-next")
-    public Fichier getSlideImage(@RequestParam String path, @RequestParam Integer numero ) throws IOException {
-       return  this.actionService.getSlideImage(path,numero);
-
+    public Fichier getSlideImage(@RequestParam String path, @RequestParam Integer numero, @RequestParam String action ) throws IOException {
+       return  this.actionService.getSlideImage(path,numero,action);
     }
 }

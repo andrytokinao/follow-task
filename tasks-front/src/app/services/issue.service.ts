@@ -1904,24 +1904,16 @@ export class IssueService implements OnInit {
       this.issueMastersListSubject.next(updatedMasters);
     }
   }
-  openImageModal() {
-    const modalRef = this.modalService.open(ImageModalContentComponent, { windowClass: 'xlModal' ,keyboard: false, backdrop:'static' });
 
-    modalRef.result.then((result) => {
-      console.log(`Closed with: ${result}`);
-    }, (reason) => {
-      console.log(`Dismissed with: ${reason}`);
-    });
-  }
 
   nextImage(image:Repertoire) {
     this.slidingImageSubject.next(image);
   }
-  slideSuivanteImage() {
+  slideSuivanteImage(action:string) {
     let currentSlide = this.slidingImageSubject.value;
     if (currentSlide == null)
       return;
-    this.http.get(environment.apiURL+"api/slide-next?path="+currentSlide.path+"&numero="+currentSlide.type).subscribe(res => {
+    this.http.get(environment.apiURL+"api/slide-next?path="+currentSlide.path+"&numero="+currentSlide.type+"&action="+action).subscribe(res => {
       console.log('okaaay ');
     });
   }

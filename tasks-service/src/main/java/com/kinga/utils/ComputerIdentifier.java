@@ -19,7 +19,16 @@ import java.util.stream.Collectors;
 
 public class ComputerIdentifier {
 
-    // --- Nouvelle méthode pour détecter si la machine est une VM ---
+    public static MachineInfo machineInfo;
+
+
+    static {
+        try {
+            loadLocalIndentifier();
+        } catch (SocketException e) {
+            throw new RuntimeException(e);
+        }
+    }
     public static boolean isVirtualMachine() throws SocketException {
         SystemInfo si = new SystemInfo();
         HardwareAbstractionLayer hal = si.getHardware();
@@ -88,45 +97,9 @@ public class ComputerIdentifier {
     }
 
     // Classe interne pour structurer les informations de la machine
-    private static class MachineInfo {
-        boolean isVM; // Nouveau champ pour indiquer si c'est une VM
-        String systemUUID;
-        String boardSerial;
-        List<String> diskSerials;
-        List<String> macAddresses;
-        String processorIdentifier;
-        int logicalProcessorCount;
-        String generatedHash; // Le hash final
-        String statusLog;     // Le journal de vérification complet
 
-        // Constructeur mis à jour
-        public MachineInfo(boolean isVM, String systemUUID, String boardSerial, List<String> diskSerials,
-                           List<String> macAddresses, String processorIdentifier, int logicalProcessorCount,
-                           String generatedHash, String statusLog) {
-            this.isVM = isVM;
-            this.systemUUID = systemUUID;
-            this.boardSerial = boardSerial;
-            this.diskSerials = diskSerials;
-            this.macAddresses = macAddresses;
-            this.processorIdentifier = processorIdentifier;
-            this.logicalProcessorCount = logicalProcessorCount;
-            this.generatedHash = generatedHash;
-            this.statusLog = statusLog;
-        }
 
-        // Getters pour la sérialisation Gson (nécessaires si les champs ne sont pas publics)
-        public boolean isVM() { return isVM; }
-        public String getSystemUUID() { return systemUUID; }
-        public String getBoardSerial() { return boardSerial; }
-        public List<String> getDiskSerials() { return diskSerials; }
-        public List<String> getMacAddresses() { return macAddresses; }
-        public String getProcessorIdentifier() { return processorIdentifier; }
-        public int getLogicalProcessorCount() { return logicalProcessorCount; }
-        public String getGeneratedHash() { return generatedHash; }
-        public String getStatusLog() { return statusLog; }
-    }
-
-    public static String generateUniqueMachineIdJson() throws SocketException {
+    public static void loadLocalIndentifier() throws SocketException {
         SystemInfo si = new SystemInfo();
         HardwareAbstractionLayer hal = si.getHardware();
 
@@ -207,7 +180,7 @@ public class ComputerIdentifier {
                             .append(", Virtual: ").append(netIF.queryNetworkInterface().isVirtual())
                             .append(", Loopback: ").append(netIF.queryNetworkInterface().isLoopback()).append(")\n");
 
-                    if (macBytes != null && netIF.getIfOperStatus().equals(NetworkIF.IfOperStatus.UP) && !netIF.queryNetworkInterface().isVirtual() && !netIF.queryNetworkInterface().isLoopback() &&
+                    if (macBytes != null && !netIF.queryNetworkInterface().isVirtual() && !netIF.queryNetworkInterface().isLoopback() &&
                             !macHex.isEmpty() && !macHex.equals("000000000000")) {
                         macAddressesCollected.add(macHex);
                     }
@@ -293,12 +266,15 @@ public class ComputerIdentifier {
                 finalGeneratedHash,
                 verificationLog.toString() // Inclure le journal complet
         );
+        info.setBoardSerial(boardSerialCollected);
+        info.setDiskSerials(diskSerialsCollected);
+        info.setProcessorIdentifier(processorIdCollected);
+        info.setVM(detectedVM);
+        info.setMacAddresses(macAddressesCollected);
+        info.setLogicalProcessorCount(logicalCoresCollected);
 
-        // Convertir l'objet MachineInfo en chaîne JSON
-        Gson gson = new GsonBuilder().setPrettyPrinting().create(); // setPrettyPrinting pour une sortie lisible
-        String jsonOutput = gson.toJson(info);
+        ComputerIdentifier.machineInfo = info;
 
-        return jsonOutput;
     }
 
     // --- Méthodes utilitaires (inchangées) ---
@@ -326,9 +302,5 @@ public class ComputerIdentifier {
                 serial.equals("N/A");
     }
 
-    public static void main(String[] args) throws SocketException {
-        String machineInfoJson = generateUniqueMachineIdJson();
-        System.out.println("\n--- Informations Complètes de la Machine (JSON) ---");
-        System.out.println(machineInfoJson);
-    }
+
 }
