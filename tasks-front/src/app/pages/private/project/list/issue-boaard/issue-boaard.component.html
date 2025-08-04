@@ -9,15 +9,18 @@
 
 <div class="board" >
   <div class="column" *ngFor='let status of currentWorkflow?.statuses' (dragover)="onDragOver($event)" (drop)= "onDrop($event, status)" >
-
     <div class="entete"> <app-icone-view [icon]="status.icone"></app-icone-view>{{ status.displayName }} </div>
     <div class="issie-board" *ngFor="let issue of filterByStatus(status)" draggable="true" (dragstart)="onDragStart($event,issue)"  >
       <div class="myCard"  >
         <div class="content details" (click)="viewIssue(issue)">
-          <app-icone-view [icon] = issue.issueType.icone></app-icone-view> <b> <a [routerLink]="['/working', project.prefix, 'issue', issue.issueKey,'details']" class="company-link">{{ issue.issueKey }}
-        </a> {{issue.summary}}</b>
+          <app-icone-view [icon] = issue.issueType.icone></app-icone-view><b>{{issue.summary}}</b>
+<!--
           <p [innerHTML]="issue.description"></p>
+-->
         </div>
+        <div class="content details" (click)="viewIssue(issue)">
+          <b><a [routerLink]="['/working', project.prefix, 'issue', issue.issueKey,'details']" class="company-link">{{ issue.issueKey }}
+        </a> </b>
         <img *ngIf="issue.assigne !== null" [src]="getUrlPhoto(issue.assigne)" class="image" alt="l'assigné a" mat-icon-button [matMenuTriggerFor]="menu2" (click)="assign(issue)" />
         <img *ngIf="!issue.assigne" src="/assets/nonAssigner.jpg" alt="non assigner" mat-icon-button class="image" [matMenuTriggerFor]="menu2" (click)="assign(issue)" />
       </div>
