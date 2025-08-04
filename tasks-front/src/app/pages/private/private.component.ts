@@ -204,7 +204,6 @@ export class PrivateComponent {
     if (this.modalService.hasOpenModals()) {
       this.modalService.dismissAll();
     }
-
   }
   openImageModal() {
     if (this.modalService.hasOpenModals()) {

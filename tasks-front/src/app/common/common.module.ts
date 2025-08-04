@@ -51,6 +51,7 @@ import {NotificationsComponent} from "./notifications/notifications.component";
 import {TeamAvatarsComponent} from "./team-avatars/team-avatars.component";
 import {ImageModalContentComponent} from "./image-modal-content/image-modal-content.component";
 import {ChatWidgetComponent} from "./chat-widget/chat-widget.component";
+import {NewIssueFormComponent} from "./new-issue-form/new-issue-form.component";
 
 @NgModule({
   declarations: [
@@ -85,7 +86,8 @@ import {ChatWidgetComponent} from "./chat-widget/chat-widget.component";
     NotificationsComponent,
     TeamAvatarsComponent,
     ImageModalContentComponent,
-    ChatWidgetComponent
+    ChatWidgetComponent,
+    NewIssueFormComponent
 
   ],
   imports: [
@@ -156,7 +158,8 @@ import {ChatWidgetComponent} from "./chat-widget/chat-widget.component";
     NotificationsComponent,
     TeamAvatarsComponent,
     ImageModalContentComponent,
-    ChatWidgetComponent
+    ChatWidgetComponent,
+    NewIssueFormComponent
   ]
 })
 export class MyCommonModule { }

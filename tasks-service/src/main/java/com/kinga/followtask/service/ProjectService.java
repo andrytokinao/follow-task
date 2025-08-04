@@ -525,11 +525,6 @@ public class ProjectService {
 
     public List<IssueType> listIssueTypeMaster(Long projectId) {
         List<IssueType> masters = issueTypeRepository.findByProjectIdAndLevel(projectId, Niveau.PARENT);
-        List<IssueType> principale = issueTypeRepository.findByName(PRINCIPALE);
-        if (CollectionUtils.isEmpty(masters)) {
-            return principale;
-        }
-        masters.addAll(principale);
         return masters;
     }
 

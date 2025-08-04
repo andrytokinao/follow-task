@@ -1,0 +1,80 @@
+<form #f="ngForm"  novalidate>
+  <div class="form-group">
+
+    <!-- Project (avec mat-menu) -->
+      <div >
+        <h2 mat-button [matMenuTriggerFor]="projectMenu" color="primary">
+          Créer une demande pour l'équipe de :
+          <i>{{ project?.name || 'Aucun' }}</i>
+          <i class="fas fa-edit" style="float: right"> </i>
+        </h2>
+      </div>
+
+    <mat-menu #projectMenu="matMenu">
+      <button mat-menu-item *ngFor="let pr of projects" (click)="selectProject(pr)">
+        <i class="fas fa-plus"></i>
+        {{ pr.name }}
+      </button>
+    </mat-menu>
+
+      <div >
+        <button mat-button [matMenuTriggerFor]="typeMenu" color="primary">
+          Type de demande :
+          <strong>{{ issueType?.name || 'Aucun' }}</strong>
+          <i class="fas fa-edit" style="float: right"> </i>
+
+        </button>
+        <i class="fas fa-ellipsis-v" style="float: right;cursor: pointer"> </i>
+      </div>
+
+    <mat-menu #typeMenu="matMenu">
+      <button mat-menu-item *ngFor="let type of useIssueType" (click)="selectIssueType(type)">
+        {{ type.name }}
+      </button>
+    </mat-menu>
+
+    <!-- Titre -->
+    <mat-form-field style="width: 100%">
+      <mat-label>Titre</mat-label>
+      <input matInput
+             name="summary"
+             required
+             [(ngModel)]="summary"
+             #summaryField="ngModel"
+             [ngModelOptions]="{standalone: true}" />
+      <mat-error *ngIf="summaryField.invalid && (summaryField.dirty || f.submitted)">
+        Le titre est requis
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Description -->
+    <mat-form-field style="width: 100%">
+      <mat-label>Description</mat-label>
+      <textarea matInput
+                name="description"
+                placeholder="Description..."
+                [(ngModel)]="description"
+                [ngModelOptions]="{standalone: true}"></textarea>
+    </mat-form-field>
+
+    <!-- Clé -->
+    <mat-form-field style="width: 30%">
+      <mat-label>Clé</mat-label>
+      <input matInput
+             name="issueKey"
+             required
+             [(ngModel)]="issueKey"
+             #key="ngModel"
+             [ngModelOptions]="{standalone: true}" />
+      <mat-error *ngIf="key.invalid && (key.dirty || f.submitted)">
+        La clé est requise
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Boutons -->
+    <div class="form-actions" style="text-align: right;">
+      <button mat-button type="button" (click)="cancel()">Annuler</button>
+      <button mat-raised-button color="primary" type="submit" [disabled]="f.invalid" (click)="save(f)">Créer</button>
+    </div>
+  </div>
+</form>

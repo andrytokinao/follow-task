@@ -13,6 +13,9 @@
        <div class="smart-right-item" [@slideInOut]  *ngIf="showNotif ==='notification'">
          <app-notifications [notifications]="notifications"></app-notifications>
        </div>
+       <div class="smart-right-item" [@slideInOut]  *ngIf="showNotif ==='new-issue'">
+         <app-new-issue-form ></app-new-issue-form>
+       </div>
      </div>
     </div>
     <div  class="footer-item" (click)="setShowNotif('canals')">
@@ -27,7 +30,7 @@
         Notification
       </div>
     </div>
-    <div class = "footer-item">
+    <div class = "footer-item" (click)="setShowNotif('new-issue')">
       <i class="fas fa-plus"></i>
       Créer une nouvelle demande
      </div>

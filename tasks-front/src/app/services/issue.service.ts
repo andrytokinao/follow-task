@@ -129,6 +129,8 @@ export class IssueService implements OnInit {
   documents$ = this.documentsSubject.asObservable();
   private slidingImageSubject = new BehaviorSubject<Repertoire>(undefined);
   currentSlidingImage$ = this.slidingImageSubject.asObservable();
+  private issueTypeMastersListSubject = new BehaviorSubject<IssueType[]>([]);
+  issueTypeMasters$ = this.issueTypeMastersListSubject.asObservable();
 
   setIssues(issues: Issue[]) {
     this.issuesSubject.next(issues);
@@ -295,7 +297,7 @@ export class IssueService implements OnInit {
 
   saveIssue(issue: any) {
     delete issue.encodedPath;
-    if (issue.issueType.project == null || issue.project) {
+    if (issue.issueType.project == null || !issue.project) {
       issue.issueType.project = {
         id: this.projectSubject.value.id,
         prefix: this.projectSubject.value.prefix,
@@ -647,6 +649,8 @@ export class IssueService implements OnInit {
       if (this.project) {
         this.loadedWorkspaceSubject.next(true);
         this.projectSubject.next(this.project);
+        this.loadListIssueTypeMaster(this.project.id);
+
 
 
       }
@@ -1073,6 +1077,11 @@ export class IssueService implements OnInit {
         observer.error(error);
         observer.complete();
       })
+    })
+  }
+  loadListIssueTypeMaster(projectId:Number){
+    this.listIssueTypeMaster(projectId).subscribe(issueTypes=> {
+      this.issueTypeMastersListSubject.next(issueTypes);
     })
   }
 
