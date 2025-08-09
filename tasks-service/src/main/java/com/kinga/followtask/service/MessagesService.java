@@ -45,10 +45,7 @@ public class MessagesService {
         Map<String, Object> map = new HashMap<>();
         map.put(methode,Arrays.asList(output));
         canall.getMembers().forEach(m -> {
-            if (!mes.getSender().getId().equals(m.getUser().getId())) {
-                System.out.println(m.getUser().getId());
                 simpMessagingTemplate.convertAndSend("/topic/datas/"+m.getUser().getId(), map);
-            }
         });
     }
 

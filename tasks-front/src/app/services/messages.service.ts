@@ -92,7 +92,7 @@ export class MessagesService {
         fetchPolicy:'network-only'
       }
     ).subscribe((res:any)=> {
-      this.newMessageSubject.next(supprimerTypename(res.data.sendMessage));
+  //    this.newMessageSubject.next(supprimerTypename(res.data.sendMessage));
     },error => {
       console.error(error);
     })

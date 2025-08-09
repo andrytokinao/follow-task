@@ -111,6 +111,13 @@ export class MessagesComponent {
       return;
     if (!canall.messageApp)
       canall.messageApp =[];
-    canall.messageApp.push(message);
-  }
+    const index = canall.messageApp.findIndex(item => item.id === message.id);
+
+    if (index !== -1) {
+      // Remplacer
+      canall.messageApp[index] = message;
+    } else {
+      // Ajouter
+      canall.messageApp.push(message);
+    }  }
 }
