@@ -28,6 +28,7 @@ public class UserApp {
     private String address;
     private String cin;
     private String photo;
+    private Integer code;
     @ManyToMany
     private List<MemberGroupe> groupes;
     @OneToMany(mappedBy = "userApp")

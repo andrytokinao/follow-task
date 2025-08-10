@@ -17,6 +17,10 @@ import {MyCommonModule} from "../../common/common.module";
 import {PublicComponent} from "./public.component";
 import {PublicRoutingModule} from "./public-routing.module";
 import {CreateAdminUserComponent} from "./create-admin-user/create-admin-user.component";
+import {ForgotPaswordComponent} from "./forgot-pasword/forgot-pasword.component";
+import {MatRadioButton, MatRadioGroup} from "@angular/material/radio";
+import {MatInput} from "@angular/material/input";
+import {MatButton} from "@angular/material/button";
 
 
 
@@ -27,26 +31,32 @@ import {CreateAdminUserComponent} from "./create-admin-user/create-admin-user.co
     HomeComponent,
     LoginComponent,
     PublicComponent,
-    CreateAdminUserComponent
+    CreateAdminUserComponent,
+    ForgotPaswordComponent
   ],
   exports: [
 
   ],
-    imports: [
-        PublicRoutingModule,
-        MatTabsModule,
-        MatCardModule,
-        MatDialogModule,
-        MatToolbarModule,
-        MatFormFieldModule,
-        FormsModule,
-        MatMenuModule,
-        MatMenuModule,
-        MatIconModule,
-        MatSelectModule,
-        MyCommonModule,
-        CommonModule,
-        ReactiveFormsModule
-    ]
+  imports: [
+    PublicRoutingModule,
+    MatTabsModule,
+    MatCardModule,
+    MatDialogModule,
+    MatToolbarModule,
+    MatFormFieldModule,
+    FormsModule,
+    MatMenuModule,
+    MatMenuModule,
+    MatIconModule,
+    MatSelectModule,
+    MyCommonModule,
+    CommonModule,
+    ReactiveFormsModule,
+    MatRadioButton,
+    MatRadioGroup,
+    MatInput,
+    MatButton,
+
+  ]
 })
 export class PublicModule { }

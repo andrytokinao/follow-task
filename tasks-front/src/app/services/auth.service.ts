@@ -105,4 +105,21 @@ export class AuthService {
     return this.http.get(environment.apiURL+'logout',{withCredentials:true});
   }
 
+  verificationCodeReset(phone:string, code:string){
+    return  this.http.get(environment.apiURL+"verify-code?phone="+phone + "&code="+code,{observe: 'response',withCredentials:true});
+  }
+  contactValidator(contact) {
+    const contactPattern = /^(0(34|33|32|38)|\+261(34|33|32|38))\d{7}$/;
+    const isValid = contactPattern.test(contact);
+    return isValid;
+  }
+
+  resetPasword(phone) {
+    return  this.http.get(environment.apiURL+"reset-pasword?phone="+phone ,{observe: 'response',withCredentials:true});
+  }
+
+  newPasword(phone: string, pasword: string, code: string) {
+    return  this.http.get(environment.apiURL+"new-password?phone="+phone+ "&code="+code +"&password="+pasword ,{observe: 'response',withCredentials:true});
+
+  }
 }

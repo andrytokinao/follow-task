@@ -37,7 +37,7 @@ input {
   z-index: 5;
 }
 
-form {
+form , .form {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -49,12 +49,22 @@ form {
   grid-row: 1 / 2;
 }
 
-form.sign-up-form {
+.mafo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  grid-column: 1 / 2;
+  grid-row: 1 / 2;
+  z-index: 99;
+}
+
+.sign-up-form {
   opacity: 0;
   z-index: 1;
 }
 
-form.sign-in-form {
+.sign-in-form {
   z-index: 2;
 }
 
@@ -256,12 +266,12 @@ form.sign-in-form {
   left: 25%;
 }
 
-.container.sign-up-mode form.sign-up-form {
+.container.sign-up-mode .sign-up-form {
   opacity: 1;
   z-index: 2;
 }
 
-.container.sign-up-mode form.sign-in-form {
+.container.sign-up-mode .sign-in-form {
   opacity: 0;
   z-index: 1;
 }

@@ -2,6 +2,7 @@ package com.kinga.followtask.web;
 
 import com.kinga.followtask.dto.Accessibility;
 import com.kinga.followtask.dto.UserDetailsDeto;
+import com.kinga.followtask.repository.UserRepository;
 import com.kinga.followtask.service.AuthorizationService;
 import com.kinga.followtask.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,9 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,6 +26,9 @@ public class AutController {
     private final AuthorizationService authorizationService;
     @Autowired
     UserService userService;
+    @Autowired
+    private UserRepository userRepository;
+
     @GetMapping( "/api/profile")
     @ResponseBody
     public UserDetailsDeto getConnected(HttpServletRequest request){
@@ -65,5 +67,20 @@ public class AutController {
         Map<String,String> map = new HashMap<>();
         map.put("result","success");
         return map;
+    }
+    @ResponseBody
+    @GetMapping("verify-code")
+    public Map codeReset(@RequestParam String phone,@RequestParam  Integer code) {
+        return this.userService.verifyCode(phone,code);
+    }
+    @ResponseBody
+    @GetMapping("reset-pasword")
+    public Map resetPasword(@RequestParam String phone) {
+       return this.userService.resetPasword(phone);
+    }
+    @ResponseBody
+    @GetMapping("new-password")
+    public Map newPassword(@RequestParam Integer code, @RequestParam String phone, @RequestParam String password) {
+        return this.userService.newPassword(code, phone, password);
     }
 }

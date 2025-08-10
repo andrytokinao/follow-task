@@ -135,6 +135,7 @@ export class LoginComponent {
     updateOn: 'blur'
   });
   contact: String ;
+  forgotPasword: boolean = false;
 
   onSubmit() {
     console.log(this.form);
@@ -187,5 +188,9 @@ export class LoginComponent {
       this.toast.error("Sign up error :"+error.message,"Sign up error");
     })
 
+  }
+
+  forgotResult($result: any) {
+    this.forgotPasword = false;
   }
 }

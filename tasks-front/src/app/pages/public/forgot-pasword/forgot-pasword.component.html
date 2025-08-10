@@ -1,0 +1,66 @@
+<div class="forgot-inline">
+<div  *ngIf="step === 0">
+  <mat-radio-group [(ngModel)]="method" >
+    <mat-radio-button value="admin">Envoyer à l’admin</mat-radio-button>
+    <mat-radio-button value="email"  disabled = "true">Par e-mail</mat-radio-button>
+    <mat-radio-button value="sms"  disabled = "true">Par SMS</mat-radio-button>
+  </mat-radio-group>
+
+  <mat-form-field *ngIf=" ( method === 'sms' || method === 'admin' )" appearance="outline" class="input-full">
+    <mat-label>Votre numéro de téléphone</mat-label>
+    <input matInput type="tel" [(ngModel)]="phone">
+  </mat-form-field>
+  <mat-form-field *ngIf="method === 'email' && step === 0" appearance="outline" class="input-full" >
+    <mat-label>Votre e-mail</mat-label>
+    <input matInput type="email" [(ngModel)]="email">
+  </mat-form-field>
+  <button mat-raised-button color="primary"  (click)="nextStep()">Envoyer</button>
+  <button mat-raised-button color="color" (click)="cancel()"  >Annuler</button>
+
+</div>
+
+
+
+
+  <p class="error" *ngIf="error">{{ error }}</p>
+  <p class="success" *ngIf="message">{{ message }}</p>
+
+  <div *ngIf="step === 2">
+
+    <div *ngIf="method === 'sms'" >
+      <mat-form-field appearance="outline" class="input-full">
+        <mat-label>Code reçu</mat-label>
+        <input matInput type="text" [(ngModel)]="code">
+      </mat-form-field>
+      <button mat-raised-button color="primary" (click)="verifyCode()">Vérifier</button>
+      <button mat-raised-button color="color" (click)="cancel()"  >Annuler</button>
+
+    </div>
+
+    <div *ngIf="method === 'admin'" >
+      <mat-form-field appearance="outline" class="input-full">
+        <mat-label> Code validation</mat-label>
+        <input matInput type="text" [(ngModel)]="code">
+      </mat-form-field>
+      <button mat-raised-button color="primary" (click)="verifyCode()">Vérifier</button>
+      <button mat-raised-button color="color" (click)="cancel()"  >Annuler</button>
+
+    </div>
+  </div>
+
+  <div *ngIf="step === 3">
+    <mat-form-field appearance="outline" class="input-full">
+      <mat-label> Nouveau mots de passe </mat-label>
+      <input matInput type="password" name="mety" [(ngModel)]="pasword">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="input-full">
+      <mat-label> Confirmer </mat-label>
+      <input matInput type="password" name="mety2" [(ngModel)]="confirmPwd">
+    </mat-form-field>
+    <button mat-raised-button color="primary" (click)="newPassword()" [disabled]="!passwordIsValid()" >Enregistrer</button>
+    <button mat-raised-button color="color" (click)="cancel()"  >Annuler</button>
+  </div>
+
+</div>
+

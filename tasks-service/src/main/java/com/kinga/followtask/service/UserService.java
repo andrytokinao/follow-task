@@ -4,8 +4,6 @@ package com.kinga.followtask.service;
 import com.kinga.followtask.config.ConfigSystem;
 import com.kinga.followtask.dto.UserDetailsDeto;
 import com.kinga.followtask.entity.UserApp;
-import com.kinga.followtask.repository.GroupeUserRepository;
-import com.kinga.followtask.repository.MemberGroupeRepository;
 import com.kinga.followtask.repository.UserRepository;
 import com.kinga.utils.KingaUtils;
 import lombok.RequiredArgsConstructor;
@@ -27,10 +25,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import static com.kinga.utils.KingaUtils.*;
 
@@ -245,5 +240,65 @@ public class UserService {
         anonyme.setPassword("pass");
         anonyme.setContact("0340000000");
         return save(anonyme);
+    }
+
+    public Map resetPasword(String phone) {
+        Map<String,String> map = new HashMap<>();
+
+        UserApp userApp = findByUsernamOrContactOrCinOrEmail(phone);
+        if (userApp == null){
+            map.put("result","fail");
+            map.put("message","Phone not exist ");
+            return map;
+        }
+        Double rendom = Math.random();
+        Double code = ( 1 + rendom * 10000);
+        userApp.setCode(code.intValue());
+        userRepository.save(userApp);
+        map.put("result","success");
+        map.put("message","Code validation est envoyée a l'admin");
+        return map;
+    }
+    public Map newPassword(Integer code, String phone, String password) {
+        Map<String,String> map = new HashMap<>();
+
+        UserApp userApp = findByUsernamOrContactOrCinOrEmail(phone);
+        if (userApp == null){
+            map.put("result","fail");
+            map.put("message","Phone not exist ");
+            return map;
+        }
+        int exist = userApp.getCode().intValue();
+        if (code != exist){
+            map.put("result","fail");
+            map.put("message","Code invalid");
+            return map;
+        }
+        userApp.setPassword(encodePassword(password));
+        userApp.setPass(encodeText(password));
+        userRepository.save(userApp);
+        map.put("result","success");
+        map.put("message","Pasword changed successfully");
+        return map;
+    }
+
+    public Map verifyCode(String phone, Integer code) {
+        Map<String,String> map = new HashMap<>();
+        UserApp userApp = findByUsernamOrContactOrCinOrEmail(phone);
+        if (userApp == null){
+            map.put("result","fail");
+            map.put("message","❌ Numero telephone non trouvé.");
+            return map;
+        }
+        int exist = userApp.getCode().intValue();
+        if (code != exist){
+            map.put("result","fail");
+            map.put("message","❌ Code incorrect.");
+            return map;
+        }
+
+        map.put("result","success");
+        map.put("message","✅ Code vérifié");
+        return map;
     }
 }
