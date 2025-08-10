@@ -73,6 +73,7 @@ import {J} from "@angular/cdk/keycodes";
 import {ProjectGuard} from "./ProjectGuard";
 import {NewDocumentComponent} from "../pages/private/project/modal/new-document/new-document.component";
 import {ImageModalContentComponent} from "../common/image-modal-content/image-modal-content.component";
+import {MessagesService} from "./messages.service";
 
 @Injectable({
   providedIn: 'root',
@@ -282,7 +283,8 @@ export class IssueService implements OnInit {
     })
   }
 
-  createIssueMaster() {
+  createIssueMasterOld() {
+
     const dialogRef = this.modalService.open(NewIssueComponent);
     dialogRef.componentInstance.isMaster = true;
     dialogRef.result.then((result) => {
@@ -294,6 +296,10 @@ export class IssueService implements OnInit {
       })
     })
   }
+  createIssueMaster(){
+  //  this.messageService.showRight('new-issue');
+  }
+
 
   saveIssue(issue: any) {
     delete issue.encodedPath;

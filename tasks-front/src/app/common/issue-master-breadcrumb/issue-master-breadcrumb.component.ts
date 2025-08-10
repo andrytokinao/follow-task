@@ -2,6 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {Issue, Project} from "../../type/issue";
 import {IssueService} from "../../services/issue.service";
 import {ProjectGuard} from "../../services/ProjectGuard";
+import {MessagesService} from "../../services/messages.service";
 
 @Component({
   standalone: false,
@@ -13,7 +14,9 @@ export class IssueMasterBreadcrumbComponent implements OnInit{
    protected issue:Issue;
   issueMasters: Issue[]=[];
    constructor(protected issueService:IssueService,
-  protected projectGuard:ProjectGuard) {
+      protected projectGuard:ProjectGuard,
+      private messageService:MessagesService
+   ) {
    }
   ngOnInit(): void {
      this.issueService.issueMaster$.subscribe(issue => {
@@ -26,5 +29,9 @@ export class IssueMasterBreadcrumbComponent implements OnInit{
 
   createMaster() {
 
+  }
+
+  createIssueMaster() {
+    this.messageService.showRight('new-issue');
   }
 }

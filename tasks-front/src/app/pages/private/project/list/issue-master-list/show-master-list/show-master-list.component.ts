@@ -15,6 +15,7 @@ import {AuthService} from "../../../../../../services/auth.service";
 import {ActivatedRoute, ParamMap, Router} from "@angular/router";
 import {NewIssueComponent} from "../../../modal/new-issue/new-issue.component";
 import {ProjectGuard} from "../../../../../../services/ProjectGuard";
+import {MessagesService} from "../../../../../../services/messages.service";
 
 @Component({
   selector: 'app-show-master-list',
@@ -52,7 +53,8 @@ export class ShowMasterListComponent implements OnInit{
     public authService: AuthService,
     private route: ActivatedRoute,
     private router: Router,
-    protected projectGuard: ProjectGuard
+    protected projectGuard: ProjectGuard,
+    private messageService:MessagesService
 ) {
 
   }
@@ -178,5 +180,10 @@ export class ShowMasterListComponent implements OnInit{
 
   setView(view: string) {
     this.currentView = view;
+  }
+
+  createIssueMaster() {
+    this.messageService.showRight('new-issue');
+
   }
 }

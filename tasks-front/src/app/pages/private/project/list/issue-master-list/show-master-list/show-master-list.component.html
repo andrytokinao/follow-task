@@ -3,7 +3,7 @@
 <div class="list-menu-with-left-right">
   <div class="card-list menu-btn">
     <div class="filter-container">
-      <b (click)="issueService.createIssueMaster()" class="bouton" style="color:#007BFF;text-align: center" *ngIf="projectGuard.hasCredential(['PROJECT_MANAGER']) | async">
+      <b (click)="createIssueMaster()" class="bouton" style="color:#007BFF;text-align: center" *ngIf="projectGuard.hasCredential(['PROJECT_MANAGER']) | async">
        Nouveau projet <i class="fas fa-plus"  ></i>
       </b>
       <h1 class="filter-title">Gérer les filtres de recherche</h1>

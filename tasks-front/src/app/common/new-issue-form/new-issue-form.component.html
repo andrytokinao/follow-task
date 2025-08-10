@@ -1,4 +1,4 @@
-<form #f="ngForm"  novalidate>
+<form #f="ngForm"  novalidate style="min-width: 500px">
   <div class="form-group">
 
     <!-- Project (avec mat-menu) -->
@@ -46,35 +46,28 @@
         Le titre est requis
       </mat-error>
     </mat-form-field>
+    <label>Description</label>
+    <app-quill-editor  [(content)]="description" [theme]="'snow'"></app-quill-editor>
 
-    <!-- Description -->
-    <mat-form-field style="width: 100%">
-      <mat-label>Description</mat-label>
-      <textarea matInput
-                name="description"
-                placeholder="Description..."
-                [(ngModel)]="description"
-                [ngModelOptions]="{standalone: true}"></textarea>
-    </mat-form-field>
 
-    <!-- Clé -->
-    <mat-form-field style="width: 30%">
-      <mat-label>Clé</mat-label>
-      <input matInput
-             name="issueKey"
-             required
-             [(ngModel)]="issueKey"
-             #key="ngModel"
-             [ngModelOptions]="{standalone: true}" />
-      <mat-error *ngIf="key.invalid && (key.dirty || f.submitted)">
-        La clé est requise
-      </mat-error>
-    </mat-form-field>
 
     <!-- Boutons -->
     <div class="form-actions" style="text-align: right;">
+      <!-- Clé -->
+      <mat-form-field style="width: 50%">
+        <mat-label>Clé</mat-label>
+        <input matInput
+               name="issueKey"
+               required
+               [(ngModel)]="issueKey"
+               #key="ngModel"
+               [ngModelOptions]="{standalone: true}" />
+        <mat-error *ngIf="key.invalid && (key.dirty || f.submitted)">
+          La clé est requise
+        </mat-error>
+      </mat-form-field>
       <button mat-button type="button" (click)="cancel()">Annuler</button>
-      <button mat-raised-button color="primary" type="submit" [disabled]="f.invalid" (click)="save(f)">Créer</button>
+      <button mat-raised-button color="primary" type="submit" [disabled]="!canCreate()" (click)="save(f)">Créer</button>
     </div>
   </div>
 </form>

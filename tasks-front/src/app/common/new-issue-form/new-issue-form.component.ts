@@ -59,6 +59,10 @@ export class NewIssueFormComponent implements OnInit{
     });
     this.issueService.allProjects().subscribe(projects=> {
       this.projects = projects;
+      if (this.project == null ){
+        if( this.projects && this.projects.length>0)
+       this.selectProject(this.projects[0]);
+      }
     })
   }
 
@@ -94,7 +98,7 @@ export class NewIssueFormComponent implements OnInit{
   }
 
   cancel() {
-    // Fermer la modale ou réinitialiser
+   this.messageService.showRight('');
   }
 
 
@@ -127,12 +131,18 @@ export class NewIssueFormComponent implements OnInit{
       this.useIssueType = types;
       this.project = pr;
       if (this.useIssueType.length) {
-        this.issueType = this.allIssueTypes[0];
+        this.issueType = this.useIssueType[0];
         this.loadNextKey(this.issueType.id);
       }
     });
   }
 
+  canCreate(){
+    if (!this.project || !this.issueType || !this.issueKey || !this.summary){
+      return false;
+    }
+    return true;
+  }
   selectIssueType(type: IssueType) {
     this.issueType = type;
     this.loadNextKey(this.issueType.id);

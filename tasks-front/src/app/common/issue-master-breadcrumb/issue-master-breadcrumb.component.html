@@ -5,7 +5,7 @@
     </div>
   </ng-container>
   <ng-container *ngIf="projectGuard.hasCredential(['PROJECT_MANAGER']) | async">
-    <div class="breadcrumb-item"  (click)="issueService.createIssueMaster()" >
+    <div class="breadcrumb-item"  (click)="createIssueMaster()" >
       <a> Créer   </a>
     </div>
   </ng-container>
