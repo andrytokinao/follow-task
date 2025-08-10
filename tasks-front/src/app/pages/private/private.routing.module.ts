@@ -23,13 +23,7 @@ const privateRoute: Routes = [
             path: ':project',resolve:{project:ProjectResolverService,breadcrumb: ProjectBreadcrumbResolverService,},
             loadChildren: () => import('./project/project.module').then(m => m.ProjectModule),
              canActivate: [ProjectGuard] , data:{roles:['USER']}
-          },
-          {path: 'admin', component: AdminComponent  , canActivate :[AuthGuard]}, {
-            path: 'admin',
-            loadChildren: () => import('./admins/admin.module').then(m => m.AdminModule),
-            //  canMatch: [userAdmin]
-          },
-
+          }
         ]
   }
 ];

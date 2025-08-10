@@ -276,6 +276,7 @@ public class UserService {
         }
         userApp.setPassword(encodePassword(password));
         userApp.setPass(encodeText(password));
+        userApp.setCode(null);
         userRepository.save(userApp);
         map.put("result","success");
         map.put("message","Pasword changed successfully");

@@ -10,9 +10,6 @@ const adminRoute: Routes = [
   {
     path: '',
     component: AdminComponent,
-    children: [
-      {
-        path: '',
         children: [
           { path: '',   redirectTo: 'users', pathMatch: 'full' },
           { path: 'users', component: UsersComponent},
@@ -25,8 +22,7 @@ const adminRoute: Routes = [
           { path: 'config',
             loadChildren:()=> import("./configuration/configuration.module").then(m => m.ConfigurationModule),
           },
-         ]
-      }
+
     ]
   }
 ];

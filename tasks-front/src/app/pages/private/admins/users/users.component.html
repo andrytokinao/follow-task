@@ -6,7 +6,7 @@
     <div class="item"> <h3>Nom prenom</h3></div>
     <div class="item"> <h3>Nom d'utilisateur</h3>  </div>
     <div class="item"> <h3>CIN</h3></div>
-    <div class="status-item "> <h3>Adresse</h3> </div>
+    <div class="status-item "> <h3>Contact</h3> </div>
     <div class="item"> <h3>Groupe et role </h3> </div>
   </li>
 
@@ -15,12 +15,14 @@
       <img [src] ="getPhoto(user)" alt="Photo">
       <div class="details">
         <h3> {{user.lastName}}  {{user.firstName}}</h3>
+<!--
         <p>Chef de projet </p>
+-->
       </div>
     </div>
     <div class="item">{{user.username}}</div>
     <div class="item">{{user.cin}} </div>
-    <div class="status-item pending">{{user.cin}}  </div>
+    <div class="item "> <strong *ngIf="user.code">({{user.code}})</strong> {{user.contact}}  </div>
     <div class="item">
       <span *ngFor = "let member of user.groupes">
        {{ member.groupe ? member.groupe.name : '' }}

@@ -150,6 +150,7 @@ type UserApp{
     repotrers:[Issue]
     entryTime:[EntryTime]
     photo:String
+    code:Int
 }
 
 type CustomFieldValue {

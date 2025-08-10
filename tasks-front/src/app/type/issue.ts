@@ -48,6 +48,7 @@ export class User {
   address? :string ="";
   contact?:string='';
   groupes?:MemberGroupe[] =[];
+  code?:number;
 
 }
 export class GroupeUser {
@@ -57,7 +58,7 @@ export class GroupeUser {
 
   members:MemberGroupe[] = [];
 }
-export class MemberGroupe{
+export class MemberGroupe{  
   id:number | null = null;
   groupe :GroupeUser| any = {};
   user :User | null = null;

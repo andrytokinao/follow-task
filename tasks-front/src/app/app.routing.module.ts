@@ -20,6 +20,13 @@ export const appRoutes: Routes = [
     //  canMatch: [userAdmin]
   },
   {
+    path: 'admin',
+    loadChildren: () => import('./pages/private/admins/admin.module').then(m => m.AdminModule),
+    canActivate: [AuthGuard],
+    data:{roles:['ADMIN']
+    }
+    },
+  {
     path: 'exemple-animation',
     loadChildren: () => import('./animation-examples/animation-examples.module').then(m => m.AnimationExamplesModule),
     //  canMatch: [userAdmin]

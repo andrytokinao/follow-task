@@ -271,6 +271,7 @@ const ALL_USERS = gql`
       email,
       address,
       cin,
+      code,
       photo
     }
   }
