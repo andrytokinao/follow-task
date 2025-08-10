@@ -1,16 +1,14 @@
 import { NgModule } from '@angular/core';
 import {RouterModule, Routes} from "@angular/router";
 import {BrowserModule} from "@angular/platform-browser";
-import {PublicComponent} from "./pages/public/public.component";
 import {NotFoundComponent} from "./pages/not-found/not-found.component";
 import {AuthGuard} from "./services/SystemGuard";
+import {PublicComponent} from "./pages/public/public.component";
 
 
 export const appRoutes: Routes = [
-  { path: '',   redirectTo: 'public/home', pathMatch: 'full'  },
-  { path: 'login',   redirectTo: 'public/login', pathMatch: 'full'  },
-  {path: 'public', component: PublicComponent}, {
-    path: 'public',
+ {
+    path: '',
     loadChildren: () => import('./pages/public/public.module').then(m => m.PublicModule),
     //  canMatch: [userAdmin]
   },

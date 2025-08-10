@@ -45,7 +45,7 @@ export class CreateAdminUserComponent {
     this.error = undefined;
     this.userService.initUser(this.user).subscribe((res: any) => {
         this.configService.onNext(data => {
-          this.router.navigate(['/public/login']);
+          this.router.navigate(['//login']);
           this.activeModal.close();
         });
       },

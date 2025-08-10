@@ -30,7 +30,7 @@ export class HomeComponent {
     },
   ];
   start(){
-    this.router.navigate(["public/login"]);
+    this.router.navigate(["/login"]);
   }
   scrollToFeatures() {
     const featuresSection = document.getElementById('features');

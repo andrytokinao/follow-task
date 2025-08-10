@@ -13,8 +13,7 @@ const publicRoute: Routes = [
       {
         path: '',
         children: [
-          { path: '',   redirectTo: 'home', pathMatch: 'full' },
-          { path: 'home', component: HomeComponent },
+          { path: '', component: HomeComponent },
           { path: 'help', component: HelpComponent },
           { path: 'login', component: LoginComponent},
         ]

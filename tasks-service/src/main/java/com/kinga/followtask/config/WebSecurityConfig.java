@@ -51,7 +51,7 @@ public class WebSecurityConfig {
                         .requestMatchers(new AntPathRequestMatcher("/verify-code")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/reset-pasword")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/new-password")).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher("/public/**")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("//**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/working/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher( "/**",HttpMethod.OPTIONS.name())).permitAll()
                         .anyRequest().permitAll())
