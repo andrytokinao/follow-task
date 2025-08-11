@@ -5,6 +5,8 @@
       <mat-label>Titre de l'événement</mat-label>
       <input matInput type="text" [(ngModel)]="event.title" name="title" required placeholder="Entrez le titre" />
     </mat-form-field>
+    <label> Details  </label>
+    <app-quill-editor  [(content)]="event.description" [theme]="'snow'"></app-quill-editor>
 
     <mat-form-field appearance="fill" class="form-field">
       <mat-label>Type d'événement</mat-label>
