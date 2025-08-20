@@ -30,12 +30,6 @@ import {MessagesService} from "../../../services/messages.service";
   styleUrl: './project.component.css',
   animations: [
     trigger('workspace', [
-      state('start', style({
-        transform: 'translateX(0%)'
-      })),
-      state('end', style({
-
-      })),
       transition('* => end', [
         animate('0.8s 0s ease', keyframes([
           style({ opacity: '0.3', transform: 'translateX(-10%) rotateY(90deg)', offset: 0}),
@@ -44,8 +38,8 @@ import {MessagesService} from "../../../services/messages.service";
       ]),
     ]),
     trigger('routeAnimations', [
-      transition('* => bottom', useAnimation(rotateGlueFromTop)),
-      transition('* => top', useAnimation(rotateGlueFromBottom))
+      transition(':decrement', useAnimation(rotateGlueFromTop)),
+      transition(':increment', useAnimation(rotateGlueFromBottom))
     ]),
   ]
 
@@ -138,11 +132,11 @@ export class ProjectComponent {
       this.buttonTriger = "Loading";
   }
   getAnimationState(o: any) {
-    if (!this.projectBreadcrumb) {
-      return '';
-    }
-    const routeOrder = o.activatedRouteData['order'] ;
-    const stat =  routeOrder >= this.projectBreadcrumb.order ? 'top' :'bottom';
-    return stat;
+    //if (!this.projectBreadcrumb) {
+    //  return '';
+    //}
+    return  o.activatedRouteData['order'] ;
+   // const stat =  routeOrder >= this.projectBreadcrumb.order ? 'top' :'bottom';
+   // return stat;
   }
 }

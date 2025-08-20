@@ -33,7 +33,7 @@ const projectRoute: Routes = [
       {
         path: '',
         children: [
-          {path: 'list', component: ListComponent  }, {
+          {
             path: 'list',
             data:{order:1},
             loadChildren: () => import('./list/list.module').then(m => m.ListModule),
@@ -45,13 +45,11 @@ const projectRoute: Routes = [
           { path: 'board', component: BoardComponent, resolve: { breadcrumb: ProjectBreadcrumbResolverService  } ,data:{order:3} },
           { path: 'rapport', component: RapportComponent, resolve: { breadcrumb: ProjectBreadcrumbResolverService  } ,data:{order:4} },
           { path: 'calendar', component: CalendarComponent , resolve: { breadcrumb: ProjectBreadcrumbResolverService  } , data:{order:5}},
-          { path: 'planning', component: PlanningComponent , resolve: { breadcrumb: ProjectBreadcrumbResolverService  } , data:{order:6}},
           {
             path:'planning',data:{order:7},
             loadChildren:()=> import('./planning/planning.module').then(m=>m.PlanningModule),
           },
           { path: 'document', component: DocumentComponent , resolve: { breadcrumb: ProjectBreadcrumbResolverService ,data:{order:8}  }},
-          { path: 'config', component: ConfigProjectComponent , resolve: { breadcrumb: ProjectBreadcrumbResolverService  } , canActivate :[ProjectGuard] , data:{order:9}},
           { path: 'config', loadChildren:()=> import("./config-project/config-project.module") .then(m=>m.ConfigProjectModule), data:{order:10}},
           { path: 'issue/:parrentIssue', component: ShowMasterComponent , resolve:{parrentIssue:IssueResolverService , breadcrumb: ProjectBreadcrumbResolverService},data:{order:11}},
           { path: 'issue/:parrentIssue',resolve:{parrentIssue:IssueResolverService ,breadcrumb: ProjectBreadcrumbResolverService,},data:{order:12},
