@@ -29,7 +29,9 @@ import {ImageModalContentComponent} from "../../common/image-modal-content/image
 
     trigger('workspace', [
       state('start', style({
+/*
         transform: 'translateX(0%)'
+*/
       })),
       state('end', style({
 

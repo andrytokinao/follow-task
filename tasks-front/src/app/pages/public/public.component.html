@@ -1,4 +1,4 @@
-<div class="public">
-  <router-outlet></router-outlet>
+<div class="public" [@publicAnim]="getState(o)">
+  <router-outlet #o="outlet" > </router-outlet>
 </div>
 

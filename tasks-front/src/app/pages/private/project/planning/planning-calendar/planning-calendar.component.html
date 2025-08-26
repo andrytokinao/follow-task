@@ -1,12 +1,28 @@
 <div class="contenue">
   <div class="navigator">
-    <daypilot-navigator
-      [config]="configNavigator"
-      [events]="events"
-      [(date)]="date"
-      (dateChange)="changeDate($event)"
-      #navigator>
-    </daypilot-navigator>
+   <div style="display: grid;grid-template-columns: 1fr 1fr">
+    <div>
+      <daypilot-navigator
+        [config]="configNavigator"
+        [events]="events"
+        [(date)]="date"
+        (dateChange)="changeDate($event)"
+        #navigator>
+      </daypilot-navigator>
+      </div>
+      <div>
+        <div class="buttons">
+          <button (click)="viewResources()" *ngIf="projectGuard.hasCredential(['CAN_VIEW_TEAM_AGENDA']) | async"
+                  [class]="this.configNavigator.selectMode == 'None' ? 'selected' : ''">Equipe
+          </button>
+          <button (click)="viewDay()" [class]="this.configNavigator.selectMode == 'Day' ? 'selected' : ''">Jours</button>
+          <button (click)="viewWeek()" [class]="this.configNavigator.selectMode == 'Week' ? 'selected' : ''">Semaine</button>
+          <button (click)="viewMonth()" [class]="this.configNavigator.selectMode == 'Month' ? 'selected' : ''">Mois
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div>
       <div class="card" style="margin-top: 15px;padding-top: 5px;padding-bottom: 5px">
         <h1> Date personnalisé </h1>
@@ -84,15 +100,6 @@
     <span class="selected-date"> <b> {{ this.navigator.date.toDate() | date }} </b></span>
 -->
 
-    <div class="buttons">
-      <button (click)="viewResources()" *ngIf="projectGuard.hasCredential(['CAN_VIEW_TEAM_AGENDA']) | async"
-              [class]="this.configNavigator.selectMode == 'None' ? 'selected' : ''">Equipe
-      </button>
-      <button (click)="viewDay()" [class]="this.configNavigator.selectMode == 'Day' ? 'selected' : ''">Day</button>
-      <button (click)="viewWeek()" [class]="this.configNavigator.selectMode == 'Week' ? 'selected' : ''">Week</button>
-      <button (click)="viewMonth()" [class]="this.configNavigator.selectMode == 'Month' ? 'selected' : ''">Month
-      </button>
-    </div>
 
     <daypilot-calendar [config]="configDay" [events]="events" #day></daypilot-calendar>
     <daypilot-calendar [config]="configWeek" [events]="events" #week></daypilot-calendar>

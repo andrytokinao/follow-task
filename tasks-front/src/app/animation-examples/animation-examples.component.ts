@@ -111,7 +111,7 @@ import { Router } from '@angular/router';
 })
 export class AnimationExamplesComponent implements OnInit {
   animationType  = 'rotateRoomToLeft';
-  modules = ['exemple-animation/home', 'exemple-animation/about', 'exemple-animation/follow', 'exemple-animation/contact','/home'];
+  modules = ['exemple-animation/home', 'exemple-animation/about', 'exemple-animation/follow', 'exemple-animation/contact','exemple-animation/home'];
   state: string;
   pageIndex = 0;
   animating: boolean;

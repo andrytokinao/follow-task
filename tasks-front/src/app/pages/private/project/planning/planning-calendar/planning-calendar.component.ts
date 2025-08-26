@@ -19,6 +19,7 @@ import {BehaviorSubject, forkJoin} from "rxjs";
 import {CustomFilter, IssueSearchCriteriaInput} from "../../../../../type/issue-search-criteria.util";
 import {AuthGuard} from "../../../../../services/SystemGuard";
 import {ProjectGuard} from "../../../../../services/ProjectGuard";
+import {Format} from "@angular-devkit/build-angular/src/builders/extract-i18n/schema";
 
 @Component({
   standalone:false,
@@ -44,6 +45,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
   private resources: any[];
 
   contextMenu = new DayPilot.Menu({
+
     items: [
       {
         text: "Delete",
@@ -136,6 +138,9 @@ export class PlanningCalendarComponent implements AfterViewInit {
     durationBarVisible: true,
     contextMenu: this.contextMenu,
     onTimeRangeSelected: this.newEvent.bind(this),
+    heightSpec:"BusinessHours",
+    businessBeginsHour:6,
+    businessEndsHour:20,
     onBeforeEventRender: function (args) {
       args.data.html = args.data.html ;
     },
@@ -151,8 +156,10 @@ export class PlanningCalendarComponent implements AfterViewInit {
     viewType: "Week",
     durationBarVisible: true ,
     visible:true,
-    businessBeginsHour:7,
-    businessEndsHour: 17,
+    heightSpec:"BusinessHours",
+    businessBeginsHour:6,
+    businessEndsHour:20,
+    timeFormat:"Auto",
     contextMenu: this.contextMenu,
     onTimeRangeSelected: this.newEvent.bind(this),
 /*
@@ -181,6 +188,9 @@ export class PlanningCalendarComponent implements AfterViewInit {
   configResource: DayPilot.CalendarConfig = {
     viewType: "Resources",
     headerHeight: 100,
+    heightSpec:"BusinessHours",
+    businessBeginsHour:6,
+    businessEndsHour:20,
     onEventResize: (args) => this.resizeEvent(args),
     onEventMove: (args) => this.mouveEventAtResources(args),
     onEventClick:(args)=> this.viewEvent(args),

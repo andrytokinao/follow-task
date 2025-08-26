@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  apiURL: '/',
+  apiURL: 'http://production.kinga-digital.com/',
 
 };
