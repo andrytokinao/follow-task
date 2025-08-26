@@ -1,12 +1,13 @@
 import {AfterViewInit, Component, OnInit} from '@angular/core';
 import {EventsService} from "../../services/events.service";
-import {EventApp, EventTypeApp, Issue, Project, User} from "../../type/issue";
+import {EventApp, EventSearchCriteria, EventTypeApp, Issue, Project, User} from "../../type/issue";
 import {DayPilot} from "@daypilot/daypilot-lite-angular";
 import Date = DayPilot.Date;
 import {AuthService} from "../../services/auth.service";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {UserService} from "../../services/user.service";
 import {IssueService} from "../../services/issue.service";
+import Locale = DayPilot.Locale;
 
 @Component({
   standalone: false,
@@ -120,6 +121,53 @@ export class NewEventComponent implements OnInit, AfterViewInit{
 
   selectSubtask(im: Issue) {
     this.selectedSubtask = im;
+  }
+  getAvailableTime(){
+    const start:Date = Date.now().addDays(-1);
+    const end = Date.now().addDays(1);
+    const availableStart = Date.now();
+    const availableEnd = Date.now().addHours(1);
+
+    const eventCriteria:EventSearchCriteria = {
+      userIds:[this.user.id],
+      end:end.toStringSortable(),
+      start:start.toStringSortable()
+    }
+    this.eventService.searchEvents(eventCriteria).subscribe( existing => {
+      if (existing && existing.length > 0) {
+
+        this.getAvailableIntervale(availableStart,existing);
+      } else {
+      }
+     // : TODO : Recuperation des creneau disponible
+      this.event.start = availableStart.toStringSortable();
+      this.event.end = availableEnd.toStringSortable();
+    });
+
+
+
+  }
+
+  getAvailableIntervale(start:Date, existing:EventApp[]):any {
+    console.debug('getAvailableIntervale',start.toStringSortable());
+    let byEnd = existing.filter( e=>  {
+       return ( Date.parse(e.start , '', undefined) < start)
+    });
+    if (byEnd.length == 0 ){
+      return {
+        start:start,
+        end:start.addHours(1)
+      }
+    }
+    let byStart = byEnd.filter( e => ( Date.parse(e.start , undefined, undefined)> start.addHours(1))) ;
+    if (byStart.length = 0) {
+      return {
+        start:start,
+        end:start.addHours(1)
+      }
+    }
+    return this.getAvailableIntervale(start.addMonths(30),byStart);
+
   }
 }
 

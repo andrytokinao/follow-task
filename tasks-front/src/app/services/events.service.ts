@@ -218,6 +218,39 @@ export class EventsService {
       });
     });
   }
+  newEventForIssue(issue:Issue, user:User){
+    const newEvent: any = {
+      title: "",
+      eventType: undefined,
+      allDay: false,
+      customColor: "",
+      customStyle: "",
+      description: "",
+      id: undefined,
+      issue: undefined,
+      location: "",
+      reminderOffset: 0,
+      reminderTime: "",
+      user: user
+    };
+
+    return new Observable<EventApp>(observer=>{
+      const modalRef = this.modalService.open(NewEventComponent, {
+        size: 'lg',
+        keyboard: false
+      });
+      modalRef.componentInstance.event = newEvent;
+      modalRef.componentInstance.user = user;
+      modalRef.componentInstance.getAvailableTime();
+      modalRef.result.then( (result:any) => {
+        observer.next(result.event);
+        observer.complete();
+      },(cancel:any)=>{
+        observer.closed;
+      })
+    })
+
+  }
 
   allEventType(){
     return new Observable<EventTypeApp[]>(observer=> {

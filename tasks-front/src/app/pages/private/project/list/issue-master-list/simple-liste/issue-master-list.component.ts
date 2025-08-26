@@ -10,6 +10,8 @@ import {stripTypename} from "@apollo/client/utilities";
 import {ViewEditIssueComponent} from "../../../modal/view-edit-issue/view-edit-issue.component";
 import {ProjectGuard} from "../../../../../../services/ProjectGuard";
 import {ConfirmationDialogService} from "../../../../../../services/confirmation-dialog.service";
+import {AuthService} from "../../../../../../services/auth.service";
+import {EventsService} from "../../../../../../services/events.service";
 
 @Component({
   selector: 'app-issue-master-list',
@@ -26,6 +28,8 @@ export class IssueMasterListComponent {
     private route: ActivatedRoute,
     protected projectGruard:ProjectGuard,
     private router: Router,
+    private authService:AuthService,
+    private eventService:EventsService,
     private confirmationDialogService:ConfirmationDialogService
   ) {
 
@@ -131,5 +135,11 @@ export class IssueMasterListComponent {
     this.confirmationDialogService.confirm('Suppression de "'+master.summary+'"', 'Tous les dossier et information seront perdue  !!! Voulez vous supprimer cette demande ? ')
       .then((confirmed) => this.issueService.deleteIssue(master.id))
       .catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
+  }
+
+  addPlanning(master: Issue) {
+    this.eventService.newEventForIssue(master,this.authService.profile).subscribe( event => {
+      console.log('created event ',event);
+    })
   }
 }
