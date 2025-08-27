@@ -219,8 +219,6 @@ export class EventsService {
     });
   }
   newEventForIssue(issue:Issue, user:User){
-    if (true)
-      return
     const newEvent: any = {
       title: "",
       eventType: undefined,
