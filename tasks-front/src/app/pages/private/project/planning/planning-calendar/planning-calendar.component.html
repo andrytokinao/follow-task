@@ -24,7 +24,7 @@
     </div>
 
     <div>
-      <div class="card" style="margin-top: 15px;padding-top: 5px;padding-bottom: 5px">
+<!--      <div class="card" style="margin-top: 15px;padding-top: 5px;padding-bottom: 5px">
         <h1> Date personnalisé </h1>
         <div class="sidebar-heding ">
           <div
@@ -44,39 +44,18 @@
           </div>
 
         </div>
-      </div>
+      </div>-->
       <div class="card" style="margin-top: 15px;padding-top: 5px;padding-bottom: 5px">
-        <div class="header" >
-          <span class="title" >Projets :</span>
+        <div class="header" [matMenuTriggerFor]="masterList">
+          <span class="title" >Demande :</span>
           <div class="filter-container">
             <p class="filter-text" >
               {{ curentFilter?.name }}
             </p>
-            <i class="fas fa-angle-down" [matMenuTriggerFor]="filter" ></i>
+            <i class="fas fa-angle-down"  ></i>
           </div>
         </div>
-        <mat-menu #filter="matMenu">
-          <felter-mastert-menue></felter-mastert-menue>
-        </mat-menu>
-        <div class="sidebar-heding ">
-          <div
-            *ngFor="let parent of issueMasters"
-            class="parent-container"
-            (mouseenter)="hoveredParent = parent.id"
-            (mouseleave)="hoveredParent = null"
-          >
-            <mat-checkbox
-              [checked]="isSelectedParent(parent.id)"
-              (change)="changesParents($event, parent)"
-              class="custom-checkbox"
-            >
-              {{ parent.issueKey + ' ' + parent.summary }}
-            </mat-checkbox>
-            <show-issue-full-option [issue]="parent" [label]="'...'">  </show-issue-full-option>
 
-          </div>
-
-        </div>
       </div>
 
     </div>
@@ -112,3 +91,33 @@
       id="current-time-marker"
       style="position: absolute; width: 100%; height: 2px; background-color: red; z-index: 1000;">
     </div>-->
+
+
+<!--
+
+Mat menue
+-->
+
+<mat-menu #filterList="matMenu">
+  <felter-mastert-menue></felter-mastert-menue>
+</mat-menu>
+<mat-menu #masterList="matMenu">
+<div class="sidebar-heding ">
+  <i class="fas fa-angle-down position-fixed" style="position:absolute;top: 1px;"  ></i>
+  <div
+    *ngFor="let parent of issueMasters"
+    class="parent-container"
+    (mouseenter)="hoveredParent = parent.id"
+    (mouseleave)="hoveredParent = null"
+  >
+    <mat-checkbox
+      [checked]="isSelectedParent(parent.id)"
+      (change)="changesParents($event, parent)"
+      class="custom-checkbox"
+    >
+      {{ parent.issueKey + ' ' + parent.summary }}
+    </mat-checkbox>
+    <show-issue-full-option [issue]="parent" [label]="'...'">  </show-issue-full-option>
+  </div>
+</div>
+</mat-menu>

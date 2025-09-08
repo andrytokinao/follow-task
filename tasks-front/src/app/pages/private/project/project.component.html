@@ -26,24 +26,25 @@
      <h2 style="display: block;text-align: center" class="menu-item" > Liste</h2>
 
    </div>
-    <div class="project-menu-item controle  menu-item-hover" routerLinkActive="active" routerLink="planning">
+    <div class="project-menu-item controle  menu-item-hover" routerLinkActive="active" routerLink="calendar">
       <div>
         <i class="fas fa-calendar-alt "  style="font-size: 30px;text-align: center"></i>
       </div>
       <h2 style="display: block;text-align: center" class="menu-item" > Calendrier</h2>
     </div>
-    <div class="project-menu-item controle  menu-item-hover" routerLinkActive="active" routerLink="config">
+    <div class="project-menu-item controle  menu-item-hover" routerLinkActive="active" routerLink="planning">
+      <div>
+        <i class="fas fa-calendar-alt "  style="font-size: 30px;text-align: center"></i>
+      </div>
+      <h2 style="display: block;text-align: center" class="menu-item" > Planning</h2>
+    </div>
+    <div class="project-menu-item controle  menu-item-hover" style="bottom:1px;position: fixed" routerLinkActive="active" routerLink="config">
       <div>
         <i class="fas fa-cog "  style="font-size: 30px;text-align: center"></i>
       </div>
-      <h2 style="display: block;text-align: center" class="menu-item" > Config</h2>
+      <h2 style="display: block;text-align: center" class="menu-item" >  Config</h2>
     </div>
-    <div class="project-menu-item controle  menu-item-hover" routerLinkActive="active" routerLink="messages">
-      <div>
-        <i class="fas fa-comments "  style="font-size: 30px;text-align: center"></i>
-      </div>
-      <h2 style="display: block;text-align: center" class="menu-item" > Messages</h2>
-    </div>
+
   </div>
  <mat-menu #list_menue ="matMenu"  yPosition="below" #parentMenu="matMenu" xPosition="after" class="liste-menu">
    <ul class="navigation-list">
