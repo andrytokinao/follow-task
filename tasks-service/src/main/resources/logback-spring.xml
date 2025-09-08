@@ -1,9 +1,9 @@
 <configuration>
     <appender name="ROLLING_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>../logs/follow-task.log</file>
+        <file>logs/follow-task.log</file>
 
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>../logs/follow-task-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>logs/follow-task-%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>7</maxHistory>
             <totalSizeCap>100MB</totalSizeCap>
         </rollingPolicy>
