@@ -10,49 +10,43 @@ import {
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
-import {ToastrService} from "ngx-toastr";
+import { ToastrService } from "ngx-toastr";
 
 @Injectable({
-    providedIn: 'root'
-  }
-)
+  providedIn: 'root'
+})
 export class HttpInterceptorService implements HttpInterceptor {
 
   constructor(private router: Router,
-              private toastr: ToastrService,
-            //  private messageService:MessagesService
-  ) {}
+              private toastr: ToastrService) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return next.handle(req).pipe(
       tap(event => {
         if (event instanceof HttpResponse) {
           const responseBody = event.body;
-          if (typeof responseBody === 'string' && responseBody.includes('<form') && responseBody.includes('id="login-form"')) {
-            this.router.navigate(['/login']);
+          // Exemple : si backend renvoie un JSON avec result:"error"
+          if (responseBody && responseBody.result === 'error') {
+            this.toastr.error(responseBody.message || 'Erreur inconnue', 'Erreur');
           }
         }
       }),
       catchError((error: HttpErrorResponse) => {
         if (error.error instanceof ErrorEvent) {
-          console.error('Client-side error:', error.error.message);
-          this.toastr.error('Client-side error: ' + error.error.message, 'Error');
-          if (!navigator.onLine) {
-            console.error('No Internet connection');
-            this.toastr.error('No Internet connection', 'Error');
-         //   this.router.navigate(['/no-internet']);
-          }
+          // Erreur côté client
+          this.toastr.error('Client-side error: ' + error.error.message, 'Erreur');
         } else {
-          console.error(`Backend returned code ${error.status}, body was: ${error.message}`);
-          if (error.status == 0) {
-            console.error('No Internet connection');
-            this.toastr.error('No Internet connection', 'Error');
-      //           this.router.navigate(['/no-internet']);
-          } else if (error.error  && error.error.text.includes('<form') && error.error.text.includes('class="form-signin"')) {
+          // Erreur backend
+          if (error.status === 401) {
+            this.toastr.warning('Session expirée, merci de vous reconnecter', 'Non autorisé');
             this.router.navigate(['/login']);
+          } else if (error.status === 0) {
+            this.toastr.error('Pas de connexion Internet', 'Erreur');
+          } else {
+            this.toastr.error(error.error?.message || 'Erreur serveur', 'Erreur');
           }
         }
-        return throwError(error);
+        return throwError(() => error);
       })
     );
   }
