@@ -1,5 +1,6 @@
 package com.kinga.followtask.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kinga.followtask.service.CustomUserDetailsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,9 +22,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 @EnableWebSecurity
@@ -42,8 +45,8 @@ public class WebSecurityConfig {
         Customizer<CsrfConfigurer<HttpSecurity>> csrfs;
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers(new AntPathRequestMatcher("/graphql")).permitAll () // TODO : regler le probleme d'autorisation
-                        .requestMatchers(new AntPathRequestMatcher("/api/upload")).permitAll ()
+                        .requestMatchers(new AntPathRequestMatcher("/graphql")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/api/upload")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/**")).authenticated()
                         .requestMatchers(new AntPathRequestMatcher("/wsocket/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/topic/**")).permitAll()
@@ -53,18 +56,18 @@ public class WebSecurityConfig {
                         .requestMatchers(new AntPathRequestMatcher("/new-password")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("//**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/working/**")).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher( "/**",HttpMethod.OPTIONS.name())).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/**", HttpMethod.OPTIONS.name())).permitAll()
                         .anyRequest().permitAll())
-                .formLogin(form-> form
+                .formLogin(form -> form
                         .permitAll()
                         .failureHandler(failureHandler())
                         .successHandler(successHandler())
                 )
                 .logout()
-                .permitAll()
-        ;
+                .permitAll();
         return http.build();
     }
+
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         logger.info("Loading userDetailsService");
@@ -82,26 +85,38 @@ public class WebSecurityConfig {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(userDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
-
         return authProvider;
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration authConfig) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         logger.info("Loading AuthenticationManager");
         return authConfig.getAuthenticationManager();
     }
 
+    @Bean
     public AuthenticationSuccessHandler successHandler() {
-        SimpleUrlAuthenticationSuccessHandler handler = new SimpleUrlAuthenticationSuccessHandler();
-        handler.setDefaultTargetUrl("/auth-success");
-        return handler;
+        return (request, response, authentication) -> {
+            response.setContentType("application/json;charset=UTF-8");
+            Map<String, String> map = new HashMap<>();
+            map.put("result", "success");
+            map.put("username", authentication.getName());
+            new ObjectMapper().writeValue(response.getWriter(), map);
+        };
     }
+
+    @Bean
     public AuthenticationFailureHandler failureHandler() {
-        AuthenticationFailureHandler handler = new SimpleUrlAuthenticationFailureHandler("/auth-failed");
-        return handler;
+        return (request, response, exception) -> {
+            response.setContentType("application/json;charset=UTF-8");
+            response.setStatus(401); // Unauthorized
+            Map<String, String> map = new HashMap<>();
+            map.put("result", "error");
+            map.put("message", exception.getMessage());
+            new ObjectMapper().writeValue(response.getWriter(), map);
+        };
     }
+
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
