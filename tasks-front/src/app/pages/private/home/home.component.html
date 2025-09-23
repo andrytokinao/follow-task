@@ -1,40 +1,55 @@
-<div class="container modern-container">
-  <!-- Liste des projets avec une grille -->
-  <div class="row project-list">
+<div class="container-fluid d-flex flex-column min-vh-100 py-5 modern-container-light position-relative">
+
+  <!-- Fond décoratif SVG placé dans le HTML -->
+  <svg class="background-svg-light" viewBox="0 0 1440 320" preserveAspectRatio="none">
+    <path fill="#6366f1" fill-opacity="0.1"
+          d="M0,96L80,117.3C160,139,320,181,480,176C640,171,800,117,960,90.7C1120,64,1280,64,1360,64L1440,64L1440,0L1360,0C1280,0,
+      1120,0,960,0C800,0,640,0,480,0C320,0,160,0,80,0L0,0Z">
+    </path>
+  </svg>
+
+  <!-- Liste des projets -->
+  <div class="row g-4 justify-content-center project-list position-relative flex-grow-1 align-content-center">
     <div
-      class="col-md-6 mb-4 "
+      class="col-md-6 col-lg-5"
       *ngFor="let project of projects"
       (click)="selectProject(project)"
     >
-      <div class="card">
-        <!-- Image de présentation -->
-        <div class="image">
-          <img style="width:200px"
-            [src]="issueService.getImageProject(project) "
+      <div class="card h-100 shadow-sm border-0 modern-card-light hover-shadow transition-all">
+        <!-- Image -->
+        <div class="card-img-top text-center bg-light p-3 rounded-top">
+          <img
+            [src]="issueService.getImageProject(project)"
             alt="{{ project.name }} Image"
+            class="img-fluid rounded"
+            style="max-height: 150px; object-fit: contain;"
           />
         </div>
-        <!-- Détails du projet -->
-        <div class="modern-card-body">
-          <h5 class="modern-card-title">
-            <i class="fa fa-briefcase workspace-icon"> </i>
-            <b> {{ project.prefix }}</b> - <i>{{ project.name }}</i>
+
+        <!-- Détails -->
+        <div class="card-body modern-card-body">
+          <h5 class="card-title d-flex align-items-center gap-2">
+            <i class="fa fa-briefcase text-primary"></i>
+            <span>
+              <b>{{ project.prefix }}</b> - <i>{{ project.name }}</i>
+            </span>
           </h5>
-          <p class="modern-card-description">
+          <p class="card-text text-muted small">
             {{ project.description }}
           </p>
         </div>
       </div>
     </div>
   </div>
-  <!-- Bouton pour créer un nouvel espace -->
-  <div class="text-center mt-4">
+
+  <!-- Bouton création -->
+  <div class="text-center mt-5 position-relative">
     <button
-      class="btn modern-create-btn"
+      class="btn btn-lg btn-primary px-4 shadow-sm modern-create-btn-light"
       (click)="createProject()"
       *ngIf="authGuard.hasAutorityAsync(['ADMIN']) | async"
     >
-      <i class="fa fa-plus-circle"></i> Créer une nouvelle espace de travail
+      <i class="fa fa-plus-circle me-2"></i> Créer un nouvel espace de travail
     </button>
   </div>
 </div>
