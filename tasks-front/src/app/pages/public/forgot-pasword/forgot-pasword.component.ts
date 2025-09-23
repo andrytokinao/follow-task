@@ -41,7 +41,7 @@ export class ForgotPaswordComponent {
         this.error = "Verifier votre contact ";
         return;
       }
-      this.authService.resetPasword(this.phone).subscribe( (result:any) => {
+      this.authService.resetPassword(this.phone).subscribe( (result:any) => {
         if (result.body.result == 'success') {
           this.error ='';
           this.message = result.body.message;
@@ -93,7 +93,7 @@ export class ForgotPaswordComponent {
      )
   }
   newPassword(){
-    this.authService.newPasword(this.phone, this.pasword,this.code).subscribe ((result:any) => {
+    this.authService.newPassword(this.phone, this.pasword,this.code).subscribe ((result:any) => {
       if (result.body.result === 'success') {
         this.message = result.body.message;
         this.error = '';

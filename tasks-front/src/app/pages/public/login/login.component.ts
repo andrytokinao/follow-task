@@ -47,7 +47,9 @@ export class LoginComponent {
               private userService : UserService
   ) {
     this.authService.getProfile().subscribe(profile=>{
-      this.router.navigate(['/working']);
+      if (profile) {
+        this.router.navigate(['/working']);
+      }
     });
     this.configService.nextIntallation().subscribe(path=>{
       if(path == "create-admin-user") {

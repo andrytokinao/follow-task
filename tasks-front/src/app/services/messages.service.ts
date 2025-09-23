@@ -25,7 +25,7 @@ import {IssueService} from "./issue.service";
 import {AuthService} from "./auth.service";
 import {UserService} from "./user.service";
 import * as SockJS from 'sockjs-client';
-import { Client, Message, Stomp } from '@stomp/stompjs';
+import {Client, Message, Stomp, StompConfig, StompHeaders} from '@stomp/stompjs';
 import {ActionService} from "./action.service";
 
 
@@ -174,8 +174,11 @@ export class MessagesService {
         return;
       }
     }
+    let head:StompHeaders= {
+      'kokok':'kokoko'
+    }
     this.client = new Client({
-      webSocketFactory: () => new SockJS(environment.apiURL+'ws'),
+      webSocketFactory: () => new SockJS(environment.apiURL+'ws',head)
     });
     this.client.onConnect = (frame) => {
       this.client.subscribe('/topic/datas/'+connectedUserId, (message: Message) => {

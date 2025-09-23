@@ -1,125 +1,124 @@
-import {HttpClient, HttpHeaders} from '@angular/common/http';
-import {Injectable} from '@angular/core';
-import {CookieService} from "ngx-cookie-service";
-import {BehaviorSubject, Observable} from "rxjs";
-import {User} from "../type/issue";
-import {environment} from "../../environments/environment";
-import {UserService} from "./user.service";
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import {BehaviorSubject, Observable, of, throwError} from 'rxjs';
+import { catchError, map, tap } from 'rxjs/operators';
+import { CookieService } from 'ngx-cookie-service';
+import { environment } from '../../environments/environment';
+import { User } from '../type/issue';
+import { UserService } from './user.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  profile = null;
-  userSubject = new BehaviorSubject<User>(null);
+  private profile: any | null = null;
+
+  private userSubject = new BehaviorSubject<User | null>(null);
   connectedUser$ = this.userSubject.asObservable();
-  private profileSubject = new BehaviorSubject<any>(undefined);
+
+  private profileSubject = new BehaviorSubject<any | null>(null);
   profile$ = this.profileSubject.asObservable();
-  constructor(private http: HttpClient, private cookieService: CookieService,
-    private userService:UserService
-  ) {
-  }
 
-  login(username: string, password: string) {
-    const url = +environment.apiURL+'login';
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-      'Accept-Language': 'fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3',
-      'Origin': 'http://localhost:4200',
-      'Referer': environment.apiURL+'login',
-      'Connection': 'keep-alive',
-      'Upgrade-Insecure-Requests': '1',
-      'Sec-Fetch-Dest': 'document',
-      'Sec-Fetch-Mode': 'navigate',
-      'Sec-Fetch-Site': 'same-origin',
-      'Sec-Fetch-User': '?1'
-    });
+  private profileLoading = false;
 
+  constructor(
+    private http: HttpClient,
+    private cookieService: CookieService,
+    private userService: UserService
+  ) {}
+
+  login(username: string, password: string): Observable<'success' | 'failed'> {
     const body = new FormData();
     body.append('username', username);
     body.append('password', password);
-    return new Observable<any>((observer)=>{
-      this.http.post(environment.apiURL+'login', body, {observe: 'response',withCredentials:true}).subscribe(
-        (res:any)=>{
-          if(res.body.result == 'success') {
-            observer.next("success");
-            observer.complete();
-          } else {
-            observer.next("failed");
-            observer.complete();
-          }
-        },
-        (error :any)=> {
-          if(error.body.result == 'success') {
-            observer.next("success");
-            observer.complete();
-          } else {
-            observer.next("failed");
-            observer.complete();
-          }
-        }
+
+    return this.http
+      .post<any>(`${environment.apiURL}login`, body, {
+        observe: 'response',
+        withCredentials: true
+      })
+      .pipe(
+        map((res: any): 'success' | 'failed' =>
+          res.body?.result === 'success' ? 'success' : 'failed'
+        ),
+        catchError((): Observable<'failed'> => of('failed'))
       );
-
-    })
   }
 
-  getProfile() {
-    return new Observable((observer) => {
-        if (this.profile) {
-          observer.next(this.profile);
-          observer.complete();
-        } else {
-          this.http.get(environment.apiURL+"api/profile",{withCredentials:true}).subscribe(
-            (res: any) => {
-            if (JSON.stringify(res).localeCompare('login') === -1) {
-              localStorage.setItem("user", res);
-              this.profile = res;
-              this.profileSubject.next(res);
-              observer.next(this.profile);
-              this.loadConnectedUser();
-              observer.complete();
-            } else {
-              observer.error("Connection failed");
-              observer.complete();
-            }
-          },(err)=>{
-              console.error(JSON.stringify(err));
-              observer.error(err);
-              observer.complete();
-            }
-          );
-        }
-      }
-    )
+  getProfile(forceRefresh = false): Observable<any> {
+    if (this.profile && !forceRefresh) {
+      return this.profile$;
+    }
+
+    if (this.profileLoading) {
+      return this.profile$;
+    }
+
+    this.profileLoading = true;
+
+    this.http
+      .get<any>(`${environment.apiURL}api/profile`, { withCredentials: true })
+      .pipe(
+        tap((res) => {
+          this.profile = res;
+          this.profileSubject.next(res);
+          this.loadConnectedUser();
+          this.profileLoading = false;
+        }),
+        catchError((err) => {
+          console.error('Erreur chargement profile', err);
+          this.profile = null;
+          this.profileSubject.next(null);
+          this.profileLoading = false;
+          return throwError(() => err);
+        })
+      )
+      .subscribe();
+
+    return this.profile$;
   }
-  loadConnectedUser(){
-    this.profile.username;
-    this.userService.getUser(this.profile.username).subscribe(res => {
+
+  private loadConnectedUser(): void {
+    if (!this.profile?.username) return;
+
+    this.userService.getUser(this.profile.username).subscribe((res) => {
       this.userSubject.next(res);
-      }
-    )
+    });
   }
-  logout(){
+
+  logout(): Observable<any> {
     this.profile = null;
-    return this.http.get(environment.apiURL+'logout',{withCredentials:true});
+    this.profileSubject.next(null);
+    this.userSubject.next(null);
+    return this.http.get(`${environment.apiURL}logout`, {
+      withCredentials: true
+    });
   }
 
-  verificationCodeReset(phone:string, code:string){
-    return  this.http.get(environment.apiURL+"verify-code?phone="+phone + "&code="+code,{observe: 'response',withCredentials:true});
+  verificationCodeReset(phone: string, code: string) {
+    return this.http.get(
+      `${environment.apiURL}verify-code?phone=${phone}&code=${code}`,
+      { observe: 'response', withCredentials: true }
+    );
   }
-  contactValidator(contact) {
+
+  contactValidator(contact: string): boolean {
     const contactPattern = /^(0(34|33|32|38)|\+261(34|33|32|38))\d{7}$/;
-    const isValid = contactPattern.test(contact);
-    return isValid;
+    return contactPattern.test(contact);
   }
 
-  resetPasword(phone) {
-    return  this.http.get(environment.apiURL+"reset-pasword?phone="+phone ,{observe: 'response',withCredentials:true});
+  resetPassword(phone: string) {
+    return this.http.get(`${environment.apiURL}reset-password?phone=${phone}`, {
+      observe: 'response',
+      withCredentials: true
+    });
   }
 
-  newPasword(phone: string, pasword: string, code: string) {
-    return  this.http.get(environment.apiURL+"new-password?phone="+phone+ "&code="+code +"&password="+pasword ,{observe: 'response',withCredentials:true});
-
+  newPassword(phone: string, password: string, code: string) {
+    return this.http.get(
+      `${environment.apiURL}new-password?phone=${phone}&code=${code}&password=${password}`,
+      { observe: 'response', withCredentials: true }
+    );
   }
+
 }

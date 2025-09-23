@@ -12,6 +12,7 @@ import {ProjectGuard} from "../../../../../../services/ProjectGuard";
 import {ConfirmationDialogService} from "../../../../../../services/confirmation-dialog.service";
 import {AuthService} from "../../../../../../services/auth.service";
 import {EventsService} from "../../../../../../services/events.service";
+import {firstValueFrom} from "rxjs";
 
 @Component({
   selector: 'app-issue-master-list',
@@ -137,9 +138,16 @@ export class IssueMasterListComponent {
       .catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
   }
 
-  addPlanning(master: Issue) {
-    this.eventService.newEventForIssue(master,this.authService.profile).subscribe( event => {
-      console.log('created event ',event);
-    })
+  async addPlanning(master: Issue) {
+    const profile = await firstValueFrom(this.authService.profile$);
+
+    if (!profile) {
+      console.warn('Aucun profil chargé');
+      return;
+    }
+
+    this.eventService.newEventForIssue(master, profile).subscribe(event => {
+      console.log('created event', event);
+    });
   }
 }
