@@ -6,6 +6,7 @@ import { CookieService } from 'ngx-cookie-service';
 import { environment } from '../../environments/environment';
 import { User } from '../type/issue';
 import { UserService } from './user.service';
+import {Router} from "@angular/router";
 
 @Injectable({
   providedIn: 'root'
@@ -24,7 +25,8 @@ export class AuthService {
   constructor(
     private http: HttpClient,
     private cookieService: CookieService,
-    private userService: UserService
+    private userService: UserService,
+    private router:Router
   ) {}
 
   login(username: string, password: string): Observable<'success' | 'failed'> {
@@ -66,6 +68,7 @@ export class AuthService {
           this.profileLoading = false;
         }),
         catchError((err) => {
+          this.router.navigate(["/login"]);
           console.error('Erreur chargement profile', err);
           this.profile = null;
           this.profileSubject.next(null);
