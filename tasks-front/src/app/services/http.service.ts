@@ -4,13 +4,12 @@ import {
   HttpRequest,
   HttpHandler,
   HttpEvent,
-  HttpErrorResponse, HttpResponse
+  HttpResponse
 } from '@angular/common/http';
-import {BehaviorSubject, Observable, tap, throwError} from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { tap, catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { AuthService } from './auth.service';
 import { User } from '../type/issue';
 
 @Injectable({
@@ -20,18 +19,15 @@ export class HttpInterceptorService implements HttpInterceptor {
   private userSubject = new BehaviorSubject<User | null>(null);
   connectedUser$ = this.userSubject.asObservable();
 
-  private isNotifying = false;
+  private lastMessage: string | null = null;
 
   constructor(
     private router: Router,
-    private toastr: ToastrService,
-  //  private authService: AuthService
+    private toastr: ToastrService
   ) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    req = req.clone({
-      withCredentials: true
-    });
+    req = req.clone({ withCredentials: true });
 
     return next.handle(req).pipe(
       tap(event => {
@@ -42,39 +38,23 @@ export class HttpInterceptorService implements HttpInterceptor {
         }
       }),
       catchError((error: any) => {
-        if (this.isLoginPage(error.error)) {
-          console.log('error',error);
+        if (this.isLoginPage(error.error) || error.status === 401) {
           this.handleSessionExpired();
+        } else {
+          const msg = error.status === 0 ? 'Erreur de connexion au serveur' : `Erreur HTTP : ${error.status}`;
+          this.showErrorOnce(msg);
         }
-        else if (error.status === 401) {
-          this.handleSessionExpired();
-        }
-        else {
-          if (error.status === 0) {
-            this.showErrorOnce('Erreur de connexion au serveur');
-          } else {
-            this.showErrorOnce(`Erreur HTTP : ${error.status}`);
-          }
-        }
-
         return throwError(() => error);
       })
     );
   }
+
   private isLoginPageContent(body: any): boolean {
-    return (
-      typeof body === 'string' &&
-      body.includes('class="form-signin"')
-    );
+    return typeof body === 'string' && body.includes('class="form-signin"');
   }
 
-
-
   private isLoginPage(error: any): boolean {
-    return (
-      typeof error.text === 'string' &&
-      error.text.includes('class="form-signin"')
-    );
+    return typeof error.text === 'string' && error.text.includes('class="form-signin"');
   }
 
   private handleSessionExpired(): void {
@@ -85,14 +65,14 @@ export class HttpInterceptorService implements HttpInterceptor {
   }
 
   private showErrorOnce(message: string, onClose?: () => void): void {
-    if (this.isNotifying) return;
-    this.isNotifying = true;
+    if (this.lastMessage === message) return;
+    this.lastMessage = message;
 
     this.toastr.error(message, 'Erreur', {
       timeOut: 5000,
       closeButton: true
     }).onHidden.subscribe(() => {
-      this.isNotifying = false;
+      this.lastMessage = null;
       if (onClose) onClose();
     });
   }
