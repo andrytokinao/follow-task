@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import {HttpClient, HttpErrorResponse} from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import {BehaviorSubject, Observable, of, throwError} from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
@@ -90,13 +90,28 @@ export class AuthService {
   }
 
   logout(): Observable<any> {
-    this.profile = null;
-    this.profileSubject.next(null);
-    this.userSubject.next(null);
-    return this.http.get(`${environment.apiURL}logout`, {
-      withCredentials: true
-    });
+    return this.http.get(`${environment.apiURL}logout`, { withCredentials: true, responseType: 'text' })
+      .pipe(
+        tap(() => {
+          this.profile = null;
+          this.profileSubject.next(null);
+          this.userSubject.next(null);
+        }),
+        catchError((error) => {
+          if (error.status === 200 || error.status === 302) {
+            this.profile = null;
+            this.profileSubject.next(null);
+            this.userSubject.next(null);
+            return of(null);
+          }
+          console.error('[Logout Error]', error);
+          return throwError(() => new Error('Échec de la déconnexion.'));
+        })
+      );
   }
+
+
+
 
   verificationCodeReset(phone: string, code: string) {
     return this.http.get(

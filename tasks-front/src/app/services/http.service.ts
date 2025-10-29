@@ -4,9 +4,10 @@ import {
   HttpRequest,
   HttpHandler,
   HttpEvent,
-  HttpResponse
+  HttpResponse,
+  HttpErrorResponse
 } from '@angular/common/http';
-import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, throwError, of } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -20,6 +21,7 @@ export class HttpInterceptorService implements HttpInterceptor {
   connectedUser$ = this.userSubject.asObservable();
 
   private lastMessage: string | null = null;
+  private isNavigating = false;
 
   constructor(
     private router: Router,
@@ -32,17 +34,35 @@ export class HttpInterceptorService implements HttpInterceptor {
     return next.handle(req).pipe(
       tap(event => {
         if (event instanceof HttpResponse) {
+          // Si on reçoit une page HTML de login à la place d'une réponse JSON
           if (this.isLoginPageContent(event.body)) {
             this.handleSessionExpired();
           }
         }
       }),
       catchError((error: any) => {
-        if (this.isLoginPage(error.error) || error.status === 401) {
-          this.handleSessionExpired();
-        } else {
-          const msg = error.status === 0 ? 'Erreur de connexion au serveur' : `Erreur HTTP : ${error.status}`;
-          this.showErrorOnce(msg);
+        if (error instanceof HttpErrorResponse) {
+          if (error.status === 401) {
+            this.handleSessionExpired();
+            return of();
+          }
+
+          if (error.status === 302) {
+            console.warn('[HTTP] Redirection détectée, ignorée.');
+            return of();
+          }
+
+          if (error.status === 0) {
+            this.showErrorOnce('Impossible de contacter le serveur. Vérifiez votre connexion réseau.');
+            return throwError(() => error);
+          }
+
+          if (this.isLoginPage(error.error)) {
+            this.handleSessionExpired();
+            return of();
+          }
+
+          this.showErrorOnce(`Erreur HTTP ${error.status}: ${error.statusText || 'Erreur inconnue'}`);
         }
         return throwError(() => error);
       })
@@ -50,17 +70,23 @@ export class HttpInterceptorService implements HttpInterceptor {
   }
 
   private isLoginPageContent(body: any): boolean {
-    return typeof body === 'string' && body.includes('class="form-signin"');
+    return typeof body === 'string' && /<form[^>]*class=["']form-signin["']/.test(body);
   }
 
   private isLoginPage(error: any): boolean {
-    return typeof error.text === 'string' && error.text.includes('class="form-signin"');
+    if (!error) return false;
+    return typeof error === 'string' && /<form[^>]*class=["']form-signin["']/.test(error);
   }
 
   private handleSessionExpired(): void {
+    if (this.isNavigating) return;
+    this.isNavigating = true;
+
     this.userSubject.next(null);
-    this.showErrorOnce('Session expirée. Veuillez vous reconnecter.', () => {
-      this.router.navigate(['/login']);
+    this.showErrorOnce('Votre session a expiré. Veuillez vous reconnecter.', () => {
+      this.router.navigate(['/login']).finally(() => {
+        this.isNavigating = false;
+      });
     });
   }
 

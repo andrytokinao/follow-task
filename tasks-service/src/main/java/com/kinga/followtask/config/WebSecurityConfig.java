@@ -64,8 +64,20 @@ public class WebSecurityConfig {
                         .failureHandler(failureHandler())
                         .successHandler(successHandler())
                 )
-                .logout()
-                .permitAll();
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessHandler((request, response, authentication) -> {
+                            response.setContentType("application/json;charset=UTF-8");
+                            response.setStatus(200);
+                            Map<String, Object> map = new HashMap<>();
+                            map.put("result", "success");
+                            map.put("message", "Déconnexion réussie");
+                            new ObjectMapper().writeValue(response.getWriter(), map);
+                        })
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
+                );
+
         return http.build();
     }
 

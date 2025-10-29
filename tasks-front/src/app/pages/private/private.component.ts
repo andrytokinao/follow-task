@@ -122,15 +122,24 @@ export class PrivateComponent {
     });
   }
 
+  isLoggingOut = false;
+
   logout() {
-    this.authService.logout().subscribe(
-      res => {
-        this.router.navigate(["/login"]);
-      }, error => {
-        this.router.navigate(["/login"]);
+    if (this.isLoggingOut) return; // éviter clic multiple
+    this.isLoggingOut = true;
+
+    this.authService.logout().subscribe({
+      next: () => {
+        this.isLoggingOut = false;
+        this.router.navigate(['/login']);
+      },
+      error: () => {
+        this.isLoggingOut = false;
+        alert('Erreur lors de la déconnexion. Réessayez plus tard.');
       }
-    );
+    });
   }
+
 
   myProfile() {
     const dialogRef = this.modalService.open(ProfileComponent, {windowClass: "xlModal"});

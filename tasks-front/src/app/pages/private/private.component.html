@@ -35,8 +35,14 @@
         <div class="user-dropdown-content">
           <div class="item controle" (click)="myProfile()" >Profile</div>
           <div class="item controle" href="#">Settings</div>
-          <div class="item controle" (click)="logout()" >Logout </div>
-        </div>
+          <div
+            class="item controle"
+            [class.disabled]="isLoggingOut"
+            (click)="logout()"
+          >
+            <span *ngIf="!isLoggingOut">Logout</span>
+            <span *ngIf="isLoggingOut">Déconnexion...</span>
+          </div>        </div>
       </div>
     </div>
   </div>
