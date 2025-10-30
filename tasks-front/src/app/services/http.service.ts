@@ -61,8 +61,10 @@ export class HttpInterceptorService implements HttpInterceptor {
             this.handleSessionExpired();
             return of();
           }
+          if (error.status != 200)
+            this.showErrorOnce(`Erreur HTTP ${error.status}: ${error.statusText || 'Erreur inconnue'}`);
+          return of();
 
-          this.showErrorOnce(`Erreur HTTP ${error.status}: ${error.statusText || 'Erreur inconnue'}`);
         }
         return throwError(() => error);
       })

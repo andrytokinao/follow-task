@@ -37,6 +37,9 @@ export class LoginComponent {
   newUsername: any;
   newPassword: String ="";
   confirmPassword: String ="";
+  loginInProgress = false;
+  loginMessage?: string;
+  loginErrorMessage?: string;
   constructor(private router: Router,
               private loginService: AuthService,
               private localStorage: LocalStorageService,
@@ -63,32 +66,41 @@ export class LoginComponent {
 
     })
   }
-  login() {
-    this.loginService.login(this.username, this.password).pipe().subscribe(
-      (res:any)=>{
-        if (res == 'success') {
-          this.connectionSuccess();
-        }
-        if (res == 'failed') {
-          this.connectionFiled();
-        }
-      },(res2:any) => {
-        if(res2 == 'success') {
-          this.connectionSuccess();
-        }
-        if (res2 == 'failed') {
-          this.connectionFiled();
-        }
-      }
-    )
-  }
-  connectionFiled(){
-    this.toast.error("login ou mot de passe incorrecte","login falled");
-  }
-  connectionSuccess(){
-    this.toast.success("Connection success","Successful");
-    this.router.navigate(['/working/']);
+  login(): void {
+    if (this.loginInProgress) return;
+    this.loginInProgress = true;
+    this.loginMessage = undefined;
+    this.loginErrorMessage = undefined;
 
+    this.loginService.login(this.username, this.password).subscribe({
+      next: (response: any) => {
+        if (response === 'success') {
+          this.onLoginSuccess();
+        } else {
+          this.onLoginFailure();
+        }
+      },
+      error: (error: any) => {
+        console.error('[Erreur de connexion]', error);
+        this.onLoginFailure();
+      },
+      complete: () => {
+        this.loginInProgress = false;
+      }
+    });
+  }
+
+  private onLoginFailure(): void {
+    this.loginErrorMessage = 'Nom d’utilisateur ou mot de passe incorrect.';
+    this.loginMessage = undefined;
+    this.loginInProgress = false;
+  }
+
+  private onLoginSuccess(): void {
+    this.loginMessage = 'Connexion réussie ! Redirection en cours...';
+    this.loginErrorMessage = undefined;
+    this.loginInProgress = false;
+    this.router.navigate(['/working/']);
   }
   signup() : void{
    this.signupMode = !this.signupMode;
