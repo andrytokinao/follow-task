@@ -31,7 +31,7 @@
       </div>
       <div class="user-dropdown">
         <img [src]="userService.getUrlPhoto(profile)" alt="P">
-        <span class="username">{{profile.firstName}} {{profile.lastName}}</span>
+        <span class="username">{{profile?.firstName}} {{profile?.lastName}}</span>
         <div class="user-dropdown-content">
           <div class="item controle" (click)="myProfile()" >Profile</div>
           <div class="item controle" href="#">Settings</div>
