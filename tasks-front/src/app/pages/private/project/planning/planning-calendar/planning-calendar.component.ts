@@ -289,7 +289,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
     });
     this.authService.connectedUser$.subscribe(user => {
       this.user = user;
-      //   this.eventCriteria.userIds = [this.user.id];
+      this.eventCriteria.userIds = [this.user.id];
       this.loadEvents();
     });
 
