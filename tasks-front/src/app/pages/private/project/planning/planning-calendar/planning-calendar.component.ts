@@ -105,7 +105,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
     cellWidth: 23,
     cellHeight: 25,
     onVisibleRangeChanged: (args) => {;
-      this.loadEvents();
+     this.loadEvents();
     },
     onTimeRangeSelected: (args) => {
       this.eventCriteria.start = args.start.toString();
@@ -316,6 +316,8 @@ export class PlanningCalendarComponent implements AfterViewInit {
   }
 
     loadEvents(): void {
+    if (!(this.project && this.user))
+      return;
     this.eventCriteria.start = this.nav.control.visibleStart().toString();
     this.eventCriteria.end = this.nav.control.visibleEnd().toString();
     this.eventService.searchEventsAndSet(this.eventCriteria);
@@ -328,6 +330,9 @@ export class PlanningCalendarComponent implements AfterViewInit {
     this.configWeek.visible = false;
     this.configMonth.visible = false;
     this.configResource.visible = true;
+    this.eventCriteria.userIds = [];
+    this.loadEvents();
+
   }
   viewDay():void {
     this.configNavigator.selectMode = "Day";
@@ -335,6 +340,10 @@ export class PlanningCalendarComponent implements AfterViewInit {
     this.configWeek.visible = false;
     this.configMonth.visible = false;
     this.configResource.visible = false;
+    if (this.user) {
+      this.eventCriteria.userIds = [this.user.id];
+      this.loadEvents();
+    }
 
   }
 
@@ -344,6 +353,10 @@ export class PlanningCalendarComponent implements AfterViewInit {
     this.configWeek.visible = true;
     this.configMonth.visible = false;
     this.configResource.visible = false;
+    if (this.user) {
+      this.eventCriteria.userIds = [this.user.id];
+      this.loadEvents();
+    }
 
 
   }
@@ -354,6 +367,8 @@ export class PlanningCalendarComponent implements AfterViewInit {
     this.configWeek.visible = false;
     this.configMonth.visible = true;
     this.configResource.visible = false;
+    if (this.user)
+      this.eventCriteria.userIds = [this.user.id];
 
   }
 
