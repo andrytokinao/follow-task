@@ -21,7 +21,7 @@ import {CustomFieldStepperComponent} from "./custom-field-stepper/custom-field-s
   templateUrl: './config-custom-field.component.html',
   styleUrl: './config-custom-field.component.css',
   standalone: true,
-  imports: [CdkDropList, CdkDrag, MyCommonModule, NgForOf, NgIf, MatList, MatListItem],
+  imports: [MyCommonModule, NgForOf],
 })
 export class ConfigCustomFieldComponent implements OnInit{
   activeModal: any;

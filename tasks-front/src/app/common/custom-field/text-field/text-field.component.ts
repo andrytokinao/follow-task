@@ -7,7 +7,6 @@ import {FormsModule, ReactiveFormsModule} from "@angular/forms";
   selector: 'app-text-field',
   standalone: true,
   imports: [
-    DatePipe,
     NgIf,
     ReactiveFormsModule,
     FormsModule

@@ -8,7 +8,6 @@ import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
   standalone: true,
     imports: [
         NgForOf,
-        NgIf
     ],
   templateUrl: './choose-dialog.component.html',
   styleUrl: './choose-dialog.component.css'

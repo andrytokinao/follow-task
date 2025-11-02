@@ -1,13 +1,12 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {CustomFieldValue, DisplayCustomField} from "../../../type/issue";
-import {DatePipe, NgIf} from "@angular/common";
+import { NgIf} from "@angular/common";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 
 @Component({
   selector: 'app-number-field',
   standalone: true,
   imports: [
-    DatePipe,
     NgIf,
     ReactiveFormsModule,
     FormsModule
