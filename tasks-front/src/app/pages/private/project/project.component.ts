@@ -22,6 +22,7 @@ import {
 import formatters from "chart.js/dist/core/core.ticks";
 import {ProjectBreadcrumbResolverService} from "./project-breadcrumb-resolver.service";
 import {MessagesService} from "../../../services/messages.service";
+import {o} from "@angular/cdk/overlay-module.d-2b07cfa6";
 
 @Component({
   selector: 'app-project',
@@ -44,7 +45,7 @@ import {MessagesService} from "../../../services/messages.service";
   ]
 
 })
-export class ProjectComponent {
+export class ProjectComponent implements OnInit{
   workSpace='';
   project:Project | undefined;
   private issues: Issue[]=[];
@@ -69,40 +70,6 @@ export class ProjectComponent {
     private breadcrumb:ProjectBreadcrumbResolverService,
     private messagesService:MessagesService
   ) {
-    this.issueService.loadedWorkspace$.subscribe(value => {
-      this.isworkspace = value.valueOf();
-    });
-    this.route.data.subscribe(data => {
-      console.debug(data);
-      const breadcrumb: Breadcrumb[] = data['breadcrumb'];
-      this.project = data['project'];
-      this.previousOrder = data['order']
-      /* console.debug(breadcrumb);
-       this.breadcrumbService.setBreadcrumbs(breadcrumb);
-       this.breadcrumbs = breadcrumb;
-       this.breadcrumbService.setBreadcrumbs(breadcrumb);*/
-    });
-    this.route.data.subscribe(data=> {
-      this.previousOrder = data['order'];
-      console.log('orrrder ',this.previousOrder);
-    })
-    this.route.data.subscribe(data => {
-      let path = this.route.snapshot.pathFromRoot;
-      console.log(path);
-    });
-    this.issueService.project$.subscribe(project => {
-      this.project = project;
-      if (this.project) {
-        this.userService.loadGroupeUserForProject(this.project.prefix);
-      }
-    });
-
-    this.issueService.projects$.subscribe(projectes => {
-      this.projects = projectes;
-    });
-    this.breadcrumb.curentBreadcrumb$.subscribe(b => {
-      this.projectBreadcrumb = b;
-    });
   }
 
 
@@ -138,5 +105,43 @@ export class ProjectComponent {
     return  o.activatedRouteData['order'] ;
    // const stat =  routeOrder >= this.projectBreadcrumb.order ? 'top' :'bottom';
    // return stat;
+  }
+
+  ngOnInit(): void {
+
+    this.issueService.loadedWorkspace$.subscribe(value => {
+      this.isworkspace = value.valueOf();
+    });
+    this.route.data.subscribe(data => {
+      console.debug(data);
+      const breadcrumb: Breadcrumb[] = data['breadcrumb'];
+      this.project = data['project'];
+      this.previousOrder = data['order']
+      /* console.debug(breadcrumb);
+       this.breadcrumbService.setBreadcrumbs(breadcrumb);
+       this.breadcrumbs = breadcrumb;
+       this.breadcrumbService.setBreadcrumbs(breadcrumb);*/
+    });
+    this.route.data.subscribe(data=> {
+      this.previousOrder = data['order'];
+      console.log('orrrder ',this.previousOrder);
+    })
+    this.route.data.subscribe(data => {
+      let path = this.route.snapshot.pathFromRoot;
+      console.log(path);
+    });
+    this.issueService.project$.subscribe(project => {
+      this.project = project;
+      if (this.project) {
+        this.userService.loadGroupeUserForProject(this.project.prefix);
+      }
+    });
+
+    this.issueService.projects$.subscribe(projectes => {
+      this.projects = projectes;
+    });
+    this.breadcrumb.curentBreadcrumb$.subscribe(b => {
+      this.projectBreadcrumb = b;
+    });
   }
 }

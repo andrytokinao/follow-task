@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component, input, OnInit} from '@angular/core';
 import {Router} from "@angular/router";
 import {AuthService} from "../../services/auth.service";
 import {LocalStorageService} from "../../services/local-storage.service";
@@ -51,7 +51,7 @@ import {ImageModalContentComponent} from "../../common/image-modal-content/image
     ])
   ]
 })
-export class PrivateComponent {
+export class PrivateComponent implements  OnInit{
   workspace = "";
   profile: any = {};
   title = 'tasks-front';
@@ -77,49 +77,6 @@ export class PrivateComponent {
               protected messageService:MessagesService,
               protected actionService:ActionService
   ) {
-    this.authService.getProfile().subscribe(profile => {
-      this.profile = profile;
-    });
-    this.authService.connectedUser$.subscribe(user => {
-      this.connectedUser = user;
-      if (this.connectedUser && this.connectedUser.id) {
-        this.issueService.getProjectByUser(this.connectedUser.id);
-        this.messageService.connectWs(this.connectedUser.id);
-        this.actionService.loadNotifications(this.connectedUser.id);
-      } else {
-        this.messageService.disconnectWs();
-      }
-    });
-    this.issueService.projects$.subscribe(projectes => {
-      this.projects = projectes;
-    });
-    this.issueService.loadedWorkspace$.subscribe(value => {
-      this.isworkspace = value.valueOf();
-    });
-    this.issueService.globalSettings$.subscribe(settings => {
-      settings.forEach(s => {
-        if (s.cle === 'logo' && s.active) {
-          this.logoUrl =  environment.apiURL+'photo/'+s.settingsValue
-        }
-      })
-    });
-    this.actionService.notification$.subscribe(nots => {
-      this.notifications = nots;
-    });
-    this.actionService.unreadedNotification$.subscribe( nbr => {
-      this.unrededNofication = nbr;
-    });
-    issueService.currentSlidingImage$.subscribe(image => {
-      if (image.fileName === 'open') {
-        this.openImageModal();
-        return;
-      }
-      if (image.fileName === 'close') {
-        this.closeImageModal();
-        return;
-      }
-
-    });
   }
 
   isLoggingOut = false;
@@ -226,6 +183,53 @@ export class PrivateComponent {
       console.log(`Closed with: ${result}`);
     }, (reason) => {
       console.log(`Dismissed with: ${reason}`);
+    });
+  }
+
+  ngOnInit(): void {
+
+    this.authService.getProfile().subscribe(profile => {
+      this.profile = profile;
+    });
+    this.authService.connectedUser$.subscribe(user => {
+      this.connectedUser = user;
+      if (this.connectedUser && this.connectedUser.id) {
+        this.issueService.getProjectByUser(this.connectedUser.id);
+        this.messageService.connectWs(this.connectedUser.id);
+        this.actionService.loadNotifications(this.connectedUser.id);
+      } else {
+        this.messageService.disconnectWs();
+      }
+    });
+    this.issueService.projects$.subscribe(projectes => {
+      this.projects = projectes;
+    });
+    this.issueService.loadedWorkspace$.subscribe(value => {
+      this.isworkspace = value.valueOf();
+    });
+    this.issueService.globalSettings$.subscribe(settings => {
+      settings.forEach(s => {
+        if (s.cle === 'logo' && s.active) {
+          this.logoUrl =  environment.apiURL+'photo/'+s.settingsValue
+        }
+      })
+    });
+    this.actionService.notification$.subscribe(nots => {
+      this.notifications = nots;
+    });
+    this.actionService.unreadedNotification$.subscribe( nbr => {
+      this.unrededNofication = nbr;
+    });
+    this.issueService.currentSlidingImage$.subscribe(image => {
+      if (image.fileName === 'open') {
+        this.openImageModal();
+        return;
+      }
+      if (image.fileName === 'close') {
+        this.closeImageModal();
+        return;
+      }
+
     });
   }
 }

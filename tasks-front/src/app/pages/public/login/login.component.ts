@@ -1,7 +1,6 @@
-import {Component, inject} from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
 import {Router} from "@angular/router";
 import {AuthService} from "../../../services/auth.service";
-import {nextMonthDisabled} from "@ng-bootstrap/ng-bootstrap/datepicker/datepicker-tools";
 import {map, Observable, tap} from "rxjs";
 import {LocalStorageService} from "../../../services/local-storage.service";
 import {ConfigService} from "../../../services/config.service";
@@ -11,7 +10,7 @@ import {ToastrService} from "ngx-toastr";
 import {
   AbstractControl,
   AsyncValidatorFn,
-  FormBuilder, FormControl,
+  FormControl,
   FormGroup,
   ValidationErrors,
   ValidatorFn,
@@ -20,6 +19,7 @@ import {
 import {EventGateway} from "../../../type/event-gatway";
 import {User} from "../../../type/issue";
 import {UserService} from "../../../services/user.service";
+
 export type Nullable<T> = T | null;
 
 @Component({
@@ -28,7 +28,7 @@ export type Nullable<T> = T | null;
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit{
   username: string='';
   password: string='';
   signupMode :boolean=false;
@@ -49,22 +49,6 @@ export class LoginComponent {
               private toast : ToastrService,
               private userService : UserService
   ) {
-    this.authService.getProfile().subscribe(profile=>{
-      if (profile) {
-        this.router.navigate(['/working']);
-      }
-    });
-    this.configService.nextIntallation().subscribe(path=>{
-      if(path == "create-admin-user") {
-        let dialogRef: any;
-        const modalRef = this.modalService.open(CreateAdminUserComponent, {
-          size: 'lg',
-          backdrop: 'static',
-          keyboard: false
-        });
-     }
-
-    })
   }
   login(): void {
     if (this.loginInProgress) return;
@@ -206,5 +190,25 @@ export class LoginComponent {
 
   forgotResult($result: any) {
     this.forgotPasword = false;
+  }
+
+  ngOnInit(): void {
+
+    this.authService.getProfile().subscribe(profile=>{
+      if (profile) {
+        this.router.navigate(['/working']);
+      }
+    });
+    this.configService.nextIntallation().subscribe(path=>{
+      if(path == "create-admin-user") {
+        let dialogRef: any;
+        const modalRef = this.modalService.open(CreateAdminUserComponent, {
+          size: 'lg',
+          backdrop: 'static',
+          keyboard: false
+        });
+      }
+
+    })
   }
 }
