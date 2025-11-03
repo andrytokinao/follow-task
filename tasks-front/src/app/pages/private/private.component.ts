@@ -68,7 +68,7 @@ export class PrivateComponent {
   protected unrededNofication = 0;
 
   constructor(private router: Router,
-              private authService: AuthService,
+              protected authService: AuthService,
               private modalService: NgbModal,
               private issueService: IssueService,
               protected userService: UserService,
