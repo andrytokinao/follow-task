@@ -188,7 +188,7 @@ export class PrivateComponent implements  OnInit{
 
   ngOnInit(): void {
 
-    this.authService.getProfile().subscribe(profile => {
+    this.authService.getProfile(true).subscribe(profile => {
       this.profile = profile;
     });
     this.authService.connectedUser$.subscribe(user => {

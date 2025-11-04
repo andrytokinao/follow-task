@@ -9,7 +9,7 @@
         <p class="message">{{ notification.message }}</p>
       </div>
       <div>
-      <a [routerLink]="notification.issueLinks"> {{notification.project.prefix}} / {{notification.action.issue.issueKey}}</a>
+      <a [routerLink]="notification.issueLinks"> {{notification.project?.prefix}} / {{notification.action.issue.issueKey}}</a>
     </div>
     </div>
   </div>

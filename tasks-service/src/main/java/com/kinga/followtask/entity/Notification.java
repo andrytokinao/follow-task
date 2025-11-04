@@ -45,7 +45,7 @@ public class Notification {
         return readUserIds;
     }
     public List<String> getIssueLinks(){
-        return Arrays.asList("/working",project.getPrefix(),"issue",action.getIssue().getIssueKey(),"details");
+        return Arrays.asList("/working",action.getIssue().getProject().getPrefix(),"issue",action.getIssue().getIssueKey(),"details");
 
     }
 }

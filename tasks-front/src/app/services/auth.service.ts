@@ -21,6 +21,7 @@ export class AuthService {
   profile$ = this.profileSubject.asObservable();
 
   private profileLoading = false;
+  private connectedLoading = false;
 
   constructor(
     private http: HttpClient,
@@ -46,7 +47,15 @@ export class AuthService {
         catchError((): Observable<'failed'> => of('failed'))
       );
   }
+  loadConnectedUserByUsername(username:String) {
+    this.connectedLoading = true;
+    this.userService.getUser(username).subscribe((res) => {
+      this.userSubject.next(res);
+      this.router.navigate(['/working/']);
 
+      this.connectedLoading = false;
+    });
+  }
   getProfile(forceRefresh = false): Observable<any> {
     if (this.profile && !forceRefresh) {
       return this.profile$;
@@ -57,7 +66,10 @@ export class AuthService {
     }
 
     this.profileLoading = true;
-
+    this.loadProfile();
+    return this.profile$;
+  }
+  loadProfile(){
     this.http
       .get<any>(`${environment.apiURL}api/profile`, { withCredentials: true })
       .pipe(
@@ -77,15 +89,16 @@ export class AuthService {
         })
       )
       .subscribe();
-
-    return this.profile$;
   }
-
-  private loadConnectedUser(): void {
+  loadConnectedUser(): void {
     if (!this.profile?.username) return;
 
+    if(this.connectedLoading)
+      return;
+     this.connectedLoading = true;
     this.userService.getUser(this.profile.username).subscribe((res) => {
       this.userSubject.next(res);
+      this.connectedLoading = false;
     });
   }
 

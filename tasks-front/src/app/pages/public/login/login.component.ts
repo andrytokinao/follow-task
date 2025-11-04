@@ -59,7 +59,7 @@ export class LoginComponent implements OnInit{
     this.loginService.login(this.username, this.password).subscribe({
       next: (response: any) => {
         if (response === 'success') {
-          this.onLoginSuccess();
+          this.onLoginSuccess(this.username);
         } else {
           this.onLoginFailure();
         }
@@ -80,11 +80,13 @@ export class LoginComponent implements OnInit{
     this.loginInProgress = false;
   }
 
-  private onLoginSuccess(): void {
+  private onLoginSuccess(username:String): void {
+    this.authService.getProfile(true).subscribe();
     this.loginMessage = 'Connexion réussie ! Redirection en cours...';
     this.loginErrorMessage = undefined;
     this.loginInProgress = false;
-    this.router.navigate(['/working/']);
+    this.authService.loadProfile();
+    this.authService.loadConnectedUserByUsername(username);
   }
   signup() : void{
    this.signupMode = !this.signupMode;

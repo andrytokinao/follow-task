@@ -112,6 +112,11 @@ export class AuthGuard implements CanActivate {
   hasAutorityAsync(autorities:String[]){
     return new Observable<boolean>((observer) =>{
        this.authService.getProfile().subscribe((profile:any) => {
+         if (!(profile && profile.permissions)) {
+           observer.next(false);
+           observer.complete();
+           return;
+         }
          if (profile.permissions.includes('CAN_ACCESS_ALL')) {
            observer.next(true);
            observer.complete();
