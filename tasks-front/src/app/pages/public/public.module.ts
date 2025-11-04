@@ -21,6 +21,7 @@ import {ForgotPaswordComponent} from "./forgot-pasword/forgot-pasword.component"
 import {MatRadioButton, MatRadioGroup} from "@angular/material/radio";
 import {MatInput} from "@angular/material/input";
 import {MatButton} from "@angular/material/button";
+import {NgbModule, NgbPopover} from "@ng-bootstrap/ng-bootstrap";
 
 
 
@@ -37,26 +38,28 @@ import {MatButton} from "@angular/material/button";
   exports: [
 
   ],
-  imports: [
-    PublicRoutingModule,
-    MatTabsModule,
-    MatCardModule,
-    MatDialogModule,
-    MatToolbarModule,
-    MatFormFieldModule,
-    FormsModule,
-    MatMenuModule,
-    MatMenuModule,
-    MatIconModule,
-    MatSelectModule,
-    MyCommonModule,
-    CommonModule,
-    ReactiveFormsModule,
-    MatRadioButton,
-    MatRadioGroup,
-    MatInput,
-    MatButton,
+    imports: [
+        PublicRoutingModule,
+        MatTabsModule,
+        MatCardModule,
+        MatDialogModule,
+        MatToolbarModule,
+        MatFormFieldModule,
+        FormsModule,
+        MatMenuModule,
+        MatMenuModule,
+        MatIconModule,
+        MatSelectModule,
+        MyCommonModule,
+        CommonModule,
+        ReactiveFormsModule,
+        MatRadioButton,
+        MatRadioGroup,
+        MatInput,
+        MatButton,
+        NgbPopover,
+      NgbModule
 
-  ]
+    ]
 })
 export class PublicModule { }

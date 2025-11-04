@@ -20,5 +20,28 @@
       <p>{{ feature.description }}</p>
     </mat-card>
   </div>
+  <button type="button" class="btn btn-primary"
+          [ngbPopover]="formTemplate"
+          popoverTitle="Formulaire"
+          triggers="click:click"
+          placement="auto">
+    Ouvrire
+  </button>
+
+  <ng-template #formTemplate>
+    <form (ngSubmit)="onSubmit()" #f="ngForm" style="width: 200px;">
+      <div class="mb-2">
+        <label>Nom :</label>
+        <input name="nom" ngModel class="form-control">
+      </div>
+      <div class="mb-2">
+        <label>Email :</label>
+        <input name="email" ngModel type="email" class="form-control">
+      </div>
+      <button class="btn btn-success w-100" type="submit">Envoyer</button>
+    </form>
+  </ng-template>
+
+
 </section>
 

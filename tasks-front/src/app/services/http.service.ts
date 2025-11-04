@@ -10,7 +10,7 @@ import {
 import { BehaviorSubject, Observable, throwError, of } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
+import { ToastrService, GlobalConfig } from 'ngx-toastr';
 import { User } from '../type/issue';
 
 @Injectable({
@@ -26,7 +26,19 @@ export class HttpInterceptorService implements HttpInterceptor {
   constructor(
     private router: Router,
     private toastr: ToastrService
-  ) {}
+  ) {
+    const config: Partial<GlobalConfig> = {
+      positionClass: 'toast-bottom-left',
+      timeOut: 4000,
+      closeButton: true,
+      progressBar: true,
+      tapToDismiss: true,
+      maxOpened: 1,
+      autoDismiss: true,
+      toastClass: 'ngx-toastr custom-toast-small'
+    };
+    this.toastr.toastrConfig = { ...this.toastr.toastrConfig, ...config };
+  }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     req = req.clone({ withCredentials: true });
@@ -34,7 +46,6 @@ export class HttpInterceptorService implements HttpInterceptor {
     return next.handle(req).pipe(
       tap(event => {
         if (event instanceof HttpResponse) {
-          // Si on reçoit une page HTML de login à la place d'une réponse JSON
           if (this.isLoginPageContent(event.body)) {
             this.handleSessionExpired();
           }
@@ -61,10 +72,10 @@ export class HttpInterceptorService implements HttpInterceptor {
             this.handleSessionExpired();
             return of();
           }
-          if (error.status != 200)
+
+          if (error.status !== 200)
             this.showErrorOnce(`Erreur HTTP ${error.status}: ${error.statusText || 'Erreur inconnue'}`);
           return of();
-
         }
         return throwError(() => error);
       })
@@ -96,10 +107,7 @@ export class HttpInterceptorService implements HttpInterceptor {
     if (this.lastMessage === message) return;
     this.lastMessage = message;
 
-    this.toastr.error(message, 'Erreur', {
-      timeOut: 5000,
-      closeButton: true
-    }).onHidden.subscribe(() => {
+    this.toastr.error(message).onHidden.subscribe(() => {
       this.lastMessage = null;
       if (onClose) onClose();
     });

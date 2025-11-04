@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import {Router} from "@angular/router";
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   standalone:false,
@@ -29,6 +30,8 @@ export class HomeComponent {
       description: 'Des solutions rapides et fiables pour maximiser votre productivité.',
     },
   ];
+  nom = '';
+  email = '';
   start(){
     this.router.navigate(["/login"]);
   }
@@ -37,5 +40,9 @@ export class HomeComponent {
     if (featuresSection) {
       featuresSection.scrollIntoView({ behavior: 'smooth' });
     }
+  }
+
+  onSubmit() {
+
   }
 }

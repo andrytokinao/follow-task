@@ -553,12 +553,20 @@ h3 {
   position: fixed;
   width: 100%;
 }
-/* Position du toast */
+/*!* Position du toast *!
 .custom-toast-position {
   top: 90vh !important;
   right: 0;
   transform: translateY(-100%);
   position: fixed;
+}*/
+.custom-toast-small {
+  font-size: 13px !important;
+  padding: 6px 10px !important;
+  border-radius: 6px !important;
+  min-width: 200px !important;
+  max-width: 260px !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
 }
 
 
