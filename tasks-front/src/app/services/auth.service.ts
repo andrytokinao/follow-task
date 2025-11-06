@@ -1,6 +1,6 @@
 import {HttpClient, HttpErrorResponse} from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import {BehaviorSubject, Observable, of, throwError} from 'rxjs';
+import {BehaviorSubject, mergeMap, Observable, of, throwError} from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { CookieService } from 'ngx-cookie-service';
 import { environment } from '../../environments/environment';
@@ -30,23 +30,34 @@ export class AuthService {
     private router:Router
   ) {}
 
-  login(username: string, password: string): Observable<'success' | 'failed'> {
+  login(username: string, password: string): Observable<'success' | string> {
     const body = new FormData();
     body.append('username', username);
     body.append('password', password);
 
-    return this.http
-      .post<any>(`${environment.apiURL}login`, body, {
+    return new Observable(observer => {
+      this.http.post<any>(`${environment.apiURL}login`, body, {
         observe: 'response',
         withCredentials: true
-      })
-      .pipe(
-        map((res: any): 'success' | 'failed' =>
-          res.body?.result === 'success' ? 'success' : 'failed'
-        ),
-        catchError((): Observable<'failed'> => of('failed'))
-      );
+      }).subscribe({
+        next: (res) => {
+          if (res.body?.result === 'success') {
+            observer.next('success');
+          } else {
+            observer.error('Mot de passe incorrect');
+          }
+          observer.complete();
+        },
+        error: (err) => {
+          console.error('Erreur HTTP:', err);
+          observer.error('Erreur de connexion');
+          observer.complete();
+        }
+      });
+    });
+
   }
+
   loadConnectedUserByUsername(username:String) {
     this.connectedLoading = true;
     this.userService.getUser(username).subscribe((res) => {

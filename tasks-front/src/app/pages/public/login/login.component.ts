@@ -57,21 +57,20 @@ export class LoginComponent implements OnInit{
     this.loginErrorMessage = undefined;
 
     this.loginService.login(this.username, this.password).subscribe({
-      next: (response: any) => {
-        if (response === 'success') {
-          this.onLoginSuccess(this.username);
-        } else {
-          this.onLoginFailure();
-        }
+      next: () => {
+        this.toast.success('Connexion réussie !', 'Succès');
+        this.onLoginSuccess(this.username);
       },
       error: (error: any) => {
-        console.error('[Erreur de connexion]', error);
+        this.username = undefined;
+        this.password = undefined;
         this.onLoginFailure();
       },
       complete: () => {
         this.loginInProgress = false;
       }
     });
+
   }
 
   private onLoginFailure(): void {

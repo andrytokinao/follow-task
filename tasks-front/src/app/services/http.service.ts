@@ -55,7 +55,7 @@ export class HttpInterceptorService implements HttpInterceptor {
         if (error instanceof HttpErrorResponse) {
           if (error.status === 401) {
             this.handleSessionExpired();
-            return of();
+            throw new Error('Utilisateur introuvable');
           }
 
           if (error.status === 302) {
