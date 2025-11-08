@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, Input, OnInit} from '@angular/core';
+import {AfterViewInit, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {AsyncPipe, NgForOf, NgIf} from "@angular/common";
 import {MatMenu, MatMenuItem, MatMenuTrigger} from "@angular/material/menu";
 import {MyCommonModule} from "../common.module";
@@ -22,6 +22,7 @@ export class LabelFormComponent implements OnInit,AfterViewInit{
   labels:Label[] = [];
   @Input() issue:Issue;
   currentLabel:Label;
+  @Output() save = new EventEmitter<any>();
 
   newLabel: Label ={};
   private toClose: boolean;
@@ -70,9 +71,7 @@ export class LabelFormComponent implements OnInit,AfterViewInit{
   iscreateLabel = false;
   labColor: any;
 
-  save($event: MouseEvent) {
-    this.toClose = true;
-  }
+
   clickMenu($event:MouseEvent) {
     if (!this.toClose) {
       $event.stopPropagation();
@@ -142,5 +141,9 @@ export class LabelFormComponent implements OnInit,AfterViewInit{
 
   saveLabel(label: Label) {
     this.issueService.saveLabel(label);
+  }
+
+  select(option1: string) {
+
   }
 }

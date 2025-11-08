@@ -63,7 +63,7 @@ export class LoginComponent implements OnInit{
       },
       error: (error: any) => {
         this.username = undefined;
-        this.password = undefined;
+        this.password = '';
         this.onLoginFailure();
       },
       complete: () => {

@@ -1,24 +1,24 @@
-<form #f="ngForm"  novalidate style="min-width: 500px">
+<form #f="ngForm"  novalidate style="min-width: 500px" (click)="clickMenu($event)">
   <div class="form-group">
 
     <!-- Project (avec mat-menu) -->
       <div >
-        <h2 mat-button [matMenuTriggerFor]="projectMenu" color="primary">
+        <h2 mat-button [matMenuTriggerFor]="projectMenu" color="primary"  #subMenuTrigger="matMenuTrigger">
           Créer une demande pour l'équipe de :
           <i>{{ project?.name || 'Aucun' }}</i>
           <i class="fas fa-edit" style="float: right"> </i>
         </h2>
       </div>
 
-    <mat-menu #projectMenu="matMenu">
-      <button mat-menu-item *ngFor="let pr of projects" (click)="selectProject(pr)">
+    <mat-menu #projectMenu="matMenu"  >
+      <button mat-menu-item *ngFor="let pr of projects" (click)="selectProject($event,subMenuTrigger,pr)">
         <i class="fas fa-plus"></i>
         {{ pr.name }}
       </button>
     </mat-menu>
 
       <div >
-        <button mat-button [matMenuTriggerFor]="typeMenu" color="primary">
+        <button mat-button [matMenuTriggerFor]="typeMenu" color="primary" #subMenuIssuType="matMenuTrigger">
           Type de demande :
           <strong>{{ issueType?.name || 'Aucun' }}</strong>
           <i class="fas fa-edit" style="float: right"> </i>
@@ -27,8 +27,8 @@
         <i class="fas fa-ellipsis-v" style="float: right;cursor: pointer"> </i>
       </div>
 
-    <mat-menu #typeMenu="matMenu">
-      <button mat-menu-item *ngFor="let type of useIssueType" (click)="selectIssueType(type)">
+    <mat-menu #typeMenu="matMenu" >
+      <button mat-menu-item *ngFor="let type of useIssueType" (click)="selectIssueType($event,subMenuIssuType,type)">
         {{ type.name }}
       </button>
     </mat-menu>
@@ -70,4 +70,7 @@
       <button mat-raised-button color="primary" type="submit" [disabled]="!canCreate()" (click)="save(f)">Créer</button>
     </div>
   </div>
+
+
+
 </form>

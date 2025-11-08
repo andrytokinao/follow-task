@@ -151,6 +151,43 @@ export class IssueService implements OnInit {
               private authService: AuthService,
               protected projectGuard: ProjectGuard,
   ) {
+    const initialProject: Project = null;
+    this.authService.connectedUser$.subscribe(user => {
+      this.user = user;
+      this.loadSettings();
+      this.loadMyFilters();
+    });
+
+    this.project$.subscribe(project => {
+      this.project = project;
+      if (this.project && this.project.id) {
+        this.workFlowsByProject(this.projectSubject.value.id).subscribe();
+        this.loadUsers();
+        this.loadIssueType();
+        this.loadMyFilters();
+        this.loadAllCustomField();
+        this.setCurrentMasterFilter({
+          id: 0,
+          name: 'Tous',
+          projectId: this.project.id,
+          criteria: {}
+        });
+        this.loadIssueType();
+        this.issueType$.subscribe(issueTypes => {
+          let parentType = issueTypes.filter(it => it.level === 'PARENT');
+          this.issueTypesParentSubject.next(parentType);
+        })
+      }
+
+    });
+    this.currentMasterFilter$.subscribe(filter => {
+
+      if (filter && this.project) {
+        this.searchIssues(filter.criteria, this.project.id).subscribe(issues => {
+          this.setMasters(issues);
+        });
+      }
+    });
   }
 
   filterMasterIssue(customFilter: CustomFilter) {
@@ -1257,6 +1294,7 @@ export class IssueService implements OnInit {
   }
 
   ngOnInit(): void {
+
 
   }
 

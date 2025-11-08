@@ -1,8 +1,9 @@
-import {Component, inject, Injector, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, inject, Injector, OnInit, ViewChild} from '@angular/core';
 import { CdkTextareaAutosize } from '@angular/cdk/text-field';
 import { Issue, IssueType, Project, Status } from '../../type/issue';
 import { IssueService } from '../../services/issue.service';
 import {MessagesService} from "../../services/messages.service";
+import {MatMenuTrigger} from "@angular/material/menu";
 
 @Component({
   standalone:false,
@@ -10,7 +11,7 @@ import {MessagesService} from "../../services/messages.service";
   templateUrl: './new-issue-form.component.html',
   styleUrls: ['./new-issue-form.component.css']
 })
-export class NewIssueFormComponent implements OnInit{
+export class NewIssueFormComponent implements OnInit, AfterViewInit{
   issueKey: String = '';
   summary: string = '';
   description: string = '';
@@ -24,6 +25,8 @@ export class NewIssueFormComponent implements OnInit{
   step: string = '';
   isMaster = true;
   isDesable = false;
+  private toClose: boolean;
+
 
   @ViewChild('autosize') autosize: CdkTextareaAutosize | undefined;
   private _injector = inject(Injector);
@@ -61,7 +64,7 @@ export class NewIssueFormComponent implements OnInit{
       this.projects = projects;
       if (this.project == null ){
         if( this.projects && this.projects.length>0)
-       this.selectProject(this.projects[0]);
+       this.selectProject(undefined,undefined,this.projects[0]);
       }
     })
   }
@@ -126,7 +129,10 @@ export class NewIssueFormComponent implements OnInit{
 
   issueTypesMasters: IssueType[] = [];
 
-  selectProject(pr: Project) {
+  selectProject(event:Event,trigger: MatMenuTrigger,pr: Project) {
+    if (event)
+      event.stopPropagation();
+
     this.issueService.listIssueTypeMaster(pr.id).subscribe( types => {
       this.useIssueType = types;
       this.project = pr;
@@ -135,6 +141,8 @@ export class NewIssueFormComponent implements OnInit{
         this.loadNextKey(this.issueType.id);
       }
     });
+    if (trigger)
+      trigger.closeMenu();
   }
 
   canCreate(){
@@ -143,8 +151,24 @@ export class NewIssueFormComponent implements OnInit{
     }
     return true;
   }
-  selectIssueType(type: IssueType) {
+  selectIssueType(event:Event,trigger: MatMenuTrigger,type: IssueType) {
+    if (event)
+      event.stopPropagation();
     this.issueType = type;
     this.loadNextKey(this.issueType.id);
+    if (trigger)
+      trigger.closeMenu();
+  }
+
+  clickMenu($event: MouseEvent) {
+    if (!this.toClose) {
+      $event.stopPropagation();
+    } else {
+      this.toClose = false;
+    }
+  }
+  ngAfterViewInit(): void {
+    this.toClose = false;
+
   }
 }

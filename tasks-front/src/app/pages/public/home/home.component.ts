@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import {Router} from "@angular/router";
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import {MatMenuTrigger} from "@angular/material/menu";
 
 @Component({
   standalone:false,
@@ -43,6 +44,17 @@ export class HomeComponent {
   }
 
   onSubmit() {
+
+  }
+  selectedValue = '';
+
+  select(value: string, trigger: MatMenuTrigger) {
+    this.selectedValue = value;
+    trigger.closeMenu();
+  }
+
+  save(form: any) {
+    console.log('Formulaire soumis:', form.value, 'Option:', this.selectedValue);
 
   }
 }

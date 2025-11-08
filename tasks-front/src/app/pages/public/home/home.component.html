@@ -10,6 +10,43 @@
   </div>
   <canvas id="background-animation"></canvas>
 </div>
+<!-- Bouton principal -->
+<button mat-button [matMenuTriggerFor]="menuPrincipal">Ouvrir le formulaire</button>
+
+<mat-menu #menuPrincipal="matMenu" [hasBackdrop]="true">
+  <div class="menu-form" (click)="$event.stopPropagation()">
+    <form #form="ngForm">
+      <mat-form-field appearance="fill">
+        <mat-label>Nom</mat-label>
+        <input matInput name="nom" ngModel>
+      </mat-form-field>
+
+      <!-- Sous-menu -->
+      <button
+        mat-button
+        [matMenuTriggerFor]="sousMenu"
+        #subMenuTrigger="matMenuTrigger"
+        (click)="$event.stopPropagation()"
+      >
+        Choisir une option : {{ selectedValue || 'Aucune' }}
+      </button>
+
+      <mat-menu #sousMenu="matMenu" [hasBackdrop]="false">
+        <div class="sub-options" (click)="$event.stopPropagation()">
+          <button mat-button (click)="select('Option 1', subMenuTrigger)">Option 1</button>
+          <button mat-button (click)="select('Option 2', subMenuTrigger)">Option 2</button>
+          <button mat-button (click)="select('Option 3', subMenuTrigger)">Option 3</button>
+        </div>
+      </mat-menu>
+
+      <div class="actions">
+        <button mat-raised-button color="primary" (click)="save(form)">Save</button>
+      </div>
+    </form>
+  </div>
+</mat-menu>
+
+
 
 <section id="features" class="features">
   <h2 class="section-title">Avantage </h2>
