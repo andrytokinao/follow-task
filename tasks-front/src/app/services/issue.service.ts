@@ -1749,7 +1749,7 @@ export class IssueService implements OnInit {
          parent.responses = responses;
          this.updateOrAddDocument(parent);
       } else {
-        console.log("processResponse-> parent not found");
+        console.log("processResponse-> parentIssue not found");
       }
   }
 

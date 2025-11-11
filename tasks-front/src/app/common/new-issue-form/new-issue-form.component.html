@@ -2,20 +2,21 @@
   <div class="form-group">
 
     <!-- Project (avec mat-menu) -->
-      <div >
+      <div *ngIf="!isSubtask()">
         <h2 mat-button [matMenuTriggerFor]="projectMenu" color="primary"  #subMenuTrigger="matMenuTrigger">
           Créer une demande pour l'équipe de :
           <i>{{ project?.name || 'Aucun' }}</i>
           <i class="fas fa-edit" style="float: right"> </i>
         </h2>
+        <mat-menu #projectMenu="matMenu"  >
+          <button mat-menu-item *ngFor="let pr of projects" (click)="selectProject($event,subMenuTrigger,pr)">
+            <i class="fas fa-plus"></i>
+            {{ pr.name }}
+          </button>
+        </mat-menu>
       </div>
 
-    <mat-menu #projectMenu="matMenu"  >
-      <button mat-menu-item *ngFor="let pr of projects" (click)="selectProject($event,subMenuTrigger,pr)">
-        <i class="fas fa-plus"></i>
-        {{ pr.name }}
-      </button>
-    </mat-menu>
+
 
       <div >
         <button mat-button [matMenuTriggerFor]="typeMenu" color="primary" #subMenuIssuType="matMenuTrigger">

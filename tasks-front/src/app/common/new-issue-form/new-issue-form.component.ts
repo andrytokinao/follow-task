@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, inject, Injector, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, inject, Injector, Input, OnInit, ViewChild} from '@angular/core';
 import { CdkTextareaAutosize } from '@angular/cdk/text-field';
 import { Issue, IssueType, Project, Status } from '../../type/issue';
 import { IssueService } from '../../services/issue.service';
@@ -21,7 +21,8 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
   allIssueTypes: IssueType[] = [];
   useIssueType: IssueType[] = [];
   projects:Project [] = [];
-  parent: Issue | undefined;
+  @Input() parentIssue: Issue | undefined;
+  @ViewChild(MatMenuTrigger) menuTrigger!: MatMenuTrigger;
   step: string = '';
   isMaster = true;
   isDesable = false;
@@ -66,7 +67,17 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
         if( this.projects && this.projects.length>0)
        this.selectProject(undefined,undefined,this.projects[0]);
       }
+    });
+    this.issueService.issueMaster$.subscribe(issue => {
+      this.parentIssue = issue;
+      if (this.parentIssue?.id) {
+        if (this.isSubtask()) {
+          this.loadIssueTypeSubtask();
+        }
+      }
+
     })
+
   }
 
   save(form: any) {
@@ -80,12 +91,15 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
       project: { id: this.project?.id }
     };
 
-    if (this.parent) {
-      issue.parent = { id: this.parent.id };
+    if (this.parentIssue) {
+      issue.parent = { id: this.parentIssue.id };
     }
 
     this.issueService.saveIssue(issue).subscribe(res => {
       this.messageService.showRight('');
+      if (this.menuTrigger != null ) {
+        this.menuTrigger.closeMenu();
+      }
       console.log('Issue créée :', res);
     });
   }
@@ -116,12 +130,12 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
     this.isDesable = true;
   }
 
-  listIssueTypeSubtasks(masterId: number) {
+  loadIssueTypeSubtask() {
     this.isDesable = true;
-    this.issueService.listIssueTypeSubtasks(masterId).subscribe(types => {
+    this.issueService.listIssueTypeSubtasks(this.parentIssue.issueType.id).subscribe(types => {
       this.useIssueType = types;
-      if (this.allIssueTypes.length) {
-        this.issueType = this.allIssueTypes[0];
+      if (this.useIssueType.length) {
+        this.issueType = this.useIssueType[0];
         this.loadNextKey(this.issueType.id);
       }
     });
@@ -170,5 +184,10 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
   ngAfterViewInit(): void {
     this.toClose = false;
 
+
   }
+  isSubtask(){
+    return (this.parentIssue != undefined && this.parentIssue != null)
+  }
+
 }

@@ -45,7 +45,7 @@
     <div *ngIf="isNewFile" (dragover)="onDragOver($event)" (drop)="onDrop($event)">
       <div>
         <form #f="ngForm" (ngSubmit)="upload()">
-          <div class="form-group" #parent>
+          <div class="form-group" #parentIssue>
             <mat-form-field style="width: 100%">
               <mat-label>Titre </mat-label>
               <input matInput

@@ -27,13 +27,12 @@
 
   </div>
   <div class="button-container">
-    <button class="btn-create" [matMenuTriggerFor]="createSubtask">
+    <button mat-button [matMenuTriggerFor]="createSubtask">
       <i class="fas fa-plus"></i> Créer
     </button>
-
   </div>
 </div>
-<mat-menu #createSubtask ="matMenu" [ngStyle]="{'width': '6000px'}" >
-  <app-new-issue-form></app-new-issue-form>
+<mat-menu #createSubtask="matMenu" [ngStyle]="{'width': '600px'}">
+  <app-new-issue-form [parentIssue]="parentIssue"></app-new-issue-form>
 </mat-menu>
 

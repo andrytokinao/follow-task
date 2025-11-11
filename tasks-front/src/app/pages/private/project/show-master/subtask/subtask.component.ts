@@ -25,7 +25,7 @@ interface Task {
 export class SubtaskComponent implements OnInit {
   private project: any;
   private profile: any;
-  private parentIssue: Issue;
+  protected parentIssue: Issue;
   private currentIssue: null;
   private users: User[] = [];
 
