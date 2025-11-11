@@ -64,7 +64,7 @@ export class SubtaskComponent implements OnInit {
     this.issueService.issueMaster$.subscribe(issue => {
       this.parentIssue = issue;
       if (this.parentIssue?.id) {
-        this.loadSubtask();
+   //     this.loadSubtask();
       }
 
     })

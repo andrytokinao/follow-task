@@ -1,0 +1,248 @@
+.subtask-container {
+  display: flex;
+  height: 100%;
+  background: #fff;
+  font-size: 15px;
+  color: #333;
+  border-radius: 10px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+  overflow: hidden;
+}
+
+.task-list {
+  width: 35%;
+  min-width: 240px;
+  max-width: 60%;
+  background: #f8f9fb;
+  border-right: 1px solid #dee2e6;
+  display: flex;
+  flex-direction: column;
+  transition: width 0.2s ease;
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 14px;
+    background: #e9ecef;
+    border-bottom: 1px solid #d0d4d8;
+
+    h3 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+      i {
+        margin-right: 6px;
+        color: #007bff;
+      }
+    }
+
+    .btn-add-subtask {
+      background: #007bff;
+      color: #fff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+
+      i { margin-right: 4px; }
+
+      &:hover { background: #0069d9; }
+    }
+  }
+
+  .task-item {
+    padding: 10px 14px;
+    border-bottom: 1px solid #e9ecef;
+    cursor: pointer;
+    transition: background 0.2s ease;
+
+    .key {
+      font-weight: 600;
+    }
+
+    .summary {
+      color: #555;
+      margin: 4px 0;
+    }
+
+    .meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: #777;
+      i {
+        margin-right: 5px;
+      }
+    }
+
+    &:hover {
+      background: #e9f2ff;
+    }
+
+    &.selected {
+      background: #d0e5ff;
+      border-left: 4px solid #007bff;
+    }
+
+    .status.en\ cours {
+      color: #ff9800;
+    }
+
+    .status.fini {
+      color: #4caf50;
+    }
+
+    .status.afaire {
+    color: #f44336;
+  }
+  }
+}
+
+.divider {
+  width: 6px;
+  cursor: col-resize;
+  background: #ccc;
+  transition: background 0.2s ease;
+  &:hover { background: #007bff; }
+}
+
+/* Détails */
+.task-detail {
+  flex-grow: 1;
+  padding: 18px 22px;
+  overflow-y: auto;
+
+  .header-detail {
+    margin-bottom: 12px;
+    h2 {
+      font-size: 18px;
+      color: #222;
+      display: flex;
+      align-items: center;
+      i {
+        color: #007bff;
+        margin-right: 8px;
+      }
+    }
+  }
+
+  .description {
+    margin-bottom: 15px;
+    line-height: 1.6;
+    color: #444;
+  }
+
+  .custom-fields, .attachments, .planning {
+    margin-bottom: 22px;
+    h4 {
+      font-size: 16px;
+      margin-bottom: 10px;
+      color: #333;
+      display: flex;
+      align-items: center;
+      i {
+        color: #007bff;
+        margin-right: 8px;
+      }
+    }
+  }
+
+  .field, .planning-item {
+    background: #f6f7f9;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.2s;
+    &:hover {
+      background: #eef3fb;
+    }
+  }
+
+  .btn-icon {
+    border: none;
+    background: none;
+    color: #555;
+    cursor: pointer;
+    font-size: 15px;
+    transition: color 0.2s;
+    &:hover {
+      color: #007bff;
+    }
+  }
+
+  .btn-add-plan {
+    background: #007bff;
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 10px;
+    i {
+      margin-right: 6px;
+    }
+    &:hover {
+      background: #0069d9;
+    }
+  }
+
+  .timeline {
+    position: relative;
+    padding-left: 20px;
+    border-left: 3px solid #007bff;
+
+    .planning-item {
+      position: relative;
+      margin-bottom: 15px;
+
+      .timeline-point {
+        position: absolute;
+        left: -11px;
+        top: 15px;
+        width: 12px;
+        height: 12px;
+        background: #007bff;
+        border-radius: 50%;
+        box-shadow: 0 0 0 3px #cce1ff;
+      }
+
+      .planning-content {
+        display: flex;
+        flex-direction: column;
+        .planning-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          strong i {
+            color: #007bff;
+            margin-right: 6px;
+          }
+        }
+        .datetime {
+          color: #777;
+          font-size: 13px;
+          margin-top: 3px;
+        }
+      }
+    }
+  }
+
+  .no-task {
+    text-align: center;
+    color: #777;
+    margin-top: 40px;
+    font-size: 15px;
+    i {
+      color: #007bff;
+      margin-right: 6px;
+    }
+  }
+}

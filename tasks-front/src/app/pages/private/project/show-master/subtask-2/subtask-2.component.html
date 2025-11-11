@@ -1,0 +1,82 @@
+<div class="subtask-container">
+  <!-- Liste de tâches -->
+  <div class="task-list" #taskList>
+    <div class="header">
+      <h3><i class="fas fa-tasks"></i> Tâches</h3>
+      <button class="btn-add-subtask">
+        <i class="fas fa-plus"></i> Sous-tâche
+      </button>
+    </div>
+
+    <div *ngFor="let task of tasks"
+         class="task-item"
+         [class.selected]="task === selectedTask"
+         (click)="selectTask(task)">
+      <div class="key">{{ task.key }}</div>
+      <div class="summary">{{ task.summary }}</div>
+      <div class="meta">
+        <span class="assignee"><i class="fas fa-user"></i> {{ task.assignee }}</span>
+        <span class="status" [ngClass]="task.status.toLowerCase()">{{ task.status }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Barre de redimensionnement -->
+  <div class="divider" (mousedown)="startResizing($event)"></div>
+
+  <!-- Détails -->
+  <div class="task-detail">
+    <ng-container *ngIf="selectedTask; else noSelection">
+      <div class="header-detail">
+        <h2>
+          <i class="fas fa-hashtag"></i> {{ selectedTask.key }}
+          - {{ selectedTask.summary }}
+        </h2>
+      </div>
+
+      <div class="description" [innerHTML]="selectedTask.description"></div>
+
+      <div class="custom-fields">
+        <h4><i class="fas fa-list"></i> Champs personnalisés</h4>
+        <div class="field" *ngFor="let field of selectedTask.customFields">
+          <span><strong>{{ field.label }}:</strong> {{ field.value }}</span>
+          <button class="btn-icon" title="Modifier"><i class="fas fa-pen"></i></button>
+        </div>
+      </div>
+
+      <div class="attachments">
+        <h4><i class="fas fa-paperclip"></i> Fichiers joints</h4>
+        <ul>
+          <li *ngFor="let file of selectedTask.attachments">
+            <i class="fas fa-file"></i> {{ file }}
+          </li>
+        </ul>
+      </div>
+
+      <div class="planning">
+        <h4><i class="fas fa-calendar-alt"></i> Planning</h4>
+        <div class="timeline">
+          <div class="planning-item" *ngFor="let p of selectedTask.planning">
+            <div class="timeline-point"></div>
+            <div class="planning-content">
+              <div class="planning-header">
+                <strong><i class="fas fa-clock"></i> {{ p.title }}</strong>
+                <button class="btn-icon" title="Modifier"><i class="fas fa-pen"></i></button>
+              </div>
+              <div class="datetime">{{ p.date }} — {{ p.time }}</div>
+            </div>
+          </div>
+          <button class="btn-add-plan">
+            <i class="fas fa-plus"></i> Ajouter un planning
+          </button>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-template #noSelection>
+      <div class="no-task">
+        <i class="fas fa-info-circle"></i> Sélectionnez une tâche pour voir les détails
+      </div>
+    </ng-template>
+  </div>
+</div>

@@ -1,4 +1,4 @@
-import {EventEmitter, Input} from "@angular/core";
+import {EventEmitter, Input, NgIterable} from "@angular/core";
 
 export class Status {
   id: number =0;
@@ -33,6 +33,8 @@ export class Issue {
   comments? :Comment[] = [];
   project?:Project;
   observerIds?:String[];
+    attachments?: NgIterable<unknown> & NgIterable<any>;
+  planning?: NgIterable<any> & NgIterable<any>;
   constructor() {
 
   }
@@ -58,7 +60,7 @@ export class GroupeUser {
 
   members:MemberGroupe[] = [];
 }
-export class MemberGroupe{  
+export class MemberGroupe{
   id:number | null = null;
   groupe :GroupeUser| any = {};
   user :User | null = null;

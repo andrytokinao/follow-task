@@ -52,6 +52,9 @@ import {MatAutocomplete, MatAutocompleteTrigger} from "@angular/material/autocom
 import {ExchangeDocumentsComponent} from "../exchange-documents/exchange-documents.component";
 import {DiscussionComponent} from "./discussion/discussion.component";
 import {ProjectModule} from "../project.module";
+import {Subtask2Component} from "./subtask-2/subtask-2.component";
+import {MatListItem, MatNavList} from "@angular/material/list";
+import {AngularSplitModule} from "angular-split";
 
 
 @NgModule({
@@ -67,7 +70,8 @@ import {ProjectModule} from "../project.module";
     IssueChatsComponent,
     DocumentsComponent,
     DocumentUploaderComponent,
-    DiscussionComponent
+    DiscussionComponent,
+    Subtask2Component
   ],
   exports: [
   ],
@@ -114,6 +118,9 @@ import {ProjectModule} from "../project.module";
     MatAutocompleteTrigger,
     MatCheckbox,
     ProjectModule,
+    MatNavList,
+    MatListItem,
+    AngularSplitModule
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })

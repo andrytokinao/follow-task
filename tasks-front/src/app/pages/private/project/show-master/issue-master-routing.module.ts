@@ -11,6 +11,7 @@ import {CommentsComponent} from "./comments/comments.component";
 import {IssueChatsComponent} from "./issue-chats/issue-chats.component";
 import {ExchangeDocumentsComponent} from "../exchange-documents/exchange-documents.component";
 import {DiscussionComponent} from "./discussion/discussion.component";
+import {Subtask2Component} from "./subtask-2/subtask-2.component";
 
 
 
@@ -26,7 +27,7 @@ const masterRoute: Routes = [
         children: [
           { path: 'details', component: IssueDetailsComponent },
           { path: 'sources-files', component: DossierSourceComponent },
-          { path: 'subtask', component: SubtaskComponent },
+          { path: 'subtask', component: Subtask2Component },
           { path: 'planning', component: PlanningComponent },
           { path: 'uploaded', component: UploadedFilesComponent },
           { path: 'comments', component: CommentsComponent },
