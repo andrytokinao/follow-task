@@ -39,9 +39,9 @@ pdfjs-open-file-button-label = 打开
 pdfjs-print-button =
     .title = 打印
 pdfjs-print-button-label = 打印
-pdfjs-save-button =
+pdfjs-saved-button =
     .title = 保存
-pdfjs-save-button-label = 保存
+pdfjs-saved-button-label = 保存
 # Used in Firefox for Android as a tooltip for the download button (“download” is a verb).
 pdfjs-download-button =
     .title = 下载
@@ -355,7 +355,7 @@ pdfjs-editor-alt-text-add-description-description = 描述主题、背景或动�
 pdfjs-editor-alt-text-mark-decorative-label = 标记为装饰
 pdfjs-editor-alt-text-mark-decorative-description = 用于装饰的图像，例如边框和水印。
 pdfjs-editor-alt-text-cancel-button = 取消
-pdfjs-editor-alt-text-save-button = 保存
+pdfjs-editor-alt-text-saved-button = 保存
 pdfjs-editor-alt-text-decorative-tooltip = 已标记为装饰
 # .placeholder: This is a placeholder for the alt text input area
 pdfjs-editor-alt-text-textarea =

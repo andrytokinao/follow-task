@@ -5,7 +5,9 @@ import {ConfigService} from "../../../../../services/config.service";
 import {IssueService} from "../../../../../services/issue.service";
 import {UserService} from "../../../../../services/user.service";
 import {AuthService} from "../../../../../services/auth.service";
-import {Issue, User} from "../../../../../type/issue";
+import {CustomFieldValue, Issue, User, UsingCustomField} from "../../../../../type/issue";
+import {supprimerTypename} from "../../../../../type/graphql.operations";
+import {stripTypename} from "@apollo/client/utilities";
 
 @Component({
   selector: 'app-subtask-2',
@@ -29,6 +31,9 @@ export class Subtask2Component implements OnInit {
   protected parentIssue: Issue;
   private currentIssue: null;
   private users: User[] = [];
+  usingCustomFields :UsingCustomField[] = [];
+  currentCustomFieldValue:CustomFieldValue | null = null ;
+  customFieldValues:CustomFieldValue[] = [];
 
   subtasks: Issue[];
   newSubtask: Issue;
@@ -69,11 +74,11 @@ export class Subtask2Component implements OnInit {
     }
   ];
 
-  selectedTask: any | null = null;
+  selectedTask: Issue | null = null;
   resizing = false;
-
   selectTask(task: any) {
     this.selectedTask = task;
+    this.loadValues();
   }
 
   startResizing(event: MouseEvent) {
@@ -119,7 +124,32 @@ export class Subtask2Component implements OnInit {
   protected loadSubtask() {
     this.issueService.loadSubtask(this.parentIssue.id).subscribe(issues => {
       this.subtasks = issues;
+      if (this.subtasks && this.subtasks.length > 0 && !this.selectedTask) {
+        this.selectTask(this.subtasks[0]);
+      }
     });
+  }
+
+  savedCustomFieldValue(values: CustomFieldValue[]) {
+    this.customFieldValues = values;
+    this.currentCustomFieldValue = null;
+  }
+  loadValues(){
+    if (!this.selectedTask)
+      return;
+    this.customFieldValues = [];
+
+    this.issueService.getValues(this.selectedTask.id).subscribe(res => {
+        this.customFieldValues = res;
+        this.currentCustomFieldValue = undefined;
+      }
+    );
+  }
+  addCustomFieldValue(usingCustomField:UsingCustomField) {
+    this.currentCustomFieldValue = {
+      issue:{id:this.selectedTask.id},
+      customField:usingCustomField.customField
+    };
   }
 
 }

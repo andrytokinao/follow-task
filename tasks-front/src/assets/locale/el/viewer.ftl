@@ -39,9 +39,9 @@ pdfjs-open-file-button-label = Άνοιγμα
 pdfjs-print-button =
     .title = Εκτύπωση
 pdfjs-print-button-label = Εκτύπωση
-pdfjs-save-button =
+pdfjs-saved-button =
     .title = Αποθήκευση
-pdfjs-save-button-label = Αποθήκευση
+pdfjs-saved-button-label = Αποθήκευση
 # Used in Firefox for Android as a tooltip for the download button (“download” is a verb).
 pdfjs-download-button =
     .title = Λήψη
@@ -363,7 +363,7 @@ pdfjs-editor-alt-text-add-description-description = Στοχεύστε σε μί
 pdfjs-editor-alt-text-mark-decorative-label = Επισήμανση ως διακοσμητικό
 pdfjs-editor-alt-text-mark-decorative-description = Χρησιμοποιείται για διακοσμητικές εικόνες, όπως περιγράμματα ή υδατογραφήματα.
 pdfjs-editor-alt-text-cancel-button = Ακύρωση
-pdfjs-editor-alt-text-save-button = Αποθήκευση
+pdfjs-editor-alt-text-saved-button = Αποθήκευση
 pdfjs-editor-alt-text-decorative-tooltip = Επισημασμένο ως διακοσμητικό
 # .placeholder: This is a placeholder for the alt text input area
 pdfjs-editor-alt-text-textarea =

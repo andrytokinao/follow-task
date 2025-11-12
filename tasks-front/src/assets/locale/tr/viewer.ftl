@@ -39,9 +39,9 @@ pdfjs-open-file-button-label = Aç
 pdfjs-print-button =
     .title = Yazdır
 pdfjs-print-button-label = Yazdır
-pdfjs-save-button =
+pdfjs-saved-button =
     .title = Kaydet
-pdfjs-save-button-label = Kaydet
+pdfjs-saved-button-label = Kaydet
 # Used in Firefox for Android as a tooltip for the download button (“download” is a verb).
 pdfjs-download-button =
     .title = İndir
@@ -363,7 +363,7 @@ pdfjs-editor-alt-text-add-description-description = Konuyu, ortamı veya eylemle
 pdfjs-editor-alt-text-mark-decorative-label = Dekoratif olarak işaretle
 pdfjs-editor-alt-text-mark-decorative-description = Kenarlıklar veya filigranlar gibi dekoratif resimler için kullanılır.
 pdfjs-editor-alt-text-cancel-button = Vazgeç
-pdfjs-editor-alt-text-save-button = Kaydet
+pdfjs-editor-alt-text-saved-button = Kaydet
 pdfjs-editor-alt-text-decorative-tooltip = Dekoratif olarak işaretlendi
 # .placeholder: This is a placeholder for the alt text input area
 pdfjs-editor-alt-text-textarea =

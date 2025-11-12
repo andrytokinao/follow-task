@@ -38,7 +38,7 @@
           <h4>Champs personnalisés</h4>
           <div class="field" *ngFor="let value of values">
               <app-custom-field
-                [customFieldValue]="value" (save)="saveCustomFieldValue($event)"
+                [customFieldValue]="value" (saved)="saveCustomFieldValue($event)"
                 [viewMode]="viewModeField"
               > </app-custom-field>
           </div>

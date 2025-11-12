@@ -39,9 +39,9 @@ pdfjs-open-file-button-label = Ашу
 pdfjs-print-button =
     .title = Баспаға шығару
 pdfjs-print-button-label = Баспаға шығару
-pdfjs-save-button =
+pdfjs-saved-button =
     .title = Сақтау
-pdfjs-save-button-label = Сақтау
+pdfjs-saved-button-label = Сақтау
 # Used in Firefox for Android as a tooltip for the download button (“download” is a verb).
 pdfjs-download-button =
     .title = Жүктеп алу
@@ -363,7 +363,7 @@ pdfjs-editor-alt-text-add-description-description = Тақырыпты, бапт
 pdfjs-editor-alt-text-mark-decorative-label = Декоративті деп белгілеу
 pdfjs-editor-alt-text-mark-decorative-description = Бұл жиектер немесе су белгілері сияқты оюлық суреттер үшін пайдаланылады.
 pdfjs-editor-alt-text-cancel-button = Бас тарту
-pdfjs-editor-alt-text-save-button = Сақтау
+pdfjs-editor-alt-text-saved-button = Сақтау
 pdfjs-editor-alt-text-decorative-tooltip = Декоративті деп белгіленген
 # .placeholder: This is a placeholder for the alt text input area
 pdfjs-editor-alt-text-textarea =

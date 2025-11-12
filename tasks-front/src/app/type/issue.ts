@@ -99,13 +99,13 @@ export interface CustomField {
 
 
 export interface CustomFieldValue {
-  id: number;
-  date:string;
-  string:String;
-  text:String;
-  numeric:number;
-  user:User
-  values:String[];
+  id?: number;
+  date?:string;
+  string?:String;
+  text?:String;
+  numeric?:number;
+  user?:User
+  values?:String[];
   issue:Issue
   customField:CustomField
 }

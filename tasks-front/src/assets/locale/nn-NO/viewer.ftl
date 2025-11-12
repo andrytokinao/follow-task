@@ -39,9 +39,9 @@ pdfjs-open-file-button-label = Opne
 pdfjs-print-button =
     .title = Skriv ut
 pdfjs-print-button-label = Skriv ut
-pdfjs-save-button =
+pdfjs-saved-button =
     .title = Lagre
-pdfjs-save-button-label = Lagre
+pdfjs-saved-button-label = Lagre
 # Used in Firefox for Android as a tooltip for the download button (“download” is a verb).
 pdfjs-download-button =
     .title = Last ned
@@ -363,7 +363,7 @@ pdfjs-editor-alt-text-add-description-description = Gå etter 1-2 setninger som 
 pdfjs-editor-alt-text-mark-decorative-label = Merk som dekorativt
 pdfjs-editor-alt-text-mark-decorative-description = Dette vert brukt til dekorative bilde, som kantlinjer eller vassmerke.
 pdfjs-editor-alt-text-cancel-button = Avbryt
-pdfjs-editor-alt-text-save-button = Lagre
+pdfjs-editor-alt-text-saved-button = Lagre
 pdfjs-editor-alt-text-decorative-tooltip = Merkt som dekorativ
 # .placeholder: This is a placeholder for the alt text input area
 pdfjs-editor-alt-text-textarea =

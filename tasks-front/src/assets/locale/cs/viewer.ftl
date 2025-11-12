@@ -39,9 +39,9 @@ pdfjs-open-file-button-label = Otevřít
 pdfjs-print-button =
     .title = Vytiskne dokument
 pdfjs-print-button-label = Vytisknout
-pdfjs-save-button =
+pdfjs-saved-button =
     .title = Uložit
-pdfjs-save-button-label = Uložit
+pdfjs-saved-button-label = Uložit
 # Used in Firefox for Android as a tooltip for the download button (“download” is a verb).
 pdfjs-download-button =
     .title = Stáhnout
@@ -367,7 +367,7 @@ pdfjs-editor-alt-text-add-description-description = Snažte se o 1-2 věty, kter
 pdfjs-editor-alt-text-mark-decorative-label = Označit jako dekorativní
 pdfjs-editor-alt-text-mark-decorative-description = Používá se pro okrasné obrázky, jako jsou rámečky nebo vodoznaky.
 pdfjs-editor-alt-text-cancel-button = Zrušit
-pdfjs-editor-alt-text-save-button = Uložit
+pdfjs-editor-alt-text-saved-button = Uložit
 pdfjs-editor-alt-text-decorative-tooltip = Označen jako dekorativní
 # .placeholder: This is a placeholder for the alt text input area
 pdfjs-editor-alt-text-textarea =

@@ -39,9 +39,9 @@ pdfjs-open-file-button-label = افتح
 pdfjs-print-button =
     .title = اطبع
 pdfjs-print-button-label = اطبع
-pdfjs-save-button =
+pdfjs-saved-button =
     .title = احفظ
-pdfjs-save-button-label = احفظ
+pdfjs-saved-button-label = احفظ
 # Used in Firefox for Android as a tooltip for the download button (“download” is a verb).
 pdfjs-download-button =
     .title = نزّل
@@ -357,7 +357,7 @@ pdfjs-editor-alt-text-add-description-description = استهدف جملتين ت
 pdfjs-editor-alt-text-mark-decorative-label = علّمها على أنها زخرفية
 pdfjs-editor-alt-text-mark-decorative-description = يُستخدم هذا في الصور المزخرفة، مثل الحدود أو العلامات المائية.
 pdfjs-editor-alt-text-cancel-button = ألغِ
-pdfjs-editor-alt-text-save-button = احفظ
+pdfjs-editor-alt-text-saved-button = احفظ
 pdfjs-editor-alt-text-decorative-tooltip = عُلّمت على أنها زخرفية
 # .placeholder: This is a placeholder for the alt text input area
 pdfjs-editor-alt-text-textarea =

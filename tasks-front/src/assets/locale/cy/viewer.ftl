@@ -39,9 +39,9 @@ pdfjs-open-file-button-label = Agor
 pdfjs-print-button =
     .title = Argraffu
 pdfjs-print-button-label = Argraffu
-pdfjs-save-button =
+pdfjs-saved-button =
     .title = Cadw
-pdfjs-save-button-label = Cadw
+pdfjs-saved-button-label = Cadw
 # Used in Firefox for Android as a tooltip for the download button (“download” is a verb).
 pdfjs-download-button =
     .title = Llwytho i lawr
@@ -371,7 +371,7 @@ pdfjs-editor-alt-text-add-description-description = Anelwch at 1-2 frawddeg sy'n
 pdfjs-editor-alt-text-mark-decorative-label = Marcio fel addurniadol
 pdfjs-editor-alt-text-mark-decorative-description = Mae'n cael ei ddefnyddio ar gyfer delweddau addurniadol, fel borderi neu farciau dŵr.
 pdfjs-editor-alt-text-cancel-button = Diddymu
-pdfjs-editor-alt-text-save-button = Cadw
+pdfjs-editor-alt-text-saved-button = Cadw
 pdfjs-editor-alt-text-decorative-tooltip = Marcio fel addurniadol
 # .placeholder: This is a placeholder for the alt text input area
 pdfjs-editor-alt-text-textarea =

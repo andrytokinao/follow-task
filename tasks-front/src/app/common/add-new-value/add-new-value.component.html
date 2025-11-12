@@ -1,0 +1,8 @@
+<bouton [matMenuTriggerFor]="customField" > Ajouter </bouton>
+
+<mat-menu #customField="matMenu">
+  <li (click)="addCustomFieldValue(usingCustomField)" *ngFor = "let usingCustomField of usingCustomFields"><a class="dropdown-item" > {{usingCustomField.customField.name}}</a></li>
+</mat-menu>
+<div *ngIf="currentValue">
+   <app-custom-field [customFieldValue]="currentValue" (saved)="currentValue = null" ></app-custom-field>
+</div>

@@ -39,9 +39,9 @@ pdfjs-open-file-button-label = ਖੋਲ੍ਹੋ
 pdfjs-print-button =
     .title = ਪਰਿੰਟ
 pdfjs-print-button-label = ਪਰਿੰਟ
-pdfjs-save-button =
+pdfjs-saved-button =
     .title = ਸੰਭਾਲੋ
-pdfjs-save-button-label = ਸੰਭਾਲੋ
+pdfjs-saved-button-label = ਸੰਭਾਲੋ
 # Used in Firefox for Android as a tooltip for the download button (“download” is a verb).
 pdfjs-download-button =
     .title = ਡਾਊਨਲੋਡ
@@ -363,7 +363,7 @@ pdfjs-editor-alt-text-add-description-description = 1-2 ਵਾਕ ਰੱਖੋ, 
 pdfjs-editor-alt-text-mark-decorative-label = ਸਜਾਵਟ ਵਜੋਂ ਨਿਸ਼ਾਨ ਲਾਇਆ
 pdfjs-editor-alt-text-mark-decorative-description = ਇਸ ਨੂੰ ਸਜਾਵਟੀ ਚਿੱਤਰਾਂ ਲਈ ਵਰਤਿਆ ਜਾਂਦਾ ਹੈ ਜਿਵੇਂ ਕਿ ਹਾਸ਼ੀਆ ਜਾਂ ਵਾਟਰਮਾਰਕ ਆਦਿ।
 pdfjs-editor-alt-text-cancel-button = ਰੱਦ ਕਰੋ
-pdfjs-editor-alt-text-save-button = ਸੰਭਾਲੋ
+pdfjs-editor-alt-text-saved-button = ਸੰਭਾਲੋ
 pdfjs-editor-alt-text-decorative-tooltip = ਸਜਾਵਟ ਵਜੋਂ ਨਿਸ਼ਾਨ ਲਾਓ
 # .placeholder: This is a placeholder for the alt text input area
 pdfjs-editor-alt-text-textarea =

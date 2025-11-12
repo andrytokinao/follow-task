@@ -31,7 +31,7 @@
       <div>
         <span  *ngFor="let value of master.values">
         <app-custom-field *ngIf="canShowInList(value)"
-                          [customFieldValue]="value" (save)="saveCustomFieldValue($event)"
+                          [customFieldValue]="value" (saved)="saveCustomFieldValue($event)"
                           [viewMode]="viewModeField"
         > </app-custom-field>
       </span>

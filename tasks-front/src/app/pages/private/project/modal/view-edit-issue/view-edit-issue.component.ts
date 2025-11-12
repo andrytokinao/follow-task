@@ -240,11 +240,7 @@ export class ViewEditIssueComponent implements OnInit{
 
     protected readonly event = event;
 
-  saveCustomFieldValue(event: CustomFieldValue) {
-    this.issueService.saveValues(event).subscribe(value =>
-      (values:CustomFieldValue[]) => {
-         this.customFieldValues = values;
-      }
-    );
+  savedCustomFieldValue(velues:CustomFieldValue[]) {
+      this.customFieldValues = velues;
   }
 }

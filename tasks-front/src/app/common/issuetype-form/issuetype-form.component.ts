@@ -60,7 +60,7 @@ export class IssuetypeFormComponent {
       issueType.id = this.inputIssueType.id;
     }
     this.editing = false;
-    // after save
+    // after saved
     this.inputIssueType = issueType;
     this.onComplete.emit(this.inputIssueType);
 

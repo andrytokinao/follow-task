@@ -18,7 +18,7 @@
       <p class="mb-1">{{subtask.description}}.</p>
       <span  *ngFor="let value of subtask.values">
         <app-custom-field *ngIf="canShowInList(value)"
-                          [customFieldValue]="value" (save)="saveCustomFieldValue($event)"
+                          [customFieldValue]="value" (saved)="saveCustomFieldValue($event)"
                           [viewMode]="viewModeField"
         > </app-custom-field>
       </span>

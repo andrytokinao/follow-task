@@ -39,9 +39,9 @@ pdfjs-open-file-button-label = Ldi
 pdfjs-print-button =
     .title = Siggez
 pdfjs-print-button-label = Siggez
-pdfjs-save-button =
+pdfjs-saved-button =
     .title = Sekles
-pdfjs-save-button-label = Sekles
+pdfjs-saved-button-label = Sekles
 # Used in Firefox for Android as a tooltip for the download button (“download” is a verb).
 pdfjs-download-button =
     .title = Sader
@@ -360,7 +360,7 @@ pdfjs-editor-alt-text-dialog-label = Fren taxtirt
 pdfjs-editor-alt-text-add-description-label = Rnu aglam
 pdfjs-editor-alt-text-mark-decorative-label = Creḍ d adlag
 pdfjs-editor-alt-text-cancel-button = Sefsex
-pdfjs-editor-alt-text-save-button = Sekles
+pdfjs-editor-alt-text-saved-button = Sekles
 pdfjs-editor-alt-text-decorative-tooltip = Yettwacreḍ d adlag
 
 ## Editor resizers

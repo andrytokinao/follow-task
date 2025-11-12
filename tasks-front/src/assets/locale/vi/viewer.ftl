@@ -39,9 +39,9 @@ pdfjs-open-file-button-label = Mở tập tin
 pdfjs-print-button =
     .title = In
 pdfjs-print-button-label = In
-pdfjs-save-button =
+pdfjs-saved-button =
     .title = Lưu
-pdfjs-save-button-label = Lưu
+pdfjs-saved-button-label = Lưu
 # Used in Firefox for Android as a tooltip for the download button (“download” is a verb).
 pdfjs-download-button =
     .title = Tải xuống
@@ -355,7 +355,7 @@ pdfjs-editor-alt-text-add-description-description = Hãy nhắm tới 1-2 câu m
 pdfjs-editor-alt-text-mark-decorative-label = Đánh dấu là trang trí
 pdfjs-editor-alt-text-mark-decorative-description = Điều này được sử dụng cho các hình ảnh trang trí, như đường viền hoặc watermark.
 pdfjs-editor-alt-text-cancel-button = Hủy bỏ
-pdfjs-editor-alt-text-save-button = Lưu
+pdfjs-editor-alt-text-saved-button = Lưu
 pdfjs-editor-alt-text-decorative-tooltip = Đã đánh dấu là trang trí
 # .placeholder: This is a placeholder for the alt text input area
 pdfjs-editor-alt-text-textarea =

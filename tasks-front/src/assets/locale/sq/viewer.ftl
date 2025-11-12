@@ -39,9 +39,9 @@ pdfjs-open-file-button-label = Hape
 pdfjs-print-button =
     .title = Shtypje
 pdfjs-print-button-label = Shtype
-pdfjs-save-button =
+pdfjs-saved-button =
     .title = Ruaje
-pdfjs-save-button-label = Ruaje
+pdfjs-saved-button-label = Ruaje
 # Used in Firefox for Android as a tooltip for the download button (“download” is a verb).
 pdfjs-download-button =
     .title = Shkarkojeni
@@ -348,7 +348,7 @@ pdfjs-editor-alt-text-add-description-description = Synoni për 1-2 togfjalësha
 pdfjs-editor-alt-text-mark-decorative-label = Vëri shenjë si dekorative
 pdfjs-editor-alt-text-mark-decorative-description = Kjo përdoret për figura zbukuruese, fjala vjen, anë, ose watermark-e.
 pdfjs-editor-alt-text-cancel-button = Anuloje
-pdfjs-editor-alt-text-save-button = Ruaje
+pdfjs-editor-alt-text-saved-button = Ruaje
 pdfjs-editor-alt-text-decorative-tooltip = Iu vu shenjë si dekorative
 # .placeholder: This is a placeholder for the alt text input area
 pdfjs-editor-alt-text-textarea =

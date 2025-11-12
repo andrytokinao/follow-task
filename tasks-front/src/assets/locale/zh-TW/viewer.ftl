@@ -39,9 +39,9 @@ pdfjs-open-file-button-label = 開啟
 pdfjs-print-button =
     .title = 列印
 pdfjs-print-button-label = 列印
-pdfjs-save-button =
+pdfjs-saved-button =
     .title = 儲存
-pdfjs-save-button-label = 儲存
+pdfjs-saved-button-label = 儲存
 # Used in Firefox for Android as a tooltip for the download button (“download” is a verb).
 pdfjs-download-button =
     .title = 下載
@@ -355,7 +355,7 @@ pdfjs-editor-alt-text-add-description-description = 用 1-2 句文字描述主�
 pdfjs-editor-alt-text-mark-decorative-label = 標示為裝飾性內容
 pdfjs-editor-alt-text-mark-decorative-description = 這是裝飾性圖片，例如邊框或浮水印。
 pdfjs-editor-alt-text-cancel-button = 取消
-pdfjs-editor-alt-text-save-button = 儲存
+pdfjs-editor-alt-text-saved-button = 儲存
 pdfjs-editor-alt-text-decorative-tooltip = 已標示為裝飾性內容
 # .placeholder: This is a placeholder for the alt text input area
 pdfjs-editor-alt-text-textarea =

@@ -39,9 +39,9 @@ pdfjs-open-file-button-label = Opna
 pdfjs-print-button =
     .title = Prenta
 pdfjs-print-button-label = Prenta
-pdfjs-save-button =
+pdfjs-saved-button =
     .title = Vista
-pdfjs-save-button-label = Vista
+pdfjs-saved-button-label = Vista
 # Used in Firefox for Android as a tooltip for the download button (“download” is a verb).
 pdfjs-download-button =
     .title = Sækja
@@ -363,7 +363,7 @@ pdfjs-editor-alt-text-add-description-description = Reyndu að takmarka þetta v
 pdfjs-editor-alt-text-mark-decorative-label = Merkja sem skraut
 pdfjs-editor-alt-text-mark-decorative-description = Þetta er notað fyrir skrautmyndir, eins og borða eða vatnsmerki.
 pdfjs-editor-alt-text-cancel-button = Hætta við
-pdfjs-editor-alt-text-save-button = Vista
+pdfjs-editor-alt-text-saved-button = Vista
 pdfjs-editor-alt-text-decorative-tooltip = Merkt sem skraut
 # .placeholder: This is a placeholder for the alt text input area
 pdfjs-editor-alt-text-textarea =

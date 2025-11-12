@@ -12,6 +12,7 @@ import {CustomField, CustomFieldValue, DisplayCustomField, Icone, Issue} from ".
 import {CommonModule, NgIf} from "@angular/common";
 import {MyCommonModule} from "../common.module";
 import {ProjectGuard} from "../../services/ProjectGuard";
+import {IssueService} from "../../services/issue.service";
 
 @Component({
   selector: 'app-custom-field',
@@ -28,7 +29,8 @@ export class CustomFieldComponent implements OnInit{
   @Input() viewMode: string='chip';
   @Input() customFieldValue: CustomFieldValue;
   @ViewChild('container', { read: ViewContainerRef, static: true }) container: ViewContainerRef;
-  @Output() save = new EventEmitter<CustomFieldValue>();
+  @Output() saved = new EventEmitter<CustomFieldValue>();
+  @Output() onSaved = new EventEmitter<CustomFieldValue[]>();
    instance :DisplayCustomField | undefined;
   ngOnInit(): void {
 
@@ -48,7 +50,8 @@ export class CustomFieldComponent implements OnInit{
   constructor(
     private resolver: ComponentFactoryResolver,
     private factory: DisplayCustomfielFactoryService,
-    protected   projectCuard: ProjectGuard
+    protected   projectCuard: ProjectGuard,
+    private issueService:IssueService
 ) {
   }
 
@@ -56,10 +59,21 @@ export class CustomFieldComponent implements OnInit{
 
   }
 
-  private onSave(newData: any) {
-      this.customFieldValue = newData;
-      this.save.emit(this.customFieldValue);
-      this.instance.isEditing = false;
+  private onSave(newData: CustomFieldValue) {
+    this.customFieldValue = newData;
+    this.customFieldValue.issue = {id:newData.issue.id}
+
+    this.issueService.saveValues(this.customFieldValue).subscribe(
+      value => {
+        this.onSaved.emit(value);
+        this.instance.isEditing = false;
+      }, error => {
+        console.error(error)
+
+    })
+ /*     this.customFieldValue = newData;
+      this.saved.emit(this.customFieldValue);
+      this.instance.isEditing = false;*/
   }
 
   saveIt() {
@@ -88,7 +102,7 @@ export class CustomFieldComponent implements OnInit{
   public static getDisplayOptions(): any[] {
     return [
       {  name: 'DisplayInList', label:"Affichage dans la liste" },
-      {  name: 'DisplayIfEmpty', label:"Afficher se le contenue est vide"},
+      {  name: 'DisplayIfEmpty', label:"Afficher si le contenue est vide"},
     ];
   }
   public static newValue(i:Issue,customField:CustomField):any{

@@ -39,9 +39,9 @@ pdfjs-open-file-button-label = פתיחה
 pdfjs-print-button =
     .title = הדפסה
 pdfjs-print-button-label = הדפסה
-pdfjs-save-button =
+pdfjs-saved-button =
     .title = שמירה
-pdfjs-save-button-label = שמירה
+pdfjs-saved-button-label = שמירה
 # Used in Firefox for Android as a tooltip for the download button (“download” is a verb).
 pdfjs-download-button =
     .title = הורדה
@@ -363,7 +363,7 @@ pdfjs-editor-alt-text-add-description-description = כדאי לתאר במשפט
 pdfjs-editor-alt-text-mark-decorative-label = סימון כדקורטיבי
 pdfjs-editor-alt-text-mark-decorative-description = זה משמש לתמונות נוי, כמו גבולות או סימני מים.
 pdfjs-editor-alt-text-cancel-button = ביטול
-pdfjs-editor-alt-text-save-button = שמירה
+pdfjs-editor-alt-text-saved-button = שמירה
 pdfjs-editor-alt-text-decorative-tooltip = מסומן כדקורטיבי
 # .placeholder: This is a placeholder for the alt text input area
 pdfjs-editor-alt-text-textarea =

@@ -39,9 +39,9 @@ pdfjs-open-file-button-label = Megnyitás
 pdfjs-print-button =
     .title = Nyomtatás
 pdfjs-print-button-label = Nyomtatás
-pdfjs-save-button =
+pdfjs-saved-button =
     .title = Mentés
-pdfjs-save-button-label = Mentés
+pdfjs-saved-button-label = Mentés
 # Used in Firefox for Android as a tooltip for the download button (“download” is a verb).
 pdfjs-download-button =
     .title = Letöltés
@@ -363,7 +363,7 @@ pdfjs-editor-alt-text-add-description-description = Törekedjen 1-2 mondatra, am
 pdfjs-editor-alt-text-mark-decorative-label = Megjelölés dekoratívként
 pdfjs-editor-alt-text-mark-decorative-description = Ez a díszítőképeknél használatos, mint a szegélyek vagy a vízjelek.
 pdfjs-editor-alt-text-cancel-button = Mégse
-pdfjs-editor-alt-text-save-button = Mentés
+pdfjs-editor-alt-text-saved-button = Mentés
 pdfjs-editor-alt-text-decorative-tooltip = Megjelölve dekoratívként
 # .placeholder: This is a placeholder for the alt text input area
 pdfjs-editor-alt-text-textarea =

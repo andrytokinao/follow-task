@@ -341,7 +341,7 @@ pdfjs-editor-alt-text-add-description-description = განკუთვნი�
 pdfjs-editor-alt-text-mark-decorative-label = მოინიშნოს მორთულობად
 pdfjs-editor-alt-text-mark-decorative-description = განკუთვნილია შესამკობი სურათებისთვის, გარსშემოსავლები ჩარჩოებისა და ჭვირნიშნებისთვის.
 pdfjs-editor-alt-text-cancel-button = გაუქმება
-pdfjs-editor-alt-text-save-button = შენახვა
+pdfjs-editor-alt-text-saved-button = შენახვა
 pdfjs-editor-alt-text-decorative-tooltip = მოინიშნოს მორთულობად
 # .placeholder: This is a placeholder for the alt text input area
 pdfjs-editor-alt-text-textarea =

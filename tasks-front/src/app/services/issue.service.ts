@@ -525,7 +525,8 @@ export class IssueService implements OnInit {
       this.apollo
         .query({
           query: operation.GET_VALUES,
-          variables: {issueId}
+          variables: {issueId},
+          fetchPolicy:"network-only"
         }).subscribe((res: any) => {
         observer.next(supprimerTypename(res.data.getValues));
         observer.complete();
@@ -543,7 +544,8 @@ export class IssueService implements OnInit {
       this.apollo
         .mutate({
           mutation: operation.SAVE_VALUE,
-          variables: {value}
+          variables: {value},
+          fetchPolicy:"network-only"
         }).subscribe((res: any) => {
         observer.next(supprimerTypename(res.data.saveValue));
         observer.complete();

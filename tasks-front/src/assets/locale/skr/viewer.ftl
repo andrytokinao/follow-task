@@ -39,9 +39,9 @@ pdfjs-open-file-button-label = کھولو
 pdfjs-print-button =
     .title = چھاپو
 pdfjs-print-button-label = چھاپو
-pdfjs-save-button =
+pdfjs-saved-button =
     .title = ہتھیکڑا کرو
-pdfjs-save-button-label = ہتھیکڑا کرو
+pdfjs-saved-button-label = ہتھیکڑا کرو
 # Used in Firefox for Android as a tooltip for the download button (“download” is a verb).
 pdfjs-download-button =
     .title = ڈاؤن لوڈ
@@ -363,7 +363,7 @@ pdfjs-editor-alt-text-add-description-description = 1-2 جملیاں دا مقص
 pdfjs-editor-alt-text-mark-decorative-label = آرائشی طور تے نشان زد کرو
 pdfjs-editor-alt-text-mark-decorative-description = اِیہ آرائشی تصویراں کِیتے استعمال تِھین٘دا ہِے، جیویں بارڈر یا واٹر مارکس۔
 pdfjs-editor-alt-text-cancel-button = منسوخ
-pdfjs-editor-alt-text-save-button = محفوظ
+pdfjs-editor-alt-text-saved-button = محفوظ
 pdfjs-editor-alt-text-decorative-tooltip = آرائشی دے طور تے نشان زد تِھی ڳِیا
 # .placeholder: This is a placeholder for the alt text input area
 pdfjs-editor-alt-text-textarea =

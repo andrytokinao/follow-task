@@ -8,15 +8,15 @@
       </button>
     </div>
 
-    <div *ngFor="let task of tasks"
+    <div *ngFor="let task of subtasks"
          class="task-item"
          [class.selected]="task === selectedTask"
          (click)="selectTask(task)">
-      <div class="key">{{ task.key }}</div>
+      <div class="key">{{ task.issueKey }}</div>
       <div class="summary">{{ task.summary }}</div>
       <div class="meta">
-        <span class="assignee"><i class="fas fa-user"></i> {{ task.assignee }}</span>
-        <span class="status" [ngClass]="task.status.toLowerCase()">{{ task.status }}</span>
+        <span class="assignee"><app-assign-field [issue]="task"></app-assign-field></span>
+        <span class="status" ><app-status-field [issue]="task"></app-status-field></span>
       </div>
     </div>
   </div>
@@ -29,7 +29,7 @@
     <ng-container *ngIf="selectedTask; else noSelection">
       <div class="header-detail">
         <h2>
-          <i class="fas fa-hashtag"></i> {{ selectedTask.key }}
+          <i class="fas fa-hashtag"></i> {{ selectedTask.issueKey }}
           - {{ selectedTask.summary }}
         </h2>
       </div>
@@ -38,10 +38,18 @@
 
       <div class="custom-fields">
         <h4><i class="fas fa-list"></i> Champs personnalisés</h4>
-        <div class="field" *ngFor="let field of selectedTask.customFields">
-          <span><strong>{{ field.label }}:</strong> {{ field.value }}</span>
-          <button class="btn-icon" title="Modifier"><i class="fas fa-pen"></i></button>
+        <div class="field" *ngFor="let value of customFieldValues">
+          <app-custom-field
+                            [customFieldValue]="value" (onSaved)="savedCustomFieldValue($event)"
+                            [viewMode]="'field-info-edit'"
+          > </app-custom-field>
         </div>
+        <div class="" ng *ngIf="currentCustomFieldValue  != null" style="margin: 10px">
+          <app-custom-field
+            [customFieldValue]="currentCustomFieldValue" (onSaved)="savedCustomFieldValue($event)"
+          > </app-custom-field>
+        </div>
+        <add-new-value [issue]="selectedTask" ></add-new-value>
       </div>
 
       <div class="attachments">

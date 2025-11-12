@@ -39,9 +39,9 @@ pdfjs-open-file-button-label = Отваряне
 pdfjs-print-button =
     .title = Отпечатване
 pdfjs-print-button-label = Отпечатване
-pdfjs-save-button =
+pdfjs-saved-button =
     .title = Запазване
-pdfjs-save-button-label = Запазване
+pdfjs-saved-button-label = Запазване
 # Used in Firefox for Android as a tooltip for the download button (“download” is a verb).
 pdfjs-download-button =
     .title = Изтегляне
@@ -352,7 +352,7 @@ pdfjs-editor-alt-text-add-description-description = Стремете се към
 pdfjs-editor-alt-text-mark-decorative-label = Отбелязване като декоративно
 pdfjs-editor-alt-text-mark-decorative-description = Използва се за орнаменти или декоративни изображения, като контури и водни знаци.
 pdfjs-editor-alt-text-cancel-button = Отказ
-pdfjs-editor-alt-text-save-button = Запазване
+pdfjs-editor-alt-text-saved-button = Запазване
 pdfjs-editor-alt-text-decorative-tooltip = Отбелязване като декоративно
 # .placeholder: This is a placeholder for the alt text input area
 pdfjs-editor-alt-text-textarea =

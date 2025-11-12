@@ -39,9 +39,9 @@ pdfjs-open-file-button-label = เปิด
 pdfjs-print-button =
     .title = พิมพ์
 pdfjs-print-button-label = พิมพ์
-pdfjs-save-button =
+pdfjs-saved-button =
     .title = บันทึก
-pdfjs-save-button-label = บันทึก
+pdfjs-saved-button-label = บันทึก
 # Used in Firefox for Android as a tooltip for the download button (“download” is a verb).
 pdfjs-download-button =
     .title = ดาวน์โหลด
@@ -341,7 +341,7 @@ pdfjs-editor-alt-text-add-description-description = แนะนำให้ใ�
 pdfjs-editor-alt-text-mark-decorative-label = ทำเครื่องหมายเป็นสิ่งตกแต่ง
 pdfjs-editor-alt-text-mark-decorative-description = สิ่งนี้ใช้สำหรับภาพที่เป็นสิ่งประดับ เช่น ขอบ หรือลายน้ำ
 pdfjs-editor-alt-text-cancel-button = ยกเลิก
-pdfjs-editor-alt-text-save-button = บันทึก
+pdfjs-editor-alt-text-saved-button = บันทึก
 pdfjs-editor-alt-text-decorative-tooltip = ทำเครื่องหมายเป็นสิ่งตกแต่งแล้ว
 # .placeholder: This is a placeholder for the alt text input area
 pdfjs-editor-alt-text-textarea =

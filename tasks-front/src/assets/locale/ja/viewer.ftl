@@ -39,9 +39,9 @@ pdfjs-open-file-button-label = 開く
 pdfjs-print-button =
     .title = 印刷します
 pdfjs-print-button-label = 印刷
-pdfjs-save-button =
+pdfjs-saved-button =
     .title = 保存します
-pdfjs-save-button-label = 保存
+pdfjs-saved-button-label = 保存
 # Used in Firefox for Android as a tooltip for the download button (“download” is a verb).
 pdfjs-download-button =
     .title = ダウンロードします
@@ -355,7 +355,7 @@ pdfjs-editor-alt-text-add-description-description = 対象や設定、動作を�
 pdfjs-editor-alt-text-mark-decorative-label = 装飾マークを付ける
 pdfjs-editor-alt-text-mark-decorative-description = これは区切り線やウォーターマークなどの装飾画像に使用されます。
 pdfjs-editor-alt-text-cancel-button = キャンセル
-pdfjs-editor-alt-text-save-button = 保存
+pdfjs-editor-alt-text-saved-button = 保存
 pdfjs-editor-alt-text-decorative-tooltip = 装飾マークが付いています
 # .placeholder: This is a placeholder for the alt text input area
 pdfjs-editor-alt-text-textarea =

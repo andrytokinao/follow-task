@@ -39,9 +39,9 @@ pdfjs-open-file-button-label = Ireki
 pdfjs-print-button =
     .title = Inprimatu
 pdfjs-print-button-label = Inprimatu
-pdfjs-save-button =
+pdfjs-saved-button =
     .title = Gorde
-pdfjs-save-button-label = Gorde
+pdfjs-saved-button-label = Gorde
 # Used in Firefox for Android as a tooltip for the download button (“download” is a verb).
 pdfjs-download-button =
     .title = Deskargatu
@@ -349,7 +349,7 @@ pdfjs-editor-alt-text-add-description-description = Saiatu idazten gaia, ezarpen
 pdfjs-editor-alt-text-mark-decorative-label = Markatu apaingarri gisa
 pdfjs-editor-alt-text-mark-decorative-description = Irudiak apaingarrientzat erabiltzen da, adibidez ertz edo ur-marketarako.
 pdfjs-editor-alt-text-cancel-button = Utzi
-pdfjs-editor-alt-text-save-button = Gorde
+pdfjs-editor-alt-text-saved-button = Gorde
 pdfjs-editor-alt-text-decorative-tooltip = Apaingarri gisa markatuta
 # .placeholder: This is a placeholder for the alt text input area
 pdfjs-editor-alt-text-textarea =

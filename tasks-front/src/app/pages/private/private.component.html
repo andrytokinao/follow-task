@@ -1,7 +1,7 @@
 <div class="grid-container">
   <div class="top-menu">
     <div class="logo" [routerLink]=""><img [src]="logoUrl" alt="VOTRE LOGO" height="50px" [matMenuTriggerFor]="choixLogo">
-      <button *ngIf="tempLogo" (click)="saveLogo()"> save </button>
+      <button *ngIf="tempLogo" (click)="saveLogo()"> saved </button>
     </div>
     <mat-menu #choixLogo = "matMenu" (click) = "$event.stopPropagation()">
       <div *ngIf="systemGuerd.hasAutorityAsync(['ADMIN']) | async"

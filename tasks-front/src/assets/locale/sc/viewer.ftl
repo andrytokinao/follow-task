@@ -39,9 +39,9 @@ pdfjs-open-file-button-label = Abertu
 pdfjs-print-button =
     .title = Imprenta
 pdfjs-print-button-label = Imprenta
-pdfjs-save-button =
+pdfjs-saved-button =
     .title = Sarva
-pdfjs-save-button-label = Sarva
+pdfjs-saved-button-label = Sarva
 # Used in Firefox for Android as a tooltip for the download button (“download” is a verb).
 pdfjs-download-button =
     .title = Iscàrriga
@@ -308,7 +308,7 @@ pdfjs-editor-alt-text-dialog-label = Sèbera un’optzione
 pdfjs-editor-alt-text-dialog-description = Su testu alternativu (“alt text”) est ùtile pro persones chi non podent bìdere s’immàgine o cando non benit carrigada.
 pdfjs-editor-alt-text-add-description-label = Agiunghe una descritzione
 pdfjs-editor-alt-text-cancel-button = Annulla
-pdfjs-editor-alt-text-save-button = Sarva
+pdfjs-editor-alt-text-saved-button = Sarva
 
 ## Editor resizers
 ## This is used in an aria label to help to understand the role of the resizer.

@@ -66,7 +66,7 @@ export class ChooseDialogComponent {
     {"typeIcone":"class", "value": "fa fa-balance-scale", "id": "\uf24e"},
     {"typeIcone":"class", "value": "fa fa-comment", "id": "\uf075"},
     {"typeIcone":"class", "value": "fa fa-id-badge", "id": "\uf2c1"},
-    {"typeIcone":"class", "value": "fa fa-save", "id": "\uf0c7"},
+    {"typeIcone":"class", "value": "fa fa-saved", "id": "\uf0c7"},
     {"typeIcone":"class", "value": "fa fa-trash", "id": "\uf1f8"},
     {"typeIcone":"class", "value": "fa fa-undo", "id": "\uf0e2"},
     {"typeIcone":"class", "value": "fa fa-redo", "id": "\uf01e"},

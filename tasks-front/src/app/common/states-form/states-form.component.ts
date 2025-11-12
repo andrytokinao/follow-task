@@ -56,7 +56,7 @@ export class StatesFormComponent {
       state.id = this.inputState.id;
     }
     this.editing = false;
-    // after save
+    // after saved
     this.inputState = state;
     this.onComplete.emit(state);
 

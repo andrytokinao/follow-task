@@ -39,9 +39,9 @@ pdfjs-open-file-button-label = Odpri
 pdfjs-print-button =
     .title = Natisni
 pdfjs-print-button-label = Natisni
-pdfjs-save-button =
+pdfjs-saved-button =
     .title = Shrani
-pdfjs-save-button-label = Shrani
+pdfjs-saved-button-label = Shrani
 # Used in Firefox for Android as a tooltip for the download button (“download” is a verb).
 pdfjs-download-button =
     .title = Prenesi
@@ -367,7 +367,7 @@ pdfjs-editor-alt-text-add-description-description = Poskušajte v enem ali dveh 
 pdfjs-editor-alt-text-mark-decorative-label = Označi kot okrasno
 pdfjs-editor-alt-text-mark-decorative-description = Uporablja se za slike, ki služijo samo okrasu, na primer obrobe ali vodne žige.
 pdfjs-editor-alt-text-cancel-button = Prekliči
-pdfjs-editor-alt-text-save-button = Shrani
+pdfjs-editor-alt-text-saved-button = Shrani
 pdfjs-editor-alt-text-decorative-tooltip = Označeno kot okrasno
 # .placeholder: This is a placeholder for the alt text input area
 pdfjs-editor-alt-text-textarea =

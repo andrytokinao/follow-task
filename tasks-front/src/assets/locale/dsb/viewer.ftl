@@ -39,9 +39,9 @@ pdfjs-open-file-button-label = Wócyniś
 pdfjs-print-button =
     .title = Śišćaś
 pdfjs-print-button-label = Śišćaś
-pdfjs-save-button =
+pdfjs-saved-button =
     .title = Składowaś
-pdfjs-save-button-label = Składowaś
+pdfjs-saved-button-label = Składowaś
 # Used in Firefox for Android as a tooltip for the download button (“download” is a verb).
 pdfjs-download-button =
     .title = Ześěgnuś
@@ -367,7 +367,7 @@ pdfjs-editor-alt-text-add-description-description = Pišćo 1 sadu abo 2 saźe, 
 pdfjs-editor-alt-text-mark-decorative-label = Ako dekoratiwny markěrowaś
 pdfjs-editor-alt-text-mark-decorative-description = To se za pyšnjece wobraze wužywa, na pśikład ramiki abo wódowe znamjenja.
 pdfjs-editor-alt-text-cancel-button = Pśetergnuś
-pdfjs-editor-alt-text-save-button = Składowaś
+pdfjs-editor-alt-text-saved-button = Składowaś
 pdfjs-editor-alt-text-decorative-tooltip = Ako dekoratiwny markěrowany
 # .placeholder: This is a placeholder for the alt text input area
 pdfjs-editor-alt-text-textarea =

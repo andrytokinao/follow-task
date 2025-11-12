@@ -36506,7 +36506,7 @@ async function updateAcroform({
   newRefs
 }) {
   if (hasXfa && !hasXfaDatasetsEntry && !xfaDatasetsRef) {
-    warn("XFA - Cannot save it");
+    warn("XFA - Cannot saved it");
   }
   if (!needAppearances && (!hasXfa || !xfaDatasetsRef || hasXfaDatasetsEntry)) {
     return;
@@ -36773,7 +36773,7 @@ class StructTreeRoot {
     newAnnotationsByPage
   }) {
     if (!(catalogRef instanceof Ref)) {
-      warn("Cannot save the struct tree: no catalog reference.");
+      warn("Cannot saved the struct tree: no catalog reference.");
       return false;
     }
     let nextKey = 0;
@@ -49896,7 +49896,7 @@ class AnnotationFactory {
   }
   static generateImages(annotations, xref, isOffscreenCanvasSupported) {
     if (!isOffscreenCanvasSupported) {
-      warn("generateImages: OffscreenCanvas is not supported, cannot save or print some annotations with images.");
+      warn("generateImages: OffscreenCanvas is not supported, cannot saved or print some annotations with images.");
       return null;
     }
     let imagePromises;
@@ -54195,7 +54195,7 @@ class Page {
   }
   async saveNewAnnotations(handler, task, annotations, imagePromises) {
     if (this.xfaFactory) {
-      throw new Error("XFA: Cannot save new annotations.");
+      throw new Error("XFA: Cannot saved new annotations.");
     }
     const partialEvaluator = new PartialEvaluator({
       xref: this.xref,
@@ -54259,7 +54259,7 @@ class Page {
       const newRefsPromises = [];
       for (const annotation of annotations) {
         newRefsPromises.push(annotation.save(partialEvaluator, task, annotationStorage).catch(function (reason) {
-          warn("save - ignoring annotation data during " + `"${task.name}" task: "${reason}".`);
+          warn("saved - ignoring annotation data during " + `"${task.name}" task: "${reason}".`);
           return null;
         }));
       }

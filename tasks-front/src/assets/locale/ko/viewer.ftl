@@ -39,9 +39,9 @@ pdfjs-open-file-button-label = 열기
 pdfjs-print-button =
     .title = 인쇄
 pdfjs-print-button-label = 인쇄
-pdfjs-save-button =
+pdfjs-saved-button =
     .title = 저장
-pdfjs-save-button-label = 저장
+pdfjs-saved-button-label = 저장
 # Used in Firefox for Android as a tooltip for the download button (“download” is a verb).
 pdfjs-download-button =
     .title = 다운로드
@@ -355,7 +355,7 @@ pdfjs-editor-alt-text-add-description-description = 주제, 설정, 동작을 �
 pdfjs-editor-alt-text-mark-decorative-label = 장식용으로 표시
 pdfjs-editor-alt-text-mark-decorative-description = 테두리나 워터마크와 같은 장식적인 이미지에 사용됩니다.
 pdfjs-editor-alt-text-cancel-button = 취소
-pdfjs-editor-alt-text-save-button = 저장
+pdfjs-editor-alt-text-saved-button = 저장
 pdfjs-editor-alt-text-decorative-tooltip = 장식용으로 표시됨
 # .placeholder: This is a placeholder for the alt text input area
 pdfjs-editor-alt-text-textarea =

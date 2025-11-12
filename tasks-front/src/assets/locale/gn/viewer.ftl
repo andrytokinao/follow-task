@@ -39,9 +39,9 @@ pdfjs-open-file-button-label = Jeike
 pdfjs-print-button =
     .title = Monguatia
 pdfjs-print-button-label = Monguatia
-pdfjs-save-button =
+pdfjs-saved-button =
     .title = Ñongatu
-pdfjs-save-button-label = Ñongatu
+pdfjs-saved-button-label = Ñongatu
 # Used in Firefox for Android as a tooltip for the download button (“download” is a verb).
 pdfjs-download-button =
     .title = Mboguejy
@@ -363,7 +363,7 @@ pdfjs-editor-alt-text-add-description-description = Ehaimi 1 térã 2 ñe’ẽj
 pdfjs-editor-alt-text-mark-decorative-label = Emongurusu jeguakárõ
 pdfjs-editor-alt-text-mark-decorative-description = Ojeporu ta’ãnga jeguakarã, tembe’y térã ta’ãnga ruguarãramo.
 pdfjs-editor-alt-text-cancel-button = Heja
-pdfjs-editor-alt-text-save-button = Ñongatu
+pdfjs-editor-alt-text-saved-button = Ñongatu
 pdfjs-editor-alt-text-decorative-tooltip = Jeguakárõ mongurusupyre
 # .placeholder: This is a placeholder for the alt text input area
 pdfjs-editor-alt-text-textarea =

@@ -39,9 +39,9 @@ pdfjs-open-file-button-label = Digeriñ ur restr
 pdfjs-print-button =
     .title = Moullañ
 pdfjs-print-button-label = Moullañ
-pdfjs-save-button =
+pdfjs-saved-button =
     .title = Enrollañ
-pdfjs-save-button-label = Enrollañ
+pdfjs-saved-button-label = Enrollañ
 # Used in Firefox for Android as a tooltip for the download button (“download” is a verb).
 pdfjs-download-button =
     .title = Pellgargañ
@@ -298,7 +298,7 @@ pdfjs-ink-canvas =
 
 pdfjs-editor-alt-text-add-description-label = Ouzhpennañ un deskrivadur
 pdfjs-editor-alt-text-cancel-button = Nullañ
-pdfjs-editor-alt-text-save-button = Enrollañ
+pdfjs-editor-alt-text-saved-button = Enrollañ
 
 ## Editor resizers
 ## This is used in an aria label to help to understand the role of the resizer.

@@ -39,9 +39,9 @@ pdfjs-open-file-button-label = Кушодан
 pdfjs-print-button =
     .title = Чоп кардан
 pdfjs-print-button-label = Чоп кардан
-pdfjs-save-button =
+pdfjs-saved-button =
     .title = Нигоҳ доштан
-pdfjs-save-button-label = Нигоҳ доштан
+pdfjs-saved-button-label = Нигоҳ доштан
 # Used in Firefox for Android as a tooltip for the download button (“download” is a verb).
 pdfjs-download-button =
     .title = Боргирӣ кардан
@@ -363,7 +363,7 @@ pdfjs-editor-alt-text-add-description-description = Кӯшиш кунед, ки 
 pdfjs-editor-alt-text-mark-decorative-label = Гузоштан ҳамчун матни ороишӣ
 pdfjs-editor-alt-text-mark-decorative-description = Ин барои тасвирҳои ороишӣ, ба монанди марзҳо ё аломатҳои обӣ, истифода мешавад.
 pdfjs-editor-alt-text-cancel-button = Бекор кардан
-pdfjs-editor-alt-text-save-button = Нигоҳ доштан
+pdfjs-editor-alt-text-saved-button = Нигоҳ доштан
 pdfjs-editor-alt-text-decorative-tooltip = Ҳамчун матни ороишӣ гузошта шуд
 # .placeholder: This is a placeholder for the alt text input area
 pdfjs-editor-alt-text-textarea =

@@ -39,9 +39,9 @@ pdfjs-open-file-button-label = Avaa
 pdfjs-print-button =
     .title = Tulosta
 pdfjs-print-button-label = Tulosta
-pdfjs-save-button =
+pdfjs-saved-button =
     .title = Tallenna
-pdfjs-save-button-label = Tallenna
+pdfjs-saved-button-label = Tallenna
 # Used in Firefox for Android as a tooltip for the download button (“download” is a verb).
 pdfjs-download-button =
     .title = Lataa
@@ -363,7 +363,7 @@ pdfjs-editor-alt-text-add-description-description = Pyri 1-2 lauseeseen, jotka k
 pdfjs-editor-alt-text-mark-decorative-label = Merkitse koristeelliseksi
 pdfjs-editor-alt-text-mark-decorative-description = Tätä käytetään koristekuville, kuten reunuksille tai vesileimoille.
 pdfjs-editor-alt-text-cancel-button = Peruuta
-pdfjs-editor-alt-text-save-button = Tallenna
+pdfjs-editor-alt-text-saved-button = Tallenna
 pdfjs-editor-alt-text-decorative-tooltip = Merkitty koristeelliseksi
 # .placeholder: This is a placeholder for the alt text input area
 pdfjs-editor-alt-text-textarea =

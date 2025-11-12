@@ -87,7 +87,7 @@
           <div class="tnz-file-tree">
             <div class="" ng *ngFor="let cvalue  of customFieldValues" style="margin: 10px">
               <app-custom-field
-                [customFieldValue]="cvalue" (save)="saveCustomFieldValue($event)"
+                [customFieldValue]="cvalue" (onSaved)="savedCustomFieldValue($event)"
               > </app-custom-field>
             </div>
 
@@ -102,7 +102,7 @@
             </div>
             <div class="" ng *ngIf="currentCustomFieldValue  != null" style="margin: 10px">
               <app-custom-field
-                [customFieldValue]="currentCustomFieldValue" (save)="saveCustomFieldValue($event)"
+                [customFieldValue]="currentCustomFieldValue" (onSaved)="savedCustomFieldValue($event)"
               > </app-custom-field>
               </div>
             </div>

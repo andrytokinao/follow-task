@@ -39,9 +39,9 @@ pdfjs-open-file-button-label = Apri
 pdfjs-print-button =
     .title = Stampa
 pdfjs-print-button-label = Stampa
-pdfjs-save-button =
+pdfjs-saved-button =
     .title = Salva
-pdfjs-save-button-label = Salva
+pdfjs-saved-button-label = Salva
 # Used in Firefox for Android as a tooltip for the download button (“download” is a verb).
 pdfjs-download-button =
     .title = Scarica
@@ -357,7 +357,7 @@ pdfjs-editor-alt-text-add-description-description = Punta a una o due frasi che 
 pdfjs-editor-alt-text-mark-decorative-label = Contrassegna come decorativa
 pdfjs-editor-alt-text-mark-decorative-description = Viene utilizzato per immagini ornamentali, come bordi o filigrane.
 pdfjs-editor-alt-text-cancel-button = Annulla
-pdfjs-editor-alt-text-save-button = Salva
+pdfjs-editor-alt-text-saved-button = Salva
 pdfjs-editor-alt-text-decorative-tooltip = Contrassegnata come decorativa
 # .placeholder: This is a placeholder for the alt text input area
 pdfjs-editor-alt-text-textarea =

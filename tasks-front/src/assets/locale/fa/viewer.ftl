@@ -39,7 +39,7 @@ pdfjs-open-file-button-label = باز کردن
 pdfjs-print-button =
     .title = چاپ
 pdfjs-print-button-label = چاپ
-pdfjs-save-button-label = ذخیره
+pdfjs-saved-button-label = ذخیره
 
 ##  Secondary toolbar and context menu
 
@@ -332,7 +332,7 @@ pdfjs-editor-alt-text-add-description-description = Aim for 1-2 sentences that d
 pdfjs-editor-alt-text-mark-decorative-label = Mark as decorative
 pdfjs-editor-alt-text-mark-decorative-description = This is used for ornamental images, like borders or watermarks.
 pdfjs-editor-alt-text-cancel-button = Cancel
-pdfjs-editor-alt-text-save-button = Save
+pdfjs-editor-alt-text-saved-button = Save
 pdfjs-editor-alt-text-decorative-tooltip = Marked as decorative
 pdfjs-editor-alt-text-textarea =
     .placeholder = For example, “A young man sits down at a table to eat a meal”
