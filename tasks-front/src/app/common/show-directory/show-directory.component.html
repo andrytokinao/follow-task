@@ -1,0 +1,44 @@
+<div class="directory-container" (drop)="onFileDropped($event)" (dragover)="allowDrop($event)">
+  <div class="directories">
+    <ul>
+      <li *ngFor="let dir of directories">
+        <i class="fas fa-folder"></i> {{ dir.name }}
+        <ul>
+          <li *ngFor="let file of dir.files">
+            <i class="fas fa-file"></i> {{ file }}
+          </li>
+          <li *ngFor="let sub of dir.subdirs">
+            <i class="fas fa-folder-open"></i> {{ sub.name }}
+            <ul>
+              <li *ngFor="let subFile of sub.files">
+                <i class="fas fa-file"></i> {{ subFile }}
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+
+  <div class="upload-section">
+    <label class="file-drop-zone" for="fileInput">
+      <i class="fas fa-cloud-upload-alt"></i>
+      <p>Glissez vos fichiers ici ou cliquez pour sélectionner</p>
+      <input id="fileInput" type="file" multiple (change)="onFileSelected($event)" hidden>
+    </label>
+
+    <div *ngIf="selectedFiles.length > 0" class="file-list">
+      <div *ngFor="let file of selectedFiles" class="file-item">
+        <i class="fas fa-file"></i> {{ file.name }}
+      </div>
+
+      <button class="upload-btn" (click)="uploadFiles()">
+        <i class="fas fa-upload"></i> Télécharger
+      </button>
+
+      <div *ngIf="isUploading" class="progress-bar">
+        <div class="progress" [style.width.%]="progress"></div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -6,8 +6,6 @@ import {IssueService} from "../../../../../services/issue.service";
 import {UserService} from "../../../../../services/user.service";
 import {AuthService} from "../../../../../services/auth.service";
 import {CustomFieldValue, Issue, User, UsingCustomField} from "../../../../../type/issue";
-import {supprimerTypename} from "../../../../../type/graphql.operations";
-import {stripTypename} from "@apollo/client/utilities";
 
 @Component({
   selector: 'app-subtask-2',
@@ -40,39 +38,6 @@ export class Subtask2Component implements OnInit {
   viewModeField: string;
   isLoading: boolean;
 
-  tasks = [
-    {
-      key: 'T-001',
-      summary: 'Mettre à jour la base de données , avec des style , le teste sera plus long , etc etc ',
-      assignee: 'Jean Dupont',
-      status: 'En cours',
-      description: '<p>Cette tâche concerne la mise à jour des données produits.</p>',
-      customFields: [
-        { label: 'Priorité', value: 'Haute' },
-        { label: 'Date limite', value: '2025-11-20' }
-      ],
-      attachments: ['specifications.pdf', 'notes.txt'],
-      planning: [
-        { title: 'Mise à jour du schéma SQL', date: '2025-11-12', time: '09:00 - 11:00' },
-        { title: 'Tests de migration', date: '2025-11-14', time: '14:00 - 16:00' }
-      ]
-
-    },
-    {
-      key: 'T-002',
-      summary: 'Corriger le bug du formulaire',
-      assignee: 'Marie L.',
-      status: 'À faire',
-      description: '<p>Erreur dans la validation du champ email.</p>',
-      customFields: [{ label: 'Priorité', value: 'Moyenne' }],
-      attachments: ['capture.png'],
-      planning: [
-        { title: 'Mise à jour du schéma SQL', date: '2025-11-12', time: '09:00 - 11:00' },
-        { title: 'Tests de migration', date: '2025-11-14', time: '14:00 - 16:00' }
-      ]
-
-    }
-  ];
 
   selectedTask: Issue | null = null;
   resizing = false;
