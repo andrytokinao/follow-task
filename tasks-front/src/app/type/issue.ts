@@ -110,19 +110,19 @@ export interface CustomFieldValue {
   customField:CustomField
 }
 export interface Repertoire {
-  path:String;
-  fileName:String;
-  absolutePath:string
-  type:String;
-  repertoires:Repertoire[]
-  selected:boolean;
-  open : boolean;
-  paths:string[]
+  path?:String;
+  fileName?:String;
+  absolutePath?:string
+  type?:String;
+  repertoires?:Repertoire[]
+  selected?:boolean;
+  open? : boolean;
+  paths?:string[]
 }
 export interface Uploading {
-  file:File
-  status: '' | 'pending' | 'uploading' | 'success' | 'error';
-  progression:number ;
+  file?:File
+  status?: '' | 'pending' | 'uploading' | 'success' | 'error';
+  progression?:number ;
 }
 export interface ConfigEntry{
   id:Number  ;
@@ -286,7 +286,7 @@ export interface DocumentApp{
   id?:number;
   titre?:String;
   description?:string;
-  typeDocument?:string;
+  typeDocument?: string | 'ISSUE_FILES' | 'COMMENT_FILES' |  'MEDIA_FILES' | 'SOURCE_FILE' | 'DONNE_FILE' | 'MESSEGE_FILES' |'WIKI_FILES' | 'ISSUE_FILES' | 'EXCHANGE_DOCUMENT' ;
   creation?:string;
   userApp?:User;
   issues?:Issue;

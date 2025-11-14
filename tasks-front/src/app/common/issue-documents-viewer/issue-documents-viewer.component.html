@@ -1,0 +1,71 @@
+<div class="list-container">
+
+  <!-- LOOP ON DOCUMENTS -->
+  <div class="document-card" *ngFor="let doc of documents">
+
+    <!-- HEADER -->
+    <div class="header" (click)="toggle(doc)">
+      <img class="photo" [src]="getPhotoUser(doc.userApp)">
+
+      <div class="info">
+        <div class="name">{{ doc.userApp?.firstName }} {{ doc.userApp?.lastName }}</div>
+
+        <div class="date">{{ getRelativeDate(doc.creation) }}</div>
+
+        <div class="title" *ngIf="doc.titre">{{ doc.titre }}</div>
+
+        <div class="desc" *ngIf="doc.description">{{ doc.description }}</div>
+      </div>
+
+      <button class="toggle" >
+        <i class="fas" [ngClass]="doc._open ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+      </button>
+    </div>
+
+    <!-- FILE LIST -->
+    <div class="files" *ngIf="doc._open">
+      <div class="file" *ngFor="let f of doc.uploadeds">
+        <i class="fas icon" [ngClass]="getFileIcon(f.name)"></i>
+
+        <span class="fname">{{ f.name }}</span>
+
+        <a [href]="f.path" download>
+          <i class="fas fa-download download"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- UPLOAD AREA -->
+  <div class="upload-box"
+       (drop)="onDrop($event)"
+       (dragover)="allowDrop($event)">
+
+    <p>Glissez les fichiers ici ou</p>
+
+    <label class="btn-select">
+      Sélectionner
+      <input type="file" multiple hidden (change)="onFileSelected($event)">
+    </label>
+  </div>
+
+  <div class="upload-list" *ngIf="uploadingFiles.length">
+
+    <div class="upload-item" *ngFor="let u of uploadingFiles">
+
+      <div class="left">
+        <i class="fas fa-file"></i>
+        {{ u.file?.name }}
+      </div>
+
+      <div class="progress">
+        <div class="bar" [style.width.%]="u.progression"></div>
+      </div>
+
+      <div class="status" [ngClass]="u.status">{{ u.status }}</div>
+    </div>
+
+    <button class="btn-upload" (click)="uploadAll()">Uploader</button>
+
+  </div>
+</div>

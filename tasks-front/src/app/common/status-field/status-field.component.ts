@@ -66,13 +66,13 @@ export class StatusFieldComponent implements OnInit , AfterViewInit{
   }
 
   ngAfterViewInit(): void {
-
-  }
-
-  ngOnInit(): void {
     this.issueService.getIssueTypeById(this.issue.issueType.id).subscribe(issueType=>{
       this.issueType = issueType;
     })
+  }
+
+  ngOnInit(): void {
+
   }
 
   canChangeStatus() {

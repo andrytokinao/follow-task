@@ -1935,4 +1935,14 @@ export class IssueService implements OnInit {
       console.log('okaaay ');
     });
   }
+
+  uploadIssueFileDocument(uploading: Uploading[], issue:Issue) {
+    let document:DocumentApp = {
+      userApp:{id:this.user.id},
+      issues:{id:issue.id},
+      typeDocument:'ISSUE_FILES',
+      titre:'UPLOADED'
+    }
+    return this.uploadDocument(document,issue.encodedPath,uploading,document.typeDocument);
+  }
 }

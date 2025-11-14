@@ -6,6 +6,7 @@ import {IssueService} from "../../../../../services/issue.service";
 import {UserService} from "../../../../../services/user.service";
 import {AuthService} from "../../../../../services/auth.service";
 import {CustomFieldValue, Issue, User, UsingCustomField} from "../../../../../type/issue";
+import {BehaviorSubject} from "rxjs";
 
 @Component({
   selector: 'app-subtask-2',
@@ -29,6 +30,8 @@ export class Subtask2Component implements OnInit {
   protected parentIssue: Issue;
   private currentIssue: null;
   private users: User[] = [];
+  private selectedIssueSubject = new BehaviorSubject<Issue>(undefined);
+  selectedIssue$ = this.selectedIssueSubject.asObservable();
   usingCustomFields :UsingCustomField[] = [];
   currentCustomFieldValue:CustomFieldValue | null = null ;
   customFieldValues:CustomFieldValue[] = [];
@@ -43,6 +46,7 @@ export class Subtask2Component implements OnInit {
   resizing = false;
   selectTask(task: any) {
     this.selectedTask = task;
+    this.selectedIssueSubject.next(task);
     this.loadValues();
   }
 

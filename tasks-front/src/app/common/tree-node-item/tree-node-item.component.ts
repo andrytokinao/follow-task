@@ -1,6 +1,5 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {Repertoire} from "../../type/issue";
-import {CommonModule} from "@angular/common";
 
 @Component({
   selector: 'app-tree-node-item',

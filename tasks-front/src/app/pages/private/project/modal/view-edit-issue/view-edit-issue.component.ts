@@ -142,7 +142,7 @@ export class ViewEditIssueComponent implements OnInit{
     let value = supprimerTypename(this.currentCustomFieldValue);
     this.issueService.saveValues(value).subscribe({
       next:((res:any)=>{
-        this.customFieldValues= stripTypename(res.data.saveValue);
+        this.customFieldValues= supprimerTypename(res.data.saveValue);
       }),
       error:(err=>{
         console.error(' error  '+JSON.stringify(err))

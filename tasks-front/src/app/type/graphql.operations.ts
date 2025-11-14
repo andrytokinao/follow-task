@@ -1587,6 +1587,7 @@ const LOAD_SUBTASK = gql`
         summary
         creationDate
         description
+        encodedPath
         status {
           id
           displayName

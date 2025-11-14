@@ -46,7 +46,7 @@ export class CommentsComponent {
     user:{}
   };
   protected filesToUploads: FileList;
-  private typeDocument: string ='COMMENT_FILES';
+  typeDocument?:'ISSUE_FILES' | 'COMMENT_FILES' |  'MEDIA_FILES' | 'SOURCE_FILE' | 'DONNE_FILE' | 'MESSEGE_FILES' |'WIKI_FILES' | 'ISSUE_FILES' | 'EXCHANGE_DOCUMENT' = 'COMMENT_FILES';
   constructor(private router: Router,
               private modalService: NgbModal,
               private configService:ConfigService,

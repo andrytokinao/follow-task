@@ -56,7 +56,9 @@ import {Subtask2Component} from "./subtask-2/subtask-2.component";
 import {MatListItem, MatNavList} from "@angular/material/list";
 import {AngularSplitModule} from "angular-split";
 import {AddNewValueComponent} from "../../../../common/add-new-value/add-new-value.component";
-import {ShowDirectoryComponent} from "../../../../common/show-directory/show-directory.component";
+import {
+    IssueDocumentsViewerComponent
+} from "../../../../common/issue-documents-viewer/issue-documents-viewer.component";
 
 
 @NgModule({
@@ -124,7 +126,7 @@ import {ShowDirectoryComponent} from "../../../../common/show-directory/show-dir
         MatListItem,
         AngularSplitModule,
         AddNewValueComponent,
-        ShowDirectoryComponent
+        IssueDocumentsViewerComponent
     ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
