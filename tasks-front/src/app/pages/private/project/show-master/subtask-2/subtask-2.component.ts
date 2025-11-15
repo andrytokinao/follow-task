@@ -1,4 +1,4 @@
-import {Component, HostListener, OnInit} from '@angular/core';
+import {Component, HostListener, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from "@angular/router";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {ConfigService} from "../../../../../services/config.service";
@@ -7,6 +7,8 @@ import {UserService} from "../../../../../services/user.service";
 import {AuthService} from "../../../../../services/auth.service";
 import {CustomFieldValue, Issue, User, UsingCustomField} from "../../../../../type/issue";
 import {BehaviorSubject} from "rxjs";
+import {MatMenuTrigger} from "@angular/material/menu";
+import {NewIssueFormComponent} from "../../../../../common/new-issue-form/new-issue-form.component";
 
 @Component({
   selector: 'app-subtask-2',
@@ -35,7 +37,13 @@ export class Subtask2Component implements OnInit {
   usingCustomFields :UsingCustomField[] = [];
   currentCustomFieldValue:CustomFieldValue | null = null ;
   customFieldValues:CustomFieldValue[] = [];
+  @ViewChild('createSubtaskTrigger') createSubtaskTrigger!: MatMenuTrigger;
+  @ViewChild('newIssueForm') newIssueForm!: NewIssueFormComponent;
 
+  closeCreateSubtaskMenu() {
+    this.createSubtaskTrigger.closeMenu();
+    this.loadSubtask();
+  }
   subtasks: Issue[];
   newSubtask: Issue;
   viewModeField: string;
@@ -120,5 +128,9 @@ export class Subtask2Component implements OnInit {
       customField:usingCustomField.customField
     };
   }
-
+  onMenuOpened() {
+    if (this.newIssueForm) {
+      this.newIssueForm.onOpen();   // 🔥 Call the method in child component
+    }
+  }
 }

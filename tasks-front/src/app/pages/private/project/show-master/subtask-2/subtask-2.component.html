@@ -3,7 +3,10 @@
   <div class="task-list" #taskList>
     <div class="header">
       <h3><i class="fas fa-tasks"></i> Tâches</h3>
-      <button class="btn-add-subtask">
+      <button class="btn-add-subtask" [matMenuTriggerFor]="createSubtask"
+              #createSubtaskTrigger="matMenuTrigger"
+              (menuOpened)="onMenuOpened()"
+      >
         <i class="fas fa-plus"></i> Sous-tâche
       </button>
     </div>
@@ -90,3 +93,9 @@
     </ng-template>
   </div>
 </div>
+
+
+<mat-menu #createSubtask="matMenu" [ngStyle]="{'width': '600px'}"  >
+  <app-new-issue-form [parentIssue]="parentIssue"  #newIssueForm (saved)="closeCreateSubtaskMenu()"></app-new-issue-form>
+</mat-menu>
+

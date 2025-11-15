@@ -1,4 +1,14 @@
-import {AfterViewInit, Component, inject, Injector, Input, OnInit, ViewChild} from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  EventEmitter,
+  inject,
+  Injector,
+  Input,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
 import { CdkTextareaAutosize } from '@angular/cdk/text-field';
 import { Issue, IssueType, Project, Status } from '../../type/issue';
 import { IssueService } from '../../services/issue.service';
@@ -23,6 +33,7 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
   projects:Project [] = [];
   @Input() parentIssue: Issue | undefined;
   @ViewChild(MatMenuTrigger) menuTrigger!: MatMenuTrigger;
+  @Output() saved = new EventEmitter<void>();
   step: string = '';
   isMaster = true;
   isDesable = false;
@@ -95,12 +106,15 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
       issue.parent = { id: this.parentIssue.id };
     }
 
-    this.issueService.saveIssue(issue).subscribe(res => {
-      this.messageService.showRight('');
-      if (this.menuTrigger != null ) {
-        this.menuTrigger.closeMenu();
-      }
-      console.log('Issue créée :', res);
+    this.issueService.saveIssue(issue).subscribe({
+      next: (res) => {
+        this.messageService.showRight('');
+        this.saved.emit();
+        this.summary = '';
+        this.description = '';
+        this.loadNextKey(this.issueType.id);
+      },
+      error: (err) => console.error(err)
     });
   }
 
@@ -190,4 +204,7 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
     return (this.parentIssue != undefined && this.parentIssue != null)
   }
 
+  onOpen() {
+    this.loadNextKey(this.issueType.id);
+  }
 }
