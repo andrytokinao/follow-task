@@ -124,6 +124,11 @@ export interface Uploading {
   status?: '' | 'pending' | 'uploading' | 'success' | 'error';
   progression?:number ;
 }
+export interface UploadingState {
+  status:'pending' | 'uploading' | 'finished';
+  index:number;
+  totale:number;
+}
 export interface ConfigEntry{
   id:Number  ;
   version:String ;

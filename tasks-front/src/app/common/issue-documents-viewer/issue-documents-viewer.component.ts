@@ -1,5 +1,5 @@
 import {AfterViewInit, Component, Input, OnInit} from '@angular/core';
-import {DocumentApp, Issue, Uploading, User} from "../../type/issue";
+import {DocumentApp, Issue, Uploading, UploadingState, User} from "../../type/issue";
 import {NgClass, NgForOf, NgIf} from "@angular/common";
 import {IssueService} from "../../services/issue.service";
 import {DayPilot} from "@daypilot/daypilot-lite-angular";
@@ -28,6 +28,7 @@ export class IssueDocumentsViewerComponent implements OnInit , AfterViewInit {
   @Input() typeDocument: string;
   documents: DocumentAppWithToggle[] = [];
   uploadingFiles: Uploading[] = [];
+  uploading:UploadingState = undefined;
   constructor(private issueService:IssueService, private userService:UserService) {
   }
   ngOnInit(): void {
@@ -146,12 +147,22 @@ export class IssueDocumentsViewerComponent implements OnInit , AfterViewInit {
     if (!this.uploadingFiles)
       return;
     this.issueService.uploadIssueFileDocument(this.uploadingFiles,this.issue ). subscribe(res => {
-      this.uploadingFiles = [];
-      this.loaDocument();
+
     })
   }
 
   ngAfterViewInit(): void {
+    this.issueService.uploadingState$.subscribe( up => {
+      if (!up)
+        return;
+      this.uploading = up;
+      if (up.status =='finished') {
+        this.uploadingFiles = [];
+        this.uploading = undefined;
+        this.loaDocument();
+      }
+
+    })
   }
 
   getPhotoUser(userApp: User) {

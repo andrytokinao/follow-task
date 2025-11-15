@@ -30,7 +30,7 @@ import {
   ActionItem,
   ActionGroupe,
   ActionAssigne,
-  ActionStatus
+  ActionStatus, UploadingState
 } from "../type/issue";
 import {Apollo} from "apollo-angular";
 import * as operation from "../type/graphql.operations";
@@ -132,6 +132,8 @@ export class IssueService implements OnInit {
   currentSlidingImage$ = this.slidingImageSubject.asObservable();
   private issueTypeMastersListSubject = new BehaviorSubject<IssueType[]>([]);
   issueTypeMasters$ = this.issueTypeMastersListSubject.asObservable();
+  private uploadingStateSubject = new BehaviorSubject<UploadingState>(undefined);
+  uploadingState$ = this.uploadingStateSubject.asObservable();
 
   setIssues(issues: Issue[]) {
     this.issuesSubject.next(issues);
@@ -352,7 +354,6 @@ export class IssueService implements OnInit {
         let filesUploadedsSubject = new BehaviorSubject<Uploaded[]>([]);
         let index = 0;
         this.sendSequentialUpload(index, {}, uploadings, encodedPath, "COMMENTS").subscribe(res => {
-          console.debug("fileUploaded");
 
         });
       }
@@ -437,6 +438,7 @@ export class IssueService implements OnInit {
   }
 
   sendSequentialUpload(index: number, document: DocumentApp, uploadings: Uploading[], directory: String, newDirectory: String): Observable<any> {
+    this.uploadingStateSubject.next({index:index,status:'uploading',totale:uploadings.length});
 
     if (uploadings === undefined || uploadings.length === index) {
       this.uploadingDocumentSubject.next(document);
@@ -447,6 +449,7 @@ export class IssueService implements OnInit {
 
     if (newDirectory) {
       return this.uploadInNewDirertory(uploadings[index].file, directory, newDirectory.toString(), document.id).pipe(
+
         tap((event) => {
           if (event.type === HttpEventType.UploadProgress) {
             const progress = Math.round((event.loaded / (event.total || 1)) * 100);
@@ -466,10 +469,14 @@ export class IssueService implements OnInit {
           return of(null);
         }),
         finalize(() => {
-          this.sendSequentialUpload(index, document, uploadings, directory, newDirectory).subscribe();
+          this.sendSequentialUpload(index, document, uploadings, directory, newDirectory).subscribe(res => {
+
+          });
           if (this.isAllUploaded(uploadings)) {
             this.uploadingDocumentSubject.next(document);
+            this.uploadingStateSubject.next({index:index,status:'finished',totale:uploadings.length});
           }
+
         })
       );
     } else {

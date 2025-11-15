@@ -1,4 +1,4 @@
-<div class="list-container">
+<div class="list-container" (drop)="onDrop($event)" (dragover)="allowDrop($event)">
 
   <!-- LOOP ON DOCUMENTS -->
   <div class="document-card" *ngFor="let doc of documents">
@@ -9,11 +9,8 @@
 
       <div class="info">
         <div class="name">{{ doc.userApp?.firstName }} {{ doc.userApp?.lastName }}</div>
-
         <div class="date">{{ getRelativeDate(doc.creation) }}</div>
-
         <div class="title" *ngIf="doc.titre">{{ doc.titre }}</div>
-
         <div class="desc" *ngIf="doc.description">{{ doc.description }}</div>
       </div>
 
@@ -37,9 +34,7 @@
   </div>
 
   <!-- UPLOAD AREA -->
-  <div class="upload-box"
-       (drop)="onDrop($event)"
-       (dragover)="allowDrop($event)">
+  <div class="upload-box">
 
     <p>Glissez les fichiers ici ou</p>
 
@@ -65,7 +60,7 @@
       <div class="status" [ngClass]="u.status">{{ u.status }}</div>
     </div>
 
-    <button class="btn-upload" (click)="uploadAll()">Uploader</button>
+    <button class="btn-upload" (click)="uploadAll()"> <span *ngIf="uploading">({{uploading.index}} / {{uploading.totale}} ) </span> Uploader</button>
 
   </div>
 </div>
