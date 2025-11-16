@@ -75,6 +75,16 @@ export class HttpInterceptorService implements HttpInterceptor {
 
           if (error.status !== 200)
             this.showErrorOnce(`Erreur HTTP ${error.status}: ${error.statusText || 'Erreur inconnue'}`);
+
+          if (error.error && typeof error.error.text === 'string') {
+            if (error.error.text.includes('<input type="text" id="username" name="username"')) {
+              console.log('Le texte contient le champ username !');
+              this.handleSessionExpired();
+
+            } else {
+              console.log('Le texte ne contient pas le champ username.');
+            }
+          }
           return of();
         }
         return throwError(() => error);
