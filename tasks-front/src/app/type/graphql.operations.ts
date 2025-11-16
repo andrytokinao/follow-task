@@ -769,11 +769,6 @@ const ALL_ISSUE_TYPE =gql`
         name
         prefix
       }
-      parent {
-        id
-        prefix
-        name
-      }
       level
       usingCustomFields {
         id
@@ -812,7 +807,58 @@ const ALL_ISSUE_TYPE =gql`
         value
         typeIcone
       }
+      children {
+        id
+        name
+        prefix
+        project {
+          id
 
+        }
+        parent {
+          id
+          prefix
+          name
+        }
+        level
+        usingCustomFields {
+          id
+          issueType {
+            id
+            name
+            icone {
+              id
+              value
+              typeIcone
+            }
+            prefix
+            level
+          }
+          customField {
+            id
+            name
+            type
+          }
+        }
+        curentWorkFlow {
+          id
+          name
+          statuses {
+            id
+            displayName
+            icone {
+              id
+              typeIcone
+              value
+            }
+          }
+        }
+        icone {
+          id
+          value
+          typeIcone
+        }
+      }
     }
   }
 `;

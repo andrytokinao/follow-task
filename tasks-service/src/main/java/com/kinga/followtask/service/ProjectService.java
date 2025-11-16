@@ -513,8 +513,10 @@ public class ProjectService {
     }
 
     public List<IssueType> allIssueType(Long projectId) {
-        List<IssueType> issueTypes = issueTypeRepository.findByProjectId(projectId);
-        return issueTypes;
+        /*List<IssueType> issueTypes = issueTypeRepository.findByProjectId(projectId);
+        return issueTypes;*/
+        List<IssueType> masters = issueTypeRepository.findByProjectIdAndLevel(projectId, Niveau.PARENT);
+        return masters;
     }
 
     public IssueType removeIssueTypeParent(Long childId) {

@@ -696,6 +696,7 @@ export class IssueService implements OnInit {
           observer.complete();
         }, (err: any) => {
           observer.error(err);
+          console.error(err);
           observer.complete();
         }
       )

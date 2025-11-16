@@ -1,0 +1,78 @@
+<div class="issue-type-container">
+
+  <!-- COLONNE GAUCHE : LISTE + DnD -->
+  <div class="left-panel">
+
+    <div class="header">
+      <h2>Types de tâches</h2>
+      <button mat-raised-button color="primary" (click)="addIssueTypeParent()" [matMenuTriggerFor]="newIssueType" #createIssueTypeTrigger="matMenuTrigger" >+ Ajouter</button>
+    </div>
+
+    <div class="parent-list" *ngFor="let parent of issueTypes" draggable="false" (dragstart)="dragParentStart(parent)"  (drop)="drop($event, parent)">
+
+      <!-- parent -->
+      <div class="issue-item parent"
+           (click)="select(parent)">
+        <i class="{{ parent.icone?.value }} icon"></i>
+        {{ parent.name }}
+        <button mat-icon-button (click)="addIssueTypeSubTask(parent);"  [matMenuTriggerFor]="newIssueType" #createIssueTypeTrigger="matMenuTrigger">
+          <i class="fas fa-plus"></i>
+        </button>
+      </div>
+
+      <!-- children -->
+      <div class="children" >
+        <div class="issue-item child"
+             *ngFor="let child of parent.children"
+             draggable="true"
+             (dragover)="dragOver($event)"
+             (drop)="dropOnParent(parent)"
+             (dragstart)="dragChildStart(child, parent)"
+             (click)="select(child)">
+          <i class="{{ child.icone?.value }} icon"></i>
+          {{ child.name }}
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- COLONNE DROITE : DÉTAILS -->
+  <div class="right-panel" *ngIf="selectedIssue">
+
+    <h3>Détails : {{ selectedIssue.name }}</h3>
+
+    <mat-form-field class="full">
+      <mat-label>Nom</mat-label>
+      <input matInput [(ngModel)]="selectedIssue.name">
+    </mat-form-field>
+
+    <mat-form-field class="full">
+      <mat-label>Préfixe</mat-label>
+      <input matInput [(ngModel)]="selectedIssue.prefix">
+    </mat-form-field>
+
+    <mat-form-field class="full">
+      <mat-label>Couleur</mat-label>
+      <input type="color" matInput [(ngModel)]="selectedIssue.color">
+    </mat-form-field>
+
+    <h4>Icône</h4>
+    <div class="icon-box">
+      <i class="{{ selectedIssue.icone?.value }} big-icon"></i>
+
+      <input matInput placeholder="fas fa-bug"
+             (change)="updateIcon('')">
+    </div>
+
+    <h4>Custom Fields</h4>
+    <div class="custom-field" *ngFor="let cf of selectedIssue.usingCustomFields">
+      <mat-checkbox >{{ cf.customField?.name }}</mat-checkbox>
+    </div>
+
+  </div>
+
+</div>
+<mat-menu #newIssueType="matMenu">
+   <app-issutype-form2 [selectedType$] ="currentLevel$" [selectedParent$] = "selectedParent$" (oneSaved) = "reloaList($event)"></app-issutype-form2>
+</mat-menu>

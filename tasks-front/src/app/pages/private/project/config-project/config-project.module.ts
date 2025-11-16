@@ -33,6 +33,8 @@ import {MatButtonModule} from "@angular/material/button";
 import {IssueTypeStepperComponent} from "./issue-type/issue-type-stepper/issue-type-stepper.component";
 import {MatRadioButton, MatRadioGroup} from "@angular/material/radio";
 import {StepperWorkflowComponent} from "./work-flow/stepper-workflow/stepper-workflow.component";
+import {IssueType2Component} from "./issue-type2/issue-type2.component";
+import {IssutypeForm2Component} from "../../../../common/issutype-form2/issutype-form2.component";
 
 @NgModule({
   declarations: [
@@ -48,44 +50,46 @@ import {StepperWorkflowComponent} from "./work-flow/stepper-workflow/stepper-wor
     AccessibilityComponent,
     CustomFieldStepperComponent,
     IssueTypeStepperComponent,
-    StepperWorkflowComponent
+    StepperWorkflowComponent,
+    IssueType2Component
 
   ],
-    imports: [
-        MatTabsModule,
-        MatCardModule,
-        MatDialogModule,
-        MatToolbarModule,
-        MatFormFieldModule,
-        FormsModule,
-        MatMenuModule,
-        MatIconModule,
-        MatSelectModule,
-        CommonModule,
-        MyCommonModule,
-        ConfigProjectRoutingModule,
-        DataRowOutlet,
-        MatSelectionList,
-        MatListOption,
-        CdkDropList,
-        MatCheckbox,
-        MatStep,
-        ReactiveFormsModule,
-        MatStepper,
-        MatInputModule,
-        MatButtonModule,
-        MatStepperModule,
-        FormsModule,
-        CdkDropList,
-        CdkDrag,
-        MyCommonModule,
-        NgForOf,
-        NgIf,
-        MatList,
-        MatListItem,
-        MatRadioButton,
-        MatRadioGroup,
+  imports: [
+    MatTabsModule,
+    MatCardModule,
+    MatDialogModule,
+    MatToolbarModule,
+    MatFormFieldModule,
+    FormsModule,
+    MatMenuModule,
+    MatIconModule,
+    MatSelectModule,
+    CommonModule,
+    MyCommonModule,
+    ConfigProjectRoutingModule,
+    DataRowOutlet,
+    MatSelectionList,
+    MatListOption,
+    CdkDropList,
+    MatCheckbox,
+    MatStep,
+    ReactiveFormsModule,
+    MatStepper,
+    MatInputModule,
+    MatButtonModule,
+    MatStepperModule,
+    FormsModule,
+    CdkDropList,
+    CdkDrag,
+    MyCommonModule,
+    NgForOf,
+    NgIf,
+    MatList,
+    MatListItem,
+    MatRadioButton,
+    MatRadioGroup,
+    IssutypeForm2Component,
 
-    ]
+  ]
 })
 export class ConfigProjectModule { }

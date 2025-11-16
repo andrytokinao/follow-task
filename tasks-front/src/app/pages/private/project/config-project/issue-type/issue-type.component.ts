@@ -1,13 +1,10 @@
 import {Component, OnInit} from '@angular/core';
-import {Icone, Issue, IssueType, Project, Status, WorkFlow} from "../../../../../type/issue";
-import {ConfigService} from "../../../../../services/config.service";
+import {Icone, IssueType, Project, Status, WorkFlow} from "../../../../../type/issue";
 import {IssueService} from "../../../../../services/issue.service";
 import {supprimerTypename} from "../../../../../type/graphql.operations";
 import {ActivatedRoute} from "@angular/router";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {IssueTypeModalComponent} from "./issue-type-modal/issue-type-modal.component";
-import {ChooseDialogComponent} from "../../../../../common/icone-field/choose-dialog/choose-dialog.component";
-import {J} from "@angular/cdk/keycodes";
 import {IssueTypeStepperComponent} from "./issue-type-stepper/issue-type-stepper.component";
 
 @Component({
@@ -31,7 +28,7 @@ export class IssueTypeComponent implements OnInit{
   iconSelected: Icone | undefined ;
   newWorkflowName: string= "";
   isCreateState: boolean=false;
-  constructor(private configService:ConfigService,
+  constructor(
               private issueService :IssueService,
               private route: ActivatedRoute,
               private modalService:NgbModal

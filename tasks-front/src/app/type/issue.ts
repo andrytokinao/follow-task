@@ -89,12 +89,12 @@ export class Comment {
 
 export interface CustomField {
   id:number;
-  name:String;
-  type:'String' | 'Date' | 'Number' | 'User' | 'Selection' | 'Checkbox';
-  options:String[];
-  configDisplay:String[];
-  issueTypes:UsingCustomField[],
-  project:Project
+  name?:String;
+  type?:'String' | 'Date' | 'Number' | 'User' | 'Selection' | 'Checkbox';
+  options?:String[];
+  configDisplay?:String[];
+  issueTypes?:UsingCustomField[],
+  project?:Project
 }
 
 
@@ -152,29 +152,29 @@ export interface Project {
   workFlows? : WorkFlow[];
 }
 export interface IssueType{
-  id:number
-  name:String
-  prefix:String
-  level:String
-  project:Project
-  color:String
-  style:String
- curentWorkFlow:WorkFlow;
-  usingCustomFields : UsingCustomField[]
-  icone :Icone | undefined;
-  parent:IssueType;
-  children:IssueType[]
+  id?:number
+  name?:String
+  prefix?:String
+  level?:String
+  project?:Project
+  color?:String
+  style?:String
+ curentWorkFlow?:WorkFlow;
+  usingCustomFields ?: UsingCustomField[]
+  icone? :Icone | undefined;
+  parent?:IssueType;
+  children?:IssueType[]
 
 }
 export interface WorkFlow {
   id:Number,
-  name:String,
-  active :Boolean,
-  states :Status[],
-  statuses :Status[],
-  issueTypes :IssueType[],
-  project:Project
-  crossingStates :CrossingState[],
+  name?:String,
+  active? :Boolean,
+  states? :Status[],
+  statuses? :Status[],
+  issueTypes? :IssueType[],
+  project?:Project
+  crossingStates? :CrossingState[],
 }
 interface CrossingState {
   id:Number

@@ -1,0 +1,54 @@
+<div style="max-width:500px; margin: 20px auto;" (click)="$event.stopPropagation()">
+
+
+  <mat-card *ngIf="selectedType">
+    <mat-card-header>
+      <mat-card-title>
+        {{ selectedType === 'SUB_TASK' ? 'Sous-tâche' : 'Type Principal' }}
+      </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+
+      <!-- Phrase d'explication -->
+      <p style="color:#555; font-size:14px;">
+        {{ selectedType === 'PARENT'
+        ? "Définissez le type de mission globale : saisissez son nom et un préfixe pour l'identifier facilement."
+        : "Définissez les actions précises liées à une mission : donnez un nom et un préfixe unique à cette sous-tâche."
+        }}
+      </p>
+
+
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" style="margin-top:10px;">
+
+        <mat-form-field appearance="outline" style="width:100%; margin-bottom:15px;">
+          <mat-label>Nom</mat-label>
+          <input matInput formControlName="name"
+                 [placeholder]="placeholders[selectedType].name">
+          <mat-icon matSuffix>edit</mat-icon>
+          <mat-error *ngIf="form.get('name')?.hasError('required')">
+            Le nom est obligatoire
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" style="width:100%; margin-bottom:15px;">
+          <mat-label>Préfixe</mat-label>
+          <input matInput formControlName="prefix"
+                 [placeholder]="placeholders[selectedType].prefix">
+          <mat-icon matSuffix>label</mat-icon>
+          <mat-error *ngIf="form.get('prefix')?.hasError('required')">
+            Le préfixe est obligatoire
+          </mat-error>
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">
+          <mat-icon>check_circle</mat-icon> Créer
+        </button>
+
+      </form>
+
+
+    </mat-card-content>
+  </mat-card>
+</div>
