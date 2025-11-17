@@ -21,6 +21,7 @@ public class CorsConfig {
         corsConfiguration.setAllowedOrigins(Arrays.asList(
                 "https://demo.kinga-digital.com",
                 "https://follow-task.kinga-digital.com",
+                "https://team.thebest.mg",
                 "https://best.kinga-digital.com",
                 "http://localhost:4200"
         ));
