@@ -55,7 +55,11 @@ export class StatusFieldComponent implements OnInit , AfterViewInit{
     );
   }
   changeStatus(status: Status) {
-    this.issueService.createActionStatus(this.issue,status);
+    this.issueService.createActionStatus(this.issue,status).subscribe( res => {
+      this.issueService.getIssueById(this.issue.id).subscribe(issue=> {
+        this.issue = issue;
+      })
+    } );
   }
 
   isActive(status: Status) {

@@ -68,7 +68,9 @@ export class AssignFieldComponent implements OnInit{
   }
   assigneToUser(user: User) {
     if (this.issue != null) {
-      this.issueService.createActionAssign(this.issue,user);
+      this.issueService.createActionAssign(this.issue,user).subscribe( res => {
+        this.issueService.getIssueById(this.issue.id).subscribe(issue => this.issue = issue);
+      });
     }
   }
   isActive(user: User): boolean {

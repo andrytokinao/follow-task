@@ -1852,7 +1852,7 @@ export class IssueService implements OnInit {
   processDeleteDocument(doc: unknown) {
 
   }
-  createActionAssign(issue:Issue, assign:User){
+  createActionAssign(issue:Issue, assign:User):Observable<any>{
     let groupe:ActionGroupe = {
       issue:{id:issue.id},
       user:{
@@ -1860,21 +1860,38 @@ export class IssueService implements OnInit {
       }
     }
     let action:ActionAssigne = new ActionAssigne(groupe,assign);
-    this.saveAction(action).subscribe(action =>{
-      this.processAction(action);
+    return new Observable<any>(observer => {
+      this.saveAction(action).subscribe(action =>{
+        observer.next(action);
+        this.processAction(action);
+        observer.complete();
+      }, error => {
+        observer.error(error);
+        observer.complete();
+      })
     })
+
   }
-  createActionStatus(issue:Issue, status:Status){
+  createActionStatus(issue:Issue, status:Status):Observable<any>{
     let groupe:ActionGroupe = {
       issue:{id:issue.id},
       user:{
         id:this.user.id
       }
     }
+
     let action:ActionStatus = new ActionStatus(groupe,status);
-    this.saveAction(action).subscribe(action =>{
-      this.processAction(action);
-    })
+
+    return new Observable(observer => {
+      this.saveAction(action).subscribe(action =>{
+        this.processAction(action);
+        observer.next(action);
+        observer.complete();
+      },error1 => {
+        observer.error(error1);
+        observer.complete();
+        });
+    } )
   }
   saveAction(action:ActionItem) {
     return new Observable<ActionItem>(observer => {
