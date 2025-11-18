@@ -37,7 +37,8 @@ export class IssutypeForm2Component implements OnInit, AfterViewInit{
   @Output() oneSaved:EventEmitter<IssueType> = new EventEmitter<IssueType>;
   selectedType: 'PARENT' | 'SUB_TASK';
   project: Project;
-  private errorMessage: string;
+  saving:boolean;
+  protected errorMessage: string;
 
   constructor(
     private fb: FormBuilder,
@@ -63,6 +64,8 @@ export class IssutypeForm2Component implements OnInit, AfterViewInit{
   @Input()  selectedParent$:Observable<IssueType>;
 
   onSubmit() {
+    this.errorMessage = undefined;
+    this.saving = true;
     let issueType: IssueType = {
       level: this.selectedType,
       name: this.form.get('name')?.value,
@@ -73,10 +76,12 @@ export class IssutypeForm2Component implements OnInit, AfterViewInit{
       issueType.parent = {id:this.selectedParent.id}
     }
     this.issueService.saveIssueType(issueType).subscribe( res => {
+      this.saving = false;
       this.oneSaved.emit(issueType);
       this.form.reset();
     },error => {
       this.errorMessage = 'Erreur survenu lors de la creation ';
+      this.saving = false;
       }
     )
   }

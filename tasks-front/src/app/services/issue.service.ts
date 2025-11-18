@@ -74,6 +74,7 @@ import {ProjectGuard} from "./ProjectGuard";
 import {NewDocumentComponent} from "../pages/private/project/modal/new-document/new-document.component";
 import {ImageModalContentComponent} from "../common/image-modal-content/image-modal-content.component";
 import {MessagesService} from "./messages.service";
+import {HttpInterceptorService} from "./http.service";
 
 @Injectable({
   providedIn: 'root',
@@ -152,6 +153,8 @@ export class IssueService implements OnInit {
               private modalService: NgbModal,
               private authService: AuthService,
               protected projectGuard: ProjectGuard,
+              private interceptorService:HttpInterceptorService
+
   ) {
     const initialProject: Project = null;
     this.authService.connectedUser$.subscribe(user => {
@@ -325,6 +328,7 @@ export class IssueService implements OnInit {
         observer.next(supprimerTypename(res.data.saveIssue));
         observer.complete();
       }, error => {
+      this.interceptorService.showErrorOnce("Error survenue lors de l'enregistremenr");
         observer.error(error);
         observer.complete();
       });

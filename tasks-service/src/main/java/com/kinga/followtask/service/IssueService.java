@@ -163,7 +163,7 @@ public class IssueService {
     private Issue createDirectoryIfEmpty(Issue issue, Project project) throws IOException {
         if (!StringUtils.isEmpty (issue.getDirectory ()))
             return issue;
-        if (issue.getParent () != null) {
+        if (issue.getParent () != null && issue.getParent().getId() != null) {
             Issue parrent = issueRepository.findById (issue.getParent ().getId ()).orElse (null);
             if (parrent == null ){
                 throw new RemoteException ("issue parrent#"+issue.getParent ().getId ()+" not found");
@@ -177,6 +177,8 @@ public class IssueService {
             }
             issue.setDirectory(dossier.toString());
             return issue;
+        } else {
+            issue.setParent(null);
         }
         // Creation si parent vide
         String homeDirectory = KingaUtils.decodeText(project.getPath()).replaceAll (" ","");

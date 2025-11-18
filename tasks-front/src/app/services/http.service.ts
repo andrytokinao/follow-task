@@ -113,7 +113,7 @@ export class HttpInterceptorService implements HttpInterceptor {
     });
   }
 
-  private showErrorOnce(message: string, onClose?: () => void): void {
+  showErrorOnce(message: string, onClose?: () => void): void {
     if (this.lastMessage === message) return;
     this.lastMessage = message;
 

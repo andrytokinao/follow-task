@@ -14,6 +14,7 @@ import { Issue, IssueType, Project, Status } from '../../type/issue';
 import { IssueService } from '../../services/issue.service';
 import {MessagesService} from "../../services/messages.service";
 import {MatMenuTrigger} from "@angular/material/menu";
+import {ALL_EVENT_TYPE} from "../../type/graphql.operations";
 
 @Component({
   standalone:false,
@@ -24,6 +25,7 @@ import {MatMenuTrigger} from "@angular/material/menu";
 export class NewIssueFormComponent implements OnInit, AfterViewInit{
   issueKey: String = '';
   summary: string = '';
+  saving = false;
   description: string = '';
   issueType: IssueType | any = {};
   status: Status | null = null;
@@ -42,6 +44,7 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
 
   @ViewChild('autosize') autosize: CdkTextareaAutosize | undefined;
   private _injector = inject(Injector);
+  private errorMessage: string;
 
   constructor(public issueService: IssueService,
     protected messageService :MessagesService
@@ -92,8 +95,9 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
   }
 
   save(form: any) {
+    this.errorMessage = undefined;
     if (form.invalid) return;
-
+    this.saving = true;
     const issue: any = {
       summary: this.summary,
       description: this.description,
@@ -108,13 +112,18 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
 
     this.issueService.saveIssue(issue).subscribe({
       next: (res) => {
+        this.saving = false;
         this.messageService.showRight('');
         this.saved.emit();
         this.summary = '';
         this.description = '';
         this.loadNextKey(this.issueType.id);
       },
-      error: (err) => console.error(err)
+      error: (err:Error) => {
+        console.log(err);
+        this.saving = false;
+        this.errorMessage = 'Error survenu lors de la creation '+JSON.stringify(err);
+      }
     });
   }
 
@@ -177,7 +186,8 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
     if (!this.project || !this.issueType || !this.issueKey || !this.summary){
       return false;
     }
-    return true;
+
+    return !this.saving;
   }
   selectIssueType(event:Event,trigger: MatMenuTrigger,type: IssueType) {
     if (event)

@@ -7,6 +7,7 @@ import {CustomField, IssueType, Project, UsingCustomField, WorkFlow} from "../..
 import namespace from "quill/core/logger";
 import {BehaviorSubject} from "rxjs";
 import {MatMenuTrigger} from "@angular/material/menu";
+import {HttpInterceptorService} from "../../../../../services/http.service";
 
 
 
@@ -25,7 +26,7 @@ export class IssueType2Component implements OnInit {
 
  constructor(
    private modalService:NgbModal,
-   private issueService:IssueService
+   private issueService:IssueService,
  ) {
  }
 
