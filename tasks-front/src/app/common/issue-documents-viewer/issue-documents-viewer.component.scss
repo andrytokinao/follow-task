@@ -141,3 +141,26 @@
   cursor: pointer;
   width: fit-content;
 }
+.upload-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.status i {
+  font-size: 18px;
+}
+
+.btn-remove {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #d9534f;
+}
+
+.btn-remove:hover {
+  color: #b52b27;
+}
+
+.text-success { color: green; }
+.text-error { color: red; }

@@ -168,4 +168,8 @@ export class IssueDocumentsViewerComponent implements OnInit , AfterViewInit {
   getPhotoUser(userApp: User) {
     return this.userService.getUrlPhoto(userApp);
   }
+
+  removeFile(index: number) {
+    this.uploadingFiles.splice(index, 1);
+  }
 }
