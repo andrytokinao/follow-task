@@ -29,7 +29,7 @@ export class IssueDocumentsViewerComponent implements OnInit , AfterViewInit {
   documents: DocumentAppWithToggle[] = [];
   uploadingFiles: Uploading[] = [];
   uploading:UploadingState = undefined;
-  constructor(private issueService:IssueService, private userService:UserService) {
+  constructor(protected issueService:IssueService, private userService:UserService) {
   }
   ngOnInit(): void {
     this.issue$.subscribe(issue => {
