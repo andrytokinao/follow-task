@@ -284,7 +284,19 @@ form , .form {
   opacity: 1;
   z-index: 2;
 }
+.sign-up-form .input-field {
+  margin: 5px 0;
+  height: 48px;
+}
 
+.sign-up-form .title {
+  margin-bottom: 5px;
+}
+
+.sign-up-form .error-container {
+  margin-bottom: 2px;
+  height: 14px;
+}
 .container.sign-up-mode .sign-in-form {
   opacity: 0;
   z-index: 1;
@@ -403,6 +415,14 @@ form , .form {
   .container.sign-up-mode .signin-signup {
     top: 5%;
     transform: translate(-50%, 0);
+  }
+  .signin-signup {
+    overflow-y: auto;
+    max-height: 90vh;
+  }
+
+  form {
+    padding: 0 1.5rem 1rem;
   }
 }
 
