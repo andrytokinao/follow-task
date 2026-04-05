@@ -301,9 +301,9 @@ export class PlanningCalendarComponent implements AfterViewInit {
     this.issueService.issueMasterList$.subscribe((res: any) => {
       this.issueMasters = res;
     });
-    this.userService.users$.subscribe(users => {
+    this.userService.allMembers$.subscribe((users: any) => {
       this.users = users;
-    })
+    });
     this.issueService.masterCriteria$.subscribe(criteria => {
       this.masterFilter.criteria = criteria;
     });
