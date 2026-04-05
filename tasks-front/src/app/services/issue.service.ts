@@ -1334,8 +1334,14 @@ export class IssueService implements OnInit {
   }
 
   setCurrentMasterFilter(filter: CustomFilter) {
-    this.masterCurrentMasterFilter = filter;
-    this.masterCurrentMasterFilterSubject.next(filter);
+    const criteria: IssueSearchCriteriaInput = filter.criteria ?? {} as IssueSearchCriteriaInput;
+    criteria.issueTypeLevels = ['PARENT'];
+    this.masterCurrentMasterFilter = {
+      ...filter,
+      criteria
+    };
+
+    this.masterCurrentMasterFilterSubject.next(this.masterCurrentMasterFilter);
   }
 
   loadProjectList() {
