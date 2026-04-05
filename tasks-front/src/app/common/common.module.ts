@@ -52,6 +52,7 @@ import {TeamAvatarsComponent} from "./team-avatars/team-avatars.component";
 import {ImageModalContentComponent} from "./image-modal-content/image-modal-content.component";
 import {ChatWidgetComponent} from "./chat-widget/chat-widget.component";
 import {NewIssueFormComponent} from "./new-issue-form/new-issue-form.component";
+import {LoadingOverlayComponent} from "./loading-overlay/loading-overlay.component";
 
 @NgModule({
   declarations: [
@@ -87,7 +88,8 @@ import {NewIssueFormComponent} from "./new-issue-form/new-issue-form.component";
     TeamAvatarsComponent,
     ImageModalContentComponent,
     ChatWidgetComponent,
-    NewIssueFormComponent
+    NewIssueFormComponent,
+    LoadingOverlayComponent
 
   ],
   imports: [

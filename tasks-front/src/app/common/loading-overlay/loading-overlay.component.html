@@ -1,0 +1,14 @@
+<div class="loading-backdrop" *ngIf="visible">
+  <div class="loading-card">
+    <svg class="spinner" viewBox="0 0 52 52" width="52" height="52">
+      <circle cx="26" cy="26" r="22" fill="none" stroke="#e2e2e2" stroke-width="3.5"/>
+      <circle class="arc" cx="26" cy="26" r="22" fill="none"
+              stroke="#6366f1" stroke-width="3.5"
+              stroke-dasharray="80 58" stroke-linecap="round"/>
+    </svg>
+    <div class="loading-text">
+      <span class="title">Chargement du projet</span>
+      <span class="subtitle">{{ message }}</span>
+    </div>
+  </div>
+</div>

@@ -17,6 +17,8 @@ import {environment} from "../../../../environments/environment";
 })
 export class HomeComponent implements OnInit{
   projects:Project[]= [];
+  isLoading = false;
+  loadingMessage = 'Veuillez patienter';
 
   private project = null;
   leftColor: any;
@@ -37,7 +39,14 @@ export class HomeComponent implements OnInit{
   }
   selectProject(project: Project) {
     this.project = project;
-    this.router.navigate(["/working/"+project.prefix+"/list/master"])
+    this.router.navigate(["/working/"+project.prefix+"/list/master"]);
+    this.isLoading = true;
+    this.loadingMessage = `Ouverture de « ${project.name} »`;
+
+    setTimeout(() => {
+      this.router.navigate(["/working/" + project.prefix + "/list/master"]);
+      this.isLoading = false;
+    }, 300);
   }
 
   createProject(){
