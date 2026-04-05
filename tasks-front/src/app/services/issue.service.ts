@@ -206,8 +206,7 @@ export class IssueService implements OnInit {
     criteria = criteria ?? {} as IssueSearchCriteriaInput;
     criteria.issueTypeLevels = ['PARENT'];
     criteria.projectId = this.project?.id;
-    criteria.issueTypeLevels = ['PARENT'];
-    criteria.projectId = this.project?.id;
+
     this.setIssueMasterCriteria(criteria);
     this.projectGuard.hasCredential(["USER"]).subscribe(isUser => {
       if (isUser) {
@@ -1292,7 +1291,10 @@ export class IssueService implements OnInit {
     })
   }
 
-  setIssueMasterCriteria(criteria: IssueSearchCriteriaInput) {
+  setIssueMasterCriteria(criteria: IssueSearchCriteriaInput | null) {
+    criteria = criteria ?? {} as IssueSearchCriteriaInput;
+    criteria.issueTypeLevels = ['PARENT'];
+    criteria.projectId = this.project?.id;
     this.masterListCriteriaSubject.next(criteria);
   }
 
