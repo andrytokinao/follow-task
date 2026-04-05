@@ -88,6 +88,8 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
         if (this.isSubtask()) {
           this.loadIssueTypeSubtask();
         }
+      } else {
+
       }
 
     })

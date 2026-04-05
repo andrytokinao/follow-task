@@ -22,7 +22,6 @@ import {
 import formatters from "chart.js/dist/core/core.ticks";
 import {ProjectBreadcrumbResolverService} from "./project-breadcrumb-resolver.service";
 import {MessagesService} from "../../../services/messages.service";
-import {o} from "@angular/cdk/overlay-module.d-2b07cfa6";
 
 @Component({
   selector: 'app-project',

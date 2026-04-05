@@ -1,0 +1,15 @@
+@startuml
+title Système E-commerce Complet - UML Niveau Ingénieur (FR)
+class Client {
+   id:Long
+   name:String
+   prenom:String
+}
+
+Client "1" --> "n" Commande
+Commande "1" -->"*" LineCommande
+LineCommande "1" -->"*" LineCommande
+
+
+
+@enduml
