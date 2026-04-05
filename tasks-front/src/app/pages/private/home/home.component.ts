@@ -43,10 +43,6 @@ export class HomeComponent implements OnInit{
     this.isLoading = true;
     this.loadingMessage = `Ouverture de « ${project.name} »`;
 
-    setTimeout(() => {
-      this.router.navigate(["/working/" + project.prefix + "/list/master"]);
-      this.isLoading = false;
-    }, 300);
   }
 
   createProject(){
