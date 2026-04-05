@@ -1,31 +1,36 @@
 <div *ngIf="!isLoading" class="project-list list-group">
-  <div class="list-group"  *ngFor="let subtask of subtasks" class="project-card">
-    <a class="list-group-item list-group-item-action">
-      <div class="d-flex w-100 justify-content-between">
-        <h5 class="mb-1"(click)="editIssue(subtask)" style="cursor: pointer">  <app-icone-view [icon]="subtask.issueType.icone"  ></app-icone-view> {{subtask.issueKey}}  {{subtask.summary}}</h5>
-        <small class="text-body-primary" >
-          <b >  <app-assign-field [issue]="subtask" ></app-assign-field> </b>
-          <span *ngIf="subtask.creationDate">{{subtask.creationDate | date}}</span>
-          <p style="text-align: right"> Etat:
-            <app-status-field  [issue]="subtask"></app-status-field>
-          </p>
-          <p  style="text-align:right">
-            <span (click)="issueService.showPlanning(subtask)" class="controle">  <i class="fas fa-calendar">  </i>  Planing </span>
-            <span (click)="editIssue(subtask)" class="controle" >  <i class="fas fa-calendar" > </i>  Details </span>
-          </p>
-        </small>
-      </div>
-      <p class="mb-1">{{subtask.description}}.</p>
-      <span  *ngFor="let value of subtask.values">
+  <app-subtask-skeleton *ngIf="isLoading" [count]="3"></app-subtask-skeleton>
+
+  <div *ngIf="!isLoading" class="project-list list-group">
+    <div class="list-group"  *ngFor="let subtask of subtasks" class="project-card">
+      <a class="list-group-item list-group-item-action">
+        <div class="d-flex w-100 justify-content-between">
+          <h5 class="mb-1"(click)="editIssue(subtask)" style="cursor: pointer">  <app-icone-view [icon]="subtask.issueType.icone"  ></app-icone-view> {{subtask.issueKey}}  {{subtask.summary}}</h5>
+          <small class="text-body-primary" >
+            <b >  <app-assign-field [issue]="subtask" ></app-assign-field> </b>
+            <span *ngIf="subtask.creationDate">{{subtask.creationDate | date}}</span>
+            <p style="text-align: right"> Etat:
+              <app-status-field  [issue]="subtask"></app-status-field>
+            </p>
+            <p  style="text-align:right">
+              <span (click)="issueService.showPlanning(subtask)" class="controle">  <i class="fas fa-calendar">  </i>  Planing </span>
+              <span (click)="editIssue(subtask)" class="controle" >  <i class="fas fa-calendar" > </i>  Details </span>
+            </p>
+          </small>
+        </div>
+        <p class="mb-1">{{subtask.description}}.</p>
+        <span  *ngFor="let value of subtask.values">
         <app-custom-field *ngIf="canShowInList(value)"
                           [customFieldValue]="value" (saved)="saveCustomFieldValue($event)"
                           [viewMode]="viewModeField"
         > </app-custom-field>
       </span>
 
-    </a>
+      </a>
 
+    </div>
   </div>
+
   <div class="button-container">
     <button mat-button [matMenuTriggerFor]="createSubtask">
       <i class="fas fa-plus"></i> Créer

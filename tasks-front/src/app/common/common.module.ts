@@ -53,6 +53,7 @@ import {ImageModalContentComponent} from "./image-modal-content/image-modal-cont
 import {ChatWidgetComponent} from "./chat-widget/chat-widget.component";
 import {NewIssueFormComponent} from "./new-issue-form/new-issue-form.component";
 import {LoadingOverlayComponent} from "./loading-overlay/loading-overlay.component";
+import {SkeletonComponent} from "./skeleton/skeleton.component";
 
 @NgModule({
   declarations: [
@@ -89,7 +90,8 @@ import {LoadingOverlayComponent} from "./loading-overlay/loading-overlay.compone
     ImageModalContentComponent,
     ChatWidgetComponent,
     NewIssueFormComponent,
-    LoadingOverlayComponent
+    LoadingOverlayComponent,
+    SkeletonComponent
 
   ],
   imports: [
@@ -162,7 +164,8 @@ import {LoadingOverlayComponent} from "./loading-overlay/loading-overlay.compone
     ImageModalContentComponent,
     ChatWidgetComponent,
     NewIssueFormComponent,
-    LoadingOverlayComponent
+    LoadingOverlayComponent,
+    SkeletonComponent
   ]
 })
 export class MyCommonModule { }

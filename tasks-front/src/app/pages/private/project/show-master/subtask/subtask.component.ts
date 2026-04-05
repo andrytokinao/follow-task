@@ -72,6 +72,7 @@ export class SubtaskComponent implements OnInit {
   }
 
   protected loadSubtask() {
+    this.isLoading = true;
     this.issueService.loadSubtask(this.parentIssue.id).subscribe(issues => {
       this.subtasks = issues;
     });

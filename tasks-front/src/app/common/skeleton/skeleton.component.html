@@ -1,0 +1,40 @@
+<!-- line / rect générique -->
+<ng-container *ngIf="type === 'line' || type === 'rect'">
+  <div
+    *ngFor="let i of items"
+    class="sk"
+    [style.width]="width"
+    [style.height]="height">
+  </div>
+</ng-container>
+
+<!-- cercle avatar -->
+<div
+  *ngIf="type === 'circle'"
+  class="sk sk-circle"
+  [style.width]="width"
+  [style.height]="width">
+</div>
+
+<!-- carte projet complète -->
+<ng-container *ngIf="type === 'card-project'">
+  <div *ngFor="let i of items" class="sk-card">
+    <div class="sk sk-img"></div>
+    <div class="sk-body">
+      <div class="sk" style="height: 14px; width: 55%; margin-bottom: 10px;"></div>
+      <div class="sk" style="height: 11px; width: 90%; margin-bottom: 6px;"></div>
+      <div class="sk" style="height: 11px; width: 70%;"></div>
+    </div>
+  </div>
+</ng-container>
+
+<!-- item de liste avec avatar -->
+<ng-container *ngIf="type === 'list-item'">
+  <div *ngFor="let i of items" class="sk-list-item">
+    <div class="sk sk-circle" style="width: 38px; height: 38px; flex-shrink: 0;"></div>
+    <div class="sk-list-lines">
+      <div class="sk" style="height: 12px; width: 45%;"></div>
+      <div class="sk" style="height: 10px; width: 70%;"></div>
+    </div>
+  </div>
+</ng-container>
