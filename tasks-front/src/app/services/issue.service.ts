@@ -202,7 +202,10 @@ export class IssueService implements OnInit {
     }
   }
 
-  loadIssueMasters(criteria: IssueSearchCriteriaInput) {
+  loadIssueMasters(criteria: IssueSearchCriteriaInput | null) {
+    criteria = criteria ?? {} as IssueSearchCriteriaInput;
+    criteria.issueTypeLevels = ['PARENT'];
+    criteria.projectId = this.project?.id;
     criteria.issueTypeLevels = ['PARENT'];
     criteria.projectId = this.project?.id;
     this.setIssueMasterCriteria(criteria);

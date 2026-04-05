@@ -120,6 +120,8 @@ export class ShowMasterListComponent implements OnInit{
   ngOnInit(): void {
     this.issueService.masterFilters$.subscribe(filters => {
       this.masterFilter = filters;
+      this.issueService.filterMasterIssue(null);
+
     });
 
   }
