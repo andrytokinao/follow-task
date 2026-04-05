@@ -44,7 +44,7 @@ import {
   GET_CUSTOM_FIELD,
   GET_GROUPE_USER_FOR_PROJECT, GET_ISSUE,
   GET_ISSUE_TYPE_BY_ID,
-  GET_NEXT_KEY, GET_PROJECT_BY_USER,
+  GET_NEXT_KEY, GET_NEXT_KEY_PARENT, GET_PROJECT_BY_USER,
   ISSUE_BY_CRITERIA, LIST_ISSUE_TYPE_MASTER, LIST_ISSUE_TYPE_SUBTASKS, LOAD_ISSUE_MASTER_BY_PROJECT, LOAD_SUBTASK,
   REMOVE_ISSUE_TYPE_PARENT, SAVE_ACTION,
   SAVE_CONFIG,
@@ -1123,7 +1123,7 @@ export class IssueService implements OnInit {
     })
   }
 
-  getNextKey(issueTypeId: Number) {
+  /*getNextKey(issueTypeId: Number) {
 
     return new Observable<String>(observer => {
       this.apollo.query({
@@ -1132,6 +1132,22 @@ export class IssueService implements OnInit {
         fetchPolicy: "network-only"
       }).subscribe((res: any) => {
         observer.next(supprimerTypename(res.data.getNextKey));
+        observer.complete();
+      }, error => {
+        observer.error(error);
+        observer.complete();
+      })
+    })
+  }*/
+
+  getNextKeyParent(issueTypeId: Number, projectId: Number) {
+    return new Observable<String>(observer => {
+      this.apollo.query({
+        query: GET_NEXT_KEY_PARENT,
+        variables: {issueTypeId,projectId},
+        fetchPolicy: "network-only"
+      }).subscribe((res: any) => {
+        observer.next(supprimerTypename(res.data.getNextKeyParent));
         observer.complete();
       }, error => {
         observer.error(error);
@@ -1979,4 +1995,5 @@ export class IssueService implements OnInit {
     }
     return this.uploadDocument(document,issue.encodedPath,uploading,document.typeDocument);
   }
+
 }

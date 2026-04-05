@@ -91,7 +91,7 @@ export class NewIssueComponent implements OnInit{
     });
   }
   public loadNextKey(issueTypeId:Number){
-    this.issueService.getNextKey(issueTypeId).subscribe(key => {
+    this.issueService.getNextKeyParent(issueTypeId,this.project.id).subscribe(key => {
       this.issueKey = key;
     this.isDesable = false;
 

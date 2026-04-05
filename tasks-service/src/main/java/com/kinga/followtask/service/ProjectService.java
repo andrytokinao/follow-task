@@ -546,6 +546,18 @@ public class ProjectService {
         return issueType.get().getPrefix() + "-" + numero;
     }
 
+    public String getNextKeyParent(Long issueTypeId, Long projectId) {
+        Optional<IssueType> issueType = issueTypeRepository.findById(issueTypeId);
+        if (!issueType.isPresent())
+            return "";
+        Integer numero = issueRepository.findMaxProjectNumberWithPrefixAndProject(issueType.get().getPrefix() + "-", issueTypeId, projectId);
+        if (numero == null) {
+            numero = 0;
+        }
+        numero++;
+        return issueType.get().getPrefix() + "-" + numero;
+    }
+
     public Issue getIssue(String issueKey) {
         return this.issueRepository.findByIssueKey(issueKey);
     }

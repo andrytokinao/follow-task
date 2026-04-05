@@ -16,6 +16,8 @@ public interface IssueRepository extends JpaRepository<Issue,Long>, JpaSpecifica
     public Optional<Issue> findTopByIssueTypeIdOrderByIssueKeyDesc(Long issueTypeId);
     @Query("SELECT MAX(CAST(SUBSTRING(i.issueKey, LENGTH(:prefix) + 1) AS int)) FROM Issue i WHERE i.issueKey LIKE CONCAT(:prefix, '%') AND i.issueType.id = :issueType")
     Integer findMaxProjectNumberWithPrefix(@Param("prefix") String prefix, @Param("issueType") Long issueType );
+    @Query("SELECT MAX(CAST(SUBSTRING(i.issueKey, LENGTH(:prefix) + 1) AS int)) FROM Issue i WHERE i.issueKey LIKE CONCAT(:prefix, '%') AND i.issueType.id = :issueType AND i.project.id = :projectId")
+    Integer findMaxProjectNumberWithPrefixAndProject(@Param("prefix") String prefix, @Param("issueType") Long issueType, @Param("projectId") Long projectId);
 
     public List<Issue> findByIssueTypeIdIn(List<Long> issueT);
     public Issue findByIssueKey(String issueKey);

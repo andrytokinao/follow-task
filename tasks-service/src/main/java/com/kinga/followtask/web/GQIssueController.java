@@ -229,6 +229,13 @@ public class GQIssueController {
         return projectService.getNextKey(issueTypeId);
     }
     @QueryMapping
+    public String getNextKeyParent(@Argument Long issueTypeId, @Argument Long projectId){
+        return projectService.getNextKeyParent(issueTypeId,projectId);
+    }
+
+
+
+    @QueryMapping
     public Issue getIssue(@Argument String issueKey, @Argument Long projectId) {
         return issueService.getIssue(issueKey,projectId);
     }

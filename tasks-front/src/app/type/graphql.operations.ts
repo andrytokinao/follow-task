@@ -1563,6 +1563,11 @@ const GET_NEXT_KEY = gql`
     getNextKey(issueTypeId: $issueTypeId)
   }
 `
+const GET_NEXT_KEY_PARENT = gql`
+  query getNextKeyParent($issueTypeId:Int ,$projectId:Int){
+    getNextKeyParent(issueTypeId: $issueTypeId,projectId:$projectId)
+  }
+`
 const LIST_ISSUE_TYPE_SUBTASKS = gql`
   query listIssueTypeSubtasks($masterId:Int){
     listIssueTypeSubtasks(masterId: $masterId) {
@@ -2721,7 +2726,8 @@ export {
   LOAD_PERMISSION_TASK,
   GET_DOCUMENTS,
   SAVE_UPLOADED,
-  LIST_ACTIVITY
+  LIST_ACTIVITY,
+  GET_NEXT_KEY_PARENT
 }
 function  supprimerTypename<T>(objet: T): T {
   if (!objet || typeof objet !== 'object') {
