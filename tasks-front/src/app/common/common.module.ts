@@ -161,7 +161,8 @@ import {LoadingOverlayComponent} from "./loading-overlay/loading-overlay.compone
     TeamAvatarsComponent,
     ImageModalContentComponent,
     ChatWidgetComponent,
-    NewIssueFormComponent
+    NewIssueFormComponent,
+    LoadingOverlayComponent
   ]
 })
 export class MyCommonModule { }

@@ -2,6 +2,7 @@ import {Component, Input} from '@angular/core';
 
 @Component({
   selector: 'app-loading-overlay',
+  standalone:false,
   templateUrl: './loading-overlay.component.html',
   styleUrl: './loading-overlay.component.css'
 })
