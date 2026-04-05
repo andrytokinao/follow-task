@@ -96,6 +96,6 @@
 
 
 <mat-menu #createSubtask="matMenu" [ngStyle]="{'width': '600px'}"  >
-  <app-new-issue-form [parentIssue]="parentIssue"  #newIssueForm (saved)="closeCreateSubtaskMenu()"></app-new-issue-form>
+  <app-new-issue-form [parentIssue]="parentIssue" [isMaster]="false"   #newIssueForm (saved)="closeCreateSubtaskMenu()"></app-new-issue-form>
 </mat-menu>
 

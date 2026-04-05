@@ -2,7 +2,7 @@
   <div class="form-group">
 
     <!-- Project (avec mat-menu) -->
-      <div *ngIf="!isSubtask()">
+      <div *ngIf="isMaster">
         <h2 mat-button [matMenuTriggerFor]="projectMenu" color="primary"  #subMenuTrigger="matMenuTrigger">
           Créer une demande pour l'équipe de :
           <i>{{ project?.name || 'Aucun' }}</i>

@@ -13,7 +13,9 @@
          <app-notifications [notifications]="notifications"></app-notifications>
        </div>
        <div class="smart-right-item" [@slideInOut]  *ngIf="showNotif ==='new-issue'">
-         <app-new-issue-form ></app-new-issue-form>
+
+         <app-new-issue-form [isMaster]="true"  ></app-new-issue-form>
+
        </div>
      </div>
     </div>

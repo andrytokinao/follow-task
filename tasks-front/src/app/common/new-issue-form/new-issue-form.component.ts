@@ -37,7 +37,7 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
   @ViewChild(MatMenuTrigger) menuTrigger!: MatMenuTrigger;
   @Output() saved = new EventEmitter<void>();
   step: string = '';
-  isMaster = true;
+  @Input() isMaster = true;
   isDesable = false;
   private toClose: boolean;
 
@@ -85,7 +85,7 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
     this.issueService.issueMaster$.subscribe(issue => {
       this.parentIssue = issue;
       if (this.parentIssue?.id) {
-        if (this.isSubtask()) {
+        if (!this.isMaster) {
           this.loadIssueTypeSubtask();
         }
       } else {
