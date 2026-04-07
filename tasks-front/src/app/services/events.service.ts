@@ -320,7 +320,7 @@ export class EventsService {
   }
 
   loadUserResource(){
-    this.userService.users$.subscribe(users =>{
+    this.userService.allMembers$.subscribe(users =>{
       let resources = users.map(user => this.userToResource(user));
       this.users = users;
       this.resourceSubject.next(resources);
