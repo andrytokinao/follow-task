@@ -18,6 +18,7 @@ public class IssueType {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
+    private String description;
     private String prefix;
     private Niveau level;
     @ManyToOne
