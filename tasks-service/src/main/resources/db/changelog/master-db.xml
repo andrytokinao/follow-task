@@ -5,14 +5,10 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-<!--    <changeSet id="force-longtext" author="tokiniaina andriamahefasoa">
-        <sql>
-            ALTER TABLE Issue MODIFY description LONGTEXT;
-        </sql>
+    <changeSet id="add-description-to-issuetype" author="tokiniaina">
+        <addColumn tableName="issuetype">
+            <column name="description" type="LONGTEXT"/>
+        </addColumn>
     </changeSet>
-    <changeSet id="document-deleted" author="tokiniaina andriamahefasoa">
-        <sql>
-            UPDATE Document SET  deleted  = 0 WHERE deleted IS NULL
-        </sql>
-    </changeSet>-->
+
 </databaseChangeLog>
