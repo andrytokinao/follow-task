@@ -5,10 +5,63 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
+    <!-- ✅ 1. Ajouter description à issuetype -->
     <changeSet id="add-description-to-issuetype" author="tokiniaina">
         <addColumn tableName="issuetype">
-            <column name="description" type="LONGTEXT"/>
+            <column name="description" type="TEXT"/>
         </addColumn>
+    </changeSet>
+
+    <changeSet id="fix-issue-label-table" author="tokiniaina">
+
+        <!-- 🔍 Vérifie si table existe -->
+        <preConditions onFail="CONTINUE">
+            <tableExists tableName="issue_label"/>
+        </preConditions>
+
+        <!-- 🔥 Supprimer si elle existe (mauvaise structure possible) -->
+        <dropTable tableName="issue_label"/>
+
+    </changeSet>
+
+
+    <changeSet id="create-issue-label-table-clean" author="tokiniaina">
+
+        <createTable tableName="issue_label">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="issue_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="label_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint
+                constraintName="fk_issue_label_issue"
+                baseTableName="issue_label"
+                baseColumnNames="issue_id"
+                referencedTableName="issue"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint
+                constraintName="fk_issue_label_label"
+                baseTableName="issue_label"
+                baseColumnNames="label_id"
+                referencedTableName="label"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+
+        <addUniqueConstraint
+                tableName="issue_label"
+                columnNames="issue_id, label_id"
+                constraintName="uk_issue_label"/>
+
     </changeSet>
 
 </databaseChangeLog>
