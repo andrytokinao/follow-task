@@ -36,7 +36,7 @@ import {QuillEditorComponent} from "ngx-quill";
 import {EditorComponent} from "./quill-editor/quill-editor.component";
 import {PdfOverviewComponent} from "./pdf-overview/pdf-overview.component";
 import {NgxExtendedPdfViewerModule} from "ngx-extended-pdf-viewer";
-import {NgbCarousel, NgbCollapse, NgbSlide} from "@ng-bootstrap/ng-bootstrap";
+import {NgbActiveModal, NgbCarousel, NgbCollapse, NgbSlide} from "@ng-bootstrap/ng-bootstrap";
 import {DocViewerComponent} from "./doc-viewer/doc-viewer.component";
 import {NgxDocViewerModule} from "ngx-doc-viewer";
 import {IssueFilterComponent} from "./issue-filter/issue-filter.component";
@@ -166,6 +166,9 @@ import {SkeletonComponent} from "./skeleton/skeleton.component";
     NewIssueFormComponent,
     LoadingOverlayComponent,
     SkeletonComponent
+  ],
+  providers:[
+    NgbActiveModal
   ]
 })
 export class MyCommonModule { }

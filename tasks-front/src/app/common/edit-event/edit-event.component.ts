@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {AfterViewInit, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {EventApp, Issue} from "../../type/issue";
@@ -11,8 +11,12 @@ import {IssueService} from "../../services/issue.service";
   templateUrl: './edit-event.component.html',
   styleUrl: './edit-event.component.css'
 })
-export class EditEventComponent implements OnInit{
+export class EditEventComponent implements OnInit , AfterViewInit{
   @Input() event: EventApp;
+  @Input() byIssue = false;
+  @Output() saved = new EventEmitter<void>();
+
+  toClose:boolean = false;
 
   editEventForm: FormGroup;
   submitted = false;
@@ -100,5 +104,18 @@ export class EditEventComponent implements OnInit{
       this.subtasksList = issues;
     })
     this.selectedMaster = im;
+  }
+
+  clickMenu($event: MouseEvent) {
+    if (!this.toClose) {
+      $event.stopPropagation();
+    } else {
+      this.toClose = false;
+    }
+  }
+  ngAfterViewInit(): void {
+    this.toClose = false;
+
+
   }
 }

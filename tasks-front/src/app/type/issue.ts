@@ -248,7 +248,7 @@ export interface EventTypeApp {
   events?: EventApp[];
 }
 export interface EventApp {
-  id: string | number;
+  id: string | number | null;
   title?: string;
   description?: string;
   eventType?: EventTypeApp;

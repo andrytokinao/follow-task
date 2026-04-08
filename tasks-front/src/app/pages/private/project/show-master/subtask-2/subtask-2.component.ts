@@ -1,11 +1,11 @@
-import {Component, HostListener, OnInit, ViewChild} from '@angular/core';
+import {Component, HostListener, OnInit, Optional, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from "@angular/router";
-import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import {NgbActiveModal, NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {ConfigService} from "../../../../../services/config.service";
 import {IssueService} from "../../../../../services/issue.service";
 import {UserService} from "../../../../../services/user.service";
 import {AuthService} from "../../../../../services/auth.service";
-import {CustomFieldValue, Issue, User, UsingCustomField} from "../../../../../type/issue";
+import {CustomFieldValue, EventApp, Issue, User, UsingCustomField} from "../../../../../type/issue";
 import {BehaviorSubject} from "rxjs";
 import {MatMenuTrigger} from "@angular/material/menu";
 import {NewIssueFormComponent} from "../../../../../common/new-issue-form/new-issue-form.component";
@@ -23,7 +23,8 @@ export class Subtask2Component implements OnInit {
               protected issueService: IssueService,
               private userService: UserService,
               private route: ActivatedRoute,
-              private authService: AuthService
+              private authService: AuthService,
+              @Optional() public activeModal?: NgbActiveModal
   ) {
   }
 
@@ -132,5 +133,12 @@ export class Subtask2Component implements OnInit {
     if (this.newIssueForm) {
       this.newIssueForm.onOpen();   // 🔥 Call the method in child component
     }
+  }
+
+  newEvent(): EventApp {
+    return {
+      id: null,
+      issue: this.selectedIssueSubject.value?.id ? { id: this.selectedIssueSubject.value.id } : null
+    };
   }
 }

@@ -11,6 +11,7 @@
             <span *ngIf="subtask.creationDate">{{subtask.creationDate | date}}</span>
             <p style="text-align: right"> Etat:
               <app-status-field  [issue]="subtask"></app-status-field>
+
             </p>
             <p  style="text-align:right">
               <span (click)="issueService.showPlanning(subtask)" class="controle">  <i class="fas fa-calendar">  </i>  Planing </span>

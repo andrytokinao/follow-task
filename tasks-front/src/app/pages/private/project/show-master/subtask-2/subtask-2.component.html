@@ -79,7 +79,7 @@
               <div class="datetime">{{ p.date }} — {{ p.time }}</div>
             </div>
           </div>
-          <button class="btn-add-plan">
+          <button class="btn-add-plan" [matMenuTriggerFor] = "addPlanning" #addPlanningTrigger="matMenuTrigger" >
             <i class="fas fa-plus"></i> Ajouter un planning
           </button>
         </div>
@@ -99,3 +99,6 @@
   <app-new-issue-form [parentIssue]="parentIssue" [isMaster]="false"   #newIssueForm (saved)="closeCreateSubtaskMenu()"></app-new-issue-form>
 </mat-menu>
 
+<mat-menu #addPlanning="matMenu" [ngStyle]="{'width': '600px'}">
+  <app-edit-event [event]="newEvent()" [byIssue]="true" ></app-edit-event>
+</mat-menu>
