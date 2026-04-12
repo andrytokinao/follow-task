@@ -20,6 +20,8 @@ import {CustomFilter, IssueSearchCriteriaInput} from "../../../../../type/issue-
 import {AuthGuard} from "../../../../../services/SystemGuard";
 import {ProjectGuard} from "../../../../../services/ProjectGuard";
 import {Format} from "@angular-devkit/build-angular/src/builders/extract-i18n/schema";
+import {EditEventComponent} from "../../../../../common/edit-event/edit-event.component";
+import {MatMenuTrigger} from "@angular/material/menu";
 
 @Component({
   standalone:false,
@@ -29,6 +31,7 @@ import {Format} from "@angular-devkit/build-angular/src/builders/extract-i18n/sc
 })
 export class PlanningCalendarComponent implements AfterViewInit {
   hoveredParent: number | null = null;
+
   @ViewChild("day") day!: DayPilotCalendarComponent;
   @ViewChild("week") week!: DayPilotCalendarComponent;
   @ViewChild("month") month!: DayPilotMonthComponent;
@@ -36,6 +39,12 @@ export class PlanningCalendarComponent implements AfterViewInit {
   @ViewChild("calendar")
   calendar!: DayPilotCalendarComponent;
   @Input() eventCriteria:EventSearchCriteria={};
+  @ViewChild('addPlanningTrigger') addPlanningTrigger: MatMenuTrigger;
+
+  menuX: number = 0;
+  menuY: number = 0;
+  selectedEvent: any = null;
+
   events: DayPilot.EventData[] = [];
   parentSelectedId :number = undefined;
   parentSelected:Issue | undefined;
@@ -57,6 +66,20 @@ export class PlanningCalendarComponent implements AfterViewInit {
         text: "Edit...",
         onClick: async args => {
           this.eventService.editDialogAndSet(args.source.data,this.eventCriteria);
+        }
+      },
+      {
+        text: "Edit 2...",
+        onClick: args =>  {
+          const mouseEvent = args.originalEvent as MouseEvent;
+          this.menuX = mouseEvent.clientX;
+          this.menuY = mouseEvent.clientY;
+          this.selectedEvent = args.source.data;
+          this.eventService.selectEventData(this.selectedEvent);
+
+          setTimeout(() => {
+            this.addPlanningTrigger.openMenu();
+          }, 0);
         }
       },
       {
@@ -202,6 +225,20 @@ export class PlanningCalendarComponent implements AfterViewInit {
             onClick: async args => {
               this.eventService.editDialogAndSet(args.source.data, this.eventCriteria);
               ;
+            }
+          },
+          {
+            text: "Edit 2...",
+            onClick: args =>  {
+              const mouseEvent = args.originalEvent as MouseEvent;
+              this.menuX = mouseEvent.clientX;
+              this.menuY = mouseEvent.clientY;
+              this.selectedEvent = args.source.data;
+              this.eventService.selectEventData(this.selectedEvent);
+
+              setTimeout(() => {
+                this.addPlanningTrigger.openMenu();
+              }, 0);
             }
           },
           {
@@ -563,6 +600,10 @@ export class PlanningCalendarComponent implements AfterViewInit {
       this.eventCriteria.customFieldIds = [];
     }
     this.loadEvents();
+  }
+
+  closeEventForm() {
+
   }
 }
 

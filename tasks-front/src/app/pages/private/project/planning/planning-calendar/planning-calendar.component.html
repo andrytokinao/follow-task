@@ -121,3 +121,25 @@ Mat menue
   </div>
 </div>
 </mat-menu>
+
+<!-- Trigger invisible positionné dynamiquement -->
+<div
+  #addPlanningTrigger="matMenuTrigger"
+  [matMenuTriggerFor]="addPlanning"
+  [style.position]="'fixed'"
+  [style.left.px]="menuX"
+  [style.top.px]="menuY"
+  style="width:0;height:0;visibility:hidden;">
+</div>
+
+<mat-menu #addPlanning="matMenu">
+  <div (click)="$event.stopPropagation()">
+    <app-edit-event
+      [event]="selectedEvent"
+      #editEventForm
+      [byIssue]="false"
+      (saved)="closeEventForm()"
+      [selectedMaster]="parentSelected"
+    ></app-edit-event>
+  </div>
+</mat-menu>

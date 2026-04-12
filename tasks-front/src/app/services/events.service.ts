@@ -27,6 +27,8 @@ export class EventsService {
   private eventsSubject = new BehaviorSubject<any[]>([]);
   private resourceSubject = new BehaviorSubject<any[]>([]);
   private loadingEventSubject = new BehaviorSubject<any>([]);
+  private selectedEventDataSubject = new BehaviorSubject<any>(undefined);
+  selectedEventData$ = this.selectedEventDataSubject.asObservable();
   private users:User[] = [];
   private eventTypes:EventTypeApp[] = [];
   events$=this.eventsSubject.asObservable();
@@ -411,6 +413,9 @@ export class EventsService {
       this.eventTypes = res;
       this.eventTypesSubject.next(this.eventTypes);
     });
+  }
+  selectEventData(data:any){
+    this.selectedEventDataSubject.next(data);
   }
 }
 

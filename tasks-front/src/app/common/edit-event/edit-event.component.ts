@@ -42,7 +42,7 @@ export function endAfterStartValidator(): ValidatorFn {
 })
 export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
 
-  @Input() event!: EventApp;
+  @Input() event!: EventApp ;
   @Input() byIssue = false;
   @Output() saved = new EventEmitter<EventApp>();
   project:Project;
@@ -51,7 +51,15 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
   loading      = false;
   loadingEvent = false;
   user:User;
+  get description(): string {
+    return this.event?.description || '';
+  }
 
+  set description(value: string) {
+    if (this.event) {
+      this.event.description = value;
+    }
+  }
   masters:      Issue[] = [];
   subtasksList: Issue[] = [];
   @Input() selectedMaster?:  Issue;
@@ -88,6 +96,11 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
     this._loadConnectedUser();
     this.issueService.project$.pipe().subscribe(project => {
       this.project = project;
+    });
+    this.eventService.selectedEventData$.pipe().subscribe(data =>{
+      if (data && data.id) {
+        this.loadEvent(data.id);
+      }
     })
   }
 
@@ -158,6 +171,7 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
       .subscribe({
         next: (event) => {
           this.event = event;
+          this.setDescription(event);
           this._patchForm(event);
           this._resolveIssueSelection(event);
           if (event.eventType && this.eventTypes.length) {
@@ -272,5 +286,9 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
     this.authService.connectedUser$.subscribe(user => {
       this.user = user;
     })
+  }
+
+  private setDescription(event: EventApp) {
+    this.description = event?.description || '';
   }
 }

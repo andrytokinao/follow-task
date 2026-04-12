@@ -34,6 +34,8 @@
           </div>
         </div>
       </div>
+
+      <!-- Type d'événement -->
       <div class="form-group">
         <label for="eventType" class="form-label">Type d'événement <span class="required">*</span></label>
         <div class="type-selector">
@@ -79,7 +81,10 @@
             id="end"
             class="form-control"
             formControlName="end"
-            [ngClass]="{ 'is-invalid': submitted && (f['end'].invalid || editEventForm.errors?.['endBeforeStart']), 'is-valid': submitted && f['end'].valid }"
+            [ngClass]="{
+              'is-invalid': submitted && (f['end'].invalid || editEventForm.errors?.['endBeforeStart']),
+              'is-valid': submitted && f['end'].valid
+            }"
           />
           <div *ngIf="submitted && f['end'].errors" class="invalid-feedback">Date de fin requise.</div>
           <div *ngIf="submitted && !f['end'].errors && editEventForm.errors?.['endBeforeStart']" class="invalid-feedback">
@@ -99,7 +104,13 @@
         </div>
         <div class="col-md-6">
           <div class="selector-label">Tâche</div>
-          <button type="button" class="selector-btn" [class.selected]="selectedSubtask" [disabled]="!selectedMaster" [matMenuTriggerFor]="subtask_list">
+          <button
+            type="button"
+            class="selector-btn"
+            [class.selected]="selectedSubtask"
+            [disabled]="!selectedMaster"
+            [matMenuTriggerFor]="subtask_list"
+          >
             <span *ngIf="selectedSubtask">{{ selectedSubtask.issueKey }} : {{ selectedSubtask.summary }}</span>
             <span *ngIf="!selectedSubtask" class="placeholder-text">Choisir une tâche</span>
           </button>
@@ -110,9 +121,10 @@
       <div class="form-group mb-3">
         <label class="form-label">
           Description
-          <span class="char-hint">{{ (event.description || '').length }} / 500</span>
+          <span class="char-hint">{{ description.length }} / 500</span>
         </label>
-        <app-quill-editor [(content)]="event.description" [theme]="'snow'"></app-quill-editor>
+        <!-- ✅ Utilise le getter/setter au lieu de event?.description -->
+        <app-quill-editor [(content)]="description" [theme]="'snow'"></app-quill-editor>
       </div>
 
       <!-- Footer actions -->
