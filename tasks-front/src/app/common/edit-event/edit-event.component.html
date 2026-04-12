@@ -6,7 +6,7 @@
       </svg>
       Modifier l'événement
     </h4>
-    <button type="button" class="btn-close" aria-label="Fermer" (click)="activeModal.dismiss('close')"></button>
+    <button type="button" class="btn-close" aria-label="Fermer" (click)="dismiss('close')"></button>
   </div>
 
   <div class="modal-body">
@@ -123,13 +123,12 @@
           Description
           <span class="char-hint">{{ description.length }} / 500</span>
         </label>
-        <!-- ✅ Utilise le getter/setter au lieu de event?.description -->
         <app-quill-editor [(content)]="description" [theme]="'snow'"></app-quill-editor>
-      </div>
+      </div><
 
       <!-- Footer actions -->
       <div class="form-actions">
-        <button type="button" class="btn btn-outline" (click)="activeModal.dismiss('cancel')">Annuler</button>
+        <button type="button" class="btn btn-outline" (click)="dismiss('cancel')">Annuler</button>
         <button type="submit" class="btn btn-primary">
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M2 6l3 3 5-5"/>

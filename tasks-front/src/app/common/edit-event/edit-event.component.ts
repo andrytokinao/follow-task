@@ -45,6 +45,7 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() event!: EventApp ;
   @Input() byIssue = false;
   @Output() saved = new EventEmitter<EventApp>();
+  @Output() onClose = new EventEmitter<boolean>();
   project:Project;
   editEventForm!: FormGroup;
   submitted    = false;
@@ -263,6 +264,7 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   dismiss(reason: 'close' | 'cancel' = 'cancel'): void {
+    this.onClose.emit(true);
     this.activeModal.dismiss(reason);
   }
 

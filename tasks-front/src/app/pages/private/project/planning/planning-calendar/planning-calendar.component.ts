@@ -603,7 +603,9 @@ export class PlanningCalendarComponent implements AfterViewInit {
   }
 
   closeEventForm() {
-
+    this.addPlanningTrigger.closeMenu();
+    this.loadEvents();
   }
+
 }
 
