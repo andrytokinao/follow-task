@@ -263,6 +263,7 @@ export interface EventApp {
   user?: User;
   issue?: Issue;
   dateValue?:CustomFieldValue;
+  project?:Project
 }
 export interface EventSearchCriteria {
   userIds?:String[]

@@ -18,7 +18,7 @@ import {
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { Subject } from 'rxjs';
 import { takeUntil, finalize } from 'rxjs/operators';
-import {EventApp, Issue, EventTypeApp, User} from '../../type/issue';
+import {EventApp, Issue, EventTypeApp, User, Project} from '../../type/issue';
 import { EventsService } from '../../services/events.service';
 import { IssueService } from '../../services/issue.service';
 import {AuthService} from "../../services/auth.service";
@@ -45,7 +45,7 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() event!: EventApp;
   @Input() byIssue = false;
   @Output() saved = new EventEmitter<EventApp>();
-
+  project:Project;
   editEventForm!: FormGroup;
   submitted    = false;
   loading      = false;
@@ -54,8 +54,8 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
 
   masters:      Issue[] = [];
   subtasksList: Issue[] = [];
-  selectedMaster?:  Issue;
-  selectedSubtask?: Issue;
+  @Input() selectedMaster?:  Issue;
+  @Input() selectedSubtask?: Issue;
 
   eventTypes:         EventTypeApp[] = [];
   selectedEventType?: EventTypeApp;
@@ -86,6 +86,9 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
     this._watchMasters();
     this._loadEventTypes();
     this._loadConnectedUser();
+    this.issueService.project$.pipe().subscribe(project => {
+      this.project = project;
+    })
   }
 
   ngAfterViewInit(): void {
@@ -219,7 +222,9 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
       allDay:false,
       user:this.user,
       description: formValue.description,
-      eventType:   { id: this.selectedEventType.id , name: this.selectedEventType.name }
+      eventType:   { id: this.selectedEventType.id , name: this.selectedEventType.name } ,
+      issue:this.selectedSubtask,
+      project: {id:this.project.id}
     };
 
     if (this.selectedSubtask) {

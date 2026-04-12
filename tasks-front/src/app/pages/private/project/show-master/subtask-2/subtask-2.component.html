@@ -100,5 +100,11 @@
 </mat-menu>
 
 <mat-menu #addPlanning="matMenu" [ngStyle]="{'width': '600px'}">
-  <app-edit-event [event]="newEvent()" #newEventForm [byIssue]="true" (saved) = "closeEventForm()" ></app-edit-event>
+  <app-edit-event
+    [event]="newEvent()"
+    #newEventForm [byIssue]="true"
+    (saved) = "closeEventForm()"
+    [selectedMaster]="parentIssue"
+    [selectedSubtask]="selectedTask"
+  ></app-edit-event>
 </mat-menu>
