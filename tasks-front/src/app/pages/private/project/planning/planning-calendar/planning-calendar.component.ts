@@ -62,14 +62,9 @@ export class PlanningCalendarComponent implements AfterViewInit {
           this.eventService.deleteEvent(args.source.data,this.eventCriteria);
         }
       },
+
       {
         text: "Edit...",
-        onClick: async args => {
-          this.eventService.editDialogAndSet(args.source.data,this.eventCriteria);
-        }
-      },
-      {
-        text: "Edit 2...",
         onClick: args =>  {
           const mouseEvent = args.originalEvent as MouseEvent;
           this.menuX = mouseEvent.clientX;
@@ -220,15 +215,9 @@ export class PlanningCalendarComponent implements AfterViewInit {
     onTimeRangeSelected: (args)=>this.newEventForResources(args),
     contextMenu: new DayPilot.Menu({
         items: [
+
           {
             text: "Edit...",
-            onClick: async args => {
-              this.eventService.editDialogAndSet(args.source.data, this.eventCriteria);
-              ;
-            }
-          },
-          {
-            text: "Edit 2...",
             onClick: args =>  {
               const mouseEvent = args.originalEvent as MouseEvent;
               this.menuX = mouseEvent.clientX;
