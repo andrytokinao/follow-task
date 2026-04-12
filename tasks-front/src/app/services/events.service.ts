@@ -41,7 +41,8 @@ export class EventsService {
   };
   issues:Issue[] =[]
   private eventApps: EventApp[] = [];
-
+  private eventTypesSubject =  new BehaviorSubject<EventTypeApp[]>([]);
+  eventTypes$ = this.eventTypesSubject.asObservable();
   constructor(
     private http : HttpClient,
     private apollo:Apollo,
@@ -50,6 +51,7 @@ export class EventsService {
     private issueService:IssueService
 
   ){
+    this.loadEventTypes();
   }
   setEvents(events:any[]){
     this.eventApps = events;
@@ -402,6 +404,12 @@ export class EventsService {
           observer.complete();
         }
         )
+    });
+  }
+  loadEventTypes() {
+    this.allEventType().subscribe(res=> {
+      this.eventTypes = res;
+      this.eventTypesSubject.next(this.eventTypes);
     });
   }
 }

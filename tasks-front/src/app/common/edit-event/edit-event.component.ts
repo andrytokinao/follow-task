@@ -18,9 +18,10 @@ import {
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { Subject } from 'rxjs';
 import { takeUntil, finalize } from 'rxjs/operators';
-import { EventApp, Issue } from '../../type/issue';
+import {EventApp, Issue, EventTypeApp, User} from '../../type/issue';
 import { EventsService } from '../../services/events.service';
 import { IssueService } from '../../services/issue.service';
+import {AuthService} from "../../services/auth.service";
 
 export function endAfterStartValidator(): ValidatorFn {
   return (group: AbstractControl): ValidationErrors | null => {
@@ -49,12 +50,15 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
   submitted    = false;
   loading      = false;
   loadingEvent = false;
+  user:User;
 
   masters:      Issue[] = [];
   subtasksList: Issue[] = [];
   selectedMaster?:  Issue;
   selectedSubtask?: Issue;
 
+  eventTypes:         EventTypeApp[] = [];
+  selectedEventType?: EventTypeApp;
   private destroy$ = new Subject<void>();
   private _toClose = false;
 
@@ -72,13 +76,16 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
     public  activeModal:  NgbActiveModal,
     private fb:           FormBuilder,
     private eventService: EventsService,
-    private issueService: IssueService
+    private issueService: IssueService,
+    private authService:AuthService
   ) {}
 
   ngOnInit(): void {
     this._buildForm();
     this._patchForm(this.event);
     this._watchMasters();
+    this._loadEventTypes();
+    this._loadConnectedUser();
   }
 
   ngAfterViewInit(): void {
@@ -120,6 +127,24 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
+  private _loadEventTypes(): void {
+    this.eventService.eventTypes$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (types) => {
+          this.eventTypes = types;
+          if (this.event?.eventType) {
+            this.selectedEventType = types.find(t => t.id === this.event.eventType!.id);
+          }
+        },
+        error: (err) => { console.error(err); }
+      });
+  }
+
+  selectEventType(type: EventTypeApp): void {
+    this.selectedEventType = type;
+  }
+
   loadEvent(id: number | string): void {
     this.loadingEvent = true;
     this.eventService.getByEventById(id)
@@ -132,10 +157,13 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
           this.event = event;
           this._patchForm(event);
           this._resolveIssueSelection(event);
+          if (event.eventType && this.eventTypes.length) {
+            this.selectedEventType = this.eventTypes.find(t => t.id === event.eventType!.id);
+            if (!this.selectedEventType)
+              this.selectedEventType = this.eventTypes[0];
+          }
         },
-        error: (err) => {
-          console.error(err);
-        }
+        error: (err) => { console.error(err); }
       });
   }
 
@@ -145,7 +173,6 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
       this.selectedSubtask = undefined;
       return;
     }
-
     if (event.issue.parent == null) {
       this.selectedMaster  = event.issue;
       this.selectedSubtask = undefined;
@@ -166,7 +193,7 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
     this.selectedSubtask = issue;
   }
 
-  private _loadSubtasks(masterId: number ): void {
+  private _loadSubtasks(masterId: number): void {
     this.issueService.loadSubtask(masterId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -178,7 +205,7 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
   onSubmit(): void {
     this.submitted = true;
 
-    if (this.editEventForm.invalid) {
+    if (this.editEventForm.invalid || !this.selectedEventType) {
       this.editEventForm.markAllAsTouched();
       return;
     }
@@ -189,7 +216,10 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
       title:       formValue.title.trim(),
       start:       formValue.start,
       end:         formValue.end,
+      allDay:false,
+      user:this.user,
       description: formValue.description,
+      eventType:   { id: this.selectedEventType.id , name: this.selectedEventType.name }
     };
 
     if (this.selectedSubtask) {
@@ -209,9 +239,7 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
           this.saved.emit(savedEvent ?? this.event);
           this.activeModal.close(savedEvent ?? this.event);
         },
-        error: (err) => {
-          console.error(err);
-        }
+        error: (err) => { console.error(err); }
       });
   }
 
@@ -233,5 +261,11 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
     if (isNaN(date.getTime())) return '';
     const pad = (n: number) => String(n).padStart(2, '0');
     return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  }
+
+  private _loadConnectedUser() {
+    this.authService.connectedUser$.subscribe(user => {
+      this.user = user;
+    })
   }
 }

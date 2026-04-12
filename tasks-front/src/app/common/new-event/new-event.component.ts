@@ -74,7 +74,7 @@ export class NewEventComponent implements OnInit, AfterViewInit{
   }
 
   ngAfterViewInit(): void {
-    this.eventService.allEventType().subscribe(res=> {
+    this.eventService.eventTypes$.subscribe(res=> {
       this.eventTypes = res;
       if(this.eventTypes && this.eventTypes.length>0)
          this.event.eventType = this.eventTypes[0];

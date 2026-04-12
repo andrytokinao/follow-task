@@ -34,6 +34,30 @@
           </div>
         </div>
       </div>
+      <div class="form-group">
+        <label for="eventType" class="form-label">Type d'événement <span class="required">*</span></label>
+        <div class="type-selector">
+          <button
+            type="button"
+            *ngFor="let type of eventTypes"
+            class="type-chip"
+            [class.selected]="selectedEventType?.id === type.id"
+            [style.--chip-color]="type.defaultColor || '#5b8cfa'"
+            (click)="selectEventType(type)"
+          >
+            <span class="chip-dot" [style.background]="type.defaultColor || '#5b8cfa'"></span>
+            {{ type.name }}
+          </button>
+        </div>
+        <div class="error-msg" *ngIf="submitted && !selectedEventType">
+          <svg viewBox="0 0 12 12" fill="currentColor" width="11" height="11">
+            <circle cx="6" cy="6" r="5"/>
+            <rect x="5.25" y="3" width="1.5" height="4" fill="white" rx="0.5"/>
+            <circle cx="6" cy="9" r="0.8" fill="white"/>
+          </svg>
+          Le type d'événement est obligatoire.
+        </div>
+      </div>
 
       <!-- Dates -->
       <div class="row g-3 mb-3">

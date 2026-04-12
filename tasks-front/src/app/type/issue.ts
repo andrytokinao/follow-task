@@ -241,7 +241,7 @@ export interface Breadcrumb {
 }
 export interface EventTypeApp {
   id: number;
-  name: string;
+  name?: string;
   description?: string;
   defaultColor?: string;
   defaultStyle?: string;
