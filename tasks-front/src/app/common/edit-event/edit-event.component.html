@@ -1,85 +1,122 @@
+<div style="min-width: 520px" (click)="clickMenu($event)">
+  <div class="modal-header">
+    <h4 class="modal-title">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="2" y="3" width="12" height="11" rx="1.5"/><path d="M5 2v2M11 2v2M2 7h12"/>
+      </svg>
+      Modifier l'événement
+    </h4>
+    <button type="button" class="btn-close" aria-label="Fermer" (click)="activeModal.dismiss('close')"></button>
+  </div>
 
-<div style="min-width: 500px" (click)="clickMenu($event)">
-<div class="modal-header">
-  <h4 class="modal-title">Edit Event</h4>
-  <button type="button" class="btn-close" aria-label="Close" (click)="activeModal.dismiss('close')"></button>
-</div>
-<div class="modal-body">
-  <form [formGroup]="editEventForm" (ngSubmit)="onSubmit()">
-    <div class="mb-3">
-      <label for="title" class="form-label">Titre</label>
-      <input
-        type="text"
-        id="title"
-        class="form-control"
-        formControlName="title"
-        [(ngModel)]="event.title"
-        [ngClass]="{ 'is-invalid': submitted && editEventForm.controls['title'].invalid }"
-      />
-      <div *ngIf="submitted && editEventForm.controls['title'].errors" class="invalid-feedback">
-        Title is required.
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-5">
-        <label for="start" class="form-label">Start Time</label>
-        <input
-          type="datetime-local"
-          id="start"
-          class="form-control"
-          formControlName="start"
-          [(ngModel)]="event.start"
-          [ngClass]="{ 'is-invalid': submitted && editEventForm.controls['start'].invalid }"
-        />
-        <div *ngIf="submitted && editEventForm.controls['start'].errors" class="invalid-feedback">
-          Start time is required.
+  <div class="modal-body">
+    <form [formGroup]="editEventForm" (ngSubmit)="onSubmit()" novalidate>
+
+      <!-- Titre -->
+      <div class="form-group">
+        <label for="title" class="form-label">Titre <span class="required">*</span></label>
+        <div class="field-wrap">
+          <input
+            type="text"
+            id="title"
+            class="form-control"
+            formControlName="title"
+            placeholder="Nom de l'événement"
+            maxlength="120"
+            [ngClass]="{
+              'is-invalid': submitted && f['title'].invalid,
+              'is-valid': submitted && f['title'].valid
+            }"
+          />
+          <div *ngIf="submitted && f['title'].errors" class="invalid-feedback">
+            <ng-container *ngIf="f['title'].errors['required']">Le titre est obligatoire.</ng-container>
+            <ng-container *ngIf="f['title'].errors['minlength']">Minimum 3 caractères.</ng-container>
+          </div>
         </div>
       </div>
-      <div class="col-md-5">
-        <label for="end" class="form-label">End Time</label>
-        <input
-          type="datetime-local"
-          id="end"
-          class="form-control"
-          formControlName="end"
-          [(ngModel)]="event.end"
-          [ngClass]="{ 'is-invalid': submitted && editEventForm.controls['end'].invalid }"
-        />
-        <div *ngIf="submitted && editEventForm.controls['end'].errors" class="invalid-feedback">
-          End time is required.
+
+      <!-- Dates -->
+      <div class="row g-3 mb-3">
+        <div class="col-md-6">
+          <label for="start" class="form-label">Début <span class="required">*</span></label>
+          <input
+            type="datetime-local"
+            id="start"
+            class="form-control"
+            formControlName="start"
+            [ngClass]="{ 'is-invalid': submitted && f['start'].invalid, 'is-valid': submitted && f['start'].valid }"
+          />
+          <div *ngIf="submitted && f['start'].errors" class="invalid-feedback">Date de début requise.</div>
+        </div>
+        <div class="col-md-6">
+          <label for="end" class="form-label">Fin <span class="required">*</span></label>
+          <input
+            type="datetime-local"
+            id="end"
+            class="form-control"
+            formControlName="end"
+            [ngClass]="{ 'is-invalid': submitted && (f['end'].invalid || editEventForm.errors?.['endBeforeStart']), 'is-valid': submitted && f['end'].valid }"
+          />
+          <div *ngIf="submitted && f['end'].errors" class="invalid-feedback">Date de fin requise.</div>
+          <div *ngIf="submitted && !f['end'].errors && editEventForm.errors?.['endBeforeStart']" class="invalid-feedback">
+            La fin doit être après le début.
+          </div>
         </div>
       </div>
-    </div>
-    <div class="row" *ngIf="!byIssue">
-      <div class="col-md-5 master" [matMenuTriggerFor]="master_list">
-        <span *ngIf="selectedMaster != undefined" > {{selectedMaster.issueKey+':'+selectedMaster.summary}}</span>
-        <span *ngIf="selectedMaster == undefined"> Choisir projet </span>
+
+      <!-- Sélecteurs projet / tâche -->
+      <div class="row g-3 mb-3" *ngIf="!byIssue">
+        <div class="col-md-6">
+          <div class="selector-label">Projet</div>
+          <button type="button" class="selector-btn" [class.selected]="selectedMaster" [matMenuTriggerFor]="master_list">
+            <span *ngIf="selectedMaster">{{ selectedMaster.issueKey }} : {{ selectedMaster.summary }}</span>
+            <span *ngIf="!selectedMaster" class="placeholder-text">Choisir un projet</span>
+          </button>
+        </div>
+        <div class="col-md-6">
+          <div class="selector-label">Tâche</div>
+          <button type="button" class="selector-btn" [class.selected]="selectedSubtask" [disabled]="!selectedMaster" [matMenuTriggerFor]="subtask_list">
+            <span *ngIf="selectedSubtask">{{ selectedSubtask.issueKey }} : {{ selectedSubtask.summary }}</span>
+            <span *ngIf="!selectedSubtask" class="placeholder-text">Choisir une tâche</span>
+          </button>
+        </div>
       </div>
-      <div class="col-md-5 master" *ngIf="!byIssue">
-        <span *ngIf="selectedSubtask != undefined"> {{selectedSubtask.issueKey+':'+selectedSubtask.summary}}</span>
-        <span *ngIf="selectedSubtask == undefined"> Choisir tache  </span>
+
+      <!-- Description -->
+      <div class="form-group mb-3">
+        <label class="form-label">
+          Description
+          <span class="char-hint">{{ (event.description || '').length }} / 500</span>
+        </label>
+        <app-quill-editor [(content)]="event.description" [theme]="'snow'"></app-quill-editor>
       </div>
-    </div>
 
-    <div class="mb-3">
-      <label  class="form-label">Description</label>
-      <app-quill-editor  [(content)]="event.description" [theme]="'snow'"></app-quill-editor>
-    </div>
+      <!-- Footer actions -->
+      <div class="form-actions">
+        <button type="button" class="btn btn-outline" (click)="activeModal.dismiss('cancel')">Annuler</button>
+        <button type="submit" class="btn btn-primary">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M2 6l3 3 5-5"/>
+          </svg>
+          Enregistrer
+        </button>
+      </div>
+    </form>
 
-    <button type="submit" class="btn btn-primary">Save</button>
-    <button type="button" class="btn btn-secondary" (click)="activeModal.dismiss('cancel')">Cancel</button>
-  </form>
-  <mat-menu #master_list ="matMenu"  yPosition="below" #parentMenu="matMenu" xPosition="after" class="master-breadcrumb">
-    <ul class="navigation-list" >
-      <li *ngFor="let im of masters" (click)="selectMaster(im)"><a > <app-icone-view [icon]="im.issueType.icone"></app-icone-view> {{im.issueKey+':'+im.summary}}</a></li>
+    <mat-menu #master_list="matMenu" yPosition="below" xPosition="after" class="master-breadcrumb">
+      <ul class="navigation-list">
+        <li *ngFor="let im of masters" (click)="selectMaster(im)">
+          <a><app-icone-view [icon]="im.issueType.icone"></app-icone-view> {{ im.issueKey }} : {{ im.summary }}</a>
+        </li>
+      </ul>
+    </mat-menu>
 
-    </ul>
-  </mat-menu>
-  <mat-menu #master_list ="matMenu"  yPosition="below" #parentMenu="matMenu" xPosition="after" class="master-breadcrumb">
-    <ul class="navigation-list" >
-      <li *ngFor="let im of subtasksList" (click)="selectSubtask(im)"><a > <app-icone-view [icon]="im.issueType.icone"></app-icone-view> {{im.issueKey+':'+im.summary}}</a></li>
-
-    </ul>
-  </mat-menu>
-</div>
+    <mat-menu #subtask_list="matMenu" yPosition="below" xPosition="after" class="master-breadcrumb">
+      <ul class="navigation-list">
+        <li *ngFor="let im of subtasksList" (click)="selectSubtask(im)">
+          <a><app-icone-view [icon]="im.issueType.icone"></app-icone-view> {{ im.issueKey }} : {{ im.summary }}</a>
+        </li>
+      </ul>
+    </mat-menu>
+  </div>
 </div>

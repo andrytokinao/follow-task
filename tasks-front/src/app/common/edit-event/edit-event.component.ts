@@ -1,9 +1,37 @@
-import {AfterViewInit, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {FormBuilder, FormGroup, Validators} from "@angular/forms";
-import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
-import {EventApp, Issue} from "../../type/issue";
-import {EventsService} from "../../services/events.service";
-import {IssueService} from "../../services/issue.service";
+import {
+  AfterViewInit,
+  Component,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output
+} from '@angular/core';
+import {
+  AbstractControl,
+  FormBuilder,
+  FormGroup,
+  ValidationErrors,
+  ValidatorFn,
+  Validators
+} from '@angular/forms';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { Subject } from 'rxjs';
+import { takeUntil, finalize } from 'rxjs/operators';
+import { EventApp, Issue } from '../../type/issue';
+import { EventsService } from '../../services/events.service';
+import { IssueService } from '../../services/issue.service';
+
+export function endAfterStartValidator(): ValidatorFn {
+  return (group: AbstractControl): ValidationErrors | null => {
+    const start = group.get('start')?.value;
+    const end   = group.get('end')?.value;
+    if (start && end && new Date(end) <= new Date(start)) {
+      return { endBeforeStart: true };
+    }
+    return null;
+  };
+}
 
 @Component({
   standalone: false,
@@ -11,111 +39,199 @@ import {IssueService} from "../../services/issue.service";
   templateUrl: './edit-event.component.html',
   styleUrl: './edit-event.component.css'
 })
-export class EditEventComponent implements OnInit , AfterViewInit{
-  @Input() event: EventApp;
+export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
+
+  @Input() event!: EventApp;
   @Input() byIssue = false;
-  @Output() saved = new EventEmitter<void>();
+  @Output() saved = new EventEmitter<EventApp>();
 
-  toClose:boolean = false;
+  editEventForm!: FormGroup;
+  submitted    = false;
+  loading      = false;
+  loadingEvent = false;
 
-  editEventForm: FormGroup;
-  submitted = false;
-  protected masters:Issue[] =[];
-  subtasksList: Issue[]=[];
-  protected selectedMaster: Issue;
-  protected selectedSubtask: Issue;
+  masters:      Issue[] = [];
+  subtasksList: Issue[] = [];
+  selectedMaster?:  Issue;
+  selectedSubtask?: Issue;
 
+  private destroy$ = new Subject<void>();
+  private _toClose = false;
+
+  get f() { return this.editEventForm.controls; }
+
+  get endBeforeStart(): boolean {
+    return this.editEventForm.hasError('endBeforeStart');
+  }
+
+  get descriptionLength(): number {
+    return (this.event?.description || '').length;
+  }
 
   constructor(
-    public activeModal: NgbActiveModal,
-              private fb: FormBuilder,
-              private eventService:EventsService,
-              private issueService:IssueService
-              ) {
-    this.editEventForm = this.fb.group({
-      title: ['', Validators.required],
-      start: ['', Validators.required],
-      end: ['', Validators.required],
-      description: [''],
+    public  activeModal:  NgbActiveModal,
+    private fb:           FormBuilder,
+    private eventService: EventsService,
+    private issueService: IssueService
+  ) {}
+
+  ngOnInit(): void {
+    this._buildForm();
+    this._patchForm(this.event);
+    this._watchMasters();
+  }
+
+  ngAfterViewInit(): void {
+    this._toClose = false;
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private _buildForm(): void {
+    this.editEventForm = this.fb.group(
+      {
+        title:       ['', [Validators.required, Validators.minLength(3), Validators.maxLength(120)]],
+        start:       ['', Validators.required],
+        end:         ['', Validators.required],
+        description: ['', Validators.maxLength(500)],
+      },
+      { validators: endAfterStartValidator() }
+    );
+  }
+
+  private _patchForm(event: EventApp | null | undefined): void {
+    if (!event) return;
+    this.editEventForm.patchValue({
+      title:       event.title       || '',
+      start:       this._toDatetimeLocal(event.start),
+      end:         this._toDatetimeLocal(event.end),
+      description: event.description || '',
     });
   }
 
-  ngOnInit(): void {
-    if (this.event) {
-      this.editEventForm.patchValue({
-        title: this.event.title || '',
-        start: this.event.start || '',
-        end: this.event.end || '',
-        description: this.event.description || '',
+  private _watchMasters(): void {
+    this.issueService.issueMasterList$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(masters => {
+        this.masters = masters;
       });
+  }
+
+  loadEvent(id: number | string): void {
+    this.loadingEvent = true;
+    this.eventService.getByEventById(id)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.loadingEvent = false)
+      )
+      .subscribe({
+        next: (event) => {
+          this.event = event;
+          this._patchForm(event);
+          this._resolveIssueSelection(event);
+        },
+        error: (err) => {
+          console.error(err);
+        }
+      });
+  }
+
+  private _resolveIssueSelection(event: EventApp): void {
+    if (!event.issue) {
+      this.selectedMaster  = undefined;
+      this.selectedSubtask = undefined;
+      return;
     }
-    this.issueService.issueMasterList$.subscribe(masters=> {
-      this.masters = masters;
-    });
+
+    if (event.issue.parent == null) {
+      this.selectedMaster  = event.issue;
+      this.selectedSubtask = undefined;
+    } else {
+      this.selectedMaster  = event.issue.parent;
+      this.selectedSubtask = event.issue;
+      this._loadSubtasks(event.issue.parent.id);
+    }
+  }
+
+  selectMaster(issue: Issue): void {
+    this.selectedMaster  = issue;
+    this.selectedSubtask = undefined;
+    this._loadSubtasks(issue.id);
+  }
+
+  selectSubtask(issue: Issue): void {
+    this.selectedSubtask = issue;
+  }
+
+  private _loadSubtasks(masterId: number ): void {
+    this.issueService.loadSubtask(masterId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next:  (issues) => { this.subtasksList = issues; },
+        error: (err)    => { console.error(err); }
+      });
   }
 
   onSubmit(): void {
     this.submitted = true;
 
     if (this.editEventForm.invalid) {
+      this.editEventForm.markAllAsTouched();
       return;
     }
-    if(this.selectedMaster) {
-      this.event.issue = {id:this.selectedMaster.id};
-    }
+
+    const formValue = this.editEventForm.value;
+    this.event = {
+      ...this.event,
+      title:       formValue.title.trim(),
+      start:       formValue.start,
+      end:         formValue.end,
+      description: formValue.description,
+    };
+
     if (this.selectedSubtask) {
-      this.event.issue = {id:this.selectedSubtask.id};
+      this.event.issue = { id: this.selectedSubtask.id } as Issue;
+    } else if (this.selectedMaster) {
+      this.event.issue = { id: this.selectedMaster.id } as Issue;
     }
-    this.eventService.saveEvent(this.event).subscribe(event => {
-      this.activeModal.close(this.event);
 
-    });
-  }
-  loadEvent(id){
-    this.eventService.getByEventById(id).subscribe(event => {
-      this.event = event;
-      if (this.event) {
-        this.editEventForm.patchValue({
-          title: this.event.title ||'',
-          start: this.event.start || '',
-          end: this.event.end || '',
-          description: this.event.description || '',
-        });
-      };
-      if (this.event.issue) {
-        this.selectedSubtask = this.event.issue;
-        if (this.event.issue.parent == null) {
-          this.selectedMaster = this.event.issue;
-          this.selectedSubtask = null;
-        } else {
-          this.selectedMaster = this.event.issue.parent;
+    this.loading = true;
+    this.eventService.saveEvent(this.event)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.loading = false)
+      )
+      .subscribe({
+        next: (savedEvent) => {
+          this.saved.emit(savedEvent ?? this.event);
+          this.activeModal.close(savedEvent ?? this.event);
+        },
+        error: (err) => {
+          console.error(err);
         }
-      }
-    })
-
+      });
   }
 
-  selectSubtask(im: Issue) {
-     this.selectedSubtask = im;
+  dismiss(reason: 'close' | 'cancel' = 'cancel'): void {
+    this.activeModal.dismiss(reason);
   }
 
-  selectMaster(im: Issue) {
-    this.issueService.loadSubtask(im.id).subscribe(issues=> {
-      this.subtasksList = issues;
-    })
-    this.selectedMaster = im;
-  }
-
-  clickMenu($event: MouseEvent) {
-    if (!this.toClose) {
-      $event.stopPropagation();
+  clickMenu(event: MouseEvent): void {
+    if (!this._toClose) {
+      event.stopPropagation();
     } else {
-      this.toClose = false;
+      this._toClose = false;
     }
   }
-  ngAfterViewInit(): void {
-    this.toClose = false;
 
-
+  private _toDatetimeLocal(value: string | Date | null | undefined): string {
+    if (!value) return '';
+    const date = new Date(value);
+    if (isNaN(date.getTime())) return '';
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
   }
 }

@@ -5,10 +5,19 @@ import {ConfigService} from "../../../../../services/config.service";
 import {IssueService} from "../../../../../services/issue.service";
 import {UserService} from "../../../../../services/user.service";
 import {AuthService} from "../../../../../services/auth.service";
-import {CustomFieldValue, EventApp, Issue, User, UsingCustomField} from "../../../../../type/issue";
+import {
+  CustomFieldValue,
+  EventApp,
+  EventSearchCriteria,
+  Issue,
+  User,
+  UsingCustomField
+} from "../../../../../type/issue";
 import {BehaviorSubject} from "rxjs";
 import {MatMenuTrigger} from "@angular/material/menu";
 import {NewIssueFormComponent} from "../../../../../common/new-issue-form/new-issue-form.component";
+import {EventsService} from "../../../../../services/events.service";
+import {EditEventComponent} from "../../../../../common/edit-event/edit-event.component";
 
 @Component({
   selector: 'app-subtask-2',
@@ -17,6 +26,7 @@ import {NewIssueFormComponent} from "../../../../../common/new-issue-form/new-is
   styleUrl: './subtask-2.component.scss'
 })
 export class Subtask2Component implements OnInit {
+  private events: EventApp[];
   constructor(private router: Router,
               private modalService: NgbModal,
               private configService: ConfigService,
@@ -24,7 +34,7 @@ export class Subtask2Component implements OnInit {
               private userService: UserService,
               private route: ActivatedRoute,
               private authService: AuthService,
-              @Optional() public activeModal?: NgbActiveModal
+              private eventService:EventsService
   ) {
   }
 
@@ -40,6 +50,8 @@ export class Subtask2Component implements OnInit {
   customFieldValues:CustomFieldValue[] = [];
   @ViewChild('createSubtaskTrigger') createSubtaskTrigger!: MatMenuTrigger;
   @ViewChild('newIssueForm') newIssueForm!: NewIssueFormComponent;
+  @ViewChild('newEventForm') newEventForm:EditEventComponent;
+  @ViewChild('addPlanningTrigger') addPlanningTrigger:MatMenuTrigger;
 
   closeCreateSubtaskMenu() {
     this.createSubtaskTrigger.closeMenu();
@@ -57,6 +69,7 @@ export class Subtask2Component implements OnInit {
     this.selectedTask = task;
     this.selectedIssueSubject.next(task);
     this.loadValues();
+    this.loadEvents();
   }
 
   startResizing(event: MouseEvent) {
@@ -140,5 +153,19 @@ export class Subtask2Component implements OnInit {
       id: null,
       issue: this.selectedIssueSubject.value?.id ? { id: this.selectedIssueSubject.value.id } : null
     };
+  }
+  loadEvents(){
+    this.events = [];
+    let eventCriteria:EventSearchCriteria = {
+      issueIds:[this.selectedIssueSubject.value.id]
+    }
+    this.eventService.searchEvents(eventCriteria).subscribe( events => {
+      this.events = events;
+      alert(JSON.stringify(events));
+    })
+  };
+  closeEventForm(){
+    this.addPlanningTrigger.closeMenu();
+    this.loadEvents();
   }
 }

@@ -100,5 +100,5 @@
 </mat-menu>
 
 <mat-menu #addPlanning="matMenu" [ngStyle]="{'width': '600px'}">
-  <app-edit-event [event]="newEvent()" [byIssue]="true" ></app-edit-event>
+  <app-edit-event [event]="newEvent()" #newEventForm [byIssue]="true" (saved) = "closeEventForm()" ></app-edit-event>
 </mat-menu>
