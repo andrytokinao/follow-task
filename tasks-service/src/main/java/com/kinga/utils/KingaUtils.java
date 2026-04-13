@@ -10,8 +10,6 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.Random;
@@ -24,13 +22,16 @@ import static com.kinga.followtask.entity.Project.BASE_DIRECTORY;
 public class KingaUtils {
 
     private static final String KEY = "kingaMilay";
-    private static final String WORKWPACE = "WORK_SPACE";
-    private static final String MEDIA_SPACE = "MEDIA_SPACE" ;
-    public static String dateTimeFormaterPattern =  "yyyy-MM-dd'T'HH:mm:ss";
-    private static String dateTimeFormaterPattern2=  "yyyy-MM-dd' 'HH:mm:ss";
-    public static DateTimeFormatter dateTimeFormater =  DateTimeFormatter.ofPattern(dateTimeFormaterPattern);
-    private static String SUFFLE_STRING ="tLR4hpeTaQjvGHC0S2zogWPkyq5d3cuMKXlm7FDfiI-BAEJ_Uns/6ZO9YVb1wxrN8@&";
-    private static String NORMAL_STRING = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/-_\\=";
+    private static final String WORKSPACE = "WORK_SPACE";
+    private static final String MEDIA_SPACE = "MEDIA_SPACE";
+    public static String dateTimeFormaterPattern = "yyyy-MM-dd'T'HH:mm:ss";
+    private static String dateTimeFormaterPattern2 = "yyyy-MM-dd' 'HH:mm:ss";
+    public static DateTimeFormatter dateTimeFormater = DateTimeFormatter.ofPattern(dateTimeFormaterPattern);
+
+    // Système de substitution : chaque caractère de NORMAL_STRING est encodé vers SUFFLE_STRING
+    private static final String SUFFLE_STRING = "tLR4hpeTaQjvGHC0S2zogWPkyq5d3cuMKXlm7FDfiI-BAEJ_Uns/6ZO9YVb1wxrN8@&";
+    private static final String NORMAL_STRING = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=";
+
     public static boolean isValidPhoneNumber(String phoneNumber) {
         if (StringUtils.isEmpty(phoneNumber))
             return true;
@@ -41,30 +42,30 @@ public class KingaUtils {
         return matcher.matches();
     }
 
-    public static String cleanPhonNumber(String phoneNumber){
+    public static String cleanPhonNumber(String phoneNumber) {
         if (StringUtils.isEmpty(phoneNumber)) {
             return "";
         }
         String cleanedPhoneNumber = phoneNumber.replaceAll("\\s+", "");
-        if(cleanedPhoneNumber.length()<9){
-            throw new RuntimeException("Phone number "+phoneNumber +" is not correct");
+        if (cleanedPhoneNumber.length() < 9) {
+            throw new RuntimeException("Phone number " + phoneNumber + " is not correct");
         }
-        return  "0"+(cleanedPhoneNumber.substring(cleanedPhoneNumber.length() - 9));
+        return "0" + (cleanedPhoneNumber.substring(cleanedPhoneNumber.length() - 9));
     }
+
     public static String separatePhoneNumber(String phoneNumber) {
-        if(StringUtils.isEmpty(phoneNumber))
+        if (StringUtils.isEmpty(phoneNumber))
             return "";
         int[] insertIndices = {3, 5, 8};
         String cleanPhone = cleanPhonNumber(phoneNumber);
         StringBuilder stringBuilder = new StringBuilder(cleanPhone);
-
         for (int i = 0; i < insertIndices.length; i++) {
             int insertIndex = insertIndices[i] + i;
             stringBuilder.insert(insertIndex, " ");
         }
-
         return stringBuilder.toString();
     }
+
     public static String generateUsername(String firstName, String lastName) {
         String[] firstNameParts = firstName.split("\\s+");
         String[] lastNameParts = lastName.split("\\s+");
@@ -75,48 +76,53 @@ public class KingaUtils {
         for (String part : firstNameParts) {
             joiner.add(part.trim().substring(0, 1));
         }
-        String username = joiner.toString() +"."+ new Random().nextInt(1000);;
-        return username;
+        return joiner + "." + new Random().nextInt(1000);
     }
-    public static String encodePassword(String password){
+
+    public static String encodePassword(String password) {
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         return passwordEncoder.encode(password);
     }
+
     public static String encodeText(String text) {
-       return encodeTextXor(text);
+        return encodeTextXor(text);
     }
+
     public static String decodeText(String text) {
         return decodeTextXor(text);
     }
+
     public static String getDefaultWorkSpaceDirectory() throws IOException {
-        String directory = baseDirectory ()+File.separator+WORKWPACE;
+        String directory = baseDirectory() + File.separator + WORKSPACE;
         File projectDirectory = new File(directory);
         if (!Files.exists(projectDirectory.toPath())) {
             Files.createDirectory(projectDirectory.toPath());
         }
         return directory;
     }
+
     public static String getDefaultMediaSpaceDirectory() throws IOException {
-        String directory = baseDirectory ()+File.separator+MEDIA_SPACE;
+        String directory = baseDirectory() + File.separator + MEDIA_SPACE;
         File projectDirectory = new File(directory);
         if (!Files.exists(projectDirectory.toPath())) {
             Files.createDirectory(projectDirectory.toPath());
         }
         return directory;
     }
+
     public static String baseDirectory() throws IOException {
-        String directory = System.getProperty("user.home")+ File.separator+BASE_DIRECTORY;
+        String directory = System.getProperty("user.home") + File.separator + BASE_DIRECTORY;
         File projectDirectory = new File(directory);
         if (!Files.exists(projectDirectory.toPath())) {
             Files.createDirectory(projectDirectory.toPath());
         }
         return directory;
     }
-    public static String getMacAddress(){
+
+    public static String getMacAddress() {
         StringBuilder sb = new StringBuilder();
-        InetAddress ip;
         try {
-            ip = InetAddress.getLocalHost();
+            InetAddress ip = InetAddress.getLocalHost();
             System.out.println("Adresse IP : " + ip.getHostAddress());
             NetworkInterface network = NetworkInterface.getByInetAddress(ip);
             byte[] mac = network.getHardwareAddress();
@@ -124,38 +130,85 @@ public class KingaUtils {
             for (int i = 0; i < mac.length; i++) {
                 sb.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? "-" : ""));
             }
-            System.out.println(sb.toString());
+            System.out.println(sb);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return sb.toString();
     }
+
+    /**
+     * Encode : XOR sur les bytes, puis Base64, puis substitution de caractères
+     */
     public static String encodeTextXor(String input) {
         byte[] data = input.getBytes(StandardCharsets.UTF_8);
-        byte[] result = xor(data);
-        return Base64.getEncoder().encodeToString(result);
+        byte[] xored = xor(data);
+        String base64 = Base64.getEncoder().encodeToString(xored);
+        return substituteEncode(base64);
     }
 
+    /**
+     * Decode : substitution inverse, puis Base64, puis XOR
+     */
     public static String decodeTextXor(String input) {
-        byte[] data = Base64.getDecoder().decode(input);
+        String base64 = substituteDecode(input);
+        byte[] data = Base64.getDecoder().decode(base64);
         byte[] result = xor(data);
         return new String(result, StandardCharsets.UTF_8);
+    }
+
+    /**
+     * Remplace chaque caractère de NORMAL_STRING par son équivalent dans SUFFLE_STRING
+     */
+    private static String substituteEncode(String input) {
+        StringBuilder sb = new StringBuilder();
+        for (char c : input.toCharArray()) {
+            int idx = NORMAL_STRING.indexOf(c);
+            if (idx >= 0 && idx < SUFFLE_STRING.length()) {
+                sb.append(SUFFLE_STRING.charAt(idx));
+            } else {
+                sb.append(c); // caractère non mappé, on le garde tel quel
+            }
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Opération inverse : remplace chaque caractère de SUFFLE_STRING par son équivalent dans NORMAL_STRING
+     */
+    private static String substituteDecode(String input) {
+        StringBuilder sb = new StringBuilder();
+        for (char c : input.toCharArray()) {
+            int idx = SUFFLE_STRING.indexOf(c);
+            if (idx >= 0 && idx < NORMAL_STRING.length()) {
+                sb.append(NORMAL_STRING.charAt(idx));
+            } else {
+                sb.append(c); // caractère non mappé, on le garde tel quel
+            }
+        }
+        return sb.toString();
     }
 
     private static byte[] xor(byte[] data) {
         byte[] keyBytes = KEY.getBytes(StandardCharsets.UTF_8);
         byte[] result = new byte[data.length];
-
         for (int i = 0; i < data.length; i++) {
             result[i] = (byte) (data[i] ^ keyBytes[i % keyBytes.length]);
         }
-
         return result;
     }
+
     public static void main(String[] args) {
-        System.out.println(decodeText("@ZO90C0IiI"));
+        // Test encode → decode
+        String original = "MonTexteSecret";
+        String encoded = encodeText(original);
+        String decoded = decodeText(encoded);
+
+        System.out.println("Original : " + original);
+        System.out.println("Encodé   : " + encoded);
+        System.out.println("Décodé   : " + decoded);
+        System.out.println("OK       : " + original.equals(decoded));
+
+
     }
 }
-
-
-
