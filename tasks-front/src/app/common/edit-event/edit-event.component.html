@@ -23,6 +23,7 @@
             formControlName="title"
             placeholder="Nom de l'événement"
             maxlength="120"
+            autocomplete="off"
             [ngClass]="{
               'is-invalid': submitted && f['title'].invalid,
               'is-valid': submitted && f['title'].valid
