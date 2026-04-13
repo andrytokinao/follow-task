@@ -11,9 +11,13 @@ import org.springframework.format.annotation.DateTimeFormat;
 import javax.print.attribute.standard.DateTimeAtCompleted;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -146,5 +150,4 @@ public class Event {
                 ", reminderOffset=" + reminderOffset +
                 '}';
     }
-
 }

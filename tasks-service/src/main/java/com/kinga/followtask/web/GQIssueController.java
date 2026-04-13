@@ -256,6 +256,10 @@ public class GQIssueController {
         return  eventService.searchEvents (criteria);
     }
     @QueryMapping
+    public Event nextEvent(@Argument EventSearchCriteriaDTO criteria) {
+        return eventService.nextEvent(criteria);
+    }
+    @QueryMapping
     public List<EventType> allEventType() {
         return  eventService.allEventType ();
     }
