@@ -46,6 +46,15 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() byIssue = false;
   @Output() saved = new EventEmitter<EventApp>();
   @Output() onClose = new EventEmitter<boolean>();
+  @Input() isNext:boolean = false;
+
+
+  loadNextEvent(): void {
+    alert("Load next ");
+    this.eventService.loadNextEvent().subscribe(event => {
+      this.event = event;
+    });
+  }
   project:Project;
   editEventForm!: FormGroup;
   submitted    = false;
@@ -102,7 +111,8 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
       if (data && data.id) {
         this.loadEvent(data.id);
       }
-    })
+    });
+   this.eventService.nextEvent$
   }
 
   ngAfterViewInit(): void {

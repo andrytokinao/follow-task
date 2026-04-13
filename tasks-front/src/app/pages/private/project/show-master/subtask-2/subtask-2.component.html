@@ -165,10 +165,11 @@
   </app-new-issue-form>
 </mat-menu>
 
-<mat-menu #addPlanning="matMenu">
-  <app-edit-event [event]="newEvent()" #newEventForm [byIssue]="true"
+<mat-menu #addPlanning="matMenu" (opened)="onPlanningMenuOpened()">
+  <app-edit-event  #newEventForm [byIssue]="true"
                   (saved)="closeEventForm()"
                   [selectedMaster]="parentIssue"
-                  [selectedSubtask]="selectedTask">
+                  [selectedSubtask]="selectedTask"
+                  [isNext]="true">
   </app-edit-event>
 </mat-menu>

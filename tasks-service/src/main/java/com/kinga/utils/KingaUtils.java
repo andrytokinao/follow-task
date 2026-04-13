@@ -8,10 +8,12 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.format.DateTimeFormatter;
+import java.util.Base64;
 import java.util.Random;
 import java.util.StringJoiner;
 import java.util.regex.Matcher;
@@ -20,6 +22,8 @@ import java.util.regex.Pattern;
 import static com.kinga.followtask.entity.Project.BASE_DIRECTORY;
 
 public class KingaUtils {
+
+    private static final String KEY = "kingaMilay";
     private static final String WORKWPACE = "WORK_SPACE";
     private static final String MEDIA_SPACE = "MEDIA_SPACE" ;
     public static String dateTimeFormaterPattern =  "yyyy-MM-dd'T'HH:mm:ss";
@@ -79,26 +83,10 @@ public class KingaUtils {
         return passwordEncoder.encode(password);
     }
     public static String encodeText(String text) {
-        if (StringUtils.isEmpty(text))
-            return "";
-        char[] toChange = text.toCharArray();
-        char[] changes  = new char[toChange.length];
-        int i = 0;
-        for(char chr:toChange){
-            changes[i] = NORMAL_STRING.indexOf(chr) ==-1? chr : SUFFLE_STRING.charAt(NORMAL_STRING.indexOf(chr));
-            i++;
-        }
-        return new String(changes);
+       return encodeTextXor(text);
     }
     public static String decodeText(String text) {
-        char[] toChange = text.toCharArray();
-        char[] changes  = new char[toChange.length];
-        int i = 0;
-        for(char chr:toChange){
-            changes[i] =  SUFFLE_STRING.indexOf(chr)==-1? chr : NORMAL_STRING.charAt(SUFFLE_STRING.indexOf(chr));
-            i++;
-        }
-        return new String(changes);
+        return decodeTextXor(text);
     }
     public static String getDefaultWorkSpaceDirectory() throws IOException {
         String directory = baseDirectory ()+File.separator+WORKWPACE;
@@ -142,9 +130,30 @@ public class KingaUtils {
         }
         return sb.toString();
     }
+    public static String encodeTextXor(String input) {
+        byte[] data = input.getBytes(StandardCharsets.UTF_8);
+        byte[] result = xor(data);
+        return Base64.getEncoder().encodeToString(result);
+    }
 
+    public static String decodeTextXor(String input) {
+        byte[] data = Base64.getDecoder().decode(input);
+        byte[] result = xor(data);
+        return new String(result, StandardCharsets.UTF_8);
+    }
+
+    private static byte[] xor(byte[] data) {
+        byte[] keyBytes = KEY.getBytes(StandardCharsets.UTF_8);
+        byte[] result = new byte[data.length];
+
+        for (int i = 0; i < data.length; i++) {
+            result[i] = (byte) (data[i] ^ keyBytes[i % keyBytes.length]);
+        }
+
+        return result;
+    }
     public static void main(String[] args) {
-        System.out.println(decodeText("GC4h0tzyt4GaH"));
+        System.out.println(decodeText("@ZO90C0IiI"));
     }
 }
 

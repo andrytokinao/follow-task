@@ -1982,6 +1982,41 @@ const SEARCH_EVENTS  = gql`
     }
   }
 `
+export const NEXT_EVENT  = gql`
+  query nextEvent($criteria:EventSearchCriteriaInput){
+    nextEvent(criteria:$criteria){
+      id
+      title
+      location
+      start
+      end
+      allDay
+      reminderOffset
+      reminderTime
+      customColor
+      description
+      eventType {
+        id
+        name
+        defaultStyle
+        defaultColor
+      }
+      issue {
+        id
+        summary
+        issueKey
+      }
+      user {
+        id
+        username
+        firstName
+        lastName
+        photo
+      }
+
+    }
+  }
+`
 const DELETE_EVENT_TYPE = gql`
   mutation deleteEvent($eventId:Int!) {
     deleteEvent(eventId:$eventId) {

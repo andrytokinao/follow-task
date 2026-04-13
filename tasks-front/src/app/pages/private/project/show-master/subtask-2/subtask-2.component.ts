@@ -136,6 +136,55 @@ export class Subtask2Component implements OnInit {
     });
   }
 
+  // ── Menus ───────────────────────────────────────────────────────
+  onMenuOpened(): void {
+    this.newIssueForm?.onOpen();
+  }
+
+  onPlanningMenuOpened(): void {
+    alert('opened');
+    this.newEventForm.loadNextEvent();
+  }
+
+  closeCreateSubtaskMenu(): void {
+    this.createSubtaskTrigger.closeMenu();
+    this.loadSubtask();
+  }
+
+  closeEventForm(): void {
+    this.addPlanningTrigger.closeMenu();
+    this.loadEvents();
+  }
+
+  // ── Custom fields ───────────────────────────────────────────────
+  savedCustomFieldValue(values: CustomFieldValue[]): void {
+    this.customFieldValues = values;
+    this.currentCustomFieldValue = null;
+  }
+
+  addCustomFieldValue(usingCustomField: UsingCustomField): void {
+    this.currentCustomFieldValue = {
+      issue: { id: this.selectedTask.id },
+      customField: usingCustomField.customField
+    };
+  }
+
+  // ── New event helper ─────────────────────────────────────────────
+  newEvent(): EventApp {
+    return {
+      id: null,
+      issue: this.selectedIssueSubject.value?.id
+        ? { id: this.selectedIssueSubject.value.id }
+        : null
+    };
+  }
+
+  // ── Attachments ─────────────────────────────────────────────────
+  openAttachDialog(): void {
+    // Open your existing attachment dialog here
+  }
+
+  // ── Grouped events builder ───────────────────────────────────────
   private buildGroupedEvents(events: EventApp[]): typeof this.groupedEvents {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -179,50 +228,6 @@ private formatDateLabel(d: Date): string {
   return d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
 }
 
-// ── Custom fields ───────────────────────────────────────────────
-savedCustomFieldValue(values: CustomFieldValue[]): void {
-  this.customFieldValues = values;
-  this.currentCustomFieldValue = null;
-}
-
-addCustomFieldValue(usingCustomField: UsingCustomField): void {
-  this.currentCustomFieldValue = {
-    issue: { id: this.selectedTask.id },
-    customField: usingCustomField.customField
-  };
-}
-
-// ── Menus ───────────────────────────────────────────────────────
-onMenuOpened(): void {
-  this.newIssueForm?.onOpen();
-}
-
-closeCreateSubtaskMenu(): void {
-  this.createSubtaskTrigger.closeMenu();
-  this.loadSubtask();
-}
-
-closeEventForm(): void {
-  this.addPlanningTrigger.closeMenu();
-  this.loadEvents();
-}
-
-// ── Attachments ─────────────────────────────────────────────────
-openAttachDialog(): void {
-  // Open your existing attachment dialog here
-  // e.g. this.modalService.open(YourAttachDialogComponent, { size: 'lg' });
-}
-
-// ── New event helper ─────────────────────────────────────────────
-newEvent(): EventApp {
-  return {
-    id: null,
-    issue: this.selectedIssueSubject.value?.id
-      ? { id: this.selectedIssueSubject.value.id }
-      : null
-  };
-}
-
 // ── Resize ──────────────────────────────────────────────────────
 startResizing(event: MouseEvent): void {
   this.resizing = true;
@@ -232,19 +237,19 @@ startResizing(event: MouseEvent): void {
 @HostListener('window:mousemove', ['$event'])
 onMouseMove(event: MouseEvent): void {
   if (!this.resizing) return;
-const list = document.querySelector('.task-list') as HTMLElement;
-const container = document.querySelector('.subtask-wrap') as HTMLElement;
-if (!list || !container) return;
-const containerRect = container.getBoundingClientRect();
-const newWidth = event.clientX - containerRect.left;
-if (newWidth > 200 && newWidth < containerRect.width * 0.6) {
-  list.style.width = `${newWidth}px`;
-}
-}
+   const list = document.querySelector('.task-list') as HTMLElement;
+   const container = document.querySelector('.subtask-wrap') as HTMLElement;
+   if (!list || !container) return;
+   const containerRect = container.getBoundingClientRect();
+   const newWidth = event.clientX - containerRect.left;
+    if (newWidth > 200 && newWidth < containerRect.width * 0.6) {
+     list.style.width = `${newWidth}px`;
+      }
+   }
 
-@HostListener('window:mouseup')
-stopResizing(): void {
-  this.resizing = false;
-  document.body.style.cursor = 'default';
-}
+  @HostListener('window:mouseup')
+  stopResizing(): void {
+    this.resizing = false;
+    document.body.style.cursor = 'default';
+  }
 }

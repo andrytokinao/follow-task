@@ -8,7 +8,7 @@ import {EventApp, EventSearchCriteria, EventTypeApp, Issue, IssueType, User} fro
 import * as operation from "../type/graphql.operations";
 import {stripTypename} from "@apollo/client/utilities";
 import {Apollo} from "apollo-angular";
-import {ALL_CUSTOM_FIELD, SEARCH_EVENTS, supprimerTypename} from "../type/graphql.operations";
+import {ALL_CUSTOM_FIELD, NEXT_EVENT, SEARCH_EVENTS, supprimerTypename} from "../type/graphql.operations";
 import _default from "chart.js/dist/plugins/plugin.legend";
 import {NewIssueComponent} from "../pages/private//project/modal/new-issue/new-issue.component";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
@@ -19,6 +19,7 @@ import {query} from "@angular/animations";
 import {IssueService} from "./issue.service";
 import {ViewEventComponent} from "../pages/private//project/modal/view-event/view-event.component";
 import {error} from "@angular/compiler-cli/src/transformers/util";
+import {AuthService} from "./auth.service";
 
 @Injectable({
   providedIn:"root"
@@ -28,6 +29,8 @@ export class EventsService {
   private resourceSubject = new BehaviorSubject<any[]>([]);
   private loadingEventSubject = new BehaviorSubject<any>([]);
   private selectedEventDataSubject = new BehaviorSubject<any>(undefined);
+  private nextEventSubject = new BehaviorSubject<EventApp>(undefined);
+  nextEvent$ = this.nextEventSubject.asObservable();
   selectedEventData$ = this.selectedEventDataSubject.asObservable();
   private users:User[] = [];
   private eventTypes:EventTypeApp[] = [];
@@ -41,7 +44,8 @@ export class EventsService {
     gray: "#808080",
     blue: "#2e78d6",
   };
-  issues:Issue[] =[]
+  issues:Issue[] =[];
+  conectedUser:User;
   private eventApps: EventApp[] = [];
   private eventTypesSubject =  new BehaviorSubject<EventTypeApp[]>([]);
   eventTypes$ = this.eventTypesSubject.asObservable();
@@ -50,10 +54,13 @@ export class EventsService {
     private apollo:Apollo,
     private modalService: NgbModal,
     private userService:UserService,
-    private issueService:IssueService
-
+    private issueService:IssueService,
+    private authService:AuthService
   ){
     this.loadEventTypes();
+    this.authService.connectedUser$.pipe().subscribe(user => {
+      this.conectedUser = user;
+    })
   }
   setEvents(events:any[]){
     this.eventApps = events;
@@ -417,5 +424,44 @@ export class EventsService {
   selectEventData(data:any){
     this.selectedEventDataSubject.next(data);
   }
+  nextEvent(criteria: EventSearchCriteria) {
+    return new Observable<EventApp>(observer => {
+      if (criteria.userIds != null && criteria.userIds.length == 0) {
+        criteria.userIds = undefined;
+      }
+      if (criteria.issueIds != null && criteria.issueIds.length == 0) {
+        criteria.issueIds = undefined;
+      }
+      if (criteria.parrentIds != null && criteria.parrentIds.length ==0 ) {
+        criteria.parrentIds = undefined;
+      }
+      this.apollo.query({
+        query: NEXT_EVENT,
+        variables:{criteria},
+        fetchPolicy: "network-only"
+      }).subscribe((res: any) => {
+          let eventApp: EventApp = supprimerTypename(res.data.nextEvent);
+          observer.next(eventApp);
+          observer.complete();
+        },error => {
+          console.error(error);
+          observer.error(error);
+          observer.complete();
+        }
+      );
+    })
+
+  }
+
+  loadNextEvent(){
+    let criteria: EventSearchCriteria = {
+      userIds:[
+        this.conectedUser.id
+        ],
+      start:new Date().toString()
+      };
+    return this.nextEvent(criteria);
+    }
+
 }
 
