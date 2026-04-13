@@ -4,7 +4,7 @@ import {DayPilot} from "@daypilot/daypilot-lite-angular";
 import {HttpClient} from "@angular/common/http";
 import CalendarColumnData = DayPilot.CalendarColumnData;
 import EventData = DayPilot.EventData;
-import {EventApp, EventSearchCriteria, EventTypeApp, Issue, IssueType, User} from "../type/issue";
+import {EventApp, EventSearchCriteria, EventTypeApp, Issue, IssueType, Project, User} from "../type/issue";
 import * as operation from "../type/graphql.operations";
 import {stripTypename} from "@apollo/client/utilities";
 import {Apollo} from "apollo-angular";
@@ -46,6 +46,7 @@ export class EventsService {
   };
   issues:Issue[] =[];
   conectedUser:User;
+  project:Project;
   private eventApps: EventApp[] = [];
   private eventTypesSubject =  new BehaviorSubject<EventTypeApp[]>([]);
   eventTypes$ = this.eventTypesSubject.asObservable();
@@ -60,7 +61,10 @@ export class EventsService {
     this.loadEventTypes();
     this.authService.connectedUser$.pipe().subscribe(user => {
       this.conectedUser = user;
-    })
+    });
+    this.issueService.project$.pipe().subscribe(project => {
+      this.project = project;
+    });
   }
   setEvents(events:any[]){
     this.eventApps = events;
@@ -424,7 +428,7 @@ export class EventsService {
   selectEventData(data:any){
     this.selectedEventDataSubject.next(data);
   }
-  nextEvent(criteria: EventSearchCriteria) {
+  nextEvent(criteria: EventSearchCriteria,projectId:Number) {
     return new Observable<EventApp>(observer => {
       if (criteria.userIds != null && criteria.userIds.length == 0) {
         criteria.userIds = undefined;
@@ -437,7 +441,7 @@ export class EventsService {
       }
       this.apollo.query({
         query: NEXT_EVENT,
-        variables:{criteria},
+        variables:{criteria,projectId},
         fetchPolicy: "network-only"
       }).subscribe((res: any) => {
           let eventApp: EventApp = supprimerTypename(res.data.nextEvent);
@@ -453,15 +457,13 @@ export class EventsService {
 
   }
 
-  loadNextEvent(){
+  loadNextEvent() {
     let criteria: EventSearchCriteria = {
-      userIds:[
-        this.conectedUser.id
-        ],
-      start:new Date().toString()
-      };
-    return this.nextEvent(criteria);
-    }
+      userIds: [this.conectedUser.id],
+      start: new Date().toISOString().slice(0, 19)
+    };
+    return this.nextEvent(criteria, this.project.id);
+  }
 
 }
 

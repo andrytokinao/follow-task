@@ -536,9 +536,9 @@ type CustomFieldTextValues {
 }
 type Event {
     id: ID
-    title: String!
+    title: String
     description: String
-    eventType: EventType!
+    eventType: EventType
     start: String!
     end: String
     location: String

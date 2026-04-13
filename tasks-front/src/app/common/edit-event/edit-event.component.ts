@@ -49,11 +49,29 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() isNext:boolean = false;
 
 
-  loadNextEvent(): void {
-    alert("Load next ");
-    this.eventService.loadNextEvent().subscribe(event => {
-      this.event = event;
-    });
+
+  loadNextEvent(issue:Issue): void {
+    this.loadingEvent = true;
+    this.eventService.loadNextEvent()
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.loadingEvent = false)
+      )
+      .subscribe({
+        next: (event) => {
+          this.event = event;
+          this.event.issue = {id:issue.id,summary:issue.summary,issueType:issue.issueType}
+          this.setDescription(event);
+          this._patchForm(event);
+          this._resolveIssueSelection(event);
+          if (event.eventType && this.eventTypes.length) {
+            this.selectedEventType = this.eventTypes.find(t => t.id === event.eventType!.id);
+            if (!this.selectedEventType)
+              this.selectedEventType = this.eventTypes[0];
+          }
+        },
+        error: (err) => { console.error(err); }
+      });
   }
   project:Project;
   editEventForm!: FormGroup;

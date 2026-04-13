@@ -170,14 +170,24 @@ public class EventService {
     eventType.setName(eventName);
     return eventTypeRepository.save(eventType);
   }
-  public Event nextEvent(EventSearchCriteriaDTO criteria){
+  public Event nextEvent(EventSearchCriteriaDTO criteria, Long projectId){
     List<Event> existings = searchEvents(criteria);
     Event proposition = new Event();
+    proposition.setAllDay(false);
+    Project project = new Project();
+    project.setId(projectId);
+    proposition.setTitle("Excecution");
+    proposition.setEventType(getDefaultEvetType());
     LocalDateTime[] times = proposeNextEvent(existings);
     proposition.setStart(times[0]);
     proposition.setEnd(times[1]);
     return proposition;
   }
+
+  private EventType getDefaultEvetType() {
+    return eventTypeRepository.getReferenceById(1L);
+  }
+
   /**
    * Propose le prochain créneau libre à partir de maintenant.
    * Si aucun créneau disponible aujourd'hui, cherche le lendemain, et ainsi de suite.

@@ -142,8 +142,7 @@ export class Subtask2Component implements OnInit {
   }
 
   onPlanningMenuOpened(): void {
-    alert('opened');
-    this.newEventForm.loadNextEvent();
+    this.newEventForm.loadNextEvent(this.selectedTask);
   }
 
   closeCreateSubtaskMenu(): void {

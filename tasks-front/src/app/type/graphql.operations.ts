@@ -1983,8 +1983,8 @@ const SEARCH_EVENTS  = gql`
   }
 `
 export const NEXT_EVENT  = gql`
-  query nextEvent($criteria:EventSearchCriteriaInput){
-    nextEvent(criteria:$criteria){
+  query nextEvent($criteria:EventSearchCriteriaInput,$projectId:Int){
+    nextEvent(criteria:$criteria,projectId:$projectId){
       id
       title
       location

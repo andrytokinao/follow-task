@@ -39,7 +39,7 @@ type Query {
     searchIssues(criteria:IssueSearchCriteriaInput):[Issue]
     allEventType:[EventType]
     searchEvents(criteria:EventSearchCriteriaInput):[Event]
-    nextEvent(criteria:EventSearchCriteriaInput):Event
+    nextEvent(criteria:EventSearchCriteriaInput,projectId:Int):Event
     getByEventId(eventId:Int):Event
     getProjectByUser(userId:String):[Project]
     loadPermissiontTask:Permission
