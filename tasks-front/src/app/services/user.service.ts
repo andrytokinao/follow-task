@@ -21,6 +21,7 @@ import {stripTypename} from "@apollo/client/utilities";
   providedIn: 'root',
 })
 export class UserService {
+  private apiUrl = environment.apiURL+'api';
    private usersSubject = new BehaviorSubject<User[]>([]);
    private permissionTaskSubject=new BehaviorSubject<Permission>(undefined);
    permissionTask$ = this.permissionTaskSubject.asObservable();
@@ -207,7 +208,16 @@ export class UserService {
     })
   }
 
-  changePassword(id, currentPassword: any, newPassword: any) {
-    return new Observable();
+  changePassword(
+      id: String,
+      currentPassword: string,
+      newPassword: string
+    ): Observable<any> {
+      const body = { currentPassword, newPassword };
+      return this.http.post(
+        `${this.apiUrl}/users/${id}/change-password`,
+        body
+      );
+    }
+
   }
-}

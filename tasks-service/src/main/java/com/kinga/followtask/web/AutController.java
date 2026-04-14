@@ -1,6 +1,7 @@
 package com.kinga.followtask.web;
 
 import com.kinga.followtask.dto.Accessibility;
+import com.kinga.followtask.dto.ChangePasswordRequest;
 import com.kinga.followtask.dto.UserDetailsDeto;
 import com.kinga.followtask.repository.UserRepository;
 import com.kinga.followtask.service.AuthorizationService;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,7 +23,7 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-public class AutController {
+public class    AutController {
     private static final Logger logger= LoggerFactory.getLogger(AutController.class);
     private final AuthorizationService authorizationService;
     @Autowired
@@ -82,5 +84,14 @@ public class AutController {
     @GetMapping("new-password")
     public Map newPassword(@RequestParam Integer code, @RequestParam String phone, @RequestParam String password) {
         return this.userService.newPassword(code, phone, password);
+    }
+    @PostMapping("api/users/{id}/change-password")
+    public ResponseEntity<?> changePassword(
+            @PathVariable String id,
+            @RequestBody ChangePasswordRequest request
+    ) {
+        userService.changePassword(id, request.getCurrentPassword(),
+                request.getNewPassword());
+        return ResponseEntity.ok().build();
     }
 }

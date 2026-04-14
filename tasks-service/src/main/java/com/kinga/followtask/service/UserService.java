@@ -302,4 +302,19 @@ public class UserService {
         map.put("message","✅ Code vérifié");
         return map;
     }
+
+    public void changePassword(String id, String currentPassword, String newPassword) {
+
+        UserApp user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
+
+        String currentEncoded = encodePassword(currentPassword);
+        if (!user.getPassword().equals(currentEncoded)) {
+            throw new RuntimeException("Mot de passe actuel incorrect");
+        }
+
+        String newPasswordEncoded = encodePassword(newPassword);
+        user.setPassword(newPasswordEncoded);
+        userRepository.save(user);
+    }
 }
