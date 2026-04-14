@@ -1,5 +1,5 @@
 import {AfterViewInit, Component, OnInit} from '@angular/core';
-import {ActivatedRoute, Route, Router, RouterOutlet} from "@angular/router";
+import {ActivatedRoute, NavigationEnd, Route, Router, RouterOutlet} from "@angular/router";
 import {IssueService} from "../../../services/issue.service";
 import {Breadcrumb, Issue, Project} from "../../../type/issue";
 import {AuthGuard} from "../../../services/SystemGuard";
@@ -22,6 +22,7 @@ import {
 import formatters from "chart.js/dist/core/core.ticks";
 import {ProjectBreadcrumbResolverService} from "./project-breadcrumb-resolver.service";
 import {MessagesService} from "../../../services/messages.service";
+import {filter} from "rxjs";
 
 @Component({
   selector: 'app-project',
@@ -45,7 +46,27 @@ import {MessagesService} from "../../../services/messages.service";
 
 })
 export class ProjectComponent implements OnInit{
-  workSpace='';
+  sidebarCollapsed: boolean = false;
+  drawerOpen: boolean = false;
+  bottomSheetOpen: boolean = false;
+
+  toggleDrawer() { this.drawerOpen = !this.drawerOpen; }
+  closeDrawer() { this.drawerOpen = false; }
+
+  openBottomSheet() { this.bottomSheetOpen = true; }
+  closeBottomSheet() { this.bottomSheetOpen = false; }
+  openBottomSheetFromDrawer() {
+    this.closeDrawer();
+    setTimeout(() => this.openBottomSheet(), 180);
+  }  workSpace='';
+  activeRouteName: string = '';
+
+  private routeNames: Record<string, string> = {
+    'list': 'Liste',
+    'calendar': 'Calendrier',
+    'planning': 'Planning',
+    'config': 'Config',
+  };
   project:Project | undefined;
   private issues: Issue[]=[];
   breadcrumbs: Breadcrumb[] = [];
@@ -141,6 +162,13 @@ export class ProjectComponent implements OnInit{
     });
     this.breadcrumb.curentBreadcrumb$.subscribe(b => {
       this.projectBreadcrumb = b;
+    });
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      const segments = this.router.url.split('/');
+      const last = segments[segments.length - 1];
+      this.activeRouteName = this.routeNames[last] ?? '';
     });
   }
 }

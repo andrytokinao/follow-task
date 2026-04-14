@@ -1,89 +1,156 @@
-<div class="projet" *ngIf="project">
-  <div class="project-menu">
-    <div class="logo-card" [matMenuTriggerFor]="work_space">
-      <!-- Logo -->
-      <div class="logo-card-logo" >
-        <img
-          [src]="issueService.getImageProject(project)"
-          alt="{{ project?.name }} Logo"
-          class="logo-image"
-        />
-      </div>
-      <!-- Titre du projet -->
-      <div class="logo-card-body">
-        <h5 class="logo-card-title">
-          <i class="fa fa-briefcase workspace-icon"></i>
-          <b>{{ project?.prefix }}</b> - <i>{{ project?.name }}</i>
-        </h5>
-      </div>
-    </div>
+<div class="projet" *ngIf="project" [class.collapsed]="sidebarCollapsed">
 
+  <!-- ══ TOPBAR MOBILE ══ -->
+  <header class="topbar-mobile">
+    <button class="hamburger" [class.open]="drawerOpen" (click)="toggleDrawer()">
+      <span class="ham-line"></span>
+      <span class="ham-line"></span>
+      <span class="ham-line"></span>
+    </button>
+    <span class="topbar-title">{{ activeRouteName }}</span>
+    <button class="topbar-ws-btn" (click)="openBottomSheet()">
+      <span>{{ project?.prefix }}</span>
+      <i class="fas fa-chevron-down" style="font-size:8px"></i>
+    </button>
+  </header>
 
-    <div class="project-menu-item controle  menu-item-hover"  routerLinkActive="active" routerLink="list">
-     <div>
-       <i class="fas fa-tasks "  style="font-size: 30px;text-align: center"></i>
-     </div>
-     <h2 style="display: block;text-align: center" class="menu-item" > Liste</h2>
-
-   </div>
-    <div class="project-menu-item controle  menu-item-hover" routerLinkActive="active" routerLink="calendar">
-      <div>
-        <i class="fas fa-calendar-alt "  style="font-size: 30px;text-align: center"></i>
-      </div>
-      <h2 style="display: block;text-align: center" class="menu-item" > Calendrier</h2>
-    </div>
-    <div class="project-menu-item controle  menu-item-hover" routerLinkActive="active" routerLink="planning">
-      <div>
-        <i class="fas fa-calendar-alt "  style="font-size: 30px;text-align: center"></i>
-      </div>
-      <h2 style="display: block;text-align: center" class="menu-item" > Planning</h2>
-    </div>
-    <div class="project-menu-item controle  menu-item-hover" style="bottom:1px;position: fixed" routerLinkActive="active" routerLink="config">
-      <div>
-        <i class="fas fa-cog "  style="font-size: 30px;text-align: center"></i>
-      </div>
-      <h2 style="display: block;text-align: center" class="menu-item" >  Config</h2>
-    </div>
-
+  <!-- ══ OVERLAY DRAWER ══ -->
+  <div class="drawer-overlay"
+       [class.visible]="drawerOpen"
+       (click)="closeDrawer()">
   </div>
- <mat-menu #list_menue ="matMenu"  yPosition="below" #parentMenu="matMenu" xPosition="after" class="liste-menu">
-   <ul class="navigation-list">
-     <li><a routerLink="list/master" routerLinkActive="active">Project </a></li>
-     <li><a routerLink="list/search-issue" routerLinkActive="active">Taches </a></li>
 
-   </ul> </mat-menu>
-  <mat-menu #work_space ="matMenu"  yPosition="below" #parentMenu="matMenu" xPosition="after" class="liste-menu">
-    <div class="logo-card" *ngFor="let p of projects" (click)="selectProject(p)" [class]="p?.id === project?.id? 'selected' : ''">
-      <!-- Logo -->
-      <div class="logo-card-logo">
-        <img
-          [src]="issueService.getImageProject(p)"
-          alt="{{ p?.name }} Logo"
-          class="logo-image"
-        />
+  <!-- ══ DRAWER MOBILE ══ -->
+  <aside class="drawer-mobile" [class.open]="drawerOpen">
+    <button class="ws-trigger" (click)="openBottomSheetFromDrawer()">
+      <div class="ws-avatar">
+        <img [src]="issueService.getImageProject(project)" alt="{{ project?.name }}" class="ws-avatar-img"/>
       </div>
-      <!-- Titre du projet -->
-      <div class="logo-card-body">
-        <h5 class="logo-card-title">
-          <i class="fa fa-briefcase workspace-icon"></i>
-          <b>{{ p.prefix }}</b> - <i>{{ p?.name }}</i>
-        </h5>
+      <div class="ws-info">
+        <span class="ws-prefix">{{ project?.prefix }}</span>
+        <span class="ws-name">{{ project?.name }}</span>
       </div>
+      <i class="fas fa-chevron-down ws-chev"></i>
+    </button>
+
+    <div class="divider"></div>
+
+    <nav class="nav">
+      <a class="nav-item" routerLinkActive="active" routerLink="list"
+         data-tooltip="Liste" (click)="closeDrawer()">
+        <i class="fas fa-layer-group icon"></i>
+        <span>Liste</span>
+      </a>
+      <a class="nav-item" routerLinkActive="active" routerLink="calendar"
+         data-tooltip="Calendrier" (click)="closeDrawer()">
+        <i class="fas fa-calendar-days icon"></i>
+        <span>Calendrier</span>
+      </a>
+      <a class="nav-item" routerLinkActive="active" routerLink="planning"
+         data-tooltip="Planning" (click)="closeDrawer()">
+        <i class="fas fa-chart-gantt icon"></i>
+        <span>Planning</span>
+      </a>
+    </nav>
+
+    <div class="nav-bottom">
+      <div class="divider"></div>
+      <a class="nav-item" routerLinkActive="active" routerLink="config"
+         data-tooltip="Config" (click)="closeDrawer()">
+        <i class="fas fa-sliders icon"></i>
+        <span>Config</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- ══ SIDEBAR DESKTOP ══ -->
+  <aside class="project-menu">
+    <button class="toggle-btn"
+            (click)="sidebarCollapsed = !sidebarCollapsed"
+            [title]="sidebarCollapsed ? 'Développer' : 'Réduire'">
+      <i class="fas" [ngClass]="sidebarCollapsed ? 'fa-chevron-right' : 'fa-chevron-left'"></i>
+    </button>
+
+    <div class="ws-trigger" [matMenuTriggerFor]="work_space">
+      <div class="ws-avatar">
+        <img [src]="issueService.getImageProject(project)" alt="{{ project?.name }}" class="ws-avatar-img"/>
+      </div>
+      <div class="ws-info">
+        <span class="ws-prefix">{{ project?.prefix }}</span>
+        <span class="ws-name">{{ project?.name }}</span>
+      </div>
+      <i class="fas fa-chevron-down ws-chev"></i>
+    </div>
+
+    <div class="divider"></div>
+
+    <nav class="nav">
+      <a class="nav-item" routerLinkActive="active" routerLink="list" data-tooltip="Liste">
+        <i class="fas fa-layer-group icon"></i>
+        <span>Liste</span>
+      </a>
+      <a class="nav-item" routerLinkActive="active" routerLink="calendar" data-tooltip="Calendrier">
+        <i class="fas fa-calendar-days icon"></i>
+        <span>Calendrier</span>
+      </a>
+      <a class="nav-item" routerLinkActive="active" routerLink="planning" data-tooltip="Planning">
+        <i class="fas fa-chart-gantt icon"></i>
+        <span>Planning</span>
+      </a>
+    </nav>
+
+    <div class="nav-bottom">
+      <div class="divider"></div>
+      <a class="nav-item" routerLinkActive="active" routerLink="config" data-tooltip="Config">
+        <i class="fas fa-sliders icon"></i>
+        <span>Config</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- ══ WORKSPACE DROPDOWN DESKTOP ══ -->
+  <mat-menu #work_space="matMenu" yPosition="below" xPosition="after" class="ws-dropdown">
+    <div class="ws-dropdown-item"
+         *ngFor="let p of projects"
+         (click)="selectProject(p)"
+         [class.selected]="p?.id === project?.id">
+      <div class="ws-avatar ws-avatar--sm">
+        <img [src]="issueService.getImageProject(p)" alt="{{ p?.name }}" class="ws-avatar-img"/>
+      </div>
+      <div class="ws-info">
+        <span class="ws-prefix">{{ p.prefix }}</span>
+        <span class="ws-name">{{ p?.name }}</span>
+      </div>
+      <i class="fas fa-check ws-check" *ngIf="p?.id === project?.id"></i>
     </div>
   </mat-menu>
 
-  <div class="project-content"
-       [@workspace]="isworkspace ? 'end' : 'start'"
-  >
-<!--
-    <app-breadcrumb (createMaster)="createMaster()"></app-breadcrumb>
--->
-       <div  style="display: contents"
-
-            [@routeAnimations]="getAnimationState(o)"
-       >
-         <router-outlet #o="outlet" ></router-outlet>
-       </div>
-
+  <!-- ══ BOTTOM SHEET MOBILE (workspace) ══ -->
+  <div class="bsheet-overlay" [class.visible]="bottomSheetOpen" (click)="closeBottomSheet()">
+    <div class="bsheet" (click)="$event.stopPropagation()">
+      <div class="bsheet-handle"></div>
+      <p class="bsheet-title">Changer de workspace</p>
+      <div class="bsheet-item"
+           *ngFor="let p of projects"
+           [class.active]="p?.id === project?.id"
+           (click)="selectProject(p); closeBottomSheet()">
+        <div class="ws-avatar ws-avatar--sm">
+          <img [src]="issueService.getImageProject(p)" alt="{{ p?.name }}" class="ws-avatar-img"/>
+        </div>
+        <div class="ws-info">
+          <span class="ws-prefix">{{ p.prefix }}</span>
+          <span class="ws-name">{{ p?.name }}</span>
+        </div>
+        <i class="fas fa-check ws-check" *ngIf="p?.id === project?.id"></i>
+      </div>
+    </div>
   </div>
+
+  <!-- ══ CONTENT ══ -->
+  <main class="project-content" [@workspace]="isworkspace ? 'end' : 'start'">
+    <div style="display:contents" [@routeAnimations]="getAnimationState(o)">
+      <router-outlet #o="outlet"></router-outlet>
+    </div>
+  </main>
+
 </div>
