@@ -31,7 +31,7 @@ import static com.kinga.followtask.entity.enumapp.Niveau.SUB_TASK;
 @Service
 @RequiredArgsConstructor
 public class ProjectService {
-    private static final String PRINCIPALE = "Tâche Principale";
+    private static final String PRINCIPALE = "Projet";
     private static final String PROJECT = "PROJECT";
     private static final String TASK = "TASK";
     @Autowired
