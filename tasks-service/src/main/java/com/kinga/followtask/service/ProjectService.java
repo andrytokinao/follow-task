@@ -33,7 +33,7 @@ import static com.kinga.followtask.entity.enumapp.Niveau.SUB_TASK;
 public class ProjectService {
     private static final String PRINCIPALE = "Tâche Principale";
     private static final String PROJECT = "PROJECT";
-    private static final String SOUS_TACHE = "Sous_tâche";
+    private static final String TASK = "TASK";
     @Autowired
     public StatusRepository statusRepository;
     final ProjectRepository projectRepository;
@@ -210,7 +210,7 @@ public class ProjectService {
         IssueType soutache = null;
         Icone sousTacheIcone = iconeRepository.save(new Icone("\uf0ae", "fas fa-tasks", "class"));
         soutache = new IssueType();
-        soutache.setName(SOUS_TACHE);
+        soutache.setName(TASK);
         soutache.setPrefix(SUB_TASK.name());
         soutache.setLevel(SUB_TASK);
         soutache.setIcone(sousTacheIcone);
