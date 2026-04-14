@@ -1,7 +1,7 @@
 import {AfterViewInit, Component, OnInit} from '@angular/core';
 import {ActivatedRoute, NavigationEnd, Route, Router, RouterOutlet} from "@angular/router";
 import {IssueService} from "../../../services/issue.service";
-import {Breadcrumb, Issue, Project} from "../../../type/issue";
+import {Breadcrumb, Issue, Project, User} from "../../../type/issue";
 import {AuthGuard} from "../../../services/SystemGuard";
 import {NewIssueComponent} from "./modal/new-issue/new-issue.component";
 import {stripTypename} from "@apollo/client/utilities";
@@ -23,6 +23,8 @@ import formatters from "chart.js/dist/core/core.ticks";
 import {ProjectBreadcrumbResolverService} from "./project-breadcrumb-resolver.service";
 import {MessagesService} from "../../../services/messages.service";
 import {filter} from "rxjs";
+import {ProfileComponent} from "../profile/profile.component";
+import {AuthService} from "../../../services/auth.service";
 
 @Component({
   selector: 'app-project',
@@ -60,6 +62,7 @@ export class ProjectComponent implements OnInit{
     setTimeout(() => this.openBottomSheet(), 180);
   }  workSpace='';
   activeRouteName: string = '';
+  connectedUser: User | undefined;
 
   private routeNames: Record<string, string> = {
     'list': 'Liste',
@@ -84,11 +87,12 @@ export class ProjectComponent implements OnInit{
     protected authGuard:AuthGuard,
     private modalService: NgbModal,
     private router: Router,
-    private userService:UserService,
+    protected userService:UserService,
     private breadcrumbService: BreadcrumbService,
     protected projectGuard:ProjectGuard,
     private breadcrumb:ProjectBreadcrumbResolverService,
-    private messagesService:MessagesService
+    private messagesService:MessagesService,
+    protected authService: AuthService
   ) {
   }
 
@@ -132,6 +136,9 @@ export class ProjectComponent implements OnInit{
     this.issueService.loadedWorkspace$.subscribe(value => {
       this.isworkspace = value.valueOf();
     });
+    this.authService.connectedUser$.subscribe(user => {
+      this.connectedUser = user;
+    });
     this.route.data.subscribe(data => {
       console.debug(data);
       const breadcrumb: Breadcrumb[] = data['breadcrumb'];
@@ -170,5 +177,32 @@ export class ProjectComponent implements OnInit{
       const last = segments[segments.length - 1];
       this.activeRouteName = this.routeNames[last] ?? '';
     });
+  }
+  isLoggingOut = false;
+
+  logout() {
+    if (this.isLoggingOut) return; // éviter clic multiple
+    this.isLoggingOut = true;
+
+    this.authService.logout().subscribe({
+      next: () => {
+        this.isLoggingOut = false;
+        this.router.navigate(['/login']);
+      },
+      error: () => {
+        this.isLoggingOut = false;
+        alert('Erreur lors de la déconnexion. Réessayez plus tard.');
+      }
+    });
+  }
+
+
+  myProfile() {
+    const dialogRef = this.modalService.open(ProfileComponent, {windowClass: "xlModal"});
+    dialogRef.componentInstance.loadUser(this.connectedUser.id);
+    dialogRef.componentInstance.action = "Edition d'un utilisateur";
+    dialogRef.componentInstance.loadGroupeMember();
+    dialogRef.result.then((result) => {
+    })
   }
 }

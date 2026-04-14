@@ -1,20 +1,15 @@
 import {Component, input, OnInit} from '@angular/core';
 import {Router} from "@angular/router";
 import {AuthService} from "../../services/auth.service";
-import {LocalStorageService} from "../../services/local-storage.service";
 import {ProfileComponent} from "./profile/profile.component";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
-import {NotificationApp, Project, Uploading, User} from "../../type/issue";
+import {NotificationApp, Project, User} from "../../type/issue";
 import {IssueService} from "../../services/issue.service";
 import {UserService} from "../../services/user.service";
 import {AuthGuard} from "../../services/SystemGuard";
-import {IssueTypeComponent} from "./admins/config-project/issue-type/issue-type.component";
-import {PopupCreateProjectComponent} from "./popup-create-project/popup-create-project.component";
 import {IssueSearchCriteriaInput} from "../../type/issue-search-criteria.util";
-import {routeTransition} from "../../../route-transition";
 import {animate, keyframes, state, style, transition, trigger, useAnimation} from "@angular/animations";
-import {moveFromLeft} from "../../../../projects/router-animations/src/lib/router-animations";
-import {moveFromLeftKeyframes} from "../../../../projects/router-animations/src/lib/shared-keyframes";
+
 import {environment} from "../../../environments/environment";
 import {MessagesService} from "../../services/messages.service";
 import {ActionService} from "../../services/action.service";

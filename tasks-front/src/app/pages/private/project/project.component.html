@@ -12,6 +12,13 @@
       <span>{{ project?.prefix }}</span>
       <i class="fas fa-chevron-down" style="font-size:8px"></i>
     </button>
+    <div class="topbar-avatar" [matMenuTriggerFor]="user_menu">
+      <user-avatar
+        [src]="userService.getUrlPhoto(connectedUser)"
+        [alt]="connectedUser?.firstName"
+        class="topbar-avatar-img"
+      />
+    </div>
   </header>
 
   <!-- ══ OVERLAY DRAWER ══ -->
@@ -22,6 +29,7 @@
 
   <!-- ══ DRAWER MOBILE ══ -->
   <aside class="drawer-mobile" [class.open]="drawerOpen">
+
     <button class="ws-trigger" (click)="openBottomSheetFromDrawer()">
       <div class="ws-avatar">
         <img [src]="issueService.getImageProject(project)" alt="{{ project?.name }}" class="ws-avatar-img"/>
@@ -60,7 +68,21 @@
         <i class="fas fa-sliders icon"></i>
         <span>Config</span>
       </a>
+      <div class="divider"></div>
+      <div class="user-row" [matMenuTriggerFor]="user_menu">
+        <user-avatar
+          [src]="userService.getUrlPhoto(connectedUser)"
+          [alt]="connectedUser?.firstName"
+          class="user-row-avatar"
+        />
+        <div class="user-row-info">
+          <span class="user-row-name">{{ connectedUser?.firstName }} {{ connectedUser?.lastName }}</span>
+          <span class="user-row-hint">Mon compte</span>
+        </div>
+        <i class="fas fa-ellipsis-h user-row-more"></i>
+      </div>
     </div>
+
   </aside>
 
   <!-- ══ SIDEBAR DESKTOP ══ -->
@@ -105,7 +127,21 @@
         <i class="fas fa-sliders icon"></i>
         <span>Config</span>
       </a>
+      <div class="divider"></div>
+      <div class="user-row" [matMenuTriggerFor]="user_menu">
+        <user-avatar
+          [src]="userService.getUrlPhoto(connectedUser)"
+          [alt]="connectedUser?.firstName"
+          class="user-row-avatar"
+        />
+        <div class="user-row-info">
+          <span class="user-row-name">{{ connectedUser?.firstName }} {{ connectedUser?.lastName }}</span>
+          <span class="user-row-hint">Mon compte</span>
+        </div>
+        <i class="fas fa-ellipsis-h user-row-more"></i>
+      </div>
     </div>
+
   </aside>
 
   <!-- ══ WORKSPACE DROPDOWN DESKTOP ══ -->
@@ -123,6 +159,37 @@
       </div>
       <i class="fas fa-check ws-check" *ngIf="p?.id === project?.id"></i>
     </div>
+  </mat-menu>
+
+  <!-- ══ USER MENU (partagé desktop + mobile) ══ -->
+  <mat-menu #user_menu="matMenu" xPosition="after" yPosition="above" class="user-menu-panel">
+    <div class="user-menu-header" (click)="$event.stopPropagation()">
+      <user-avatar
+        [src]="userService.getUrlPhoto(connectedUser)"
+        [alt]="connectedUser?.firstName"
+        class="user-menu-avatar"
+      />
+      <div class="user-menu-identity">
+        <span class="user-menu-name">{{ connectedUser?.firstName }} {{ connectedUser?.lastName }}</span>
+        <span class="user-menu-email">{{ connectedUser?.email }}</span>
+      </div>
+    </div>
+    <div class="user-menu-divider"></div>
+    <button mat-menu-item (click)="myProfile()">
+      <i class="fas fa-user"></i> Profil
+    </button>
+    <button mat-menu-item>
+      <i class="fas fa-cog"></i> Paramètres
+    </button>
+    <div class="user-menu-divider"></div>
+    <button mat-menu-item
+            [disabled]="isLoggingOut"
+            (click)="logout()"
+            class="user-menu-logout">
+      <i class="fas fa-sign-out-alt"></i>
+      <span *ngIf="!isLoggingOut">Déconnexion</span>
+      <span *ngIf="isLoggingOut">Déconnexion...</span>
+    </button>
   </mat-menu>
 
   <!-- ══ BOTTOM SHEET MOBILE (workspace) ══ -->

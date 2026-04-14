@@ -49,6 +49,7 @@ import {ExchangeDocumentsComponent} from "./exchange-documents/exchange-document
 import {MatDivider} from "@angular/material/divider";
 import {ProjectHomeComponent} from "./home/home.component";
 import {DashboardModule} from "../../../dashboard/dashboard.module";
+import {UserAvatarComponent} from "../../../common/user-avatar/user-avatar.component";
 
 @NgModule({
   declarations: [
@@ -107,7 +108,8 @@ import {DashboardModule} from "../../../dashboard/dashboard.module";
     DayPilotModule,
     MatCheckbox,
     MatDivider,
-    DashboardModule
+    DashboardModule,
+    UserAvatarComponent
   ]
 })
 export class ProjectModule { }
