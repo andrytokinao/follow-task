@@ -1,64 +1,179 @@
 <div class="modal-header">
-  <b class="modal-title">{{action}}  </b>
-  <span typeField="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
-    <i class="fas fa-close"></i>  <span aria-hidden="true"></span>
-  </span>
+  <span class="modal-title">{{ action }}</span>
+  <button class="close-btn" (click)="activeModal.dismiss()">
+    <mat-icon>close</mat-icon>
+  </button>
 </div>
-<div class="modal-body content-issue">
-  <div class="profile">
-    <div class="item left-item">
 
-      <form action="" class="sign-up-form">
-        <h2 class="title" > Information</h2>
-        <div class="input-field">
-          <i class="fas fa-user"></i>
-          <input type="text"  placeholder="Username" [(ngModel)]="user.username" [ngModelOptions]="{standalone: true}" />
-        </div>
-        <div class="input-field">
-          <i class="fa fa-address-book"></i>
-          <input type="text" placeholder="Nom" [(ngModel)]="user.firstName" [ngModelOptions]="{standalone: true}" />
-        </div>
-        <div class="input-field">
-          <i class="fa fa-address-book"></i>
-          <input type="text" placeholder="Prénom" [(ngModel)]="user.lastName" [ngModelOptions]="{standalone: true}" />
-        </div>
-        <div class="input-field">
-          <i class="fas fa-phone"></i>
-          <input type="text" placeholder="Numero telephone" [(ngModel)]="user.contact" [ngModelOptions]="{standalone: true}" />
-        </div>
-        <div class="input-field">
-          <i class="fas fa fa-map-marker"></i>
-          <input type="text" placeholder="Adresse" [(ngModel)]="user.address" [ngModelOptions]="{standalone: true}" />
-        </div>
-        <div class="input-field">
-          <i class="fas fa-envelope"></i>
-          <input type="email" placeholder="Email" [(ngModel)]="user.email" [ngModelOptions]="{standalone: true}" />
-        </div>
-        <div class="input-field">
-          <i class="fa fa-address-card"></i>
-          <input type="text" placeholder="CIN" [(ngModel)]="user.cin" [ngModelOptions]="{standalone: true}" />
-        </div>
-        <div class="input-field" *ngIf ="isCreate">
-          <i class="fas fa-lock"></i>
-          <input type="text" placeholder="Password" [(ngModel)]="user.password" [ngModelOptions]="{standalone: true}" />
-        </div>
-      </form>
-      <div class="photo">
-        <input style="display: none" type="file" id="photoInput" (change)="selectPhoto($event)"   accept="image/*"/>
-        <img width="150px" [src]="photoUrl()" (click)=" openPhotoInput()">
-        <span  *ngIf ="tempPhoto" (click)="uploadPhoto()" type="submit" value="Save" class="btn solid save controle" style="float: right" >  <i class="fa fa-check color" style="color:#4f8a5c"></i>  Save</span>
+<div class="modal-body">
+
+  <!-- PANNEAU GAUCHE -->
+  <div class="panel panel-left">
+    <p class="panel-title">Informations personnelles</p>
+
+    <div class="photo-row">
+      <div class="avatar" (click)="openPhotoInput()">
+        <img [src]="photoUrl()" alt="Photo de profil" />
+        <div class="avatar-overlay"><span>Modifier</span></div>
       </div>
-      <span (click)="saveUser()" type="submit" value="Save" class="btn solid save controle" style="float: right" > <i class="fa fa-save"></i> Save</span>
-
+      <div class="photo-info">
+        <strong>{{ user.firstName }} {{ user.lastName }}</strong>
+        <p>Photo de profil · JPG ou PNG, max 2 Mo</p>
+        <div class="photo-actions">
+          <button class="btn-outline" (click)="openPhotoInput()">Changer</button>
+          <button class="btn-outline btn-green" *ngIf="tempPhoto" (click)="uploadPhoto()">
+            Enregistrer la photo
+          </button>
+        </div>
+      </div>
+      <input style="display:none" type="file" id="photoInput"
+             (change)="selectPhoto($event)" accept="image/*" />
     </div>
-    <div class="item-right">
-      <div action="" class="groupe-list">
-        <h2 class="title" >Securité  </h2>
 
+    <form [formGroup]="userForm" class="form-grid">
 
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>Nom d'utilisateur</mat-label>
+        <input matInput formControlName="username" />
+        <mat-error *ngIf="userForm.get('username')?.hasError('required')">Champ requis</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>Email</mat-label>
+        <input matInput type="email" formControlName="email" />
+        <mat-error *ngIf="userForm.get('email')?.hasError('email')">Email invalide</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>Prénom</mat-label>
+        <input matInput formControlName="firstName" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>Nom</mat-label>
+        <input matInput formControlName="lastName" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>Téléphone</mat-label>
+        <input matInput formControlName="contact" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>CIN</mat-label>
+        <input matInput formControlName="cin" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="field full">
+        <mat-label>Adresse</mat-label>
+        <input matInput formControlName="address" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="field full" *ngIf="isCreate">
+        <mat-label>Mot de passe</mat-label>
+        <input matInput [type]="hideInitPw ? 'password' : 'text'" formControlName="password" />
+        <button mat-icon-button matSuffix type="button" (click)="hideInitPw = !hideInitPw">
+          <mat-icon>{{ hideInitPw ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+      </mat-form-field>
+
+    </form>
+
+    <div class="save-status" *ngIf="savingStatus">
+      <span [class]="savingStatus === 'success' ? 'status-badge success' : 'status-badge error'">
+        {{ savingStatus === 'success' ? '✓ Enregistré avec succès' : '✗ Erreur lors de la sauvegarde' }}
+      </span>
     </div>
-
   </div>
 
+  <!-- PANNEAU DROIT -->
+  <div class="panel panel-right">
+    <mat-tab-group animationDuration="150ms" class="profile-tabs">
 
+      <mat-tab label="Sécurité">
+        <div class="tab-content">
+          <p class="panel-title">Changer le mot de passe</p>
 
+          <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+
+            <mat-form-field appearance="outline" class="field full" *ngIf="!isCreate">
+              <mat-label>Mot de passe actuel</mat-label>
+              <input matInput [type]="hideCurrent ? 'password' : 'text'"
+                     formControlName="currentPassword" />
+              <button mat-icon-button matSuffix type="button"
+                      (click)="hideCurrent = !hideCurrent">
+                <mat-icon>{{ hideCurrent ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="field full">
+              <mat-label>Nouveau mot de passe</mat-label>
+              <input matInput [type]="hideNew ? 'password' : 'text'"
+                     formControlName="newPassword" />
+              <button mat-icon-button matSuffix type="button"
+                      (click)="hideNew = !hideNew">
+                <mat-icon>{{ hideNew ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+            </mat-form-field>
+
+            <div class="strength-wrap" *ngIf="passwordForm.get('newPassword')?.value">
+              <div class="strength-track">
+                <div class="strength-fill"
+                     [style.width.%]="passwordStrength"
+                     [ngClass]="'fill-' + passwordStrengthColor">
+                </div>
+              </div>
+              <span class="strength-label">{{ passwordStrengthLabel }}</span>
+            </div>
+            <p class="pw-hint">8 car. min., 1 majuscule, 1 chiffre</p>
+
+            <mat-form-field appearance="outline" class="field full">
+              <mat-label>Confirmer le mot de passe</mat-label>
+              <input matInput [type]="hideConfirm ? 'password' : 'text'"
+                     formControlName="confirmPassword" />
+              <button mat-icon-button matSuffix type="button"
+                      (click)="hideConfirm = !hideConfirm">
+                <mat-icon>{{ hideConfirm ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+              <mat-error *ngIf="passwordForm.hasError('mismatch')">
+                Les mots de passe ne correspondent pas
+              </mat-error>
+            </mat-form-field>
+
+            <button class="btn-primary full-btn" type="submit"
+                    [disabled]="passwordForm.invalid">
+              Mettre à jour le mot de passe
+            </button>
+
+          </form>
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Groupes ({{ memberGroupes.length }})">
+        <div class="tab-content">
+          <p class="panel-title">Groupes associés</p>
+          <div class="group-list">
+            <div class="group-item" *ngFor="let mg of memberGroupes">
+              <div class="group-left">
+                <span class="group-dot"></span>
+                <span class="group-name">{{ mg.groupe?.name }}</span>
+              </div>
+              <span class="group-chip">{{ mg.groupe?.prefix }}</span>
+            </div>
+            <p class="empty-msg" *ngIf="memberGroupes.length === 0">
+              Aucun groupe associé
+            </p>
+          </div>
+        </div>
+      </mat-tab>
+
+    </mat-tab-group>
+  </div>
+</div>
+
+<div class="modal-footer">
+  <button class="btn-outline" (click)="activeModal.dismiss()">Annuler</button>
+  <button class="btn-primary" (click)="saveUser()" [disabled]="userForm?.invalid">
+    Enregistrer
+  </button>
+</div>

@@ -206,4 +206,8 @@ export class UserService {
       })
     })
   }
+
+  changePassword(id, currentPassword: any, newPassword: any) {
+    return new Observable();
+  }
 }

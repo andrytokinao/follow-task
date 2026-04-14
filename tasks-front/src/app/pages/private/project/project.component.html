@@ -1,6 +1,6 @@
 <div class="projet" *ngIf="project" [class.collapsed]="sidebarCollapsed">
 
-  <!-- ══ TOPBAR MOBILE ══ -->
+  <!-- ══ TOPBAR MOBILE (frère, pas enfant du drawer) ══ -->
   <header class="topbar-mobile">
     <button class="hamburger" [class.open]="drawerOpen" (click)="toggleDrawer()">
       <span class="ham-line"></span>
@@ -12,24 +12,19 @@
       <span>{{ project?.prefix }}</span>
       <i class="fas fa-chevron-down" style="font-size:8px"></i>
     </button>
+    <!-- Avatar topbar -->
     <div class="topbar-avatar" [matMenuTriggerFor]="user_menu">
-      <user-avatar
-        [src]="userService.getUrlPhoto(connectedUser)"
-        [alt]="connectedUser?.firstName"
-        class="topbar-avatar-img"
-      />
+      <user-avatar [src]="userService.getUrlPhoto(connectedUser)"
+                   [alt]="connectedUser?.firstName"
+                   class="topbar-avatar-img"/>
     </div>
   </header>
 
-  <!-- ══ OVERLAY DRAWER ══ -->
-  <div class="drawer-overlay"
-       [class.visible]="drawerOpen"
-       (click)="closeDrawer()">
-  </div>
+  <!-- ══ OVERLAY ══ -->
+  <div class="drawer-overlay" [class.visible]="drawerOpen" (click)="closeDrawer()"></div>
 
   <!-- ══ DRAWER MOBILE ══ -->
   <aside class="drawer-mobile" [class.open]="drawerOpen">
-
     <button class="ws-trigger" (click)="openBottomSheetFromDrawer()">
       <div class="ws-avatar">
         <img [src]="issueService.getImageProject(project)" alt="{{ project?.name }}" class="ws-avatar-img"/>
@@ -44,37 +39,23 @@
     <div class="divider"></div>
 
     <nav class="nav">
-      <a class="nav-item" routerLinkActive="active" routerLink="list"
-         data-tooltip="Liste" (click)="closeDrawer()">
-        <i class="fas fa-layer-group icon"></i>
-        <span>Liste</span>
-      </a>
-      <a class="nav-item" routerLinkActive="active" routerLink="calendar"
-         data-tooltip="Calendrier" (click)="closeDrawer()">
-        <i class="fas fa-calendar-days icon"></i>
-        <span>Calendrier</span>
-      </a>
-      <a class="nav-item" routerLinkActive="active" routerLink="planning"
-         data-tooltip="Planning" (click)="closeDrawer()">
-        <i class="fas fa-chart-gantt icon"></i>
-        <span>Planning</span>
-      </a>
+      <a class="nav-item" routerLinkActive="active" routerLink="list"     data-tooltip="Liste"      (click)="closeDrawer()"><i class="fas fa-layer-group icon"></i><span>Liste</span></a>
+      <a class="nav-item" routerLinkActive="active" routerLink="calendar" data-tooltip="Calendrier" (click)="closeDrawer()"><i class="fas fa-calendar-days icon"></i><span>Calendrier</span></a>
+      <a class="nav-item" routerLinkActive="active" routerLink="planning" data-tooltip="Planning"   (click)="closeDrawer()"><i class="fas fa-chart-gantt icon"></i><span>Planning</span></a>
     </nav>
 
+    <!-- ══ nav-bottom drawer (UN SEUL) ══ -->
     <div class="nav-bottom">
       <div class="divider"></div>
       <a class="nav-item" routerLinkActive="active" routerLink="config"
          data-tooltip="Config" (click)="closeDrawer()">
-        <i class="fas fa-sliders icon"></i>
-        <span>Config</span>
+        <i class="fas fa-sliders icon"></i><span>Config</span>
       </a>
       <div class="divider"></div>
       <div class="user-row" [matMenuTriggerFor]="user_menu">
-        <user-avatar
-          [src]="userService.getUrlPhoto(connectedUser)"
-          [alt]="connectedUser?.firstName"
-          class="user-row-avatar"
-        />
+        <user-avatar [src]="userService.getUrlPhoto(connectedUser)"
+                     [alt]="connectedUser?.firstName"
+                     class="user-row-avatar"/>
         <div class="user-row-info">
           <span class="user-row-name">{{ connectedUser?.firstName }} {{ connectedUser?.lastName }}</span>
           <span class="user-row-hint">Mon compte</span>
@@ -82,14 +63,11 @@
         <i class="fas fa-ellipsis-h user-row-more"></i>
       </div>
     </div>
-
   </aside>
 
   <!-- ══ SIDEBAR DESKTOP ══ -->
   <aside class="project-menu">
-    <button class="toggle-btn"
-            (click)="sidebarCollapsed = !sidebarCollapsed"
-            [title]="sidebarCollapsed ? 'Développer' : 'Réduire'">
+    <button class="toggle-btn" (click)="sidebarCollapsed = !sidebarCollapsed">
       <i class="fas" [ngClass]="sidebarCollapsed ? 'fa-chevron-right' : 'fa-chevron-left'"></i>
     </button>
 
@@ -107,33 +85,22 @@
     <div class="divider"></div>
 
     <nav class="nav">
-      <a class="nav-item" routerLinkActive="active" routerLink="list" data-tooltip="Liste">
-        <i class="fas fa-layer-group icon"></i>
-        <span>Liste</span>
-      </a>
-      <a class="nav-item" routerLinkActive="active" routerLink="calendar" data-tooltip="Calendrier">
-        <i class="fas fa-calendar-days icon"></i>
-        <span>Calendrier</span>
-      </a>
-      <a class="nav-item" routerLinkActive="active" routerLink="planning" data-tooltip="Planning">
-        <i class="fas fa-chart-gantt icon"></i>
-        <span>Planning</span>
-      </a>
+      <a class="nav-item" routerLinkActive="active" routerLink="list"     data-tooltip="Liste">     <i class="fas fa-layer-group icon"></i><span>Liste</span></a>
+      <a class="nav-item" routerLinkActive="active" routerLink="calendar" data-tooltip="Calendrier"><i class="fas fa-calendar-days icon"></i><span>Calendrier</span></a>
+      <a class="nav-item" routerLinkActive="active" routerLink="planning" data-tooltip="Planning">  <i class="fas fa-chart-gantt icon"></i><span>Planning</span></a>
     </nav>
 
+    <!-- ══ nav-bottom sidebar desktop (avec user-row) ══ -->
     <div class="nav-bottom">
       <div class="divider"></div>
       <a class="nav-item" routerLinkActive="active" routerLink="config" data-tooltip="Config">
-        <i class="fas fa-sliders icon"></i>
-        <span>Config</span>
+        <i class="fas fa-sliders icon"></i><span>Config</span>
       </a>
       <div class="divider"></div>
       <div class="user-row" [matMenuTriggerFor]="user_menu">
-        <user-avatar
-          [src]="userService.getUrlPhoto(connectedUser)"
-          [alt]="connectedUser?.firstName"
-          class="user-row-avatar"
-        />
+        <user-avatar [src]="userService.getUrlPhoto(connectedUser)"
+                     [alt]="connectedUser?.firstName"
+                     class="user-row-avatar"/>
         <div class="user-row-info">
           <span class="user-row-name">{{ connectedUser?.firstName }} {{ connectedUser?.lastName }}</span>
           <span class="user-row-hint">Mon compte</span>
@@ -141,15 +108,12 @@
         <i class="fas fa-ellipsis-h user-row-more"></i>
       </div>
     </div>
-
   </aside>
 
-  <!-- ══ WORKSPACE DROPDOWN DESKTOP ══ -->
+  <!-- ══ MENUS (au niveau racine, hors drawer/sidebar) ══ -->
   <mat-menu #work_space="matMenu" yPosition="below" xPosition="after" class="ws-dropdown">
-    <div class="ws-dropdown-item"
-         *ngFor="let p of projects"
-         (click)="selectProject(p)"
-         [class.selected]="p?.id === project?.id">
+    <div class="ws-dropdown-item" *ngFor="let p of projects"
+         (click)="selectProject(p)" [class.selected]="p?.id === project?.id">
       <div class="ws-avatar ws-avatar--sm">
         <img [src]="issueService.getImageProject(p)" alt="{{ p?.name }}" class="ws-avatar-img"/>
       </div>
@@ -161,44 +125,33 @@
     </div>
   </mat-menu>
 
-  <!-- ══ USER MENU (partagé desktop + mobile) ══ -->
   <mat-menu #user_menu="matMenu" xPosition="after" yPosition="above" class="user-menu-panel">
-    <div class="user-menu-header" (click)="$event.stopPropagation()">
-      <user-avatar
-        [src]="userService.getUrlPhoto(connectedUser)"
-        [alt]="connectedUser?.firstName"
-        class="user-menu-avatar"
-      />
+    <div class="user-menu-header">
+      <user-avatar [src]="userService.getUrlPhoto(connectedUser)"
+                   [alt]="connectedUser?.firstName"
+                   class="user-menu-avatar"/>
       <div class="user-menu-identity">
         <span class="user-menu-name">{{ connectedUser?.firstName }} {{ connectedUser?.lastName }}</span>
         <span class="user-menu-email">{{ connectedUser?.email }}</span>
       </div>
     </div>
     <div class="user-menu-divider"></div>
-    <button mat-menu-item (click)="myProfile()">
-      <i class="fas fa-user"></i> Profil
-    </button>
-    <button mat-menu-item>
-      <i class="fas fa-cog"></i> Paramètres
-    </button>
+    <button mat-menu-item (click)="myProfile()"><i class="fas fa-user"></i> Profil</button>
+    <button mat-menu-item><i class="fas fa-cog"></i> Paramètres</button>
     <div class="user-menu-divider"></div>
-    <button mat-menu-item
-            [disabled]="isLoggingOut"
-            (click)="logout()"
-            class="user-menu-logout">
+    <button mat-menu-item [disabled]="isLoggingOut" (click)="logout()" class="user-menu-logout">
       <i class="fas fa-sign-out-alt"></i>
       <span *ngIf="!isLoggingOut">Déconnexion</span>
       <span *ngIf="isLoggingOut">Déconnexion...</span>
     </button>
   </mat-menu>
 
-  <!-- ══ BOTTOM SHEET MOBILE (workspace) ══ -->
+  <!-- ══ BOTTOM SHEET MOBILE ══ -->
   <div class="bsheet-overlay" [class.visible]="bottomSheetOpen" (click)="closeBottomSheet()">
     <div class="bsheet" (click)="$event.stopPropagation()">
       <div class="bsheet-handle"></div>
       <p class="bsheet-title">Changer de workspace</p>
-      <div class="bsheet-item"
-           *ngFor="let p of projects"
+      <div class="bsheet-item" *ngFor="let p of projects"
            [class.active]="p?.id === project?.id"
            (click)="selectProject(p); closeBottomSheet()">
         <div class="ws-avatar ws-avatar--sm">

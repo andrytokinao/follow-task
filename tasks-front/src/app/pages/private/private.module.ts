@@ -26,6 +26,9 @@ import {ChatWidgetComponent} from "../../common/chat-widget/chat-widget.componen
 import {SmartFooterComponent} from "../../common/smart-footer/smart-footer.component";
 import {CanalsComponent} from "../../common/canals/canals.component";
 import {MessageComponent} from "../../common/message/message.component";
+import {MatChipsModule} from "@angular/material/chips";
+import {MatListModule} from "@angular/material/list";
+import {MatProgressBarModule} from "@angular/material/progress-bar";
 
 
 @NgModule({
@@ -52,13 +55,15 @@ import {MessageComponent} from "../../common/message/message.component";
     MyCommonModule,
     CustomFieldComponent,
     MatInputModule,
+    MatListModule,
     ReactiveFormsModule,
     MatRadioButton,
     MatRadioGroup,
     NgxColorsModule,
     CanalsComponent,
     MessageComponent,
-
+    MatChipsModule,
+    MatProgressBarModule,MatIconModule
   ],
 
 })
