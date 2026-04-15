@@ -1,57 +1,99 @@
 <app-loading [isLoading]="isLoading"></app-loading>
 
-<div class="list-menu-with-left-right">
-  <div class="card-list menu-btn">
-    <div class="filter-container">
-      <b (click)="createIssueMaster()" class="bouton" style="color:#007BFF;text-align: center" *ngIf="projectGuard.hasCredential(['PROJECT_MANAGER']) | async">
-       Nouveau projet <i class="fas fa-plus"  ></i>
-      </b>
-      <h1 class="filter-title">Gérer les filtres de recherche</h1>
-      <ul class="navigation-list">
-        <li  class="filter-item"  [ngClass]="{'active':noFilter.id === selectedFilter?.id}">
-          <a class="filter-link" (click)="selectFilter(noFilter)" >
-            {{ noFilter.name }}
-          </a>
-        </li>
-        <li *ngFor="let filter of masterFilter" class="filter-item" [ngClass]="{'active':filter?.id === selectedFilter?.id}">
-          <a class="filter-link" (click)="selectFilter(filter)" >
-            {{ filter.name }}
-            <i class="fas fa-edit edit-icon"  style="float: right" (click)="editFilter($event, filter)"></i>
-          </a>
-        </li>
-        <li class="new-filter-btn" (click)="newParentFilter($event)">
-          Nouveau filtre <i class="fas fa-plus add-icon"></i>
-        </li>
-      </ul>
-    </div>
-  </div>
+<!-- Topbar — desktop uniquement -->
+<div class="master-topbar">
 
-  <div>
-    <div *ngIf="currentView ==='details'">
-      <app-issue-master-list ></app-issue-master-list>
+  <button class="btn-new"
+          *ngIf="projectGuard.hasCredential(['PROJECT_MANAGER']) | async"
+          (click)="createIssueMaster()">
+    <i class="fas fa-plus"></i> Nouveau projet
+  </button>
+
+  <!-- Groupe droite : recherche + filtre + vue -->
+  <div class="topbar-right">
+
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input type="text" placeholder="Rechercher…" [(ngModel)]="searchTerm" />
     </div>
-    <div *ngIf="currentView ==='board'">
-      <app-issue-boaard></app-issue-boaard>
-    </div>
-    <div *ngIf="currentView ==='calendar'">
-      <app-calendar-list ></app-calendar-list>
-    </div>
-    <div *ngIf="currentView ==='table-master'">
-      <app-table-master ></app-table-master>
-    </div>
-  </div>
-  <div>
-    <nav class="list-show-menue">
-      <button class="buttons" (click)="setView('board')" [class.active]="currentView === 'board'">
-        <i class = "fas fa-columns"> </i>
+
+    <button mat-button [matMenuTriggerFor]="filterMenu"
+            class="filter-trigger"
+            [class.active]="selectedFilter && selectedFilter.id !== noFilter.id">
+      <i class="fas fa-filter"></i>
+      {{ selectedFilter?.name || noFilter.name }}
+      <span class="filter-badge" *ngIf="selectedFilter && selectedFilter.id !== noFilter.id">1</span>
+      <i class="fas fa-chevron-down"></i>
+    </button>
+
+    <mat-menu #filterMenu="matMenu" class="filter-mat-menu">
+      <button mat-menu-item
+              [class.active-item]="selectedFilter?.id === noFilter.id"
+              (click)="selectFilter(noFilter)">
+        {{ noFilter.name }}
       </button>
-      <button class="buttons" (click)="setView('table-master')" [class.active]="currentView === 'table-master'">
-        <i class = "fas fa-list"> </i>
+      <mat-divider></mat-divider>
+      <button mat-menu-item
+              *ngFor="let filter of masterFilter"
+              [class.active-item]="selectedFilter?.id === filter.id"
+              (click)="selectFilter(filter)">
+        <span>{{ filter.name }}</span>
+        <i class="fas fa-edit edit-icon"
+           (click)="editFilter($event, filter); $event.stopPropagation()"></i>
       </button>
-      <button class="buttons" (click)="setView('details')" [class.active]="currentView === 'details'">
-        <i class = "fas fa-info-circle"> </i>
+      <mat-divider></mat-divider>
+      <button mat-menu-item class="new-filter-item" (click)="newParentFilter($event)">
+        <i class="fas fa-plus"></i> Nouveau filtre
       </button>
-    </nav>
+    </mat-menu>
+
+    <div class="view-toggle">
+      <button [class.active]="currentView === 'table-master'"
+              (click)="setView('table-master')" title="Tableau">
+        <i class="fas fa-table"></i>
+      </button>
+      <button [class.active]="currentView === 'details'"
+              (click)="setView('details')" title="Liste cartes">
+        <i class="fas fa-th-list"></i>
+      </button>
+      <button [class.active]="currentView === 'board'"
+              (click)="setView('board')" title="Board">
+        <i class="fas fa-columns"></i>
+      </button>
+    </div>
+
   </div>
 </div>
 
+<!-- Contenu principal -->
+<div class="master-content">
+  <app-table-master      *ngIf="currentView === 'table-master'"></app-table-master>
+  <app-issue-master-list *ngIf="currentView === 'details'"></app-issue-master-list>
+  <app-issue-boaard      *ngIf="currentView === 'board'"></app-issue-boaard>
+</div>
+
+<!-- Barre mobile en bas (pas de topbar sur mobile) -->
+<nav class="mobile-bottom-bar">
+  <button [class.active]="currentView === 'board'" (click)="setView('board')">
+    <i class="fas fa-columns"></i><span>Board</span>
+  </button>
+  <button [class.active]="currentView === 'details'" (click)="setView('details')">
+    <i class="fas fa-th-list"></i><span>Liste</span>
+  </button>
+  <button [matMenuTriggerFor]="filterMenu"
+          [class.active]="selectedFilter && selectedFilter.id !== noFilter.id">
+    <i class="fas fa-filter"></i><span>Filtres</span>
+  </button>
+
+  <!-- Recherche expansible -->
+  <div class="search-expand" [class.open]="searchOpen">
+    <button class="search-icon-btn" (click)="toggleMobileSearch()">
+      <i class="fas fa-search"></i>
+    </button>
+    <input #mobileSearchInput
+           type="text"
+           placeholder="Rechercher…"
+           [(ngModel)]="searchTerm"
+           (blur)="onSearchBlur()" />
+  </div>
+</nav>

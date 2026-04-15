@@ -1,6 +1,6 @@
 import {ChangeDetectorRef, NgModule} from '@angular/core';
 import { CommonModule } from '@angular/common';
-
+import { MatDividerModule } from '@angular/material/divider';
 import {CdkTextareaAutosize} from "@angular/cdk/text-field";
 import {MatInputModule} from "@angular/material/input";
 import {
@@ -85,6 +85,7 @@ import {IssueBoaardComponent} from "./issue-boaard/issue-boaard.component";
     DataRowOutlet,
     DayPilotModule,
     ProjectModule,
+    MatDividerModule
 
   ]
 })

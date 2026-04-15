@@ -1,62 +1,194 @@
-.type-view {
-  margin-left: 10px;
-  float: right;
-  width: 50px;
+/* === TOPBAR === */
+.master-topbar {
+  display: flex;
   align-items: center;
-
+  gap: 8px;
+  padding: 10px 16px;
+  background: white;
+  border-bottom: 1px solid #eee;
 }
 
-.menu-item{
-  color: #555;
+.btn-new {
+  background: #e8f0fe;
+  color: #185fa5;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
-  transition: color 0.3s, transform 0.2s;
-  border-radius: 5px;
-  padding: 5px;
-}
-.menu-item {
-  margin: 8px;
-
-}
-.menu-item:hover {
-  transform: scale(1.2);
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.menu-item.active  {
-  color: #ffffff;
-
+/* Groupe droite */
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
 }
-.card{
-  min-width: 250px;
-  height: 80px;
-  height: 55px;
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 5px 10px;
+  min-width: 180px;
+
+input {
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  outline: none;
+  width: 100%;
+}
+}
+
+.filter-trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 5px 12px;
+  font-size: 13px;
   cursor: pointer;
+
+&.active {
+   border-color: #185fa5;
+   color: #185fa5;
+   background: #e8f0fe;
+ }
 }
-.card-list {
+
+.filter-badge {
+  background: #fff3cd;
+  color: #856404;
+  border-radius: 999px;
+  font-size: 11px;
+  padding: 1px 6px;
+  font-weight: 500;
+}
+
+.active-item { color: #185fa5; font-weight: 500; }
+.edit-icon { margin-left: auto; font-size: 12px; opacity: 0; }
+button:hover .edit-icon { opacity: 1; }
+
+.view-toggle {
   display: flex;
-  justify-content: left;
-  flex-wrap: wrap;
+  gap: 2px;
+  background: #f5f5f5;
+  border-radius: 8px;
+  padding: 2px;
+  border: 1px solid #e0e0e0;
+
+button {
+  background: none;
+  border: none;
+  border-radius: 6px;
+  width: 30px;
+  height: 28px;
+  cursor: pointer;
+  color: #888;
+
+&.active {
+   background: white;
+   color: #333;
+   border: 1px solid #ccc;
+ }
 }
-.edit:hover{
-  color: #333333;
 }
-.list-show-menue{
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: 50px;
+
+/* === CONTENU === */
+.master-content {
+  padding: 16px;
 }
-.buttons {
+
+/* === MOBILE BOTTOM BAR === */
+.mobile-bottom-bar {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: white;
+  border-top: 1px solid #eee;
+  padding: 8px 16px;
+  align-items: center;
+  justify-content: space-around;
+  gap: 8px;
+  z-index: 50;
+
+> button {
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 1.5rem;
-  color: #444;
-  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 8px;
+  font-size: 10px;
+  color: #888;
+
+i { font-size: 18px; }
+&.active { color: #185fa5; }
 }
-.buttons:hover {
-  color: #888888;
 }
-.active{
-  background-color: #999;
-  color: white;
+
+/* Recherche expansible mobile */
+.search-expand {
+  display: flex;
+  align-items: center;
+  background: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-radius: 20px;
+  overflow: hidden;
+  width: 36px;
+  height: 36px;
+  transition: width 0.3s ease;
+
+&.open {
+   width: 160px;
+ }
+
+.search-icon-btn {
+  min-width: 36px;
+  height: 36px;
+  border: none;
+  background: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #666;
+  flex-shrink: 0;
+}
+
+input {
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  outline: none;
+  width: 0;
+  padding: 0;
+  transition: width 0.3s, padding 0.3s;
+
+.open & {
+  width: 100%;
+  padding-right: 10px;
+}
+}
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 640px) {
+  .master-topbar { display: none; }
+  .mobile-bottom-bar { display: flex; }
+  .master-content { padding-bottom: 72px; }
 }

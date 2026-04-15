@@ -188,4 +188,16 @@ export class ShowMasterListComponent implements OnInit{
     this.messageService.showRight('new-issue');
 
   }
+  searchOpen = false;
+  searchTerm = '';
+
+  toggleMobileSearch() {
+    this.searchOpen = !this.searchOpen;
+  }
+
+  onSearchBlur() {
+    if (!this.searchTerm) {
+      this.searchOpen = false;
+    }
+  }
 }
