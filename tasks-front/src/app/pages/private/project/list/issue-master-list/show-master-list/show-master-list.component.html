@@ -3,9 +3,8 @@
 <!-- Topbar — desktop uniquement -->
 <div class="master-topbar">
 
-  <button class="btn-new"
-          *ngIf="projectGuard.hasCredential(['PROJECT_MANAGER']) | async"
-          (click)="createIssueMaster()">
+  <button class="btn-new" [matMenuTriggerFor]="newMasterMenu"
+          *ngIf="projectGuard.hasCredential(['PROJECT_MANAGER']) | async">
     <i class="fas fa-plus"></i> Nouveau projet
   </button>
 
@@ -97,3 +96,8 @@
            (blur)="onSearchBlur()" />
   </div>
 </nav>
+
+<mat-menu
+  #newMasterMenu="matMenu">
+    helloo
+</mat-menu>

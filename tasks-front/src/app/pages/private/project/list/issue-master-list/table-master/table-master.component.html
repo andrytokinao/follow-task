@@ -1,65 +1,72 @@
 <div class="container">
-  <table class="company-table table">
+
+  <!-- État vide -->
+  <div *ngIf="issues.length === 0" class="empty-state">
+    <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+      <rect x="3" y="3" width="18" height="18" rx="2"/>
+      <path d="M3 9h18M9 21V9"/>
+    </svg>
+    <p class="empty-title">Aucun ticket trouvé</p>
+    <p class="empty-sub">Ce projet ne contient pas encore de tickets.</p>
+  </div>
+
+  <!-- Tableau -->
+  <table *ngIf="issues.length > 0" class="issue-table">
     <thead>
     <tr>
-      <th></th>
-      <th>Clé </th>
+      <th>Type</th>
+      <th>Clé</th>
       <th>Titre</th>
-      <th>Teams</th>
-      <th style="min-width: 300px">Tags</th>
-      <th  style="min-width: 200px">assignée</th>
-      <th  style="min-width: 150px">Status</th>
+      <th>Équipes</th>
+      <th>Tags</th>
+      <th>Assigné</th>
+      <th>Statut</th>
       <th></th>
     </tr>
     </thead>
-    <tbody *ngFor="let issue of issues">
-    <tr>
-      <td></td>
+    <tbody>
+    <tr *ngFor="let issue of issues">
       <td>
-        <div class="company-name"> <a [routerLink]="['/working', project.prefix, 'issue', issue.issueKey,'details']" class="company-link">{{ issue.issueKey }}
-        </a></div>
-             </td>
-
-      <td>{{ issue.summary }}</td>
+          <span class="issue-type-badge"
+                [style.background]="issue.issueType?.color ? issue.issueType.color + '22' : 'var(--bs-secondary-bg)'"
+                [style.color]="issue.issueType?.color ?? 'var(--bs-secondary-color)'">
+            <span class="issue-type-dot"
+                  [style.background]="issue.issueType?.color ?? 'var(--bs-secondary-color)'">
+            </span>
+            {{ issue.issueType?.name ?? 'Tâche' }}
+          </span>
+      </td>
+      <td>
+        <a [routerLink]="['/working', project?.prefix, 'issue', issue.issueKey, 'details']"
+           class="issue-key">
+          {{ issue.issueKey }}
+        </a>
+      </td>
+      <td>
+        <span class="issue-summary">{{ issue.summary }}</span>
+      </td>
       <td>
         <app-team-avatars [teamsIds]="issue.observerIds"></app-team-avatars>
-
-        <div class="team-avatars">
-         <!-- <ng-container *ngFor="let avatar of item.teams">
-            <img [src]="avatar" class="avatar" />
-          </ng-container>-->
-        </div>
       </td>
-  <!--    <td>
-        <svg class="performance-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path d="M2 12h4l3 8 4-16 3 8h4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
-      </td>-->
       <td>
-        <div class="tag-container">
-          <app-label-form [issue] = "issue">
-
-          </app-label-form>
-<!--
-          <span *ngFor="let tag of issue.labels" class="tag" [ngClass]="tag.class">{{ tag.label }}</span>
--->
-        </div>
+        <app-label-form [issue]="issue"></app-label-form>
       </td>
       <td>
         <app-assign-field [issue]="issue"></app-assign-field>
       </td>
       <td>
-        <app-status-field [issue] = "issue"></app-status-field>
+        <app-status-field [issue]="issue"></app-status-field>
       </td>
       <td class="actions">
-        <button class="edit-btn">
+        <button class="btn-icon" title="Modifier">
           <i class="fas fa-pen"></i>
         </button>
-        <button class="delete-btn">
+        <button class="btn-icon btn-danger" title="Supprimer">
           <i class="fas fa-trash"></i>
         </button>
       </td>
     </tr>
     </tbody>
   </table>
+
 </div>
