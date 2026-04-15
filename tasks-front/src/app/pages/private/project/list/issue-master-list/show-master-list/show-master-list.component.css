@@ -41,13 +41,12 @@
   padding: 5px 10px;
   min-width: 180px;
 
-input {
+.search-box input {
   border: none;
   background: transparent;
   font-size: 13px;
   outline: none;
   width: 100%;
-}
 }
 
 .filter-trigger {
@@ -60,12 +59,12 @@ input {
   padding: 5px 12px;
   font-size: 13px;
   cursor: pointer;
+}
 
-&.active {
-   border-color: #185fa5;
-   color: #185fa5;
-   background: #e8f0fe;
- }
+.filter-trigger.active {
+  border-color: #185fa5;
+  color: #185fa5;
+  background: #e8f0fe;
 }
 
 .filter-badge {
@@ -77,10 +76,22 @@ input {
   font-weight: 500;
 }
 
-.active-item { color: #185fa5; font-weight: 500; }
-.edit-icon { margin-left: auto; font-size: 12px; opacity: 0; }
-button:hover .edit-icon { opacity: 1; }
+.active-item {
+  color: #185fa5;
+  font-weight: 500;
+}
 
+.edit-icon {
+  margin-left: auto;
+  font-size: 12px;
+  opacity: 0;
+}
+
+button:hover .edit-icon {
+  opacity: 1;
+}
+
+/* VIEW TOGGLE */
 .view-toggle {
   display: flex;
   gap: 2px;
@@ -88,8 +99,9 @@ button:hover .edit-icon { opacity: 1; }
   border-radius: 8px;
   padding: 2px;
   border: 1px solid #e0e0e0;
+}
 
-button {
+.view-toggle button {
   background: none;
   border: none;
   border-radius: 6px;
@@ -97,12 +109,12 @@ button {
   height: 28px;
   cursor: pointer;
   color: #888;
+}
 
-&.active {
-   background: white;
-   color: #333;
-   border: 1px solid #ccc;
- }
+.view-toggle button.active {
+  background: white;
+  color: #333;
+  border: 1px solid #ccc;
 }
 }
 
@@ -115,7 +127,9 @@ button {
 .mobile-bottom-bar {
   display: none;
   position: fixed;
-  bottom: 0; left: 0; right: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
   background: white;
   border-top: 1px solid #eee;
   padding: 8px 16px;
@@ -123,8 +137,9 @@ button {
   justify-content: space-around;
   gap: 8px;
   z-index: 50;
+}
 
-> button {
+.mobile-bottom-bar > button {
   background: none;
   border: none;
   cursor: pointer;
@@ -135,10 +150,14 @@ button {
   padding: 4px 8px;
   font-size: 10px;
   color: #888;
-
-i { font-size: 18px; }
-&.active { color: #185fa5; }
 }
+
+.mobile-bottom-bar > button i {
+  font-size: 18px;
+}
+
+.mobile-bottom-bar > button.active {
+  color: #185fa5;
 }
 
 /* Recherche expansible mobile */
@@ -152,12 +171,13 @@ i { font-size: 18px; }
   width: 36px;
   height: 36px;
   transition: width 0.3s ease;
+}
 
-&.open {
-   width: 160px;
- }
+.search-expand.open {
+  width: 160px;
+}
 
-.search-icon-btn {
+.search-expand .search-icon-btn {
   min-width: 36px;
   height: 36px;
   border: none;
@@ -170,7 +190,7 @@ i { font-size: 18px; }
   flex-shrink: 0;
 }
 
-input {
+.search-expand input {
   border: none;
   background: transparent;
   font-size: 13px;
@@ -178,17 +198,24 @@ input {
   width: 0;
   padding: 0;
   transition: width 0.3s, padding 0.3s;
+}
 
-.open & {
+.search-expand.open input {
   width: 100%;
   padding-right: 10px;
-}
-}
 }
 
 /* === RESPONSIVE === */
 @media (max-width: 640px) {
-  .master-topbar { display: none; }
-  .mobile-bottom-bar { display: flex; }
-  .master-content { padding-bottom: 72px; }
+  .master-topbar {
+    display: none;
+  }
+
+  .mobile-bottom-bar {
+    display: flex;
+  }
+
+  .master-content {
+    padding-bottom: 72px;
+  }
 }
