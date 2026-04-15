@@ -1,18 +1,38 @@
 <div class="breadcrumb">
-  <ng-container >
-    <div class="breadcrumb-item" [matMenuTriggerFor]="master_list" >
-      <a>{{issue?.issueKey+':'+issue?.summary}}   </a>
-    </div>
-  </ng-container>
+  <div class="breadcrumb-item" [matMenuTriggerFor]="master_list">
+    <a>
+      <span class="issue-key">{{ issue?.issueKey }}</span>
+      <span class="separator-dot">·</span>
+      <span class="issue-summary">{{ issue?.summary }}</span>
+      <svg class="chevron" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2.5 3.75L5 6.25L7.5 3.75" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
+  </div>
+
+  <span class="breadcrumb-dot"></span>
+
   <ng-container *ngIf="projectGuard.hasCredential(['PROJECT_MANAGER']) | async">
-    <div class="breadcrumb-item"  (click)="createIssueMaster()" >
-      <a> Créer   </a>
+    <div class="breadcrumb-item">
+      <button class="btn-create" (click)="createIssueMaster()">
+        <svg viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M5 1.5V8.5M1.5 5H8.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+        Créer
+      </button>
     </div>
   </ng-container>
 </div>
-<mat-menu #master_list ="matMenu"  yPosition="below" #parentMenu="matMenu" xPosition="after" class="master-breadcrumb">
-  <ul class="navigation-list" >
-    <li *ngFor="let im of issueMasters" (click)="issueService.browsIssueMaster(im)"><a > <app-icone-view [icon]="im.issueType.icone"></app-icone-view> {{im.issueKey+':'+im.summary}}</a></li>
 
+<mat-menu #master_list="matMenu" yPosition="below" xPosition="after" class="master-breadcrumb">
+  <div class="dropdown-header">Issues maîtres</div>
+  <ul class="navigation-list">
+    <li *ngFor="let im of issueMasters" (click)="issueService.browsIssueMaster(im)">
+      <a>
+        <app-icone-view [icon]="im.issueType.icone"></app-icone-view>
+        <span class="key-badge">{{ im.issueKey }}</span>
+        <span class="issue-summary">{{ im.summary }}</span>
+      </a>
+    </li>
   </ul>
 </mat-menu>

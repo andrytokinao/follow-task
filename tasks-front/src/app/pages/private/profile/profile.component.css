@@ -7,7 +7,7 @@
   border-bottom: 1px solid #e0e0e0;
   background: #fff;
 }
-.modal-title { font-size: 13px; font-weight: 500; color: #212121; }
+.modal-title { font-size: 12px; font-weight: 500; color: #212121; }
 .close-btn {
   background: none; border: none; cursor: pointer;
   color: #757575; display: flex; align-items: center;

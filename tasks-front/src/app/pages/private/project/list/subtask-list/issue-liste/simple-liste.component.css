@@ -41,13 +41,13 @@
 }
 
 .project-title {
-  font-size: 1rem;
+  font-size: 12px;
   font-weight: bold;
   color: #333333;
   margin-right: 15px;
 }
 
 .project-description {
-  font-size: 0.9rem;
+  font-size: 12px;
   color: #666666;
 }

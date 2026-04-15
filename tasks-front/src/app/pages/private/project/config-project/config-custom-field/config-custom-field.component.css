@@ -70,7 +70,7 @@
   box-sizing: border-box;
   cursor: move;
   background: white;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .cdk-drag-preview {

@@ -13,7 +13,7 @@
   justify-content: space-between; /* Espace entre le texte et l'icône */
   align-items: center; /* Centrer le texte et l'icône verticalement */
   padding: 12px 16px; /* Espacement interne des boutons */
-  font-size: 14px; /* Taille de la police */
+  font-size: 12px; /* Taille de la police */
   color: #333; /* Couleur de texte par défaut */
   transition: all 0.3s ease; /* Transition douce */
   border-radius: 6px; /* Coins arrondis pour chaque élément */
@@ -22,7 +22,7 @@
 
 /* Style des icônes à droite */
 .menu-icon-right {
-  font-size: 18px; /* Taille des icônes */
+  font-size: 13px; /* Taille des icônes */
   margin-left: 12px; /* Espace entre le texte et l'icône */
   color: #666; /* Couleur de l'icône par défaut */
   transition: color 0.3s ease; /* Animation de la couleur de l'icône */

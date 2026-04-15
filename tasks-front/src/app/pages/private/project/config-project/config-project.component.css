@@ -66,7 +66,7 @@
 
 .menu button {
   background: none;
-  font-size: 1rem;
+  font-size: 12;
   padding: 0.5rem 1rem;
   border: none;
   cursor: pointer;
@@ -88,7 +88,7 @@
 }
 
 .content h3 {
-  font-size: 1.2rem;
+  font-size: 12;
   margin-bottom: 0.5rem;
   color: #333;
 }

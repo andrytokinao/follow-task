@@ -49,12 +49,12 @@
 .user-name {
   font-weight: bold;
   color: #333;
-  font-size: 1rem;
+  font-size: 12px;
 }
 
 .message {
   color: #555;
-  font-size: 0.9rem;
+  font-size: 12px;
   margin-top: 5px;
 }
 
