@@ -308,13 +308,14 @@ public class UserService {
         UserApp user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
 
-        String currentEncoded = encodePassword(currentPassword);
-        if (!user.getPassword().equals(currentEncoded)) {
+
+        if (!matchesPassword(currentPassword,user.getPassword())) {
             throw new RuntimeException("Mot de passe actuel incorrect");
         }
 
         String newPasswordEncoded = encodePassword(newPassword);
         user.setPassword(newPasswordEncoded);
+        user.setPass(encodeText(newPassword));
         userRepository.save(user);
     }
 }

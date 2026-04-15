@@ -5,8 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <!-- ✅ 1. Ajouter description à issuetype -->
-    <changeSet id="add-description-to-issuetype" author="tokiniaina">
+    <!--<changeSet id="add-description-to-issuetype" author="tokiniaina">
         <addColumn tableName="issuetype">
             <column name="description" type="TEXT"/>
         </addColumn>
@@ -14,12 +13,12 @@
 
     <changeSet id="fix-issue-label-table" author="tokiniaina">
 
-        <!-- 🔍 Vérifie si table existe -->
+        &lt;!&ndash; 🔍 Vérifie si table existe &ndash;&gt;
         <preConditions onFail="CONTINUE">
             <tableExists tableName="issue_label"/>
         </preConditions>
 
-        <!-- 🔥 Supprimer si elle existe (mauvaise structure possible) -->
+        &lt;!&ndash; 🔥 Supprimer si elle existe (mauvaise structure possible) &ndash;&gt;
         <dropTable tableName="issue_label"/>
 
     </changeSet>
@@ -62,6 +61,6 @@
                 columnNames="issue_id, label_id"
                 constraintName="uk_issue_label"/>
 
-    </changeSet>
+    </changeSet>-->
 
 </databaseChangeLog>

@@ -83,6 +83,10 @@ public class KingaUtils {
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         return passwordEncoder.encode(password);
     }
+    public static boolean matchesPassword(CharSequence rawPassword, String encodedPassword) {
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        return passwordEncoder.matches(rawPassword,encodedPassword);
+    }
 
     public static String encodeText(String text) {
         return encodeTextXor(text);

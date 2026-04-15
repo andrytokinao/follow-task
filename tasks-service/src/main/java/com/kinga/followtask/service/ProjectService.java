@@ -211,7 +211,7 @@ public class ProjectService {
         Icone sousTacheIcone = iconeRepository.save(new Icone("\uf0ae", "fas fa-tasks", "class"));
         soutache = new IssueType();
         soutache.setName(TASK);
-        soutache.setPrefix(SUB_TASK.name());
+        soutache.setPrefix(TASK);
         soutache.setLevel(SUB_TASK);
         soutache.setIcone(sousTacheIcone);
         soutache.setCurentWorkFlow(getDefaultWorkFlow());
