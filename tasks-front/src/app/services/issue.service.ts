@@ -1172,8 +1172,7 @@ export class IssueService implements OnInit {
 
         if (dialogElement) {
           dialogElement.style.position = 'absolute';
-          dialogElement.style.left = `${buttonRect.right + 10}px`;
-          dialogElement.style.top = `${buttonRect.top - 20}px`;
+
           dialogElement.style.margin = '0';
           dialogElement.style.transform = 'none';
         }
