@@ -136,7 +136,7 @@
   <div (click)="$event.stopPropagation()" class="submenu-form-wrapper">
     <app-issutype-form2
       #issutypeForm
-      (oneSaved)="onIssueTypeSaved()">
+      (oneSaved)="onIssueTypeSaved($any($event))">
     </app-issutype-form2>
   </div>
 </mat-menu>

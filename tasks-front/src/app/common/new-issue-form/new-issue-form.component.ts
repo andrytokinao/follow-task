@@ -262,8 +262,12 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
     return '';
   }
 
-  onIssueTypeSaved() {
-
+  onIssueTypeSaved(issueType:IssueType) {
+    this.issueType = issueType;
+    this.newIssueTypeTrigger.closeMenu();
+    this.menuTrigger.closeMenu();
+    this.issueService.allIssueType(this.project.id);
+    this.loadNextKey();
   }
 
   onMenuIssuetypeOpened() {

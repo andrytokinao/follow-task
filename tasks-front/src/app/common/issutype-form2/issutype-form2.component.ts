@@ -127,9 +127,9 @@ export class IssutypeForm2Component {
     }
 
     this.issueService.saveIssueType(issueType).subscribe({
-      next: () => {
+      next: (saved) => {
         this.saving = false;
-        this.oneSaved.emit(issueType);
+        this.oneSaved.emit(saved);
         this.onReset();
       },
       error: () => {
