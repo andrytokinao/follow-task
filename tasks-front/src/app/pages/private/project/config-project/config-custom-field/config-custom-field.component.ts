@@ -15,13 +15,14 @@ import {CustomFieldComponent} from "../../../../../common/custom-field/custom-fi
 import {IssueTypeModalComponent} from "../issue-type/issue-type-modal/issue-type-modal.component";
 import {PopupCustomFieldComponent} from "./popup-custom-field/popup-custom-field.component";
 import {CustomFieldStepperComponent} from "./custom-field-stepper/custom-field-stepper.component";
+import {IconeViewComponent} from "../../../../../common/icone-view/icone-view.component";
 
 @Component({
   selector: 'config-app-custom-field',
   templateUrl: './config-custom-field.component.html',
   styleUrl: './config-custom-field.component.css',
   standalone: true,
-  imports: [MyCommonModule, NgForOf],
+  imports: [MyCommonModule, NgForOf,IconeViewComponent],
 })
 export class ConfigCustomFieldComponent implements OnInit{
   activeModal: any;

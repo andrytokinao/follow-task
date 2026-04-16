@@ -13,6 +13,7 @@ import {CommonModule, NgIf} from "@angular/common";
 import {MyCommonModule} from "../common.module";
 import {ProjectGuard} from "../../services/ProjectGuard";
 import {IssueService} from "../../services/issue.service";
+import {IconeViewComponent} from "../icone-view/icone-view.component";
 
 @Component({
   selector: 'app-custom-field',
@@ -20,7 +21,8 @@ import {IssueService} from "../../services/issue.service";
   imports: [
     NgIf,
     MyCommonModule,
-    CommonModule
+    CommonModule,
+    IconeViewComponent
   ],
   templateUrl: './custom-field.component.html',
   styleUrl: './custom-field.component.css'

@@ -50,6 +50,7 @@ import {MatDivider} from "@angular/material/divider";
 import {ProjectHomeComponent} from "./home/home.component";
 import {DashboardModule} from "../../../dashboard/dashboard.module";
 import {UserAvatarComponent} from "../../../common/user-avatar/user-avatar.component";
+import {IconeViewComponent} from "../../../common/icone-view/icone-view.component";
 
 @NgModule({
   declarations: [
@@ -109,7 +110,8 @@ import {UserAvatarComponent} from "../../../common/user-avatar/user-avatar.compo
     MatCheckbox,
     MatDivider,
     DashboardModule,
-    UserAvatarComponent
+    UserAvatarComponent,
+    IconeViewComponent
   ]
 })
 export class ProjectModule { }

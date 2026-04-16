@@ -72,8 +72,7 @@
       <!-- Aperçu live -->
       <div class="preview" *ngIf="form.get('name')?.value"
            [style.--c]="form.get('color')?.value || '#6C63FF'">
-        <mat-icon>{{ selectedIcone?.value || 'category' }}</mat-icon>
-        <span class="prev-name">{{ form.get('name')?.value }}</span>
+        <app-icone-view [icon]="selectedIcone" [color]="form.get('color')?.value || '#6C63FF'"></app-icone-view>
         <code *ngIf="form.get('prefix')?.value">{{ form.get('prefix')?.value }}</code>
       </div>
 

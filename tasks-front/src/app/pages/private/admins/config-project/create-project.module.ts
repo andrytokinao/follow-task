@@ -17,6 +17,7 @@ import {WorkFlowStatusComponent} from "./work-flow-status/work-flow-status.compo
 import {DialogOverviewComponent} from "./dialog-overview/dialog-overview.component";
 import {IssueTypeComponent} from "./issue-type/issue-type.component";
 import {IssuetypeFormComponent} from "../../../../common/issuetype-form/issuetype-form.component";
+import {IconeViewComponent} from "../../../../common/icone-view/icone-view.component";
 
 @NgModule({
   declarations: [
@@ -40,6 +41,7 @@ import {IssuetypeFormComponent} from "../../../../common/issuetype-form/issuetyp
         CommonModule,
         MyCommonModule,
         CreateProjectRoutingModule,
+      IconeViewComponent
     ]
 })
 export class CreateProjectModule { }

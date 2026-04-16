@@ -17,6 +17,7 @@ import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {MatSelectionList} from "@angular/material/list";
 import {MatOption, MatSelect} from "@angular/material/select";
 import {MatRadioButton, MatRadioGroup} from "@angular/material/radio";
+import {IconeViewComponent} from "../../../../../../common/icone-view/icone-view.component";
 
 @Component({
   selector: 'app-issue-type-modal',
@@ -38,7 +39,8 @@ import {MatRadioButton, MatRadioGroup} from "@angular/material/radio";
     MatSelect,
     MatOption,
     MatRadioGroup,
-    MatRadioButton
+    MatRadioButton,
+    IconeViewComponent
   ],
   templateUrl: './issue-type-modal.component.html',
   styleUrl: './issue-type-modal.component.css'

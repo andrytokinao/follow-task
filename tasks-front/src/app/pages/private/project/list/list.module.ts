@@ -38,6 +38,7 @@ import {ShowMasterListComponent} from "./issue-master-list/show-master-list/show
 import {LabelFormComponent} from "../../../../common/label-form/label-form.component";
 import {TableMasterComponent} from "./issue-master-list/table-master/table-master.component";
 import {IssueBoaardComponent} from "./issue-boaard/issue-boaard.component";
+import {IconeViewComponent} from "../../../../common/icone-view/icone-view.component";
 
 @NgModule({
   declarations: [
@@ -85,7 +86,8 @@ import {IssueBoaardComponent} from "./issue-boaard/issue-boaard.component";
     DataRowOutlet,
     DayPilotModule,
     ProjectModule,
-    MatDividerModule
+    MatDividerModule,
+    IconeViewComponent
 
   ]
 })

@@ -35,6 +35,7 @@ import {MatRadioButton, MatRadioGroup} from "@angular/material/radio";
 import {StepperWorkflowComponent} from "./work-flow/stepper-workflow/stepper-workflow.component";
 import {IssueType2Component} from "./issue-type2/issue-type2.component";
 import {IssutypeForm2Component} from "../../../../common/issutype-form2/issutype-form2.component";
+import {IconeViewComponent} from "../../../../common/icone-view/icone-view.component";
 
 @NgModule({
   declarations: [
@@ -89,7 +90,7 @@ import {IssutypeForm2Component} from "../../../../common/issutype-form2/issutype
     MatRadioButton,
     MatRadioGroup,
     IssutypeForm2Component,
-
+    IconeViewComponent
   ]
 })
 export class ConfigProjectModule { }

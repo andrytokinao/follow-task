@@ -21,6 +21,8 @@ import { NgxColorsModule } from 'ngx-colors';
 import { IssueType, Project, Icone } from '../../type/issue';
 import { IssueService } from '../../services/issue.service';
 import { ChooseDialogComponent } from '../icone-field/choose-dialog/choose-dialog.component';
+import {MyCommonModule} from "../common.module";
+import {IconeViewComponent} from "../icone-view/icone-view.component";
 
 @Component({
   selector: 'app-issutype-form2',
@@ -40,7 +42,8 @@ import { ChooseDialogComponent } from '../icone-field/choose-dialog/choose-dialo
     TextFieldModule,
     NgxColorsModule,
     CommonModule,
-    ChooseDialogComponent
+    ChooseDialogComponent,
+    IconeViewComponent
   ],
   templateUrl: './issutype-form2.component.html',
   styleUrl: './issutype-form2.component.css'

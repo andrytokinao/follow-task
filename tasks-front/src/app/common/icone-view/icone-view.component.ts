@@ -1,9 +1,13 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {Icone, Issue} from "../../type/issue";
 import {extractClass} from "@angular/compiler-cli/src/ngtsc/docs/src/class_extractor";
+import {CommonModule} from "@angular/common";
 
 @Component({
-  standalone: false,
+  standalone: true,
+  imports:[
+    CommonModule
+  ],
   selector: 'app-icone-view',
   templateUrl: './icone-view.component.html',
   styleUrl: './icone-view.component.css'

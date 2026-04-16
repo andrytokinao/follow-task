@@ -59,6 +59,7 @@ import {AddNewValueComponent} from "../../../../common/add-new-value/add-new-val
 import {
     IssueDocumentsViewerComponent
 } from "../../../../common/issue-documents-viewer/issue-documents-viewer.component";
+import {IconeViewComponent} from "../../../../common/icone-view/icone-view.component";
 
 
 @NgModule({
@@ -126,7 +127,8 @@ import {
         MatListItem,
         AngularSplitModule,
         AddNewValueComponent,
-        IssueDocumentsViewerComponent
+        IssueDocumentsViewerComponent,
+        IconeViewComponent
     ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
