@@ -20,7 +20,7 @@ import {ALL_EVENT_TYPE} from "../../type/graphql.operations";
   standalone:false,
   selector: 'app-new-issue-form',
   templateUrl: './new-issue-form.component.html',
-  styleUrls: ['./new-issue-form.component.css']
+  styleUrls: ['./new-issue-form.component.scss']
 })
 export class NewIssueFormComponent implements OnInit, AfterViewInit{
   issueKey: String = '';
@@ -44,7 +44,7 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
 
   @ViewChild('autosize') autosize: CdkTextareaAutosize | undefined;
   private _injector = inject(Injector);
-  private errorMessage: string;
+  protected errorMessage: string;
 
   constructor(public issueService: IssueService,
     protected messageService :MessagesService
@@ -228,10 +228,41 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
 
   }
   isSubtask(){
+    if (this.isMaster)
+      return false;
     return (this.parentIssue != undefined && this.parentIssue != null)
   }
 
   onOpen() {
     this.loadNextKey();
+  }
+  getIssueTypeColor(type: IssueType | null | undefined): string {
+    if (!type) return '#aaa';
+    if (type.color)
+      return type.color.toString();
+    const name = (type.name || '').toLowerCase();
+    if (name.includes('bug'))                          return '#e74c3c';
+    if (name.includes('story'))                        return '#27ae60';
+    if (name.includes('tâche') || name.includes('task')) return '#2980b9';
+    if (name.includes('epic'))                         return '#8e44ad';
+    if (name.includes('sub') || name.includes('sous')) return '#e67e22';
+    return '#607d8b';
+  }
+
+  getIssueTypeClass(type: IssueType | null | undefined): string {
+    if (!type) return '';
+    if (type.color)
+      return 'type-custom';
+    const name = (type.name || '').toLowerCase();
+    if (name.includes('bug'))                          return 'type-bug';
+    if (name.includes('story'))                        return 'type-story';
+    if (name.includes('tâche') || name.includes('task')) return 'type-task';
+    if (name.includes('epic'))                         return 'type-epic';
+    if (name.includes('sub') || name.includes('sous')) return 'type-sub';
+    return '';
+  }
+
+  onIssueTypeSaved() {
+
   }
 }

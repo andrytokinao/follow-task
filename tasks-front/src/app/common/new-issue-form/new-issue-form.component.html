@@ -1,77 +1,136 @@
-<form #f="ngForm"  novalidate style="min-width: 500px" (click)="clickMenu($event)">
-  <div class="form-group">
+<form #f="ngForm" novalidate (click)="clickMenu($event)" class="issue-form">
 
-    <!-- Project (avec mat-menu) -->
-      <div *ngIf="isMaster">
-        <h2 mat-button [matMenuTriggerFor]="projectMenu" color="primary"  #subMenuTrigger="matMenuTrigger">
-          Créer une demande pour l'équipe de :
-          <i>{{ project?.name || 'Aucun' }}</i>
-          <i class="fas fa-edit" style="float: right"> </i>
-        </h2>
-        <mat-menu #projectMenu="matMenu"  >
-          <button mat-menu-item *ngFor="let pr of projects" (click)="selectProject($event,subMenuTrigger,pr)">
-            <i class="fas fa-plus"></i>
-            {{ pr.name }}
+  <!-- Header -->
+  <div class="form-header">
+    <span class="form-title">{{ isSubtask() ? 'Nouvelle sous-tâche' : 'Nouvelle demande' }}</span>
+    <button mat-icon-button type="button" (click)="cancel()" class="close-btn">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="form-body">
+
+    <!-- Ligne 1 : Type de demande + Clé (50 / 50) -->
+    <div class="row-split">
+
+      <!-- Colonne gauche : Type -->
+      <div class="field-col">
+        <label class="field-label">Type de demande</label>
+        <div class="type-col">
+          <button
+            mat-stroked-button
+            type="button"
+            [matMenuTriggerFor]="typeMenu"
+            #subMenuIssueType="matMenuTrigger"
+            class="type-btn"
+            [ngClass]="getIssueTypeClass(issueType)"
+            [style.--type-color]="issueType?.color || null">
+            <span class="type-dot" [style.background]="getIssueTypeColor(issueType)"></span>
+            <span class="btn-label">{{ issueType?.name || 'Sélectionner…' }}</span>
+            <mat-icon class="arrow-icon">expand_more</mat-icon>
           </button>
-        </mat-menu>
+        </div>
       </div>
 
-
-
-      <div >
-        <button mat-button [matMenuTriggerFor]="typeMenu" color="primary" #subMenuIssuType="matMenuTrigger">
-          Type de demande :
-          <strong>{{ issueType?.name || 'Aucun' }}</strong>
-          <i class="fas fa-edit" style="float: right"> </i>
-
-        </button>
-        <i class="fas fa-ellipsis-v" style="float: right;cursor: pointer"> </i>
+      <!-- Colonne droite : Clé -->
+      <div class="field-col">
+        <label class="field-label">Clé</label>
+        <mat-form-field appearance="outline" class="field-input">
+          <input
+            matInput
+            name="issueKey"
+            required
+            [(ngModel)]="issueKey"
+            #key="ngModel"
+            [ngModelOptions]="{standalone: true}"
+            [disabled]="isDesable" />
+          <mat-error *ngIf="key.invalid && (key.dirty || f.submitted)">Requis</mat-error>
+        </mat-form-field>
       </div>
 
-    <mat-menu #typeMenu="matMenu" >
-      <button mat-menu-item *ngFor="let type of useIssueType" (click)="selectIssueType($event,subMenuIssuType,type)">
-        {{ type.name }}
-      </button>
-    </mat-menu>
+    </div>
 
-    <!-- Titre -->
-    <mat-form-field style="width: 100%">
-      <mat-label>Titre</mat-label>
-      <input matInput
-             name="summary"
-             required
-             [(ngModel)]="summary"
-             #summaryField="ngModel"
-             [ngModelOptions]="{standalone: true}" />
-      <mat-error *ngIf="summaryField.invalid && (summaryField.dirty || f.submitted)">
-        Le titre est requis
-      </mat-error>
-    </mat-form-field>
-    <label>Description</label>
-    <app-quill-editor  [(content)]="description" [theme]="'snow'"></app-quill-editor>
-
-
-
-    <!-- Boutons -->
-    <div class="form-actions" style="text-align: right;">
-      <!-- Clé -->
-      <mat-form-field style="width: 50%">
-        <mat-label>Clé</mat-label>
-        <input matInput
-               name="issueKey"
-               required
-               [(ngModel)]="issueKey"
-               #key="ngModel"
-               [ngModelOptions]="{standalone: true}" />
-        <mat-error *ngIf="key.invalid && (key.dirty || f.submitted)">
-          La clé est requise
+    <!-- Ligne 2 : Titre (pleine largeur) -->
+    <div class="field-col">
+      <label class="field-label">Titre</label>
+      <mat-form-field appearance="outline" class="field-input field-full">
+        <input
+          matInput
+          name="summary"
+          required
+          [(ngModel)]="summary"
+          #summaryField="ngModel"
+          [ngModelOptions]="{standalone: true}"
+          placeholder="Résumé de la demande…" />
+        <mat-error *ngIf="summaryField.invalid && (summaryField.dirty || f.submitted)">
+          Le titre est requis
         </mat-error>
       </mat-form-field>
-      <button mat-button type="button" (click)="cancel()" [disabled]="saving">Annuler</button>
-      <button mat-raised-button color="primary" type="submit" [disabled]="!canCreate()" (click)="save(f)">Créer</button>
+    </div>
+
+    <!-- Description -->
+    <div class="field-col">
+      <label class="field-label">Description</label>
+      <div class="quill-wrap">
+        <app-quill-editor [(content)]="description" [theme]="'snow'"></app-quill-editor>
+      </div>
+    </div>
+
+    <!-- Erreur globale -->
+    <div *ngIf="errorMessage" class="error-banner">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ errorMessage }}</span>
+    </div>
+
+  </div><!-- /form-body -->
+
+  <!-- Footer -->
+  <div class="form-footer">
+    <div class="footer-left">
+      <span class="key-badge" *ngIf="issueKey">
+        <mat-icon class="badge-icon">tag</mat-icon>
+        {{ issueKey }}
+      </span>
+    </div>
+    <div class="footer-actions">
+      <button mat-button type="button" (click)="cancel()" [disabled]="saving" class="btn-cancel">
+        Annuler
+      </button>
+      <button
+        mat-raised-button
+        color="primary"
+        type="submit"
+        [disabled]="!canCreate()"
+        (click)="save(f)"
+        class="btn-create">
+        <mat-spinner *ngIf="saving" diameter="13" class="spinner-inline"></mat-spinner>
+        Créer
+      </button>
     </div>
   </div>
 
-
-
 </form>
+
+<!-- ── Menu type de demande ── -->
+<mat-menu #typeMenu="matMenu" class="compact-menu">
+  <button
+    mat-menu-item
+    *ngFor="let type of useIssueType"
+    (click)="selectIssueType($event, subMenuIssueType, type)"
+    class="type-menu-item">
+    <span class="type-dot-sm" [style.background]="getIssueTypeColor(type)"></span>
+    <span>{{ type.name }}</span>
+  </button>
+  <mat-divider></mat-divider>
+  <button mat-menu-item [matMenuTriggerFor]="newTypeMenu" class="new-type-btn">
+    <mat-icon>add</mat-icon>
+    <span>Nouveau type</span>
+  </button>
+</mat-menu>
+
+<!-- ── Sous-menu nouveau type ── -->
+<mat-menu #newTypeMenu="matMenu" class="form-submenu">
+  <div (click)="$event.stopPropagation()" class="submenu-form-wrapper">
+    <app-issue-type-form (saved)="onIssueTypeSaved()"></app-issue-type-form>
+  </div>
+</mat-menu>
