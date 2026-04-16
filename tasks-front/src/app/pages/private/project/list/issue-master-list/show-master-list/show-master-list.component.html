@@ -4,6 +4,8 @@
 <div class="master-topbar">
 
   <button class="btn-new" [matMenuTriggerFor]="newMasterMenu"
+          #createMasterTrigger="matMenuTrigger"
+          (menuOpened)="onMenuOpened()"
           *ngIf="projectGuard.hasCredential(['PROJECT_MANAGER']) | async">
     <i class="fas fa-plus"></i> Nouveau projet
   </button>
@@ -97,7 +99,8 @@
   </div>
 </nav>
 
-<mat-menu
-  #newMasterMenu="matMenu">
-    helloo
+<mat-menu #newMasterMenu="matMenu">
+  <app-new-issue-form  [isMaster]="true"
+                      #newIssueForm (saved)="closeIssueFormMenu()">
+  </app-new-issue-form>
 </mat-menu>

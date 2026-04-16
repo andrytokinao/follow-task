@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {ListModule} from "../../list.module";
 import {NgForOf, NgIf} from "@angular/common";
 import {Issue, Project, User} from "../../../../../../type/issue";
@@ -16,6 +16,8 @@ import {ActivatedRoute, ParamMap, Router} from "@angular/router";
 import {NewIssueComponent} from "../../../modal/new-issue/new-issue.component";
 import {ProjectGuard} from "../../../../../../services/ProjectGuard";
 import {MessagesService} from "../../../../../../services/messages.service";
+import {MatMenuTrigger} from "@angular/material/menu";
+import {NewIssueFormComponent} from "../../../../../../common/new-issue-form/new-issue-form.component";
 
 @Component({
   selector: 'app-show-master-list',
@@ -59,6 +61,8 @@ export class ShowMasterListComponent implements OnInit{
 
   }
 
+  @ViewChild('createMasterTrigger') createMasterTrigger!: MatMenuTrigger;
+  @ViewChild('newIssueForm') newIssueForm!: NewIssueFormComponent;
 
   ngAfterViewInit() {
     this.route.data.subscribe(data => {
@@ -199,5 +203,13 @@ export class ShowMasterListComponent implements OnInit{
     if (!this.searchTerm) {
       this.searchOpen = false;
     }
+  }
+
+  closeIssueFormMenu() {
+    this.createMasterTrigger.closeMenu();
+  }
+
+  onMenuOpened() {
+    this.newIssueForm.useIssueTypeMaster(undefined);
   }
 }

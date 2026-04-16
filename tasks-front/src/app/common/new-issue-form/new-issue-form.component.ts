@@ -71,7 +71,7 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
         this.issueTypesMasters = itm;
         if (itm.length > 0) {
           this.issueType = itm[0];
-          this.loadNextKey(this.issueType.id);
+          this.loadNextKey();
         }
       }
     });
@@ -119,7 +119,7 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
         this.saved.emit();
         this.summary = '';
         this.description = '';
-        this.loadNextKey(this.issueType.id);
+        this.loadNextKey();
       },
       error: (err:Error) => {
         console.log(err);
@@ -144,8 +144,8 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
   }
 
 
-  loadNextKey(issueTypeId: number) {
-    this.issueService.getNextKeyParent(issueTypeId,this.project.id).subscribe(key => {
+  loadNextKey() {
+    this.issueService.getNextKeyParent(this.issueType.id,this.project.id).subscribe(key => {
       this.issueKey = key;
       this.isDesable = false;
     });
@@ -161,9 +161,24 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
       this.useIssueType = types;
       if (this.useIssueType.length) {
         this.issueType = this.useIssueType[0];
-        this.loadNextKey(this.issueType.id);
+        this.loadNextKey();
       }
     });
+  }
+  useIssueTypeMaster(defaultType:IssueType | undefined) {
+    this.useIssueType = [];
+    this.useIssueType = this.issueTypesMasters;
+    this.issueType = undefined;
+    if (defaultType) {
+      this.issueType = defaultType;
+      this.loadNextKey();
+      return;
+    }
+    if (this.useIssueType && this.useIssueType.length > 0) {
+      this.issueType = this.useIssueType[0];
+      this.loadNextKey();
+      return;
+    }
   }
 
   issueTypesMasters: IssueType[] = [];
@@ -177,7 +192,7 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
       this.project = pr;
       if (this.useIssueType.length) {
         this.issueType = this.useIssueType[0];
-        this.loadNextKey(this.issueType.id);
+        this.loadNextKey();
       }
     });
     if (trigger)
@@ -195,7 +210,7 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
     if (event)
       event.stopPropagation();
     this.issueType = type;
-    this.loadNextKey(this.issueType.id);
+    this.loadNextKey();
     if (trigger)
       trigger.closeMenu();
   }
@@ -217,6 +232,6 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
   }
 
   onOpen() {
-    this.loadNextKey(this.issueType.id);
+    this.loadNextKey();
   }
 }
