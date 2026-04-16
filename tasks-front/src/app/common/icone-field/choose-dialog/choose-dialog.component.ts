@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component, EventEmitter, Output} from '@angular/core';
 import {NgForOf, NgIf} from "@angular/common";
 import {Icone} from "../../../type/issue";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
@@ -13,6 +13,7 @@ import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
   styleUrl: './choose-dialog.component.css'
 })
 export class ChooseDialogComponent {
+  @Output() iconSelected:EventEmitter<Icone> = new EventEmitter<Icone>();
   constructor(
     public activeModal: NgbActiveModal,
     ) {}
@@ -85,6 +86,7 @@ export class ChooseDialogComponent {
   sele
 
   selectIcon(icon:any){
+    this.iconSelected.emit(icon);
     this.activeModal.close({ icone: icon });
   }
 

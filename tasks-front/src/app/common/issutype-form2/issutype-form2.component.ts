@@ -1,104 +1,138 @@
-import {AfterViewInit, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
-import {MatCard, MatCardContent, MatCardHeader, MatCardTitle} from "@angular/material/card";
-import {MatButton} from "@angular/material/button";
-import {MatIcon} from "@angular/material/icon";
-import {MatFormField, MatFormFieldModule} from "@angular/material/form-field";
-import {NgIf} from "@angular/common";
-import {MatInput, MatInputModule} from "@angular/material/input";
-import {Observable} from "rxjs";
-import {IssueType, Project} from "../../type/issue";
-import {IssueService} from "../../services/issue.service";
-import {error} from "@angular/compiler-cli/src/transformers/util";
+import {
+  Component,
+  EventEmitter,
+  Output, ViewChild
+} from '@angular/core';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators
+} from '@angular/forms';
+import { MatCard, MatCardContent, MatCardHeader } from '@angular/material/card';
+import { MatButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
+import { MatFormField, MatFormFieldModule } from '@angular/material/form-field';
+import { CommonModule } from '@angular/common';
+import { MatInput, MatInputModule } from '@angular/material/input';
+import {MatMenuModule, MatMenuTrigger} from '@angular/material/menu';
+import { TextFieldModule } from '@angular/cdk/text-field';
+import { NgxColorsModule } from 'ngx-colors';
+import { IssueType, Project, Icone } from '../../type/issue';
+import { IssueService } from '../../services/issue.service';
+import { ChooseDialogComponent } from '../icone-field/choose-dialog/choose-dialog.component';
 
 @Component({
   selector: 'app-issutype-form2',
+  standalone: true,
   imports: [
     MatFormField,
-    MatCardTitle,
     MatCardContent,
     MatCard,
     MatCardHeader,
     MatIcon,
     MatButton,
-    ReactiveFormsModule,
-    NgIf,
-    MatInput,
-    ReactiveFormsModule,
+    MatMenuModule,
     MatFormFieldModule,
-    MatInputModule
+    MatInputModule,
+    ReactiveFormsModule,
+    MatInput,
+    TextFieldModule,
+    NgxColorsModule,
+    CommonModule,
+    ChooseDialogComponent
   ],
   templateUrl: './issutype-form2.component.html',
   styleUrl: './issutype-form2.component.css'
 })
-export class IssutypeForm2Component implements OnInit, AfterViewInit{
+export class IssutypeForm2Component {
+
   form: FormGroup;
-  @Input() selectedType$:Observable<'PARENT' | 'SUB_TASK'>;
-  @Output() oneSaved:EventEmitter<IssueType> = new EventEmitter<IssueType>;
-  selectedType: 'PARENT' | 'SUB_TASK';
+  @ViewChild(MatMenuTrigger) iconMenuTrigger!: MatMenuTrigger;
+
+  @Output() oneSaved = new EventEmitter<IssueType>();
+
+  level: 'PARENT' | 'SUB_TASK' = 'PARENT';
+  parent: IssueType | null = null;
+  selectedIcone: Icone | undefined;
   project: Project;
-  saving:boolean;
-  protected errorMessage: string;
+  saving = false;
+  errorMessage: string | undefined;
+
+  colorPalette = [
+    '#6C63FF', '#4f46e5', '#7c3aed',
+    '#db2777', '#dc2626', '#ea7c0e',
+    '#16a34a', '#0284c7', '#0891b2',
+    '#374151', '#6b7280', '#9ca3af',
+  ];
 
   constructor(
     private fb: FormBuilder,
-    private issueService:IssueService
+    private issueService: IssueService
   ) {
     this.form = this.fb.group({
-      name: ['', Validators.required],
-      prefix: ['', Validators.required]
+      name:        ['', Validators.required],
+      prefix:      ['', Validators.required],
+      description: [''],
+      color:       ['#6C63FF'],
     });
+
+    this.issueService.project$.subscribe(p => this.project = p);
   }
 
-  placeholders = {
-    PARENT: {
-      name: 'Ex: Étude topographique complète de la route',
-      prefix: 'Ex: ETR'
-    },
-    SUB_TASK: {
-      name: 'Ex: Relevé topographique secteur A',
-      prefix: 'Ex: RTS-A'
-    }
-  };
-  selectedParent:IssueType;
-  @Input()  selectedParent$:Observable<IssueType>;
+  setLevel(level: 'PARENT' | 'SUB_TASK'): void {
+    this.level = level;
+    this.onReset();
+  }
 
-  onSubmit() {
+  setParent(parent: IssueType | null): void {
+    this.parent = parent;
+    if (this.parent) {
+      this.setLevel('SUB_TASK');
+    }
+  }
+
+  onIconSelected(icone: Icone | any): void {
+    this.selectedIcone = icone;
+    this.iconMenuTrigger.closeMenu();
+  }
+
+  onReset(): void {
+    this.form.reset({ color: '#6C63FF' });
+    this.selectedIcone = undefined;
+    this.errorMessage = undefined;
+  }
+
+  onSubmit(): void {
+    if (this.form.invalid || !this.level) return;
+
     this.errorMessage = undefined;
     this.saving = true;
-    let issueType: IssueType = {
-      level: this.selectedType,
-      name: this.form.get('name')?.value,
-      prefix: this.form.get('prefix')?.value,
-      project:{id:this.project.id}
+
+    const issueType: IssueType = {
+      level:   this.level,
+      name:    this.form.value.name,
+      prefix:  this.form.value.prefix,
+      color:   this.form.value.color,
+      style:   this.form.value.description,
+      icone:   this.selectedIcone,
+      project: { id: this.project.id },
     };
-    if (this.selectedType == 'SUB_TASK') {
-      issueType.parent = {id:this.selectedParent.id}
+
+    if (this.level === 'SUB_TASK' && this.parent) {
+      issueType.parent = { id: this.parent.id };
     }
-    this.issueService.saveIssueType(issueType).subscribe( res => {
-      this.saving = false;
-      this.oneSaved.emit(issueType);
-      this.form.reset();
-    },error => {
-      this.errorMessage = 'Erreur survenu lors de la creation ';
-      this.saving = false;
+
+    this.issueService.saveIssueType(issueType).subscribe({
+      next: () => {
+        this.saving = false;
+        this.oneSaved.emit(issueType);
+        this.onReset();
+      },
+      error: () => {
+        this.errorMessage = 'Erreur lors de la création.';
+        this.saving = false;
       }
-    )
-  }
-
-  ngOnInit(): void {
-    this.selectedType$.subscribe(selectType => {
-    this.selectedType = selectType;
-      this.issueService.project$.subscribe(project => {this.project = project});
-
     });
-  }
-
-  ngAfterViewInit(): void {
-    this.selectedParent$.subscribe(parent => {
-      if (parent)
-        alert(parent.name);
-      this.selectedParent = parent;
-    })
   }
 }

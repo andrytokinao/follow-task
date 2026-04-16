@@ -74,5 +74,5 @@
 
 </div>
 <mat-menu #newIssueType="matMenu">
-   <app-issutype-form2 [selectedType$] ="currentLevel$" [selectedParent$] = "selectedParent$" (oneSaved) = "reloaList($event)"></app-issutype-form2>
+   <app-issutype-form2   (oneSaved) = "reloaList($event)"></app-issutype-form2>
 </mat-menu>

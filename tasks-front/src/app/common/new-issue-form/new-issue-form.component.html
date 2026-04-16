@@ -122,15 +122,21 @@
     <span>{{ type.name }}</span>
   </button>
   <mat-divider></mat-divider>
-  <button mat-menu-item [matMenuTriggerFor]="newTypeMenu" class="new-type-btn">
+  <button mat-menu-item
+          [matMenuTriggerFor]="newTypeMenu"
+          #newIssueTypeTrigger="matMenuTrigger"
+          (menuOpened)="onMenuIssuetypeOpened()" class="new-type-btn">
     <mat-icon>add</mat-icon>
     <span>Nouveau type</span>
   </button>
 </mat-menu>
 
 <!-- ── Sous-menu nouveau type ── -->
-<mat-menu #newTypeMenu="matMenu" class="form-submenu">
+<mat-menu #newTypeMenu="matMenu"  class="form-submenu">
   <div (click)="$event.stopPropagation()" class="submenu-form-wrapper">
-    <app-issue-type-form (saved)="onIssueTypeSaved()"></app-issue-type-form>
+    <app-issutype-form2
+      #issutypeForm
+      (oneSaved)="onIssueTypeSaved()">
+    </app-issutype-form2>
   </div>
 </mat-menu>

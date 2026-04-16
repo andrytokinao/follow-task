@@ -15,6 +15,7 @@ import { IssueService } from '../../services/issue.service';
 import {MessagesService} from "../../services/messages.service";
 import {MatMenuTrigger} from "@angular/material/menu";
 import {ALL_EVENT_TYPE} from "../../type/graphql.operations";
+import {IssutypeForm2Component} from "../issutype-form2/issutype-form2.component";
 
 @Component({
   standalone:false,
@@ -40,12 +41,11 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
   @Input() isMaster = false;
   isDesable = false;
   private toClose: boolean;
-
-
   @ViewChild('autosize') autosize: CdkTextareaAutosize | undefined;
   private _injector = inject(Injector);
   protected errorMessage: string;
-
+  @ViewChild('newIssueTypeTrigger') newIssueTypeTrigger!: MatMenuTrigger;
+  @ViewChild('issutypeForm') issutypeForm!: IssutypeForm2Component;
   constructor(public issueService: IssueService,
     protected messageService :MessagesService
   ) {}
@@ -264,5 +264,10 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
 
   onIssueTypeSaved() {
 
+  }
+
+  onMenuIssuetypeOpened() {
+    this.issutypeForm.setLevel('PARENT');
+    this.issutypeForm.setParent(undefined);
   }
 }

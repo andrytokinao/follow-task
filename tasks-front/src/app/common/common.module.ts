@@ -54,6 +54,7 @@ import {ChatWidgetComponent} from "./chat-widget/chat-widget.component";
 import {NewIssueFormComponent} from "./new-issue-form/new-issue-form.component";
 import {LoadingOverlayComponent} from "./loading-overlay/loading-overlay.component";
 import {SkeletonComponent} from "./skeleton/skeleton.component";
+import {IssutypeForm2Component} from "./issutype-form2/issutype-form2.component";
 
 @NgModule({
   declarations: [
@@ -127,6 +128,7 @@ import {SkeletonComponent} from "./skeleton/skeleton.component";
     NgxColorsModule,
     NgbCarousel,
     NgbSlide,
+    IssutypeForm2Component
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA

@@ -1,54 +1,98 @@
-<div style="max-width:500px; margin: 20px auto;" (click)="$event.stopPropagation()">
+<div class="form-shell" (click)="$event.stopPropagation()">
+  <ng-container >
 
+    <!-- Label de niveau -->
+    <div class="level-strip" [class.is-sub]="level === 'SUB_TASK'">
+      <mat-icon>{{ level === 'SUB_TASK' ? 'subdirectory_arrow_right' : 'folder_special' }}</mat-icon>
+      <span>{{ level === 'SUB_TASK' ? 'Typet Tache' : 'Type principal' }}</span>
+      <span class="parent-hint" *ngIf="level === 'SUB_TASK' && parent">
+        — {{ parent.name }}
+      </span>
+    </div>
 
-  <mat-card *ngIf="selectedType">
-    <mat-card-header>
-      <mat-card-title>
-        {{ selectedType === 'SUB_TASK' ? 'Sous-tâche' : 'Type Principal' }}
-      </mat-card-title>
-    </mat-card-header>
+    <!-- Formulaire -->
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="issue-form">
 
-    <mat-card-content>
+      <mat-form-field appearance="outline" class="fw">
+        <mat-label>Nom</mat-label>
+        <input matInput formControlName="name" placeholder="Ex: Relevé topographique">
+        <mat-error *ngIf="form.get('name')?.hasError('required')">Obligatoire</mat-error>
+      </mat-form-field>
 
-      <!-- Phrase d'explication -->
-      <p style="color:#555; font-size:14px;">
-        {{ selectedType === 'PARENT'
-        ? "Définissez le type de mission globale : saisissez son nom et un préfixe pour l'identifier facilement."
-        : "Définissez les actions précises liées à une mission : donnez un nom et un préfixe unique à cette sous-tâche."
-        }}
+      <mat-form-field appearance="outline" class="fw">
+        <mat-label>Préfixe</mat-label>
+        <input matInput formControlName="prefix" placeholder="Ex: RTS">
+        <mat-error *ngIf="form.get('prefix')?.hasError('required')">Obligatoire</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="fw">
+        <mat-label>Description</mat-label>
+        <textarea matInput formControlName="description"
+                  cdkTextareaAutosize cdkAutosizeMinRows="2" cdkAutosizeMaxRows="5"
+                  placeholder="Rôle et usage de ce type…"></textarea>
+      </mat-form-field>
+
+      <!-- Couleur + Icône -->
+      <div class="row-pair">
+
+        <div class="field-group">
+          <span class="mini-label">Couleur</span>
+          <div class="color-row">
+            <span class="color-dot" [style.background]="form.get('color')?.value"></span>
+            <ngx-colors ngx-colors-trigger
+                        formControlName="color"
+                        [palette]="colorPalette"
+                        [hideTextInput]="false"
+                        format="hex">
+            </ngx-colors>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <span class="mini-label">Icône</span>
+          <button mat-stroked-button type="button"
+                  [matMenuTriggerFor]="iconMenu"
+                  #iconMenuTrigger="matMenuTrigger"
+                  class="icon-btn">
+            <mat-icon [style.color]="form.get('color')?.value">
+              {{ selectedIcone?.value || 'category' }}
+            </mat-icon>
+            <span>{{ selectedIcone?.value || 'Choisir' }}</span>
+            <mat-icon class="arrow">expand_more</mat-icon>
+          </button>
+          <mat-menu #iconMenu="matMenu">
+            <div (click)="$event.stopPropagation()">
+              <app-choose-dialog (iconSelected)="onIconSelected($event)"></app-choose-dialog>
+            </div>
+          </mat-menu>
+        </div>
+
+      </div>
+
+      <!-- Aperçu live -->
+      <div class="preview" *ngIf="form.get('name')?.value"
+           [style.--c]="form.get('color')?.value || '#6C63FF'">
+        <mat-icon>{{ selectedIcone?.value || 'category' }}</mat-icon>
+        <span class="prev-name">{{ form.get('name')?.value }}</span>
+        <code *ngIf="form.get('prefix')?.value">{{ form.get('prefix')?.value }}</code>
+      </div>
+
+      <p class="err" *ngIf="errorMessage">
+        <mat-icon>error_outline</mat-icon> {{ errorMessage }}
       </p>
 
-
-
-      <form [formGroup]="form" (ngSubmit)="onSubmit()" style="margin-top:10px;">
-
-        <mat-form-field appearance="outline" style="width:100%; margin-bottom:15px;">
-          <mat-label>Nom</mat-label>
-          <input matInput formControlName="name"
-                 [placeholder]="placeholders[selectedType].name">
-          <mat-icon matSuffix>edit</mat-icon>
-          <mat-error *ngIf="form.get('name')?.hasError('required')">
-            Le nom est obligatoire
-          </mat-error>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" style="width:100%; margin-bottom:15px;">
-          <mat-label>Préfixe</mat-label>
-          <input matInput formControlName="prefix"
-                 [placeholder]="placeholders[selectedType].prefix">
-          <mat-icon matSuffix>label</mat-icon>
-          <mat-error *ngIf="form.get('prefix')?.hasError('required')">
-            Le préfixe est obligatoire
-          </mat-error>
-        </mat-form-field>
-        <div *ngIf="errorMessage" class="error-container"> {{errorMessage}} </div>
-        <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">
-          <mat-icon>check_circle</mat-icon> Créer
+      <!-- Actions -->
+      <div class="actions">
+        <button mat-button type="button" (click)="onReset()" [disabled]="saving">
+          Réinitialiser
         </button>
+        <button mat-flat-button color="primary" type="submit"
+                [disabled]="form.invalid || saving">
+          {{ saving ? 'Enregistrement…' : 'Créer' }}
+        </button>
+      </div>
 
-      </form>
+    </form>
 
-
-    </mat-card-content>
-  </mat-card>
+  </ng-container>
 </div>
