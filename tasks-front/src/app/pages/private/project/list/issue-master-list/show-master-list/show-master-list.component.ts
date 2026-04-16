@@ -207,6 +207,7 @@ export class ShowMasterListComponent implements OnInit{
 
   closeIssueFormMenu() {
     this.createMasterTrigger.closeMenu();
+    this.loadIssueMasters();
   }
 
   onMenuOpened() {
