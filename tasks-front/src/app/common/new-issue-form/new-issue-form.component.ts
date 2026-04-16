@@ -37,7 +37,7 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
   @ViewChild(MatMenuTrigger) menuTrigger!: MatMenuTrigger;
   @Output() saved = new EventEmitter<void>();
   step: string = '';
-  @Input() isMaster = true;
+  @Input() isMaster = false;
   isDesable = false;
   private toClose: boolean;
 
