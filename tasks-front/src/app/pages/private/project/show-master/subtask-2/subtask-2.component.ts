@@ -138,6 +138,7 @@ export class Subtask2Component implements OnInit {
 
   // ── Menus ───────────────────────────────────────────────────────
   onMenuOpened(): void {
+    this.newIssueForm?.setIsMaster(false);
     this.newIssueForm?.onOpen();
   }
 

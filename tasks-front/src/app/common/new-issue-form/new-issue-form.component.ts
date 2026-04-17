@@ -38,7 +38,7 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
   @ViewChild(MatMenuTrigger) menuTrigger!: MatMenuTrigger;
   @Output() saved = new EventEmitter<void>();
   step: string = '';
-  @Input() isMaster = false;
+  @Input() isMaster = true;
   isDesable = false;
   private toClose: boolean;
   @ViewChild('autosize') autosize: CdkTextareaAutosize | undefined;
@@ -263,15 +263,28 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
   }
 
   onIssueTypeSaved(issueType:IssueType) {
-    this.issueType = issueType;
     this.newIssueTypeTrigger.closeMenu();
     this.menuTrigger.closeMenu();
-    this.issueService.allIssueType(this.project.id);
+    this.pushIssueType(issueType);
+    this.issueType = issueType;
     this.loadNextKey();
   }
 
   onMenuIssuetypeOpened() {
-    this.issutypeForm.setLevel('PARENT');
-    this.issutypeForm.setParent(undefined);
+    if (this.isMaster) {
+      this.issutypeForm.setLevel('PARENT');
+      this.issutypeForm.setParent(undefined);
+    } else {
+      this.issutypeForm.setLevel('SUB_TASK');
+      this.issutypeForm.setParent(this.parentIssue.issueType);
+    }
+  }
+  pushIssueType(issueType){
+    if (!this.useIssueType)
+      this.useIssueType = [];
+    this.useIssueType.push(issueType);
+  }
+  setIsMaster(b: boolean) {
+    this.isMaster = b;
   }
 }
