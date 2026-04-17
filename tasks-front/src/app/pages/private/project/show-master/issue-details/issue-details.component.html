@@ -90,36 +90,10 @@
         <div class="card-section-header">
           <span class="section-title">
             <i class="fas fa-comments"></i> Commentaires
-            <span class="count-badge">{{ comments?.length || 0 }}</span>
           </span>
         </div>
-        <div class="comments-list">
-          <div class="comment-item" *ngFor="let c of comments">
-            <img [src]="userService.getUrlPhoto(c.user)" [alt]="c.user?.firstName" class="avatar-sm" onerror="this.src='assets/default-avatar.png'">
-            <div class="comment-body">
-              <div class="comment-meta">
-                <span class="comment-author">{{ c.user?.firstName }} {{ c.user?.lastName }}</span>
-                <span class="comment-date">{{ c.date | date:'dd MMM yyyy, HH:mm' }}</span>
-              </div>
-              <p class="comment-text" [innerHTML]="c.text"></p>
-            </div>
-          </div>
-          <div class="empty-state-inline" *ngIf="!comments || comments.length === 0">
-            <i class="fas fa-comment-slash"></i><span>Aucun commentaire</span>
-          </div>
-        </div>
-        <div class="add-comment-area">
-          <img [src]="userService.getUrlPhoto(profile)" class="avatar-sm" onerror="this.src='assets/default-avatar.png'">
-          <div class="comment-input-wrapper">
-            <mat-form-field class="full-width" appearance="outline">
-              <mat-label>Ajouter un commentaire…</mat-label>
-              <textarea matInput [(ngModel)]="comment.text" rows="3"></textarea>
-            </mat-form-field>
-            <button class="btn-save" (click)="addComment()" [disabled]="!comment.text">
-              <i class="fas fa-paper-plane"></i> Envoyer
-            </button>
-          </div>
-        </div>
+        <comments-componets></comments-componets>
+
       </div>
 
       <div class="stats-section">
