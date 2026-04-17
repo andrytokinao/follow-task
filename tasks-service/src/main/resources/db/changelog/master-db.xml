@@ -12,12 +12,9 @@
 
     <changeSet id="fix-issue-label-table" author="tokiniaina">
 
-        &lt;!&ndash; 🔍 Vérifie si table existe &ndash;&gt;
         <preConditions onFail="CONTINUE">
             <tableExists tableName="issue_label"/>
         </preConditions>
-
-        &lt;!&ndash; 🔥 Supprimer si elle existe (mauvaise structure possible) &ndash;&gt;
         <dropTable tableName="issue_label"/>
 
     </changeSet>
