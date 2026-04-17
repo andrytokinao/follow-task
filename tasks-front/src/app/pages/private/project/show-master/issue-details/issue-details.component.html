@@ -1,51 +1,266 @@
-<div class="task-page">
-  <div class="task-container">
-    <mat-card class="task-card">
-      <mat-card-header>
-        <mat-card-title>
-          <h1 *ngIf="!editSummary"  style="cursor: pointer" >{{parentIssue.issueKey}} {{ parentIssue.summary }} <i class="fas fa-edit" (click)="editIssueSummary()" *ngIf="projectGuard.hasCredential(['CAN_EDIT_FIELD']) | async"></i> </h1>
-          <h1 *ngIf="editSummary">
-            <mat-form-field class="example-full-width">
-              <input
-                [(ngModel)]="parentIssue.summary"
-                type="text"
-                matInput
-                placeholder="Summary"
-              >
-              <i style="float:right;cursor: pointer" class="fas fa-save" (click)="saveIssue()" *ngIf="editSummary"> </i>
+<div class="issue-page">
+
+  <div class="issue-header-bar">
+    <div class="issue-breadcrumb">
+      <span class="breadcrumb-project">{{ parentIssue?.issueKey?.split('-')[0] }}</span>
+      <i class="fas fa-chevron-right breadcrumb-sep"></i>
+      <span class="breadcrumb-key">{{ parentIssue?.issueKey }}</span>
+    </div>
+    <div class="issue-header-actions">
+      <button class="btn-icon" title="Partager"><i class="fas fa-share-alt"></i></button>
+      <button class="btn-icon" title="Suivre"><i class="far fa-star"></i></button>
+      <button class="btn-icon" title="Plus"><i class="fas fa-ellipsis-h"></i></button>
+    </div>
+  </div>
+
+  <div class="issue-layout">
+
+    <div class="issue-main">
+
+      <div class="card title-card">
+        <div class="issue-type-badge" *ngIf="issueType">
+          <i class="fas fa-tasks"></i> {{ issueType?.name }}
+        </div>
+        <div class="summary-wrapper">
+          <h1 class="issue-title" *ngIf="!editSummary" (click)="editIssueSummary()">
+            {{ parentIssue?.summary }}
+            <i class="fas fa-pencil-alt edit-hint" *ngIf="projectGuard.hasCredential(['CAN_EDIT_FIELD']) | async"></i>
+          </h1>
+          <div class="summary-edit" *ngIf="editSummary">
+            <mat-form-field class="full-width" appearance="outline">
+              <mat-label>Résumé</mat-label>
+              <input [(ngModel)]="parentIssue.summary" matInput placeholder="Résumé de la tâche">
             </mat-form-field>
-            </h1>
-        </mat-card-title>
-        <span style="display: inline;margin-right: 1px">
-          <app-status-field [issue]="parentIssue"></app-status-field>
-         <app-assign-field [issue]="parentIssue"></app-assign-field>
-        </span>
-
-        <mat-card-subtitle>
-          Description de la tâche <i class="fas fa-edit" *ngIf="(projectGuard.hasCredential(['CAN_EDIT_FIELD']) | async) && !editDescription" (click)="editIssueDescription()"></i>
-        </mat-card-subtitle>
-      </mat-card-header>
-
-      <mat-card-content>
-        <p *ngIf="!editDescription" [innerHTML]="parentIssue.description"  style="cursor: pointer"> </p>
-        <app-quill-editor *ngIf="editDescription" [(content)]="parentIssue.description" [theme]="'snow'"></app-quill-editor>
-        <button *ngIf="editDescription || editSummary" (click)="saveIssue()" >                <i style="float:right;cursor: pointer" class="fas fa-save" (click)="saveIssue()" *ngIf="editSummary"> </i>
-          Save </button>
-        <button *ngIf="editDescription || editSummary" (click)="editDescription = false; editSummary = false">
-          <i style="float:right;cursor: pointer" class="fas fa-save"  *ngIf="editSummary"> </i>
-          cancel </button>
-        <div class="custom-fields">
-          <h4>Champs personnalisés</h4>
-          <div class="field" *ngFor="let value of values">
-              <app-custom-field
-                [customFieldValue]="value" (saved)="saveCustomFieldValue($event)"
-                [viewMode]="viewModeField"
-              > </app-custom-field>
           </div>
         </div>
-      </mat-card-content>
-    </mat-card>
+        <div class="edit-actions" *ngIf="editDescription || editSummary">
+          <button class="btn-save" (click)="saveIssue()"><i class="fas fa-save"></i> Enregistrer</button>
+          <button class="btn-cancel" (click)="editDescription = false; editSummary = false"><i class="fas fa-times"></i> Annuler</button>
+        </div>
+      </div>
 
+      <div class="card description-card">
+        <div class="card-section-header">
+          <span class="section-title"><i class="fas fa-align-left"></i> Description</span>
+          <button class="btn-edit-inline"
+                  *ngIf="(projectGuard.hasCredential(['CAN_EDIT_FIELD']) | async) && !editDescription"
+                  (click)="editIssueDescription()">
+            <i class="fas fa-pencil-alt"></i> Modifier
+          </button>
+        </div>
+        <div class="description-content">
+          <p *ngIf="!editDescription && parentIssue?.description" [innerHTML]="parentIssue.description" class="description-text"></p>
+          <div *ngIf="!editDescription && !parentIssue?.description" class="empty-state-inline">
+            <i class="fas fa-file-alt"></i>
+            <span>Aucune description — <a (click)="editIssueDescription()">ajouter une description</a></span>
+          </div>
+          <app-quill-editor *ngIf="editDescription" [(content)]="parentIssue.description" [theme]="'snow'"></app-quill-editor>
+        </div>
+      </div>
+
+      <div class="card subtasks-card">
+        <div class="card-section-header">
+          <span class="section-title"><i class="fas fa-sitemap"></i> Sous-tâches</span>
+          <button class="btn-add-field"><i class="fas fa-plus"></i> Créer</button>
+        </div>
+        <div class="subtasks-list" *ngIf="subtasks?.length > 0">
+          <div class="subtask-item"
+               *ngFor="let sub of subtasks"
+               (click)="router.navigate(['/issues', sub.id])"
+               [ngClass]="'status-' + sub?.status?.displayName?.toLowerCase()?.replace(' ', '-')">
+            <div class="subtask-left">
+              <span class="subtask-type-icon"><i class="fas fa-circle-dot"></i></span>
+              <span class="subtask-key">{{ sub.issueKey }}</span>
+              <span class="subtask-name">{{ sub.summary }}</span>
+            </div>
+            <div class="subtask-right">
+              <span class="status-chip" [ngClass]="'chip-' + sub?.status?.displayName?.toLowerCase()?.replace(' ', '-')">{{ sub?.status?.displayName }}</span>
+              <span class="subtask-assignee" *ngIf="sub?.assigne">
+                <img [src]="userService.getUrlPhoto(sub.assigne)" [alt]="sub.assigne?.firstName" class="avatar-xs" onerror="this.src='assets/default-avatar.png'">
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="empty-state-inline" *ngIf="!subtasks || subtasks.length === 0">
+          <i class="fas fa-layer-group"></i><span>Aucune sous-tâche</span>
+        </div>
+      </div>
+
+      <div class="card comments-card">
+        <div class="card-section-header">
+          <span class="section-title">
+            <i class="fas fa-comments"></i> Commentaires
+            <span class="count-badge">{{ comments?.length || 0 }}</span>
+          </span>
+        </div>
+        <div class="comments-list">
+          <div class="comment-item" *ngFor="let c of comments">
+            <img [src]="userService.getUrlPhoto(c.user)" [alt]="c.user?.firstName" class="avatar-sm" onerror="this.src='assets/default-avatar.png'">
+            <div class="comment-body">
+              <div class="comment-meta">
+                <span class="comment-author">{{ c.user?.firstName }} {{ c.user?.lastName }}</span>
+                <span class="comment-date">{{ c.date | date:'dd MMM yyyy, HH:mm' }}</span>
+              </div>
+              <p class="comment-text" [innerHTML]="c.text"></p>
+            </div>
+          </div>
+          <div class="empty-state-inline" *ngIf="!comments || comments.length === 0">
+            <i class="fas fa-comment-slash"></i><span>Aucun commentaire</span>
+          </div>
+        </div>
+        <div class="add-comment-area">
+          <img [src]="userService.getUrlPhoto(profile)" class="avatar-sm" onerror="this.src='assets/default-avatar.png'">
+          <div class="comment-input-wrapper">
+            <mat-form-field class="full-width" appearance="outline">
+              <mat-label>Ajouter un commentaire…</mat-label>
+              <textarea matInput [(ngModel)]="comment.text" rows="3"></textarea>
+            </mat-form-field>
+            <button class="btn-save" (click)="addComment()" [disabled]="!comment.text">
+              <i class="fas fa-paper-plane"></i> Envoyer
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats-section">
+        <div class="stats-header">
+          <h2 class="stats-title"><i class="fas fa-chart-bar"></i> Statistiques</h2>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card chart-card">
+            <div class="stat-card-header">
+              <span class="stat-label"><i class="fas fa-tasks"></i> Tâches par statut</span>
+            </div>
+            <div class="chart-wrapper chart-sm">
+              <canvas id="subtaskStatusChart"></canvas>
+            </div>
+            <div class="chart-legend" *ngIf="subtasks?.length > 0">
+              <div class="legend-item" *ngFor="let item of subtaskStatusData" (click)="router.navigate(['/issues', item.id])">
+                <span class="legend-dot" [style.background]="item.color"></span>
+                <span class="legend-label">{{ item.label }}</span>
+                <span class="legend-count">{{ item.count }}</span>
+              </div>
+            </div>
+            <div class="empty-state-inline" *ngIf="!subtasks || subtasks.length === 0">
+              <i class="fas fa-chart-pie"></i><span>Aucune donnée</span>
+            </div>
+          </div>
+          <div class="stat-card chart-card">
+            <div class="stat-card-header">
+              <span class="stat-label"><i class="fas fa-clock"></i> Heures de travail</span>
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="userHoursChart"></canvas>
+            </div>
+          </div>
+          <div class="stat-card kpi-card">
+            <div class="stat-card-header">
+              <span class="stat-label"><i class="fas fa-paperclip"></i> Fichiers joints</span>
+            </div>
+            <div class="kpi-display">
+              <span class="kpi-number">{{ totalFiles }}</span>
+              <span class="kpi-unit">fichiers</span>
+            </div>
+            <div class="kpi-visual">
+              <canvas id="filesProgressChart"></canvas>
+            </div>
+            <div class="kpi-sub">
+              <span class="kpi-detail"><i class="fas fa-image"></i> {{ imageFiles }} images</span>
+              <span class="kpi-detail"><i class="fas fa-file-pdf"></i> {{ docFiles }} docs</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="issue-sidebar">
+
+      <div class="sidebar-card">
+        <div class="sidebar-field">
+          <label class="sidebar-label"><i class="fas fa-circle-dot"></i> Statut</label>
+          <div class="sidebar-value"><app-status-field [issue]="parentIssue"></app-status-field></div>
+        </div>
+        <div class="sidebar-field">
+          <label class="sidebar-label"><i class="fas fa-user"></i> Assigné à</label>
+          <div class="sidebar-value"><app-assign-field [issue]="parentIssue"></app-assign-field></div>
+        </div>
+        <div class="sidebar-field">
+          <label class="sidebar-label"><i class="fas fa-flag"></i> Priorité</label>
+          <div class="sidebar-value">
+            <span class="priority-badge priority-{{ parentIssue?.priority?.toLowerCase() }}">
+              <i class="fas fa-arrow-up"></i> {{ parentIssue?.priority || 'Normale' }}
+            </span>
+          </div>
+        </div>
+        <div class="sidebar-field" *ngIf="issueType">
+          <label class="sidebar-label"><i class="fas fa-tag"></i> Type</label>
+          <div class="sidebar-value"><span class="type-badge">{{ issueType?.name }}</span></div>
+        </div>
+        <div class="sidebar-field">
+          <label class="sidebar-label"><i class="fas fa-calendar-alt"></i> Créé le</label>
+          <div class="sidebar-value"><span class="meta-text">{{ parentIssue?.createdAt | date:'dd MMM yyyy' }}</span></div>
+        </div>
+        <div class="sidebar-field" *ngIf="parentIssue?.updatedAt">
+          <label class="sidebar-label"><i class="fas fa-clock"></i> Mis à jour</label>
+          <div class="sidebar-value"><span class="meta-text">{{ parentIssue?.updatedAt | date:'dd MMM yyyy' }}</span></div>
+        </div>
+        <div class="sidebar-field" *ngIf="parentIssue?.dueDate">
+          <label class="sidebar-label"><i class="fas fa-hourglass-end"></i> Échéance</label>
+          <div class="sidebar-value"><span class="meta-text due-date">{{ parentIssue?.dueDate | date:'dd MMM yyyy' }}</span></div>
+        </div>
+        <div class="sidebar-field" *ngIf="parentIssue?.reporter">
+          <label class="sidebar-label"><i class="fas fa-user-edit"></i> Rapporteur</label>
+          <div class="reporter-row">
+            <img [src]="userService.getUrlPhoto(parentIssue.reporter)" class="avatar-xs" onerror="this.src='assets/default-avatar.png'">
+            <span class="meta-text">{{ parentIssue.reporter?.firstName }} {{ parentIssue.reporter?.lastname }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-card" *ngIf="values?.length > 0">
+        <div class="sidebar-section-header">
+          <span class="sidebar-section-title"><i class="fas fa-sliders-h"></i> Champs personnalisés</span>
+          <button class="btn-icon-xs" *ngIf="projectGuard.hasCredential(['CAN_EDIT_FIELD']) | async" title="Ajouter un champ">
+            <i class="fas fa-plus"></i>
+          </button>
+        </div>
+        <div class="sidebar-field" *ngFor="let value of values">
+          <app-custom-field [customFieldValue]="value" (saved)="saveCustomFieldValue($event)" [viewMode]="viewModeField"></app-custom-field>
+        </div>
+        <div class="sidebar-field" *ngIf="!values || values.length === 0">
+          <span class="meta-text muted">Aucun champ personnalisé</span>
+        </div>
+      </div>
+
+      <div class="sidebar-card">
+        <div class="sidebar-section-header">
+          <span class="sidebar-section-title"><i class="fas fa-paperclip"></i> Fichiers joints</span>
+          <div class="files-kpi-row">
+            <span class="files-count-badge">{{ totalFiles }}</span>
+            <button class="btn-icon-xs" [matMenuTriggerFor]="filesMenu" title="Voir les fichiers">
+              <i class="fas fa-chevron-down"></i>
+            </button>
+          </div>
+        </div>
+        <div class="files-summary-row">
+          <span class="file-type-chip"><i class="fas fa-image"></i> {{ imageFiles }}</span>
+          <span class="file-type-chip"><i class="fas fa-file-pdf"></i> {{ docFiles }}</span>
+        </div>
+        <mat-menu #filesMenu="matMenu" class="files-menu">
+          <div class="files-menu-list">
+            <div class="files-menu-item" *ngFor="let file of uploadedFiles" mat-menu-item>
+              <i class="fas" [ngClass]="file.isImage ? 'fa-image' : 'fa-file-alt'"></i>
+              <span class="file-name">{{ file.name }}</span>
+              <span class="file-size">{{ file.size }}</span>
+            </div>
+            <div class="files-menu-empty" *ngIf="!uploadedFiles || uploadedFiles.length === 0">
+              <span>Aucun fichier joint</span>
+            </div>
+          </div>
+        </mat-menu>
+      </div>
+    </div>
 
   </div>
 </div>
