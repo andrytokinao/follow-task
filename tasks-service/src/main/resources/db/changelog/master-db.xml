@@ -4,33 +4,39 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
     <changeSet id="add-description-to-issuetype" author="tokiniaina">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="issuetype" columnName="description"/>
+            </not>
+        </preConditions>
         <addColumn tableName="issuetype">
             <column name="description" type="TEXT"/>
         </addColumn>
     </changeSet>
 
     <changeSet id="fix-issue-label-table" author="tokiniaina">
-
-        <preConditions onFail="CONTINUE">
+        <preConditions onFail="MARK_RAN">
             <tableExists tableName="issue_label"/>
         </preConditions>
         <dropTable tableName="issue_label"/>
-
     </changeSet>
 
-
     <changeSet id="create-issue-label-table-clean" author="tokiniaina">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="issue_label"/>
+            </not>
+        </preConditions>
 
         <createTable tableName="issue_label">
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-
             <column name="issue_id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
-
             <column name="label_id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
