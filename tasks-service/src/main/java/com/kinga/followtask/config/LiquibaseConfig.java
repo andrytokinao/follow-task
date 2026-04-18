@@ -15,10 +15,10 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-@Configuration
+// @Configuration
 public class LiquibaseConfig {
-    @Bean
-    @Qualifier("liquibaseMaster")
+    //@Bean
+    //@Qualifier("liquibaseMaster")
     public Liquibase liquibaseMaster(@Qualifier("masterDbDataSource") DataSource masterDbDataSource) throws LiquibaseException, SQLException {
         Connection connection = masterDbDataSource.getConnection();
         JdbcConnection jdbcConnection = new JdbcConnection(connection);
