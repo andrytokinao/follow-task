@@ -157,6 +157,9 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
 
   loadIssueTypeSubtask() {
     this.isDesable = true;
+    this.useIssueType = [];
+    this.issueType = undefined;
+
     this.issueService.listIssueTypeSubtasks(this.parentIssue.issueType.id).subscribe(types => {
       this.useIssueType = types;
       if (this.useIssueType.length) {
@@ -186,7 +189,8 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
   selectProject(event:Event,trigger: MatMenuTrigger,pr: Project) {
     if (event)
       event.stopPropagation();
-
+    this.useIssueType = [];
+    this.issueType = undefined;
     this.issueService.listIssueTypeMaster(pr.id).subscribe( types => {
       this.useIssueType = types;
       this.project = pr;
