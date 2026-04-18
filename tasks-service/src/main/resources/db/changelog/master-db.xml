@@ -72,48 +72,13 @@
         <renameTable oldTableName="label" newTableName="labels"/>
     </changeSet>
 
-    <changeSet id="create-labels-table" author="tokiniaina">
-        <!-- Cas 2 : ni 'label' ni 'labels' n'existe → on crée -->
+    <changeSet id="rename-events-to-app-events" author="tokiniaina">
         <preConditions onFail="MARK_RAN">
+            <tableExists tableName="events"/>
             <not>
-                <tableExists tableName="labels"/>
+                <tableExists tableName="app_events"/>
             </not>
         </preConditions>
-
-        <createTable tableName="labels">
-            <column name="id" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" nullable="false"/>
-            </column>
-            <column name="name" type="VARCHAR(100)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="style" type="VARCHAR(50)"/>
-            <column name="color" type="VARCHAR(20)"/>
-            <column name="icone_id" type="BIGINT"/>
-            <column name="project_id" type="BIGINT">
-                <constraints nullable="false"/>
-            </column>
-        </createTable>
-
-        <addForeignKeyConstraint
-                constraintName="fk_labels_project"
-                baseTableName="labels"
-                baseColumnNames="project_id"
-                referencedTableName="Project"
-                referencedColumnNames="id"
-                onDelete="CASCADE"/>
-
-        <addForeignKeyConstraint
-                constraintName="fk_labels_icone"
-                baseTableName="labels"
-                baseColumnNames="icone_id"
-                referencedTableName="Icone"
-                referencedColumnNames="id"
-                onDelete="SET NULL"/>
-
-        <createIndex indexName="idx_labels_project" tableName="labels">
-            <column name="project_id"/>
-        </createIndex>
-
+        <renameTable oldTableName="events" newTableName="app_events"/>
     </changeSet>
 </databaseChangeLog>
