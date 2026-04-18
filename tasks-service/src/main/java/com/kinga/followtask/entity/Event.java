@@ -80,6 +80,7 @@ public class Event {
     @JoinColumn(name = "project_id")
     private Project project ;
     @ManyToOne
+    @JoinColumn(name = "date_value_id", nullable = true)
     private DateCustomFieldValue dateValue;
 
     public Event() {}
