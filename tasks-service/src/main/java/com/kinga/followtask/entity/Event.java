@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
-@Table(name = "events")
+@Table(name = "app_events")
 @Data
 public class Event {
     public static String dateTimeFormaterPattern =  "yyyy-MM-dd'T'HH:mm:ss";
