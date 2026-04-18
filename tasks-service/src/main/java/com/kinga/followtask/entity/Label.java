@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(
-        name = "label_app",
+        name = "app_events",
         indexes = {
                 @Index(name = "idx_label_project", columnList = "project_id")
         }
