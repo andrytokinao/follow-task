@@ -57,7 +57,7 @@ public class DbmasterConfiguration {
         entityManager.setDataSource(masterDbDataSource());
         entityManager.setPackagesToScan("com.kinga.followtask.entity");
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-        vendorAdapter.setGenerateDdl(false);
+        vendorAdapter.setGenerateDdl(true);
         entityManager.setJpaVendorAdapter(vendorAdapter);
         entityManager.setJpaProperties(jpaProperties());
         return entityManager;
@@ -66,7 +66,6 @@ public class DbmasterConfiguration {
     private Properties jpaProperties(){
         Properties properties = new Properties();
         properties.setProperty("hibernate.dialect", masterDialect);
-        properties.setProperty("hibernate.hbm2ddl.auto", "update");
 
         return properties;
     }
