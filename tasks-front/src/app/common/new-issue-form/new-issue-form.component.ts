@@ -159,6 +159,7 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
     this.isDesable = true;
     this.useIssueType = [];
     this.issueType = undefined;
+    this.issueKey = '';
 
     this.issueService.listIssueTypeSubtasks(this.parentIssue.issueType.id).subscribe(types => {
       this.useIssueType = types;
@@ -172,6 +173,7 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
     this.useIssueType = [];
     this.useIssueType = this.issueTypesMasters;
     this.issueType = undefined;
+    this.issueKey = '';
     if (defaultType) {
       this.issueType = defaultType;
       this.loadNextKey();
@@ -191,6 +193,7 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
       event.stopPropagation();
     this.useIssueType = [];
     this.issueType = undefined;
+    this.issueKey = '';
     this.issueService.listIssueTypeMaster(pr.id).subscribe( types => {
       this.useIssueType = types;
       this.project = pr;
