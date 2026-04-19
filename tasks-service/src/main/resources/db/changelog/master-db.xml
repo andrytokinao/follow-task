@@ -72,13 +72,30 @@
         <renameTable oldTableName="label" newTableName="labels"/>
     </changeSet>
 
-    <changeSet id="rename-events-to-app-events" author="tokiniaina">
+    <changeSet id="rename-events-to-app-events-v2" author="tokiniaina">
         <preConditions onFail="MARK_RAN">
-            <tableExists tableName="events"/>
             <not>
                 <tableExists tableName="app_events"/>
             </not>
+            <tableExists tableName="events"/>
         </preConditions>
         <renameTable oldTableName="events" newTableName="app_events"/>
+    </changeSet>
+
+    <!-- Cas 2 : ni events ni app_events n'existe → créer app_events -->
+    <changeSet id="create-app-events-if-missing" author="tokiniaina">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="app_events"/>
+            </not>
+            <not>
+                <tableExists tableName="events"/>
+            </not>
+        </preConditions>
+        <createTable tableName="app_events">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+        </createTable>
     </changeSet>
 </databaseChangeLog>
