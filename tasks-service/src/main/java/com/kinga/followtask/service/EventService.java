@@ -34,12 +34,12 @@ public class EventService {
   private static final LocalTime DAY_START = LocalTime.of(8, 0);
   private static final LocalTime DAY_END   = LocalTime.of(20, 0);
 
-  public Event saveEvent(Event event){
+  public PlanningEvent saveEvent(PlanningEvent event){
     if ("CUSTOM_FIELD".equalsIgnoreCase(event.getEventType().getName())) {
        CustomFieldValue value = event.getDateValue();
        if (value != null) {
          String start = event.getStart();
-         DateFormat dateFormat = new SimpleDateFormat(Event.dateTimeFormaterPattern);
+         DateFormat dateFormat = new SimpleDateFormat(PlanningEvent.dateTimeFormaterPattern);
            try {
                Date dateValue =  dateFormat.parse(start);
                value.setDate(dateValue);
@@ -54,9 +54,9 @@ public class EventService {
     }
       return eventRepository.save(event);
   }
-  public List<Event> searchEvents(EventSearchCriteriaDTO criteria){
-      List<Event> events = new ArrayList<>();
-      List<Event> eventsFields = new ArrayList<>();
+  public List<PlanningEvent> searchEvents(EventSearchCriteriaDTO criteria){
+      List<PlanningEvent> events = new ArrayList<>();
+      List<PlanningEvent> eventsFields = new ArrayList<>();
     if (!CollectionUtils.isEmpty(criteria.getCustomFieldIds())) {
         eventsFields = builddFromDateValue(criteria);
 
@@ -83,11 +83,11 @@ public class EventService {
       }
       return events;
   }
-  public List<Event> builddFromDateValue(EventSearchCriteriaDTO eCriteria) {
+  public List<PlanningEvent> builddFromDateValue(EventSearchCriteriaDTO eCriteria) {
     Long projectId = eCriteria.getProjectId();
     LocalDateTime start = eCriteria.getStart();
     LocalDateTime end = eCriteria.getEnd();
-    List<Event> events = new ArrayList<>();
+    List<PlanningEvent> events = new ArrayList<>();
     IssueSearchCriteria iCriteria = new IssueSearchCriteria();
     iCriteria.setProjectId(projectId);
 
@@ -124,16 +124,16 @@ public class EventService {
       return eventTypeRepository.findAll();
   }
 
-    public Event deleteEvent(Long eventId) {
+    public PlanningEvent deleteEvent(Long eventId) {
        this.eventRepository.deleteById(eventId);
        return null;
     }
 
-    public Event getByEventId(Long eventId) {
+    public PlanningEvent getByEventId(Long eventId) {
       return eventRepository.findById(eventId).orElse(null);
     }
-  private Event generateByValue(CustomFieldValue value, Issue issue) {
-    Event existing = eventRepository.findByDateValueId(value.getId());
+  private PlanningEvent generateByValue(CustomFieldValue value, Issue issue) {
+    PlanningEvent existing = eventRepository.findByDateValueId(value.getId());
     if (existing != null) {
       return existing;
     }
@@ -146,7 +146,7 @@ public class EventService {
     DateCustomFieldValue dateValue = (DateCustomFieldValue) value;
     Date date = dateValue.getDate();
     LocalDateTime localDateTime = ((Timestamp) date).toLocalDateTime();
-    Event event = new Event();
+    PlanningEvent event = new PlanningEvent();
     event.setAllDay(true);
 
     event.setEventType(eventTypeByName("CUSTOM_FIELD"));
@@ -170,9 +170,9 @@ public class EventService {
     eventType.setName(eventName);
     return eventTypeRepository.save(eventType);
   }
-  public Event nextEvent(EventSearchCriteriaDTO criteria, Long projectId){
-    List<Event> existings = searchEvents(criteria);
-    Event proposition = new Event();
+  public PlanningEvent nextEvent(EventSearchCriteriaDTO criteria, Long projectId){
+    List<PlanningEvent> existings = searchEvents(criteria);
+    PlanningEvent proposition = new PlanningEvent();
     proposition.setAllDay(false);
     Project project = new Project();
     project.setId(projectId);
@@ -196,10 +196,10 @@ public class EventService {
    * @return        un tableau [start, end] représentant le créneau proposé
    */
 
-  public static LocalDateTime[] proposeNextEvent(List<Event> events) {
+  public static LocalDateTime[] proposeNextEvent(List<PlanningEvent> events) {
     return proposeNextEvent(events, DEFAULT_DURATION_MINUTES);
   }
-  public static LocalDateTime[] proposeNextEvent(List<Event> events, int durationMinutes) {
+  public static LocalDateTime[] proposeNextEvent(List<PlanningEvent> events, int durationMinutes) {
     // Point de départ : maintenant, arrondi au prochain multiple de 30 min
     LocalDateTime candidate = roundUpToNext30(LocalDateTime.now());
 
@@ -218,7 +218,7 @@ public class EventService {
 
       // Récupérer les events du même jour, triés par heure de début
       LocalDate day = candidate.toLocalDate();
-      List<Event> dayEvents = events.stream()
+      List<PlanningEvent> dayEvents = events.stream()
               .filter(e -> e.getStart() != null && e.getEnd() != null)
               .filter(e -> parseDate(e.getStart()).toLocalDate().equals(day))
               .sorted(Comparator.comparing(e -> parseDate(e.getStart())))
@@ -226,7 +226,7 @@ public class EventService {
 
       // Chercher une collision
       LocalDateTime finalCandidate = candidate;
-      Event collision = dayEvents.stream()
+      PlanningEvent collision = dayEvents.stream()
               .filter(e -> overlaps(finalCandidate, candidateEnd,
                       parseDate(e.getStart()), parseDate(e.getEnd())))
               .findFirst()
@@ -266,6 +266,6 @@ public class EventService {
    * en utilisant le formatter défini dans l'entity.
    */
   private static LocalDateTime parseDate(String dateStr) {
-    return LocalDateTime.parse(dateStr, Event.dateTimeFormater);
+    return LocalDateTime.parse(dateStr, PlanningEvent.dateTimeFormater);
   }
 }

@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.jdbc.Work;
 
 import java.util.List;
 
@@ -33,7 +32,7 @@ public class Project {
     @OneToMany(mappedBy = "project")
     private List<WorkFlow> workFlows;
     @OneToMany(mappedBy = "project")
-    private List<Event> events;
+    private List<PlanningEvent> events;
     @OneToMany(mappedBy = "project")
     private List<Issue> issues;
 

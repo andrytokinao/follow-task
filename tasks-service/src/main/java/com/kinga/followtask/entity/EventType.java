@@ -23,7 +23,7 @@ public class EventType {
     @Column(nullable = true)
     private String defaultStyle;
     @OneToMany(mappedBy = "eventType")
-    private List<Event> events;
+    private List<PlanningEvent> events;
 
     public EventType() {}
     public EventType(String name, String defaultColor, String defaultStyle) {

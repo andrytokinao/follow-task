@@ -5,14 +5,13 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
 @DiscriminatorValue("EVENT")
 public class ActionEventApp extends ActionItem {
     @ManyToOne
-    private Event event;
+    private PlanningEvent event;
 
     @Override
     public String buildMDetails() {

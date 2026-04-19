@@ -252,11 +252,11 @@ public class GQIssueController {
         return  issueService.searchIssues (criteria);
     }
     @QueryMapping
-    public List<Event> searchEvents(@Argument EventSearchCriteriaDTO criteria) {
+    public List<PlanningEvent> searchEvents(@Argument EventSearchCriteriaDTO criteria) {
         return  eventService.searchEvents (criteria);
     }
     @QueryMapping
-    public Event nextEvent(@Argument EventSearchCriteriaDTO criteria,@Argument Long projectId) {
+    public PlanningEvent nextEvent(@Argument EventSearchCriteriaDTO criteria, @Argument Long projectId) {
         return eventService.nextEvent(criteria,projectId);
     }
     @QueryMapping
@@ -264,15 +264,15 @@ public class GQIssueController {
         return  eventService.allEventType ();
     }
     @MutationMapping
-    public Event saveEvent(@Argument Event event){
+    public PlanningEvent saveEvent(@Argument PlanningEvent event){
         return eventService.saveEvent(event);
     }
     @MutationMapping
-    public Event deleteEvent(@Argument Long eventId){
+    public PlanningEvent deleteEvent(@Argument Long eventId){
         return eventService.deleteEvent(eventId);
     }
      @QueryMapping
-    public Event getByEventId(@Argument Long eventId){
+    public PlanningEvent getByEventId(@Argument Long eventId){
         return eventService.getByEventId(eventId);
     }
     @QueryMapping

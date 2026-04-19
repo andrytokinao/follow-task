@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.File;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -53,7 +52,7 @@ public class Issue {
     @OneToMany(mappedBy = "issue")
     private List<CustomFieldValue> values;
     @OneToMany(mappedBy = "issue")
-    private List<Event> events;
+    private List<PlanningEvent> events;
     @OneToMany(mappedBy = "issue")
     private List<IssueLabels> labels = new ArrayList<>();
     @ManyToOne

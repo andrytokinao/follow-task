@@ -1,29 +1,17 @@
 package com.kinga.followtask.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Data;
-import org.springframework.boot.autoconfigure.web.format.DateTimeFormatters;
-import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.print.attribute.standard.DateTimeAtCompleted;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 
 @Entity
-@Table(name = "app_events")
+@Table(name = "planning_event")
 @Data
-public class Event {
+public class PlanningEvent {
     public static String dateTimeFormaterPattern =  "yyyy-MM-dd'T'HH:mm:ss";
     private static String dateTimeFormaterPattern2=  "yyyy-MM-dd' 'HH:mm:ss";
     public static DateTimeFormatter dateTimeFormater =  DateTimeFormatter.ofPattern(dateTimeFormaterPattern);
@@ -83,9 +71,9 @@ public class Event {
     @JoinColumn(name = "date_value_id", nullable = true)
     private DateCustomFieldValue dateValue;
 
-    public Event() {}
+    public PlanningEvent() {}
 
-    public Event(String title, EventType type, LocalDateTime start) {
+    public PlanningEvent(String title, EventType type, LocalDateTime start) {
         this.title = title;
         this.eventType = type;
         this.start = start;
@@ -119,7 +107,7 @@ public class Event {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Event event = (Event) o;
+        PlanningEvent event = (PlanningEvent) o;
         return Objects.equals(id, event.id);
     }
     public String getEnd(){

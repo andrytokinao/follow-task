@@ -38,7 +38,7 @@ public class UserApp {
     @OneToMany(mappedBy = "userApp")
     private List<EntryTime> entryTimes;
     @OneToMany(mappedBy = "user")
-    private List<Event> events;
+    private List<PlanningEvent> events;
     @OneToMany
     private List<UserCustomFieldValue> userValues;
 

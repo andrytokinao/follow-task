@@ -18,7 +18,7 @@ public class ActionItemInput {
     private Map<String,String> details = new HashMap<>();
     private UserApp assigne;
     private UserApp oldAssigne;
-    private Event event;
+    private PlanningEvent event;
     private UserApp profile;
     private Document document;
     private CustomFieldValue customFieldValue;
