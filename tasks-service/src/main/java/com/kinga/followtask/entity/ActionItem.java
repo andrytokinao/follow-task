@@ -18,8 +18,8 @@ public abstract class ActionItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "action_type")
-    @Transient
+    @Column(name = "item_action_type")
+    @Enumerated(EnumType.STRING)
     protected ActionType actionType;
     @ManyToOne
     protected ActionGroupe actionGroupe;
