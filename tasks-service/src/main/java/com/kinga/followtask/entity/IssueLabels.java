@@ -7,18 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(
-        name = "issue_label",
-        uniqueConstraints = {
-                @UniqueConstraint(name = "uk_issue_label", columnNames = {"issue_id", "label_id"})
-        },
-        indexes = {
-                @Index(name = "idx_issue_label_issue", columnList = "issue_id"),
-                @Index(name = "idx_issue_label_label", columnList = "label_id")
-        }
-)
-@Data
 @NoArgsConstructor
+@Data
 public class IssueLabels {
 
     @Id
