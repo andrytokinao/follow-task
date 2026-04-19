@@ -37,6 +37,7 @@ public class GQIssueController {
     final ConfigService configService;
     @Autowired
     private ActionService actionService;
+    private final DocumentService documentService;
 
     @QueryMapping
     public List<Issue> allIssue(){
@@ -338,7 +339,7 @@ public class GQIssueController {
     }
     @QueryMapping
     public Document loadDocumentById(@Argument Long documentId) {
-        return issueService.loadDocumentById(documentId);
+        return documentService.loadDocumentById(documentId);
     }
     @MutationMapping
     public Document forwardDocument(@Argument Document document){

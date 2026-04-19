@@ -29,6 +29,7 @@ public class Document {
     @Lob
     @Column(columnDefinition = "LONGTEXT")
     private String description;
+    @Enumerated(EnumType.STRING)
     private TypeDocument typeDocument;
     @ManyToOne
     private Project project;
@@ -49,6 +50,8 @@ public class Document {
     private List<Uploaded> uploadeds;
     @Column(name = "deleted", nullable = false)
     private Boolean deleted = false;
+    @OneToMany(mappedBy = "document", fetch = FetchType.LAZY)
+    private List<DocumentReadStatus> readStatuses;
     public String buildMessage(){
         switch (this.typeDocument) {
             case RESPONSE_DOCUMENT -> {

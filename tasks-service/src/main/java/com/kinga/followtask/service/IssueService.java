@@ -98,7 +98,7 @@ public class IssueService {
     private ActionService actionService;
     @Autowired
     private NotificationRepository notificationRepository;
-
+    private  DocumentService documentService;
     public Issue saveIssue(Issue issue) throws IOException {
 
 
@@ -664,9 +664,7 @@ public class IssueService {
         }
     }
 
-    public Document loadDocumentById(Long documentId) {
-        return this.documentRepository.getById(documentId);
-    }
+
 
     public Document forwardDocument(Document document) {
         sendDocument(document);
@@ -674,7 +672,7 @@ public class IssueService {
     }
 
     public Response deleteDocumentById(Long documentId) {
-        Document document = loadDocumentById(documentId);
+        Document document = documentService.loadDocumentById(documentId);
         document.setDeleted(true);
         documentRepository.save(document);
         Response response = new Response();

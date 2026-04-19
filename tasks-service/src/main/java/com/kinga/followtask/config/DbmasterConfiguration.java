@@ -41,6 +41,9 @@ public class DbmasterConfiguration {
     @Value("${master-db.dialect}")
     private String masterDialect;
 
+    @Value("${spring.jpa.hibernate.ddl-auto:none}")
+    private String ddlAuto;
+
     @Bean("masterDbDataSource")
     public DataSource masterDbDataSource() {
         DataSourceBuilder<?> dataSourceBuilder = DataSourceBuilder.create();
@@ -57,7 +60,7 @@ public class DbmasterConfiguration {
         entityManager.setDataSource(masterDbDataSource());
         entityManager.setPackagesToScan("com.kinga.followtask.entity");
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-        vendorAdapter.setGenerateDdl(true);
+        vendorAdapter.setGenerateDdl(false);
         entityManager.setJpaVendorAdapter(vendorAdapter);
         entityManager.setJpaProperties(jpaProperties());
         return entityManager;
@@ -66,7 +69,7 @@ public class DbmasterConfiguration {
     private Properties jpaProperties(){
         Properties properties = new Properties();
         properties.setProperty("hibernate.dialect", masterDialect);
-
+        properties.setProperty("hibernate.hbm2ddl.auto", ddlAuto);
         return properties;
     }
 
