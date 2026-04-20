@@ -37,7 +37,8 @@
       </div>
 
       <!-- Type d'événement -->
-      <div class="form-group">
+      <!--<div class="form-group">
+      TODO: a etudier le type d'action
         <label for="eventType" class="form-label">Type d'événement <span class="required">*</span></label>
         <div class="type-selector">
           <button
@@ -45,7 +46,7 @@
             *ngFor="let type of eventTypes"
             class="type-chip"
             [class.selected]="selectedEventType?.id === type.id"
-            [style.--chip-color]="type.defaultColor || '#5b8cfa'"
+            [style.&#45;&#45;chip-color]="type.defaultColor || '#5b8cfa'"
             (click)="selectEventType(type)"
           >
             <span class="chip-dot" [style.background]="type.defaultColor || '#5b8cfa'"></span>
@@ -60,7 +61,7 @@
           </svg>
           Le type d'événement est obligatoire.
         </div>
-      </div>
+      </div>-->
 
       <!-- Dates -->
       <div class="row g-3 mb-3">
