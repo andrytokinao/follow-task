@@ -29,6 +29,7 @@ public class Document {
     @Lob
     @Column(columnDefinition = "LONGTEXT")
     private String description;
+
     @Enumerated(EnumType.STRING)
     private TypeDocument typeDocument;
     @ManyToOne

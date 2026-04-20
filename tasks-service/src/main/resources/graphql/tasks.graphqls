@@ -667,6 +667,27 @@ type Uploaded{
     path:String
     document:Document
 }
+type DocumentPage {
+    content: [Document]
+    totalElements: Int
+    totalPages: Int
+    currentPage: Int
+    pageSize: Int
+}
+
+input DocumentSearchInput {
+    typeDocument: String
+    projectId: Int
+    issueId: Int
+    memberUserId: String
+    createdFrom: String
+    createdTo: String
+    keyword: String
+    deleted: Boolean
+}
+
+
+
 type DomainActivity{
     id:Int
     name:String
@@ -841,3 +862,4 @@ input ActionGroupeInput {
     issue: IssueInput
     created: String
 }
+

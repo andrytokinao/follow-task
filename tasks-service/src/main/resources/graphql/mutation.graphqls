@@ -37,6 +37,8 @@ type Mutation {
     deleteDocumentById(documentId:Int) :ResponseApp
     seenNotification(userId:String):ResponseApp
     saveAction(action:ActionItemInput):ActionItem
+
+
 }
 
 

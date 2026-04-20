@@ -53,4 +53,11 @@ type Query {
     getCanalByProject(projectId:Int,userIds:[String]):[Canall]
     getNotificationsByUserId(userId:String):[Notification]
 
+    getDocument(id: Int!): Document
+    getSearchDocuments(search: DocumentSearchInput, page: Int, size: Int): DocumentPage
+    getMyDocuments(userId: String!, search: DocumentSearchInput, page: Int, size: Int): DocumentPage
+    getDocumentThread(parentId: Int!): [Document]
+    getUnreadResponsesCount(documentId: Int!, userId: String!): Int
+    getDocumentMembers(documentId: Int!): [DocumentMember]
+    getUploadedsByDocument(documentId: Int!): [Uploaded]
 }
