@@ -282,10 +282,17 @@ export interface Uploaded{
   path:String;
 }
 
-class DocumentMember {
+export class DocumentMember {
   id:Number;
   user:User;
   document:DocumentApp;
+}
+export class DocumentPage {
+  content:DocumentApp[];
+  totalElements:number;
+  totalPages:number;
+  currentPage:number;
+  pageSize:number;
 }
 
 export interface DocumentApp{

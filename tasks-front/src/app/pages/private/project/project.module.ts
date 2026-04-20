@@ -51,6 +51,7 @@ import {ProjectHomeComponent} from "./home/home.component";
 import {DashboardModule} from "../../../dashboard/dashboard.module";
 import {UserAvatarComponent} from "../../../common/user-avatar/user-avatar.component";
 import {IconeViewComponent} from "../../../common/icone-view/icone-view.component";
+import {DocumentExchangeComponent} from "./document-exchange/document-exchange.component";
 
 @NgModule({
   declarations: [
@@ -71,11 +72,16 @@ import {IconeViewComponent} from "../../../common/icone-view/icone-view.componen
     MessagesComponent,
     NewDocumentComponent,
     ExchangeDocumentsComponent,
-    ProjectHomeComponent
+    ProjectHomeComponent,
+    DocumentExchangeComponent
 
   ],
   exports: [
-    StatusComponent, RepartitionComponent, ProjectComponent, ShowIssueOptionComponent, ShowIssueFullOptionComponent, ExchangeDocumentsComponent
+    StatusComponent,
+    RepartitionComponent,
+    ProjectComponent, ShowIssueOptionComponent,
+    ShowIssueFullOptionComponent,
+    ExchangeDocumentsComponent
   ],
   imports: [
     ProjectRoutingModule,

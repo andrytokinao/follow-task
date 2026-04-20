@@ -22,6 +22,7 @@ import _default from "chart.js/dist/core/core.interaction";
 import dataset = _default.modes.dataset;
 import {MessagesComponent} from "./messages/messages.component";
 import {ProjectHomeComponent} from "./home/home.component";
+import {DocumentExchangeComponent} from "./document-exchange/document-exchange.component";
 
 
 
@@ -45,6 +46,7 @@ const projectRoute: Routes = [
           { path: 'board', component: BoardComponent, resolve: { breadcrumb: ProjectBreadcrumbResolverService  } ,data:{order:3} },
           { path: 'rapport', component: RapportComponent, resolve: { breadcrumb: ProjectBreadcrumbResolverService  } ,data:{order:4} },
           { path: 'calendar', component: CalendarComponent , resolve: { breadcrumb: ProjectBreadcrumbResolverService  } , data:{order:5}},
+          { path: 'correspondants', component: DocumentExchangeComponent ,resolve: { breadcrumb: ProjectBreadcrumbResolverService  },data:{order:6} },
           {
             path:'planning',data:{order:7},
             loadChildren:()=> import('./planning/planning.module').then(m=>m.PlanningModule),
