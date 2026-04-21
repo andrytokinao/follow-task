@@ -15,8 +15,8 @@
         (click)="selectDoc(doc)">
 
         <div class="sb-item-top">
-          <span class="dept-badge" *ngIf="doc.project">{{ doc.project.prefix }}</span>
-          <span class="sb-title">{{ doc.titre }}</span>
+          <span class="dept-badge" *ngIf="doc.project" >{{ doc.project.prefix }} </span>
+          <b class="sb-title">{{ doc.titre }}</b>
           <span class="badge-unread" *ngIf="unreadCount(doc) > 0">{{ unreadCount(doc) }}</span>
         </div>
 
@@ -241,6 +241,6 @@
 </div>
 <div (click)="$event.stopPropagation()">
   <mat-menu #newDocument = "matMenu">
-    <app-new-document  #newDocumentForm ></app-new-document>
+    <app-new-document  #newDocumentForm (onSave)="savedDocument($any($event))" (onClose)="newDocumentTrigger.closeMenu()"></app-new-document>
   </mat-menu>
 </div>

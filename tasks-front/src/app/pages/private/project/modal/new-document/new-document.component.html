@@ -1,65 +1,111 @@
-<div  (dragover)="onDragOver($event)" (drop)="onDrop($event)"  (click)="$event.stopPropagation()">
-  <div>
-    <form #f="ngForm" (ngSubmit)="saveDocument()">
-      <div >
-        <div class="dropdown" >
-          <input class="dd-search" type="text" [(ngModel)]="projSearch" placeholder="Rechercher projet…">
-          <div class="dd-item"
-               *ngFor="let p of filteredProjects"
-               [class.selected]="newDocument.project?.id === p.id"
-               (click)="selectProject(p)">
-            <span class="dd-key">{{ p.prefix }}</span> {{ p.name }}
-          </div>
-        </div>
+<div class="nd-overlay" (dragover)="onDragOver($event)" (drop)="onDrop($event)" (click)="$event.stopPropagation()">
 
-      </div>
-      <div class="form-group" #parentIssue>
-        <mat-form-field style="width: 100%" *ngIf="!parentDocument">
-          <mat-label>Titre </mat-label>
-          <input matInput
-                 cdkTextareaAutosize
-                 cdkAutosizeMinRows="1"
-                 [(ngModel)]="newDocument.titre"
-                 [ngModelOptions]="{standalone: true}"
-                 cdkAutosizeMaxRows="5"/>
-        </mat-form-field>
-        <div class="card" *ngIf="!parentDocument">
-          <div class="sidebar-heding ">
-            <span *ngFor="let user of userToSelect">
-              <mat-checkbox
-                [checked]="isSelectedUser(user.id)"
-                (change)="selectUser($event, user)"
-                class="custom-checkbox"
-              >
-                {{ user.username }}
-              </mat-checkbox>
+  <!-- Header -->
+  <div class="nd-header">
+    <div class="nd-header-left">
+      <span class="nd-icon">⊕</span>
+      <span class="nd-title">Composer une demande</span>
+    </div>
+    <button class="nd-btn-icon" type="button" (click)="close()">✕</button>
+  </div>
 
-            </span>
-          </div>
-        </div>
-        <div style="width: 100%;min-height: 100px" >
-          <app-quill-editor [(content)]="newDocument.description"></app-quill-editor>
-        </div>
-      </div>
-    </form>
-  </div>
-  <div
-    (click)="fileInput.click()"
-    class="file-drop-zone">
-    <input type="file" multiple (change)="onFileSelected($event)" hidden #fileInput>
-    <p>Glissez-déposez vos fichiers ou cliquez pour les sélectionner</p>
-  </div>
-  <div>
-    <ul *ngIf="filesToUploads">
-      <div *ngFor="let up of uploadings; let i = index" class="file" [ngClass]="up.status">
-        <label class="file" > <i class="fa fa-file-text"> </i>
-          {{ up.file.name}}
+  <div class="nd-body">
+
+    <div class="nd-section">
+      <label class="nd-label required">Département / Équipe</label>
+      <div class="nd-radio-group">
+        <label
+          *ngFor="let p of projects"
+          class="nd-radio-item"
+          [class.active]="newDocument.project?.id === p.id">
+          <input
+            type="radio"
+            name="project"
+            [value]="p.id"
+            [checked]="newDocument.project?.id === p.id"
+            (change)="selectProject(p)"
+          />
+          <span class="nd-radio-dot"></span>
+          <span class="nd-radio-prefix">{{ p.prefix }}</span>
+          <span class="nd-radio-name">{{ p.name }}</span>
         </label>
-        <span (click)="removeFile(i)" style="float: right;"> {{ up.status }} <i class="fa fa-remove"></i></span>
       </div>
-    </ul>
+      <p class="nd-hint" *ngIf="!newDocument.project">Sélectionnez un département ou une équipe.</p>
+    </div>
+
+    <!-- Titre -->
+    <div class="nd-section" *ngIf="!parentDocument">
+      <label class="nd-label">Sujet </label>
+      <input
+        class="nd-input"
+        type="text"
+        placeholder="Sujet de votre demande…"
+        [(ngModel)]="newDocument.titre"
+        [ngModelOptions]="{standalone: true}"
+      />
+    </div>
+
+    <!-- Membres -->
+    <div class="nd-section" *ngIf="!parentDocument">
+      <label class="nd-label">Membres</label>
+      <div class="nd-members">
+        <label
+          *ngFor="let user of userToSelect"
+          class="nd-member-item"
+          [class.checked]="isSelectedUser(user.id)">
+          <input
+            type="checkbox"
+            [checked]="isSelectedUser(user.id)"
+            (change)="selectUser($event, user)"
+          />
+          <span class="nd-avatar">{{ user.username?.charAt(0) | uppercase }}</span>
+          <span class="nd-member-name">{{ user.username }}</span>
+          <span class="nd-check">✓</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Description -->
+    <div class="nd-section">
+      <label class="nd-label">Description</label>
+      <div class="nd-editor-wrap">
+        <app-quill-editor [(content)]="newDocument.description"></app-quill-editor>
+      </div>
+    </div>
+
+    <!-- Zone fichiers -->
+    <div class="nd-section">
+      <div class="nd-dropzone" (click)="fileInput.click()">
+        <input type="file" multiple (change)="onFileSelected($event)" hidden #fileInput />
+        <span class="nd-drop-icon">↑</span>
+        <span class="nd-drop-text">Glissez ou cliquez pour ajouter des fichiers</span>
+      </div>
+
+      <div class="nd-file-list" *ngIf="uploadings.length > 0">
+        <div
+          *ngFor="let up of uploadings; let i = index"
+          class="nd-file-item"
+          [ngClass]="up.status">
+          <span class="nd-file-icon">📄</span>
+          <span class="nd-file-name clamp clamp-1">{{ up.file.name }}</span>
+          <span class="nd-file-status">{{ up.status }}</span>
+          <button class="nd-btn-icon sm" type="button" (click)="removeFile(i)">✕</button>
+        </div>
+      </div>
+    </div>
+
   </div>
-  <div>
-    <button class="upload-btn" (click)="saveDocument()">Envoyer </button>
+
+  <!-- Footer -->
+  <div class="nd-footer">
+    <button class="nd-btn secondary" type="button" (click)="close()">Annuler</button>
+    <button
+      class="nd-btn primary"
+      type="button"
+      [disabled]="!newDocument.project"
+      (click)="saveDocument()">
+      Envoyer
+    </button>
   </div>
+
 </div>

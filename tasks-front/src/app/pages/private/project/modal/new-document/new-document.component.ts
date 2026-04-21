@@ -1,4 +1,4 @@
-import {Component, Input} from '@angular/core';
+import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {DocumentApp, Issue, Project, Uploading, User} from "../../../../../type/issue";
 import {ActivatedRoute, Router} from "@angular/router";
 import {NgbActiveModal, NgbModal} from "@ng-bootstrap/ng-bootstrap";
@@ -35,6 +35,8 @@ export class NewDocumentComponent {
   selectedDocument: any;
   filteredProjects: Project[] = [];
   projects:Project[] = [];
+  @Output() onSave = new EventEmitter<DocumentApp>();
+  @Output() onClose = new EventEmitter<void>();
   constructor(private router: Router,
               private modalService: NgbModal,
               private configService: ConfigService,
@@ -91,6 +93,7 @@ export class NewDocumentComponent {
   }
 
   saveDocument() {
+    alert(JSON.stringify(this.newDocument));
     if (this.newDocument.id) {
       // Edition
       this.issueService.uploadDocument(this.newDocument,this.issue?.encodedPath,this.uploadings,this.typeDocument).subscribe(document => {
@@ -126,6 +129,7 @@ export class NewDocumentComponent {
        if (!this.uploadings || this.uploadings.length === 0) {
          this.issueService.forwardDocument(document);
          this.activeModal.close(document);
+         this.onSave.emit(document);
        }
     });
     if (!this.issueService.uploadingDocumentSubject) {
@@ -182,6 +186,11 @@ export class NewDocumentComponent {
   }
 
   selectProject(p: Project) {
-      this.newDocument.project = p;
+      this.newDocument.project = {id:p.id};
+  }
+
+  close() {
+    this.onClose.emit();
+    this.activeModal.close();
   }
 }

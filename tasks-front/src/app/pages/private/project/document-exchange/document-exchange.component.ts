@@ -262,4 +262,8 @@ export class DocumentExchangeComponent implements OnInit {
     this.newDocumentForm.typeDocument = 'EXCHANGE_DOCUMENT';
     this.newDocumentForm.selectTeams = true;
   }
+
+    savedDocument(document: DocumentApp) {
+      this.newDocumentTrigger.closeMenu();
+    }
 }

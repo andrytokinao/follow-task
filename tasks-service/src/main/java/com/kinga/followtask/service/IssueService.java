@@ -98,6 +98,7 @@ public class IssueService {
     private ActionService actionService;
     @Autowired
     private NotificationRepository notificationRepository;
+    @Autowired
     private  DocumentService documentService;
     public Issue saveIssue(Issue issue) throws IOException {
 

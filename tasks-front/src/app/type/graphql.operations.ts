@@ -2329,6 +2329,8 @@ export const SEARCH_DOCUMENTS = gql`
             }
             project {
               id
+              prefix
+
             }
             parent {
               id
