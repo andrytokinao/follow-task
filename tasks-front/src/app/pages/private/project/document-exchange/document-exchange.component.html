@@ -1,10 +1,19 @@
-<div class="exchange-wrap">
+<div class="exchange-wrap" id="exchangeWrap">
 
   <!-- ═══════════════════════════════════ SIDEBAR LIST ══ -->
-  <aside class="ex-sidebar">
+  <aside class="ex-sidebar" id="exSidebar">
 
     <div class="sb-toolbar">
       <input class="sb-search" type="text" [(ngModel)]="searchKeyword" placeholder="Rechercher…">
+    </div>
+
+    <!-- Bouton fixe en haut, toujours visible au-dessus du scroll -->
+    <div class="sb-new"
+         [matMenuTriggerFor]="newDocument"
+         #newDocumentTrigger="matMenuTrigger"
+         (menuOpened)="onMenNewDocumentOpened()">
+      <i class="fas fa-plus-circle"></i>
+      <span class="sb-title">Nouvelle demande</span>
     </div>
 
     <div class="sb-list" #sbList>
@@ -15,12 +24,12 @@
         (click)="selectDoc(doc)">
 
         <div class="sb-item-top">
-          <span class="dept-badge" *ngIf="doc.project" >{{ doc.project.prefix }} </span>
+          <span class="dept-badge" *ngIf="doc.project">{{ doc.project.prefix }}</span>
           <b class="sb-title">{{ doc.titre }}</b>
           <span class="badge-unread" *ngIf="unreadCount(doc) > 0">{{ unreadCount(doc) }}</span>
         </div>
 
-        <div class="clamp clamp-2 clamp-w-ch  " style="--lines: 1;" [innerHTML]="doc.description"></div>
+        <div class="clamp clamp-2 clamp-w-ch" style="--lines: 1;" [innerHTML]="doc.description"></div>
 
         <div class="sb-meta">
           <div class="avatars">
@@ -33,18 +42,6 @@
           <span class="sb-menu-btn" (click)="$event.stopPropagation()">
             <app-document-menu [document]="doc"></app-document-menu>
           </span>
-        </div>
-      </div>
-
-      <!-- Nouveau en bas de liste -->
-      <div class="sb-item sb-new"
-           [matMenuTriggerFor]="newDocument"
-           #newDocumentTrigger="matMenuTrigger"
-           (menuOpened)="onMenNewDocumentOpened()"
-      >
-        <div class="sb-item-top">
-          <i class="fas fa-plus-circle"></i>
-          <span class="sb-title">Nouvelle demande</span>
         </div>
       </div>
     </div>
@@ -63,6 +60,9 @@
       </div>
     </div>
   </aside>
+
+  <!-- ═══════════════════════════════════ SÉPARATEUR REDIMENSIONNABLE ══ -->
+  <div class="resizer" id="resizer"></div>
 
   <!-- ═══════════════════════════════════ MAIN PANEL ═══ -->
   <main class="ex-main" *ngIf="selectedDocument; else emptyState">
@@ -94,9 +94,9 @@
             <input class="dd-search" type="text" [(ngModel)]="projSearch" placeholder="Rechercher projet…">
             <div class="dd-none" (click)="selectProject(null)">— Aucun projet</div>
             <div class="dd-item"
-              *ngFor="let p of filteredProjects"
-              [class.selected]="selectedDocument.project?.id === p.id"
-              (click)="selectProject(p)">
+                 *ngFor="let p of filteredProjects"
+                 [class.selected]="selectedDocument.project?.id === p.id"
+                 (click)="selectProject(p)">
               <span class="dd-key">{{ p.prefix }}</span> {{ p.name }}
             </div>
           </div>
@@ -114,9 +114,9 @@
             <input class="dd-search" type="text" [(ngModel)]="issueSearch" placeholder="Rechercher issue…">
             <div class="dd-none" (click)="selectIssue(null)">— Aucune issue</div>
             <div class="dd-item"
-              *ngFor="let iss of filteredIssues"
-              [class.selected]="selectedDocument.issues?.id === iss.id"
-              (click)="selectIssue(iss)">
+                 *ngFor="let iss of filteredIssues"
+                 [class.selected]="selectedDocument.issues?.id === iss.id"
+                 (click)="selectIssue(iss)">
               <span class="dd-key">{{ iss.issueKey }}</span> {{ iss.summary }}
             </div>
           </div>
@@ -125,7 +125,7 @@
         <!-- Membres -->
         <div class="members-row">
           <div class="av-lg" *ngFor="let m of selectedDocument.documentMembers | slice:0:4"
-            [title]="m.user?.username">{{ initials(m.user) }}</div>
+               [title]="m.user?.username">{{ initials(m.user) }}</div>
           <button class="btn-add-member" (click)="addMember()">+ Ajouter</button>
         </div>
       </div>
@@ -147,8 +147,8 @@
           <div class="msg-text" [innerHTML]="selectedDocument.description"></div>
           <div class="msg-att" *ngIf="selectedDocument.uploadeds?.length">
             <span class="att-chip"
-              *ngFor="let up of selectedDocument.uploadeds"
-              (click)="selectFile(up)">
+                  *ngFor="let up of selectedDocument.uploadeds"
+                  (click)="selectFile(up)">
               <i [class]="getFileIconClass(up.name?.toString())"></i> {{ up.name }}
               <a [href]="issueService.downloadUploadedUrl(up)" (click)="$event.stopPropagation()">
                 <i class="fa fa-download"></i>
@@ -180,8 +180,8 @@
             <div class="msg-text" [innerHTML]="resp.description"></div>
             <div class="msg-att" *ngIf="resp.uploadeds?.length">
               <span class="att-chip"
-                *ngFor="let up of resp.uploadeds"
-                (click)="selectFile(up)">
+                    *ngFor="let up of resp.uploadeds"
+                    (click)="selectFile(up)">
                 <i [class]="getFileIconClass(up.name?.toString())"></i> {{ up.name }}
                 <a [href]="issueService.downloadUploadedUrl(up)" (click)="$event.stopPropagation()">
                   <i class="fa fa-download"></i>
@@ -234,13 +234,17 @@
     <main class="ex-main ex-empty">
       <i class="fas fa-envelope-open-text"></i>
       <p>Sélectionnez une demande ou composez-en une nouvelle</p>
-
     </main>
   </ng-template>
 
 </div>
+
 <div (click)="$event.stopPropagation()">
-  <mat-menu #newDocument = "matMenu">
-    <app-new-document  #newDocumentForm (onSave)="savedDocument($any($event))" (onClose)="newDocumentTrigger.closeMenu()"></app-new-document>
+  <mat-menu #newDocument="matMenu">
+    <app-new-document
+      #newDocumentForm
+      (onSave)="savedDocument($any($event))"
+      (onClose)="newDocumentTrigger.closeMenu()">
+    </app-new-document>
   </mat-menu>
 </div>

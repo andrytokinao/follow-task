@@ -1,5 +1,5 @@
 import {
-  Component, OnInit, Input, HostListener, ElementRef, ViewChild
+  Component, OnInit, Input, HostListener, ElementRef, ViewChild, AfterViewInit,NgZone,
 } from '@angular/core';
 import {IssueService} from "../../../../services/issue.service";
 import {AuthService} from "../../../../services/auth.service";
@@ -17,7 +17,7 @@ import {NewDocumentComponent} from "../modal/new-document/new-document.component
   templateUrl: './document-exchange.component.html',
   styleUrl: './document-exchange.component.css'
 })
-export class DocumentExchangeComponent implements OnInit {
+export class DocumentExchangeComponent implements OnInit , AfterViewInit {
 
   @Input() projectId?: number;
 
@@ -43,6 +43,13 @@ export class DocumentExchangeComponent implements OnInit {
   pageSize = 20;
   totalElements = 0;
   totalPages = 0;
+  @ViewChild('exSidebar', { static: true }) sidebarRef!: ElementRef<HTMLElement>;
+    private isResizing = false;
+    private resizerStartX = 0;
+     private sidebarStartW = 0;
+     private onMouseMove!: (e: MouseEvent) => void;
+   private onMouseUp!: (e: MouseEvent) => void;
+
   @ViewChild('newDocumentTrigger') newDocumentTrigger!: MatMenuTrigger;
   @ViewChild('newDocumentForm') newDocumentForm!: NewDocumentComponent;
   search:DocumentSearch = {
@@ -62,7 +69,8 @@ export class DocumentExchangeComponent implements OnInit {
     private userService : UserService,
     private authService: AuthService,
     private docmentService:DocumentService,
-    private el: ElementRef
+    private el: ElementRef,
+    private ngZone: NgZone
   ) {}
 
   ngOnInit(): void {
@@ -266,4 +274,49 @@ export class DocumentExchangeComponent implements OnInit {
     savedDocument(document: DocumentApp) {
       this.newDocumentTrigger.closeMenu();
     }
+  ngOnDestroy(): void {
+    document.removeEventListener('mousemove', this.onMouseMove);
+    document.removeEventListener('mouseup', this.onMouseUp);
+  }
+  private initResizer(): void {
+    const resizer = document.getElementById('resizer');
+    const sidebar = this.sidebarRef.nativeElement;
+
+    if (!resizer) return;
+
+    this.onMouseMove = (e: MouseEvent) => {
+      if (!this.isResizing) return;
+      const dx = e.clientX - this.resizerStartX;
+      const newW = Math.min(480, Math.max(180, this.sidebarStartW + dx));
+      sidebar.style.width = `${newW}px`;
+      sidebar.style.minWidth = `${newW}px`;
+    };
+
+    this.onMouseUp = () => {
+      if (!this.isResizing) return;
+      this.isResizing = false;
+      resizer.classList.remove('is-resizing');
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+
+    resizer.addEventListener('mousedown', (e: MouseEvent) => {
+      this.isResizing = true;
+      this.resizerStartX = e.clientX;
+      this.sidebarStartW = sidebar.offsetWidth;
+      resizer.classList.add('is-resizing');
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+      e.preventDefault();
+    });
+
+
+    this.ngZone.runOutsideAngular(() => {
+      document.addEventListener('mousemove', this.onMouseMove);
+      document.addEventListener('mouseup', this.onMouseUp);
+    });
+  }
+  ngAfterViewInit(): void {
+    this.initResizer();
+  }
 }

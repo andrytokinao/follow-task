@@ -17,17 +17,22 @@
 
 /* ── Sidebar ─────────────────────────────────────────────── */
 .ex-sidebar {
+  /* Largeur initiale — sera overridée dynamiquement par le resizer */
   width: 260px;
-  min-width: 260px;
-  border-right: 0.5px solid #e0e0e0;
+  min-width: 180px;
+  max-width: 480px;
+  border-right: none; /* le resizer fait office de border */
   display: flex;
   flex-direction: column;
   background: #f8f8f7;
+  flex-shrink: 0;
+  overflow: hidden;
 }
 
 .sb-toolbar {
   padding: 8px 10px;
   border-bottom: 0.5px solid #e0e0e0;
+  flex-shrink: 0;
 }
 
 .sb-search {
@@ -42,9 +47,35 @@
 }
 .sb-search:focus { border-color: #378ADD; }
 
+/* ── Bouton "Nouvelle demande" — fixe en haut, hors du scroll ── */
+.sb-new {
+  padding: 9px 10px;
+  cursor: pointer;
+  border-bottom: 0.5px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #378ADD;
+  font-weight: 500;
+  font-size: 12px;
+  background: #fff;
+  flex-shrink: 0; /* ne se compresse jamais */
+  transition: background 0.12s;
+}
+.sb-new:hover { background: #E6F1FB; }
+.sb-new i { font-size: 13px; }
+.sb-new .sb-title {
+  /* annule le overflow:hidden hérité des sb-title de liste */
+  overflow: visible;
+  white-space: nowrap;
+  text-overflow: unset;
+}
+
+/* ── Liste scrollable ── */
 .sb-list {
   flex: 1;
   overflow-y: auto;
+  /* le bouton sb-new étant sorti du flux scroll, la liste prend tout l'espace restant */
 }
 
 .sb-item {
@@ -58,12 +89,6 @@
   background: #E6F1FB;
   border-left: 2px solid #378ADD;
 }
-.sb-item.sb-new {
-  color: #378ADD;
-  font-weight: 500;
-}
-.sb-item.sb-new:hover { background: #E6F1FB; }
-.sb-item.sb-new i { margin-right: 6px; }
 
 .sb-item-top {
   display: flex;
@@ -104,19 +129,11 @@
   flex-shrink: 0;
 }
 
-.sb-sub {
-  font-size: 11px;
-  color: #6b6b6b;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  margin-bottom: 3px;
-}
-
 .sb-meta {
   display: flex;
   align-items: center;
   gap: 4px;
+  margin-top: 3px;
 }
 
 .avatars { display: flex; }
@@ -163,6 +180,7 @@
   justify-content: space-between;
   font-size: 11px;
   color: #777;
+  flex-shrink: 0;
 }
 .pg-info { white-space: nowrap; }
 .pg-btns { display: flex; gap: 3px; }
@@ -179,6 +197,43 @@
 .pg-btn:hover { background: #f0f0ef; }
 .pg-btn.active { background: #E6F1FB; color: #185FA5; border-color: #B5D4F4; }
 .pg-btn:disabled { opacity: 0.4; cursor: default; }
+
+/* ── Séparateur redimensionnable ─────────────────────────── */
+.resizer {
+  width: 5px;
+  min-width: 5px;
+  cursor: col-resize;
+  background: transparent;
+  flex-shrink: 0;
+  position: relative;
+  transition: background 0.15s;
+  z-index: 10;
+}
+
+/* Ligne centrale subtile */
+.resizer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 2px;
+  width: 1px;
+  background: #e0e0e0;
+  transition: background 0.15s, width 0.15s, left 0.15s;
+}
+
+/* Survol et drag : ligne bleue plus visible */
+.resizer:hover::after,
+.resizer.is-resizing::after {
+  background: #378ADD;
+  width: 2px;
+  left: 1.5px;
+}
+
+.resizer:hover,
+.resizer.is-resizing {
+  background: rgba(55, 138, 221, 0.08);
+}
 
 /* ── Main panel ──────────────────────────────────────────── */
 .ex-main {
@@ -203,6 +258,7 @@
   padding: 10px 14px;
   border-bottom: 0.5px solid #e0e0e0;
   background: #fff;
+  flex-shrink: 0;
 }
 
 .mh-title-row {
@@ -467,6 +523,7 @@
   border-top: 0.5px solid #e0e0e0;
   padding: 8px 14px;
   background: #fff;
+  flex-shrink: 0;
 }
 
 .compose-header {
