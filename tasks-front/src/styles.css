@@ -70,6 +70,21 @@ h1,h2,h3,h4 {
 selected{
   background-color: #1c4587;
 }
+.clamp {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+
+  -webkit-line-clamp: var(--lines, 1);
+  line-clamp: var(--lines, 1);
+  -webkit-line-clamp: var(--lines);
+  max-width: var(--max-w, 100%);
+}
+.clamp-w-sm  { --max-w: 200px; }
+.clamp-w-md  { --max-w: 350px; }
+.clamp-w-lg  { --max-w: 500px; }
+.clamp-w-xl  { --max-w: 700px; }
+.clamp-w-ch  { --max-w: 60ch;}
 .customHeightModal > .modal-dialog {
   max-width: 700px !important;
   width: 70% !important;

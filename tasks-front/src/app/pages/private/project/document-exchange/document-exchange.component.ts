@@ -4,7 +4,7 @@ import {
 import {IssueService} from "../../../../services/issue.service";
 import {AuthService} from "../../../../services/auth.service";
 import {UserService} from "../../../../services/user.service";
-import {DocumentApp, DocumentMember, Issue, Project, Uploaded, User} from "../../../../type/issue";
+import {DocumentApp, DocumentMember, DocumentSearch, Issue, Project, Uploaded, User} from "../../../../type/issue";
 import {DocumentService} from "../../../../services/document.service";
 import {MatMenuTrigger} from "@angular/material/menu";
 import {IssutypeForm2Component} from "../../../../common/issutype-form2/issutype-form2.component";
@@ -45,6 +45,12 @@ export class DocumentExchangeComponent implements OnInit {
   totalPages = 0;
   @ViewChild('newDocumentTrigger') newDocumentTrigger!: MatMenuTrigger;
   @ViewChild('newDocumentForm') newDocumentForm!: NewDocumentComponent;
+  search:DocumentSearch = {
+    typeDocuments:['EXCHANGE_DOCUMENT'],
+    projectId: this.projectId,
+    keyword: this.searchKeyword || null,
+    deleted: false
+  };
 
   private readonly avatarColors = [
     '#3B7DD8', '#1D9E75', '#BA7517', '#A0522D',
@@ -68,12 +74,7 @@ export class DocumentExchangeComponent implements OnInit {
   }
 
   loadDocuments(): void {
-    const search = {
-      projectId: this.projectId,
-      keyword: this.searchKeyword || null,
-      deleted: false
-    };
-    this.docmentService.searchDocuments(search, this.currentPage, this.pageSize)
+    this.docmentService.searchDocuments(this.search, this.currentPage, this.pageSize)
       .subscribe(page => {
         this.documents = page.content;
         this.totalElements = page.totalElements;

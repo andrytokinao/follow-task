@@ -54,7 +54,7 @@ type Query {
     getNotificationsByUserId(userId:String):[Notification]
 
     getDocument(id: Int!): Document
-    getSearchDocuments(search: DocumentSearchInput, page: Int, size: Int): DocumentPage
+    searchDocuments(search: DocumentSearchInput, page: Int, size: Int): DocumentPage
     getMyDocuments(userId: String!, search: DocumentSearchInput, page: Int, size: Int): DocumentPage
     getDocumentThread(parentId: Int!): [Document]
     getUnreadResponsesCount(documentId: Int!, userId: String!): Int

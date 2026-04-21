@@ -14,7 +14,7 @@ public class DocumentResolver {
     private final DocumentService documentService;
 
     @QueryMapping
-    public DocumentPage getSearchDocuments(
+    public DocumentPage searchDocuments(
             @Argument DocumentSearchInput search,
             @Argument Integer page,
             @Argument Integer size

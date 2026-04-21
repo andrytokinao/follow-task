@@ -20,7 +20,7 @@
           <span class="badge-unread" *ngIf="unreadCount(doc) > 0">{{ unreadCount(doc) }}</span>
         </div>
 
-        <div class="sb-sub">{{ doc.description | slice:0:60 }}…</div>
+        <div class="clamp clamp-2 clamp-w-ch  " style="--lines: 1;" [innerHTML]="doc.description"></div>
 
         <div class="sb-meta">
           <div class="avatars">

@@ -294,7 +294,26 @@ export class DocumentPage {
   currentPage:number;
   pageSize:number;
 }
+export class DocumentSearch {
+  typeDocuments: (
+    | 'ISSUE_FILES'
+    | 'COMMENT_FILES'
+    | 'MEDIA_FILES'
+    | 'SOURCE_FILE'
+    | 'DONNE_FILE'
+    | 'MESSEGE_FILES'
+    | 'WIKI_FILES'
+    | 'EXCHANGE_DOCUMENT'
+    )[];
+  projectId?:number;
+  issueIds?:number[];
+  memberUserIds?:string[];
+  createdFrom?:string;
+  createdTo?:string;
+  keyword?:string;
 
+  deleted?:boolean;
+}
 export interface DocumentApp{
   id?:number;
   titre?:String;

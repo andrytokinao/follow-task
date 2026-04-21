@@ -4,14 +4,16 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class DocumentSearchInput {
-    private String typeDocument;
+    private List<String> typeDocuments;
     private Integer projectId;
-    private Integer issueId;
-    private String memberUserId;
+    private List<Integer> issueIds;
+    private List<String> memberUserIds;
     private String createdFrom;
     private String createdTo;
     private String keyword;

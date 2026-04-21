@@ -15,6 +15,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -44,34 +46,37 @@ public class DocumentService {
     }
     public DocumentPage searchDocuments(DocumentSearchInput search, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "creation"));
-        String typeDocument  = search != null ? search.getTypeDocument()  : null;
+        List<String> typeDocuments  = search != null ? search.getTypeDocuments()  : null;
         Integer projectId    = search != null ? search.getProjectId()     : null;
-        Integer issueId      = search != null ? search.getIssueId()       : null;
-        String memberUserId  = search != null ? search.getMemberUserId()  : null;
-        String keyword       = search != null ? search.getKeyword().toLowerCase()       : null;
+        List<Integer> issueIds      = search != null ? search.getIssueIds()   : null;
+        List<String> memberUserIds  = search != null ? search.getMemberUserIds()  : null;
+        String keyword       =( search != null && search.getKeyword() != null) ? search.getKeyword().toLowerCase()       : null;
         String createdFrom   = search != null ? search.getCreatedFrom()   : null;
         String createdTo     = search != null ? search.getCreatedTo()     : null;
         Boolean deleted      = search != null ? search.getDeleted()       : null;
 
         Page<Document> result = documentRepository.searchDocuments(
-                typeDocument, projectId, issueId, memberUserId,
+                typeDocuments, projectId, issueIds, memberUserIds,
                 keyword, createdFrom, createdTo, deleted, pageable
         );
         return toDocumentPage(result);
     }
 
     public DocumentPage getMyDocuments(String userId, DocumentSearchInput search, int page, int size) {
+        List<String> userIds = userId != null
+                ? Collections.singletonList(userId)
+                : null;
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "creation"));
-        String typeDocument  = search != null ? search.getTypeDocument()  : null;
+        List<String> typeDocument  = search != null ? search.getTypeDocuments()  : null;
         Integer projectId    = search != null ? search.getProjectId()     : null;
-        Integer issueId      = search != null ? search.getIssueId()       : null;
+        List<Integer> issueId      = search != null ? search.getIssueIds()       : null;
         String keyword       = search != null ? search.getKeyword().toLowerCase()   : null;
         String createdFrom   = search != null ? search.getCreatedFrom()   : null;
         String createdTo     = search != null ? search.getCreatedTo()     : null;
         Boolean deleted      = search != null ? search.getDeleted()       : null;
 
         Page<Document> result = documentRepository.findMyDocuments(
-                userId, typeDocument, projectId, issueId,
+                userIds, typeDocument, projectId, issueId,
                 keyword, createdFrom, createdTo, deleted, pageable
         );
         return toDocumentPage(result);

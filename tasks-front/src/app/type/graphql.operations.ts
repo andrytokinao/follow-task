@@ -2288,6 +2288,81 @@ const GET_DOCUMENTS = gql`
       }
     }
 `
+
+export const SEARCH_DOCUMENTS = gql`
+    query searchDocuments($search:DocumentSearchInput,$page:Int,$size:Int) {
+      searchDocuments(search:$search,page:$page,size:$size) {
+          content {
+            id
+            titre
+            description
+            creation
+            typeDocument
+            issues {
+              id
+            }
+            userApp {
+              id
+              username
+              lastName
+              firstName
+              photo
+            }
+            uploadeds {
+              id
+              path
+              name
+              encodedPath
+            }
+            documentMembers {
+              id
+              user {
+                id
+                username
+                firstName
+                lastName
+                photo
+              }
+              document {
+                id
+              }
+            }
+            project {
+              id
+            }
+            parent {
+              id
+            }
+            responses {
+              id
+              description
+              creation
+              deleted
+              parent {
+                id
+              }
+              userApp {
+                id
+                username
+                lastName
+                firstName
+                photo
+              }
+              uploadeds {
+                id
+                name
+                path
+                encodedPath
+              }
+            }
+          }
+         currentPage
+         pageSize
+         totalElements
+         totalPages
+       }
+    }
+`
 export let LOAD_DOCUMENT_BY_ID =  gql`
   query loadDocumentById($documentId:Int) {
     loadDocumentById(documentId:$documentId) {

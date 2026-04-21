@@ -676,17 +676,15 @@ type DocumentPage {
 }
 
 input DocumentSearchInput {
-    typeDocument: String
+    typeDocuments: [String]
     projectId: Int
-    issueId: Int
-    memberUserId: String
+    issueIds: [Int]
+    memberUserIds: [String]
     createdFrom: String
     createdTo: String
     keyword: String
     deleted: Boolean
 }
-
-
 
 type DomainActivity{
     id:Int
