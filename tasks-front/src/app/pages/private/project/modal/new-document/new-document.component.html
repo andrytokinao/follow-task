@@ -1,7 +1,11 @@
-<div class="nd-overlay" (dragover)="onDragOver($event)" (drop)="onDrop($event)" (click)="$event.stopPropagation()">
+<div class="nd-overlay"
+     [class.nd-overlay--inline]="mode === 'reply'"
+     (dragover)="onDragOver($event)"
+     (drop)="onDrop($event)"
+     (click)="$event.stopPropagation()">
 
   <!-- Header -->
-  <div class="nd-header">
+  <div class="nd-header" *ngIf="mode === 'create'">
     <div class="nd-header-left">
       <span class="nd-icon">⊕</span>
       <span class="nd-title">Composer une demande</span>
@@ -11,7 +15,7 @@
 
   <div class="nd-body">
 
-    <div class="nd-section">
+    <div class="nd-section" *ngIf="mode === 'create'">
       <label class="nd-label required">Département / Équipe</label>
       <div class="nd-radio-group">
         <label
@@ -34,7 +38,7 @@
     </div>
 
     <!-- Titre -->
-    <div class="nd-section" *ngIf="!parentDocument">
+    <div class="nd-section" *ngIf="mode === 'create'" >
       <label class="nd-label">Sujet </label>
       <input
         class="nd-input"
@@ -46,7 +50,7 @@
     </div>
 
     <!-- Membres -->
-    <div class="nd-section" *ngIf="!parentDocument">
+    <div class="nd-section" *ngIf="mode === 'create'">
       <label class="nd-label">Membres</label>
       <div class="nd-members">
         <label
@@ -102,7 +106,7 @@
     <button
       class="nd-btn primary"
       type="button"
-      [disabled]="!newDocument.project"
+      [disabled]="!isFormValid()"
       (click)="saveDocument()">
       Envoyer
     </button>

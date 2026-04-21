@@ -17,9 +17,23 @@ import {BehaviorSubject} from "rxjs";
 export class NewDocumentComponent {
   uploadings: Uploading[]=[];
   @Input() selectedProject:Project | undefined = undefined;
+  @Input() mode: 'create' | 'reply' = 'create';
+  @Input() set parentDocument(doc: DocumentApp) {
+    this._parentDocument = doc;
+    this.reset();
+  }
+  reset(): void {
+    this.newDocument = {};
+    this.uploadings = [];
+    this.selectedUsers = [];
+  }
   filesToUploads: any;
   newDocument: DocumentApp = {};
-  parentDocument:DocumentApp;
+  get parentDocument(): DocumentApp {
+    return this._parentDocument;
+  }
+
+  private _parentDocument: DocumentApp;
   private profile: any;
   private uploadingDoc ;
   protected user:User;
@@ -93,13 +107,17 @@ export class NewDocumentComponent {
   }
 
   saveDocument() {
-    alert(JSON.stringify(this.newDocument));
+    if (this.parentDocument) {
+      this.newDocument.parent = {id: this.parentDocument.id};
+      this.newDocument.titre = 'Re:' + this.parentDocument.titre;
+    }
     if (this.newDocument.id) {
       // Edition
       this.issueService.uploadDocument(this.newDocument,this.issue?.encodedPath,this.uploadings,this.typeDocument).subscribe(document => {
         if (!this.uploadings || this.uploadings.length === 0) {
           this.issueService.forwardDocument(document);
           this.activeModal.close(document);
+          this.reset();
         }
       });
       return;
@@ -130,6 +148,7 @@ export class NewDocumentComponent {
          this.issueService.forwardDocument(document);
          this.activeModal.close(document);
          this.onSave.emit(document);
+         this.reset();
        }
     });
     if (!this.issueService.uploadingDocumentSubject) {
@@ -192,5 +211,13 @@ export class NewDocumentComponent {
   close() {
     this.onClose.emit();
     this.activeModal.close();
+  }
+
+  isFormValid(): boolean {
+    if (this.mode === 'reply') {
+      return !!(this.newDocument.description || this.uploadings.length > 0);
+    }
+    return !!(this.newDocument.project &&
+      (this.newDocument.description || this.uploadings.length > 0));
   }
 }

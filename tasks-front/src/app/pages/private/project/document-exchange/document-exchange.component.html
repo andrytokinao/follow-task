@@ -198,33 +198,13 @@
 
     <!-- Zone de réponse -->
     <div class="compose">
-      <div class="compose-header">
-        <span class="to-label">À :</span>
-        <span class="to-chip" *ngFor="let m of selectedDocument.documentMembers | slice:0:3">
-          {{ m.user?.username }} <span class="rm" (click)="removeMember(m)">✕</span>
-        </span>
-        <select class="dest-select" (change)="onAddRecipient($event)">
-          <option value="">+ Destinataire</option>
-          <option *ngFor="let u of availableUsers" [value]="u.id">{{ u.username }}</option>
-        </select>
-      </div>
-      <app-quill-editor
-        class="compose-area"
-        [content]="replyText"
-        placeholder="Rédiger une réponse…"
-        rows="3">
-      </app-quill-editor>
-      <div class="compose-footer">
-        <button class="btn-send" (click)="responseDocument(selectedDocument)">
-          <i class="fas fa-paper-plane"></i> Envoyer
-        </button>
-        <button class="btn-att" (click)="attachFile()">
-          <i class="fas fa-paperclip"></i> Fichier
-        </button>
-        <span class="att-hint" *ngIf="pendingFiles.length">
-          {{ pendingFiles.length }} fichier(s) joint(s)
-        </span>
-      </div>
+
+      <app-new-document
+        mode="reply"
+        [parentDocument]="selectedDocument"
+        (onSave)="onReplySaved($event)">
+      </app-new-document>
+
     </div>
 
   </main>

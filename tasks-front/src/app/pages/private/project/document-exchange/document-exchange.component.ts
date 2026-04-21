@@ -319,4 +319,10 @@ export class DocumentExchangeComponent implements OnInit , AfterViewInit {
   ngAfterViewInit(): void {
     this.initResizer();
   }
+
+  onReplySaved(doc: DocumentApp) {
+     this.issueService.loadDocumentById(doc.id).subscribe(document => {
+       this.selectedDocument = document;
+     });
+  }
 }

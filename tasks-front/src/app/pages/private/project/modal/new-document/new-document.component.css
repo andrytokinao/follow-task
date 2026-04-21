@@ -258,3 +258,12 @@
 /* ── Clamp utilitaire ── */
 .clamp { display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; -webkit-line-clamp: var(--lines); }
 .clamp-1 { --lines: 1; }
+
+.nd-overlay--inline {
+  max-width: 100%;
+  width: 100%;
+  box-shadow: none;
+  border-radius: 0;
+  border: none;
+  max-height: unset;
+}
