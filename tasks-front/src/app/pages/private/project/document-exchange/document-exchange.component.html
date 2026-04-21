@@ -37,7 +37,11 @@
       </div>
 
       <!-- Nouveau en bas de liste -->
-      <div class="sb-item sb-new" (click)="createDocument()">
+      <div class="sb-item sb-new"
+           [matMenuTriggerFor]="newDocument"
+           #newDocumentTrigger="matMenuTrigger"
+           (menuOpened)="onMenNewDocumentOpened()"
+      >
         <div class="sb-item-top">
           <i class="fas fa-plus-circle"></i>
           <span class="sb-title">Nouvelle demande</span>
@@ -204,12 +208,12 @@
           <option *ngFor="let u of availableUsers" [value]="u.id">{{ u.username }}</option>
         </select>
       </div>
-      <textarea
+      <app-quill-editor
         class="compose-area"
-        [(ngModel)]="replyText"
+        [content]="replyText"
         placeholder="Rédiger une réponse…"
         rows="3">
-      </textarea>
+      </app-quill-editor>
       <div class="compose-footer">
         <button class="btn-send" (click)="responseDocument(selectedDocument)">
           <i class="fas fa-paper-plane"></i> Envoyer
@@ -230,10 +234,13 @@
     <main class="ex-main ex-empty">
       <i class="fas fa-envelope-open-text"></i>
       <p>Sélectionnez une demande ou composez-en une nouvelle</p>
-      <button class="btn-send" (click)="createDocument()">
-        <i class="fas fa-plus"></i> Nouvelle demande
-      </button>
+
     </main>
   </ng-template>
 
+</div>
+<div (click)="$event.stopPropagation()">
+  <mat-menu #newDocument = "matMenu">
+    <app-new-document  #newDocumentForm ></app-new-document>
+  </mat-menu>
 </div>

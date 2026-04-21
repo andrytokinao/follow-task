@@ -636,7 +636,9 @@ public class IssueService {
                 }
         });
         }
-        Issue issue = issueRepository.findById(doc.getIssues().getId()).orElse(null);
+        Issue issue = null;
+        if (doc.getIssues() != null)
+            issue = issueRepository.findById(doc.getIssues().getId()).orElse(null);
         actionService.addDocumentAction(doc,issue);
     }
 

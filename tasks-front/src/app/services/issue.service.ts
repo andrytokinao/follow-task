@@ -2001,31 +2001,5 @@ export class IssueService implements OnInit {
     return this.uploadDocument(document,issue.encodedPath,uploading,document.typeDocument);
   }
 
-  addMemberToDocument(documentid:number, userId:String) {
-    return new Observable<DocumentMember>();
-  }
 
-  removeMemberFromDocument(number: number, id: string) {
-    return new Observable();
-  }
-
-  searchDocuments(search: { deleted: boolean; keyword: string; projectId: number }, currentPage: number, pageSize: number) {
-    return new Observable<DocumentPage>()
-  }
-
-  attachDocumentToIssue(number: number, number2: number) {
-    return new Observable();
-  }
-
-  replyToDocument(number: number, reply: DocumentApp) {
-    return new Observable<DocumentApp>();
-  }
-
-  createDocument(projectId: number) {
-    return new Observable<DocumentApp>();
-  }
-
-  attachDocumentToProject(number: number, number2: number) {
-    return new Observable();
-  }
 }

@@ -1,10 +1,14 @@
 import {
-  Component, OnInit, Input, HostListener, ElementRef
+  Component, OnInit, Input, HostListener, ElementRef, ViewChild
 } from '@angular/core';
 import {IssueService} from "../../../../services/issue.service";
 import {AuthService} from "../../../../services/auth.service";
 import {UserService} from "../../../../services/user.service";
 import {DocumentApp, DocumentMember, Issue, Project, Uploaded, User} from "../../../../type/issue";
+import {DocumentService} from "../../../../services/document.service";
+import {MatMenuTrigger} from "@angular/material/menu";
+import {IssutypeForm2Component} from "../../../../common/issutype-form2/issutype-form2.component";
+import {NewDocumentComponent} from "../modal/new-document/new-document.component";
 
 
 @Component({
@@ -39,6 +43,8 @@ export class DocumentExchangeComponent implements OnInit {
   pageSize = 20;
   totalElements = 0;
   totalPages = 0;
+  @ViewChild('newDocumentTrigger') newDocumentTrigger!: MatMenuTrigger;
+  @ViewChild('newDocumentForm') newDocumentForm!: NewDocumentComponent;
 
   private readonly avatarColors = [
     '#3B7DD8', '#1D9E75', '#BA7517', '#A0522D',
@@ -49,6 +55,7 @@ export class DocumentExchangeComponent implements OnInit {
     protected issueService: IssueService,
     private userService : UserService,
     private authService: AuthService,
+    private docmentService:DocumentService,
     private el: ElementRef
   ) {}
 
@@ -66,7 +73,7 @@ export class DocumentExchangeComponent implements OnInit {
       keyword: this.searchKeyword || null,
       deleted: false
     };
-    this.issueService.searchDocuments(search, this.currentPage, this.pageSize)
+    this.docmentService.searchDocuments(search, this.currentPage, this.pageSize)
       .subscribe(page => {
         this.documents = page.content;
         this.totalElements = page.totalElements;
@@ -120,7 +127,7 @@ export class DocumentExchangeComponent implements OnInit {
   }
 
   createDocument(): void {
-    this.issueService.createDocument(this.projectId).subscribe(doc => {
+    this.docmentService.createDocument(this.projectId).subscribe(doc => {
       if (doc) {
         this.documents = [doc, ...this.documents];
         this.selectDoc(doc);
@@ -136,7 +143,7 @@ export class DocumentExchangeComponent implements OnInit {
       parent: { id: parent.id },
       project: parent.project
     };
-    this.issueService.replyToDocument(parent.id!, reply).subscribe(resp => {
+    this.docmentService.replyToDocument(parent.id!, reply).subscribe(resp => {
       if (!this.selectedDocument!.responses) this.selectedDocument!.responses = [];
       this.selectedDocument!.responses!.push(resp);
       this.replyText = '';
@@ -151,7 +158,7 @@ export class DocumentExchangeComponent implements OnInit {
     if (!this.selectedDocument) return;
     this.selectedDocument.issues = issue ?? undefined;
     this.showIssueDD = false;
-    this.issueService.attachDocumentToIssue(
+    this.docmentService.attachDocumentToIssue(
       this.selectedDocument.id!,
       issue?.id ?? null
     ).subscribe();
@@ -177,11 +184,11 @@ export class DocumentExchangeComponent implements OnInit {
 
   addMember(): void {
     let userId:String
-    this.issueService.addMemberToDocument(this.selectedDocument.id,userId);
+    this.docmentService.addMemberToDocument(this.selectedDocument.id,userId);
   }
 
   removeMember(member: DocumentMember): void {
-    this.issueService.removeMemberFromDocument(
+    this.docmentService.removeMemberFromDocument(
       this.selectedDocument!.id!,
       member.user!.id
     ).subscribe(() => {
@@ -193,7 +200,7 @@ export class DocumentExchangeComponent implements OnInit {
   onAddRecipient(event: Event): void {
     const userId = (event.target as HTMLSelectElement).value;
     if (!userId) return;
-    this.issueService.addMemberToDocument(this.selectedDocument!.id!, userId)
+    this.docmentService.addMemberToDocument(this.selectedDocument!.id!, userId)
       .subscribe(member => {
         if (!this.selectedDocument!.documentMembers) this.selectedDocument!.documentMembers = [];
         this.selectedDocument!.documentMembers!.push(member);
@@ -249,4 +256,9 @@ export class DocumentExchangeComponent implements OnInit {
   goPage(p: number): void { this.currentPage = p; this.loadDocuments(); }
   prevPage(): void { if (this.currentPage > 0) { this.currentPage--; this.loadDocuments(); } }
   nextPage(): void { if (this.currentPage < this.totalPages - 1) { this.currentPage++; this.loadDocuments(); } }
+
+  onMenNewDocumentOpened() {
+    this.newDocumentForm.typeDocument = 'EXCHANGE_DOCUMENT';
+    this.newDocumentForm.selectTeams = true;
+  }
 }

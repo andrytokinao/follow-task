@@ -1,6 +1,18 @@
-<div  (dragover)="onDragOver($event)" (drop)="onDrop($event)">
+<div  (dragover)="onDragOver($event)" (drop)="onDrop($event)"  (click)="$event.stopPropagation()">
   <div>
     <form #f="ngForm" (ngSubmit)="saveDocument()">
+      <div >
+        <div class="dropdown" >
+          <input class="dd-search" type="text" [(ngModel)]="projSearch" placeholder="Rechercher projet…">
+          <div class="dd-item"
+               *ngFor="let p of filteredProjects"
+               [class.selected]="newDocument.project?.id === p.id"
+               (click)="selectProject(p)">
+            <span class="dd-key">{{ p.prefix }}</span> {{ p.name }}
+          </div>
+        </div>
+
+      </div>
       <div class="form-group" #parentIssue>
         <mat-form-field style="width: 100%" *ngIf="!parentDocument">
           <mat-label>Titre </mat-label>
@@ -48,6 +60,6 @@
     </ul>
   </div>
   <div>
-    <button class="upload-btn" (click)="saveDocument()">Save</button>
+    <button class="upload-btn" (click)="saveDocument()">Envoyer </button>
   </div>
 </div>

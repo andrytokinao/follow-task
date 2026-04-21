@@ -16,6 +16,7 @@ import {BehaviorSubject} from "rxjs";
 })
 export class NewDocumentComponent {
   uploadings: Uploading[]=[];
+  @Input() selectedProject:Project | undefined = undefined;
   filesToUploads: any;
   newDocument: DocumentApp = {};
   parentDocument:DocumentApp;
@@ -29,6 +30,11 @@ export class NewDocumentComponent {
   protected userToSelect: User[]=[];
   selectedUsers:String[] = [];
   private project: Project;
+  selectTeams: boolean = false;
+  projSearch: any;
+  selectedDocument: any;
+  filteredProjects: Project[] = [];
+  projects:Project[] = [];
   constructor(private router: Router,
               private modalService: NgbModal,
               private configService: ConfigService,
@@ -57,6 +63,10 @@ export class NewDocumentComponent {
     });
     this.issueService.project$.subscribe(project =>{
       this.project = project;
+    });
+    this.issueService.projects$.subscribe(prs => {
+      this.projects = prs;
+      this.filteredProjects = prs;
     })
   }
   onDragOver(event: DragEvent): void {
@@ -169,5 +179,9 @@ export class NewDocumentComponent {
       this.selectedUsers = this.selectedUsers.filter(cf => cf != user.id);
     }
     return true;
+  }
+
+  selectProject(p: Project) {
+      this.newDocument.project = p;
   }
 }

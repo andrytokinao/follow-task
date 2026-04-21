@@ -37,8 +37,14 @@ export class ExchangeDocumentsComponent {
   documents:DocumentApp[] = [ ];
 
   ngOnInit(): void {
-    this.issueService.project$.subscribe(project=> this.project = project)
-    this.authService.getProfile().subscribe((res) => {
+    this.issueService.project$.subscribe(
+      project=> {
+        this.project = project;
+        if (this.project) {
+          this.loadDocument();
+        }
+      });
+    this.authService.connectedUser$.subscribe((res) => {
       this.profile = res;
       if (this.profile){
         this.document.userApp = {id:this.profile.id}
@@ -46,9 +52,6 @@ export class ExchangeDocumentsComponent {
     });
     this.issueService.issueMaster$.subscribe(master => {
       this.issue = master ;
-      if (this.issue) {
-        this.loadDocument();
-      }
     });
     this.issueService.documents$.subscribe((docs: DocumentApp[]) => {
       this.documents = this.issueService.getDocumentsByType(this.typeDocument,this.issue.id);
