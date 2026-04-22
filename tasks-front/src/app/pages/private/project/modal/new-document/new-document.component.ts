@@ -161,7 +161,7 @@ export class NewDocumentComponent {
         this.uploadings = [];
         this.issueService.loadDocumentById(doc.id).subscribe(d => {
          this.issueService.forwardDocument(d);
-          this.onSave.emit(document);
+          this.onSave.emit(d);
           this.reset();
           this.activeModal.close(d);
         });
