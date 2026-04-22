@@ -587,18 +587,23 @@ public class ProjectService {
     }
 
 
-    public Uploaded uplodoadFile(MultipartFile file, String directory, String newDirectory, Long documentId) throws IOException {
+    public Uploaded uploadFile(MultipartFile file, String directory, String newDirectory, Long documentId) throws IOException {
         String fileName = file.getOriginalFilename();
         String uploadDir = KingaUtils.decodeText(directory);
         Files.createDirectories(Paths.get(uploadDir));
+
         if (!StringUtils.isEmpty(newDirectory)) {
             Path newPathDir = Paths.get(uploadDir, newDirectory);
             Files.createDirectories(newPathDir);
             uploadDir = newPathDir.toString();
         }
-        String newFileName = UUID.randomUUID().toString();
-        Path filePath = Paths.get(uploadDir, newFileName);
+
+        // Garder le nom original et gérer les doublons
+        String finalFileName = resolveFileName(uploadDir, fileName);
+
+        Path filePath = Paths.get(uploadDir, finalFileName);
         Files.write(filePath, file.getBytes());
+
         Uploaded uploaded = new Uploaded(fileName, filePath.toString());
         Document doc = documentRepository.getById(documentId);
         Document document = new Document();
@@ -606,9 +611,45 @@ public class ProjectService {
         document.setId(documentId);
         uploaded.setDocument(document);
         uploaded = uploadedRepository.save(uploaded);
+
         return uploaded;
     }
 
+    /**
+     * Résout le nom final du fichier.
+     * Si le fichier existe déjà, ajoute un suffixe numérique : -01, -02, etc.
+     */
+    private String resolveFileName(String uploadDir, String originalFileName) {
+        // Séparer le nom de base et l'extension
+        String baseName;
+        String extension;
+
+        int dotIndex = originalFileName.lastIndexOf('.');
+        if (dotIndex != -1) {
+            baseName  = originalFileName.substring(0, dotIndex);   // "cours-angular"
+            extension = originalFileName.substring(dotIndex);       // ".pdf"
+        } else {
+            baseName  = originalFileName;
+            extension = "";
+        }
+
+        // Si le fichier n'existe pas encore, on retourne le nom tel quel
+        Path candidate = Paths.get(uploadDir, originalFileName);
+        if (!Files.exists(candidate)) {
+            return originalFileName;
+        }
+
+        // Sinon, on cherche un suffixe libre : -01, -02, ...
+        int counter = 1;
+        while (true) {
+            String numberedName = String.format("%s-%02d%s", baseName, counter, extension);
+            candidate = Paths.get(uploadDir, numberedName);
+            if (!Files.exists(candidate)) {
+                return numberedName;
+            }
+            counter++;
+        }
+    }
     public List<DomainActivity> listActivity() {
         return domainActivityRepository.findAll();
     }

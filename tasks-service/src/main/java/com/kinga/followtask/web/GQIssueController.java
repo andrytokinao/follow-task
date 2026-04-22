@@ -103,7 +103,7 @@ public class GQIssueController {
             return ResponseEntity.badRequest().body("Le fichier est vide.");
         }
         try{
-           Uploaded uploaded = projectService.uplodoadFile(file, directory, newDirectory,documentId);
+           Uploaded uploaded = projectService.uploadFile(file, directory, newDirectory,documentId);
            String json = (new Gson()).toJson(new UploadedDto(uploaded.getId(),uploaded.getName(),uploaded.getPath(),uploaded.getEncodedPath()));
            return ResponseEntity.ok().body(json);
 
