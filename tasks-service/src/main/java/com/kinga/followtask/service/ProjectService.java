@@ -588,8 +588,17 @@ public class ProjectService {
 
 
     public Uploaded uploadFile(MultipartFile file, String directory, String newDirectory, Long documentId) throws IOException {
+        Document doc = documentRepository.getById(documentId);
         String fileName = file.getOriginalFilename();
-        String uploadDir = KingaUtils.decodeText(directory);
+        String baseDirectory = KingaUtils.getDefaultWorkSpaceDirectory()+ File.separator + (doc.getTypeDocument() == null? "DOCUMENT" : doc.getTypeDocument().name() ) ;
+        String uploadDir ="";
+        if (directory == null || "undefined".equalsIgnoreCase(directory)) {
+            directory = baseDirectory;
+            uploadDir = directory;
+        } else  {
+            uploadDir = KingaUtils.decodeText(directory);
+        }
+
         Files.createDirectories(Paths.get(uploadDir));
 
         if (!StringUtils.isEmpty(newDirectory)) {
@@ -605,7 +614,6 @@ public class ProjectService {
         Files.write(filePath, file.getBytes());
 
         Uploaded uploaded = new Uploaded(fileName, filePath.toString());
-        Document doc = documentRepository.getById(documentId);
         Document document = new Document();
         document.setTitre(doc.getTitre());
         document.setId(documentId);
