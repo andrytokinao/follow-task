@@ -1283,7 +1283,8 @@ export class IssueService implements OnInit {
   }
 
   private loadUsers() {
-    this.userService.getUsersForProject(this.projectSubject.value.prefix);
+    if (this.project && this.project.id)
+      this.userService.loadGroupeMember(this.project.id.valueOf());
   }
 
   loadIssueType() {

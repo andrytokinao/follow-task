@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import {HttpClient, HttpEvent, HttpHeaders, HttpRequest} from '@angular/common/http';
-import {BehaviorSubject, Observable, throwError} from 'rxjs';
+import {BehaviorSubject, map, Observable, throwError} from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import {ConfigEntry, GroupeUser, Issue, MemberGroupe, Permission, Status, User} from "../type/issue";
 import {
@@ -147,28 +147,38 @@ export class UserService {
       })
   })
   }
-  loadGroupeUserForProject(prefix: String) {
-    this.apollo.query({
+  getGroupeUserForProject(prefix: String): Observable<GroupeUser[]> {
+    return this.apollo.query({
       query: GET_GROUPE_USER_FOR_PROJECT,
-      variables: {prefix},
+      variables: { prefix },
       fetchPolicy: "network-only"
-    }).subscribe((res: any) => {
-        let groups:GroupeUser[] = supprimerTypename(res.data.getGroupeUserForProject);
-        this.groupeUsersSubject.next(groups);
-        this.extractUserRules(groups);
-      }, error => {
+    }).pipe(
+      map((res: any) => supprimerTypename(res.data.getGroupeUserForProject) as GroupeUser[]),
+      catchError(error => {
         console.error(error);
-      }
-    )
-  }
-  private extractUserRules(groups: GroupeUser[]) {
-    let  allAccessible:User[]=[];
-    groups.forEach(groupe=> {
-      groupe.members.forEach(member => {
-        allAccessible.push(member.user);
+        return throwError(() => error);
       })
+    );
+  }
+
+  getUsersForProject(prefix: String): Observable<User[]> {
+    return this.getGroupeUserForProject(prefix).pipe(
+      map(groups => groups.flatMap(groupe =>
+        groupe.members.map(member => member.user)
+      ))
+    );
+  }
+
+  loadGroupeUserForProject(prefix: String): void {
+    this.getGroupeUserForProject(prefix).subscribe({
+      next: (groups) => {
+        this.groupeUsersSubject.next(groups);                          // ← Subject GroupeUser[]
+        this.allMemberSubject.next(
+          groups.flatMap(g => g.members.map(m => m.user))             // ← Subject User[]
+        );
+      },
+      error: (error) => console.error(error)
     });
-    this.allMemberSubject.next(allAccessible);
   }
 
   loadPermissiontTask() {
@@ -184,10 +194,7 @@ export class UserService {
     )
   }
 
-  getUsersForProject(prefix: String) {
-    // Todo : A profondir
-    this.allUsers();
-  }
+
 
 
   deleteMember(memberId: Number) {
