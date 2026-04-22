@@ -7,7 +7,6 @@ import {UserService} from "../../../../services/user.service";
 import {DocumentApp, DocumentMember, DocumentSearch, Issue, Project, Uploaded, User} from "../../../../type/issue";
 import {DocumentService} from "../../../../services/document.service";
 import {MatMenuTrigger} from "@angular/material/menu";
-import {IssutypeForm2Component} from "../../../../common/issutype-form2/issutype-form2.component";
 import {NewDocumentComponent} from "../modal/new-document/new-document.component";
 
 
@@ -321,7 +320,7 @@ export class DocumentExchangeComponent implements OnInit , AfterViewInit {
   }
 
   onReplySaved(doc: DocumentApp) {
-     this.issueService.loadDocumentById(doc.id).subscribe(document => {
+     this.issueService.loadDocumentById(doc.parent.id).subscribe(document => {
        this.selectedDocument = document;
      });
   }
