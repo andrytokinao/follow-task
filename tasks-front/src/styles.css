@@ -14,7 +14,8 @@ body, html {
   width: 100%;
   font-weight: normal;
   letter-spacing: -0.005em;
-  line-height: 28px;  letter-spacing: -.02em;
+  line-height: 16px;
+  letter-spacing: -.02em;
 }
 .cdk-overlay-container{
   z-index: 2000;

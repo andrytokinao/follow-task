@@ -168,7 +168,23 @@ export class UserService {
       ))
     );
   }
-
+  getUserForProjectAndRole(prefix: String, roles: string[]): Observable<User[]> {
+    return this.getGroupeUserForProject(prefix).pipe(
+      map(groups =>
+        groups.flatMap(groupe =>
+          groupe.members
+            .filter(member =>
+              member.roles.some(role => roles.includes(role))  // ← garde si au moins un rôle correspond
+            )
+            .map(member => member.user)
+        )
+      ),
+      // Supprimer les doublons (un user peut être dans plusieurs groupes)
+      map(users => [
+        ...new Map(users.map(user => [user.id, user])).values()
+      ])
+    );
+  }
   loadGroupeUserForProject(prefix: String): void {
     this.getGroupeUserForProject(prefix).subscribe({
       next: (groups) => {

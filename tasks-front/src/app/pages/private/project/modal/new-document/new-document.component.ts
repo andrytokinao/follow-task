@@ -18,6 +18,7 @@ export class NewDocumentComponent {
   uploadings: Uploading[]=[];
   @Input() selectedProject:Project | undefined = undefined;
   @Input() mode: 'create' | 'reply' = 'create';
+  private priorityUsers: User[] = [];
   @Input() set parentDocument(doc: DocumentApp) {
     this._parentDocument = doc;
     this.reset();
@@ -208,6 +209,7 @@ export class NewDocumentComponent {
 
   selectProject(p: Project) {
       this.newDocument.project = {id:p.id};
+      this.loadPriorityDestination(p.prefix);
   }
 
   close() {
@@ -221,5 +223,10 @@ export class NewDocumentComponent {
     }
     return !!(this.newDocument.project &&
       (this.newDocument.description || this.uploadings.length > 0));
+  }
+  public loadPriorityDestination(projectPrefix:String) {
+    this.userService.getUserForProjectAndRole(projectPrefix,['ADMIN','PROJECT_MANAGER']).subscribe(users=> {
+      this.userToSelect = users;
+    });
   }
 }
