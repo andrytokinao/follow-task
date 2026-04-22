@@ -1,6 +1,8 @@
 package com.kinga.utils;
 
+import com.kinga.followtask.config.StorageConfig;
 import com.kinga.followtask.entity.Project;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.util.StringUtils;
 
@@ -27,7 +29,8 @@ public class KingaUtils {
     public static String dateTimeFormaterPattern = "yyyy-MM-dd'T'HH:mm:ss";
     private static String dateTimeFormaterPattern2 = "yyyy-MM-dd' 'HH:mm:ss";
     public static DateTimeFormatter dateTimeFormater = DateTimeFormatter.ofPattern(dateTimeFormaterPattern);
-
+    @Autowired
+    private static StorageConfig storageConfig;
     // Système de substitution : chaque caractère de NORMAL_STRING est encodé vers SUFFLE_STRING
     private static final String SUFFLE_STRING = "tLR4hpeTaQjvGHC0S2zogWPkyq5d3cuMKXlm7FDfiI-BAEJ_Uns/6ZO9YVb1wxrN8@&";
     private static final String NORMAL_STRING = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=";
@@ -115,14 +118,28 @@ public class KingaUtils {
     }
 
     public static String baseDirectory() throws IOException {
-        String directory = System.getProperty("user.home") + File.separator + BASE_DIRECTORY;
+        String rootPath = resolveRootPath();
+
+        String directory = rootPath + File.separator + BASE_DIRECTORY;
         File projectDirectory = new File(directory);
+
         if (!Files.exists(projectDirectory.toPath())) {
-            Files.createDirectory(projectDirectory.toPath());
+            Files.createDirectories(projectDirectory.toPath());  // createDirectories pour créer les parents aussi
         }
+
         return directory;
     }
-
+    private static String resolveRootPath() {
+        String envPath = System.getenv("APP_STORAGE_BASE_PATH");
+        if (envPath != null && !envPath.isBlank()) {
+            return envPath;
+        }
+        String sysProp = System.getProperty("app.storage.base-path");
+        if (sysProp != null && !sysProp.isBlank()) {
+            return sysProp;
+        }
+        return System.getProperty("user.home");
+    }
     public static String getMacAddress() {
         StringBuilder sb = new StringBuilder();
         try {

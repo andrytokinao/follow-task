@@ -104,6 +104,7 @@ public class GQIssueController {
         }
         try{
            Uploaded uploaded = projectService.uploadFile(file, directory, newDirectory,documentId);
+
            String json = (new Gson()).toJson(new UploadedDto(uploaded.getId(),uploaded.getName(),uploaded.getPath(),uploaded.getEncodedPath()));
            return ResponseEntity.ok().body(json);
 
