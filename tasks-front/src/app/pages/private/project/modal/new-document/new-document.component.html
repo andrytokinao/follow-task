@@ -56,12 +56,17 @@
         <label
           *ngFor="let user of userToSelect"
           class="nd-member-item"
-          [class.checked]="isSelectedUser(user.id)">
+          [class.checked]="isSelectedUser(user.id)"
+          [attr.for]="'user-' + user.id">
+
           <input
             type="checkbox"
+            [id]="'user-' + user.id"
             [checked]="isSelectedUser(user.id)"
             (change)="selectUser($event, user)"
+            hidden
           />
+
           <span class="nd-avatar">{{ user.username?.charAt(0) | uppercase }}</span>
           <span class="nd-member-name">{{ user.username }}</span>
           <span class="nd-check">✓</span>

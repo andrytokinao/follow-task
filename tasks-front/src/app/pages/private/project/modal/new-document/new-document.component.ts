@@ -17,7 +17,7 @@ import {BehaviorSubject} from "rxjs";
 export class NewDocumentComponent {
   uploadings: Uploading[]=[];
   @Input() selectedProject:Project | undefined = undefined;
-  @Input() mode: 'create' | 'reply' = 'create';
+  @Input() mode: 'create' | 'reply' | 'comment' = 'create';
   private priorityUsers: User[] = [];
   @Input() set parentDocument(doc: DocumentApp) {
     this._parentDocument = doc;
@@ -197,18 +197,20 @@ export class NewDocumentComponent {
   }
 
   selectUser(event: any, user: User) {
-    if (event.checked) {
-      if (!this.selectedUsers)
+    const checked = event.target.checked;
+    if (checked) {
+      if (!this.selectedUsers) {
         this.selectedUsers = [];
+      }
       this.selectedUsers.push(user.id);
     } else {
       this.selectedUsers = this.selectedUsers.filter(cf => cf != user.id);
     }
-    return true;
   }
 
   selectProject(p: Project) {
       this.newDocument.project = {id:p.id};
+      this.selectedUsers = [];
       this.loadPriorityDestination(p.prefix);
   }
 
@@ -221,6 +223,12 @@ export class NewDocumentComponent {
     if (this.mode === 'reply') {
       return !!(this.newDocument.description || this.uploadings.length > 0);
     }
+    if (this.mode === 'comment') {
+      return !!(this.newDocument.description || this.uploadings.length > 0);
+    }
+    if (!this.selectedUsers || this.selectedUsers.length == 0)
+      return false;
+
     return !!(this.newDocument.project &&
       (this.newDocument.description || this.uploadings.length > 0));
   }

@@ -26,6 +26,7 @@ export class DocumentExchangeComponent implements OnInit , AfterViewInit {
 
   replyText: string = '';
   pendingFiles: File[] = [];
+  connectedUser:User = undefined;
 
   searchKeyword: string = '';
   projSearch: string = '';
@@ -51,11 +52,10 @@ export class DocumentExchangeComponent implements OnInit , AfterViewInit {
 
   @ViewChild('newDocumentTrigger') newDocumentTrigger!: MatMenuTrigger;
   @ViewChild('newDocumentForm') newDocumentForm!: NewDocumentComponent;
-  search:DocumentSearch = {
+  search:DocumentSearch =  {
     typeDocuments:['EXCHANGE_DOCUMENT'],
-    projectId: this.projectId,
     keyword: this.searchKeyword || null,
-    deleted: false
+    deleted: false,
   };
 
   private readonly avatarColors = [
@@ -73,7 +73,6 @@ export class DocumentExchangeComponent implements OnInit , AfterViewInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadDocuments();
     this.loadProjects();
     this.loadUsers();
     this.issueService.issueMasterList$
@@ -95,6 +94,13 @@ export class DocumentExchangeComponent implements OnInit , AfterViewInit {
 
   loadUsers(): void {
     this.userService.users$?.subscribe(u => this.availableUsers = u);
+    this.authService.connectedUser$.subscribe(user => {
+      this.connectedUser = user;
+      if (this.connectedUser) {
+        this.search.memberUserIds = [this.connectedUser.id];
+        this.loadDocuments();
+      }
+    })
   }
 
   get filteredDocuments(): DocumentApp[] {
