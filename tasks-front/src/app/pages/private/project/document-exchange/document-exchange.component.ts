@@ -333,6 +333,9 @@ export class DocumentExchangeComponent implements OnInit , AfterViewInit {
   }
   ngAfterViewInit(): void {
     this.initResizer();
+    this.issueService.getIssuePlanningSummary(1).subscribe(planningSummary=>{
+      alert(JSON.stringify(planningSummary));
+    });
     this.documentService.loadDocumentUsageTypes();
     this.documentService.documentUsageTypes$.subscribe(usageTps => this.documentUsagetTypes = usageTps);
   }

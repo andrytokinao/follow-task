@@ -471,3 +471,17 @@ export interface ResponseApp {
   message:String
   status:String
 }
+export interface UserPlanningStat {
+  user: User;
+  totalMinutes: number;
+  spentMinutes: number;
+  remainingMinutes: number;
+}
+
+export interface IssuePlanningSummary {
+  issue: Issue;
+  totalMinutes?: number;
+  spentMinutes?: number;
+  remainingMinutes?: number;
+  userStats: UserPlanningStat[];
+}

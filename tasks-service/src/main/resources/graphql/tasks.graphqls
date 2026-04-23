@@ -884,9 +884,9 @@ type UserPlanningStat {
 }
 
 type IssuePlanningSummary {
-    issue: Issue!
+    issue: Issue
     totalMinutes: Int
     spentMinutes: Int
     remainingMinutes: Int
-    userStats: [UserPlanningStat!]!
+    userStats: [UserPlanningStat]
 }

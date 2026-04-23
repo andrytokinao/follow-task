@@ -85,6 +85,9 @@ export class DocumentUsageComponent implements OnInit, AfterViewInit {
 
   confirm(): void {
     if (!this.selectedIssue || this.selectedUsages.length === 0) return;
+    this.documentService.useDocumentForIssue(this.selectedIssue.id,this._document.id,this.selectedUsages.map(su=>su.label)).subscribe( issueStats => {
+
+    })
     this.onConfirmed.emit({
       issue: this.selectedIssue,
       usages: this.selectedUsages

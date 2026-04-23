@@ -30,7 +30,7 @@ import {
   ActionItem,
   ActionGroupe,
   ActionAssigne,
-  ActionStatus, UploadingState, DocumentMember, DocumentPage
+  ActionStatus, UploadingState, DocumentMember, DocumentPage, IssuePlanningSummary
 } from "../type/issue";
 import {Apollo} from "apollo-angular";
 import * as operation from "../type/graphql.operations";
@@ -42,7 +42,7 @@ import {
   CUSTOM_FIELD_BY_ISSUE_TYPE,
   GET_CONFIG_PROJECT,
   GET_CUSTOM_FIELD,
-  GET_GROUPE_USER_FOR_PROJECT, GET_ISSUE,
+  GET_GROUPE_USER_FOR_PROJECT, GET_ISSUE, GET_ISSUE_PLANNING_SUMMARIES, GET_ISSUE_PLANNING_SUMMARY,
   GET_ISSUE_TYPE_BY_ID,
   GET_NEXT_KEY, GET_NEXT_KEY_PARENT, GET_PROJECT_BY_USER,
   ISSUE_BY_CRITERIA, LIST_ISSUE_TYPE_MASTER, LIST_ISSUE_TYPE_SUBTASKS, LOAD_ISSUE_MASTER_BY_PROJECT, LOAD_SUBTASK,
@@ -2001,6 +2001,38 @@ export class IssueService implements OnInit {
     }
     return this.uploadDocument(document,issue.encodedPath,uploading,document.typeDocument);
   }
-
-
+  getIssuePlanningSummary(issueId:number) {
+    return new Observable<IssuePlanningSummary>(observer => {
+      this.apollo.query({
+        query:operation.GET_ISSUE_PLANNING_SUMMARY,
+        variables:{issueId},
+        fetchPolicy:"network-only"
+      }).subscribe((res:any)=>{
+          observer.next(supprimerTypename(res.data.getIssuePlanningSummary));
+          observer.complete();
+        },
+        error=> {
+          console.error(error);
+          observer.next(error);
+          observer.complete();
+        });
+    })
+  }
+  getIssuePlanningSummaries(issueIds:number[]) {
+    return new Observable<IssuePlanningSummary[]>(observer => {
+      this.apollo.query({
+        query:operation.GET_ISSUE_PLANNING_SUMMARIES,
+        variables:{issueIds},
+        fetchPolicy:"network-only"
+      }).subscribe((res:any)=>{
+        observer.next(res.data.getIssuePlanningSummaries);
+        observer.complete();
+      },
+        error=> {
+          console.error(error);
+           observer.next(error);
+           observer.complete();
+        });
+    })
+  }
 }

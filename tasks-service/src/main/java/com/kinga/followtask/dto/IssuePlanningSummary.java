@@ -12,5 +12,5 @@ public class IssuePlanningSummary {
     private Integer totalMinutes;     // Somme totale de tous les events (issue + enfants)
     private Integer spentMinutes;     // Temps passé (events terminés)
     private Integer remainingMinutes; // Temps restant (events en cours ou futurs)
-    private List<UserPlanningStat> userTimes;
+    private List<UserPlanningStat> userStats;
 }

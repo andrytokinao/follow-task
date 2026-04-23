@@ -1,7 +1,71 @@
 import {Apollo, gql} from "apollo-angular";
-import {Canall, CanalMember, Issue, MessageApp, Project} from "./issue";
 
 
+export let USE_DOCUMENT_FOR_ISSUE = gql`
+    mutation useDocumentForIssue($issueId:Int,$documentId:Int, $documentUsagesusages: [String]) {
+      useDocumentForIssue(issueId:$issueId,documentId:$documentId, documentUsagesusages: $documentUsagesusages) {
+        spentMinutes
+      }
+    }
+` ;
+
+export const GET_ISSUE_PLANNING_SUMMARY = gql`
+  query getIssuePlanningSummary($issueId: ID!) {
+    getIssuePlanningSummary(issueId: $issueId) {
+      issue {
+        id
+        issueKey
+        summary
+        status {
+          id
+          displayName
+        }
+      }
+      totalMinutes
+      spentMinutes
+      remainingMinutes
+      userStats {
+        user {
+          id
+          firstName
+          lastName
+        }
+        totalMinutes
+        spentMinutes
+        remainingMinutes
+      }
+    }
+  }
+`;
+
+export const GET_ISSUE_PLANNING_SUMMARIES = gql`
+  query getIssuePlanningSummaries($issueIds: [ID!]!) {
+    getIssuePlanningSummaries(issueIds: $issueIds) {
+      issue {
+        id
+        issueKey
+        summary
+        status {
+          id
+          displayName
+        }
+      }
+      totalMinutes
+      spentMinutes
+      remainingMinutes
+      userStats {
+        user {
+          id
+          firstName
+          lastName
+        }
+        totalMinutes
+        spentMinutes
+        remainingMinutes
+      }
+    }
+  }
+`;
 
 export let DELETE_ISSUE = gql`
   mutation deleteIssue($issueId:Int) {

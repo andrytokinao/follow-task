@@ -717,10 +717,11 @@ public class IssueService {
 
         // 1. Collecter et agréger les events par utilisateur
         List<UserPlanningStat> userTimes = calculeUserTimes(issue);
-        issueStats.setUserTimes(userTimes);
+        issueStats.setUserStats(userTimes);
 
         // 2. Calculer les totaux globaux à partir de la liste agrégée
         issueStats.setTotalMinutes(calculeTime(userTimes));
+        issueStats.setIssue(issue);
         issueStats.setSpentMinutes(calculeSpentTime(userTimes));
         issueStats.setRemainingMinutes(calculeRemainingTime(userTimes));
 

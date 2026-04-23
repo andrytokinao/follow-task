@@ -1,6 +1,13 @@
 import { Injectable } from '@angular/core';
 import {BehaviorSubject, Observable} from "rxjs";
-import {DocumentApp, DocumentMember, DocumentPage, DocumentSearch, DocumentUsageTypeMeta} from "../type/issue";
+import {
+  DocumentApp,
+  DocumentMember,
+  DocumentPage,
+  DocumentSearch,
+  DocumentUsageTypeMeta,
+  IssuePlanningSummary
+} from "../type/issue";
 import {Apollo} from "apollo-angular";
 import {HttpClient} from "@angular/common/http";
 import * as operation from "../type/graphql.operations";
@@ -91,5 +98,21 @@ export class DocumentService {
 
   attachDocumentToProject(number: number, number2: number) {
     return new Observable();
+  }
+
+  useDocumentForIssue(issueId: number, documentId:number, documentIssueUsages: String[]) {
+    return new Observable<IssuePlanningSummary>(observer => {
+      this.apollo.mutate({
+        mutation:operation.USE_DOCUMENT_FOR_ISSUE,
+        variables:{issueId,documentId,documentIssueUsages}
+      }).subscribe( (res:any) => {
+        observer.next(res.data.useDocumentForIssue);
+        observer.complete();
+      }, error => {
+        console.error(error);
+        observer.error(error);
+        observer.complete();
+      })
+    });
   }
 }
