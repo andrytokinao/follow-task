@@ -78,7 +78,12 @@ public class PlanningEvent {
         this.eventType = type;
         this.start = start;
     }
-
+    public LocalDateTime getEndTime() {
+        return this.end;
+    }
+    public LocalDateTime getStartTime() {
+        return this.start;
+    }
     /**
      * Méthode pour calculer l'heure effective du rappel.
      * Si `reminderTime` est défini, il est utilisé.

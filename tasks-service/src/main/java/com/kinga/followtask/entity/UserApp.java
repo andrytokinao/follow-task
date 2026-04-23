@@ -42,4 +42,7 @@ public class UserApp {
     @OneToMany
     private List<UserCustomFieldValue> userValues;
 
+    public String getFullName() {
+       return this.lastName +" "+this.firstName;
+    }
 }

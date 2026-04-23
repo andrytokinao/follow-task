@@ -876,3 +876,17 @@ type DocumentUsageTypeMeta {
     label:String,
     description:String
 }
+type UserPlanningStat {
+    user: UserApp!
+    totalMinutes: Int!
+    spentMinutes: Int!
+    remainingMinutes: Int!
+}
+
+type IssuePlanningSummary {
+    issue: Issue!
+    totalMinutes: Int
+    spentMinutes: Int
+    remainingMinutes: Int
+    userStats: [UserPlanningStat!]!
+}

@@ -9,10 +9,10 @@ import com.kinga.followtask.repository.DocumentMemberRepository;
 import com.kinga.followtask.repository.criteria.IssueSearchCriteria;
 import com.kinga.followtask.repository.criteria.IssueSpecification;
 import com.kinga.utils.KingaUtils;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.aot.InstanceSupplierCodeGenerator;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -26,7 +26,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
-import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -35,11 +34,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.rmi.RemoteException;
-import java.sql.Timestamp;
 import java.text.ParseException;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -701,5 +701,122 @@ public class IssueService {
         response.setCode("seenNotification");
         response.setStatus("success");
         return response;
+    }
+
+
+    /**
+     * Point d'entrée : construit le résumé statistique d'une issue.
+     * Agrège les events de l'issue parente ET de toutes ses sous-tâches.
+     */
+
+        public IssuePlanningSummary getIssuePlanningSummary(Long issueId) {
+        Issue issue = issueRepository.findById(issueId)
+                .orElseThrow(() -> new EntityNotFoundException("Issue introuvable : " + issueId));
+
+        IssuePlanningSummary issueStats = new IssuePlanningSummary();
+
+        // 1. Collecter et agréger les events par utilisateur
+        List<UserPlanningStat> userTimes = calculeUserTimes(issue);
+        issueStats.setUserTimes(userTimes);
+
+        // 2. Calculer les totaux globaux à partir de la liste agrégée
+        issueStats.setTotalMinutes(calculeTime(userTimes));
+        issueStats.setSpentMinutes(calculeSpentTime(userTimes));
+        issueStats.setRemainingMinutes(calculeRemainingTime(userTimes));
+
+        return issueStats;
+    }
+
+// ─────────────────────────────────────────────────────────────────────────────
+
+    /**
+     * Collecte tous les PlanningEvent de l'issue ET de ses enfants,
+     * puis les agrège par utilisateur dans une liste de UserTime.
+     */
+    private List<UserPlanningStat> calculeUserTimes(Issue issue) {
+        // 1. Récupérer tous les events : parente + sous-tâches
+        List<PlanningEvent> allEvents = new ArrayList<>();
+
+        if (issue.getEvents() != null) {
+            allEvents.addAll(issue.getEvents());
+        }
+
+        if (issue.getChildren() != null) {
+            issue.getChildren().stream()
+                    .filter(child -> child.getEvents() != null)
+                    .forEach(child -> allEvents.addAll(child.getEvents()));
+        }
+
+        // 2. Grouper par utilisateur
+        Map<String, List<PlanningEvent>> eventsByUser = allEvents.stream()
+                .filter(e -> e.getUser() != null && e.getStartTime() != null && e.getEndTime() != null)
+                .collect(Collectors.groupingBy(e -> e.getUser().getId()));
+
+        // 3. Construire un UserTime par utilisateur
+        LocalDateTime now = LocalDateTime.now();
+
+        return eventsByUser.entrySet().stream()
+                .map(entry -> {
+                    List<PlanningEvent> userEvents = entry.getValue();
+                    UserApp user = userEvents.get(0).getUser();
+
+                    // Temps passé : events dont la fin est dans le passé ou maintenant
+                    int spent = userEvents.stream()
+                            .filter(e -> !e.getEndTime().isAfter(now))
+                            .mapToInt(e -> (int) Duration.between(e.getStartTime(), e.getEndTime()).toMinutes())
+                            .sum();
+
+                    // Temps restant : events dont la fin est dans le futur
+                    int remaining = userEvents.stream()
+                            .filter(e -> e.getEndTime().isAfter(now))
+                            .mapToInt(e -> {
+                                // Si l'event a déjà commencé, on ne compte que la portion restante
+                                LocalDateTime effectiveStart = e.getStartTime().isBefore(now) ? now : e.getStartTime();
+                                return (int) Duration.between(effectiveStart, e.getEndTime()).toMinutes();
+                            })
+                            .sum();
+
+                    return new UserPlanningStat(user, spent + remaining, spent, remaining);
+                })
+                .sorted(Comparator.comparing(ut -> ut.getUser().getFullName()))
+                .collect(Collectors.toList());
+    }
+
+// ─────────────────────────────────────────────────────────────────────────────
+
+    /**
+     * Somme le temps total (passé + futur) sur tous les utilisateurs.
+     */
+    private Integer calculeTime(List<UserPlanningStat> userPlanningStats) {
+        if (userPlanningStats == null || userPlanningStats.isEmpty()) return 0;
+        return userPlanningStats.stream()
+                .mapToInt(UserPlanningStat::getTotalMinutes)
+                .sum();
+    }
+
+    /**
+     * Somme uniquement le temps déjà écoulé.
+     */
+    private Integer calculeSpentTime(List<UserPlanningStat> userPlanningStats) {
+        if (userPlanningStats == null || userPlanningStats.isEmpty()) return 0;
+        return userPlanningStats.stream()
+                .mapToInt(UserPlanningStat::getSpentMinutes)
+                .sum();
+    }
+
+    /**
+     * Somme uniquement le temps restant (events futurs ou en cours).
+     */
+    private Integer calculeRemainingTime(List<UserPlanningStat> userPlanningStats) {
+        if (userPlanningStats == null || userPlanningStats.isEmpty()) return 0;
+        return userPlanningStats.stream()
+                .mapToInt(UserPlanningStat::getRemainingMinutes)
+                .sum();
+    }
+    public List<IssuePlanningSummary> getIssuePlanningSummaries(List<Long> issueIds) {
+        return issueIds.stream()
+                .map(this::getIssuePlanningSummary)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 }

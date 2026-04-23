@@ -37,6 +37,8 @@ type Mutation {
     deleteDocumentById(documentId:Int) :ResponseApp
     seenNotification(userId:String):ResponseApp
     saveAction(action:ActionItemInput):ActionItem
+    useDocumentForIssue(issueId:Int,documentId:Int, documentUsagesusages: [String]) :IssuePlanningSummary
+
 
 
 }
