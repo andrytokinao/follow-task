@@ -4,7 +4,16 @@ import {
 import {IssueService} from "../../../../services/issue.service";
 import {AuthService} from "../../../../services/auth.service";
 import {UserService} from "../../../../services/user.service";
-import {DocumentApp, DocumentMember, DocumentSearch, Issue, Project, Uploaded, User} from "../../../../type/issue";
+import {
+  DocumentApp,
+  DocumentMember,
+  DocumentSearch,
+  DocumentUsageTypeMeta,
+  Issue,
+  Project,
+  Uploaded,
+  User
+} from "../../../../type/issue";
 import {DocumentService} from "../../../../services/document.service";
 import {MatMenuTrigger} from "@angular/material/menu";
 import {NewDocumentComponent} from "../modal/new-document/new-document.component";
@@ -62,12 +71,13 @@ export class DocumentExchangeComponent implements OnInit , AfterViewInit {
     '#3B7DD8', '#1D9E75', '#BA7517', '#A0522D',
     '#6B5B95', '#D65C5C', '#2E8B57', '#4682B4'
   ];
+  documentUsagetTypes: DocumentUsageTypeMeta[]= [];
 
   constructor(
     protected issueService: IssueService,
     private userService : UserService,
     private authService: AuthService,
-    private docmentService:DocumentService,
+    private documentService:DocumentService,
     private el: ElementRef,
     private ngZone: NgZone
   ) {}
@@ -80,7 +90,7 @@ export class DocumentExchangeComponent implements OnInit , AfterViewInit {
   }
 
   loadDocuments(): void {
-    this.docmentService.searchDocuments(this.search, this.currentPage, this.pageSize)
+    this.documentService.searchDocuments(this.search, this.currentPage, this.pageSize)
       .subscribe(page => {
         this.documents = page.content;
         this.totalElements = page.totalElements;
@@ -141,7 +151,7 @@ export class DocumentExchangeComponent implements OnInit , AfterViewInit {
   }
 
   createDocument(): void {
-    this.docmentService.createDocument(this.projectId).subscribe(doc => {
+    this.documentService.createDocument(this.projectId).subscribe(doc => {
       if (doc) {
         this.documents = [doc, ...this.documents];
         this.selectDoc(doc);
@@ -157,7 +167,7 @@ export class DocumentExchangeComponent implements OnInit , AfterViewInit {
       parent: { id: parent.id },
       project: parent.project
     };
-    this.docmentService.replyToDocument(parent.id!, reply).subscribe(resp => {
+    this.documentService.replyToDocument(parent.id!, reply).subscribe(resp => {
       if (!this.selectedDocument!.responses) this.selectedDocument!.responses = [];
       this.selectedDocument!.responses!.push(resp);
       this.replyText = '';
@@ -172,7 +182,7 @@ export class DocumentExchangeComponent implements OnInit , AfterViewInit {
     if (!this.selectedDocument) return;
     this.selectedDocument.issues = issue ?? undefined;
     this.showIssueDD = false;
-    this.docmentService.attachDocumentToIssue(
+    this.documentService.attachDocumentToIssue(
       this.selectedDocument.id!,
       issue?.id ?? null
     ).subscribe();
@@ -198,11 +208,11 @@ export class DocumentExchangeComponent implements OnInit , AfterViewInit {
 
   addMember(): void {
     let userId:String
-    this.docmentService.addMemberToDocument(this.selectedDocument.id,userId);
+    this.documentService.addMemberToDocument(this.selectedDocument.id,userId);
   }
 
   removeMember(member: DocumentMember): void {
-    this.docmentService.removeMemberFromDocument(
+    this.documentService.removeMemberFromDocument(
       this.selectedDocument!.id!,
       member.user!.id
     ).subscribe(() => {
@@ -214,7 +224,7 @@ export class DocumentExchangeComponent implements OnInit , AfterViewInit {
   onAddRecipient(event: Event): void {
     const userId = (event.target as HTMLSelectElement).value;
     if (!userId) return;
-    this.docmentService.addMemberToDocument(this.selectedDocument!.id!, userId)
+    this.documentService.addMemberToDocument(this.selectedDocument!.id!, userId)
       .subscribe(member => {
         if (!this.selectedDocument!.documentMembers) this.selectedDocument!.documentMembers = [];
         this.selectedDocument!.documentMembers!.push(member);
@@ -284,7 +294,7 @@ export class DocumentExchangeComponent implements OnInit , AfterViewInit {
     document.removeEventListener('mouseup', this.onMouseUp);
   }
   private initResizer(): void {
-    const resizer = document.getElementById('resizer');
+   /* const resizer = document.getElementById('resizer');
     const sidebar = this.sidebarRef.nativeElement;
 
     if (!resizer) return;
@@ -319,15 +329,22 @@ export class DocumentExchangeComponent implements OnInit , AfterViewInit {
     this.ngZone.runOutsideAngular(() => {
       document.addEventListener('mousemove', this.onMouseMove);
       document.addEventListener('mouseup', this.onMouseUp);
-    });
+    });*/
   }
   ngAfterViewInit(): void {
     this.initResizer();
+    alert("ngAfterViewInit");
+    this.documentService.loadDocumentUsageTypes();
+    this.documentService.documentUsageTypes$.subscribe(usageTps => this.documentUsagetTypes = usageTps);
   }
 
   onReplySaved(doc: DocumentApp) {
      this.issueService.loadDocumentById(doc.parent.id).subscribe(document => {
        this.selectedDocument = document;
      });
+  }
+
+  loadUsageProject() {
+    // reload usage for project of the current document selected ;
   }
 }

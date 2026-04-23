@@ -52,6 +52,7 @@ import {DashboardModule} from "../../../dashboard/dashboard.module";
 import {UserAvatarComponent} from "../../../common/user-avatar/user-avatar.component";
 import {IconeViewComponent} from "../../../common/icone-view/icone-view.component";
 import {DocumentExchangeComponent} from "./document-exchange/document-exchange.component";
+import {DocumentUsageComponent} from "../../../common/document-usage/document-usage.component";
 
 @NgModule({
   declarations: [
@@ -117,7 +118,8 @@ import {DocumentExchangeComponent} from "./document-exchange/document-exchange.c
     MatDivider,
     DashboardModule,
     UserAvatarComponent,
-    IconeViewComponent
+    IconeViewComponent,
+    DocumentUsageComponent
   ]
 })
 export class ProjectModule { }

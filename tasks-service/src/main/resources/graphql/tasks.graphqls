@@ -872,3 +872,7 @@ type IssueDocumentUsage {
     issue: Issue!
     document: Document!
 }
+type DocumentUsageTypeMeta {
+    label:String,
+    description:String
+}

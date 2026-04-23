@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import {Observable} from "rxjs";
-import {DocumentApp, DocumentMember, DocumentPage, DocumentSearch} from "../type/issue";
+import {BehaviorSubject, Observable} from "rxjs";
+import {DocumentApp, DocumentMember, DocumentPage, DocumentSearch, DocumentUsageTypeMeta} from "../type/issue";
 import {Apollo} from "apollo-angular";
 import {HttpClient} from "@angular/common/http";
 import * as operation from "../type/graphql.operations";
@@ -10,6 +10,9 @@ import {supprimerTypename} from "../type/graphql.operations";
   providedIn: 'root'
 })
 export class DocumentService {
+  private documentUsageTypesSubject = new BehaviorSubject<DocumentUsageTypeMeta[]>([]);
+  documentUsageTypes$ = this.documentUsageTypesSubject.asObservable();
+
 
   constructor(
     private apollo:Apollo,
@@ -44,7 +47,30 @@ export class DocumentService {
       })
     });
   }
+  documentUsageTypes(){
+    alert('ici');
+    return new Observable<DocumentUsageTypeMeta[]>((observer)=>{
+      this.apollo.query(
+        {
+          query:operation.DOCUMENT_USAGE_TYPES,
+          fetchPolicy:'cache-first'
+        }
+      ).subscribe((res:any)=> {
+        observer.next(res.data.documentUsageTypes);
+        observer.complete();
+      }, error => {
+        console.error(error);
+        observer.error(error);
+        observer.complete();
+      });
+    });
+  }
+  loadDocumentUsageTypes(){
+    alert("iciii ");
 
+    this.documentUsageTypes().subscribe(usageTypes =>
+      this.documentUsageTypesSubject.next(usageTypes))
+  }
   attachDocumentToIssue(number: number, number2: number) {
     return new Observable();
   }

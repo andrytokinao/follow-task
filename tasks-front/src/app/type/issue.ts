@@ -346,6 +346,10 @@ export interface IssueDocumentUsage {
   issue: Issue;
   document: DocumentApp;
 }
+export  interface DocumentUsageTypeMeta {
+  label:String,
+  description:String
+}
 export interface DomainActivity{
   id?:number;
   name?:string;

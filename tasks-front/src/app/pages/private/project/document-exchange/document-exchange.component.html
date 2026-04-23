@@ -82,24 +82,9 @@
           par <strong>{{ selectedDocument.userApp?.username }}</strong>
         </span>
 
-        <!-- Projet modifiable -->
-        <div class="editable-field" #projField>
+        <div class="editable-field" #projField [matMenuTriggerFor]="usageDocumentMaster">
           <span class="meta-label">Projet :</span>
-          <div class="field-val" [class.none]="!selectedDocument.project" (click)="toggleProjDD()">
-            <span class="field-key" *ngIf="selectedDocument.project">{{ selectedDocument.project.prefix }}</span>
-            <span class="field-name">{{ selectedDocument.project?.name || '— Aucun' }}</span>
-            <i class="fas fa-pen edit-icon"></i>
-          </div>
-          <div class="dropdown" [class.hidden]="!showProjDD">
-            <input class="dd-search" type="text" [(ngModel)]="projSearch" placeholder="Rechercher projet…">
-            <div class="dd-none" (click)="selectProject(null)">— Aucun projet</div>
-            <div class="dd-item"
-                 *ngFor="let p of filteredProjects"
-                 [class.selected]="selectedDocument.project?.id === p.id"
-                 (click)="selectProject(p)">
-              <span class="dd-key">{{ p.prefix }}</span> {{ p.name }}
-            </div>
-          </div>
+
         </div>
 
         <!-- Issue maître modifiable -->
@@ -226,5 +211,14 @@
       (onSave)="savedDocument($any($event))"
       (onClose)="newDocumentTrigger.closeMenu()">
     </app-new-document>
+  </mat-menu>
+</div>
+
+<div  >
+  <mat-menu #usageDocumentMaster = "matMenu" (click)="$event.stopPropagation()">
+    <app-document-usage
+      (onConfirmed)="loadUsageProject()"
+      [documentApp]="selectedDocument" [mode]="'MASTER'"
+    ></app-document-usage>
   </mat-menu>
 </div>

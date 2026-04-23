@@ -60,4 +60,6 @@ type Query {
     getUnreadResponsesCount(documentId: Int!, userId: String!): Int
     getDocumentMembers(documentId: Int!): [DocumentMember]
     getUploadedsByDocument(documentId: Int!): [Uploaded]
+    documentUsageTypes:[DocumentUsageTypeMeta]
+
 }

@@ -1,6 +1,6 @@
 package com.kinga.followtask.entity;
 
-enum DocumentUsageType {
+public enum DocumentUsageType {
 
     COMMENT("Comment", "Document attached to a comment"),
     MEDIA("Media", "Image, video, or media file"),

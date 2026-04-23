@@ -1,0 +1,153 @@
+<div class="du-panel" (click)="$event.stopPropagation()">
+
+  <!-- Header -->
+  <div class="du-header">
+    <div class="du-header-title">
+      <span class="du-icon">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 2a1 1 0 011-1h6l3 3v9a1 1 0 01-1 1H4a1 1 0 01-1-1V2z" stroke="currentColor" stroke-width="1.2" fill="none"/>
+          <path d="M9 1v3h3" stroke="currentColor" stroke-width="1.2" fill="none"/>
+          <path d="M5 7h6M5 9.5h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <h3 class="du-title">
+        {{ mode === 'MASTER' ? 'Lier à un projet / demande' : 'Lier à une tâche' }}
+      </h3>
+    </div>
+    <span class="du-badge" [class.du-badge--sub]="mode === 'SAB_TASK'">
+      {{ mode === 'MASTER' ? 'Projet' : 'Tâche' }}
+    </span>
+  </div>
+
+  <!-- Document info -->
+  <div class="du-doc-card" *ngIf="_document">
+    <span class="du-doc-icon">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+        <path d="M3 2a1 1 0 011-1h6l3 3v9a1 1 0 01-1 1H4a1 1 0 01-1-1V2z" stroke="currentColor" stroke-width="1.3" fill="none"/>
+        <path d="M9 1v3h3" stroke="currentColor" stroke-width="1.3" fill="none"/>
+      </svg>
+    </span>
+    <span class="du-doc-name">{{ _document?.titre || 'Document sans titre' }}</span>
+  </div>
+
+  <div class="du-body">
+
+    <!-- Section : Sélection d'issue -->
+    <section class="du-section">
+      <label class="du-section-label">
+        {{ mode === 'MASTER' ? 'Projet ou demande principale' : 'Tâche associée' }}
+        <span class="du-required">*</span>
+      </label>
+
+      <!-- Search box -->
+      <div class="du-search-wrap">
+        <span class="du-search-icon">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+            <circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" stroke-width="1.3"/>
+            <path d="M10.5 10.5l3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <input
+          class="du-search"
+          type="text"
+          [(ngModel)]="searchIssue"
+          placeholder="{{ mode === 'MASTER' ? 'Rechercher un projet…' : 'Rechercher une tâche…' }}"
+        />
+      </div>
+
+      <!-- Issue list -->
+      <div class="du-issue-list">
+        <div
+          *ngFor="let issue of issueOptions"
+          class="du-issue-item"
+          [class.du-issue-item--selected]="selectedIssue?.id === issue.id"
+          (click)="selectIssue(issue)"
+        >
+          <div class="du-issue-radio">
+            <span class="du-radio-dot" *ngIf="selectedIssue?.id === issue.id"></span>
+          </div>
+          <div class="du-issue-meta">
+            <span class="du-issue-key">{{ issue.issueKey }}</span>
+            <span class="du-issue-summary">{{ issue.summary }}</span>
+            <span class="du-issue-status" *ngIf="issue.status">{{ issue.status?.displayName }}</span>
+          </div>
+        </div>
+
+        <div class="du-empty" *ngIf="!issueOptions || issueOptions.length === 0">
+          <span>Aucune {{ mode === 'MASTER' ? 'issue' : 'tâche' }} disponible</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section : Usage du document -->
+    <section class="du-section">
+      <label class="du-section-label">
+        Type d'usage du document
+        <span class="du-required">*</span>
+      </label>
+      <p class="du-section-hint">Plusieurs usages peuvent être sélectionnés.</p>
+
+      <div class="du-usage-grid">
+        <div
+          *ngFor="let usage of documentUsagesLabels"
+          class="du-usage-chip"
+          [class.du-usage-chip--selected]="isUsageSelected(usage)"
+          (click)="toggleUsage(usage)"
+        >
+          <span class="du-chip-check" *ngIf="isUsageSelected(usage)">
+            <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+              <path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span class="du-chip-label">{{ usage.label }}</span>
+          <span class="du-chip-desc" *ngIf="usage.description">{{ usage.description }}</span>
+        </div>
+
+        <div class="du-empty" *ngIf="!documentUsagesLabels || documentUsagesLabels.length === 0">
+          <span>Aucun type d'usage défini</span>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Footer actions -->
+  <div class="du-footer">
+    <div class="du-footer-left">
+      <span class="du-selection-summary" *ngIf="selectedIssue">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.2"/>
+          <path d="M4 6l1.5 1.5L8 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        {{ selectedIssue.issueKey }} · {{ selectedUsages.length }} usage(s)
+      </span>
+    </div>
+
+    <div class="du-footer-actions">
+      <!-- Création rapide -->
+      <button
+        class="du-btn du-btn--ghost"
+        type="button"
+        (click)="createNew()"
+        [title]="mode === 'MASTER' ? 'Créer un nouveau projet / demande' : 'Créer une nouvelle tâche'"
+      >
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+          <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2"/>
+          <path d="M8 5v6M5 8h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        </svg>
+        {{ mode === 'MASTER' ? 'Nouveau projet' : 'Nouvelle tâche' }}
+      </button>
+
+      <!-- Confirmer -->
+      <button
+        class="du-btn du-btn--primary"
+        type="button"
+        [disabled]="!selectedIssue || selectedUsages.length === 0"
+        (click)="confirm()"
+      >
+        Confirmer
+      </button>
+    </div>
+  </div>
+
+</div>

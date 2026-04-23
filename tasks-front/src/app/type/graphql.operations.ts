@@ -2777,6 +2777,14 @@ export let SAVE_ACTION = gql`
       }
     }
 `
+export let DOCUMENT_USAGE_TYPES = gql`
+  query {
+    documentUsageTypes {
+      label
+      description
+    }
+  }
+`
 export {
   supprimerTypename,
   SAVE_USER,
