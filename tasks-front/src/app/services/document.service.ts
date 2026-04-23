@@ -48,7 +48,6 @@ export class DocumentService {
     });
   }
   documentUsageTypes(){
-    alert('ici');
     return new Observable<DocumentUsageTypeMeta[]>((observer)=>{
       this.apollo.query(
         {
@@ -66,7 +65,6 @@ export class DocumentService {
     });
   }
   loadDocumentUsageTypes(){
-    alert("iciii ");
 
     this.documentUsageTypes().subscribe(usageTypes =>
       this.documentUsageTypesSubject.next(usageTypes))

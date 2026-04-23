@@ -333,7 +333,6 @@ export class DocumentExchangeComponent implements OnInit , AfterViewInit {
   }
   ngAfterViewInit(): void {
     this.initResizer();
-    alert("ngAfterViewInit");
     this.documentService.loadDocumentUsageTypes();
     this.documentService.documentUsageTypes$.subscribe(usageTps => this.documentUsagetTypes = usageTps);
   }
