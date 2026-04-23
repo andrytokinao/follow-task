@@ -861,3 +861,14 @@ input ActionGroupeInput {
     created: String
 }
 
+input IssueDocumentUsageInput {
+    issueId: ID!
+    documentId: ID!
+    usageType: String!
+}
+type IssueDocumentUsage {
+    id: ID!
+    usageType: String!
+    issue: Issue!
+    document: Document!
+}

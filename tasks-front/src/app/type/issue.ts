@@ -330,6 +330,22 @@ export interface DocumentApp{
   responses?:DocumentApp[]
   deleted?:Boolean
 }
+export type DocumentUsageType =
+  | 'COMMENT'
+  | 'MEDIA'
+  | 'SOURCE'
+  | 'DATA'
+  | 'MESSAGE'
+  | 'WIKI'
+  | 'ISSUE'
+  | 'EXCHANGE'
+  | 'RESPONSE';
+export interface IssueDocumentUsage {
+  id: string;
+  usageType: DocumentUsageType;
+  issue: Issue;
+  document: DocumentApp;
+}
 export interface DomainActivity{
   id?:number;
   name?:string;

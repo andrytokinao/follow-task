@@ -57,6 +57,9 @@ public class Issue {
     private List<IssueLabels> labels = new ArrayList<>();
     @ManyToOne
     private Project project;
+
+    @OneToMany(mappedBy = "issue")
+    private List<IssueDocumentUsage> documentUsages;
     public String getEncodedPath(){
         return KingaUtils.encodeText(this.getDirectory());
     }

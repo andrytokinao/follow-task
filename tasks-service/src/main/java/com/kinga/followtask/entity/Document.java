@@ -1,19 +1,13 @@
 package com.kinga.followtask.entity;
 
-import com.kinga.followtask.repository.DocumentMemberRepository;
-import com.kinga.followtask.repository.IssueRepository;
 import com.kinga.followtask.repository.UploadedRepository;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Formula;
-import org.springframework.boot.context.properties.bind.DefaultValue;
-import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.kinga.utils.KingaUtils.dateTimeFormater;
 
@@ -53,6 +47,8 @@ public class Document {
     private Boolean deleted = false;
     @OneToMany(mappedBy = "document", fetch = FetchType.LAZY)
     private List<DocumentReadStatus> readStatuses;
+    @OneToMany(mappedBy = "document")
+    private List<IssueDocumentUsage> issueUsages;
     public String buildMessage(){
         switch (this.typeDocument) {
             case RESPONSE_DOCUMENT -> {

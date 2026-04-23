@@ -1,4 +1,4 @@
-import {Component, Input} from '@angular/core';
+import {Component, Input, Output,EventEmitter} from '@angular/core';
 import {
   Comment,
   CustomField,
@@ -23,6 +23,7 @@ import {Observable} from "rxjs";
   styleUrl: './comments.component.css'
 })
 export class CommentsComponent {
+  @Output() onSaved  = new EventEmitter<DocumentApp>()
   private project: any;
   private issue: Issue;
   protected parentIssue: any;
