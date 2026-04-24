@@ -1,4 +1,4 @@
-package com.kinga.followtask.entity;
+package com.kinga.followtask.entity.converter;
 
 import com.nimbusds.jose.shaded.gson.Gson;
 import jakarta.persistence.AttributeConverter;

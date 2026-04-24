@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { DocumentService } from "../../services/document.service";
-import { DocumentApp, DocumentUsageTypeMeta, Issue } from "../../type/issue";
+import {DocumentApp, DocumentUsageTypeMeta, Issue, IssuePlanningSummary} from "../../type/issue";
 import { IssueService } from "../../services/issue.service";
 import {CommonModule} from "@angular/common";
 import {FormsModule} from "@angular/forms";
@@ -20,8 +20,8 @@ export class DocumentUsageComponent implements OnInit, AfterViewInit {
   _document: DocumentApp;
   _issueMaster: Issue;
 
-  @Output() onCreated = new EventEmitter<Issue>();
-  @Output() onConfirmed = new EventEmitter<{ issue: Issue; usages: DocumentUsageTypeMeta[] }>();
+  @Output() onIssueCreated = new EventEmitter<Issue>();
+  @Output() onConfirmed = new EventEmitter<IssuePlanningSummary>();
 
   private issueMasterList: Issue[] = [];
 
@@ -52,7 +52,9 @@ export class DocumentUsageComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.documentService.documentUsageTypes$.subscribe(
-      types => this.documentUsagesLabels = types
+      types => {
+        this.documentUsagesLabels = types;
+      }
     );
     this.issueService.issueMasterList$.subscribe(issues => {
       this.issueMasterList = issues;
@@ -67,11 +69,11 @@ export class DocumentUsageComponent implements OnInit, AfterViewInit {
   }
 
   isUsageSelected(usage: DocumentUsageTypeMeta): boolean {
-    return this.selectedUsages.some(u => u.label === usage.label);
+    return this.selectedUsages.some(u => u.value === usage.value);
   }
 
   toggleUsage(usage: DocumentUsageTypeMeta): void {
-    const idx = this.selectedUsages.findIndex(u => u.label === usage.label);
+    const idx = this.selectedUsages.findIndex(u => u.value === usage.value);
     if (idx > -1) {
       this.selectedUsages.splice(idx, 1);
     } else {
@@ -79,19 +81,17 @@ export class DocumentUsageComponent implements OnInit, AfterViewInit {
     }
   }
 
-  createNew(): void {
-    this.onCreated.emit(new Issue());
+  createNew(issue:Issue): void {
+    this.onIssueCreated.emit(this.selectedIssue);
   }
 
   confirm(): void {
     if (!this.selectedIssue || this.selectedUsages.length === 0) return;
-    this.documentService.useDocumentForIssue(this.selectedIssue.id,this._document.id,this.selectedUsages.map(su=>su.label)).subscribe( issueStats => {
-
+    this.documentService.attachDocumentToIssue(this.selectedIssue.id,this._document.id,this.selectedUsages.map(su=>su.value))
+      .subscribe(issueStats => {
+        this.onConfirmed.emit(issueStats);
     })
-    this.onConfirmed.emit({
-      issue: this.selectedIssue,
-      usages: this.selectedUsages
-    });
+
   }
 
 }

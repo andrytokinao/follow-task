@@ -1,10 +1,31 @@
 import {Apollo, gql} from "apollo-angular";
 
 
-export let USE_DOCUMENT_FOR_ISSUE = gql`
-    mutation useDocumentForIssue($issueId:Int,$documentId:Int, $documentUsagesusages: [String]) {
-      useDocumentForIssue(issueId:$issueId,documentId:$documentId, documentUsagesusages: $documentUsagesusages) {
+export let ATTACH_DOCUMENT_TO_ISSUE = gql`
+    mutation attachDocumentToIssue($issueId:Int,$documentId:Int, $usages: [String]) {
+      attachDocumentToIssue(issueId:$issueId,documentId:$documentId, usages: $usages) {
+        issue {
+          id
+          issueKey
+          summary
+          status {
+            id
+            displayName
+          }
+        }
+        totalMinutes
         spentMinutes
+        remainingMinutes
+        userStats {
+          user {
+            id
+            firstName
+            lastName
+          }
+          totalMinutes
+          spentMinutes
+          remainingMinutes
+        }
       }
     }
 ` ;
@@ -2844,6 +2865,7 @@ export let SAVE_ACTION = gql`
 export let DOCUMENT_USAGE_TYPES = gql`
   query {
     documentUsageTypes {
+      value
       label
       description
     }

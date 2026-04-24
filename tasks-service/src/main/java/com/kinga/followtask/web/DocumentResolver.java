@@ -2,11 +2,12 @@ package com.kinga.followtask.web;
 
 import com.kinga.followtask.dto.DocumentPage;
 import com.kinga.followtask.dto.DocumentSearchInput;
+import com.kinga.followtask.dto.IssuePlanningSummary;
 import com.kinga.followtask.entity.DocumentUsageType;
-import com.kinga.followtask.entity.IssueDocumentUsage;
 import com.kinga.followtask.service.DocumentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 
@@ -48,4 +49,9 @@ public class DocumentResolver {
     public DocumentUsageType[]  documentUsageTypes(){
         return DocumentUsageType.values();
     }
+    @MutationMapping
+    public IssuePlanningSummary attachDocumentToIssue(@Argument Long issueId, @Argument Long documentId, @Argument List<String> usages) {
+        return documentService.attachDocumentToIssue(issueId,documentId,usages);
+    }
+
 }

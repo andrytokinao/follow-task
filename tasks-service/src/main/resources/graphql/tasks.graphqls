@@ -873,6 +873,7 @@ type IssueDocumentUsage {
     document: Document!
 }
 type DocumentUsageTypeMeta {
+    value:String,
     label:String,
     description:String
 }

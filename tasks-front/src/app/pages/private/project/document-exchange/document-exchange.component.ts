@@ -182,10 +182,7 @@ export class DocumentExchangeComponent implements OnInit , AfterViewInit {
     if (!this.selectedDocument) return;
     this.selectedDocument.issues = issue ?? undefined;
     this.showIssueDD = false;
-    this.documentService.attachDocumentToIssue(
-      this.selectedDocument.id!,
-      issue?.id ?? null
-    ).subscribe();
+
   }
 
   toggleProjDD(): void {

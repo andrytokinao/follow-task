@@ -19,7 +19,9 @@ public enum DocumentUsageType {
         this.label = label;
         this.description = description;
     }
-
+    public String getValue(){
+        return name();
+    }
     public String getLabel() {
         return label;
     }

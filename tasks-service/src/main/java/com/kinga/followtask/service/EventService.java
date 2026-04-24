@@ -2,6 +2,7 @@ package com.kinga.followtask.service;
 
 import com.kinga.followtask.dto.EventSearchCriteriaDTO;
 import com.kinga.followtask.entity.*;
+import com.kinga.followtask.entity.enumapp.ExecutionStatus;
 import com.kinga.followtask.repository.*;
 import com.kinga.followtask.repository.criteria.IssueSearchCriteria;
 import lombok.RequiredArgsConstructor;
@@ -25,12 +26,14 @@ import static graphql.Assert.assertNotNull;
 @RequiredArgsConstructor
 public class EventService {
   final  EventRepository eventRepository;
+  final PlanningExecutionRepository executionRepository;
+  final PlanningEventHistoryRepository historyRepository;
   final EventTypeRepository eventTypeRepository;
   final UserService userService;
   final IssueRepository issueRepository;
   final IssueService issueService;
   final ValueDaoRepository valueDaoRepository;
-  private static final int DEFAULT_DURATION_MINUTES = 30;
+  private static final int DEFAULT_DURATION_MINUTES = 60;
   private static final LocalTime DAY_START = LocalTime.of(8, 0);
   private static final LocalTime DAY_END   = LocalTime.of(20, 0);
 
@@ -267,5 +270,84 @@ public class EventService {
    */
   private static LocalDateTime parseDate(String dateStr) {
     return LocalDateTime.parse(dateStr, PlanningEvent.dateTimeFormater);
+  }
+  public void extendEvent(Long eventId, int additionalMinutes, String note, UserApp user) {
+    PlanningEvent event = eventRepository.findById(eventId).orElseThrow();
+
+    // Historiser avant modification
+    PlanningEventHistory history = new PlanningEventHistory();
+    history.setPlanningEvent(event);
+    history.setStatus(ExecutionStatus.EXTENDED);
+    history.setPreviousEnd(event.getEndTime());           // ← ancienne fin sauvegardée
+    history.setNewEnd(event.getEndTime().plusMinutes(additionalMinutes));
+    history.setNote(note);
+    history.setRecordedBy(user);
+    historyRepository.save(history);
+
+    // Modifier directement end → le front n'a rien à changer
+    event.setEnd(event.getEndTime().plusMinutes(additionalMinutes));
+    event.setExecutionStatus(ExecutionStatus.EXTENDED);
+    eventRepository.save(event);
+  }
+
+  // --- POSTPONED : nouvel event lié, event original marqué POSTPONED ---
+  public PlanningEvent postponeEvent(Long eventId, LocalDateTime newStart,
+                                     LocalDateTime newEnd, String note, UserApp user) {
+    PlanningEvent original = eventRepository.findById(eventId).orElseThrow();
+
+    // Historiser sur l'original
+    PlanningEventHistory history = new PlanningEventHistory();
+    history.setPlanningEvent(original);
+    history.setStatus(ExecutionStatus.POSTPONED);
+    history.setPreviousEnd(original.getEndTime());
+    history.setNote(note);
+    history.setRecordedBy(user);
+    historyRepository.save(history);
+
+    // Marquer l'original comme reporté
+    original.setExecutionStatus(ExecutionStatus.POSTPONED);
+    eventRepository.save(original);
+
+    // Créer le nouvel event lié
+    PlanningEvent newEvent = new PlanningEvent();
+    newEvent.setTitle(original.getTitle());
+    newEvent.setDescription(original.getDescription());
+    newEvent.setEventType(original.getEventType());
+    newEvent.setIssue(original.getIssue());
+    newEvent.setProject(original.getProject());
+    newEvent.setUser(user);
+    newEvent.setStart(newStart);
+    newEvent.setEnd(newEnd);
+    newEvent.setPostponedFrom(original);              // ← lien vers l'original
+    newEvent.setExecutionStatus(ExecutionStatus.PENDING);
+    return eventRepository.save(newEvent);
+  }
+
+  // --- COMPLETED / BLOCKED : simple mise à jour + historique ---
+  public void updateStatus(Long eventId, ExecutionStatus status, Integer completionPercentage,
+                           String blockReason, String note, UserApp user) {
+    PlanningEvent event = eventRepository.findById(eventId).orElseThrow();
+
+    PlanningEventHistory history = new PlanningEventHistory();
+    history.setPlanningEvent(event);
+    history.setStatus(status);
+    history.setPreviousEnd(event.getEndTime());
+    history.setCompletionPercentage(completionPercentage);
+    history.setBlockReason(blockReason);
+    history.setNote(note);
+    history.setRecordedBy(user);
+    historyRepository.save(history);
+
+    event.setExecutionStatus(status);
+    eventRepository.save(event);
+
+    if (event.getIssue() != null && completionPercentage != null) {
+      updateIssueProgress(event.getIssue(), completionPercentage, status);
+    }
+  }
+
+  private void updateIssueProgress(Issue issue, int percentage, ExecutionStatus status) {
+    // Votre logique selon le status
+    // ex : si COMPLETED et 100% → changer le Status de l'issue en "Done"
   }
 }

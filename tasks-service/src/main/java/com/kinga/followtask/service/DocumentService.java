@@ -2,10 +2,15 @@ package com.kinga.followtask.service;
 
 import com.kinga.followtask.dto.DocumentPage;
 import com.kinga.followtask.dto.DocumentSearchInput;
+import com.kinga.followtask.dto.IssuePlanningSummary;
 import com.kinga.followtask.entity.Document;
 import com.kinga.followtask.entity.DocumentReadStatus;
+import com.kinga.followtask.entity.DocumentUsageType;
+import com.kinga.followtask.entity.Issue;
+import com.kinga.followtask.entity.converter.IssueDocumentUsage;
 import com.kinga.followtask.repository.DocumentReadStatusRepository;
 import com.kinga.followtask.repository.DocumentRepository;
+import com.kinga.followtask.repository.IssueDocumentUsageRepository;
 import com.kinga.followtask.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -13,11 +18,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +32,8 @@ public class DocumentService {
     private final DocumentReadStatusRepository readStatusRepo;
     private final DocumentRepository documentRepository;
     private final UserRepository userRepo;
+    private final IssueService issueService;
+    private final IssueDocumentUsageRepository documentUsageRepository;
 
     public void markAsRead(Long documentId, String userId) {
         boolean exists = readStatusRepo.existsByDocumentIdAndUserId(documentId, userId);
@@ -90,5 +99,34 @@ public class DocumentService {
                 page.getNumber(),
                 page.getSize()
         );
+    }
+
+    public IssuePlanningSummary attachDocumentToIssue(Long issueId, Long documentId, List<String> usages) {
+        List<IssueDocumentUsage> existing = documentUsageRepository.findByIssueIdAndDocumentId(issueId, documentId);
+        IssueDocumentUsage usage = null;
+        if (!CollectionUtils.isEmpty(existing)) {
+            if (CollectionUtils.isEmpty(usages)) {
+                documentUsageRepository.deleteAll(existing);
+                return null;
+            }
+
+            usage = existing.get(1);
+            if (existing.size() >1 ) {
+                documentUsageRepository.deleteAll(existing);
+            }
+        } else {
+            usage = new IssueDocumentUsage();
+            Issue issue = new Issue();
+            issue.setId(issueId);
+            Document doc = new Document();
+            doc.setId(documentId);
+            usage.setIssue(issue);
+            usage.setDocument(doc);
+        }
+        List<DocumentUsageType> usageTypes = usages.stream().map(DocumentUsageType::valueOf).collect(Collectors.toList());
+
+        usage.setUsages(usageTypes);
+        documentUsageRepository.save(usage);
+        return issueService.getIssuePlanningSummary(issueId);
     }
 }

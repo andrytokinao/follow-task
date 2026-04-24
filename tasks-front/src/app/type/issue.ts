@@ -347,6 +347,7 @@ export interface IssueDocumentUsage {
   document: DocumentApp;
 }
 export  interface DocumentUsageTypeMeta {
+  value:String,
   label:String,
   description:String
 }

@@ -1,11 +1,15 @@
 package com.kinga.followtask.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.kinga.followtask.entity.enumapp.ExecutionStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -71,6 +75,19 @@ public class PlanningEvent {
     @JoinColumn(name = "date_value_id", nullable = true)
     private DateCustomFieldValue dateValue;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "execution_status", nullable = false)
+    private ExecutionStatus executionStatus = ExecutionStatus.PENDING;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "postponed_from_id", nullable = true)
+    private PlanningEvent postponedFrom;
+
+    // Historique des modifications
+    @OneToMany(mappedBy = "planningEvent", cascade = CascadeType.ALL)
+    private List<PlanningEventHistory> history = new ArrayList<>();
+    @Column(name = "completion_percentage", nullable = true)
+    private Integer completionPercentage;
     public PlanningEvent() {}
 
     public PlanningEvent(String title, EventType type, LocalDateTime start) {
@@ -130,6 +147,36 @@ public class PlanningEvent {
         return Objects.hash(id);
     }
 
+    public PlanningEvent createPostponedCopy(LocalDateTime newStart) {
+        PlanningEvent copy = new PlanningEvent(this.title, this.eventType, newStart);
+        copy.setIssue(this.issue);
+        copy.setProject(this.project);
+        copy.setExecutionStatus(ExecutionStatus.PENDING);
+
+        // Calculer la durée originale et l'appliquer au nouveau start
+        if (this.end != null && this.start != null) {
+            Duration duration = Duration.between(this.start, this.end);
+            copy.setEnd(newStart.plus(duration));
+        }
+
+        return copy;
+    }
+    public PlanningEvent createPostponedCopy(LocalDateTime newStart, LocalDateTime newEnd) {
+        PlanningEvent copy = new PlanningEvent(this.title, this.eventType, newStart);
+        copy.setEnd(newEnd != null ? newEnd : calculerEndParDefaut(newStart));
+        copy.setIssue(this.issue);
+        copy.setProject(this.project);
+        copy.setExecutionStatus(ExecutionStatus.PENDING);
+        return copy;
+    }
+
+    private LocalDateTime calculerEndParDefaut(LocalDateTime newStart) {
+        if (this.end != null && this.start != null) {
+            Duration duration = Duration.between(this.start, this.end);
+            return newStart.plus(duration);
+        }
+        return newStart.plusHours(1); // fallback
+    }
     @Override
     public String toString() {
         return "Event{" +

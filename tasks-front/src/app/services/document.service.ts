@@ -76,9 +76,7 @@ export class DocumentService {
     this.documentUsageTypes().subscribe(usageTypes =>
       this.documentUsageTypesSubject.next(usageTypes))
   }
-  attachDocumentToIssue(number: number, number2: number) {
-    return new Observable();
-  }
+
 
   replyToDocument(number: number, reply: DocumentApp) {
     return new Observable<DocumentApp>();
@@ -100,13 +98,13 @@ export class DocumentService {
     return new Observable();
   }
 
-  useDocumentForIssue(issueId: number, documentId:number, documentIssueUsages: String[]) {
+  attachDocumentToIssue(issueId: number, documentId:number, usages: String[]) {
     return new Observable<IssuePlanningSummary>(observer => {
       this.apollo.mutate({
-        mutation:operation.USE_DOCUMENT_FOR_ISSUE,
-        variables:{issueId,documentId,documentIssueUsages}
+        mutation:operation.ATTACH_DOCUMENT_TO_ISSUE,
+        variables:{issueId,documentId,usages}
       }).subscribe( (res:any) => {
-        observer.next(res.data.useDocumentForIssue);
+        observer.next(res.data.attachDocumentToIssue);
         observer.complete();
       }, error => {
         console.error(error);

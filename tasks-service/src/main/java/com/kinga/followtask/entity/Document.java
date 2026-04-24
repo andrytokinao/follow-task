@@ -1,5 +1,6 @@
 package com.kinga.followtask.entity;
 
+import com.kinga.followtask.entity.converter.IssueDocumentUsage;
 import com.kinga.followtask.repository.UploadedRepository;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

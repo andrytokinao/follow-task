@@ -1,5 +1,6 @@
 package com.kinga.followtask.entity;
 
+import com.kinga.followtask.entity.converter.IssueDocumentUsage;
 import com.kinga.utils.KingaUtils;
 import jakarta.persistence.*;
 import lombok.Data;
