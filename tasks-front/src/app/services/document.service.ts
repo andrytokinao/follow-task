@@ -113,4 +113,24 @@ export class DocumentService {
       })
     });
   }
+  // Clé de stockage : 'doc_read_{userId}_{docId}'
+  private readKey(docId: number | string, userId: string): string {
+    return `doc_read_${userId}_${docId}`;
+  }
+
+  /** Marque un document comme lu pour l'utilisateur connecté */
+  markAsRead(doc: DocumentApp, userId: string): void {
+    localStorage.setItem(this.readKey(doc.id!, userId), 'true');
+  }
+
+  /** Retourne true si le document a été lu OU s'il a été créé par cet utilisateur */
+  isRead(doc: DocumentApp, userId: string): boolean {
+    if (doc.userApp?.id === userId) return true; // créé par moi => toujours "lu"
+    return localStorage.getItem(this.readKey(doc.id!, userId)) === 'true';
+  }
+
+  /** Retourne true si le document a été créé par l'utilisateur connecté */
+  isOwnDocument(doc: DocumentApp, userId: string): boolean {
+    return doc.userApp?.id === userId;
+  }
 }

@@ -145,11 +145,28 @@ export class DocumentExchangeComponent implements OnInit , AfterViewInit {
   selectDoc(doc: DocumentApp): void {
     this.selectedDocument = doc;
     this.replyText = '';
-    if (doc.issues?.issueKey) {
-
+    if (this.connectedUser) {
+      this.documentService.markAsRead(doc, this.connectedUser.id);
     }
   }
+  isRead(doc: DocumentApp): boolean {
+    if (!this.connectedUser) return false;
+    return this.documentService.isRead(doc, this.connectedUser.id);
+  }
+  isOwnDocument(doc: DocumentApp): boolean {
+    if (!this.connectedUser) return false;
+    return this.documentService.isOwnDocument(doc, this.connectedUser.id);
+  }
+  // Le badge "non lu" ne compte que les réponses non lues (pas le doc lui-même) :
+// ✅ Corrigé — compte uniquement les réponses non lues
+  unreadCount(doc: DocumentApp): number {
+    if (!this.connectedUser) return 0;
+    if (this.isOwnDocument(doc)) return 0;
 
+    return doc.responses?.filter(r =>
+      !r.deleted && !this.documentService.isRead(r, this.connectedUser.id)
+    ).length ?? 0;
+  }
   createDocument(): void {
     this.documentService.createDocument(this.projectId).subscribe(doc => {
       if (doc) {
@@ -243,9 +260,7 @@ export class DocumentExchangeComponent implements OnInit , AfterViewInit {
     this.selectedFile = up;
   }
 
-  unreadCount(doc: DocumentApp): number {
-    return doc.responses?.filter(r => !r.deleted).length ?? 0;
-  }
+
 
   initials(user?: User | null): string {
     if (!user) return '?';

@@ -21,15 +21,24 @@
         class="sb-item"
         *ngFor="let doc of filteredDocuments"
         [class.active]="selectedDocument?.id === doc.id"
+        [class.unread]="!isRead(doc)"
+        [class.own-doc]="isOwnDocument(doc)"
+        [class.read]="isRead(doc) && !isOwnDocument(doc)"
         (click)="selectDoc(doc)">
 
         <div class="sb-item-top">
           <span class="dept-badge" *ngIf="doc.project">{{ doc.project.prefix }}</span>
-          <b class="sb-title">{{ doc.titre }}</b>
+          <span class="own-badge" *ngIf="isOwnDocument(doc)">
+      <i class="fas fa-pen" style="font-size:9px"></i>
+    </span>
+          <b class="sb-title" [class.sb-title--unread]="!isRead(doc)">{{ doc.titre }}</b>
           <span class="badge-unread" *ngIf="unreadCount(doc) > 0">{{ unreadCount(doc) }}</span>
         </div>
 
-        <div class="clamp clamp-2 clamp-w-ch" style="--lines: 1;" [innerHTML]="doc.description"></div>
+        <div class="clamp clamp-2 clamp-w-ch sb-description"
+             [class.sb-description--muted]="isRead(doc)"
+             style="--lines: 1;"
+             [innerHTML]="doc.description"></div>
 
         <div class="sb-meta">
           <div class="avatars">
@@ -38,10 +47,14 @@
             </ng-container>
           </div>
           <span class="proj-ref" *ngIf="doc.issues">{{ doc.issues.issueKey }}</span>
+          <!-- Indicateur "lu" discret -->
+          <span class="read-indicator" *ngIf="isRead(doc) && !isOwnDocument(doc)" title="Lu">
+      <i class="fas fa-check-double"></i>
+    </span>
           <span class="sb-date">{{ doc.creation | date:'dd MMM' }}</span>
           <span class="sb-menu-btn" (click)="$event.stopPropagation()">
-            <app-document-menu [document]="doc"></app-document-menu>
-          </span>
+      <app-document-menu [document]="doc"></app-document-menu>
+    </span>
         </div>
       </div>
     </div>
@@ -152,7 +165,7 @@
       </div>
 
       <!-- Réponses -->
-      <ng-container *ngFor="let resp of selectedDocument.responses">
+      <ng-container *ngFor="let resp of selectedDocument.responses" >
         <div class="msg reply" *ngIf="!resp.deleted">
           <div class="msg-av reply-av" [style.background]="avatarColor(resp.userApp)">
             {{ initials(resp.userApp) }}

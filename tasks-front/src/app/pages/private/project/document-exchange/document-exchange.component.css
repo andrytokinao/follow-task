@@ -623,3 +623,62 @@
   background: #d0d0d0;
   border-radius: 4px;
 }
+.sb-item.unread {
+  border-left: 3px solid #378ADD;
+  background: #f0f6fd;
+}
+.sb-item.unread:hover { background: #e6f1fb; }
+
+.sb-title--unread {
+  font-weight: 600;
+  color: #0C447C;
+}
+
+/* Lu : atténué, titre normal */
+.sb-item.read {
+  border-left: 3px solid transparent;
+  opacity: 0.82;
+}
+.sb-item.read .sb-title { font-weight: 400; color: #555; }
+
+/* Description atténuée pour les documents lus */
+.sb-description--muted {
+  color: #aaa;
+}
+
+/* Créé par moi : bordure verte tiretée */
+.sb-item.own-doc {
+  border-left: 3px solid #639922;
+  background: #f5f9ee;
+}
+.sb-item.own-doc:hover { background: #eaf3de; }
+.sb-item.own-doc .sb-title { color: #3B6D11; }
+
+/* Badge "créé par moi" (petit crayon) */
+.own-badge {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #C0DD97;
+  color: #27500A;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Indicateur "lu" (double coche discrète) */
+.read-indicator {
+  font-size: 10px;
+  color: #1D9E75;
+  opacity: 0.7;
+  margin-left: auto;
+}
+
+/* État actif : toujours prioritaire, effacer l'opacité du "lu" */
+.sb-item.active {
+  background: #E6F1FB !important;
+  border-left: 3px solid #378ADD !important;
+  opacity: 1 !important;
+}
+.sb-item.active .sb-title { color: #0C447C !important; font-weight: 500; }

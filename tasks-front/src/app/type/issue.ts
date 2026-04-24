@@ -329,7 +329,7 @@ export interface DocumentApp{
   parent?:DocumentApp
   responses?:DocumentApp[]
   deleted?:Boolean
-  readStatuses:DocumentReadStatus
+  readStatuses?:DocumentReadStatus
 
 }
 export interface DocumentReadStatus {
