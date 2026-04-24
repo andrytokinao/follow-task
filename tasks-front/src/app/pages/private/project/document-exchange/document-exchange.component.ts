@@ -145,27 +145,23 @@ export class DocumentExchangeComponent implements OnInit , AfterViewInit {
   selectDoc(doc: DocumentApp): void {
     this.selectedDocument = doc;
     this.replyText = '';
-    if (this.connectedUser) {
-      this.documentService.markAsRead(doc, this.connectedUser.id);
+
+    if (this.connectedUser && !this.documentService.isRead(doc, this.connectedUser.id)) {
+      this.documentService.markAsRead(doc.id!).subscribe(updatedDoc => {
+        doc.readStatuses = updatedDoc.readStatuses;
+      });
     }
   }
   isRead(doc: DocumentApp): boolean {
-    if (!this.connectedUser) return false;
-    return this.documentService.isRead(doc, this.connectedUser.id);
+    return this.documentService.isRead(doc, this.connectedUser?.id);
   }
-  isOwnDocument(doc: DocumentApp): boolean {
-    if (!this.connectedUser) return false;
-    return this.documentService.isOwnDocument(doc, this.connectedUser.id);
-  }
-  // Le badge "non lu" ne compte que les réponses non lues (pas le doc lui-même) :
-// ✅ Corrigé — compte uniquement les réponses non lues
-  unreadCount(doc: DocumentApp): number {
-    if (!this.connectedUser) return 0;
-    if (this.isOwnDocument(doc)) return 0;
 
-    return doc.responses?.filter(r =>
-      !r.deleted && !this.documentService.isRead(r, this.connectedUser.id)
-    ).length ?? 0;
+  isOwnDocument(doc: DocumentApp): boolean {
+    return this.documentService.isOwnDocument(doc, this.connectedUser?.id);
+  }
+
+  unreadCount(doc: DocumentApp): number {
+    return this.documentService.unreadCount(doc, this.connectedUser?.id);
   }
   createDocument(): void {
     this.documentService.createDocument(this.projectId).subscribe(doc => {

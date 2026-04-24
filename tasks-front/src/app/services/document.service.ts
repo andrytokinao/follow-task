@@ -12,11 +12,13 @@ import {Apollo} from "apollo-angular";
 import {HttpClient} from "@angular/common/http";
 import * as operation from "../type/graphql.operations";
 import {supprimerTypename} from "../type/graphql.operations";
+import {environment} from "../../environments/environment";
 
 @Injectable({
   providedIn: 'root'
 })
 export class DocumentService {
+  private apiUrl = environment.apiURL + "api";
   private documentUsageTypesSubject = new BehaviorSubject<DocumentUsageTypeMeta[]>([]);
   documentUsageTypes$ = this.documentUsageTypesSubject.asObservable();
 
@@ -118,19 +120,33 @@ export class DocumentService {
     return `doc_read_${userId}_${docId}`;
   }
 
-  /** Marque un document comme lu pour l'utilisateur connecté */
-  markAsRead(doc: DocumentApp, userId: string): void {
-    localStorage.setItem(this.readKey(doc.id!, userId), 'true');
-  }
+  // document.service.ts
 
-  /** Retourne true si le document a été lu OU s'il a été créé par cet utilisateur */
+  /** Vérifie si un document est lu par l'utilisateur connecté */
   isRead(doc: DocumentApp, userId: string): boolean {
-    if (doc.userApp?.id === userId) return true; // créé par moi => toujours "lu"
-    return localStorage.getItem(this.readKey(doc.id!, userId)) === 'true';
+    if (!doc || !userId) return false;
+    if (doc.userApp?.id === userId) return true; // créé par moi = toujours lu
+    return doc.readStatuses?.some(rs => rs.user?.id === userId) ?? false;
   }
 
-  /** Retourne true si le document a été créé par l'utilisateur connecté */
+  /** Vérifie si le document a été créé par l'utilisateur connecté */
   isOwnDocument(doc: DocumentApp, userId: string): boolean {
+    if (!doc || !userId) return false;
     return doc.userApp?.id === userId;
+  }
+
+  /** Compte les réponses non lues d'un document */
+  unreadCount(doc: DocumentApp, userId: string): number {
+    if (!doc || !userId) return 0;
+    if (this.isOwnDocument(doc, userId)) return 0;
+    return doc.responses?.filter(r =>
+      !r.deleted &&
+      !this.isRead(r, userId)
+    ).length ?? 0;
+  }
+
+  /** Appel backend pour marquer un document comme lu */
+  markAsRead(docId: number): Observable<DocumentApp> {
+    return this.http.post<DocumentApp>(`${this.apiUrl}/documents/${docId}/read`, {});
   }
 }
