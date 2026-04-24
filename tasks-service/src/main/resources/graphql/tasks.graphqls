@@ -648,6 +648,7 @@ type Document{
     userApp:UserApp
     issues:Issue
     documentMembers:[DocumentMember]
+    readStatuses:[DocumentReadStatus]
     members:[String]
     project:Project
     parent:Document
@@ -876,6 +877,12 @@ type DocumentUsageTypeMeta {
     value:String,
     label:String,
     description:String
+}
+type DocumentReadStatus {
+    id:ID
+    user:UserApp
+    document:Document
+    readAt:String
 }
 type UserPlanningStat {
     user: UserApp!

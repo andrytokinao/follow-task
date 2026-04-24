@@ -2442,6 +2442,14 @@ export const SEARCH_DOCUMENTS = gql`
                 encodedPath
               }
             }
+            readStatuses {
+              id
+              readAt
+              user {
+                id
+                username
+              }
+            }
           }
          currentPage
          pageSize
@@ -2491,6 +2499,15 @@ export let LOAD_DOCUMENT_BY_ID =  gql`
       }
       project {
         id
+      }
+      readStatuses {
+        id
+        readAt
+        user {
+          id
+          username
+          photo
+        }
       }
       parent {
         id

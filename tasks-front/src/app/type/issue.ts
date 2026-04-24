@@ -329,6 +329,14 @@ export interface DocumentApp{
   parent?:DocumentApp
   responses?:DocumentApp[]
   deleted?:Boolean
+  readStatuses:DocumentReadStatus
+
+}
+export interface DocumentReadStatus {
+  id:number
+  user:User
+  document:Document
+  readAt:String
 }
 export type DocumentUsageType =
   | 'COMMENT'
