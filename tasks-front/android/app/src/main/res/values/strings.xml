@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Paikady</string>
+    <string name="title_activity_main">Paikady</string>
+    <string name="package_name">com.kinga.paikady</string>
+    <string name="custom_url_scheme">com.kinga.paikady</string>
+</resources>
