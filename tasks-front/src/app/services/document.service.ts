@@ -13,6 +13,7 @@ import {HttpClient} from "@angular/common/http";
 import * as operation from "../type/graphql.operations";
 import {supprimerTypename} from "../type/graphql.operations";
 import {environment} from "../../environments/environment";
+import {SoundService} from "./sound.service";
 
 @Injectable({
   providedIn: 'root'
@@ -29,7 +30,8 @@ export class DocumentService {
 
   constructor(
     private apollo:Apollo,
-    private http:HttpClient
+    private http:HttpClient,
+    private soundService:SoundService
   ) {
      this.exchangePage$.subscribe(exchangePage => {
        this.exchangeContentSubject.next(exchangePage.content);
@@ -165,7 +167,9 @@ export class DocumentService {
     console.log("processDocument",document);
     if (document.parent && document.parent.id) {
       this.processDocumentResponse(document);
+
     } else {
+
       this.addDocument(document);
     }
   }
@@ -175,6 +179,7 @@ export class DocumentService {
     const currentDocs = this.exchangeContentSubject.getValue();
     const exists = currentDocs.some(doc => doc.id === document.id);
     if (exists) return;
+    this.soundService.playShortNotification();
     this.exchangeContentSubject.next([document, ...currentDocs]);
   }
   processDocumentResponse(response: DocumentApp) {
@@ -187,7 +192,7 @@ export class DocumentService {
 
       const alreadyExists = parent.responses.some(r => r.id === response.id);
       if (alreadyExists) return;
-
+      this.soundService.playLongNotification();
       parent.responses = [...parent.responses, response];
       this.updateOrAddDocument(parent);
     } else {
