@@ -6,7 +6,7 @@ import {
   DocumentPage,
   DocumentSearch,
   DocumentUsageTypeMeta,
-  IssuePlanningSummary, Uploaded
+  IssuePlanningSummary, Uploaded, User
 } from "../type/issue";
 import {Apollo} from "apollo-angular";
 import {HttpClient} from "@angular/common/http";
@@ -14,6 +14,7 @@ import * as operation from "../type/graphql.operations";
 import {supprimerTypename} from "../type/graphql.operations";
 import {environment} from "../../environments/environment";
 import {SoundService} from "./sound.service";
+import {AuthService} from "./auth.service";
 
 @Injectable({
   providedIn: 'root'
@@ -26,16 +27,22 @@ export class DocumentService {
   exchangePage$= this.exchangeDocumentsPageSubject.asObservable();
   private exchangeContentSubject = new BehaviorSubject<DocumentApp[]>([]);
   exchangeContent$ = this.exchangeContentSubject.asObservable();
+  private connectedUser: User ;
 
 
   constructor(
     private apollo:Apollo,
     private http:HttpClient,
-    private soundService:SoundService
+    private soundService:SoundService,
+    private authService:AuthService
   ) {
      this.exchangePage$.subscribe(exchangePage => {
        this.exchangeContentSubject.next(exchangePage.content);
+     });
+     this.authService.connectedUser$.subscribe(user => {
+       this.connectedUser = user;
      })
+
   }
   addMemberToDocument(documentid:number, userId:String) {
     return new Observable<DocumentMember>();
@@ -180,6 +187,9 @@ export class DocumentService {
     const exists = currentDocs.some(doc => doc.id === document.id);
     if (exists) return;
     this.soundService.playShortNotification();
+    if (!this.isOwnDocument(document,this.connectedUser.id)) {
+      this.updateOrAddDocument(parent);
+    }
     this.exchangeContentSubject.next([document, ...currentDocs]);
   }
   processDocumentResponse(response: DocumentApp) {
@@ -192,9 +202,11 @@ export class DocumentService {
 
       const alreadyExists = parent.responses.some(r => r.id === response.id);
       if (alreadyExists) return;
+      if (!this.isOwnDocument(response,this.connectedUser.id)) {
+        this.updateOrAddDocument(parent);
+      }
       this.soundService.playLongNotification();
       parent.responses = [...parent.responses, response];
-      this.updateOrAddDocument(parent);
     } else {
       console.log("processResponse-> parentIssue not found");
     }
