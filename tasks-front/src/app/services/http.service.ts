@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import {Injectable, Injector} from '@angular/core';
 import {
   HttpInterceptor,
   HttpRequest,
@@ -12,6 +12,7 @@ import { tap, catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { ToastrService, GlobalConfig } from 'ngx-toastr';
 import { User } from '../type/issue';
+import {AuthService} from "./auth.service";
 
 @Injectable({
   providedIn: 'root'
@@ -22,10 +23,13 @@ export class HttpInterceptorService implements HttpInterceptor {
 
   private lastMessage: string | null = null;
   private isNavigating = false;
-
+  private get authService(): AuthService {
+    return this.injector.get(AuthService);
+  }
   constructor(
     private router: Router,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private injector: Injector
   ) {
     const config: Partial<GlobalConfig> = {
       positionClass: 'toast-bottom-left',
@@ -107,6 +111,8 @@ export class HttpInterceptorService implements HttpInterceptor {
 
     this.userSubject.next(null);
     this.showErrorOnce('Votre session a expiré. Veuillez vous reconnecter.', () => {
+      this.authService.nextConnectedUser(undefined)
+
       this.router.navigate(['/login']).finally(() => {
         this.isNavigating = false;
       });

@@ -492,7 +492,7 @@ public class IssueService {
             userApp = userAppRepository.getById(d.getUserApp().getId());
             d.setUserApp(userApp);
         }
-       // sendDocument(d);
+        sendDocument(d);
         return d;
     }
     public List<Document> getDocuments(Long issueId, TypeDocument typeDocument) {

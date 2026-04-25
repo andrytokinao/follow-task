@@ -1795,6 +1795,7 @@ export class IssueService implements OnInit {
   }
 
   processDocument(document: DocumentApp) {
+    alert('document whith websocket');
     console.log("processDocument",document);
     if (document.parent && document.parent.id) {
       this.processDocumentResponse(document);

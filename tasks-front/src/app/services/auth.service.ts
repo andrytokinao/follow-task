@@ -163,4 +163,9 @@ export class AuthService {
     );
   }
 
+  nextConnectedUser(user: undefined) {
+    this.userSubject.next(user);
+    this.profileSubject.next(user);
+
+  }
 }
