@@ -7,6 +7,7 @@ import {IssueService} from "../../../../../services/issue.service";
 import {UserService} from "../../../../../services/user.service";
 import {AuthService} from "../../../../../services/auth.service";
 import {BehaviorSubject} from "rxjs";
+import {DocumentService} from "../../../../../services/document.service";
 
 @Component({
   standalone:false,
@@ -60,6 +61,7 @@ export class NewDocumentComponent {
               private route: ActivatedRoute,
               private authService: AuthService,
               public activeModal: NgbActiveModal,
+              private documentService:DocumentService
 
   ) {
     this.userService.users$.subscribe(users=> {
@@ -116,7 +118,7 @@ export class NewDocumentComponent {
       // Edition
       this.issueService.uploadDocument(this.newDocument,this.issue?.encodedPath,this.uploadings,this.typeDocument).subscribe(document => {
         if (!this.uploadings || this.uploadings.length === 0) {
-          this.issueService.forwardDocument(document);
+          this.documentService.forwardDocument(document);
           this.activeModal.close(document);
           this.reset();
         }
@@ -146,7 +148,7 @@ export class NewDocumentComponent {
     }
     this.issueService.uploadDocument(this.newDocument,this.issue?.encodedPath,this.uploadings,this.typeDocument).subscribe(document => {
        if (!this.uploadings || this.uploadings.length === 0) {
-         this.issueService.forwardDocument(document);
+         this.documentService.forwardDocument(document);
          this.activeModal.close(document);
          this.onSave.emit(document);
          this.reset();
@@ -160,8 +162,8 @@ export class NewDocumentComponent {
       if (doc.id){
         this.issueService.uploadingDocumentSubject.complete();
         this.uploadings = [];
-        this.issueService.loadDocumentById(doc.id).subscribe(d => {
-         this.issueService.forwardDocument(d);
+        this.documentService.loadDocumentById(doc.id).subscribe(d => {
+         this.documentService.forwardDocument(d);
           this.onSave.emit(d);
           this.reset();
           this.activeModal.close(d);

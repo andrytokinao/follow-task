@@ -86,13 +86,10 @@ export class UserService {
       }
     )
   }
-  initUser(userApp:User) {
-    return this.apollo.mutate(
-      {
-        mutation : INIT_USER,
-        variables :{userApp}
-      }
-    )
+  initUser(userApp: User) {
+    return this.http.post<User>(environment.apiURL+'api/init-user', userApp, {
+      withCredentials: true
+    });
   }
   upload(file: File, userId:string): Observable<HttpEvent<any>> {
     const formData: FormData = new FormData();

@@ -55,8 +55,8 @@ public class ConfigCotroller {
         map.put("path",configService.getCurrentConfig().getRepertoireCodeValidation());
         return map;
     }
-    @MutationMapping
-    public UserApp initUser(@Argument UserApp userApp) throws IOException {
+    @PostMapping("/api/init-user")
+    public UserApp initUser(@RequestBody UserApp userApp) throws IOException {
         return configService.initUser(userApp);
     }
     @GetMapping("next-installation-path")

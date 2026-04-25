@@ -27,6 +27,7 @@ import {UserService} from "./user.service";
 import * as SockJS from 'sockjs-client';
 import {Client, Message, Stomp, StompConfig, StompHeaders} from '@stomp/stompjs';
 import {ActionService} from "./action.service";
+import {DocumentService} from "./document.service";
 
 
 @Injectable({
@@ -57,7 +58,8 @@ export class MessagesService {
     private issueService:IssueService,
     private authService:AuthService,
     private userService:UserService,
-    private actionService:ActionService
+    private actionService:ActionService,
+    private documentService:DocumentService
   ) {
     this.issueService.project$.subscribe(project => {
       this.project = project;
@@ -227,7 +229,7 @@ export class MessagesService {
     }
     if (documentData) {
       console.info('documentData',documentData);
-      this.issueService.processDocument(documentData);
+      this.documentService.processDocument(documentData);
     }
 
     if (newNotification) {

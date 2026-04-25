@@ -87,15 +87,18 @@ export class DocumentExchangeComponent implements OnInit , AfterViewInit {
     this.loadUsers();
     this.issueService.issueMasterList$
       ?.subscribe(issues => this.availableIssues = issues);
+    this.documentService.exchangePage$.subscribe(page => {
+      this.totalElements = page.totalElements;
+      this.totalPages = page.totalPages;
+    });
+    this.documentService.exchangeContent$.subscribe(content=> {
+      this.documents = content;
+    })
   }
 
   loadDocuments(): void {
-    this.documentService.searchDocuments(this.search, this.currentPage, this.pageSize)
-      .subscribe(page => {
-        this.documents = page.content;
-        this.totalElements = page.totalElements;
-        this.totalPages = page.totalPages;
-      });
+
+    this.documentService.loadExchange(this.search, this.currentPage, this.pageSize);
   }
 
   loadProjects(): void {
@@ -349,7 +352,7 @@ export class DocumentExchangeComponent implements OnInit , AfterViewInit {
   }
 
   onReplySaved(doc: DocumentApp) {
-     this.issueService.loadDocumentById(doc.parent.id).subscribe(document => {
+     this.documentService.loadDocumentById(doc.parent.id).subscribe(document => {
        this.selectedDocument = document;
      });
   }

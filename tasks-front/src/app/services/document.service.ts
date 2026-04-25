@@ -6,7 +6,7 @@ import {
   DocumentPage,
   DocumentSearch,
   DocumentUsageTypeMeta,
-  IssuePlanningSummary
+  IssuePlanningSummary, Uploaded
 } from "../type/issue";
 import {Apollo} from "apollo-angular";
 import {HttpClient} from "@angular/common/http";
@@ -21,13 +21,19 @@ export class DocumentService {
   private apiUrl = environment.apiURL + "api";
   private documentUsageTypesSubject = new BehaviorSubject<DocumentUsageTypeMeta[]>([]);
   documentUsageTypes$ = this.documentUsageTypesSubject.asObservable();
+  private exchangeDocumentsPageSubject = new BehaviorSubject<DocumentPage>(undefined);
+  exchangePage$= this.exchangeDocumentsPageSubject.asObservable();
+  private exchangeContentSubject = new BehaviorSubject<DocumentApp[]>([]);
+  exchangeContent$ = this.exchangeContentSubject.asObservable();
 
 
   constructor(
     private apollo:Apollo,
     private http:HttpClient
   ) {
-
+     this.exchangePage$.subscribe(exchangePage => {
+       this.exchangeContentSubject.next(exchangePage.content);
+     })
   }
   addMemberToDocument(documentid:number, userId:String) {
     return new Observable<DocumentMember>();
@@ -55,6 +61,11 @@ export class DocumentService {
         observer.complete();
       })
     });
+  }
+  loadExchange(search: DocumentSearch, page: number, pageSize: number) {
+    this.searchDocuments(search,page,pageSize).subscribe(documents => {
+      this.exchangeDocumentsPageSubject.next(documents);
+    })
   }
   documentUsageTypes(){
     return new Observable<DocumentUsageTypeMeta[]>((observer)=>{
@@ -149,4 +160,103 @@ export class DocumentService {
   markAsRead(docId: number): Observable<DocumentApp> {
     return this.http.post<DocumentApp>(`${this.apiUrl}/documents/${docId}/read`, {});
   }
+
+  processDocument(document: DocumentApp) {
+    console.log("processDocument",document);
+    if (document.parent && document.parent.id) {
+      this.processDocumentResponse(document);
+    } else {
+      this.addDocument(document);
+    }
+  }
+
+
+  private addDocument(document: DocumentApp) {
+    const currentDocs = this.exchangeContentSubject.getValue();
+    const exists = currentDocs.some(doc => doc.id === document.id);
+    if (exists) return;
+    this.exchangeContentSubject.next([document, ...currentDocs]);
+  }
+  processDocumentResponse(response: DocumentApp) {
+    console.log("processDocumentResponse", response);
+
+    const parent = this.filterDcumentById(response.parent.id);
+    if (parent != null) {
+      if (!parent.responses)
+        parent.responses = [];
+
+      const alreadyExists = parent.responses.some(r => r.id === response.id);
+      if (alreadyExists) return;
+
+      parent.responses = [...parent.responses, response];
+      this.updateOrAddDocument(parent);
+    } else {
+      console.log("processResponse-> parentIssue not found");
+    }
+  }
+  updateOrAddDocument(updatedDoc: DocumentApp) {
+    const currentDocs = this.exchangeContentSubject.getValue();
+    const existDoc = this.filterDcumentById(updatedDoc.id);
+    if (existDoc) {
+      const updatedDocs = currentDocs.map(doc =>
+        doc.id === updatedDoc.id ? updatedDoc : doc
+      );
+      this.exchangeContentSubject.next(updatedDocs);
+    } else {
+      this.addDocument(updatedDoc);
+    }
+
+  }
+  filterDcumentById(id: Number): DocumentApp | undefined {
+    const currentDocs = this.exchangeContentSubject.getValue();
+    return currentDocs.find(doc => doc.id === id);
+  }
+
+
+
+  processUploaded(uploaded:Uploaded){
+    let doc :DocumentApp= this.filterDcumentById(uploaded.document.id);
+    if (doc) {
+      if (doc.uploadeds && doc.uploadeds.length != 0) {
+        let uploades = [... doc.uploadeds, uploaded ];
+        doc.uploadeds = uploades;
+      } else {
+        doc.uploadeds = [uploaded];
+      }
+
+      this.updateOrAddDocument(doc);
+    }
+
+  }
+
+  loadDocumentById(documentId) {
+    return new Observable<DocumentApp>(observer => {
+      this.apollo.query({
+        query: operation.LOAD_DOCUMENT_BY_ID,
+        variables: {documentId},
+        fetchPolicy: 'network-only'
+      }).subscribe((res: any) => {
+          observer.next(supprimerTypename(res.data.loadDocumentById));
+          observer.complete();
+        }, error => {
+          console.error(error);
+          observer.complete();
+        }
+      )
+    });
+  }
+
+  forwardDocument(document: DocumentApp) {
+    this.apollo.mutate({
+      mutation: operation.FORWARD_DOCUMENT,
+      variables: {document},
+      fetchPolicy: 'network-only'
+    }).subscribe((res: any) => {
+        console.info("forward document#"+document.id+ " successfulllll ");
+      }, error => {
+        console.error("forward document success ",error);
+      }
+    )
+  }
+
 }
