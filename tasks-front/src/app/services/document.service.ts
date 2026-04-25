@@ -186,10 +186,10 @@ export class DocumentService {
     const currentDocs = this.exchangeContentSubject.getValue();
     const exists = currentDocs.some(doc => doc.id === document.id);
     if (exists) return;
-    this.soundService.playShortNotification();
     if (!this.isOwnDocument(document,this.connectedUser.id)) {
-      this.updateOrAddDocument(parent);
+      this.soundService.playShortNotification();
     }
+    this.updateOrAddDocument(parent);
     this.exchangeContentSubject.next([document, ...currentDocs]);
   }
   processDocumentResponse(response: DocumentApp) {
@@ -203,9 +203,10 @@ export class DocumentService {
       const alreadyExists = parent.responses.some(r => r.id === response.id);
       if (alreadyExists) return;
       if (!this.isOwnDocument(response,this.connectedUser.id)) {
-        this.updateOrAddDocument(parent);
+        this.soundService.playLongNotification();
       }
-      this.soundService.playLongNotification();
+      this.updateOrAddDocument(parent);
+
       parent.responses = [...parent.responses, response];
     } else {
       console.log("processResponse-> parentIssue not found");
