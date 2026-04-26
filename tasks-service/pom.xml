@@ -6,18 +6,22 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.2.3</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <relativePath/>
     </parent>
     <groupId>com.kinga</groupId>
-    <artifactId>follow-task</artifactId>
+    <artifactId>paikady</artifactId>
     <version>1.1-SNAPSHOT</version>
-    <name>follow-task</name>
-    <description>follow-task</description>
+    <name>paikady</name>
+    <description>paikady</description>
+
     <properties>
         <java.version>19</java.version>
         <spqr-starter.version>0.0.4</spqr-starter.version>
         <graphql-java-annotations.version>3.0.2</graphql-java-annotations.version>
+        <!-- Version de l'app mobile : changer ICI uniquement pour chaque release -->
+        <app.version>1.1</app.version>
     </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -50,8 +54,7 @@
             <artifactId>h2</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <!-- R2DBC avec H2 -->
-       <dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-r2dbc</artifactId>
         </dependency>
@@ -90,10 +93,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-core</artifactId>
         </dependency>
@@ -110,8 +109,6 @@
             <artifactId>graphql-java-annotations</artifactId>
             <version>${graphql-java-annotations.version}</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/district0x/graphql-query -->
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
@@ -127,9 +124,9 @@
             <artifactId>rxjava</artifactId>
             <version>3.1.6</version>
         </dependency>
-       <dependency>
-        <groupId>org.liquibase</groupId>
-        <artifactId>liquibase-core</artifactId>
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -154,24 +151,32 @@
 
     <build>
         <plugins>
+
+            <!-- 1. Resources plugin avec filtering pour injecter app.version dans application.properties -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>3.3.1</version>
                 <configuration>
                     <encoding>UTF-8</encoding>
+                    <filtering>true</filtering>
                 </configuration>
             </plugin>
+
+            <!-- 2. Spring Boot -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
 
+            <!-- 3. Surefire tests -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.22.0</version>
             </plugin>
+
+            <!-- 4. Frontend : install Node + npm install + ng build -->
             <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
@@ -182,6 +187,8 @@
                     <workingDirectory>../tasks-front</workingDirectory>
                 </configuration>
                 <executions>
+
+                    <!-- 4a. Installe Node et npm -->
                     <execution>
                         <id>install node and npm</id>
                         <goals>
@@ -189,16 +196,20 @@
                         </goals>
                         <phase>generate-resources</phase>
                     </execution>
+
+                    <!-- 4b. npm install avec legacy-peer-deps (pour compatibilite apollo-angular) -->
                     <execution>
-                        <id>npm install </id>
+                        <id>npm install</id>
                         <goals>
                             <goal>npm</goal>
                         </goals>
                         <configuration>
-                            <arguments>install --force</arguments>
+                            <arguments>install --legacy-peer-deps</arguments>
                         </configuration>
                         <phase>generate-resources</phase>
                     </execution>
+
+                    <!-- 4c. ng build -> genere les fichiers dans static/ -->
                     <execution>
                         <id>npm build</id>
                         <goals>
@@ -210,10 +221,71 @@
                         </configuration>
                         <phase>generate-resources</phase>
                     </execution>
+
+                    <!-- 4d. Capacitor sync Android -->
+                    <execution>
+                        <id>cap sync android</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>run cap:sync</arguments>
+                            <workingDirectory>../tasks-front</workingDirectory>
+                        </configuration>
+                        <phase>process-resources</phase>
+                    </execution>
+
                 </executions>
             </plugin>
+
+            <!-- 5. Antrun : zipper le build Angular pour OTA + générer l'APK Android -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+
+                    <!-- 5a. Créer le ZIP OTA pour les mises à jour mobiles -->
+                    <execution>
+                        <id>zip-angular-for-ota</id>
+                        <phase>prepare-package</phase>
+                        <goals><goal>run</goal></goals>
+                        <configuration>
+                            <target>
+                                <mkdir dir="${project.build.outputDirectory}/updates"/>
+                                <zip destfile="${project.build.outputDirectory}/updates/v${app.version}.zip"
+                                     basedir="${project.basedir}/src/main/resources/static"/>
+                                <echo message="[OTA] ZIP cree : updates/v${app.version}.zip"/>
+                            </target>
+                        </configuration>
+                    </execution>
+
+                    <!-- 5b. Générer l'APK Android debug via Gradle -->
+                    <!--<execution>
+                        <id>build-android-apk</id>
+                        <phase>package</phase>
+                        <goals><goal>run</goal></goals>
+                        <configuration>
+                            <target>
+                                <echo message="[Android] Generation APK debug..."/>
+                                <exec executable="cmd"
+                                      dir="${project.basedir}/../tasks-front/android"
+                                      failonerror="true">
+                                    <arg value="/c"/>
+                                    <arg value="gradlew.bat assembleDebug"/>
+                                </exec>
+                                <echo message="[Android] APK disponible dans :"/>
+                                <echo message="tasks-front/android/app/build/outputs/apk/debug/app-debug.apk"/>
+                            </target>
+                        </configuration>
+                    </execution>-->
+
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
+
     <distributionManagement>
         <repository>
             <id>github</id>
@@ -221,12 +293,12 @@
             <url>https://maven.pkg.github.com/andrytokinao/${project.artifactId}</url>
         </repository>
     </distributionManagement>
+
     <profiles>
         <profile>
             <id>release</id>
             <build>
                 <plugins>
-                    <!-- Exclude GPG signing -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-deploy-plugin</artifactId>
@@ -237,5 +309,25 @@
                 </plugins>
             </build>
         </profile>
+
+        <!-- Profile pour generer uniquement le JAR sans APK (CI/CD serveur) -->
+        <profile>
+            <id>server-only</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>build-android-apk</id>
+                                <phase>none</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
     </profiles>
 </project>
