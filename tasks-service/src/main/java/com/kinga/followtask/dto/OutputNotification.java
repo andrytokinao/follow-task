@@ -38,6 +38,8 @@ public class OutputNotification {
         this.action = actionGroupe;
     }
     public void setProject(Project project) {
+        if (project == null)
+            return;
         Project p = new Project();
         p.setId(project.getId());
         p.setPrefix(project.getPrefix());
