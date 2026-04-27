@@ -222,18 +222,8 @@
                         <phase>generate-resources</phase>
                     </execution>
 
-                    <!-- 4d. Capacitor sync Android (désactivé en mode server-only) -->
-                    <execution>
-                        <id>cap sync android</id>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <configuration>
-                            <arguments>run cap:sync</arguments>
-                            <workingDirectory>../tasks-front</workingDirectory>
-                        </configuration>
-                        <phase>process-resources</phase>
-                    </execution>
+                    <!-- 4d. Capacitor sync Android : à faire manuellement en local
+                         avant chaque release Android (npx cap sync android) -->
 
                 </executions>
             </plugin>
