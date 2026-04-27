@@ -45,6 +45,8 @@ public class Notification {
         return readUserIds;
     }
     public List<String> getIssueLinks(){
+        if (action.getIssue() == null || action.getIssue().getProject() == null)
+            return new ArrayList<>();
         return Arrays.asList("/working",action.getIssue().getProject().getPrefix(),"issue",action.getIssue().getIssueKey(),"details");
 
     }
