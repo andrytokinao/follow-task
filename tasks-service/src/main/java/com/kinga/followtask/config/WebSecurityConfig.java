@@ -48,6 +48,8 @@ public class WebSecurityConfig {
                         .requestMatchers(new AntPathRequestMatcher("/ws/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/graphql")).authenticated()
                         .requestMatchers(new AntPathRequestMatcher("/api/upload")).authenticated()
+                        .requestMatchers(new AntPathRequestMatcher("/api/update")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/update")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/init-user")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/**")).authenticated()
                         .requestMatchers(new AntPathRequestMatcher("/wsocket/**")).authenticated()
