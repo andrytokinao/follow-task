@@ -117,6 +117,8 @@ export class IssueService implements OnInit {
   issueTypeParent$ = this.issueTypesParentSubject.asObservable();
   project$ = this.projectSubject.asObservable();
   projects$ = this.projectsSubject.asObservable();
+  allProjectSubject = new BehaviorSubject<Project[]>([]);
+  allProject$ = this.allProjectSubject.asObservable();
   private masterCurrentMasterFilterSubject = new BehaviorSubject<CustomFilter>(null);
   private currentSubtaskFilterSubject = new BehaviorSubject<CustomFilter>(null);
   private currentSubtaskFilter$ = this.currentSubtaskFilterSubject.asObservable();
@@ -161,6 +163,7 @@ export class IssueService implements OnInit {
       this.user = user;
       this.loadSettings();
       this.loadMyFilters();
+      this.loadAllProject();
     });
 
     this.project$.subscribe(project => {
@@ -1949,6 +1952,12 @@ export class IssueService implements OnInit {
            observer.next(error);
            observer.complete();
         });
+    })
+  }
+
+  private loadAllProject() {
+    this.allProjects().subscribe(project => {
+      this.allProjectSubject.next(project);
     })
   }
 }

@@ -83,7 +83,7 @@ export class NewDocumentComponent {
     this.issueService.project$.subscribe(project =>{
       this.project = project;
     });
-    this.issueService.projects$.subscribe(prs => {
+    this.issueService.allProject$.subscribe(prs => {
       this.projects = prs;
       this.filteredProjects = prs;
     })
