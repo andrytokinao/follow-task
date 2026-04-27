@@ -102,7 +102,7 @@ export class DocumentExchangeComponent implements OnInit , AfterViewInit {
   }
 
   loadProjects(): void {
-    this.issueService.projects$.subscribe(p => this.availableProjects = p);
+    this.issueService.allProjects().subscribe(p => this.availableProjects = p);
   }
 
   loadUsers(): void {
