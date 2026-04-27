@@ -58,7 +58,9 @@ public class ActionService {
         notification.setAction(actionGroupe);
         notification.setTitre("Test Notification");
         notification.setUserIds(userIds);
-        notification.setProject(actionGroupe.getIssue().getProject());
+        if (actionGroupe.getIssue() != null) {
+            notification.setProject(actionGroupe.getIssue().getProject());
+        }
         notification = notificationRepository.save(notification);
         Map<String,Object> map = new HashMap<>();
         OutputNotification notif = new OutputNotification(notification);
