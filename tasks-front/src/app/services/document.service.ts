@@ -189,7 +189,6 @@ export class DocumentService {
     if (!this.isOwnDocument(document,this.connectedUser.id)) {
       this.soundService.playShortNotification();
     }
-    this.updateOrAddDocument(parent);
     this.exchangeContentSubject.next([document, ...currentDocs]);
   }
   processDocumentResponse(response: DocumentApp) {
