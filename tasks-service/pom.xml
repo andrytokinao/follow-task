@@ -222,7 +222,7 @@
                         <phase>generate-resources</phase>
                     </execution>
 
-                    <!-- 4d. Capacitor sync Android -->
+                    <!-- 4d. Capacitor sync Android (désactivé en mode server-only) -->
                     <execution>
                         <id>cap sync android</id>
                         <goals>
@@ -260,7 +260,7 @@
                         </configuration>
                     </execution>
 
-                    <!-- 5b. Générer l'APK Android debug via Gradle -->
+                    <!-- 5b. Générer l'APK Android debug via Gradle (commenté) -->
                     <!--<execution>
                         <id>build-android-apk</id>
                         <phase>package</phase>
@@ -310,11 +310,28 @@
             </build>
         </profile>
 
-        <!-- Profile pour generer uniquement le JAR sans APK (CI/CD serveur) -->
+        <!--
+            Profile pour générer uniquement le JAR sans APK ni Capacitor sync (CI/CD serveur).
+            Usage : mvn package -P server-only
+        -->
         <profile>
             <id>server-only</id>
             <build>
                 <plugins>
+
+                    <!-- Désactive le cap sync Android -->
+                    <plugin>
+                        <groupId>com.github.eirslett</groupId>
+                        <artifactId>frontend-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>cap sync android</id>
+                                <phase>none</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <!-- Désactive la génération de l'APK Android -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-antrun-plugin</artifactId>
@@ -325,6 +342,7 @@
                             </execution>
                         </executions>
                     </plugin>
+
                 </plugins>
             </build>
         </profile>
