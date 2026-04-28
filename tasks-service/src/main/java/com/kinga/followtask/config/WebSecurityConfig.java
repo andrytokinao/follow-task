@@ -39,7 +39,6 @@ public class WebSecurityConfig {
 
     @Autowired
     private CustomUserDetailsService userDetailsService;
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         Customizer<CsrfConfigurer<HttpSecurity>> csrfs;
