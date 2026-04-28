@@ -30,6 +30,7 @@ export class Subtask2Component implements OnInit {
   // ── Data ────────────────────────────────────────────────────────
   protected parentIssue: Issue;
   subtasks: Issue[] = [];
+  loadingSubtask:boolean = false;
   selectedTask: Issue | null = null;
   events: EventApp[] = [];
   groupedEvents: {
@@ -100,13 +101,24 @@ export class Subtask2Component implements OnInit {
   }
 
   // ── Data loading ────────────────────────────────────────────────
-  protected loadSubtask(): void {
+  protected loadSubtask(): void { {
+    this.loadingSubtask = true;
+    this.subtasks = [];
+    if (! this.parentIssue || |this.parentIssue.id) {
+      this.loadingSubtask = false;
+      return;
+    }
+
     this.issueService.loadSubtask(this.parentIssue.id).subscribe(issues => {
       this.subtasks = issues;
       if (this.subtasks?.length > 0 && !this.selectedTask) {
         this.selectTask(this.subtasks[0]);
       }
-    });
+      this.loadingSubtask = false;
+    }, err => {
+      this.loadingSubtask = false;
+
+    } );
   }
 
   loadValues(): void {
