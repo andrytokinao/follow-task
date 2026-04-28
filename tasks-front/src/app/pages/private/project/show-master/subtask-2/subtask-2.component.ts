@@ -104,11 +104,11 @@ export class Subtask2Component implements OnInit {
   protected loadSubtask(): void { {
     this.loadingSubtask = true;
     this.subtasks = [];
-    if (! this.parentIssue || |this.parentIssue.id) {
+    if (! this.parentIssue || this.parentIssue.id) {
       this.loadingSubtask = false;
-      return;
-    }
 
+    }
+  }
     this.issueService.loadSubtask(this.parentIssue.id).subscribe(issues => {
       this.subtasks = issues;
       if (this.subtasks?.length > 0 && !this.selectedTask) {
