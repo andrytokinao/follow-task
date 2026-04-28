@@ -108,7 +108,7 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
       project: { id: this.project?.id }
     };
 
-    if (this.parentIssue) {
+    if (this.parentIssue && !this.isMaster) {
       issue.parent = { id: this.parentIssue.id };
     }
 
