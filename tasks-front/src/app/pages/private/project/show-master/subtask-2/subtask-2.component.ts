@@ -104,7 +104,7 @@ export class Subtask2Component implements OnInit {
   protected loadSubtask(): void { {
     this.loadingSubtask = true;
     this.subtasks = [];
-    if (! this.parentIssue || this.parentIssue.id) {
+    if (! this.parentIssue || !this.parentIssue.id) {
       this.loadingSubtask = false;
 
     }
