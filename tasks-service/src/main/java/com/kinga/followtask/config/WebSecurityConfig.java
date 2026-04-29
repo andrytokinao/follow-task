@@ -41,8 +41,11 @@ public class WebSecurityConfig {
     private CustomUserDetailsService userDetailsService;
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        Customizer<CsrfConfigurer<HttpSecurity>> csrfs;
-        http.csrf(csrf -> csrf.disable())
+        http
+                .csrf(csrf -> csrf.disable())
+                .headers(headers -> headers
+                        .frameOptions(frameOptions -> frameOptions.sameOrigin())
+                )
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers(new AntPathRequestMatcher("/ws/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/graphql")).authenticated()
