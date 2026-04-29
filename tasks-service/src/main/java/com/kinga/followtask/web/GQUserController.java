@@ -50,10 +50,14 @@ public class GQUserController {
     public List<UserApp> allUsers(){
        return userService.findAll();
     }
-    @GetMapping({"/", "//**", "/working/**","/admin/**"})
-    public String publicRedirection(){
-        logger.info("loading page frontend  ");
-        return "/index.html";
+    @GetMapping(value = {
+            "/",
+            "/{path:[^\\.]*}",
+            "/{path:[^\\.]*}/**"
+    })
+    public String publicRedirection() {
+        logger.info("loading page frontend");
+        return "forward:/index.html";
     }
     @PostMapping("/api/upload/photo")
     public ResponseEntity<String> uploadFile(@RequestPart("file") MultipartFile file, @RequestParam String userId) {
