@@ -2889,7 +2889,7 @@ export let DOCUMENT_USAGE_TYPES = gql`
   }
 `
 export const PROPOSE_NEXT_PERCENTEGE = gql`
-  query proposeNextPercentage($issueId:Int) {
+  query proposeNextPercentage($issueId:ID) {
      proposeNextPercentage(issueId:$issueId) {
        proposed
        lastKnown
