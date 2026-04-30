@@ -9,6 +9,7 @@ import {UserService} from "../../../../../../services/user.service";
 import {ActivatedRoute, Router} from "@angular/router";
 import {ProjectGuard} from "../../../../../../services/ProjectGuard";
 import {ConfirmationDialogService} from "../../../../../../services/confirmation-dialog.service";
+import {IssueSearchCriteriaInput} from "../../../../../../type/issue-search-criteria.util";
 
 @Component({
   standalone:false,
@@ -19,6 +20,7 @@ import {ConfirmationDialogService} from "../../../../../../services/confirmation
 export class TableMasterComponent implements OnInit{
   protected issues: Issue[] =[];
   protected project:Project ;
+  protected issueSearche:IssueSearchCriteriaInput;
   constructor(
     private modalService: NgbModal,
     protected issueService: IssueService,
@@ -40,6 +42,13 @@ export class TableMasterComponent implements OnInit{
     });
     this.issueService.project$.subscribe( project => {
       this.project = project;
+    });
+    this.issueService.loadIssueMasters(null);
+  }
+
+  delete(issue: Issue) {
+    this.essueService.deleteDocumentById(issue.id).subscribe( response => {
+      this.issueService.loadIssueMasters(null);
     })
   }
 }
