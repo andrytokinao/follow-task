@@ -38,6 +38,7 @@ public class GQIssueController {
     @Autowired
     private ActionService actionService;
     private final DocumentService documentService;
+    private final PlanningEventProgressService progressService;
 
     @QueryMapping
     public List<Issue> allIssue(){
@@ -370,5 +371,9 @@ public class GQIssueController {
     @QueryMapping
     public IssuePlanningSummary getIssuePlanningSummary(@Argument Long issueId) {
         return issueService.getIssuePlanningSummary(issueId);
+    }
+    @QueryMapping
+    public PercentageProposalDTO proposeNextPercentage(@Argument Long issueId) {
+        return progressService.proposeNextPercentage(issueId);
     }
 }

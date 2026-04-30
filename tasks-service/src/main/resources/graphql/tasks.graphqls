@@ -898,3 +898,10 @@ type IssuePlanningSummary {
     remainingMinutes: Int
     userStats: [UserPlanningStat]
 }
+type PercentageProposal {
+    proposed:Int
+    lastKnown:Int
+    averageStep:Int
+    reason:String
+    candidates:[Int]
+}

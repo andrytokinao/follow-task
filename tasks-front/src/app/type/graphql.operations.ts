@@ -2888,6 +2888,18 @@ export let DOCUMENT_USAGE_TYPES = gql`
     }
   }
 `
+export const PROPOSE_NEXT_PERCENTEGE = gql`
+  query proposeNextPercentage($issueId:Int) {
+     proposeNextPercentage(issueId:$issueId) {
+       proposed
+       lastKnown
+       averageStep
+       reason
+       candidates
+     }
+  }
+`
+
 export {
   supprimerTypename,
   SAVE_USER,

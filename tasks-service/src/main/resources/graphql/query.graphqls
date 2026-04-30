@@ -63,5 +63,5 @@ type Query {
     documentUsageTypes:[DocumentUsageTypeMeta]
     getIssuePlanningSummary(issueId: ID!): IssuePlanningSummary
     getIssuePlanningSummaries(issueIds: [ID!]!): [IssuePlanningSummary!]!
-
+    proposeNextPercentage(issueId:ID!):PercentageProposal
 }

@@ -4,11 +4,26 @@ import {DayPilot} from "@daypilot/daypilot-lite-angular";
 import {HttpClient} from "@angular/common/http";
 import CalendarColumnData = DayPilot.CalendarColumnData;
 import EventData = DayPilot.EventData;
-import {EventApp, EventSearchCriteria, EventTypeApp, Issue, IssueType, Project, User} from "../type/issue";
+import {
+  EventApp,
+  EventSearchCriteria,
+  EventTypeApp,
+  Issue,
+  IssueType,
+  PercentageProposal,
+  Project,
+  User
+} from "../type/issue";
 import * as operation from "../type/graphql.operations";
 import {stripTypename} from "@apollo/client/utilities";
 import {Apollo} from "apollo-angular";
-import {ALL_CUSTOM_FIELD, NEXT_EVENT, SEARCH_EVENTS, supprimerTypename} from "../type/graphql.operations";
+import {
+  ALL_CUSTOM_FIELD,
+  NEXT_EVENT,
+  PROPOSE_NEXT_PERCENTEGE,
+  SEARCH_EVENTS,
+  supprimerTypename
+} from "../type/graphql.operations";
 import _default from "chart.js/dist/plugins/plugin.legend";
 import {NewIssueComponent} from "../pages/private//project/modal/new-issue/new-issue.component";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
@@ -465,5 +480,21 @@ export class EventsService {
     return this.nextEvent(criteria, this.project.id);
   }
 
+  proposeNextPercentage(issueId: number) {
+    return new Observable<PercentageProposal>(observer=> {
+      this.apollo.query({
+        query:PROPOSE_NEXT_PERCENTEGE,
+        variables:{issueId},
+        fetchPolicy:"network-only"
+      }).subscribe( (res:any) => {
+        observer.next(res.data.proposeNextPercentage);
+        observer.complete();
+      }, error => {
+        observer.error(error);
+        console.error(error);
+        observer.complete();
+      })
+    })
+  }
 }
 

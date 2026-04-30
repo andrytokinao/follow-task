@@ -494,3 +494,10 @@ export interface IssuePlanningSummary {
   remainingMinutes?: number;
   userStats: UserPlanningStat[];
 }
+export interface PercentageProposal {
+  proposed:number
+  lastKnown:number
+  averageStep:number
+  reason:String
+  candidates:number[]
+}

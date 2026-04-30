@@ -18,7 +18,7 @@ import {
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { Subject } from 'rxjs';
 import { takeUntil, finalize } from 'rxjs/operators';
-import {EventApp, Issue, EventTypeApp, User, Project} from '../../type/issue';
+import {EventApp, Issue, EventTypeApp, User, Project, PercentageProposal} from '../../type/issue';
 import { EventsService } from '../../services/events.service';
 import { IssueService } from '../../services/issue.service';
 import {AuthService} from "../../services/auth.service";
@@ -47,6 +47,7 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
   @Output() saved = new EventEmitter<EventApp>();
   @Output() onClose = new EventEmitter<boolean>();
   @Input() isNext:boolean = false;
+  percentageProposal: PercentageProposal;
 
 
 
@@ -72,6 +73,7 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
         },
         error: (err) => { console.error(err); }
       });
+    this.loadPropositionPercentage(issue.id.valueOf());
   }
   project:Project;
   editEventForm!: FormGroup;
@@ -321,4 +323,11 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
   private setDescription(event: EventApp) {
     this.description = event?.description || '';
   }
+  loadPropositionPercentage(issueId:number) {
+    this.percentageProposal = undefined;
+    this.eventService.proposeNextPercentage(issueId).subscribe(proposal => {
+      this.percentageProposal = proposal;
+    })
+  }
+
 }

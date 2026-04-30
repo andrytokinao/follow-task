@@ -4,25 +4,34 @@ import com.kinga.followtask.dto.PercentageProposalDTO;
 import com.kinga.followtask.entity.Issue;
 import com.kinga.followtask.entity.PlanningEvent;
 import com.kinga.followtask.entity.enumapp.ExecutionStatus;
+import com.kinga.followtask.repository.IssueRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Service
+@RequiredArgsConstructor
 public class PlanningEventProgressService {
-
+    private final IssueRepository issueRepository;
     /**
      * Calcule une proposition intelligente du prochain pourcentage
      * en analysant l'historique des events complétés de l'issue.
      */
+    public PercentageProposalDTO proposeNextPercentage(Long issueId) {
+        Issue issue = issueRepository.findById(issueId).orElse(null);
+        if (issue == null)
+            return null;
+        return proposeNextPercentage(issue);
+    }
     public PercentageProposalDTO proposeNextPercentage(Issue issue) {
 
         // 1. Récupérer tous les events de l'issue avec un % défini,
         //    triés du plus récent au plus ancien
         List<PlanningEvent> completedEvents = issue.getEvents().stream()
                 .filter(e -> e.getCompletionPercentage() != null)
-                .filter(e -> e.getExecutionStatus() == ExecutionStatus.COMPLETED
-                        || e.getExecutionStatus() == ExecutionStatus.POSTPONED)
+/*                .filter(e -> e.getExecutionStatus() == ExecutionStatus.COMPLETED
+                        || e.getExecutionStatus() == ExecutionStatus.POSTPONED)*/
                 .sorted(Comparator.comparing(PlanningEvent::getStart).reversed())
                 .toList();
 
