@@ -613,6 +613,9 @@ public class IssueService {
         issue.getChildren().forEach( is -> {
             deleteIssue(is.getId());
         });
+        issue.getLabels().forEach( l -> {
+            issueLabelsRepository.delete(l);
+        });
         issueRepository.delete(issue);
 
     }

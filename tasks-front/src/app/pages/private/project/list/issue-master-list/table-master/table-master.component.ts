@@ -47,7 +47,7 @@ export class TableMasterComponent implements OnInit{
   }
 
   delete(issue: Issue) {
-    this.essueService.deleteDocumentById(issue.id).subscribe( response => {
+    this.essueService.deleteIssue(issue.id).subscribe( response => {
       this.issueService.loadIssueMasters(null);
     })
   }
