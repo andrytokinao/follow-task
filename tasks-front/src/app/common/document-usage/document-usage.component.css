@@ -1,422 +1,130 @@
-/* ── Panel wrapper ─────────────────────────────── */
-:host {
-  display: block;
-}
-
-.du-panel {
-  display: flex;
-  flex-direction: column;
-  background: #ffffff;
-  border: 1px solid #e4e4e7;
-  border-radius: 12px;
-  overflow: hidden;
-  font-family: 'Inter', 'Segoe UI', sans-serif;
-  font-size: 13.5px;
-  color: #18181b;
-  max-width: 560px;
-  width: 100%;
-}
-
-/* ── Header ────────────────────────────────────── */
-.du-header {
+/* ── Stepper nav ───────────────────────────────── */
+.du-stepper-nav {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px 14px;
-  border-bottom: 1px solid #f1f1f4;
-  background: #fafafa;
+  padding: 16px 20px 0;
+  gap: 0;
 }
 
-.du-header-title {
+.du-step {
   display: flex;
   align-items: center;
   gap: 8px;
+  cursor: default;
+  flex: 1;
 }
 
-.du-icon {
-  display: flex;
-  align-items: center;
-  color: #6366f1;
+.du-step:last-child {
+  flex: none;
 }
 
-.du-title {
-  margin: 0;
-  font-size: 14px;
-  font-weight: 600;
-  color: #18181b;
-  letter-spacing: -0.01em;
-}
-
-.du-badge {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 3px 9px;
-  border-radius: 20px;
-  background: #eef2ff;
-  color: #4338ca;
-  letter-spacing: 0.01em;
-  text-transform: uppercase;
-}
-
-.du-badge--sub {
-  background: #f0fdf4;
-  color: #16a34a;
-}
-
-/* ── Document card ─────────────────────────────── */
-.du-doc-card {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 14px 20px 0;
-  padding: 9px 13px;
-  background: #f8f8fb;
-  border: 1px solid #e9e9ef;
-  border-radius: 8px;
-  color: #52525b;
-  font-size: 13px;
-}
-
-.du-doc-icon {
-  display: flex;
-  align-items: center;
-  color: #a1a1aa;
-  flex-shrink: 0;
-}
-
-.du-doc-name {
-  font-weight: 500;
-  color: #3f3f46;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* ── Body ──────────────────────────────────────── */
-.du-body {
-  padding: 16px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-/* ── Sections ──────────────────────────────────── */
-.du-section {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.du-section-label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: #3f3f46;
-  letter-spacing: 0.01em;
-}
-
-.du-section-hint {
-  margin: -4px 0 0;
-  font-size: 12px;
-  color: #a1a1aa;
-}
-
-.du-required {
-  color: #ef4444;
-  margin-left: 2px;
-}
-
-/* ── Search ────────────────────────────────────── */
-.du-search-wrap {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.du-search-icon {
-  position: absolute;
-  left: 10px;
-  display: flex;
-  align-items: center;
-  color: #a1a1aa;
-  pointer-events: none;
-}
-
-.du-search {
-  width: 100%;
-  padding: 8px 12px 8px 32px;
-  border: 1px solid #e4e4e7;
-  border-radius: 8px;
-  font-size: 13px;
-  color: #18181b;
-  background: #fff;
-  outline: none;
-  transition: border-color 0.15s;
-  box-sizing: border-box;
-}
-
-.du-search:focus {
-  border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.08);
-}
-
-.du-search::placeholder {
-  color: #c4c4cc;
-}
-
-/* ── Issue list ────────────────────────────────── */
-.du-issue-list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  max-height: 210px;
-  overflow-y: auto;
-  padding-right: 2px;
-}
-
-.du-issue-list::-webkit-scrollbar {
-  width: 4px;
-}
-.du-issue-list::-webkit-scrollbar-track {
-  background: transparent;
-}
-.du-issue-list::-webkit-scrollbar-thumb {
-  background: #e4e4e7;
-  border-radius: 4px;
-}
-
-.du-issue-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 9px 11px;
-  border: 1px solid #f4f4f5;
-  border-radius: 8px;
+.du-step--done {
   cursor: pointer;
-  transition: background 0.12s, border-color 0.12s;
-  background: #fff;
 }
 
-.du-issue-item:hover {
-  background: #fafafa;
-  border-color: #e4e4e7;
-}
-
-.du-issue-item--selected {
-  background: #eef2ff;
-  border-color: #c7d2fe;
-}
-
-.du-issue-item--selected:hover {
-  background: #e8ecff;
-}
-
-.du-issue-radio {
-  width: 16px;
-  height: 16px;
+.du-step-bubble {
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   border: 1.5px solid #d4d4d8;
   background: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  margin-top: 1px;
-  transition: border-color 0.12s;
-}
-
-.du-issue-item--selected .du-issue-radio {
-  border-color: #6366f1;
-  background: #6366f1;
-}
-
-.du-radio-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #fff;
-}
-
-.du-issue-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.du-issue-key {
   font-size: 11px;
-  font-weight: 600;
-  color: #6366f1;
-  letter-spacing: 0.03em;
-  font-family: 'JetBrains Mono', 'Fira Code', monospace;
-}
-
-.du-issue-item--selected .du-issue-key {
-  color: #4338ca;
-}
-
-.du-issue-summary {
-  font-size: 13px;
-  font-weight: 500;
-  color: #27272a;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.du-issue-status {
-  font-size: 11px;
+  font-weight: 700;
   color: #a1a1aa;
-}
-
-/* ── Usage chips ───────────────────────────────── */
-.du-usage-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
-}
-
-.du-usage-chip {
-  display: inline-flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 7px 12px;
-  border: 1px solid #e4e4e7;
-  border-radius: 8px;
-  cursor: pointer;
-  background: #fff;
-  transition: background 0.12s, border-color 0.12s;
-  min-width: 100px;
-  max-width: 180px;
-  position: relative;
-}
-
-.du-usage-chip:hover {
-  border-color: #c7d2fe;
-  background: #fafafe;
-}
-
-.du-usage-chip--selected {
-  background: #eef2ff;
-  border-color: #6366f1;
-}
-
-.du-chip-check {
-  position: absolute;
-  top: 6px;
-  right: 8px;
-  color: #6366f1;
-  display: flex;
-  align-items: center;
-}
-
-.du-chip-label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: #27272a;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.du-usage-chip--selected .du-chip-label {
-  color: #4338ca;
-}
-
-.du-chip-desc {
-  font-size: 11px;
-  color: #a1a1aa;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.du-usage-chip--selected .du-chip-desc {
-  color: #818cf8;
-}
-
-/* ── Empty state ───────────────────────────────── */
-.du-empty {
-  padding: 16px 0;
-  text-align: center;
-  font-size: 12.5px;
-  color: #c4c4cc;
-  font-style: italic;
-}
-
-/* ── Footer ────────────────────────────────────── */
-.du-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 20px 16px;
-  border-top: 1px solid #f1f1f4;
-  background: #fafafa;
-  gap: 12px;
-}
-
-.du-footer-left {
-  flex: 1;
-  min-width: 0;
-}
-
-.du-selection-summary {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 12px;
-  font-weight: 500;
-  color: #6366f1;
-  background: #eef2ff;
-  padding: 4px 10px;
-  border-radius: 20px;
-}
-
-.du-footer-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
   flex-shrink: 0;
+  transition: all 0.2s;
 }
 
-/* ── Buttons ───────────────────────────────────── */
-.du-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 14px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  border: none;
-  outline: none;
-  transition: background 0.13s, color 0.13s, opacity 0.13s;
-  white-space: nowrap;
-  font-family: inherit;
-}
-
-.du-btn--ghost {
-  background: transparent;
-  color: #52525b;
-  border: 1px solid #e4e4e7;
-}
-
-.du-btn--ghost:hover {
-  background: #f4f4f5;
-  border-color: #d4d4d8;
-}
-
-.du-btn--primary {
+.du-step--active .du-step-bubble {
+  border-color: #6366f1;
   background: #6366f1;
   color: #fff;
 }
 
-.du-btn--primary:hover:not(:disabled) {
-  background: #4f46e5;
+.du-step--done .du-step-bubble {
+  border-color: #6366f1;
+  background: #eef2ff;
+  color: #6366f1;
 }
 
-.du-btn--primary:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
+.du-step-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #a1a1aa;
+  white-space: nowrap;
+  transition: color 0.2s;
+}
+
+.du-step--active .du-step-label {
+  color: #6366f1;
+  font-weight: 600;
+}
+
+.du-step--done .du-step-label {
+  color: #52525b;
+}
+
+.du-step-line {
+  flex: 1;
+  height: 1px;
+  background: #e4e4e7;
+  margin: 0 8px;
+}
+
+/* ── Recap card ────────────────────────────────── */
+.du-recap-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
+  background: #f8f8fb;
+  border: 1px solid #e9e9ef;
+  border-radius: 10px;
+}
+
+.du-recap-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.du-recap-key {
+  font-size: 12px;
+  font-weight: 600;
+  color: #a1a1aa;
+  min-width: 72px;
+  padding-top: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.du-recap-val {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.du-recap-summary {
+  font-size: 13px;
+  font-weight: 500;
+  color: #27272a;
+}
+
+.du-recap-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.du-recap-usage-chip {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: #eef2ff;
+  color: #4338ca;
+  border: 1px solid #c7d2fe;
 }
