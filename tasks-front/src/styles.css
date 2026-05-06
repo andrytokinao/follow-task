@@ -1,5 +1,7 @@
 @import "@fortawesome/fontawesome-free/css/all.css";
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
+/* styles.scss global */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@600&display=swap');
 body, html {
   margin: 0;
   padding: 0;

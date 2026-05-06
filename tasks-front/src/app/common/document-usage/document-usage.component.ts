@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import {AfterViewInit, Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation} from '@angular/core';
 import { DocumentService } from "../../services/document.service";
 import { DocumentApp, DocumentUsageTypeMeta, Issue, IssuePlanningSummary } from "../../type/issue";
 import { IssueService } from "../../services/issue.service";
@@ -9,7 +9,8 @@ import { FormsModule } from "@angular/forms";
   selector: 'app-document-usage',
   imports: [CommonModule, FormsModule],
   templateUrl: './document-usage.component.html',
-  styleUrl: './document-usage.component.css'
+  styleUrl: './document-usage.component.css',
+  encapsulation: ViewEncapsulation.None
 })
 export class DocumentUsageComponent implements OnInit, AfterViewInit {
 
