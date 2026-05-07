@@ -64,4 +64,5 @@ type Query {
     getIssuePlanningSummary(issueId: ID!): IssuePlanningSummary
     getIssuePlanningSummaries(issueIds: [ID!]!): [IssuePlanningSummary!]!
     proposeNextPercentage(issueId:ID!):PercentageProposal
+    getAtachedDocumentIssue(documentId:ID):[IssueDocumentUsage]
 }

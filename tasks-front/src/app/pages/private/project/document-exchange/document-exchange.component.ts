@@ -7,9 +7,9 @@ import {UserService} from "../../../../services/user.service";
 import {
   DocumentApp,
   DocumentMember,
-  DocumentSearch,
+  DocumentSearch, DocumentUsageType,
   DocumentUsageTypeMeta,
-  Issue,
+  Issue, IssueDocumentUsage,
   Project,
   Uploaded,
   User
@@ -27,11 +27,15 @@ import {NewDocumentComponent} from "../modal/new-document/new-document.component
 })
 export class DocumentExchangeComponent implements OnInit , AfterViewInit {
 
-  @Input() projectId?: number;
+  @Input() projectId?: Number;
 
   documents: DocumentApp[] = [];
   selectedDocument: DocumentApp | null = null;
   selectedFile: Uploaded | null = null;
+  usingMasterIssue:IssueDocumentUsage[] = [];
+  usingIssue:IssueDocumentUsage[]= [];
+  usingOtherMasterIssue:IssueDocumentUsage[]= [];
+  usingOtherIssue:IssueDocumentUsage[]= [];
 
   replyText: string = '';
   pendingFiles: File[] = [];
@@ -72,6 +76,7 @@ export class DocumentExchangeComponent implements OnInit , AfterViewInit {
     '#6B5B95', '#D65C5C', '#2E8B57', '#4682B4'
   ];
   documentUsagetTypes: DocumentUsageTypeMeta[]= [];
+  private usages: IssueDocumentUsage[] = [];
 
   constructor(
     protected issueService: IssueService,
@@ -93,7 +98,8 @@ export class DocumentExchangeComponent implements OnInit , AfterViewInit {
     });
     this.documentService.exchangeContent$.subscribe(content=> {
       this.documents = content;
-    })
+    });
+    this.issueService.project$.subscribe(project=>this.projectId = project.id);
   }
 
   loadDocuments(): void {
@@ -146,7 +152,11 @@ export class DocumentExchangeComponent implements OnInit , AfterViewInit {
   get pageNumbers(): number[] { return Array.from({ length: this.totalPages }, (_, i) => i); }
 
   selectDoc(doc: DocumentApp): void {
-    this.selectedDocument = doc;
+    this.selectedDocument = undefined;
+    this.documentService.loadDocumentById(doc.id).subscribe(document => {
+      this.selectedDocument = document;
+      this.extractUsingIssue(document.issueUsages);
+    });
     this.replyText = '';
 
     if (this.connectedUser && !this.documentService.isRead(doc, this.connectedUser.id)) {
@@ -154,6 +164,7 @@ export class DocumentExchangeComponent implements OnInit , AfterViewInit {
         doc.readStatuses = updatedDoc.readStatuses;
       });
     }
+
   }
   isRead(doc: DocumentApp): boolean {
     return this.documentService.isRead(doc, this.connectedUser?.id);
@@ -354,10 +365,45 @@ export class DocumentExchangeComponent implements OnInit , AfterViewInit {
   onReplySaved(doc: DocumentApp) {
      this.documentService.loadDocumentById(doc.parent.id).subscribe(document => {
        this.selectedDocument = document;
+       this.extractUsingIssue(document.issueUsages);
      });
   }
 
   loadUsageProject() {
     // reload usage for project of the current document selected ;
+  }
+  extractUsingIssue(usingDocument: IssueDocumentUsage[]) {
+    if (!usingDocument) {
+      this.usingMasterIssue = [];
+      this.usingOtherMasterIssue = [];
+      this.usingIssue = [];
+      this.usingOtherIssue = [];
+      return;
+    }
+
+    // Issues maîtres = parent est null
+    // Issues enfants = parent n'est pas null
+    // "Mon espace" = issue.project.id === this.projectId
+    // "Autre espace" = issue.project.id !== this.projectId
+
+    this.usingMasterIssue = usingDocument.filter(u =>
+      u.issue?.parent == null &&
+      u.issue?.project?.id === this.projectId
+    );
+
+    this.usingOtherMasterIssue = usingDocument.filter(u =>
+      u.issue?.parent == null &&
+      u.issue?.project?.id !== this.projectId
+    );
+
+    this.usingIssue = usingDocument.filter(u =>
+      u.issue?.parent != null &&
+      u.issue?.project?.id === this.projectId
+    );
+
+    this.usingOtherIssue = usingDocument.filter(u =>
+      u.issue?.parent != null &&
+      u.issue?.project?.id !== this.projectId
+    );
   }
 }

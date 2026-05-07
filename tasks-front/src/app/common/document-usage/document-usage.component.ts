@@ -1,6 +1,6 @@
 import {AfterViewInit, Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation} from '@angular/core';
 import { DocumentService } from "../../services/document.service";
-import { DocumentApp, DocumentUsageTypeMeta, Issue, IssuePlanningSummary } from "../../type/issue";
+import {DocumentApp, DocumentUsageTypeMeta, Issue, IssueDocumentUsage, IssuePlanningSummary} from "../../type/issue";
 import { IssueService } from "../../services/issue.service";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
@@ -21,6 +21,7 @@ export class DocumentUsageComponent implements OnInit, AfterViewInit {
   // ── Data ───────────────────────────────────────────
   documentUsagesLabels: DocumentUsageTypeMeta[] = [];
   selectedUsages: DocumentUsageTypeMeta[] = [];
+  issueDocumentUsage:IssueDocumentUsage[] = [];
   selectedIssue: Issue;
   issueOptions: Issue[] = [];
   searchIssue = '';
@@ -46,6 +47,11 @@ export class DocumentUsageComponent implements OnInit, AfterViewInit {
 
   @Input() set documentApp(documentApp: DocumentApp) {
     this._document = documentApp;
+    this.issueDocumentUsage = null;
+    this.issueDocumentUsage = this._document.issueUsages;
+    this.selectIssue(null);
+    this.selectedUsages = [];
+
   }
 
   @Input() mode: 'MASTER' | 'SAB_TASK' = 'MASTER';
@@ -107,6 +113,19 @@ export class DocumentUsageComponent implements OnInit, AfterViewInit {
   // ── Issue selection ────────────────────────────────
   selectIssue(issue: Issue): void {
     this.selectedIssue = issue;
+    if (this.issueDocumentUsage) {
+      const matched = this.issueDocumentUsage.filter(
+        u => u.issue?.id === issue?.id
+      );
+
+      const usageValues = new Set<string>(
+        matched.flatMap(u => u.usages ?? [u.usageType])
+      );
+
+      this.selectedUsages = this.documentUsagesLabels.filter(
+        meta => usageValues.has(meta.value as string)
+      );
+    }
   }
 
   // ── Usage selection ────────────────────────────────

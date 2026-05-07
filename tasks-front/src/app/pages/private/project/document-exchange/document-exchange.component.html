@@ -7,7 +7,6 @@
       <input class="sb-search" type="text" [(ngModel)]="searchKeyword" placeholder="Rechercher…">
     </div>
 
-    <!-- Bouton fixe en haut, toujours visible au-dessus du scroll -->
     <div class="sb-new"
          [matMenuTriggerFor]="newDocument"
          #newDocumentTrigger="matMenuTrigger"
@@ -29,8 +28,8 @@
         <div class="sb-item-top">
           <span class="dept-badge" *ngIf="doc.project">{{ doc.project.prefix }}</span>
           <span class="own-badge" *ngIf="isOwnDocument(doc)">
-      <i class="fas fa-pen" style="font-size:9px"></i>
-    </span>
+            <i class="fas fa-pen" style="font-size:9px"></i>
+          </span>
           <b class="sb-title" [class.sb-title--unread]="!isRead(doc)">{{ doc.titre }}</b>
           <span class="badge-unread" *ngIf="unreadCount(doc) > 0">{{ unreadCount(doc) }}</span>
         </div>
@@ -47,14 +46,13 @@
             </ng-container>
           </div>
           <span class="proj-ref" *ngIf="doc.issues">{{ doc.issues.issueKey }}</span>
-          <!-- Indicateur "lu" discret -->
           <span class="read-indicator" *ngIf="isRead(doc) && !isOwnDocument(doc)" title="Lu">
-      <i class="fas fa-check-double"></i>
-    </span>
+            <i class="fas fa-check-double"></i>
+          </span>
           <span class="sb-date">{{ doc.creation | date:'dd MMM' }}</span>
           <span class="sb-menu-btn" (click)="$event.stopPropagation()">
-      <app-document-menu [document]="doc"></app-document-menu>
-    </span>
+            <app-document-menu [document]="doc"></app-document-menu>
+          </span>
         </div>
       </div>
     </div>
@@ -82,6 +80,7 @@
 
     <!-- En-tête -->
     <header class="main-header">
+
       <div class="mh-title-row">
         <span class="mh-title">{{ selectedDocument.titre }}</span>
         <span class="dept-pill" *ngIf="selectedDocument.project">
@@ -95,37 +94,79 @@
           par <strong>{{ selectedDocument.userApp?.username }}</strong>
         </span>
 
-        <div class="editable-field" #projField [matMenuTriggerFor]="usageDocumentMaster">
-          <span class="meta-label">Projet :</span>
-
-        </div>
-
-        <!-- Issue maître modifiable -->
-        <div class="editable-field" #issueField>
-          <span class="meta-label">Issue :</span>
-          <div class="field-val" [class.none]="!selectedDocument.issues" (click)="toggleIssueDD()">
-            <span class="field-key" *ngIf="selectedDocument.issues">{{ selectedDocument.issues.issueKey }}</span>
-            <span class="field-name">{{ selectedDocument.issues?.summary || '— Aucune' }}</span>
-            <i class="fas fa-pen edit-icon"></i>
-          </div>
-          <div class="dropdown" [class.hidden]="!showIssueDD">
-            <input class="dd-search" type="text" [(ngModel)]="issueSearch" placeholder="Rechercher issue…">
-            <div class="dd-none" (click)="selectIssue(null)">— Aucune issue</div>
-            <div class="dd-item"
-                 *ngFor="let iss of filteredIssues"
-                 [class.selected]="selectedDocument.issues?.id === iss.id"
-                 (click)="selectIssue(iss)">
-              <span class="dd-key">{{ iss.issueKey }}</span> {{ iss.summary }}
-            </div>
-          </div>
-        </div>
-
         <!-- Membres -->
         <div class="members-row">
-          <div class="av-lg" *ngFor="let m of selectedDocument.documentMembers | slice:0:4"
+          <div class="av-lg"
+               *ngFor="let m of selectedDocument.documentMembers | slice:0:4"
                [title]="m.user?.username">{{ initials(m.user) }}</div>
           <button class="btn-add-member" (click)="addMember()">+ Ajouter</button>
         </div>
+      </div>
+
+      <!-- Usage chips -->
+      <div class="usage-row">
+
+        <!-- Mon espace — Projets maîtres éditables -->
+        <ng-container *ngFor="let u of usingMasterIssue">
+          <span class="usage-chip usage-chip--editable"
+                [title]="u.issue?.issueKey + ' — ' + u.issue?.summary"
+                [matMenuTriggerFor]="usageDocumentMaster"
+                (click)="$event.stopPropagation()">
+            <span class="chip-type chip-type--project">Projet</span>
+            <span class="chip-key">{{ u.issue?.issueKey }}</span>
+            <span class="chip-summary">{{ u.issue?.summary }}</span>
+            <i class="fas fa-pen chip-icon"></i>
+          </span>
+        </ng-container>
+
+        <!-- Mon espace — Issues éditables -->
+        <ng-container *ngFor="let u of usingIssue">
+          <span class="usage-chip usage-chip--editable"
+                [title]="u.issue?.issueKey + ' — ' + u.issue?.summary"
+                [matMenuTriggerFor]="usageDocumentMaster"
+                (click)="$event.stopPropagation()">
+            <span class="chip-type chip-type--issue">Issue</span>
+            <span class="chip-key">{{ u.issue?.issueKey }}</span>
+            <span class="chip-summary">{{ u.issue?.summary }}</span>
+            <i class="fas fa-pen chip-icon"></i>
+          </span>
+        </ng-container>
+
+        <!-- Séparateur entre mon espace et autre espace -->
+        <div class="usage-sep"
+             *ngIf="(usingMasterIssue.length + usingIssue.length) > 0 &&
+                    (usingOtherMasterIssue.length + usingOtherIssue.length) > 0">
+        </div>
+
+        <!-- Autre espace — Projets maîtres lecture seule -->
+        <ng-container *ngFor="let u of usingOtherMasterIssue">
+          <span class="usage-chip usage-chip--readonly"
+                [title]="u.issue?.issueKey + ' — ' + u.issue?.summary + ' (autre espace)'">
+            <span class="chip-type chip-type--other">Projet</span>
+            <span class="chip-key chip-key--other">{{ u.issue?.issueKey }}</span>
+            <span class="chip-summary">{{ u.issue?.summary }}</span>
+            <i class="fas fa-lock chip-icon chip-icon--muted"></i>
+          </span>
+        </ng-container>
+
+        <!-- Autre espace — Issues lecture seule -->
+        <ng-container *ngFor="let u of usingOtherIssue">
+          <span class="usage-chip usage-chip--readonly"
+                [title]="u.issue?.issueKey + ' — ' + u.issue?.summary + ' (autre espace)'">
+            <span class="chip-type chip-type--other">Issue</span>
+            <span class="chip-key chip-key--other">{{ u.issue?.issueKey }}</span>
+            <span class="chip-summary">{{ u.issue?.summary }}</span>
+            <i class="fas fa-lock chip-icon chip-icon--muted"></i>
+          </span>
+        </ng-container>
+
+        <!-- Bouton associer -->
+        <button class="btn-add-chip"
+                [matMenuTriggerFor]="usageDocumentMaster"
+                (click)="$event.stopPropagation()">
+          <i class="fas fa-plus"></i> Associer
+        </button>
+
       </div>
     </header>
 
@@ -165,7 +206,7 @@
       </div>
 
       <!-- Réponses -->
-      <ng-container *ngFor="let resp of selectedDocument.responses" >
+      <ng-container *ngFor="let resp of selectedDocument.responses">
         <div class="msg reply" *ngIf="!resp.deleted">
           <div class="msg-av reply-av" [style.background]="avatarColor(resp.userApp)">
             {{ initials(resp.userApp) }}
@@ -196,13 +237,11 @@
 
     <!-- Zone de réponse -->
     <div class="compose">
-
       <app-new-document
         mode="reply"
         [parentDocument]="selectedDocument"
         (onSave)="onReplySaved($event)">
       </app-new-document>
-
     </div>
 
   </main>
@@ -217,6 +256,7 @@
 
 </div>
 
+<!-- Menu nouvelle demande -->
 <div (click)="$event.stopPropagation()">
   <mat-menu #newDocument="matMenu">
     <app-new-document
@@ -227,11 +267,13 @@
   </mat-menu>
 </div>
 
-<div  >
-  <mat-menu #usageDocumentMaster = "matMenu" (click)="$event.stopPropagation()">
+<!-- Menu usage (projets / issues) -->
+<div>
+  <mat-menu #usageDocumentMaster="matMenu" (click)="$event.stopPropagation()">
     <app-document-usage
       (onConfirmed)="loadUsageProject()"
-      [documentApp]="selectedDocument" [mode]="'MASTER'"
-    ></app-document-usage>
+      [documentApp]="selectedDocument"
+      [mode]="'MASTER'">
+    </app-document-usage>
   </mat-menu>
 </div>

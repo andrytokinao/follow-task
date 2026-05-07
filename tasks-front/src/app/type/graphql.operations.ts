@@ -1,5 +1,22 @@
 import {Apollo, gql} from "apollo-angular";
 
+export let GET_ATACHED_DOCUMENT_ISSUE = gql`
+  query getAtachedDocumentIssue($documentId:ID) {
+    getAtachedDocumentIssue(documentId: $documentId) {
+      document {
+        id
+      }
+      id
+      issue {
+        id
+        issueKey
+        summary
+      }
+      usages
+    }
+  }
+`;
+
 
 export let ATTACH_DOCUMENT_TO_ISSUE = gql`
     mutation attachDocumentToIssue($issueId:Int,$documentId:Int, $usages: [String]) {
@@ -2532,6 +2549,24 @@ export let LOAD_DOCUMENT_BY_ID =  gql`
           name
           path
           encodedPath
+        }
+      }
+      issueUsages {
+        issue {
+          id
+          issueKey
+          summary
+          parent {
+            id
+          }
+          project {
+            id
+            prefix
+          }
+        }
+        usages
+        document {
+          id
         }
       }
     }

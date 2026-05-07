@@ -654,6 +654,7 @@ type Document{
     parent:Document
     responses:[Document]
     deleted:Boolean
+    issueUsages:[IssueDocumentUsage]
 
 }
 type DocumentMember{
@@ -869,7 +870,8 @@ input IssueDocumentUsageInput {
 }
 type IssueDocumentUsage {
     id: ID!
-    usageType: String!
+    usageType: String
+    usages:[String]
     issue: Issue!
     document: Document!
 }

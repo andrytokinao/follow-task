@@ -129,4 +129,8 @@ public class DocumentService {
         documentUsageRepository.save(usage);
         return issueService.getIssuePlanningSummary(issueId);
     }
+
+    public List<IssueDocumentUsage> getAtachedDocumentIssue(Long documentId) {
+        return documentUsageRepository.findByDocumentId(documentId);
+    }
 }

@@ -5,7 +5,7 @@ import {
   DocumentMember,
   DocumentPage,
   DocumentSearch,
-  DocumentUsageTypeMeta,
+  DocumentUsageTypeMeta, IssueDocumentUsage,
   IssuePlanningSummary, Uploaded, User
 } from "../type/issue";
 import {Apollo} from "apollo-angular";
@@ -104,7 +104,7 @@ export class DocumentService {
     return new Observable<DocumentApp>();
   }
 
-  createDocument(projectId: number) {
+  createDocument(projectId: Number) {
     let docu :DocumentApp = {
       project:{id:projectId},
       description:'',
@@ -276,4 +276,20 @@ export class DocumentService {
     )
   }
 
+  getAtachedDocumentIssue(documentId:number) {
+    return new Observable<IssueDocumentUsage[]>(observer => {
+      this.apollo.query({
+        query:operation.GET_ATACHED_DOCUMENT_ISSUE,
+        variables:{documentId}
+      }).subscribe((res:any) => {
+        observer.next(supprimerTypename(res.data.getAtachedDocumentIssue));
+        observer.complete();
+      },error => {
+           observer.error(error);
+           console.error(error);
+           observer.complete();
+        }
+        )
+    })
+  }
 }

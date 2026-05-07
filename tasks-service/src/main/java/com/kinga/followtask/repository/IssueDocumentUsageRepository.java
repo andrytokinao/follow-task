@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface IssueDocumentUsageRepository extends JpaRepository<IssueDocumentUsage,Long> {
     List<IssueDocumentUsage> findByIssueIdAndDocumentId(Long issueId,Long documentId);
+
+    List<IssueDocumentUsage> findByDocumentId(Long documentId);
 }

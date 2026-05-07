@@ -330,6 +330,7 @@ export interface DocumentApp{
   responses?:DocumentApp[]
   deleted?:Boolean
   readStatuses?:DocumentReadStatus[]
+  issueUsages?:IssueDocumentUsage[]
 
 }
 export interface DocumentReadStatus {
@@ -351,6 +352,7 @@ export type DocumentUsageType =
 export interface IssueDocumentUsage {
   id: string;
   usageType: DocumentUsageType;
+  usages:DocumentUsageType[];
   issue: Issue;
   document: DocumentApp;
 }
