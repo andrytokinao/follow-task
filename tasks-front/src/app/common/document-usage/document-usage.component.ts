@@ -1,18 +1,29 @@
-import {AfterViewInit, Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation} from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  ViewChild,
+  ViewEncapsulation
+} from '@angular/core';
 import { DocumentService } from "../../services/document.service";
 import {DocumentApp, DocumentUsageTypeMeta, Issue, IssueDocumentUsage, IssuePlanningSummary} from "../../type/issue";
 import { IssueService } from "../../services/issue.service";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
+import {SpinnerButtonComponent} from "../spinner-button/spinner-button.component";
 
 @Component({
   selector: 'app-document-usage',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule,SpinnerButtonComponent],
   templateUrl: './document-usage.component.html',
   styleUrl: './document-usage.component.css',
   encapsulation: ViewEncapsulation.None
 })
 export class DocumentUsageComponent implements OnInit, AfterViewInit {
+  @ViewChild('saveBtn') saveBtn!: SpinnerButtonComponent;
 
   // ── Stepper state ──────────────────────────────────
   steps = ['Sélection', 'Usages', 'Confirmation'];
@@ -148,13 +159,18 @@ export class DocumentUsageComponent implements OnInit, AfterViewInit {
   }
 
   confirm(): void {
+    this.saveBtn.state = 'loading';
     if (!this.selectedIssue || this.selectedUsages.length === 0) return;
     this.documentService.attachDocumentToIssue(
       this.selectedIssue.id,
       this._document.id,
       this.selectedUsages.map(su => su.value)
     ).subscribe(issueStats => {
-      this.onConfirmed.emit(issueStats);
+          this.saveBtn.markSuccess(),
+        this.onConfirmed.emit(issueStats);
+    }, error => {
+      this.saveBtn.markError();
     });
   }
+
 }

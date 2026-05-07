@@ -368,8 +368,12 @@ export class DocumentExchangeComponent implements OnInit , AfterViewInit {
        this.extractUsingIssue(document.issueUsages);
      });
   }
-
   loadUsageProject() {
+    this.documentService.loadDocumentById(this.selectedDocument.id).subscribe(document => {
+      this.selectedDocument = document;
+      this.extractUsingIssue(document.issueUsages);
+    });
+    this.newDocumentTrigger.closeMenu();
     // reload usage for project of the current document selected ;
   }
   extractUsingIssue(usingDocument: IssueDocumentUsage[]) {

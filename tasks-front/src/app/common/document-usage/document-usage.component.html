@@ -202,15 +202,17 @@
       </button>
 
       <!-- Confirmer (step 2) -->
-      <button
-        class="du-btn du-btn--primary"
-        type="button"
+
+      <app-spinner-button
+        #saveBtn
+        label="Confirmer"
+        labelLoading="Envoi…"
+        icon="fas fa-paper-plane"
+        variant="primary"
         *ngIf="currentStep === steps.length - 1"
         [disabled]="!selectedIssue || selectedUsages.length === 0"
-        (click)="confirm()"
-      >
-        Confirmer
-      </button>
+        (clicked)="confirm()">
+      </app-spinner-button>
     </div>
   </div>
 
