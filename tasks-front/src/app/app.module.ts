@@ -1,4 +1,4 @@
-import { CUSTOM_ELEMENTS_SCHEMA, NgModule} from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule, isDevMode} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {appRoutes, AppRoutingModule} from "./app.routing.module";
 import {AppComponent} from "./app.component";
@@ -17,6 +17,7 @@ import {BrowserModule} from "@angular/platform-browser";
 import {GraphQLModule} from "./type/graphql.module";
 import {ProjectModule} from "./pages/private/project/project.module";
 import {NgbModule} from "@ng-bootstrap/ng-bootstrap";
+import { ServiceWorkerModule } from '@angular/service-worker';
 
 
 @NgModule({
@@ -53,6 +54,12 @@ import {NgbModule} from "@ng-bootstrap/ng-bootstrap";
       BrowserModule,
       HttpClientModule,
       GraphQLModule,
+      ServiceWorkerModule.register('ngsw-worker.js', {
+        enabled: !isDevMode(),
+        // Register the ServiceWorker as soon as the application is stable
+        // or after 30 seconds (whichever comes first).
+        registrationStrategy: 'registerWhenStable:30000'
+      }),
 
 
     ],
