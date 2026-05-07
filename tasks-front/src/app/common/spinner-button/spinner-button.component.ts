@@ -1,11 +1,12 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+import {CommonModule} from "@angular/common";
 
 export type SpinnerButtonVariant = 'primary' | 'danger' | 'outline' | 'success';
 export type SpinnerButtonState   = 'idle' | 'loading' | 'success' | 'error';
 
 @Component({
   selector: 'app-spinner-button',
-  imports:[],
+  imports:[CommonModule],
   template: `
     <button
       class="spin-btn"

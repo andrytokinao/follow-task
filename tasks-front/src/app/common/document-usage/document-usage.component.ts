@@ -57,6 +57,7 @@ export class DocumentUsageComponent implements OnInit, AfterViewInit {
   }
 
   @Input() set documentApp(documentApp: DocumentApp) {
+    this.currentStep = 0;
     this._document = documentApp;
     this.issueDocumentUsage = null;
     this.issueDocumentUsage = this._document.issueUsages;
