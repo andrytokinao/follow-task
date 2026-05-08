@@ -15,6 +15,10 @@
           "/*.css",
           "/*.js",
           "/assets/js/*.js"
+        ],
+        "urls": [
+          "https://fonts.googleapis.com/**",
+          "https://fonts.gstatic.com/**"
         ]
       }
     },
@@ -57,6 +61,8 @@
     "!/**/*.*",
     "!/**/*__*",
     "!/**/*__*/**",
-    "!/api/**"
+    "!/api/**",
+    "!/ws/**",
+    "!/sockjs-node/**"
   ]
 }
