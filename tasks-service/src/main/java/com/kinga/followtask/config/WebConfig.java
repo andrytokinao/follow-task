@@ -13,12 +13,10 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
 
-        // ngsw.json — toujours frais, c'est lui qui porte le hash de version
         registry.addResourceHandler("/ngsw.json")
                 .addResourceLocations("classpath:/static/")
                 .setCacheControl(CacheControl.noCache().mustRevalidate());
 
-        // tout le reste — cache long, le SW gère l'invalidation
         registry.addResourceHandler("/**")
                 .addResourceLocations("classpath:/static/")
                 .setCacheControl(CacheControl.maxAge(365, TimeUnit.DAYS).immutable());
