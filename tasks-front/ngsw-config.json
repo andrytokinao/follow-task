@@ -26,5 +26,17 @@
         ]
       }
     }
+  ],
+  "dataGroups": [
+    {
+      "name": "api-version",
+      "urls": ["/api/updates/check"],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 1,
+        "maxAge": "1m",
+        "timeout": "3s"
+      }
+    }
   ]
 }
