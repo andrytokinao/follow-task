@@ -19,6 +19,7 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 
 import { GraphQLModule } from "./type/graphql.module";
 import { ProjectModule } from "./pages/private/project/project.module";
+import {OverlayModule} from "@angular/cdk/overlay";
 
 @NgModule({
   declarations: [
@@ -34,6 +35,7 @@ import { ProjectModule } from "./pages/private/project/project.module";
     ProjectModule,
     NgbModule,
     GraphQLModule,
+    OverlayModule,
 
     ToastrModule.forRoot({
       positionClass: 'custom-toast-position',

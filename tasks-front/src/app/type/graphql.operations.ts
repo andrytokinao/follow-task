@@ -2080,6 +2080,7 @@ const SEARCH_EVENTS  = gql`
         lastName
         photo
       }
+      completionPercentage
 
     }
   }
@@ -2924,7 +2925,7 @@ export let DOCUMENT_USAGE_TYPES = gql`
   }
 `
 export const PROPOSE_NEXT_PERCENTEGE = gql`
-  query proposeNextPercentage($issueId:ID) {
+  query proposeNextPercentage($issueId:ID!) {
      proposeNextPercentage(issueId:$issueId) {
        proposed
        lastKnown

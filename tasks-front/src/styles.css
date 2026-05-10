@@ -767,3 +767,17 @@ h3 {
     }
   }
 }
+.planning-panel {
+.mat-mdc-menu-panel {
+  max-width: none !important;
+  max-height: 85vh !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12) !important;
+}
+
+.mat-mdc-menu-content {
+  padding: 0 !important;
+}
+}

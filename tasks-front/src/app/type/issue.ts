@@ -263,7 +263,8 @@ export interface EventApp {
   user?: User;
   issue?: Issue;
   dateValue?:CustomFieldValue;
-  project?:Project
+  project?:Project;
+  completionPercentage?:number
 }
 export interface EventSearchCriteria {
   userIds?:String[]

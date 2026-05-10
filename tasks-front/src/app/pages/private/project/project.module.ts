@@ -54,6 +54,7 @@ import {IconeViewComponent} from "../../../common/icone-view/icone-view.componen
 import {DocumentExchangeComponent} from "./document-exchange/document-exchange.component";
 import {DocumentUsageComponent} from "../../../common/document-usage/document-usage.component";
 import {SpinnerButtonComponent} from "../../../common/spinner-button/spinner-button.component";
+import {OverlayModule} from "@angular/cdk/overlay";
 
 @NgModule({
   declarations: [
@@ -121,7 +122,8 @@ import {SpinnerButtonComponent} from "../../../common/spinner-button/spinner-but
     UserAvatarComponent,
     IconeViewComponent,
     DocumentUsageComponent,
-    SpinnerButtonComponent
+    SpinnerButtonComponent,
+    OverlayModule
   ]
 })
 export class ProjectModule { }

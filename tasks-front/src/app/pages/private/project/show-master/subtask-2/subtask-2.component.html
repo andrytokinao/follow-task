@@ -165,7 +165,10 @@
   </app-new-issue-form>
 </mat-menu>
 
-<mat-menu #addPlanning="matMenu" >
+<mat-menu #addPlanning="matMenu" class="planning-panel"
+          overlapTrigger]="false"
+          xPosition="after"
+         >
   <app-edit-event  #newEventForm [byIssue]="true"
                   (saved)="closeEventForm()"
                   [selectedMaster]="parentIssue"

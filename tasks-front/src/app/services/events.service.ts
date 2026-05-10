@@ -487,7 +487,7 @@ export class EventsService {
         variables:{issueId},
         fetchPolicy:"network-only"
       }).subscribe( (res:any) => {
-        observer.next(res.data.proposeNextPercentage);
+        observer.next(supprimerTypename(res.data.proposeNextPercentage));
         observer.complete();
       }, error => {
         observer.error(error);

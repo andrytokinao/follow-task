@@ -18,6 +18,7 @@ import { MatMenuTrigger } from '@angular/material/menu';
 import { NewIssueFormComponent } from '../../../../../common/new-issue-form/new-issue-form.component';
 import { EventsService } from '../../../../../services/events.service';
 import { EditEventComponent } from '../../../../../common/edit-event/edit-event.component';
+import {ConnectedPosition} from "@angular/cdk/overlay";
 
 @Component({
   selector: 'app-subtask-2',
@@ -26,7 +27,17 @@ import { EditEventComponent } from '../../../../../common/edit-event/edit-event.
   styleUrl: './subtask-2.component.scss'
 })
 export class Subtask2Component implements OnInit {
-
+  planningOpen = false;
+  planningPositions: ConnectedPosition[] = [
+    // Priorité 1 : à droite du bouton, aligné en haut
+    { originX: 'end', originY: 'top', overlayX: 'start', overlayY: 'top' },
+    // Priorité 2 : à gauche si pas de place à droite
+    { originX: 'start', originY: 'top', overlayX: 'end', overlayY: 'top' },
+    // Priorité 3 : en dessous
+    { originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top' },
+    // Priorité 4 : au dessus
+    { originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom' },
+  ];
   // ── Data ────────────────────────────────────────────────────────
   protected parentIssue: Issue;
   subtasks: Issue[] = [];
@@ -156,6 +167,7 @@ export class Subtask2Component implements OnInit {
 
   onPlanningMenuOpened(): void {
     this.newEventForm.loadNextEvent(this.selectedTask);
+    this.planningOpen = true;
   }
 
   closeCreateSubtaskMenu(): void {
@@ -166,6 +178,7 @@ export class Subtask2Component implements OnInit {
   closeEventForm(): void {
     this.addPlanningTrigger.closeMenu();
     this.loadEvents();
+    this.planningOpen = false;
   }
 
   // ── Custom fields ───────────────────────────────────────────────

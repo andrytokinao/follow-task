@@ -1,159 +1,209 @@
-<div style="min-width: 520px" (click)="clickMenu($event)">
+<div class="event-panel" (click)="clickMenu($event)">
+
+  <!-- ── Header ─────────────────────────────────────────────── -->
   <div class="modal-header">
     <h4 class="modal-title">
-      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-        <rect x="2" y="3" width="12" height="11" rx="1.5"/><path d="M5 2v2M11 2v2M2 7h12"/>
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="2" y="3" width="12" height="11" rx="1.5"/>
+        <path d="M5 2v2M11 2v2M2 7h12"/>
       </svg>
-      Modifier l'événement
+      Planifier une exécution
     </h4>
-    <button type="button" class="btn-close" aria-label="Fermer" (click)="dismiss('close')"></button>
+    <button type="button" class="btn-close" aria-label="Fermer" (click)="dismiss('close')">×</button>
   </div>
 
-  <div class="modal-body">
+  <!-- ── Body scrollable ────────────────────────────────────── -->
+  <div >
+
+    <div *ngIf="loadingEvent" class="loading-overlay">
+      <div class="spinner"></div>
+    </div>
+
     <form [formGroup]="editEventForm" (ngSubmit)="onSubmit()" novalidate>
 
-      <!-- Titre -->
+
       <div class="form-group">
         <label for="title" class="form-label">Titre <span class="required">*</span></label>
-        <div class="field-wrap">
-          <input
-            type="text"
-            id="title"
-            class="form-control"
-            formControlName="title"
-            placeholder="Nom de l'événement"
-            maxlength="120"
-            autocomplete="off"
-            [ngClass]="{
-              'is-invalid': submitted && f['title'].invalid,
-              'is-valid': submitted && f['title'].valid
-            }"
-          />
-          <div *ngIf="submitted && f['title'].errors" class="invalid-feedback">
-            <ng-container *ngIf="f['title'].errors['required']">Le titre est obligatoire.</ng-container>
-            <ng-container *ngIf="f['title'].errors['minlength']">Minimum 3 caractères.</ng-container>
-          </div>
+        <input
+          type="text"
+          id="title"
+          class="form-control"
+          formControlName="title"
+          [placeholder]="titlePlaceholder"
+          maxlength="120"
+          autocomplete="off"
+          [ngClass]="{
+            'is-invalid': submitted && f['title'].invalid,
+            'is-valid':   submitted && f['title'].valid
+          }"
+        />
+        <div *ngIf="submitted && f['title'].errors" class="invalid-feedback">
+          <ng-container *ngIf="f['title'].errors['required']">Titre obligatoire.</ng-container>
+          <ng-container *ngIf="f['title'].errors['minlength']">Minimum 3 caractères.</ng-container>
         </div>
       </div>
 
-      <!-- Type d'événement -->
-      <!--<div class="form-group">
-      TODO: a etudier le type d'action
-        <label for="eventType" class="form-label">Type d'événement <span class="required">*</span></label>
-        <div class="type-selector">
-          <button
-            type="button"
-            *ngFor="let type of eventTypes"
-            class="type-chip"
-            [class.selected]="selectedEventType?.id === type.id"
-            [style.&#45;&#45;chip-color]="type.defaultColor || '#5b8cfa'"
-            (click)="selectEventType(type)"
-          >
-            <span class="chip-dot" [style.background]="type.defaultColor || '#5b8cfa'"></span>
-            {{ type.name }}
+      <!-- Tâche parente + Sous-tâche -->
+      <div class="two-col" *ngIf="!byIssue">
+        <div>
+          <div class="selector-label">Tâche parente</div>
+          <button type="button" class="selector-btn" [class.selected]="selectedMaster" [matMenuTriggerFor]="master_list">
+            <span *ngIf="selectedMaster">
+              <app-icone-view [icon]="selectedMaster.issueType.icone"></app-icone-view>
+              {{ selectedMaster.issueKey }} : {{ selectedMaster.summary }}
+            </span>
+            <span *ngIf="!selectedMaster" class="placeholder-text">Choisir…</span>
           </button>
         </div>
-        <div class="error-msg" *ngIf="submitted && !selectedEventType">
-          <svg viewBox="0 0 12 12" fill="currentColor" width="11" height="11">
-            <circle cx="6" cy="6" r="5"/>
-            <rect x="5.25" y="3" width="1.5" height="4" fill="white" rx="0.5"/>
-            <circle cx="6" cy="9" r="0.8" fill="white"/>
-          </svg>
-          Le type d'événement est obligatoire.
+        <div>
+          <div class="selector-label">Sous-tâche</div>
+          <button type="button" class="selector-btn" [class.selected]="selectedSubtask"
+                  [disabled]="!selectedMaster" [matMenuTriggerFor]="subtask_list">
+            <span *ngIf="selectedSubtask">
+              <app-icone-view [icon]="selectedSubtask.issueType.icone"></app-icone-view>
+              {{ selectedSubtask.issueKey }} : {{ selectedSubtask.summary }}
+            </span>
+            <span *ngIf="!selectedSubtask" class="placeholder-text">Choisir…</span>
+          </button>
         </div>
-      </div>-->
+      </div>
 
       <!-- Dates -->
-      <div class="row g-3 mb-3">
-        <div class="col-md-6">
+      <div class="section-label" style="margin-top:10px"><span>Période d'exécution</span></div>
+
+      <div class="two-col">
+        <div>
           <label for="start" class="form-label">Début <span class="required">*</span></label>
-          <input
-            type="datetime-local"
-            id="start"
-            class="form-control"
-            formControlName="start"
-            [ngClass]="{ 'is-invalid': submitted && f['start'].invalid, 'is-valid': submitted && f['start'].valid }"
-          />
+          <input type="datetime-local" id="start" class="form-control" formControlName="start"
+                 [ngClass]="{ 'is-invalid': submitted && f['start'].invalid, 'is-valid': submitted && f['start'].valid }" />
           <div *ngIf="submitted && f['start'].errors" class="invalid-feedback">Date de début requise.</div>
         </div>
-        <div class="col-md-6">
+        <div>
           <label for="end" class="form-label">Fin <span class="required">*</span></label>
-          <input
-            type="datetime-local"
-            id="end"
-            class="form-control"
-            formControlName="end"
-            [ngClass]="{
+          <input type="datetime-local" id="end" class="form-control" formControlName="end"
+                 [ngClass]="{
               'is-invalid': submitted && (f['end'].invalid || editEventForm.errors?.['endBeforeStart']),
-              'is-valid': submitted && f['end'].valid
-            }"
-          />
+              'is-valid':   submitted && f['end'].valid && !editEventForm.errors?.['endBeforeStart']
+            }" />
           <div *ngIf="submitted && f['end'].errors" class="invalid-feedback">Date de fin requise.</div>
           <div *ngIf="submitted && !f['end'].errors && editEventForm.errors?.['endBeforeStart']" class="invalid-feedback">
-            La fin doit être après le début.
+            Fin doit être après le début.
           </div>
         </div>
       </div>
 
-      <!-- Sélecteurs projet / tâche -->
-      <div class="row g-3 mb-3" *ngIf="!byIssue">
-        <div class="col-md-6">
-          <div class="selector-label">Projet</div>
-          <button type="button" class="selector-btn" [class.selected]="selectedMaster" [matMenuTriggerFor]="master_list">
-            <span *ngIf="selectedMaster">{{ selectedMaster.issueKey }} : {{ selectedMaster.summary }}</span>
-            <span *ngIf="!selectedMaster" class="placeholder-text">Choisir un projet</span>
-          </button>
+      <!-- Avancement — uniquement si proposal disponible -->
+      <ng-container *ngIf="percentageProposal">
+
+        <div class="section-label" style="margin-top:10px"><span>Avancement</span></div>
+
+        <div class="completion-card">
+
+          <div class="completion-header">
+            <div class="completion-meta">
+              <span class="completion-title">Complétion après cette session</span>
+              <span class="completion-info">
+                <ng-container *ngIf="percentageProposal.lastKnown != null">
+                  Dernier : <strong>{{ percentageProposal.lastKnown }}%</strong>
+                </ng-container>
+                <ng-container *ngIf="percentageProposal.lastKnown != null && percentageProposal.averageStep != null">
+                  &nbsp;·&nbsp;
+                </ng-container>
+                <ng-container *ngIf="percentageProposal.averageStep != null">
+                  Moy. +{{ percentageProposal.averageStep }}%
+                </ng-container>
+                <ng-container *ngIf="percentageProposal.lastKnown == null && percentageProposal.averageStep == null">
+<!--
+                  Première exécution
+-->
+                </ng-container>
+              </span>
+            </div>
+            <div class="completion-value">{{ completionPercentage }}%</div>
+          </div>
+
+          <!-- Slider -->
+          <div class="slider-row">
+            <span class="slider-bound">0</span>
+            <input
+              type="range"
+              class="completion-slider"
+              min="0" max="100" step="5"
+              [value]="completionPercentage"
+              (input)="onSliderChange($event)"
+            />
+            <span class="slider-bound">100</span>
+          </div>
+
+          <!-- Chips -->
+          <div class="chips-row">
+            <button
+              type="button"
+              class="chip"
+              *ngFor="let c of percentageProposal.candidates"
+              [class.active]="completionPercentage === c"
+              [class.proposed]="c === percentageProposal.proposed"
+              (click)="applyCandidate(c)"
+            >
+              <span *ngIf="c === percentageProposal.proposed" class="chip-badge">✦</span>
+              {{ c }}%
+            </button>
+            <button
+              type="button"
+              class="chip chip-done"
+              [class.active]="completionPercentage === 100"
+              (click)="applyCandidate(100)"
+            >✓ Terminée</button>
+          </div>
+
+          <div class="completion-reason" *ngIf="percentageProposal.reason">
+            <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+              <circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.2"/>
+              <path d="M6 5v3M6 3.5v.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+            </svg>
+            {{ percentageProposal.reason }}
+          </div>
+
         </div>
-        <div class="col-md-6">
-          <div class="selector-label">Tâche</div>
-          <button
-            type="button"
-            class="selector-btn"
-            [class.selected]="selectedSubtask"
-            [disabled]="!selectedMaster"
-            [matMenuTriggerFor]="subtask_list"
-          >
-            <span *ngIf="selectedSubtask">{{ selectedSubtask.issueKey }} : {{ selectedSubtask.summary }}</span>
-            <span *ngIf="!selectedSubtask" class="placeholder-text">Choisir une tâche</span>
-          </button>
-        </div>
-      </div>
+      </ng-container>
 
       <!-- Description -->
-      <div class="form-group mb-3">
-        <label class="form-label">
-          Description
-          <span class="char-hint">{{ description.length }} / 500</span>
-        </label>
-        <app-quill-editor [(content)]="description" [theme]="'snow'"></app-quill-editor>
-      </div><
+      <div class="section-label" style="margin-top:10px"><span>Notes de session</span></div>
 
-      <!-- Footer actions -->
+      <div class="form-group">
+        <app-quill-editor [(content)]="description" [theme]="'snow'"></app-quill-editor>
+      </div>
+
+      <!-- Actions -->
       <div class="form-actions">
         <button type="button" class="btn btn-outline" (click)="dismiss('cancel')">Annuler</button>
-        <button type="submit" class="btn btn-primary">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
+        <button type="submit" class="btn btn-primary" [disabled]="loading">
+          <span *ngIf="loading" class="btn-spinner"></span>
+          <svg *ngIf="!loading" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M2 6l3 3 5-5"/>
           </svg>
-          Enregistrer
+          {{ loading ? 'Enregistrement…' : 'Enregistrer' }}
         </button>
       </div>
+
     </form>
-
-    <mat-menu #master_list="matMenu" yPosition="below" xPosition="after" class="master-breadcrumb">
-      <ul class="navigation-list">
-        <li *ngFor="let im of masters" (click)="selectMaster(im)">
-          <a><app-icone-view [icon]="im.issueType.icone"></app-icone-view> {{ im.issueKey }} : {{ im.summary }}</a>
-        </li>
-      </ul>
-    </mat-menu>
-
-    <mat-menu #subtask_list="matMenu" yPosition="below" xPosition="after" class="master-breadcrumb">
-      <ul class="navigation-list">
-        <li *ngFor="let im of subtasksList" (click)="selectSubtask(im)">
-          <a><app-icone-view [icon]="im.issueType.icone"></app-icone-view> {{ im.issueKey }} : {{ im.summary }}</a>
-        </li>
-      </ul>
-    </mat-menu>
   </div>
+
+  <!-- Menus -->
+  <mat-menu #master_list="matMenu" yPosition="below" xPosition="after" class="master-breadcrumb">
+    <ul class="navigation-list">
+      <li *ngFor="let im of masters" (click)="selectMaster(im)">
+        <a><app-icone-view [icon]="im.issueType.icone"></app-icone-view> {{ im.issueKey }} : {{ im.summary }}</a>
+      </li>
+    </ul>
+  </mat-menu>
+
+  <mat-menu #subtask_list="matMenu" yPosition="below" xPosition="after" class="master-breadcrumb">
+    <ul class="navigation-list">
+      <li *ngFor="let im of subtasksList" (click)="selectSubtask(im)">
+        <a><app-icone-view [icon]="im.issueType.icone"></app-icone-view> {{ im.issueKey }} : {{ im.summary }}</a>
+      </li>
+    </ul>
+  </mat-menu>
+
 </div>
