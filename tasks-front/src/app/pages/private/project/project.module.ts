@@ -53,6 +53,7 @@ import {UserAvatarComponent} from "../../../common/user-avatar/user-avatar.compo
 import {IconeViewComponent} from "../../../common/icone-view/icone-view.component";
 import {DocumentExchangeComponent} from "./document-exchange/document-exchange.component";
 import {DocumentUsageComponent} from "../../../common/document-usage/document-usage.component";
+import {SpinnerButtonComponent} from "../../../common/spinner-button/spinner-button.component";
 
 @NgModule({
   declarations: [
@@ -82,7 +83,7 @@ import {DocumentUsageComponent} from "../../../common/document-usage/document-us
     RepartitionComponent,
     ProjectComponent, ShowIssueOptionComponent,
     ShowIssueFullOptionComponent,
-    ExchangeDocumentsComponent
+    ExchangeDocumentsComponent,
   ],
   imports: [
     ProjectRoutingModule,
@@ -119,7 +120,8 @@ import {DocumentUsageComponent} from "../../../common/document-usage/document-us
     DashboardModule,
     UserAvatarComponent,
     IconeViewComponent,
-    DocumentUsageComponent
+    DocumentUsageComponent,
+    SpinnerButtonComponent
   ]
 })
 export class ProjectModule { }
