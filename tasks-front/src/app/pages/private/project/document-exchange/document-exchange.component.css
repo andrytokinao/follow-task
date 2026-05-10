@@ -2,6 +2,7 @@
   display: block;
   font-family: 'Segoe UI', system-ui, sans-serif;
   font-size: 13px;
+  width: 100%;
   color: #1a1a1a;
 }
 
@@ -677,7 +678,6 @@
 
 /* État actif : toujours prioritaire, effacer l'opacité du "lu" */
 .sb-item.active {
-  background: #E6F1FB !important;
   border-left: 3px solid #378ADD !important;
   opacity: 1 !important;
 }
@@ -776,3 +776,4 @@
   transition: border-color 0.1s, color 0.1s;
 }
 .btn-add-chip:hover { border-color: #378ADD; color: #378ADD; }
+

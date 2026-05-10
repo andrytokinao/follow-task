@@ -1,80 +1,375 @@
-<div class="nd-overlay"
-     [class.nd-overlay--inline]="mode === 'reply'"
+<div class="nd-wrap"
      (dragover)="onDragOver($event)"
      (drop)="onDrop($event)"
      (click)="$event.stopPropagation()">
 
-  <!-- Header -->
-  <div class="nd-header" *ngIf="mode === 'create'">
-    <div class="nd-header-left">
-      <span class="nd-icon">⊕</span>
-      <span class="nd-title">Composer une demande</span>
-    </div>
-    <button class="nd-btn-icon" type="button" (click)="close()">✕</button>
-  </div>
+  <!-- ══════════════════════════════════════════
+       MODE CREATE → Stepper 3 étapes
+  ══════════════════════════════════════════ -->
+  <ng-container *ngIf="mode === 'create'">
 
-  <div class="nd-body">
-
-    <div class="nd-section" *ngIf="mode === 'create'">
-      <label class="nd-label required">Département / Équipe</label>
-      <div class="nd-radio-group">
-        <label
-          *ngFor="let p of projects"
-          class="nd-radio-item"
-          [class.active]="newDocument.project?.id === p.id">
-          <input
-            type="radio"
-            name="project"
-            [value]="p.id"
-            [checked]="newDocument.project?.id === p.id"
-            (change)="selectProject(p)"
-          />
-          <span class="nd-radio-dot"></span>
-          <span class="nd-radio-prefix">{{ p.prefix }}</span>
-          <span class="nd-radio-name">{{ p.name }}</span>
-        </label>
+    <!-- ── Header stepper ── -->
+    <div class="nd-header">
+      <div class="nd-header-top">
+        <div class="nd-header-left">
+          <div class="nd-icon-wrap">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                 stroke="#185FA5" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+          </div>
+          <div>
+            <div class="nd-title">Nouvelle demande</div>
+            <div class="nd-subtitle">{{ subtitles[currentStep] }}</div>
+          </div>
+        </div>
+        <button class="nd-close-btn" type="button"
+                (click)="close()" aria-label="Fermer">✕</button>
       </div>
-      <p class="nd-hint" *ngIf="!newDocument.project">Sélectionnez un département ou une équipe.</p>
-    </div>
 
-    <!-- Titre -->
-    <div class="nd-section" *ngIf="mode === 'create'" >
-      <label class="nd-label">Sujet </label>
-      <input
-        class="nd-input"
-        type="text"
-        placeholder="Sujet de votre demande…"
-        [(ngModel)]="newDocument.titre"
-        [ngModelOptions]="{standalone: true}"
-      />
-    </div>
+      <!-- ── Stepper ── -->
+      <div class="nd-steps">
+        <ng-container *ngFor="let s of steps; let i = index">
+          <div class="nd-step"
+               [class.active]="currentStep === i"
+               [class.done]="currentStep > i"
+               (click)="currentStep > i && goTo(i)">
 
-    <!-- Membres -->
-    <div class="nd-section" *ngIf="mode === 'create'">
-      <label class="nd-label">Membres</label>
-      <div class="nd-members">
-        <label
-          *ngFor="let user of userToSelect"
-          class="nd-member-item"
-          [class.checked]="isSelectedUser(user.id)"
-          [attr.for]="'user-' + user.id">
+            <div class="nd-step-row">
 
-          <input
-            type="checkbox"
-            [id]="'user-' + user.id"
-            [checked]="isSelectedUser(user.id)"
-            (change)="selectUser($event, user)"
-            hidden
-          />
+              <!-- ligne gauche -->
+              <div class="nd-step-line"
+                   [class.filled]="currentStep > i"
+                   *ngIf="i > 0">
+              </div>
 
-          <span class="nd-avatar">{{ user.username?.charAt(0) | uppercase }}</span>
-          <span class="nd-member-name">{{ user.username }}</span>
-          <span class="nd-check">✓</span>
-        </label>
+              <!-- cercle -->
+              <div class="nd-step-circle">
+                <!-- done : checkmark -->
+                <svg *ngIf="currentStep > i" viewBox="0 0 24 24">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <!-- étape 1 : bâtiment -->
+                <svg *ngIf="currentStep <= i && i === 0" viewBox="0 0 24 24">
+                  <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                  <path d="M9 22V12h6v10M3 9h18"></path>
+                </svg>
+                <!-- étape 2 : utilisateurs -->
+                <svg *ngIf="currentStep <= i && i === 1" viewBox="0 0 24 24">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                <!-- étape 3 : fichier texte -->
+                <svg *ngIf="currentStep <= i && i === 2" viewBox="0 0 24 24">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                </svg>
+              </div>
+
+              <!-- ligne droite -->
+              <div class="nd-step-line"
+                   [class.filled]="currentStep > i"
+                   *ngIf="i < steps.length - 1">
+              </div>
+
+            </div>
+
+            <div class="nd-step-info">
+              <div class="nd-step-label">{{ s.label }}</div>
+              <div class="nd-step-desc">{{ s.desc }}</div>
+            </div>
+
+          </div>
+        </ng-container>
+      </div>
+
+      <!-- barre de progression -->
+      <div class="nd-progress-bar">
+        <div class="nd-progress-fill"
+             [style.width.%]="currentStep / (steps.length - 1) * 100">
+        </div>
       </div>
     </div>
 
-    <!-- Description -->
+    <!-- ── Body stepper ── -->
+    <div class="nd-body">
+
+      <!-- ─────────────────────────
+           ÉTAPE 1 — Équipe
+      ───────────────────────── -->
+      <ng-container *ngIf="currentStep === 0">
+        <div class="nd-section">
+          <label class="nd-label">Département / Équipe</label>
+          <div class="nd-search-wrap">
+            <span class="nd-search-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </span>
+            <input class="nd-search"
+                   type="text"
+                   placeholder="Rechercher une équipe…"
+                   [(ngModel)]="teamSearch"
+                   [ngModelOptions]="{standalone: true}" />
+          </div>
+          <div class="nd-radio-group">
+            <div *ngFor="let p of filteredProjects"
+                 class="nd-radio-item"
+                 [class.active]="newDocument.project?.id === p.id"
+                 (click)="selectProject(p)">
+              <span class="nd-radio-dot"></span>
+              <span class="nd-radio-prefix">{{ p.prefix }}</span>
+              <span class="nd-radio-name">{{ p.name }}</span>
+              <span class="nd-radio-desc">{{ p.description }}</span>
+            </div>
+            <p class="nd-empty" *ngIf="filteredProjects.length === 0">
+              Aucun résultat.
+            </p>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- ─────────────────────────
+           ÉTAPE 2 — Membres
+      ───────────────────────── -->
+      <ng-container *ngIf="currentStep === 1">
+        <div class="nd-section">
+          <label class="nd-label">Destinataires</label>
+
+          <!-- badges sélectionnés -->
+          <div class="nd-badges" *ngIf="selectedUsers.length > 0">
+            <span *ngFor="let uid of selectedUsers" class="nd-badge">
+              {{ getUserName(uid) }}
+            </span>
+          </div>
+
+          <div class="nd-search-wrap">
+            <span class="nd-search-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </span>
+            <input class="nd-search"
+                   type="text"
+                   placeholder="Rechercher un membre…"
+                   [(ngModel)]="memberSearch"
+                   [ngModelOptions]="{standalone: true}" />
+          </div>
+
+          <div class="nd-members">
+            <div *ngFor="let u of filteredUsers"
+                 class="nd-member-item"
+                 [class.checked]="isSelectedUser(u.id)"
+                 (click)="toggleUserById(u.id)">
+              <span class="nd-avatar">
+                {{ u.username?.charAt(0) | uppercase }}{{ u.username?.split(' ')[1]?.charAt(0) | uppercase }}
+              </span>
+              <span>{{ u.username }}</span>
+              <svg *ngIf="isSelectedUser(u.id)"
+                   width="11" height="11" viewBox="0 0 24 24" fill="none"
+                   stroke="#2563eb" stroke-width="3"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+            <p class="nd-empty" *ngIf="filteredUsers.length === 0">
+              Aucun résultat.
+            </p>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- ─────────────────────────
+           ÉTAPE 3 — Sujet + Contenu + Fichiers
+      ───────────────────────── -->
+      <ng-container *ngIf="currentStep === 2">
+        <ng-container *ngTemplateOutlet="tplContenu"></ng-container>
+      </ng-container>
+
+    </div>
+
+    <!-- ── Footer stepper ── -->
+    <div class="nd-footer">
+      <span class="nd-hint">{{ hints[currentStep] }}</span>
+      <div class="nd-footer-right">
+        <button class="nd-btn ghost"
+                type="button"
+                *ngIf="currentStep > 0"
+                (click)="prevStep()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          Précédent
+        </button>
+        <button class="nd-btn primary"
+                type="button"
+                *ngIf="currentStep < steps.length - 1"
+                [disabled]="!isStepValid()"
+                (click)="nextStep()">
+          Suivant
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </button>
+        <button class="nd-btn primary"
+                type="button"
+                *ngIf="currentStep === steps.length - 1"
+                [disabled]="!isFormValid()"
+                (click)="saveDocument()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+          Envoyer
+        </button>
+      </div>
+    </div>
+
+  </ng-container>
+
+
+  <!-- ══════════════════════════════════════════
+       MODE REPLY → Formulaire simple
+  ══════════════════════════════════════════ -->
+  <ng-container *ngIf="mode === 'reply'">
+
+    <!--<div class="nd-header nd-header&#45;&#45;simple">
+      <div class="nd-header-left">
+        <div class="nd-icon-wrap">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+               stroke="#185FA5" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 17 4 12 9 7"></polyline>
+            <path d="M20 18v-2a4 4 0 0 0-4-4H4"></path>
+          </svg>
+        </div>
+        <div>
+          <div class="nd-title">Répondre</div>
+          <div class="nd-subtitle" *ngIf="parentDocument?.titre">
+            Re : {{ parentDocument.titre }}
+          </div>
+        </div>
+      </div>
+      <button class="nd-close-btn" type="button"
+              (click)="close()" aria-label="Fermer">✕</button>
+    </div>-->
+
+    <div class="nd-body">
+      <ng-container *ngTemplateOutlet="tplContenu"></ng-container>
+    </div>
+
+    <div class="nd-footer">
+      <span class="nd-hint"></span>
+      <div class="nd-footer-right">
+        <button class="nd-btn ghost" type="button" (click)="close()">
+          Annuler
+        </button>
+        <button class="nd-btn primary"
+                type="button"
+                [disabled]="!isFormValid()"
+                (click)="saveDocument()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 17 4 12 9 7"></polyline>
+            <path d="M20 18v-2a4 4 0 0 0-4-4H4"></path>
+          </svg>
+          Répondre
+        </button>
+      </div>
+    </div>
+
+  </ng-container>
+
+
+  <!-- ══════════════════════════════════════════
+       MODE COMMENT → Formulaire simple
+  ══════════════════════════════════════════ -->
+  <ng-container *ngIf="mode === 'comment'">
+
+    <div class="nd-header nd-header--simple">
+      <div class="nd-header-left">
+        <div class="nd-icon-wrap">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+               stroke="#185FA5" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+        </div>
+        <div>
+          <div class="nd-title">Commenter</div>
+        </div>
+      </div>
+      <button class="nd-close-btn" type="button"
+              (click)="close()" aria-label="Fermer">✕</button>
+    </div>
+
+    <div class="nd-body">
+      <ng-container *ngTemplateOutlet="tplContenu"></ng-container>
+    </div>
+
+    <div class="nd-footer">
+      <span class="nd-hint"></span>
+      <div class="nd-footer-right">
+        <button class="nd-btn ghost" type="button" (click)="close()">
+          Annuler
+        </button>
+        <button class="nd-btn primary"
+                type="button"
+                [disabled]="!isFormValid()"
+                (click)="saveDocument()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+          Commenter
+        </button>
+      </div>
+    </div>
+
+  </ng-container>
+
+
+  <!-- ══════════════════════════════════════════
+       TEMPLATE PARTAGÉ
+       Sujet (create only) + Contenu + Fichiers
+  ══════════════════════════════════════════ -->
+  <ng-template #tplContenu>
+
+    <!-- Sujet — visible uniquement en mode create -->
+    <div class="nd-section" *ngIf="mode === 'create'">
+      <label class="nd-label">Sujet</label>
+      <input class="nd-input"
+             type="text"
+             placeholder="Sujet de votre demande…"
+             [(ngModel)]="newDocument.titre"
+             [ngModelOptions]="{standalone: true}" />
+    </div>
+
+    <div class="nd-divider" *ngIf="mode === 'create'"></div>
+
+    <!-- Contenu -->
     <div class="nd-section">
       <label class="nd-label">Contenu</label>
       <div class="nd-editor-wrap">
@@ -82,39 +377,65 @@
       </div>
     </div>
 
-    <!-- Zone fichiers -->
+    <div class="nd-divider"></div>
+
+    <!-- Fichiers -->
     <div class="nd-section">
-      <div class="nd-dropzone" (click)="fileInput.click()">
-        <input type="file" multiple (change)="onFileSelected($event)" hidden #fileInput />
-        <span class="nd-drop-icon">↑</span>
-        <span class="nd-drop-text">Glissez ou cliquez pour ajouter des fichiers</span>
+      <label class="nd-label">
+        Fichiers joints
+        <span class="nd-optional"> — optionnel</span>
+      </label>
+
+      <div class="nd-dropzone"
+           (click)="fileInput.click()"
+           (dragover)="onDragOver($event)"
+           (drop)="onDrop($event)"
+           role="button"
+           tabindex="0"
+           (keydown.enter)="fileInput.click()"
+           aria-label="Ajouter des fichiers">
+        <input type="file"
+               multiple
+               (change)="onFileSelected($event)"
+               hidden
+               #fileInput />
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="16 16 12 12 8 16"></polyline>
+          <line x1="12" y1="12" x2="12" y2="21"></line>
+          <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path>
+        </svg>
+        <span>Glissez ou cliquez pour ajouter des fichiers</span>
       </div>
 
       <div class="nd-file-list" *ngIf="uploadings.length > 0">
-        <div
-          *ngFor="let up of uploadings; let i = index"
-          class="nd-file-item"
-          [ngClass]="up.status">
-          <span class="nd-file-icon">📄</span>
-          <span class="nd-file-name clamp clamp-1">{{ up.file.name }}</span>
-          <span class="nd-file-status">{{ up.status }}</span>
-          <button class="nd-btn-icon sm" type="button" (click)="removeFile(i)">✕</button>
+        <div *ngFor="let up of uploadings; let i = index"
+             class="nd-file-item"
+             [ngClass]="up.status">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+               stroke="#9ca3af" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+            <polyline points="13 2 13 9 20 9"></polyline>
+          </svg>
+          <span class="nd-file-name">{{ up.file.name }}</span>
+          <span class="nd-file-status" *ngIf="up.status">{{ up.status }}</span>
+          <button class="nd-file-rm"
+                  type="button"
+                  (click)="removeFile(i)"
+                  [attr.aria-label]="'Supprimer ' + up.file.name">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
         </div>
       </div>
     </div>
 
-  </div>
-
-  <!-- Footer -->
-  <div class="nd-footer">
-    <button class="nd-btn secondary" type="button" (click)="close()">Annuler</button>
-    <button
-      class="nd-btn primary"
-      type="button"
-      [disabled]="!isFormValid()"
-      (click)="saveDocument()">
-      Envoyer
-    </button>
-  </div>
+  </ng-template>
 
 </div>
