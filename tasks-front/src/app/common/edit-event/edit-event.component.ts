@@ -50,6 +50,7 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
 
   percentageProposal: PercentageProposal | undefined;
   completionPercentage: number = 0;
+  _description:string ='';
 
   project: Project;
   editEventForm!: FormGroup;
@@ -59,10 +60,12 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
   user: User;
 
   get description(): string {
-    return this.event?.description || '';
+    return this._description || '';
+
   }
   set description(value: string) {
     if (this.event) this.event.description = value;
+    this._description = value;
   }
 
   masters:      Issue[] = [];
@@ -194,11 +197,13 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
 
   loadNextEvent(issue: Issue): void {
     this.loadingEvent = true;
+    takeUntil(this.destroy$);
     this.eventService.loadNextEvent()
       .pipe(takeUntil(this.destroy$), finalize(() => this.loadingEvent = false))
       .subscribe({
         next: (event) => {
           this.event = event;
+          alert(JSON.stringify(event));
           this.event.issue = { id: issue.id, summary: issue.summary, issueType: issue.issueType };
           this.setDescription(event);
           this._patchForm(event);
@@ -296,7 +301,7 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
       .subscribe({
         next: (proposal) => {
           this.percentageProposal  = proposal;
-          this.completionPercentage = proposal.proposed;
+         this.completionPercentage = proposal.proposed;
         },
         error: (err) => { console.error('Proposition percentage error:', err); }
       });
@@ -329,7 +334,7 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
       end:                  formValue.end,
       allDay:               false,
       user:                 this.user,
-      description:          formValue.description,
+      description:          this._description,
       eventType:            { id: this.selectedEventType.id, name: this.selectedEventType.name },
       project:              { id: this.project.id },
       completionPercentage: this.completionPercentage,

@@ -246,10 +246,9 @@ export class Subtask2Component implements OnInit {
   }
 
   // ── Event actions ────────────────────────────────────────────────
-  editEvent(ev: EventApp, mouseEvent: MouseEvent): void {
-    mouseEvent.stopPropagation();
-    if (this.editEventForm) this.editEventForm.loadEvent(ev.id);
-    this.editEventMenuTrigger?.openMenu();
+  editEvent(ev: EventApp): void {
+    if (this.editEventForm)
+      this.editEventForm.loadEvent(ev.id);
   }
 
   deleteEvent(ev: EventApp, mouseEvent: MouseEvent): void {

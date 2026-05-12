@@ -92,8 +92,7 @@
         </div>
       </div>
 
-      <!-- Avancement — uniquement si proposal disponible -->
-      <ng-container *ngIf="percentageProposal">
+      <ng-container >
 
         <div class="section-label" style="margin-top:10px"><span>Avancement</span></div>
 
@@ -102,7 +101,7 @@
           <div class="completion-header">
             <div class="completion-meta">
               <span class="completion-title">Complétion après cette session</span>
-              <span class="completion-info">
+              <span class="completion-info" *ngIf="percentageProposal">
                 <ng-container *ngIf="percentageProposal.lastKnown != null">
                   Dernier : <strong>{{ percentageProposal.lastKnown }}%</strong>
                 </ng-container>
@@ -119,7 +118,7 @@
                 </ng-container>
               </span>
             </div>
-            <div class="completion-value">{{ completionPercentage }}%</div>
+            <div class="completion-value" *ngIf="completionPercentage">{{ completionPercentage }}%</div>
           </div>
 
           <!-- Slider -->
@@ -136,7 +135,7 @@
           </div>
 
           <!-- Chips -->
-          <div class="chips-row">
+          <div class="chips-row" *ngIf="percentageProposal">
             <button
               type="button"
               class="chip"
@@ -156,7 +155,7 @@
             >✓ Terminée</button>
           </div>
 
-          <div class="completion-reason" *ngIf="percentageProposal.reason">
+          <div class="completion-reason" *ngIf="percentageProposal && percentageProposal.reason">
             <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
               <circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.2"/>
               <path d="M6 5v3M6 3.5v.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
@@ -171,7 +170,7 @@
       <div class="section-label" style="margin-top:10px"><span>Notes de session</span></div>
 
       <div class="form-group">
-        <app-quill-editor [(content)]="description" [theme]="'snow'"></app-quill-editor>
+        <app-quill-editor [(content)]="_description" [theme]="'snow'"></app-quill-editor>
       </div>
 
       <!-- Actions -->
