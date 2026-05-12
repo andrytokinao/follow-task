@@ -299,24 +299,16 @@ export class Subtask2Component implements OnInit {
     return { ring: '#ef4444', track: '#fee2e2', text: '#dc2626' };
   }
 
-  /**
-   * stroke-dasharray : longueur de l'arc rempli + longueur totale.
-   * Ex: "47.12 75.40" pour 62.5% d'un cercle de rayon 12.
-   */
   getRingDash(pct: number | null | undefined): string {
     const p = Math.max(0, Math.min(100, pct ?? 0));
     const filled = this.RING_CIRC * p / 100;
-    return `${filled.toFixed(2)} ${this.RING_CIRC.toFixed(2)}`;
+    const empty = this.RING_CIRC - filled;
+    return `${empty.toFixed(2)} ${filled.toFixed(2)}`;
   }
 
-  /**
-   * stroke-dashoffset = 0 : avec transform rotate(-90) sur le SVG,
-   * l'arc part exactement à 12h en sens horaire.
-   */
-  getRingOffset(): string {
+  getRingOffset(pct: number | null | undefined): string {
     return '0';
   }
-
   // ── Grouped events builder ───────────────────────────────────────
   private buildGroupedEvents(events: EventApp[]): typeof this.groupedEvents {
   const today = new Date();

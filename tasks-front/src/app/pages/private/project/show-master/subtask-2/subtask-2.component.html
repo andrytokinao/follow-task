@@ -183,14 +183,14 @@
                   <!-- piste fond -->
                   <svg class="tl-ring-svg" viewBox="0 0 32 32" fill="none">
                     <circle cx="16" cy="16" r="12"
-                            [attr.stroke]="getDotColors(ev.completionPercentage).track"
+                            [attr.stroke]="getDotColors(ev.completionPercentage).ring"
                             stroke-width="3"/>
                     <circle cx="16" cy="16" r="12"
-                            [attr.stroke]="getDotColors(ev.completionPercentage).ring"
+                            [attr.stroke]="getDotColors(ev.completionPercentage).track"
                             stroke-width="3"
                             stroke-linecap="round"
                             [attr.stroke-dasharray]="getRingDash(ev.completionPercentage)"
-                            [attr.stroke-dashoffset]="getRingOffset()"
+                            [attr.stroke-dashoffset]="getRingOffset(ev.completionPercentage)"
                             transform="rotate(-90 16 16)"/>
                   </svg>
                   <span class="tl-pct" [style.color]="getDotColors(ev.completionPercentage).text">
