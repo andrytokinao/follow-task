@@ -9,11 +9,13 @@ $c-text:      #1a1d23;
 $c-muted:     #6b7280;
 $c-accent:    #3b6cfa;
 $c-accent-lt: #eff3ff;
-$c-dot:       #3b6cfa;
-$c-line:      #dde3f0;
+$c-line:      #e4e6ea;
 $c-hover:     #f0f4ff;
 $c-active-bg: #e8eeff;
 $c-active-bd: #3b6cfa;
+$c-success:   #10b981;
+$c-warning:   #f59e0b;
+$c-danger:    #ef4444;
 
 $radius-sm: 5px;
 $radius:    8px;
@@ -44,11 +46,7 @@ $radius-lg: 12px;
   flex-shrink: 0;
   transition: width 0.15s;
 
-  &.full-width {
-    width: 100% !important;
-    max-width: 100%;
-    border-right: none;
-  }
+  &.full-width { width: 100% !important; max-width: 100%; border-right: none; }
 }
 
 .list-header {
@@ -101,7 +99,6 @@ $radius-lg: 12px;
   &:active { transform: scale(.97); }
 }
 
-// scrollable list body
 .list-scroll {
   flex: 1;
   overflow-y: auto;
@@ -119,7 +116,7 @@ $radius-lg: 12px;
   transition: background .12s;
   position: relative;
 
-  &:hover  { background: $c-hover; }
+  &:hover { background: $c-hover; }
 
   &.active {
     background: $c-active-bg;
@@ -183,7 +180,6 @@ $radius-lg: 12px;
   &::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
 }
 
-// Header du détail
 .detail-header {
   display: flex;
   align-items: flex-start;
@@ -204,6 +200,7 @@ $radius-lg: 12px;
   gap: 8px;
   flex-wrap: wrap;
   min-width: 0;
+  flex: 1;
 }
 
 .issue-key {
@@ -217,6 +214,21 @@ $radius-lg: 12px;
   white-space: nowrap;
 }
 
+// ─── Inline editing ───────────────────────────────────────────────
+.editable-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  border-radius: $radius-sm;
+  padding: 2px 5px;
+  margin: -2px -5px;
+  transition: background .15s;
+
+  .edit-hint { opacity: 0; transition: opacity .15s; color: $c-accent; flex-shrink: 0; }
+  &:hover { background: $c-hover; .edit-hint { opacity: 1; } }
+}
+
 .issue-summary {
   font-size: 14px;
   font-weight: 600;
@@ -224,28 +236,118 @@ $radius-lg: 12px;
   line-height: 1.4;
 }
 
-.btn-close {
-  flex-shrink: 0;
+.inline-edit-wrap {
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border: 1px solid $c-border;
-  border-radius: $radius-sm;
-  background: transparent;
-  color: $c-muted;
-  cursor: pointer;
-  transition: background .12s, color .12s;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
 
-  &:hover {
-    background: #fee2e2;
-    color: #dc2626;
-    border-color: #fca5a5;
+.inline-input {
+  border: 1.5px solid $c-accent;
+  border-radius: $radius-sm;
+  padding: 4px 10px;
+  font-size: 13.5px;
+  font-weight: 600;
+  font-family: $font;
+  color: $c-text;
+  background: #fff;
+  outline: none;
+  flex: 1;
+  min-width: 0;
+  box-shadow: 0 0 0 3px rgba($c-accent, .12);
+
+  &.summary-input { font-size: 14px; }
+}
+
+.inline-edit-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.btn-save-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 500;
+  background: $c-success;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: $radius-sm;
+  cursor: pointer;
+  transition: background .12s;
+
+  &:hover { background: darken($c-success, 8%); }
+}
+
+.btn-cancel-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 500;
+  background: #fee2e2;
+  color: #dc2626;
+  border: none;
+  padding: 5px 10px;
+  border-radius: $radius-sm;
+  cursor: pointer;
+  transition: background .12s;
+
+  &:hover { background: darken(#fee2e2, 6%); }
+
+  &.outlined {
+    background: transparent;
+    border: 1px solid $c-border;
+    color: $c-muted;
+    &:hover { background: $c-bg; color: $c-danger; border-color: $c-danger; }
   }
 }
 
-// Sections
+// ─── Description ─────────────────────────────────────────────────
+.btn-edit-section {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  color: $c-accent;
+  background: $c-accent-lt;
+  border: 1px solid rgba($c-accent, .25);
+  padding: 2px 8px;
+  border-radius: 20px;
+  cursor: pointer;
+  margin-left: 6px;
+  transition: background .12s;
+
+  &:hover { background: darken($c-accent-lt, 5%); }
+}
+
+.description-text {
+  font-size: 13px;
+  line-height: 1.65;
+  color: #374151;
+  cursor: pointer;
+  border-radius: $radius-sm;
+  padding: 6px 8px;
+  margin: -6px -8px;
+  transition: background .15s;
+  min-height: 36px;
+
+  &:hover { background: $c-hover; }
+  &.empty { color: $c-muted; font-style: italic; }
+  ::ng-deep .empty-desc { color: $c-muted; font-style: italic; }
+}
+
+.description-editor-wrap { display: flex; flex-direction: column; gap: 10px; }
+.editor-actions { display: flex; align-items: center; gap: 8px; padding-top: 4px; }
+
+// ─── Sections ────────────────────────────────────────────────────
 .detail-section {
   padding: 14px 18px;
   border-bottom: 1px solid $c-border;
@@ -267,27 +369,20 @@ $radius-lg: 12px;
   margin-bottom: 10px;
 
   svg { color: $c-accent; flex-shrink: 0; }
+
+  .badge {
+    background: $c-accent-lt;
+    color: $c-accent;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 1px 7px;
+    border-radius: 20px;
+  }
 }
 
-.description-text {
-  font-size: 13px;
-  line-height: 1.65;
-  color: #374151;
-}
+.fields-grid { display: flex; flex-direction: column; gap: 4px; }
+.field-item  { font-size: 12.5px; }
 
-// Fields grid
-.fields-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.field-item {
-  font-size: 12.5px;
-}
-
-// Attachments
-.attachments-section {}
 .attachments-row {
   display: flex;
   align-items: center;
@@ -312,23 +407,36 @@ $radius-lg: 12px;
   &:hover { background: $c-accent-lt; }
 }
 
-// ─── Events / Planning ───────────────────────────────────────────
+.btn-close {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid $c-border;
+  border-radius: $radius-sm;
+  background: transparent;
+  color: $c-muted;
+  cursor: pointer;
+  transition: background .12s, color .12s;
+
+  &:hover { background: #fee2e2; color: #dc2626; border-color: #fca5a5; }
+}
+
+// ─── Planning / Events ───────────────────────────────────────────
 .events-section {
   background: $c-bg;
   border-bottom: none;
 }
 
-// Group par jour
-.day-group {
-  margin-bottom: 4px;
-}
+.day-group { margin-bottom: 4px; }
 
-// Séparateur de jour
 .day-separator {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin: 12px 0 8px;
+  margin: 14px 0 10px;
 }
 
 .day-line {
@@ -343,97 +451,121 @@ $radius-lg: 12px;
   gap: 5px;
   font-size: 11px;
   font-weight: 600;
-  padding: 3px 10px;
+  padding: 3px 11px;
   border-radius: 20px;
   white-space: nowrap;
   border: 1px solid $c-border;
   background: $c-surface;
   color: $c-muted;
 
-  &.today {
-    background: #fff8e1;
-    border-color: #fbbf24;
-    color: #92400e;
-    svg { color: #f59e0b; }
-  }
-
-  &.past {
-    background: $c-surface;
-    color: #9ca3af;
-    border-color: #e5e7eb;
-    svg { color: #9ca3af; }
-  }
-
-  &.future {
-    background: $c-accent-lt;
-    border-color: rgba($c-accent, .3);
-    color: $c-accent;
-    svg { color: $c-accent; }
-  }
+  &.today  { background: #fff8e1; border-color: #fbbf24; color: #92400e; svg { color: #f59e0b; } }
+  &.past   { background: $c-surface; color: #9ca3af; border-color: #e5e7eb; opacity: .8; }
+  &.future { background: $c-accent-lt; border-color: rgba($c-accent,.3); color: $c-accent; svg { color: $c-accent; } }
 }
 
-// Timeline des événements dans un groupe
 .timeline {
   display: flex;
   flex-direction: column;
-  padding-left: 4px;
+  padding-left: 2px;
 }
 
+// ─── Event card + couleurs selon % ───────────────────────────────
 .event-card {
   display: flex;
-  gap: 10px;
+  gap: 14px;
   position: relative;
+
+  // Couleurs dynamiques selon completionPercentage
+  // La couleur s'applique à : bordure card, fond card léger
+  &.cc-none {
+    .event-body { border-color: $c-border; background: $c-surface; }
+  }
+  &.cc-low {
+    .event-body { border-color: #fecaca; background: #fff8f8; }
+  }
+  &.cc-mid {
+    .event-body { border-color: #fde68a; background: #fffdf5; }
+  }
+  &.cc-good {
+    .event-body { border-color: #bfdbfe; background: #f7fbff; }
+  }
+  &.cc-done {
+    .event-body { border-color: #a7f3d0; background: #f4fdf9; }
+  }
 }
 
+// ─── Colonne timeline gauche ──────────────────────────────────────
 .event-timeline-col {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 18px;
+  width: 34px;
   flex-shrink: 0;
-  padding-top: 4px;
 }
 
-.tl-dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  border: 2px solid $c-surface;
+// Anneau SVG (dot de progression)
+.tl-ring-wrap {
+  position: relative;
+  width: 34px;
+  height: 34px;
   flex-shrink: 0;
-  box-shadow: 0 0 0 2px $c-accent;
-  background: $c-accent;
-
-  &.dot-past   { background: #9ca3af; box-shadow: 0 0 0 2px #9ca3af; }
-  &.dot-today  { background: #f59e0b; box-shadow: 0 0 0 2px #fbbf24; }
-  &.dot-future { background: $c-accent; box-shadow: 0 0 0 2px $c-accent; }
+  margin-top: 4px;
 }
 
+.tl-ring-svg {
+  position: absolute;
+  inset: 0;
+  width: 34px;
+  height: 34px;
+}
+
+.tl-pct {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  font-weight: 700;
+  font-family: $mono;
+  letter-spacing: -.4px;
+  line-height: 1;
+  flex-direction: column;
+  gap: 0;
+
+  small {
+    font-size: 7px;
+    font-weight: 600;
+    line-height: 1;
+    opacity: .85;
+  }
+}
+
+// Ligne verticale : rôle purement timeline, neutre
 .tl-line {
   flex: 1;
-  width: 2px;
-  background: $c-line;
-  min-height: 12px;
+  width: 1.5px;
+  background: $c-border;
+  min-height: 14px;
   margin: 3px 0 0;
+  border-radius: 2px;
 }
 
+// ─── Corps événement ─────────────────────────────────────────────
 .event-body {
   flex: 1;
-  background: $c-surface;
   border: 1px solid $c-border;
   border-radius: $radius;
-  padding: 8px 12px;
-  margin-bottom: 8px;
+  padding: 9px 13px;
+  margin-bottom: 10px;
   transition: border-color .15s, box-shadow .15s;
 
   &:hover {
-    border-color: $c-accent;
-    box-shadow: 0 2px 8px rgba($c-accent, .10);
+    box-shadow: 0 2px 12px rgba(0,0,0,.06);
+    .event-actions { opacity: 1; }
   }
 
-  &.past {
-    opacity: .65;
-    background: #fafafa;
-  }
+  &.past { opacity: .6; }
 }
 
 .event-header {
@@ -441,20 +573,31 @@ $radius-lg: 12px;
   align-items: flex-start;
   justify-content: space-between;
   gap: 8px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+}
+
+.event-header-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
 }
 
 .event-title {
   font-size: 12.5px;
   font-weight: 600;
   color: $c-text;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
 }
 
 .event-time {
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 11px;
+  font-size: 10.5px;
   color: $c-muted;
   white-space: nowrap;
   font-family: $mono;
@@ -462,11 +605,38 @@ $radius-lg: 12px;
   svg { flex-shrink: 0; }
 }
 
+.event-actions {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  opacity: 0;
+  transition: opacity .15s;
+}
+
+.btn-ev-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: $radius-sm;
+  border: 1px solid $c-border;
+  background: transparent;
+  cursor: pointer;
+  transition: background .12s, color .12s, border-color .12s;
+
+  &.edit  { color: $c-accent; &:hover { background: $c-accent-lt; border-color: rgba($c-accent,.4); } }
+  &.delete { color: $c-muted; &:hover { background: #fee2e2; color: $c-danger; border-color: #fca5a5; } }
+}
+
 .event-desc {
-  font-size: 12px;
-  color: #6b7280;
-  margin-top: 4px;
+  font-size: 11.5px;
+  color: $c-muted;
+  margin-top: 5px;
   line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .event-location {
@@ -476,8 +646,11 @@ $radius-lg: 12px;
   font-size: 11px;
   color: $c-muted;
   margin-top: 4px;
+
+  svg { flex-shrink: 0; }
 }
 
+// ─── Empty state ─────────────────────────────────────────────────
 .no-events {
   display: flex;
   flex-direction: column;
@@ -487,7 +660,7 @@ $radius-lg: 12px;
   color: $c-muted;
   font-size: 12.5px;
 
-  svg { opacity: .4; }
+  svg { opacity: .35; }
 }
 
 .btn-add-event {
@@ -505,8 +678,5 @@ $radius-lg: 12px;
   margin-top: 4px;
   transition: background .12s, border-color .12s;
 
-  &:hover {
-    background: darken($c-accent-lt, 4%);
-    border-color: $c-accent;
-  }
+  &:hover { background: darken($c-accent-lt, 4%); border-color: $c-accent; }
 }

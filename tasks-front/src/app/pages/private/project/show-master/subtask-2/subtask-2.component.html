@@ -42,7 +42,33 @@
     <div class="detail-header">
       <div class="detail-title">
         <span class="issue-key">{{ selectedTask.issueKey }}</span>
-        <span class="issue-summary">{{ selectedTask.summary }}</span>
+
+        <ng-container *ngIf="!editingSummary; else editSummaryTpl">
+          <span class="issue-summary editable-field"
+                (click)="startEditSummary()"
+                title="Cliquer pour modifier">
+            {{ selectedTask.summary }}
+            <svg class="edit-hint" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </span>
+        </ng-container>
+        <ng-template #editSummaryTpl>
+          <div class="inline-edit-wrap">
+            <input class="inline-input summary-input"
+                   [(ngModel)]="editSummaryValue"
+                   (keydown.enter)="saveSummary()"
+                   (keydown.escape)="cancelEditSummary()"
+                   maxlength="255"
+                   autofocus />
+            <div class="inline-edit-actions">
+              <button class="btn-save-inline" (click)="saveSummary()" title="Sauvegarder">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              </button>
+              <button class="btn-cancel-inline" (click)="cancelEditSummary()" title="Annuler">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+          </div>
+        </ng-template>
       </div>
       <button class="btn-close" (click)="closeDetail()" title="Fermer">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -50,8 +76,39 @@
     </div>
 
     <!-- Description -->
-    <div class="detail-section" *ngIf="selectedTask.description">
-      <div class="description-text" [innerHTML]="selectedTask.description"></div>
+    <div class="detail-section description-section">
+      <div class="section-label">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Description
+        <button class="btn-edit-section" *ngIf="!editingDescription" (click)="startEditDescription()">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Modifier
+        </button>
+      </div>
+
+      <ng-container *ngIf="!editingDescription; else editDescTpl">
+        <div class="description-text"
+             [innerHTML]="selectedTask.description || '<span class=\'empty-desc\'>Aucune description — cliquer pour ajouter</span>'"
+             (click)="startEditDescription()"
+             [class.empty]="!selectedTask.description"
+             title="Cliquer pour modifier">
+        </div>
+      </ng-container>
+      <ng-template #editDescTpl>
+        <div class="description-editor-wrap">
+          <app-quill-editor [(content)]="editDescriptionValue" [theme]="'snow'"></app-quill-editor>
+          <div class="editor-actions">
+            <button class="btn-save-inline" (click)="saveDescription()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Sauvegarder
+            </button>
+            <button class="btn-cancel-inline outlined" (click)="cancelEditDescription()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              Annuler
+            </button>
+          </div>
+        </div>
+      </ng-template>
     </div>
 
     <!-- Champs personnalisés -->
@@ -91,7 +148,7 @@
       </div>
     </div>
 
-    <!-- ══════════ PLANNING / ÉVÉNEMENTS ══════════ -->
+    <!-- ══════════ PLANNING ══════════ -->
     <div class="detail-section events-section">
       <div class="section-label">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -102,10 +159,12 @@
       <ng-container *ngIf="groupedEvents && groupedEvents.length > 0; else noEvents">
         <div class="day-group" *ngFor="let group of groupedEvents; let gi = last">
 
-          <!-- Séparateur de jour -->
           <div class="day-separator">
             <div class="day-line"></div>
-            <div class="day-chip" [class.today]="group.isToday" [class.past]="group.isPast" [class.future]="group.isFuture">
+            <div class="day-chip"
+                 [class.today]="group.isToday"
+                 [class.past]="group.isPast"
+                 [class.future]="group.isFuture">
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" *ngIf="group.isToday"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" *ngIf="!group.isToday"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
               {{ group.label }}
@@ -113,28 +172,67 @@
             <div class="day-line"></div>
           </div>
 
-          <!-- Événements du jour -->
           <div class="timeline">
-            <div class="event-card" *ngFor="let ev of group.events; let i = index; let last = last">
+            <div class="event-card"
+                 *ngFor="let ev of group.events; let i = index; let last = last"
+                 [ngClass]="getEventColorClass(ev.completionPercentage)">
+
+              <!-- Colonne timeline : anneau SVG + ligne neutre -->
               <div class="event-timeline-col">
-                <div class="tl-dot" [class.dot-past]="group.isPast" [class.dot-today]="group.isToday" [class.dot-future]="group.isFuture"></div>
-                <div class="tl-line" *ngIf="!last || !gi"></div>
-              </div>
-              <div class="event-body" [class.past]="group.isPast">
-                <div class="event-header">
-                  <span class="event-title">{{ ev.title || '(Sans titre)' }}</span>
-                  <span class="event-time">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    {{ ev.start | date:'HH:mm' }}
-                    <span *ngIf="ev.end"> → {{ ev.end | date:'HH:mm' }}</span>
+                <div class="tl-ring-wrap">
+                  <!-- piste fond -->
+                  <svg class="tl-ring-svg" viewBox="0 0 32 32" fill="none">
+                    <circle cx="16" cy="16" r="12"
+                            [attr.stroke]="getDotColors(ev.completionPercentage).track"
+                            stroke-width="3"/>
+                    <circle cx="16" cy="16" r="12"
+                            [attr.stroke]="getDotColors(ev.completionPercentage).ring"
+                            stroke-width="3"
+                            stroke-linecap="round"
+                            [attr.stroke-dasharray]="getRingDash(ev.completionPercentage)"
+                            [attr.stroke-dashoffset]="getRingOffset()"
+                            transform="rotate(-90 16 16)"/>
+                  </svg>
+                  <span class="tl-pct" [style.color]="getDotColors(ev.completionPercentage).text">
+                    <ng-container *ngIf="ev.completionPercentage != null">{{ ev.completionPercentage }}<small>%</small></ng-container>
+                    <ng-container *ngIf="ev.completionPercentage == null">–</ng-container>
                   </span>
                 </div>
-                <div class="event-desc" *ngIf="ev.description">{{ ev.description }}</div>
+                <!-- ligne purement décorative, rôle timeline -->
+                <div class="tl-line" *ngIf="!last || !gi"></div>
+              </div>
+
+              <!-- Corps -->
+              <div class="event-body" [class.past]="group.isPast">
+                <div class="event-header">
+                  <span class="event-title" [title]="ev.title">{{ ev.title }}</span>
+                  <div class="event-header-right">
+                    <span class="event-time">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                      {{ ev.start | date:'HH:mm' }}
+                      <span *ngIf="ev.end"> → {{ ev.end | date:'HH:mm' }}</span>
+                    </span>
+                    <div class="event-actions">
+                      <button class="btn-ev-action edit" (click)="editEvent(ev, $event)" title="Modifier">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                      </button>
+                      <button class="btn-ev-action delete" (click)="deleteEvent(ev, $event)" title="Supprimer">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="event-desc" *ngIf="ev.description" [title]="ev.description">
+                  {{ ev.description }}
+                </div>
+
                 <div class="event-location" *ngIf="ev.location">
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
                   {{ ev.location }}
                 </div>
               </div>
+
             </div>
           </div>
 
@@ -154,11 +252,9 @@
       </button>
     </div>
 
-  </div><!-- /task-detail -->
-
+  </div>
 </div>
 
-<!-- Menus -->
 <mat-menu #createSubtask="matMenu">
   <app-new-issue-form [parentIssue]="parentIssue" [isMaster]="false"
                       #newIssueForm (saved)="closeCreateSubtaskMenu()">
@@ -166,13 +262,20 @@
 </mat-menu>
 
 <mat-menu #addPlanning="matMenu" class="planning-panel"
-          overlapTrigger]="false"
-          xPosition="after"
-         >
-  <app-edit-event  #newEventForm [byIssue]="true"
+          [overlapTrigger]="false" xPosition="after">
+  <app-edit-event #newEventForm [byIssue]="true"
                   (saved)="closeEventForm()"
                   [selectedMaster]="parentIssue"
                   [selectedSubtask]="selectedTask"
                   [isNext]="true">
+  </app-edit-event>
+</mat-menu>
+
+<mat-menu #editEventMenu="matMenu" class="planning-panel"
+          [overlapTrigger]="false" xPosition="after">
+  <app-edit-event #editEventForm [byIssue]="true"
+                  (saved)="closeEditEventForm()"
+                  [selectedMaster]="parentIssue"
+                  [selectedSubtask]="selectedTask">
   </app-edit-event>
 </mat-menu>

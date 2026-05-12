@@ -1,6 +1,6 @@
-import { Component, HostListener, OnInit, Optional, ViewChild } from '@angular/core';
+import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ConfigService } from '../../../../../services/config.service';
 import { IssueService } from '../../../../../services/issue.service';
 import { UserService } from '../../../../../services/user.service';
@@ -10,7 +10,6 @@ import {
   EventApp,
   EventSearchCriteria,
   Issue,
-  User,
   UsingCustomField
 } from '../../../../../type/issue';
 import { BehaviorSubject } from 'rxjs';
@@ -18,7 +17,10 @@ import { MatMenuTrigger } from '@angular/material/menu';
 import { NewIssueFormComponent } from '../../../../../common/new-issue-form/new-issue-form.component';
 import { EventsService } from '../../../../../services/events.service';
 import { EditEventComponent } from '../../../../../common/edit-event/edit-event.component';
-import {ConnectedPosition} from "@angular/cdk/overlay";
+import { ConnectedPosition } from '@angular/cdk/overlay';
+
+/** Couleurs selon le taux d'avancement */
+interface DotColors { ring: string; track: string; text: string; }
 
 @Component({
   selector: 'app-subtask-2',
@@ -27,21 +29,19 @@ import {ConnectedPosition} from "@angular/cdk/overlay";
   styleUrl: './subtask-2.component.scss'
 })
 export class Subtask2Component implements OnInit {
+
   planningOpen = false;
   planningPositions: ConnectedPosition[] = [
-    // Priorité 1 : à droite du bouton, aligné en haut
-    { originX: 'end', originY: 'top', overlayX: 'start', overlayY: 'top' },
-    // Priorité 2 : à gauche si pas de place à droite
-    { originX: 'start', originY: 'top', overlayX: 'end', overlayY: 'top' },
-    // Priorité 3 : en dessous
+    { originX: 'end',   originY: 'top',    overlayX: 'start', overlayY: 'top' },
+    { originX: 'start', originY: 'top',    overlayX: 'end',   overlayY: 'top' },
     { originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top' },
-    // Priorité 4 : au dessus
-    { originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom' },
+    { originX: 'start', originY: 'top',    overlayX: 'start', overlayY: 'bottom' },
   ];
+
   // ── Data ────────────────────────────────────────────────────────
   protected parentIssue: Issue;
   subtasks: Issue[] = [];
-  loadingSubtask:boolean = false;
+  loadingSubtask = false;
   selectedTask: Issue | null = null;
   events: EventApp[] = [];
   groupedEvents: {
@@ -56,6 +56,13 @@ export class Subtask2Component implements OnInit {
   currentCustomFieldValue: CustomFieldValue | null = null;
   usingCustomFields: UsingCustomField[] = [];
 
+  // ── Inline edit state ────────────────────────────────────────────
+  editingSummary = false;
+  editSummaryValue: String = '';
+
+  editingDescription = false;
+  editDescriptionValue: String = '';
+
   // ── Streams ─────────────────────────────────────────────────────
   private selectedIssueSubject = new BehaviorSubject<Issue>(undefined);
   selectedIssue$ = this.selectedIssueSubject.asObservable();
@@ -65,13 +72,18 @@ export class Subtask2Component implements OnInit {
 
   // ── View refs ───────────────────────────────────────────────────
   @ViewChild('createSubtaskTrigger') createSubtaskTrigger!: MatMenuTrigger;
-  @ViewChild('newIssueForm') newIssueForm!: NewIssueFormComponent;
-  @ViewChild('newEventForm') newEventForm: EditEventComponent;
-  @ViewChild('addPlanningTrigger') addPlanningTrigger: MatMenuTrigger;
+  @ViewChild('newIssueForm')         newIssueForm!: NewIssueFormComponent;
+  @ViewChild('newEventForm')         newEventForm: EditEventComponent;
+  @ViewChild('editEventForm')        editEventForm: EditEventComponent;
+  @ViewChild('addPlanningTrigger')   addPlanningTrigger: MatMenuTrigger;
+  @ViewChild('editEventMenuTrigger') editEventMenuTrigger: MatMenuTrigger;
 
-  // ── Private ─────────────────────────────────────────────────────
   private project: any;
   private profile: any;
+
+  // Circonférence du cercle SVG (r=12, viewBox 32x32)
+  private readonly RING_R = 12;
+  private readonly RING_CIRC = 2 * Math.PI * this.RING_R;
 
   constructor(
     private router: Router,
@@ -87,19 +99,17 @@ export class Subtask2Component implements OnInit {
   // ── Lifecycle ───────────────────────────────────────────────────
   ngOnInit(): void {
     this.issueService.project$.subscribe(project => this.project = project);
-
     this.authService.getProfile().subscribe(res => this.profile = res);
-
     this.issueService.issueMaster$.subscribe(issue => {
       this.parentIssue = issue;
-      if (this.parentIssue?.id) {
-        this.loadSubtask();
-      }
+      if (this.parentIssue?.id) this.loadSubtask();
     });
   }
 
   // ── Task selection ──────────────────────────────────────────────
   selectTask(task: Issue): void {
+    this.cancelEditSummary();
+    this.cancelEditDescription();
     this.selectedTask = task;
     this.selectedIssueSubject.next(task);
     this.loadValues();
@@ -109,28 +119,78 @@ export class Subtask2Component implements OnInit {
   closeDetail(): void {
     this.selectedTask = null;
     this.selectedIssueSubject.next(undefined);
+    this.cancelEditSummary();
+    this.cancelEditDescription();
+  }
+
+  // ── Inline edit — Summary ────────────────────────────────────────
+  startEditSummary(): void {
+    if (!this.selectedTask) return;
+    this.editSummaryValue = this.selectedTask.summary || '';
+    this.editingSummary = true;
+  }
+
+  saveSummary(): void {
+    if (!this.selectedTask) return;
+    const trimmed = this.editSummaryValue.trim();
+    if (!trimmed) { this.cancelEditSummary(); return; }
+    const previousSummary = this.selectedTask.summary;
+    this.selectedTask.summary = trimmed;
+    this.editingSummary = false;
+
+/*
+    this.issueService.updateIssue({ ...this.selectedTask, summary: trimmed }).subscribe({
+      error: () => { this.selectedTask.summary = previousSummary; }
+    });
+*/
+  }
+
+  cancelEditSummary(): void {
+    this.editingSummary = false;
+    this.editSummaryValue = '';
+  }
+
+  // ── Inline edit — Description ────────────────────────────────────
+  startEditDescription(): void {
+    if (!this.selectedTask) return;
+    this.editDescriptionValue = this.selectedTask.description || '';
+    this.editingDescription = true;
+  }
+
+  saveDescription(): void {
+    if (!this.selectedTask) return;
+    const previous = this.selectedTask.description;
+    this.selectedTask.description = this.editDescriptionValue;
+    this.editingDescription = false;
+
+/*
+    this.issueService.updateIssue({ ...this.selectedTask, description: this.editDescriptionValue }).subscribe({
+      error: () => { this.selectedTask.description = previous; }
+    });
+*/
+  }
+
+  cancelEditDescription(): void {
+    this.editingDescription = false;
+    this.editDescriptionValue = '';
   }
 
   // ── Data loading ────────────────────────────────────────────────
   protected loadSubtask(): void {
-
     this.loadingSubtask = true;
     this.subtasks = [];
-    if (! this.parentIssue || !this.parentIssue.id) {
-      this.loadingSubtask = false;
+    if (!this.parentIssue?.id) { this.loadingSubtask = false; return; }
 
-    }
-
-    this.issueService.loadSubtask(this.parentIssue.id).subscribe(issues => {
-      this.subtasks = issues;
-      if (this.subtasks?.length > 0 && !this.selectedTask) {
-        this.selectTask(this.subtasks[0]);
-      }
-      this.loadingSubtask = false;
-    }, err => {
-      this.loadingSubtask = false;
-
-    } );
+    this.issueService.loadSubtask(this.parentIssue.id).subscribe(
+      issues => {
+        this.subtasks = issues;
+        if (this.subtasks?.length > 0 && !this.selectedTask) {
+          this.selectTask(this.subtasks[0]);
+        }
+        this.loadingSubtask = false;
+      },
+      () => { this.loadingSubtask = false; }
+    );
   }
 
   loadValues(): void {
@@ -147,9 +207,7 @@ export class Subtask2Component implements OnInit {
     this.groupedEvents = [];
     if (!this.selectedIssueSubject.value?.id) return;
 
-    const criteria: EventSearchCriteria = {
-      issueIds: [this.selectedIssueSubject.value.id]
-    };
+    const criteria: EventSearchCriteria = { issueIds: [this.selectedIssueSubject.value.id] };
     this.eventService.searchEvents(criteria).subscribe(events => {
       this.events = (events || []).sort((a, b) => {
         if (!a.start) return 1;
@@ -167,7 +225,7 @@ export class Subtask2Component implements OnInit {
   }
 
   onPlanningMenuOpened(): void {
-    this.newEventForm.loadNextEvent(this.selectedTask);
+    this.newEventForm?.loadNextEvent(this.selectedTask);
     this.planningOpen = true;
   }
 
@@ -180,6 +238,24 @@ export class Subtask2Component implements OnInit {
     this.addPlanningTrigger.closeMenu();
     this.loadEvents();
     this.planningOpen = false;
+  }
+
+  closeEditEventForm(): void {
+    this.editEventMenuTrigger?.closeMenu();
+    this.loadEvents();
+  }
+
+  // ── Event actions ────────────────────────────────────────────────
+  editEvent(ev: EventApp, mouseEvent: MouseEvent): void {
+    mouseEvent.stopPropagation();
+    if (this.editEventForm) this.editEventForm.loadEvent(ev.id);
+    this.editEventMenuTrigger?.openMenu();
+  }
+
+  deleteEvent(ev: EventApp, mouseEvent: MouseEvent): void {
+    mouseEvent.stopPropagation();
+    if (!confirm(`Supprimer l'événement "${ev.title || '(Sans titre)'}" ?`)) return;
+//    this.eventService.deleteEvent(ev.id).subscribe(() => this.loadEvents());
   }
 
   // ── Custom fields ───────────────────────────────────────────────
@@ -195,19 +271,50 @@ export class Subtask2Component implements OnInit {
     };
   }
 
-  // ── New event helper ─────────────────────────────────────────────
-  newEvent(): EventApp {
-    return {
-      id: null,
-      issue: this.selectedIssueSubject.value?.id
-        ? { id: this.selectedIssueSubject.value.id }
-        : null
-    };
+  openAttachDialog(): void { /* implement */ }
+
+  // ── Ring helpers (appelés depuis le template) ────────────────────
+
+  /**
+   * Classe CSS appliquée sur .event-card selon le pourcentage.
+   * Pilote la couleur de bordure + fond de l'event-body via SCSS.
+   */
+  getEventColorClass(pct: number | null | undefined): string {
+    if (pct == null)  return 'cc-none';
+    if (pct >= 100)   return 'cc-done';
+    if (pct >= 60)    return 'cc-good';
+    if (pct >= 30)    return 'cc-mid';
+    return 'cc-low';
   }
 
-  // ── Attachments ─────────────────────────────────────────────────
-  openAttachDialog(): void {
-    // Open your existing attachment dialog here
+  /**
+   * Couleurs de l'anneau SVG (arc + piste + texte centré).
+   * Pas de dépendance SCSS, tout est inline sur le SVG.
+   */
+  getDotColors(pct: number | null | undefined): DotColors {
+    if (pct == null) return { ring: '#d1d5db', track: '#f3f4f6', text: '#9ca3af' };
+    if (pct >= 100)  return { ring: '#10b981', track: '#d1fae5', text: '#059669' };
+    if (pct >= 60)   return { ring: '#3b6cfa', track: '#dbeafe', text: '#3b6cfa' };
+    if (pct >= 30)   return { ring: '#f59e0b', track: '#fef3c7', text: '#d97706' };
+    return { ring: '#ef4444', track: '#fee2e2', text: '#dc2626' };
+  }
+
+  /**
+   * stroke-dasharray : longueur de l'arc rempli + longueur totale.
+   * Ex: "47.12 75.40" pour 62.5% d'un cercle de rayon 12.
+   */
+  getRingDash(pct: number | null | undefined): string {
+    const p = Math.max(0, Math.min(100, pct ?? 0));
+    const filled = this.RING_CIRC * p / 100;
+    return `${filled.toFixed(2)} ${this.RING_CIRC.toFixed(2)}`;
+  }
+
+  /**
+   * stroke-dashoffset = 0 : avec transform rotate(-90) sur le SVG,
+   * l'arc part exactement à 12h en sens horaire.
+   */
+  getRingOffset(): string {
+    return '0';
   }
 
   // ── Grouped events builder ───────────────────────────────────────
@@ -216,34 +323,27 @@ export class Subtask2Component implements OnInit {
   today.setHours(0, 0, 0, 0);
 
   const map = new Map<string, EventApp[]>();
-
   for (const ev of events) {
-  const key = ev.start
-    ? new Date(ev.start).toISOString().slice(0, 10)
-    : 'no-date';
+  const key = ev.start ? new Date(ev.start).toISOString().slice(0, 10) : 'no-date';
   if (!map.has(key)) map.set(key, []);
   map.get(key).push(ev);
 }
 
 return Array.from(map.entries()).map(([dateKey, evs]) => {
   let label: string;
-  let isToday = false;
-  let isPast = false;
-  let isFuture = false;
+  let isToday = false, isPast = false, isFuture = false;
 
   if (dateKey === 'no-date') {
-    label = 'Sans date';
-    isFuture = true;
+    label = 'Sans date'; isFuture = true;
   } else {
     const d = new Date(dateKey);
     d.setHours(0, 0, 0, 0);
-    const diffDays = Math.round((d.getTime() - today.getTime()) / 86400000);
-
-    if (diffDays === 0)       { label = "Aujourd'hui";  isToday = true; }
-    else if (diffDays === 1)  { label = 'Demain';       isFuture = true; }
-    else if (diffDays === -1) { label = 'Hier';         isPast = true; }
-    else if (diffDays > 1)    { label = this.formatDateLabel(d); isFuture = true; }
-    else                      { label = this.formatDateLabel(d); isPast = true; }
+    const diff = Math.round((d.getTime() - today.getTime()) / 86400000);
+    if (diff === 0)       { label = "Aujourd'hui"; isToday = true; }
+    else if (diff === 1)  { label = 'Demain';       isFuture = true; }
+    else if (diff === -1) { label = 'Hier';          isPast = true; }
+    else if (diff > 1)    { label = this.formatDateLabel(d); isFuture = true; }
+    else                  { label = this.formatDateLabel(d); isPast = true; }
   }
 
   return { label, dateKey, events: evs, isToday, isPast, isFuture };
@@ -263,19 +363,18 @@ startResizing(event: MouseEvent): void {
 @HostListener('window:mousemove', ['$event'])
 onMouseMove(event: MouseEvent): void {
   if (!this.resizing) return;
-   const list = document.querySelector('.task-list') as HTMLElement;
-   const container = document.querySelector('.subtask-wrap') as HTMLElement;
-   if (!list || !container) return;
-   const containerRect = container.getBoundingClientRect();
-   const newWidth = event.clientX - containerRect.left;
-    if (newWidth > 200 && newWidth < containerRect.width * 0.6) {
-     list.style.width = `${newWidth}px`;
-      }
-   }
+const list = document.querySelector('.task-list') as HTMLElement;
+const container = document.querySelector('.subtask-wrap') as HTMLElement;
+if (!list || !container) return;
+const newWidth = event.clientX - container.getBoundingClientRect().left;
+if (newWidth > 200 && newWidth < container.getBoundingClientRect().width * 0.6) {
+  list.style.width = `${newWidth}px`;
+}
+}
 
-  @HostListener('window:mouseup')
-  stopResizing(): void {
-    this.resizing = false;
-    document.body.style.cursor = 'default';
-  }
+@HostListener('window:mouseup')
+stopResizing(): void {
+  this.resizing = false;
+  document.body.style.cursor = 'default';
+}
 }
