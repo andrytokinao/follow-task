@@ -1,18 +1,49 @@
 <div class="exchange-wrap" id="exchangeWrap">
 
-  <!-- ═══════════════════════════════════ SIDEBAR LIST ══ -->
-  <aside class="ex-sidebar" id="exSidebar">
+  <!-- ═══════════════════════════ TOP BAR (mobile uniquement) ══ -->
+  <div class="mobile-topbar">
+    <button class="topbar-toggle"
+            (click)="toggleSidebar()"
+            [attr.aria-label]="sidebarOpen ? 'Fermer la liste' : 'Ouvrir la liste'">
+      <i class="fas" [class.fa-times]="sidebarOpen" [class.fa-bars]="!sidebarOpen"></i>
+      <span class="topbar-badge" *ngIf="totalUnreadCount > 0">
+        {{ totalUnreadCount > 99 ? '99+' : totalUnreadCount }}
+      </span>
+    </button>
+    <span class="topbar-title">
+      {{ selectedDocument ? selectedDocument.titre : 'Demandes' }}
+    </span>
+    <button class="topbar-new-btn"
+            [matMenuTriggerFor]="newDocument"
+            #newDocumentTrigger="matMenuTrigger"
+            (menuOpened)="onMenNewDocumentOpened()">
+      <i class="fas fa-plus"></i>
+    </button>
+  </div>
+
+  <!-- ═══════════════════════════ OVERLAY mobile ══ -->
+  <div class="sidebar-overlay"
+       [class.visible]="sidebarOpen"
+       (click)="closeSidebar()">
+  </div>
+
+  <!-- ═══════════════════════════ SIDEBAR ══ -->
+  <aside class="ex-sidebar" id="exSidebar" [class.open]="sidebarOpen">
 
     <div class="sb-toolbar">
-      <input class="sb-search" type="text" [(ngModel)]="searchKeyword" placeholder="Rechercher…">
+      <div class="sb-search-wrap">
+        <i class="fas fa-search sb-search-icon"></i>
+        <input class="sb-search" type="text" [(ngModel)]="searchKeyword" placeholder="Rechercher…">
+      </div>
     </div>
 
-    <div class="sb-new"
+    <!-- Bouton nouvelle demande (desktop uniquement) -->
+    <div class="sb-new desktop-only"
          [matMenuTriggerFor]="newDocument"
          #newDocumentTrigger="matMenuTrigger"
          (menuOpened)="onMenNewDocumentOpened()">
       <i class="fas fa-plus-circle"></i>
-      <span class="sb-title">Nouvelle demande</span>
+      <span class="sb-new-label">Nouvelle demande</span>
     </div>
 
     <div class="sb-list" #sbList>
@@ -28,16 +59,16 @@
         <div class="sb-item-top">
           <span class="dept-badge" *ngIf="doc.project">{{ doc.project.prefix }}</span>
           <span class="own-badge" *ngIf="isOwnDocument(doc)">
-            <i class="fas fa-pen" style="font-size:9px"></i>
+            <i class="fas fa-pen" style="font-size:8px"></i>
           </span>
           <b class="sb-title" [class.sb-title--unread]="!isRead(doc)">{{ doc.titre }}</b>
           <span class="badge-unread" *ngIf="unreadCount(doc) > 0">{{ unreadCount(doc) }}</span>
         </div>
 
-        <div class="clamp clamp-2 clamp-w-ch sb-description"
+        <div class="sb-description"
              [class.sb-description--muted]="isRead(doc)"
-             style="--lines: 1;"
-             [innerHTML]="doc.description"></div>
+             [innerHTML]="doc.description">
+        </div>
 
         <div class="sb-meta">
           <div class="avatars">
@@ -50,9 +81,6 @@
             <i class="fas fa-check-double"></i>
           </span>
           <span class="sb-date">{{ doc.creation | date:'dd MMM' }}</span>
-          <span class="sb-menu-btn" (click)="$event.stopPropagation()">
-            <app-document-menu [document]="doc"></app-document-menu>
-          </span>
         </div>
       </div>
     </div>
@@ -72,16 +100,17 @@
     </div>
   </aside>
 
-  <!-- ═══════════════════════════════════ SÉPARATEUR REDIMENSIONNABLE ══ -->
-  <div class="resizer" id="resizer"></div>
-
-  <!-- ═══════════════════════════════════ MAIN PANEL ═══ -->
+  <!-- ═══════════════════════════ MAIN PANEL ══ -->
   <main class="ex-main" *ngIf="selectedDocument; else emptyState">
 
     <!-- En-tête -->
     <header class="main-header">
 
       <div class="mh-title-row">
+        <!-- Bouton retour mobile -->
+        <button class="btn-back mobile-only" (click)="goBack()">
+          <i class="fas fa-arrow-left"></i>
+        </button>
         <span class="mh-title">{{ selectedDocument.titre }}</span>
         <span class="dept-pill" *ngIf="selectedDocument.project">
           {{ selectedDocument.project.prefix }} · {{ selectedDocument.project.name }}
@@ -94,19 +123,22 @@
           par <strong>{{ selectedDocument.userApp?.username }}</strong>
         </span>
 
-        <!-- Membres -->
         <div class="members-row">
           <div class="av-lg"
                *ngFor="let m of selectedDocument.documentMembers | slice:0:4"
-               [title]="m.user?.username">{{ initials(m.user) }}</div>
-          <button class="btn-add-member" (click)="addMember()">+ Ajouter</button>
+               [title]="m.user?.username"
+               [style.background]="avatarColor(m.user)">
+            {{ initials(m.user) }}
+          </div>
+          <button class="btn-add-member" (click)="addMember()">
+            <i class="fas fa-plus" style="font-size:9px"></i> Ajouter
+          </button>
         </div>
       </div>
 
       <!-- Usage chips -->
-      <div class="usage-row">
+      <div class="usage-row" *ngIf="hasUsage">
 
-        <!-- Mon espace — Projets maîtres éditables -->
         <ng-container *ngFor="let u of usingMasterIssue">
           <span class="usage-chip usage-chip--editable"
                 [title]="u.issue?.issueKey + ' — ' + u.issue?.summary"
@@ -119,7 +151,6 @@
           </span>
         </ng-container>
 
-        <!-- Mon espace — Issues éditables -->
         <ng-container *ngFor="let u of usingIssue">
           <span class="usage-chip usage-chip--editable"
                 [title]="u.issue?.issueKey + ' — ' + u.issue?.summary"
@@ -132,13 +163,11 @@
           </span>
         </ng-container>
 
-        <!-- Séparateur entre mon espace et autre espace -->
         <div class="usage-sep"
              *ngIf="(usingMasterIssue.length + usingIssue.length) > 0 &&
                     (usingOtherMasterIssue.length + usingOtherIssue.length) > 0">
         </div>
 
-        <!-- Autre espace — Projets maîtres lecture seule -->
         <ng-container *ngFor="let u of usingOtherMasterIssue">
           <span class="usage-chip usage-chip--readonly"
                 [title]="u.issue?.issueKey + ' — ' + u.issue?.summary + ' (autre espace)'">
@@ -149,7 +178,6 @@
           </span>
         </ng-container>
 
-        <!-- Autre espace — Issues lecture seule -->
         <ng-container *ngFor="let u of usingOtherIssue">
           <span class="usage-chip usage-chip--readonly"
                 [title]="u.issue?.issueKey + ' — ' + u.issue?.summary + ' (autre espace)'">
@@ -159,15 +187,16 @@
             <i class="fas fa-lock chip-icon chip-icon--muted"></i>
           </span>
         </ng-container>
+      </div>
 
-        <!-- Bouton associer -->
+      <div class="usage-row">
         <button class="btn-add-chip"
                 [matMenuTriggerFor]="usageDocumentMaster"
                 (click)="$event.stopPropagation()">
           <i class="fas fa-plus"></i> Associer
         </button>
-
       </div>
+
     </header>
 
     <!-- Fil de conversation -->
@@ -251,6 +280,12 @@
     <main class="ex-main ex-empty">
       <i class="fas fa-envelope-open-text"></i>
       <p>Sélectionnez une demande ou composez-en une nouvelle</p>
+      <button class="btn-empty-new"
+              [matMenuTriggerFor]="newDocument"
+              #newDocumentTrigger="matMenuTrigger"
+              (menuOpened)="onMenNewDocumentOpened()">
+        <i class="fas fa-plus-circle"></i> Nouvelle demande
+      </button>
     </main>
   </ng-template>
 
