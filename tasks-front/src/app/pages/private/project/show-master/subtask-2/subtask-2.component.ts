@@ -125,7 +125,6 @@ export class Subtask2Component implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit(): void {
-    // ✅ Détection mobile AVANT tout chargement
     this.checkMobile();
 
     this.issueService.project$.subscribe(project => this.project = project);
@@ -133,7 +132,6 @@ export class Subtask2Component implements OnInit, AfterViewInit {
 
     this.issueService.issueMaster$.subscribe(issue => {
       this.parentIssue = issue;
-      // ✅ Reset l'état à chaque changement de parent
       this.selectedTask = null;
       this.selectedIssueSubject.next(undefined);
       this.showDetail = false;
@@ -149,17 +147,14 @@ export class Subtask2Component implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {}
 
-  // ✅ Recalcul à chaque resize — sans toucher showDetail sur mobile
   @HostListener('window:resize')
   checkMobile(): void {
     const wasMobile = this.isMobile;
     this.isMobile = window.innerWidth < 768;
 
-    // Passage desktop → mobile : on cache le détail pour montrer la liste
     if (!wasMobile && this.isMobile) {
       this.showDetail = false;
     }
-    // Passage mobile → desktop : on réaffiche le premier élément
     if (wasMobile && !this.isMobile && this.subtasks?.length > 0 && !this.selectedTask) {
       this.selectTask(this.subtasks[0]);
     }
@@ -186,9 +181,14 @@ export class Subtask2Component implements OnInit, AfterViewInit {
     this.showDetail = false;
   }
 
+  // ✅ CORRECTION : on réinitialise selectedTask pour que le *ngIf du panneau
+  //    détail (`selectedTask || (isMobile && showDetail)`) devienne false.
   backToList(): void {
     this.showDetail = false;
-    // selectedTask conservé pour rester sélectionné dans la liste
+    this.selectedTask = null;
+    this.selectedIssueSubject.next(undefined);
+    this.cancelEditSummary();
+    this.cancelEditDescription();
   }
 
   // ── Inline edit — Summary ────────────────────────────────────────
@@ -240,7 +240,6 @@ export class Subtask2Component implements OnInit, AfterViewInit {
     this.issueService.loadSubtask(this.parentIssue.id).subscribe(
       issues => {
         this.subtasks = issues || [];
-        // ✅ Sur desktop seulement : sélectionner le premier automatiquement
         if (!this.isMobile && this.subtasks.length > 0 && !this.selectedTask) {
           this.selectTask(this.subtasks[0]);
         }
@@ -277,10 +276,6 @@ export class Subtask2Component implements OnInit, AfterViewInit {
     });
   }
 
-  closeDetails() {
-    // todo : cette fonction n'est pas appelé ???
-    alert('Close');
-  }
   onMenuOpened(): void {
     this.newIssueForm?.setIsMaster(false);
     this.newIssueForm?.onOpen();
@@ -376,9 +371,6 @@ export class Subtask2Component implements OnInit, AfterViewInit {
   const key = ev.start ? new Date(ev.start).toISOString().slice(0, 10) : 'no-date';
   if (!map.has(key)) map.set(key, []);
   map.get(key).push(ev);
-
-
-
 }
 
 return Array.from(map.entries()).map(([dateKey, evs]) => {
