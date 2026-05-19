@@ -1,29 +1,29 @@
 <div class="du-panel" (click)="$event.stopPropagation()">
 
-  <!-- Header -->
+  <!-- ── Header ── -->
   <div class="du-header">
     <div class="du-header-title">
       <span class="du-icon">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M3 2a1 1 0 011-1h6l3 3v9a1 1 0 01-1 1H4a1 1 0 01-1-1V2z" stroke="currentColor" stroke-width="1.2" fill="none"/>
+          <path d="M3 2a1 1 0 011-1h6l3 3v9a1 1 0 01-1 1H4a1 1 0 01-1-1V2z"
+                stroke="currentColor" stroke-width="1.2" fill="none"/>
           <path d="M9 1v3h3" stroke="currentColor" stroke-width="1.2" fill="none"/>
           <path d="M5 7h6M5 9.5h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
         </svg>
       </span>
-      <h3 class="du-title">
-        {{ mode === 'MASTER' ? 'Lier à un projet / demande' : 'Lier à une tâche' }}
-      </h3>
+      <h3 class="du-title">Lier un document</h3>
     </div>
-    <span class="du-badge" [class.du-badge--sub]="mode === 'SAB_TASK'">
-      {{ mode === 'MASTER' ? 'Projet' : 'Tâche' }}
+    <span class="du-badge" [class.du-badge--sub]="!isAtRoot">
+      {{ depthLabel }}
     </span>
   </div>
 
-  <!-- Document info -->
+  <!-- ── Document info ── -->
   <div class="du-doc-card" *ngIf="_document">
     <span class="du-doc-icon">
       <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-        <path d="M3 2a1 1 0 011-1h6l3 3v9a1 1 0 01-1 1H4a1 1 0 01-1-1V2z" stroke="currentColor" stroke-width="1.3" fill="none"/>
+        <path d="M3 2a1 1 0 011-1h6l3 3v9a1 1 0 01-1 1H4a1 1 0 01-1-1V2z"
+              stroke="currentColor" stroke-width="1.3" fill="none"/>
         <path d="M9 1v3h3" stroke="currentColor" stroke-width="1.3" fill="none"/>
       </svg>
     </span>
@@ -41,7 +41,8 @@
     >
       <div class="du-step-bubble">
         <svg *ngIf="currentStep > i" width="12" height="12" viewBox="0 0 12 12" fill="none">
-          <path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
         <span *ngIf="currentStep <= i">{{ i + 1 }}</span>
       </div>
@@ -52,13 +53,38 @@
 
   <div class="du-body">
 
-    <!-- ── Step 0 : Sélection issue ── -->
+    <!-- ════════════════════════════════════════════════
+         Step 0 — Sélection
+    ════════════════════════════════════════════════ -->
     <section class="du-section" *ngIf="currentStep === 0">
-      <label class="du-section-label">
-        {{ mode === 'MASTER' ? 'Projet ou demande principale' : 'Tâche associée' }}
-        <span class="du-required">*</span>
-      </label>
 
+      <!-- Breadcrumb navigation -->
+      <div class="du-breadcrumb">
+        <ng-container *ngFor="let crumb of breadcrumb; let i = index; let last = last">
+          <button
+            class="du-crumb"
+            [class.du-crumb--active]="last"
+            [disabled]="last"
+            (click)="navigateTo(i)"
+            type="button"
+          >
+            <!-- Root icon -->
+            <svg *ngIf="crumb.issue === null" width="12" height="12" viewBox="0 0 16 16" fill="none">
+              <path d="M2 6l6-4 6 4v7a1 1 0 01-1 1H3a1 1 0 01-1-1V6z"
+                    stroke="currentColor" stroke-width="1.3" fill="none"/>
+            </svg>
+            <!-- Folder icon for intermediate -->
+            <svg *ngIf="crumb.issue !== null" width="12" height="12" viewBox="0 0 16 16" fill="none">
+              <path d="M2 4a1 1 0 011-1h3l2 2h5a1 1 0 011 1v6a1 1 0 01-1 1H3a1 1 0 01-1-1V4z"
+                    stroke="currentColor" stroke-width="1.2" fill="none"/>
+            </svg>
+            {{ crumb.label }}
+          </button>
+          <span class="du-crumb-sep" *ngIf="!last">›</span>
+        </ng-container>
+      </div>
+
+      <!-- Search -->
       <div class="du-search-wrap">
         <span class="du-search-icon">
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
@@ -70,33 +96,75 @@
           class="du-search"
           type="text"
           [(ngModel)]="searchIssue"
-          placeholder="{{ mode === 'MASTER' ? 'Rechercher un projet…' : 'Rechercher une tâche…' }}"
+          placeholder="Rechercher…"
         />
       </div>
 
-      <div class="du-issue-list">
+      <!-- Loading spinner -->
+      <div class="du-loading" *ngIf="loadingChildren">
+        <span class="du-spinner"></span>
+        <span>Chargement…</span>
+      </div>
+
+      <!-- Issue list -->
+      <div class="du-issue-list" *ngIf="!loadingChildren">
         <div
           *ngFor="let issue of filteredIssues"
           class="du-issue-item"
           [class.du-issue-item--selected]="selectedIssue?.id === issue.id"
           (click)="selectIssue(issue)"
         >
+          <!-- Radio -->
           <div class="du-issue-radio">
             <span class="du-radio-dot" *ngIf="selectedIssue?.id === issue.id"></span>
           </div>
+
+          <!-- Meta -->
           <div class="du-issue-meta">
-            <span class="du-issue-key">{{ issue.issueKey }}</span>
+            <div class="du-issue-top">
+              <span class="du-issue-key">{{ issue.issueKey }}</span>
+              <span class="du-issue-status" *ngIf="issue.status">{{ issue.status?.displayName }}</span>
+            </div>
             <span class="du-issue-summary">{{ issue.summary }}</span>
-            <span class="du-issue-status" *ngIf="issue.status">{{ issue.status?.displayName }}</span>
           </div>
+
+          <!-- Drill-down button -->
+          <button
+            class="du-drill-btn"
+            type="button"
+            title="Voir les sous-éléments"
+            (click)="openChildren(issue, $event)"
+          >
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+              <path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5"
+                    stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
         </div>
-        <div class="du-empty" *ngIf="!filteredIssues || filteredIssues.length === 0">
-          <span>Aucune {{ mode === 'MASTER' ? 'issue' : 'tâche' }} disponible</span>
+
+        <div class="du-empty" *ngIf="filteredIssues.length === 0">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+            <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="1.3"/>
+            <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+          <span>Aucun élément trouvé</span>
         </div>
       </div>
+
+      <!-- Selected hint -->
+      <div class="du-selection-hint" *ngIf="selectedIssue">
+        <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+          <path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>{{ selectionPath }}</span>
+      </div>
+
     </section>
 
-    <!-- ── Step 1 : Usages ── -->
+    <!-- ════════════════════════════════════════════════
+         Step 1 — Usages
+    ════════════════════════════════════════════════ -->
     <section class="du-section" *ngIf="currentStep === 1">
       <label class="du-section-label">
         Type d'usage du document
@@ -113,7 +181,8 @@
         >
           <span class="du-chip-check" *ngIf="isUsageSelected(usage)">
             <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
-              <path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="1.5"
+                    stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </span>
           <span class="du-chip-label">{{ usage.label }}</span>
@@ -125,30 +194,41 @@
       </div>
     </section>
 
-    <!-- ── Step 2 : Récapitulatif ── -->
+    <!-- ════════════════════════════════════════════════
+         Step 2 — Récapitulatif
+    ════════════════════════════════════════════════ -->
     <section class="du-section" *ngIf="currentStep === 2">
       <label class="du-section-label">Récapitulatif</label>
 
       <div class="du-recap-card">
+        <!-- Path breadcrumb in recap -->
+        <div class="du-recap-row" *ngIf="breadcrumb.length > 1">
+          <span class="du-recap-key">Chemin</span>
+          <div class="du-recap-val">
+            <span class="du-recap-path">{{ selectionPath }}</span>
+          </div>
+        </div>
+
         <div class="du-recap-row">
-          <span class="du-recap-key">{{ mode === 'MASTER' ? 'Projet' : 'Tâche' }}</span>
+          <span class="du-recap-key">Élément</span>
           <div class="du-recap-val">
             <span class="du-issue-key">{{ selectedIssue?.issueKey }}</span>
             <span class="du-recap-summary">{{ selectedIssue?.summary }}</span>
           </div>
         </div>
+
         <div class="du-recap-row">
           <span class="du-recap-key">Usages</span>
           <div class="du-recap-chips">
-            <span
-              *ngFor="let u of selectedUsages"
-              class="du-recap-usage-chip"
-            >{{ u.label }}</span>
+            <span *ngFor="let u of selectedUsages" class="du-recap-usage-chip">{{ u.label }}</span>
           </div>
         </div>
+
         <div class="du-recap-row" *ngIf="_document">
           <span class="du-recap-key">Document</span>
-          <span class="du-recap-val">{{ _document?.titre || 'Document sans titre' }}</span>
+          <div class="du-recap-val">
+            <span class="du-recap-summary">{{ _document?.titre || 'Document sans titre' }}</span>
+          </div>
         </div>
       </div>
     </section>
@@ -165,29 +245,30 @@
         (click)="prevStep()"
       >
         <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-          <path d="M10 4L6 8l4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M10 4L6 8l4 4" stroke="currentColor" stroke-width="1.4"
+                stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
         Retour
       </button>
     </div>
 
     <div class="du-footer-actions">
-      <!-- Création rapide (step 0 only) -->
+      <!-- Création rapide -->
       <button
         class="du-btn du-btn--ghost"
         type="button"
         *ngIf="currentStep === 0"
-        (click)="createNew(undefined)"
-        [title]="mode === 'MASTER' ? 'Créer un nouveau projet / demande' : 'Créer une nouvelle tâche'"
+        (click)="createNew()"
+        title="Créer un nouvel élément"
       >
         <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
           <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2"/>
           <path d="M8 5v6M5 8h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
         </svg>
-        {{ mode === 'MASTER' ? 'Nouveau projet' : 'Nouvelle tâche' }}
+        Nouveau
       </button>
 
-      <!-- Suivant (steps 0 & 1) -->
+      <!-- Suivant -->
       <button
         class="du-btn du-btn--primary"
         type="button"
@@ -197,12 +278,12 @@
       >
         Suivant
         <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-          <path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.4"
+                stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </button>
 
-      <!-- Confirmer (step 2) -->
-
+      <!-- Confirmer -->
       <app-spinner-button
         #saveBtn
         label="Confirmer"
@@ -211,8 +292,8 @@
         variant="primary"
         *ngIf="currentStep === steps.length - 1"
         [disabled]="!selectedIssue || selectedUsages.length === 0"
-        (clicked)="confirm()">
-      </app-spinner-button>
+        (clicked)="confirm()"
+      ></app-spinner-button>
     </div>
   </div>
 

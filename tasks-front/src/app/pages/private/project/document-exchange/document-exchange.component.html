@@ -307,8 +307,7 @@
   <mat-menu #usageDocumentMaster="matMenu" (click)="$event.stopPropagation()">
     <app-document-usage
       (onConfirmed)="loadUsageProject()"
-      [documentApp]="selectedDocument"
-      [mode]="'MASTER'">
+      [documentApp]="selectedDocument">
     </app-document-usage>
   </mat-menu>
 </div>

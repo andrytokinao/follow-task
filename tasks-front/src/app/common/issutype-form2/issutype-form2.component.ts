@@ -29,9 +29,6 @@ import {IconeViewComponent} from "../icone-view/icone-view.component";
   standalone: true,
   imports: [
     MatFormField,
-    MatCardContent,
-    MatCard,
-    MatCardHeader,
     MatIcon,
     MatButton,
     MatMenuModule,
