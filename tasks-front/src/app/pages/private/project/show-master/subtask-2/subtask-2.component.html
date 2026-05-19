@@ -1,54 +1,150 @@
-<div class="subtask-wrap" [class.has-detail]="selectedTask">
+<!-- ✅ Wrapper principal -->
+<div class="subtask-wrap">
 
-  <!-- ══════════ LISTE ══════════ -->
-  <div class="task-list" [class.full-width]="!selectedTask">
+  <!-- ══════════════════════════════════════════
+       LISTE
+       - Desktop : toujours visible
+       - Mobile  : visible seulement si showDetail = false
+  ══════════════════════════════════════════ -->
+  <div class="task-list"
+       [class.full-width]="!selectedTask && !isMobile"
+       [class.mobile-hidden]="isMobile && showDetail">
 
-    <div class="list-header">
-      <span class="list-title">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-        Tâches
-        <span class="badge">{{ subtasks?.length || 0 }}</span>
-      </span>
-      <button class="btn-add" [matMenuTriggerFor]="createSubtask"
+    <!-- Header liste -->
+    <div class="list-header"  (click)="closeDetails()">
+      <div class="list-title-wrap">
+        <span class="list-title">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <polyline points="9 11 12 14 22 4"/>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+          </svg>
+          Tâches
+        </span>
+        <span class="list-count">{{ subtasks?.length || 0 }}</span>
+      </div>
+      <button class="btn-add"
+              [matMenuTriggerFor]="createSubtask"
               #createSubtaskTrigger="matMenuTrigger"
               (menuOpened)="onMenuOpened()">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Sous-tâche
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        <span class="btn-add-label">Nouvelle</span>
       </button>
     </div>
 
-    <div class="list-scroll">
-      <div *ngFor="let task of subtasks"
-           class="task-row"
-           [class.active]="task === selectedTask"
-           (click)="selectTask(task)">
-        <div class="task-key">{{ task.issueKey }}</div>
-        <div class="task-summary">{{ task.summary }}</div>
-        <div class="task-meta">
-          <app-assign-field [issue]="task"></app-assign-field>
-          <app-status-field [issue]="task"></app-status-field>
-        </div>
+    <!-- Parent issue pill -->
+    <div class="parent-pill" *ngIf="parentIssue">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+      </svg>
+      <span class="parent-key">{{ parentIssue.issueKey }}</span>
+      <span class="parent-sep">·</span>
+      <span class="parent-summary">{{ parentIssue.summary }}</span>
+    </div>
+
+    <!-- Loading skeleton -->
+    <div class="list-loading" *ngIf="loadingSubtask">
+      <div class="skeleton-row" *ngFor="let i of [1,2,3]">
+        <div class="sk sk-key"></div>
+        <div class="sk sk-summary"></div>
+        <div class="sk sk-meta"></div>
       </div>
+    </div>
+
+    <!-- Task rows -->
+    <div class="list-scroll" *ngIf="!loadingSubtask">
+
+      <ng-container *ngIf="subtasks?.length > 0; else emptyState">
+        <div *ngFor="let task of subtasks"
+             class="task-row"
+             [class.active]="task === selectedTask"
+             (click)="selectTask(task)"
+             [@taskRowIn]>
+
+          <div class="task-row-left">
+            <div class="task-status-dot" [ngClass]="getStatusClass(task)"></div>
+            <div class="task-row-content">
+              <div class="task-key">{{ task.issueKey }}</div>
+              <div class="task-summary">{{ task.summary }}</div>
+              <div class="task-meta">
+                <app-assign-field [issue]="task"></app-assign-field>
+                <app-status-field [issue]="task"></app-status-field>
+              </div>
+            </div>
+          </div>
+
+          <!-- Chevron mobile -->
+          <div class="task-row-chevron" *ngIf="isMobile">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </div>
+
+        </div>
+      </ng-container>
+
+      <!-- Empty state -->
+      <ng-template #emptyState>
+        <div class="list-empty">
+          <div class="empty-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3">
+              <rect x="3" y="3" width="18" height="18" rx="3"/>
+              <path d="M9 12l2 2 4-4"/>
+            </svg>
+          </div>
+          <p class="empty-text">Aucune tâche pour ce projet</p>
+          <button class="btn-empty-add"
+                  [matMenuTriggerFor]="createSubtask"
+                  #createSubtaskTrigger="matMenuTrigger"
+                  (menuOpened)="onMenuOpened()">
+            Créer une tâche
+          </button>
+        </div>
+      </ng-template>
+
     </div>
   </div>
 
-  <!-- ══════════ DIVIDER ══════════ -->
-  <div class="divider" *ngIf="selectedTask" (mousedown)="startResizing($event)"></div>
+  <!-- ══════════════════════════════════════════
+       DIVIDER — desktop uniquement
+  ══════════════════════════════════════════ -->
+  <div class="divider"
+       *ngIf="selectedTask && !isMobile"
+       (mousedown)="startResizing($event)">
+  </div>
 
-  <!-- ══════════ DÉTAIL ══════════ -->
-  <div class="task-detail" *ngIf="selectedTask">
+  <!-- ══════════════════════════════════════════
+       DÉTAIL
+       - Desktop : panneau droit
+       - Mobile  : overlay plein écran (position: absolute, inset: 0)
+  ══════════════════════════════════════════ -->
+  <div class="task-detail"
+       *ngIf="selectedTask || (isMobile && showDetail)"
+       [class.mobile-detail]="isMobile"
+       [@slideInDetail]>
 
-    <!-- Header -->
-    <div class="detail-header">
-      <div class="detail-title">
-        <span class="issue-key">{{ selectedTask.issueKey }}</span>
+    <!-- ── Sticky detail header ── -->
+    <div class="detail-header" [class.mobile-detail-header]="isMobile">
+
+      <!-- Bouton retour mobile -->
+      <button class="btn-back" *ngIf="isMobile" (click)="backToList()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+        <span class="btn-back-label">Tâches</span>
+      </button>
+
+      <div class="detail-title" [class.mobile-title]="isMobile">
+        <span class="issue-key-badge">{{ selectedTask?.issueKey }}</span>
 
         <ng-container *ngIf="!editingSummary; else editSummaryTpl">
-          <span class="issue-summary editable-field"
-                (click)="startEditSummary()"
-                title="Cliquer pour modifier">
-            {{ selectedTask.summary }}
-            <svg class="edit-hint" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          <span class="issue-summary editable-field" (click)="startEditSummary()" title="Modifier">
+            {{ selectedTask?.summary }}
+            <svg class="edit-hint" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
           </span>
         </ng-container>
         <ng-template #editSummaryTpl>
@@ -60,50 +156,67 @@
                    maxlength="255"
                    autofocus />
             <div class="inline-edit-actions">
-              <button class="btn-save-inline" (click)="saveSummary()" title="Sauvegarder">
+              <button class="btn-save-inline" (click)="saveSummary()">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
               </button>
-              <button class="btn-cancel-inline" (click)="cancelEditSummary()" title="Annuler">
+              <button class="btn-cancel-inline" (click)="cancelEditSummary()">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
               </button>
             </div>
           </div>
         </ng-template>
       </div>
-      <button class="btn-close" (click)="closeDetail()" title="Fermer">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+
+      <!-- Bouton fermer desktop -->
+      <button class="btn-close" *ngIf="!isMobile" (click)="closeDetail()" title="Fermer">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
       </button>
     </div>
 
+    <!-- ── Barre de statut mobile ── -->
+    <div class="mobile-status-bar" *ngIf="isMobile && selectedTask">
+      <app-status-field [issue]="selectedTask"></app-status-field>
+      <app-assign-field [issue]="selectedTask"></app-assign-field>
+    </div>
+
+    <!-- ══ Sections ══ -->
+
     <!-- Description -->
-    <div class="detail-section description-section">
+    <div class="detail-section">
       <div class="section-label">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+        </svg>
         Description
         <button class="btn-edit-section" *ngIf="!editingDescription" (click)="startEditDescription()">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
           Modifier
         </button>
       </div>
 
       <ng-container *ngIf="!editingDescription; else editDescTpl">
         <div class="description-text"
-             [innerHTML]="selectedTask.description || '<span class=\'empty-desc\'>Aucune description — cliquer pour ajouter</span>'"
+             [innerHTML]="selectedTask?.description || '<span class=\'empty-desc\'>Aucune description — toucher pour ajouter</span>'"
              (click)="startEditDescription()"
-             [class.empty]="!selectedTask.description"
-             title="Cliquer pour modifier">
+             [class.empty]="!selectedTask?.description">
         </div>
       </ng-container>
       <ng-template #editDescTpl>
         <div class="description-editor-wrap">
           <app-quill-editor [(content)]="editDescriptionValue" [theme]="'snow'"></app-quill-editor>
           <div class="editor-actions">
-            <button class="btn-save-inline" (click)="saveDescription()">
+            <button class="btn-save-inline with-label" (click)="saveDescription()">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
               Sauvegarder
             </button>
             <button class="btn-cancel-inline outlined" (click)="cancelEditDescription()">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
               Annuler
             </button>
           </div>
@@ -114,7 +227,12 @@
     <!-- Champs personnalisés -->
     <div class="detail-section">
       <div class="section-label">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7"/>
+          <rect x="14" y="3" width="7" height="7"/>
+          <rect x="14" y="14" width="7" height="7"/>
+          <rect x="3" y="14" width="7" height="7"/>
+        </svg>
         Champs personnalisés
       </div>
       <div class="fields-grid">
@@ -134,29 +252,38 @@
     </div>
 
     <!-- Pièces jointes -->
-    <div class="detail-section attachments-section">
+    <div class="detail-section">
       <div class="section-label">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+        </svg>
         Pièces jointes
       </div>
       <div class="attachments-row">
         <app-issue-documents-viewer [issue$]="selectedIssue$" [typeDocument]="'ISSUE_FILES'"></app-issue-documents-viewer>
         <button class="btn-attach" (click)="openAttachDialog()">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
           Ajouter
         </button>
       </div>
     </div>
 
-    <!-- ══════════ PLANNING ══════════ -->
+    <!-- Planning -->
     <div class="detail-section events-section">
       <div class="section-label">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8"  y1="2" x2="8"  y2="6"/>
+          <line x1="3"  y1="10" x2="21" y2="10"/>
+        </svg>
         Planning d'exécution
-        <span class="badge" *ngIf="events?.length">{{ events.length }}</span>
+        <span class="section-badge" *ngIf="events?.length">{{ events.length }}</span>
       </div>
 
-      <ng-container *ngIf="groupedEvents && groupedEvents.length > 0; else noEvents">
+      <ng-container *ngIf="groupedEvents?.length > 0; else noEvents">
         <div class="day-group" *ngFor="let group of groupedEvents; let gi = last">
 
           <div class="day-separator">
@@ -165,8 +292,14 @@
                  [class.today]="group.isToday"
                  [class.past]="group.isPast"
                  [class.future]="group.isFuture">
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" *ngIf="group.isToday"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" *ngIf="!group.isToday"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" *ngIf="group.isToday">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+              </svg>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" *ngIf="!group.isToday">
+                <rect x="3" y="4" width="18" height="18" rx="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
               {{ group.label }}
             </div>
             <div class="day-line"></div>
@@ -174,99 +307,124 @@
 
           <div class="timeline">
             <div class="event-card"
-                 *ngFor="let ev of group.events; let i = index; let last = last"
+                 *ngFor="let ev of group.events; let last = last"
                  [ngClass]="getEventColorClass(ev.completionPercentage)">
 
-              <!-- Colonne timeline : anneau SVG + ligne neutre -->
               <div class="event-timeline-col">
                 <div class="tl-ring-wrap">
-                  <!-- piste fond -->
                   <svg class="tl-ring-svg" viewBox="0 0 32 32" fill="none">
                     <circle cx="16" cy="16" r="12"
-                            [attr.stroke]="getDotColors(ev.completionPercentage).ring"
+                            [attr.stroke]="getDotColors(ev.completionPercentage).track"
                             stroke-width="3"/>
                     <circle cx="16" cy="16" r="12"
-                            [attr.stroke]="getDotColors(ev.completionPercentage).track"
+                            [attr.stroke]="getDotColors(ev.completionPercentage).ring"
                             stroke-width="3"
                             stroke-linecap="round"
                             [attr.stroke-dasharray]="getRingDash(ev.completionPercentage)"
-                            [attr.stroke-dashoffset]="getRingOffset(ev.completionPercentage)"
+                            [attr.stroke-dashoffset]="getRingOffset()"
                             transform="rotate(-90 16 16)"/>
                   </svg>
                   <span class="tl-pct" [style.color]="getDotColors(ev.completionPercentage).text">
-                    <ng-container *ngIf="ev.completionPercentage != null">{{ ev.completionPercentage }}<small>%</small></ng-container>
+                    <ng-container *ngIf="ev.completionPercentage != null">
+                      {{ ev.completionPercentage }}<small>%</small>
+                    </ng-container>
                     <ng-container *ngIf="ev.completionPercentage == null">–</ng-container>
                   </span>
                 </div>
-                <!-- ligne purement décorative, rôle timeline -->
                 <div class="tl-line" *ngIf="!last || !gi"></div>
               </div>
 
-              <!-- Corps -->
               <div class="event-body" [class.past]="group.isPast">
                 <div class="event-header">
                   <span class="event-title" [title]="ev.title">{{ ev.title }}</span>
                   <div class="event-header-right">
                     <span class="event-time">
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                      </svg>
                       {{ ev.start | date:'HH:mm' }}
                       <span *ngIf="ev.end"> → {{ ev.end | date:'HH:mm' }}</span>
                     </span>
                     <div class="event-actions">
-                      <button class="btn-ev-action edit" [matMenuTriggerFor]="editEventMenu" #editPlanningTrigger="matMenuTrigger" (menuOpened)="editEvent(ev)" title="Modifier">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                      <button class="btn-ev-action edit"
+                              [matMenuTriggerFor]="editEventMenu"
+                              #editPlanningTrigger="matMenuTrigger"
+                              (menuOpened)="editEvent(ev)"
+                              title="Modifier">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                        </svg>
                       </button>
                       <button class="btn-ev-action delete" (click)="deleteEvent(ev, $event)" title="Supprimer">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <polyline points="3 6 5 6 21 6"/>
+                          <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                          <path d="M10 11v6"/><path d="M14 11v6"/>
+                          <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                        </svg>
                       </button>
                     </div>
                   </div>
                 </div>
-
-                <div
-                  class="event-desc"
-                  *ngIf="ev.description"
-                  [title]="ev.description"
-                  [innerHTML]="ev.description">
+                <div class="event-desc" *ngIf="ev.description"
+                     [innerHTML]="ev.description"
+                     [title]="ev.description">
                 </div>
-
                 <div class="event-location" *ngIf="ev.location">
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                    <circle cx="12" cy="10" r="3"/>
+                  </svg>
                   {{ ev.location }}
                 </div>
               </div>
-
             </div>
           </div>
-
         </div>
       </ng-container>
 
       <ng-template #noEvents>
         <div class="no-events">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="4" width="18" height="18" rx="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
           <span>Aucun planning défini</span>
         </div>
       </ng-template>
 
-      <button class="btn-add-event" [matMenuTriggerFor]="addPlanning" #addPlanningTrigger="matMenuTrigger" (menuOpened)="onPlanningMenuOpened()">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      <button class="btn-add-event"
+              [matMenuTriggerFor]="addPlanning"
+              #addPlanningTrigger="matMenuTrigger"
+              (menuOpened)="onPlanningMenuOpened()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
         Planifier une action
       </button>
     </div>
 
+    <!-- Safe area iOS -->
+    <div class="mobile-safe-area" *ngIf="isMobile"></div>
+
   </div>
+
 </div>
 
+<!-- ── Menus ── -->
 <mat-menu #createSubtask="matMenu">
-  <app-new-issue-form [parentIssue]="parentIssue" [isMaster]="false"
-                      #newIssueForm (saved)="closeCreateSubtaskMenu()">
+  <app-new-issue-form [parentIssue]="parentIssue"
+                      [isMaster]="false"
+                      #newIssueForm
+                      (saved)="closeCreateSubtaskMenu()">
   </app-new-issue-form>
 </mat-menu>
 
-<mat-menu #addPlanning="matMenu" class="planning-panel"
-          [overlapTrigger]="false" xPosition="after">
-  <app-edit-event #newEventForm [byIssue]="true"
+<mat-menu #addPlanning="matMenu" class="planning-panel" [overlapTrigger]="false" xPosition="after">
+  <app-edit-event #newEventForm
+                  [byIssue]="true"
                   (saved)="closeEventForm()"
                   [selectedMaster]="parentIssue"
                   [selectedSubtask]="selectedTask"
@@ -274,9 +432,9 @@
   </app-edit-event>
 </mat-menu>
 
-<mat-menu #editEventMenu="matMenu" class="planning-panel"
-          [overlapTrigger]="false" xPosition="after">
-  <app-edit-event #editEventForm [byIssue]="true"
+<mat-menu #editEventMenu="matMenu" class="planning-panel" [overlapTrigger]="false" xPosition="after">
+  <app-edit-event #editEventForm
+                  [byIssue]="true"
                   (saved)="closeEditEventForm()"
                   [selectedMaster]="parentIssue"
                   [selectedSubtask]="selectedTask">

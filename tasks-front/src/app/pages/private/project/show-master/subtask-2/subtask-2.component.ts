@@ -1,4 +1,10 @@
-import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  HostListener,
+  OnInit,
+  ViewChild
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ConfigService } from '../../../../../services/config.service';
@@ -18,17 +24,37 @@ import { NewIssueFormComponent } from '../../../../../common/new-issue-form/new-
 import { EventsService } from '../../../../../services/events.service';
 import { EditEventComponent } from '../../../../../common/edit-event/edit-event.component';
 import { ConnectedPosition } from '@angular/cdk/overlay';
+import { trigger, transition, style, animate } from '@angular/animations';
 
-/** Couleurs selon le taux d'avancement */
 interface DotColors { ring: string; track: string; text: string; }
 
 @Component({
   selector: 'app-subtask-2',
   standalone: false,
   templateUrl: './subtask-2.component.html',
-  styleUrl: './subtask-2.component.scss'
+  styleUrl: './subtask-2.component.scss',
+  animations: [
+    trigger('slideInDetail', [
+      transition(':enter', [
+        style({ transform: 'translateX(100%)', opacity: 0 }),
+        animate('280ms cubic-bezier(0.4,0,0.2,1)',
+          style({ transform: 'translateX(0)', opacity: 1 }))
+      ]),
+      transition(':leave', [
+        animate('220ms cubic-bezier(0.4,0,0.2,1)',
+          style({ transform: 'translateX(100%)', opacity: 0 }))
+      ])
+    ]),
+    trigger('taskRowIn', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(8px)' }),
+        animate('200ms cubic-bezier(0.4,0,0.2,1)',
+          style({ opacity: 1, transform: 'translateY(0)' }))
+      ])
+    ])
+  ]
 })
-export class Subtask2Component implements OnInit {
+export class Subtask2Component implements OnInit, AfterViewInit {
 
   planningOpen = false;
   planningPositions: ConnectedPosition[] = [
@@ -56,21 +82,24 @@ export class Subtask2Component implements OnInit {
   currentCustomFieldValue: CustomFieldValue | null = null;
   usingCustomFields: UsingCustomField[] = [];
 
-  // ── Inline edit state ────────────────────────────────────────────
+  // ── Mobile state ─────────────────────────────────────────────────
+  showDetail = false;
+  isMobile = false;
+
+  // ── Inline edit ──────────────────────────────────────────────────
   editingSummary = false;
-  editSummaryValue: String = '';
-
+  editSummaryValue = '';
   editingDescription = false;
-  editDescriptionValue: String = '';
+  editDescriptionValue = '';
 
-  // ── Streams ─────────────────────────────────────────────────────
+  // ── Streams ──────────────────────────────────────────────────────
   private selectedIssueSubject = new BehaviorSubject<Issue>(undefined);
   selectedIssue$ = this.selectedIssueSubject.asObservable();
 
-  // ── Resize state ────────────────────────────────────────────────
+  // ── Resize (desktop) ────────────────────────────────────────────
   resizing = false;
 
-  // ── View refs ───────────────────────────────────────────────────
+  // ── View refs ────────────────────────────────────────────────────
   @ViewChild('createSubtaskTrigger') createSubtaskTrigger!: MatMenuTrigger;
   @ViewChild('newIssueForm')         newIssueForm!: NewIssueFormComponent;
   @ViewChild('newEventForm')         newEventForm: EditEventComponent;
@@ -81,8 +110,7 @@ export class Subtask2Component implements OnInit {
   private project: any;
   private profile: any;
 
-  // Circonférence du cercle SVG (r=12, viewBox 32x32)
-  private readonly RING_R = 12;
+  private readonly RING_R    = 12;
   private readonly RING_CIRC = 2 * Math.PI * this.RING_R;
 
   constructor(
@@ -96,17 +124,48 @@ export class Subtask2Component implements OnInit {
     private eventService: EventsService
   ) {}
 
-  // ── Lifecycle ───────────────────────────────────────────────────
   ngOnInit(): void {
+    // ✅ Détection mobile AVANT tout chargement
+    this.checkMobile();
+
     this.issueService.project$.subscribe(project => this.project = project);
     this.authService.getProfile().subscribe(res => this.profile = res);
+
     this.issueService.issueMaster$.subscribe(issue => {
       this.parentIssue = issue;
-      if (this.parentIssue?.id) this.loadSubtask();
+      // ✅ Reset l'état à chaque changement de parent
+      this.selectedTask = null;
+      this.selectedIssueSubject.next(undefined);
+      this.showDetail = false;
+      this.subtasks = [];
+      this.events = [];
+      this.groupedEvents = [];
+
+      if (this.parentIssue?.id) {
+        this.loadSubtask();
+      }
     });
   }
 
-  // ── Task selection ──────────────────────────────────────────────
+  ngAfterViewInit(): void {}
+
+  // ✅ Recalcul à chaque resize — sans toucher showDetail sur mobile
+  @HostListener('window:resize')
+  checkMobile(): void {
+    const wasMobile = this.isMobile;
+    this.isMobile = window.innerWidth < 768;
+
+    // Passage desktop → mobile : on cache le détail pour montrer la liste
+    if (!wasMobile && this.isMobile) {
+      this.showDetail = false;
+    }
+    // Passage mobile → desktop : on réaffiche le premier élément
+    if (wasMobile && !this.isMobile && this.subtasks?.length > 0 && !this.selectedTask) {
+      this.selectTask(this.subtasks[0]);
+    }
+  }
+
+  // ── Task selection ───────────────────────────────────────────────
   selectTask(task: Issue): void {
     this.cancelEditSummary();
     this.cancelEditDescription();
@@ -114,6 +173,9 @@ export class Subtask2Component implements OnInit {
     this.selectedIssueSubject.next(task);
     this.loadValues();
     this.loadEvents();
+    if (this.isMobile) {
+      this.showDetail = true;
+    }
   }
 
   closeDetail(): void {
@@ -121,12 +183,18 @@ export class Subtask2Component implements OnInit {
     this.selectedIssueSubject.next(undefined);
     this.cancelEditSummary();
     this.cancelEditDescription();
+    this.showDetail = false;
+  }
+
+  backToList(): void {
+    this.showDetail = false;
+    // selectedTask conservé pour rester sélectionné dans la liste
   }
 
   // ── Inline edit — Summary ────────────────────────────────────────
   startEditSummary(): void {
     if (!this.selectedTask) return;
-    this.editSummaryValue = this.selectedTask.summary || '';
+    this.editSummaryValue = this.selectedTask?.summary?.toString() || '';
     this.editingSummary = true;
   }
 
@@ -134,15 +202,8 @@ export class Subtask2Component implements OnInit {
     if (!this.selectedTask) return;
     const trimmed = this.editSummaryValue.trim();
     if (!trimmed) { this.cancelEditSummary(); return; }
-    const previousSummary = this.selectedTask.summary;
     this.selectedTask.summary = trimmed;
     this.editingSummary = false;
-
-/*
-    this.issueService.updateIssue({ ...this.selectedTask, summary: trimmed }).subscribe({
-      error: () => { this.selectedTask.summary = previousSummary; }
-    });
-*/
   }
 
   cancelEditSummary(): void {
@@ -150,24 +211,17 @@ export class Subtask2Component implements OnInit {
     this.editSummaryValue = '';
   }
 
-  // ── Inline edit — Description ────────────────────────────────────
+  // ── Inline edit — Description ─────────────────────────────────────
   startEditDescription(): void {
     if (!this.selectedTask) return;
-    this.editDescriptionValue = this.selectedTask.description || '';
+    this.editDescriptionValue = this.selectedTask?.description?.toString() || '';
     this.editingDescription = true;
   }
 
   saveDescription(): void {
     if (!this.selectedTask) return;
-    const previous = this.selectedTask.description;
     this.selectedTask.description = this.editDescriptionValue;
     this.editingDescription = false;
-
-/*
-    this.issueService.updateIssue({ ...this.selectedTask, description: this.editDescriptionValue }).subscribe({
-      error: () => { this.selectedTask.description = previous; }
-    });
-*/
   }
 
   cancelEditDescription(): void {
@@ -175,21 +229,27 @@ export class Subtask2Component implements OnInit {
     this.editDescriptionValue = '';
   }
 
-  // ── Data loading ────────────────────────────────────────────────
+  // ── Data loading ─────────────────────────────────────────────────
   protected loadSubtask(): void {
     this.loadingSubtask = true;
     this.subtasks = [];
-    if (!this.parentIssue?.id) { this.loadingSubtask = false; return; }
-
+    if (!this.parentIssue?.id) {
+      this.loadingSubtask = false;
+      return;
+    }
     this.issueService.loadSubtask(this.parentIssue.id).subscribe(
       issues => {
-        this.subtasks = issues;
-        if (this.subtasks?.length > 0 && !this.selectedTask) {
+        this.subtasks = issues || [];
+        // ✅ Sur desktop seulement : sélectionner le premier automatiquement
+        if (!this.isMobile && this.subtasks.length > 0 && !this.selectedTask) {
           this.selectTask(this.subtasks[0]);
         }
         this.loadingSubtask = false;
       },
-      () => { this.loadingSubtask = false; }
+      () => {
+        this.subtasks = [];
+        this.loadingSubtask = false;
+      }
     );
   }
 
@@ -206,7 +266,6 @@ export class Subtask2Component implements OnInit {
     this.events = [];
     this.groupedEvents = [];
     if (!this.selectedIssueSubject.value?.id) return;
-
     const criteria: EventSearchCriteria = { issueIds: [this.selectedIssueSubject.value.id] };
     this.eventService.searchEvents(criteria).subscribe(events => {
       this.events = (events || []).sort((a, b) => {
@@ -218,7 +277,10 @@ export class Subtask2Component implements OnInit {
     });
   }
 
-  // ── Menus ───────────────────────────────────────────────────────
+  closeDetails() {
+    // todo : cette fonction n'est pas appelé ???
+    alert('Close');
+  }
   onMenuOpened(): void {
     this.newIssueForm?.setIsMaster(false);
     this.newIssueForm?.onOpen();
@@ -245,19 +307,17 @@ export class Subtask2Component implements OnInit {
     this.loadEvents();
   }
 
-  // ── Event actions ────────────────────────────────────────────────
+  // ── Event actions ─────────────────────────────────────────────────
   editEvent(ev: EventApp): void {
-    if (this.editEventForm)
-      this.editEventForm.loadEvent(ev.id);
+    if (this.editEventForm) this.editEventForm.loadEvent(ev.id);
   }
 
   deleteEvent(ev: EventApp, mouseEvent: MouseEvent): void {
     mouseEvent.stopPropagation();
     if (!confirm(`Supprimer l'événement "${ev.title || '(Sans titre)'}" ?`)) return;
-//    this.eventService.deleteEvent(ev.id).subscribe(() => this.loadEvents());
   }
 
-  // ── Custom fields ───────────────────────────────────────────────
+  // ── Custom fields ─────────────────────────────────────────────────
   savedCustomFieldValue(values: CustomFieldValue[]): void {
     this.customFieldValues = values;
     this.currentCustomFieldValue = null;
@@ -270,26 +330,17 @@ export class Subtask2Component implements OnInit {
     };
   }
 
-  openAttachDialog(): void { /* implement */ }
+  openAttachDialog(): void {}
 
-  // ── Ring helpers (appelés depuis le template) ────────────────────
-
-  /**
-   * Classe CSS appliquée sur .event-card selon le pourcentage.
-   * Pilote la couleur de bordure + fond de l'event-body via SCSS.
-   */
+  // ── Ring helpers ──────────────────────────────────────────────────
   getEventColorClass(pct: number | null | undefined): string {
-    if (pct == null)  return 'cc-none';
-    if (pct >= 100)   return 'cc-done';
-    if (pct >= 60)    return 'cc-good';
-    if (pct >= 30)    return 'cc-mid';
+    if (pct == null) return 'cc-none';
+    if (pct >= 100)  return 'cc-done';
+    if (pct >= 60)   return 'cc-good';
+    if (pct >= 30)   return 'cc-mid';
     return 'cc-low';
   }
 
-  /**
-   * Couleurs de l'anneau SVG (arc + piste + texte centré).
-   * Pas de dépendance SCSS, tout est inline sur le SVG.
-   */
   getDotColors(pct: number | null | undefined): DotColors {
     if (pct == null) return { ring: '#d1d5db', track: '#f3f4f6', text: '#9ca3af' };
     if (pct >= 100)  return { ring: '#10b981', track: '#d1fae5', text: '#059669' };
@@ -301,29 +352,38 @@ export class Subtask2Component implements OnInit {
   getRingDash(pct: number | null | undefined): string {
     const p = Math.max(0, Math.min(100, pct ?? 0));
     const filled = this.RING_CIRC * p / 100;
-    const empty = this.RING_CIRC - filled;
-    return `${empty.toFixed(2)} ${filled.toFixed(2)}`;
+    return `${(this.RING_CIRC - filled).toFixed(2)} ${filled.toFixed(2)}`;
   }
 
-  getRingOffset(pct: number | null | undefined): string {
-    return '0';
+  getRingOffset(): string { return '0'; }
+
+  // ── Status helpers ────────────────────────────────────────────────
+  getStatusClass(issue: Issue): string {
+    const status = issue?.status?.displayName?.toLowerCase() ?? '';
+    if (status.includes('done') || status.includes('terminé') || status.includes('closed')) return 'status-done';
+    if (status.includes('progress') || status.includes('cours'))  return 'status-progress';
+    if (status.includes('review') || status.includes('révision')) return 'status-review';
+    return 'status-todo';
   }
-  // ── Grouped events builder ───────────────────────────────────────
+
+  // ── Grouped events ────────────────────────────────────────────────
   private buildGroupedEvents(events: EventApp[]): typeof this.groupedEvents {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-
   const map = new Map<string, EventApp[]>();
+
   for (const ev of events) {
   const key = ev.start ? new Date(ev.start).toISOString().slice(0, 10) : 'no-date';
   if (!map.has(key)) map.set(key, []);
   map.get(key).push(ev);
+
+
+
 }
 
 return Array.from(map.entries()).map(([dateKey, evs]) => {
   let label: string;
   let isToday = false, isPast = false, isFuture = false;
-
   if (dateKey === 'no-date') {
     label = 'Sans date'; isFuture = true;
   } else {
@@ -331,12 +391,11 @@ return Array.from(map.entries()).map(([dateKey, evs]) => {
     d.setHours(0, 0, 0, 0);
     const diff = Math.round((d.getTime() - today.getTime()) / 86400000);
     if (diff === 0)       { label = "Aujourd'hui"; isToday = true; }
-    else if (diff === 1)  { label = 'Demain';       isFuture = true; }
-    else if (diff === -1) { label = 'Hier';          isPast = true; }
+    else if (diff === 1)  { label = 'Demain';      isFuture = true; }
+    else if (diff === -1) { label = 'Hier';        isPast = true; }
     else if (diff > 1)    { label = this.formatDateLabel(d); isFuture = true; }
     else                  { label = this.formatDateLabel(d); isPast = true; }
   }
-
   return { label, dateKey, events: evs, isToday, isPast, isFuture };
 });
 }
@@ -345,16 +404,17 @@ private formatDateLabel(d: Date): string {
   return d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
 }
 
-// ── Resize ──────────────────────────────────────────────────────
+// ── Resize (desktop) ─────────────────────────────────────────────
 startResizing(event: MouseEvent): void {
-  this.resizing = true;
-  document.body.style.cursor = 'col-resize';
+  if (this.isMobile) return;
+this.resizing = true;
+document.body.style.cursor = 'col-resize';
 }
 
 @HostListener('window:mousemove', ['$event'])
 onMouseMove(event: MouseEvent): void {
-  if (!this.resizing) return;
-const list = document.querySelector('.task-list') as HTMLElement;
+  if (!this.resizing || this.isMobile) return;
+const list      = document.querySelector('.task-list') as HTMLElement;
 const container = document.querySelector('.subtask-wrap') as HTMLElement;
 if (!list || !container) return;
 const newWidth = event.clientX - container.getBoundingClientRect().left;
