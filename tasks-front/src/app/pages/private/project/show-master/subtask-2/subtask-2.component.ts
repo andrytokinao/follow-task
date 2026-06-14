@@ -28,6 +28,8 @@ import { trigger, transition, style, animate } from '@angular/animations';
 
 interface DotColors { ring: string; track: string; text: string; }
 
+type TabKey = 'comments' | 'attachments' | 'planning' | 'history';
+
 @Component({
   selector: 'app-subtask-2',
   standalone: false,
@@ -36,27 +38,23 @@ interface DotColors { ring: string; track: string; text: string; }
   animations: [
     trigger('slideInDetail', [
       transition(':enter', [
-        style({ transform: 'translateX(100%)', opacity: 0 }),
-        animate('280ms cubic-bezier(0.4,0,0.2,1)',
-          style({ transform: 'translateX(0)', opacity: 1 }))
+        style({ transform: 'translateX(32px)', opacity: 0 }),
+        animate('240ms cubic-bezier(0.4,0,0.2,1)', style({ transform: 'translateX(0)', opacity: 1 }))
       ]),
       transition(':leave', [
-        animate('220ms cubic-bezier(0.4,0,0.2,1)',
-          style({ transform: 'translateX(100%)', opacity: 0 }))
+        animate('180ms cubic-bezier(0.4,0,0.2,1)', style({ transform: 'translateX(32px)', opacity: 0 }))
       ])
     ]),
     trigger('taskRowIn', [
       transition(':enter', [
-        style({ opacity: 0, transform: 'translateY(8px)' }),
-        animate('200ms cubic-bezier(0.4,0,0.2,1)',
-          style({ opacity: 1, transform: 'translateY(0)' }))
+        style({ opacity: 0, transform: 'translateY(6px)' }),
+        animate('180ms cubic-bezier(0.4,0,0.2,1)', style({ opacity: 1, transform: 'translateY(0)' }))
       ])
     ])
   ]
 })
 export class Subtask2Component implements OnInit, AfterViewInit {
 
-  planningOpen = false;
   planningPositions: ConnectedPosition[] = [
     { originX: 'end',   originY: 'top',    overlayX: 'start', overlayY: 'top' },
     { originX: 'start', originY: 'top',    overlayX: 'end',   overlayY: 'top' },
@@ -71,24 +69,22 @@ export class Subtask2Component implements OnInit, AfterViewInit {
   selectedTask: Issue | null = null;
   events: EventApp[] = [];
   groupedEvents: {
-    label: string;
-    dateKey: string;
-    events: EventApp[];
-    isToday: boolean;
-    isPast: boolean;
-    isFuture: boolean;
+    label: string; dateKey: string; events: EventApp[];
+    isToday: boolean; isPast: boolean; isFuture: boolean;
   }[] = [];
   customFieldValues: CustomFieldValue[] = [];
   currentCustomFieldValue: CustomFieldValue | null = null;
   usingCustomFields: UsingCustomField[] = [];
 
-  // ── Mobile state ─────────────────────────────────────────────────
-  showDetail = false;
-  isMobile = false;
+  // ── UI state ─────────────────────────────────────────────────────
+  showDetail    = false;
+  isMobile      = false;
+  listCollapsed = false;
+  activeTab: TabKey = 'comments';
 
   // ── Inline edit ──────────────────────────────────────────────────
-  editingSummary = false;
-  editSummaryValue = '';
+  editingSummary     = false;
+  editSummaryValue   = '';
   editingDescription = false;
   editDescriptionValue = '';
 
@@ -126,10 +122,8 @@ export class Subtask2Component implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.checkMobile();
-
     this.issueService.project$.subscribe(project => this.project = project);
     this.authService.getProfile().subscribe(res => this.profile = res);
-
     this.issueService.issueMaster$.subscribe(issue => {
       this.parentIssue = issue;
       this.selectedTask = null;
@@ -138,10 +132,7 @@ export class Subtask2Component implements OnInit, AfterViewInit {
       this.subtasks = [];
       this.events = [];
       this.groupedEvents = [];
-
-      if (this.parentIssue?.id) {
-        this.loadSubtask();
-      }
+      if (this.parentIssue?.id) this.loadSubtask();
     });
   }
 
@@ -151,13 +142,16 @@ export class Subtask2Component implements OnInit, AfterViewInit {
   checkMobile(): void {
     const wasMobile = this.isMobile;
     this.isMobile = window.innerWidth < 768;
-
-    if (!wasMobile && this.isMobile) {
-      this.showDetail = false;
-    }
+    if (!wasMobile && this.isMobile) this.showDetail = false;
     if (wasMobile && !this.isMobile && this.subtasks?.length > 0 && !this.selectedTask) {
       this.selectTask(this.subtasks[0]);
     }
+  }
+
+  // ── List collapse ─────────────────────────────────────────────────
+  toggleList(): void {
+    if (this.isMobile) return;
+    this.listCollapsed = !this.listCollapsed;
   }
 
   // ── Task selection ───────────────────────────────────────────────
@@ -166,11 +160,10 @@ export class Subtask2Component implements OnInit, AfterViewInit {
     this.cancelEditDescription();
     this.selectedTask = task;
     this.selectedIssueSubject.next(task);
+    this.activeTab = 'comments';
     this.loadValues();
     this.loadEvents();
-    if (this.isMobile) {
-      this.showDetail = true;
-    }
+    if (this.isMobile) this.showDetail = true;
   }
 
   closeDetail(): void {
@@ -181,8 +174,6 @@ export class Subtask2Component implements OnInit, AfterViewInit {
     this.showDetail = false;
   }
 
-  // ✅ CORRECTION : on réinitialise selectedTask pour que le *ngIf du panneau
-  //    détail (`selectedTask || (isMobile && showDetail)`) devienne false.
   backToList(): void {
     this.showDetail = false;
     this.selectedTask = null;
@@ -233,10 +224,7 @@ export class Subtask2Component implements OnInit, AfterViewInit {
   protected loadSubtask(): void {
     this.loadingSubtask = true;
     this.subtasks = [];
-    if (!this.parentIssue?.id) {
-      this.loadingSubtask = false;
-      return;
-    }
+    if (!this.parentIssue?.id) { this.loadingSubtask = false; return; }
     this.issueService.loadSubtask(this.parentIssue.id).subscribe(
       issues => {
         this.subtasks = issues || [];
@@ -245,10 +233,7 @@ export class Subtask2Component implements OnInit, AfterViewInit {
         }
         this.loadingSubtask = false;
       },
-      () => {
-        this.subtasks = [];
-        this.loadingSubtask = false;
-      }
+      () => { this.subtasks = []; this.loadingSubtask = false; }
     );
   }
 
@@ -283,7 +268,6 @@ export class Subtask2Component implements OnInit, AfterViewInit {
 
   onPlanningMenuOpened(): void {
     this.newEventForm?.loadNextEvent(this.selectedTask);
-    this.planningOpen = true;
   }
 
   closeCreateSubtaskMenu(): void {
@@ -294,7 +278,6 @@ export class Subtask2Component implements OnInit, AfterViewInit {
   closeEventForm(): void {
     this.addPlanningTrigger.closeMenu();
     this.loadEvents();
-    this.planningOpen = false;
   }
 
   closeEditEventForm(): void {
@@ -302,17 +285,15 @@ export class Subtask2Component implements OnInit, AfterViewInit {
     this.loadEvents();
   }
 
-  // ── Event actions ─────────────────────────────────────────────────
   editEvent(ev: EventApp): void {
     if (this.editEventForm) this.editEventForm.loadEvent(ev.id);
   }
 
   deleteEvent(ev: EventApp, mouseEvent: MouseEvent): void {
     mouseEvent.stopPropagation();
-    if (!confirm(`Supprimer l'événement "${ev.title || '(Sans titre)'}" ?`)) return;
+    if (!confirm(`Supprimer "${ev.title || '(Sans titre)'}" ?`)) return;
   }
 
-  // ── Custom fields ─────────────────────────────────────────────────
   savedCustomFieldValue(values: CustomFieldValue[]): void {
     this.customFieldValues = values;
     this.currentCustomFieldValue = null;
@@ -339,7 +320,7 @@ export class Subtask2Component implements OnInit, AfterViewInit {
   getDotColors(pct: number | null | undefined): DotColors {
     if (pct == null) return { ring: '#d1d5db', track: '#f3f4f6', text: '#9ca3af' };
     if (pct >= 100)  return { ring: '#10b981', track: '#d1fae5', text: '#059669' };
-    if (pct >= 60)   return { ring: '#3b6cfa', track: '#dbeafe', text: '#3b6cfa' };
+    if (pct >= 60)   return { ring: '#4f46e5', track: '#e0e7ff', text: '#4f46e5' };
     if (pct >= 30)   return { ring: '#f59e0b', track: '#fef3c7', text: '#d97706' };
     return { ring: '#ef4444', track: '#fee2e2', text: '#dc2626' };
   }
@@ -353,12 +334,12 @@ export class Subtask2Component implements OnInit, AfterViewInit {
   getRingOffset(): string { return '0'; }
 
   // ── Status helpers ────────────────────────────────────────────────
-  getStatusClass(issue: Issue): string {
+  getStatusKey(issue: Issue): string {
     const status = issue?.status?.displayName?.toLowerCase() ?? '';
-    if (status.includes('done') || status.includes('terminé') || status.includes('closed')) return 'status-done';
-    if (status.includes('progress') || status.includes('cours'))  return 'status-progress';
-    if (status.includes('review') || status.includes('révision')) return 'status-review';
-    return 'status-todo';
+    if (status.includes('done') || status.includes('terminé') || status.includes('closed')) return 'done';
+    if (status.includes('progress') || status.includes('cours'))  return 'progress';
+    if (status.includes('review') || status.includes('révision')) return 'review';
+    return 'todo';
   }
 
   // ── Grouped events ────────────────────────────────────────────────
@@ -366,19 +347,16 @@ export class Subtask2Component implements OnInit, AfterViewInit {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const map = new Map<string, EventApp[]>();
-
   for (const ev of events) {
   const key = ev.start ? new Date(ev.start).toISOString().slice(0, 10) : 'no-date';
   if (!map.has(key)) map.set(key, []);
   map.get(key).push(ev);
 }
-
 return Array.from(map.entries()).map(([dateKey, evs]) => {
   let label: string;
   let isToday = false, isPast = false, isFuture = false;
-  if (dateKey === 'no-date') {
-    label = 'Sans date'; isFuture = true;
-  } else {
+  if (dateKey === 'no-date') { label = 'Sans date'; isFuture = true; }
+  else {
     const d = new Date(dateKey);
     d.setHours(0, 0, 0, 0);
     const diff = Math.round((d.getTime() - today.getTime()) / 86400000);
@@ -396,7 +374,7 @@ private formatDateLabel(d: Date): string {
   return d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
 }
 
-// ── Resize (desktop) ─────────────────────────────────────────────
+// ── Resize ───────────────────────────────────────────────────────
 startResizing(event: MouseEvent): void {
   if (this.isMobile) return;
 this.resizing = true;
@@ -406,8 +384,8 @@ document.body.style.cursor = 'col-resize';
 @HostListener('window:mousemove', ['$event'])
 onMouseMove(event: MouseEvent): void {
   if (!this.resizing || this.isMobile) return;
-const list      = document.querySelector('.task-list') as HTMLElement;
-const container = document.querySelector('.subtask-wrap') as HTMLElement;
+const list      = document.querySelector('.sw-list') as HTMLElement;
+const container = document.querySelector('.sw') as HTMLElement;
 if (!list || !container) return;
 const newWidth = event.clientX - container.getBoundingClientRect().left;
 if (newWidth > 200 && newWidth < container.getBoundingClientRect().width * 0.6) {
