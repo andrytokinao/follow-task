@@ -20,7 +20,7 @@ import {Observable} from "rxjs";
   standalone:false,
   selector: 'comments-componets',
   templateUrl: './comments.component.html',
-  styleUrl: './comments.component.css'
+  styleUrl: './comments.component.scss'
 })
 export class CommentsComponent {
   @Output() onSaved  = new EventEmitter<DocumentApp>()

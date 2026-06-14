@@ -273,9 +273,7 @@
 
         <!-- Commentaires -->
         <div class="tab-panel" *ngIf="activeTab === 'comments'">
-          <p class="empty-tab" *ngIf="true">Aucun commentaire pour le moment.</p>
           <comments-componets [issue]="selectedTask"></comments-componets>
-
         </div>
 
         <!-- Pièces jointes -->

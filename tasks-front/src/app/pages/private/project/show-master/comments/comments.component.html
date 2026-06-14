@@ -1,7 +1,6 @@
 <div class="task-page">
   <div class="task-container">
 
-
     <!-- Section des commentaires -->
     <mat-card class="comments-section">
       <mat-card-header>
@@ -9,74 +8,76 @@
       </mat-card-header>
 
       <mat-card-content>
+
+        <!-- Liste des commentaires -->
         <div class="comment-list">
           <div class="comment" *ngFor="let document of documents">
-            <div class="comment-header">
-                <span style="float:right">
-                 <app-document-menu [document]="document"></app-document-menu>
-               </span>
-              <img
-                *ngIf="document.userApp.photo"
-                [src]="userService.getUrlPhoto(document.userApp)"
-                alt="{{ document.userApp.username }}"
-                class="user-photo"
-              />
-              <span class="user-name">{{ document.userApp.firstName }}
-                <small class="text-body-secondary" *ngIf="document.creation">{{ document.creation | date }}</small>
-            </span>
-            </div>
-            <div style=" margin-left: 10px;padding-left: 1px">
-              <p class="comment-text" [innerHTML]="document.description"></p>
-              <div *ngIf="document.uploadeds && document.uploadeds.length != 0" class="file-item-list">
-                <div> Fichier </div>
 
-                <div class="file-item" *ngFor="let up of document.uploadeds" style="padding-left:50px"><i class="fas fa-file-pdf"></i> {{up.name}}
-                  <a [href]="issueService.downloadUploadedUrl(up)" style="margin-left: 20px" > <i class="fa fa-download"></i></a>
+            <img
+              *ngIf="document.userApp.photo"
+              [src]="userService.getUrlPhoto(document.userApp)"
+              alt="{{ document.userApp.username }}"
+              class="user-photo"
+            />
+            <div class="user-avatar-placeholder" *ngIf="!document.userApp.photo">
+              {{ document.userApp.firstName?.charAt(0) }}
+            </div>
+
+            <div class="comment-body">
+              <div class="comment-header">
+                <span class="user-name">{{ document.userApp.firstName }}</span>
+                <small class="comment-date" *ngIf="document.creation">{{ document.creation | date:'short' }}</small>
+                <span class="comment-actions">
+                  <app-document-menu [document]="document"></app-document-menu>
+                </span>
+              </div>
+
+              <p class="comment-text" [innerHTML]="document.description"></p>
+
+              <div *ngIf="document.uploadeds && document.uploadeds.length != 0" class="file-item-list">
+                <div class="file-item" *ngFor="let up of document.uploadeds">
+                  <i class="fas fa-file-pdf"></i>
+                  <span class="file-name">{{ up.name }}</span>
+                  <a [href]="issueService.downloadUploadedUrl(up)" class="file-download" title="Télécharger">
+                    <i class="fa fa-download"></i>
+                  </a>
                 </div>
               </div>
             </div>
-            <mat-divider _ngcontent-ng-c3949266393="" role="separator" class="mat-divider mat-divider-horizontal" style="margin: 24px 0;" aria-orientation="horizontal"></mat-divider>
 
           </div>
         </div>
 
-        <app-quill-editor [(content)]="document.description" [theme]="'snow'"></app-quill-editor>
-          <div class="file-item" (dragover)="onDragOver($event)" (drop)="onDrop($event)">
-          <div>
-            <div class="upload-area" (click)="selectFiles()">
-              <div>
-                <ul *ngIf="filesToUploads">
-                  <div *ngFor="let up of uploadings; let i = index" class="file" [ngClass]="up.status">
-                    <label class="file"> <i class="fa fa-file-text"> </i>
-                      {{ up.file.name }}
-                    </label>
-                    <span (click)="removeFile(i)" style="float: right;"> {{ up.status }} <i
-                      class="fa fa-remove"></i></span>
-                  </div>
+        <mat-divider class="section-divider"></mat-divider>
 
-                </ul>
-              </div>
-              <!--<div *ngFor="let file of group.files" (click)="selectFile(file)" class="file-item">
-                          <p>{{ file.name }}</p>
-                          <p><small>{{ file.uploadDate }} - Par {{ file.uploadedBy }}</small></p>
-                          <p><small>{{ file.fileDescription }}</small></p>
-                        </div>-->
-              <div
+        <!-- Zone d'ajout de commentaire -->
+        <div class="add-comment">
+          <app-quill-editor [(content)]="document.description" [theme]="'snow'"></app-quill-editor>
 
-                (click)="fileInput.click()"
-
-
-                class="file-drop-zone">
-                <input type="file" multiple (change)="onFileSelected($event)" hidden #fileInput>
-                <p>Glissez-déposez vos fichiers ou cliquez pour les sélectionner</p>
-              </div>
-
+          <div class="upload-area" (dragover)="onDragOver($event)" (drop)="onDrop($event)">
+            <div class="file-drop-zone" (click)="fileInput.click()">
+              <i class="fa fa-cloud-upload-alt"></i>
+              <p>Glissez-déposez vos fichiers ou cliquez pour les sélectionner</p>
+              <input type="file" multiple (change)="onFileSelected($event)" hidden #fileInput>
             </div>
+
+            <ul class="upload-list" *ngIf="filesToUploads && uploadings?.length">
+              <li *ngFor="let up of uploadings; let i = index" class="upload-file" [ngClass]="up.status">
+                <i class="fa fa-file-text"></i>
+                <span class="upload-file-name">{{ up.file.name }}</span>
+                <span class="upload-status">{{ up.status }}</span>
+                <i class="fa fa-remove upload-remove" (click)="removeFile(i)"></i>
+              </li>
+            </ul>
           </div>
+
+          <div class="comment-actions-bar">
+            <button mat-raised-button color="primary" (click)="addDocument()">
+              Commenter
+            </button>
           </div>
-        <button mat-raised-button color="primary" class="float-end" (click)="addDocument()">
-          Commenter
-        </button>
+        </div>
+
       </mat-card-content>
     </mat-card>
   </div>
