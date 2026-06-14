@@ -179,7 +179,7 @@ public class EventService {
     proposition.setAllDay(false);
     Project project = new Project();
     project.setId(projectId);
-    proposition.setTitle("Tache precis");
+    proposition.setTitle("");
     proposition.setEventType(getDefaultEvetType());
     LocalDateTime[] times = proposeNextEvent(existings);
     proposition.setStart(times[0]);
