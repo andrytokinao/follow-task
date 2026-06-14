@@ -79,13 +79,13 @@ import {OverlayModule} from "@angular/cdk/overlay";
     DocumentExchangeComponent
 
   ],
-  exports: [
-    StatusComponent,
-    RepartitionComponent,
-    ProjectComponent, ShowIssueOptionComponent,
-    ShowIssueFullOptionComponent,
-    ExchangeDocumentsComponent,
-  ],
+    exports: [
+        StatusComponent,
+        RepartitionComponent,
+        ProjectComponent, ShowIssueOptionComponent,
+        ShowIssueFullOptionComponent,
+        ExchangeDocumentsComponent, DocumentComponent,
+    ],
   imports: [
     ProjectRoutingModule,
     MatTabsModule,

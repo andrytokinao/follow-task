@@ -25,7 +25,15 @@ import {Observable} from "rxjs";
 export class CommentsComponent {
   @Output() onSaved  = new EventEmitter<DocumentApp>()
   private project: any;
-  private issue: Issue;
+  private _issue:Issue = null;
+  private isMaster:boolean = true;
+  @Input() set issue (issue:Issue){
+    this._issue = issue;
+    this.isMaster = false;
+    if(!this._issue)
+      return;
+    this.loadComments();
+  }
   protected parentIssue: any;
   protected issueType:IssueType | undefined;
   document: DocumentApp = {};
@@ -63,8 +71,14 @@ export class CommentsComponent {
 
     });
     this.issueService.issueMaster$.subscribe(issue => {
-      this.parentIssue = issue;
-      this.loadDocument();
+      if (this.isMaster){
+        this.parentIssue = issue;
+        this._issue = issue;
+        if(!this._issue)
+          return;
+
+        this.loadDocument();
+      }
 
     })
     this.issueService.project$.subscribe(project=> this.project = project)
@@ -76,16 +90,17 @@ export class CommentsComponent {
   protected uploadings: Uploading[] = [];
 
   addComment() {
-    this.comment.issue.id = this.parentIssue.id;
-    this.issueService.addComment(this.comment,this.parentIssue.encodedPath,this.uploadings).subscribe(res=>{
+    this.comment.issue.id = this._issue.id;
+    this.issueService.addComment(this.comment,this._issue.encodedPath,this.uploadings).subscribe(res=>{
       this.loadComments();
       this.comment.text ="";
     });
   }
   loadComments(){
-    console.info("--- Loading  comment ---")
-    this.issueService.allComment(this.parentIssue.id).subscribe(comments =>{
-        this.comments = comments;
+    console.info("--- Loading  comment ---");
+    this.issueService.getDocuments(this._issue.id,this.typeDocument).subscribe(comments =>{
+        this.documents = comments;
+
       }
     );
   }
@@ -132,7 +147,7 @@ export class CommentsComponent {
     }
   }
   private loadDocument() {
-    this.issueService.getDocuments(this.parentIssue.id,this.typeDocument).subscribe(documents => {
+    this.issueService.getDocuments(this._issue.id,this.typeDocument).subscribe(documents => {
       this.documents = documents;
     })
   }
@@ -140,12 +155,12 @@ export class CommentsComponent {
   addDocument() {
     this.document.typeDocument = this.typeDocument;
     this.document.titre ="Commentaire";
-    this.document.issues = {id:this.parentIssue.id}
+    this.document.issues = {id:this._issue.id}
     if (this.profile){
       this.document.userApp = {id:this.profile.id}
     }
 
-    this.issueService.uploadDocument(this.document,this.parentIssue.encodedPath,this.uploadings,this.typeDocument).subscribe(document => {
+    this.issueService.uploadDocument(this.document,this._issue.encodedPath,this.uploadings,this.typeDocument).subscribe(document => {
       this.document.titre ="";
       this.document.description ="";
       this.loadDocument();
