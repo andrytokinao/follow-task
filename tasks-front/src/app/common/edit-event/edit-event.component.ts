@@ -203,7 +203,6 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
       .subscribe({
         next: (event) => {
           this.event = event;
-          alert(JSON.stringify(event));
           this.event.issue = { id: issue.id, summary: issue.summary, issueType: issue.issueType };
           this.setDescription(event);
           this._patchForm(event);
