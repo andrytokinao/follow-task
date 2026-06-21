@@ -62,7 +62,6 @@ export class DossiersComponent implements OnInit, OnChanges {
     this.http.get<Repertoire>(this.repertoireApi+`/repertoires?path=${this.root}`)
       .subscribe({
         next: (data) => {
-          alert(JSON.stringify(data));
           this.rootRepertoire = data; this.isLoading = false; },
         error: (err) => {
           this.error     = 'Impossible de charger l\'arborescence.';
@@ -154,7 +153,7 @@ export class DossiersComponent implements OnInit, OnChanges {
 
     // Appel API réel
     // this.http.post('/api/folders', { parent: this.root, name }).subscribe(...)
-  
+
     // Simulation locale
     if (this.rootRepertoire) {
       const newFolder: Repertoire = {
