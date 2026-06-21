@@ -92,10 +92,14 @@ public class KingaUtils {
     }
 
     public static String encodeText(String text) {
+        if (StringUtils.isEmpty(text))
+            return text;
         return encodeTextXor(text);
     }
 
     public static String decodeText(String text) {
+        if (StringUtils.isEmpty(text))
+            return text;
         return decodeTextXor(text);
     }
 

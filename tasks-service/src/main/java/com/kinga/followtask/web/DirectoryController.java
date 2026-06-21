@@ -41,9 +41,14 @@ public class DirectoryController {
     public List<Dossier> sousDossier(@RequestParam(required = true) String path){
         return Dossier.getSousDossier(path);
     }
+    @GetMapping(path = "/api/repertoires")
+    @ResponseBody
+    public List<Repertoire> getRepertoires(@RequestParam(required = true) String path){
+        return Dossier.getRepertoires(path);
+    }
     @GetMapping(path = "/api/paths")
     @ResponseBody
-    public List<String> getPaths(@RequestParam(required = true) String path) throws IOException {
+    public List<String> getPaths(@RequestParam(required = true) String path) throws Exception {
         return Dossier.listDirectoryPaths (KingaUtils.decodeText (path));
     }
     @GetMapping("photo/{endocedPath}")

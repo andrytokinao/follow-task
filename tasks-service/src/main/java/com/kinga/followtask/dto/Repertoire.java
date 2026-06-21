@@ -25,7 +25,7 @@ public abstract class Repertoire {
         List<String> paths = new ArrayList<> ();
         try {
             paths = Dossier.listDirectoryPaths(absolutePath);
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException (e);
         }
         setPaths (paths);

@@ -1,0 +1,144 @@
+<!-- dossiers.component.html -->
+
+<div class="fe-wrapper">
+
+  <!-- ══ BARRE DU HAUT ══════════════════════════════════════════════════════ -->
+  <div class="fe-topbar">
+    <i class="ti ti-folder-open fe-topbar__icon"></i>
+    <span class="fe-topbar__title">{{ title }}</span>
+
+    <div class="fe-topbar__actions">
+      <button class="fe-btn fe-btn--primary" (click)="openCreateModal()">
+        <i class="ti ti-folder-plus"></i>
+        Nouveau dossier
+      </button>
+      <button class="fe-btn" (click)="loadTree()">
+        <i class="ti ti-refresh"></i>
+        Actualiser
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ TOAST ══════════════════════════════════════════════════════════════ -->
+  <div class="fe-toast" [class.fe-toast--visible]="toastVisible" role="status">
+    <i class="ti ti-circle-check"></i>
+    {{ toastMessage }}
+  </div>
+
+  <!-- ══ BARRE ACTIONS MULTI-SÉLECTION ══════════════════════════════════════ -->
+  <div class="fe-selbar" [class.fe-selbar--active]="hasSelection">
+    <span class="fe-selbar__count">
+      <i class="ti ti-checkbox"></i>
+      {{ selectionLabel }}
+    </span>
+    <div class="fe-selbar__btns">
+      <button class="fe-btn fe-btn--sm" (click)="actionDownload()">
+        <i class="ti ti-download"></i> Télécharger
+      </button>
+      <button class="fe-btn fe-btn--sm" (click)="actionCopy()">
+        <i class="ti ti-copy"></i> Copier
+      </button>
+      <button class="fe-btn fe-btn--sm" (click)="actionMove()">
+        <i class="ti ti-folder-symlink"></i> Déplacer
+      </button>
+      <button class="fe-btn fe-btn--sm" (click)="actionShare()">
+        <i class="ti ti-share"></i> Partager
+      </button>
+      <button class="fe-btn fe-btn--sm fe-btn--danger" (click)="actionDelete()">
+        <i class="ti ti-trash"></i> Supprimer
+      </button>
+      <button class="fe-btn fe-btn--sm fe-btn--ghost" (click)="clearSelection()">
+        <i class="ti ti-x"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ RECHERCHE ═══════════════════════════════════════════════════════════ -->
+  <div class="fe-search">
+    <i class="ti ti-search fe-search__icon"></i>
+    <input
+      type="text"
+      class="fe-search__input"
+      placeholder="Rechercher dans l'arborescence…"
+      [(ngModel)]="searchQuery"
+    />
+    <button class="fe-search__clear" *ngIf="searchQuery" (click)="searchQuery=''">
+      <i class="ti ti-x"></i>
+    </button>
+  </div>
+
+  <!-- ══ ARBRE ════════════════════════════════════════════════════════════════ -->
+  <div class="fe-tree">
+
+    <!-- Chargement -->
+    <div class="fe-state" *ngIf="isLoading">
+      <i class="ti ti-loader fe-state__spin"></i>
+      <span>Chargement…</span>
+    </div>
+
+    <!-- Erreur -->
+    <div class="fe-state fe-state--error" *ngIf="error && !isLoading">
+      <i class="ti ti-alert-circle"></i>
+      <span>{{ error }}</span>
+      <button class="fe-btn fe-btn--sm" (click)="loadTree()">Réessayer</button>
+    </div>
+
+    <!-- Arborescence -->
+    <div class="fe-tree__content" *ngIf="!isLoading && !error">
+
+      <!-- Racine -->
+      <ng-container *ngIf="rootRepertoire; else empty">
+        <app-dossier-node-item
+          [repertoire]="rootRepertoire"
+          [lastSelectedPath]="lastSelectedPath"
+          [selectedPaths]="selectedPaths"
+          (fileSelected)="onFileSelected($event)"
+          (selectionToggled)="onSelectionToggled($event)">
+        </app-dossier-node-item>
+      </ng-container>
+
+      <ng-template #empty>
+        <div class="fe-state">
+          <i class="ti ti-folder-off"></i>
+          <span>Aucun fichier à afficher.</span>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+
+  <!-- ══ BARRE DE STATUT ═════════════════════════════════════════════════════ -->
+  <div class="fe-statusbar">
+    <span>{{ root }}</span>
+    <span *ngIf="hasSelection">{{ selectionLabel }}</span>
+    <span *ngIf="!hasSelection">Aucune sélection</span>
+  </div>
+
+</div>
+
+<!-- ══ MODAL : CRÉER UN DOSSIER ════════════════════════════════════════════════ -->
+<div class="fe-modal-bg" [class.fe-modal-bg--show]="showCreateModal" (click)="closeCreateModal()">
+  <div class="fe-modal" (click)="$event.stopPropagation()">
+    <div class="fe-modal__header">
+      <i class="ti ti-folder-plus" style="color:#F59E0B;font-size:18px;"></i>
+      <span>Nouveau dossier</span>
+    </div>
+    <div class="fe-modal__body">
+      <label class="fe-modal__label">Nom du dossier</label>
+      <input
+        class="fe-modal__input"
+        type="text"
+        [(ngModel)]="newFolderName"
+        placeholder="ex : Documents sources"
+        (keydown)="onModalKeydown($event)"
+        autofocus
+      />
+      <p class="fe-modal__error" *ngIf="createFolderError">{{ createFolderError }}</p>
+    </div>
+    <div class="fe-modal__footer">
+      <button class="fe-btn" (click)="closeCreateModal()">Annuler</button>
+      <button class="fe-btn fe-btn--primary" (click)="confirmCreateFolder()">
+        <i class="ti ti-check"></i> Créer
+      </button>
+    </div>
+  </div>
+</div>

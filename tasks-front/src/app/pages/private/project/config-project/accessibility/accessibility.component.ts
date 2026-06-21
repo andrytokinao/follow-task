@@ -1,5 +1,4 @@
 import {Component, OnInit} from '@angular/core';
-import {TreeDossierItemComponent} from "../../../../../common/tree-dossier-item/tree-dossier-item.component";
 import {ConfigProject, GroupeUser, MemberGroupe, Project} from "../../../../../type/issue";
 import {IssueService} from "../../../../../services/issue.service";
 import {HttpClient} from "@angular/common/http";

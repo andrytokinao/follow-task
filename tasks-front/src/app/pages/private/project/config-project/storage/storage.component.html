@@ -8,7 +8,7 @@
 </span></p>
   <div class="file-content">
     <div *ngFor="let r of repertoire.repertoires">
-      <app-dossier-node-item [setRepertoire]="r"  [lastSelectedPath] = "pathSelected" (fileSelected)="onFileSelected($event)" ></app-dossier-node-item>
+      <app-dossier-node-item [repertoire]="r"  [lastSelectedPath] = "pathSelected" (fileSelected)="onFileSelected($event)" ></app-dossier-node-item>
     </div>
   </div>
 

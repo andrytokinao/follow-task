@@ -22,7 +22,7 @@ export class Issue {
   deleted?:Boolean;
   issueKey?:String ="";
   creationDate?:string;
-  encodedPath?:String;
+  encodedPath?:string;
   status?: Status | null = null;
   assigne?:User = new User();
   values?:CustomFieldValue[];
@@ -503,4 +503,99 @@ export interface PercentageProposal {
   averageStep:number
   reason:String
   candidates:number[]
+}
+
+
+// ── Utilitaire : détecter le type de fichier à partir du nom ──────────────────
+
+export type FileCategory =
+  | 'folder'
+  | 'doc'
+  | 'xls'
+  | 'pdf'
+  | 'img'
+  | 'code'
+  | 'video'
+  | 'audio'
+  | 'archive'
+  | 'txt'
+  | 'unknown';
+
+export interface FileTypeInfo {
+  category: FileCategory;
+  badge: string;        // ex: 'PDF'
+  icon: string;         // classe Tabler icon
+  iconColor: string;    // couleur CSS
+  badgeClass: string;   // classe CSS du badge
+}
+
+const EXT_MAP: Record<string, FileTypeInfo> = {
+  // Documents texte
+  docx: { category: 'doc',     badge: 'DOC',  icon: 'ti-file-text',        iconColor: '#3B82F6', badgeClass: 'ft-doc'     },
+  doc:  { category: 'doc',     badge: 'DOC',  icon: 'ti-file-text',        iconColor: '#3B82F6', badgeClass: 'ft-doc'     },
+  odt:  { category: 'doc',     badge: 'ODT',  icon: 'ti-file-text',        iconColor: '#3B82F6', badgeClass: 'ft-doc'     },
+  pptx: { category: 'doc',     badge: 'PPT',  icon: 'ti-presentation',     iconColor: '#EF4444', badgeClass: 'ft-ppt'     },
+  ppt:  { category: 'doc',     badge: 'PPT',  icon: 'ti-presentation',     iconColor: '#EF4444', badgeClass: 'ft-ppt'     },
+  // Tableurs
+  xlsx: { category: 'xls',     badge: 'XLS',  icon: 'ti-table',            iconColor: '#22C55E', badgeClass: 'ft-xls'     },
+  xls:  { category: 'xls',     badge: 'XLS',  icon: 'ti-table',            iconColor: '#22C55E', badgeClass: 'ft-xls'     },
+  csv:  { category: 'xls',     badge: 'CSV',  icon: 'ti-table',            iconColor: '#22C55E', badgeClass: 'ft-xls'     },
+  ods:  { category: 'xls',     badge: 'ODS',  icon: 'ti-table',            iconColor: '#22C55E', badgeClass: 'ft-xls'     },
+  // PDF
+  pdf:  { category: 'pdf',     badge: 'PDF',  icon: 'ti-file-description', iconColor: '#A855F7', badgeClass: 'ft-pdf'     },
+  // Images
+  jpg:  { category: 'img',     badge: 'IMG',  icon: 'ti-photo',            iconColor: '#F59E0B', badgeClass: 'ft-img'     },
+  jpeg: { category: 'img',     badge: 'IMG',  icon: 'ti-photo',            iconColor: '#F59E0B', badgeClass: 'ft-img'     },
+  png:  { category: 'img',     badge: 'PNG',  icon: 'ti-photo',            iconColor: '#F59E0B', badgeClass: 'ft-img'     },
+  gif:  { category: 'img',     badge: 'GIF',  icon: 'ti-photo',            iconColor: '#F59E0B', badgeClass: 'ft-img'     },
+  svg:  { category: 'img',     badge: 'SVG',  icon: 'ti-vector',           iconColor: '#F59E0B', badgeClass: 'ft-img'     },
+  webp: { category: 'img',     badge: 'IMG',  icon: 'ti-photo',            iconColor: '#F59E0B', badgeClass: 'ft-img'     },
+  // Code
+  ts:   { category: 'code',    badge: 'TS',   icon: 'ti-brand-typescript', iconColor: '#6366F1', badgeClass: 'ft-code'    },
+  js:   { category: 'code',    badge: 'JS',   icon: 'ti-brand-javascript', iconColor: '#6366F1', badgeClass: 'ft-code'    },
+  py:   { category: 'code',    badge: 'PY',   icon: 'ti-code',             iconColor: '#6366F1', badgeClass: 'ft-code'    },
+  java: { category: 'code',    badge: 'JAVA', icon: 'ti-coffee',           iconColor: '#6366F1', badgeClass: 'ft-code'    },
+  html: { category: 'code',    badge: 'HTML', icon: 'ti-code',             iconColor: '#6366F1', badgeClass: 'ft-code'    },
+  css:  { category: 'code',    badge: 'CSS',  icon: 'ti-code',             iconColor: '#6366F1', badgeClass: 'ft-code'    },
+  json: { category: 'code',    badge: 'JSON', icon: 'ti-braces',           iconColor: '#6366F1', badgeClass: 'ft-code'    },
+  xml:  { category: 'code',    badge: 'XML',  icon: 'ti-code',             iconColor: '#6366F1', badgeClass: 'ft-code'    },
+  sql:  { category: 'code',    badge: 'SQL',  icon: 'ti-database',         iconColor: '#6366F1', badgeClass: 'ft-code'    },
+  r:    { category: 'code',    badge: 'R',    icon: 'ti-code',             iconColor: '#6366F1', badgeClass: 'ft-code'    },
+  // Vidéo
+  mp4:  { category: 'video',   badge: 'MP4',  icon: 'ti-video',            iconColor: '#EC4899', badgeClass: 'ft-video'   },
+  avi:  { category: 'video',   badge: 'AVI',  icon: 'ti-video',            iconColor: '#EC4899', badgeClass: 'ft-video'   },
+  mkv:  { category: 'video',   badge: 'MKV',  icon: 'ti-video',            iconColor: '#EC4899', badgeClass: 'ft-video'   },
+  // Audio
+  mp3:  { category: 'audio',   badge: 'MP3',  icon: 'ti-music',            iconColor: '#14B8A6', badgeClass: 'ft-audio'   },
+  wav:  { category: 'audio',   badge: 'WAV',  icon: 'ti-music',            iconColor: '#14B8A6', badgeClass: 'ft-audio'   },
+  // Archives
+  zip:  { category: 'archive', badge: 'ZIP',  icon: 'ti-file-zip',         iconColor: '#78716C', badgeClass: 'ft-archive' },
+  rar:  { category: 'archive', badge: 'RAR',  icon: 'ti-file-zip',         iconColor: '#78716C', badgeClass: 'ft-archive' },
+  tar:  { category: 'archive', badge: 'TAR',  icon: 'ti-file-zip',         iconColor: '#78716C', badgeClass: 'ft-archive' },
+  gz:   { category: 'archive', badge: 'GZ',   icon: 'ti-file-zip',         iconColor: '#78716C', badgeClass: 'ft-archive' },
+  // Texte
+  txt:  { category: 'txt',     badge: 'TXT',  icon: 'ti-file',             iconColor: '#6B7280', badgeClass: 'ft-txt'     },
+  md:   { category: 'txt',     badge: 'MD',   icon: 'ti-markdown',         iconColor: '#6B7280', badgeClass: 'ft-txt'     },
+};
+
+const FOLDER_INFO: FileTypeInfo = {
+  category: 'folder',
+  badge: '',
+  icon: 'ti-folder',
+  iconColor: '#F59E0B',
+  badgeClass: '',
+};
+
+const UNKNOWN_INFO: FileTypeInfo = {
+  category: 'unknown',
+  badge: 'FILE',
+  icon: 'ti-file',
+  iconColor: '#9CA3AF',
+  badgeClass: 'ft-txt',
+};
+
+export function getFileTypeInfo(repertoire: Repertoire): FileTypeInfo {
+  if (repertoire.type === 'folder') return FOLDER_INFO;
+  const ext = repertoire.fileName.split('.').pop()?.toLowerCase() ?? '';
+  return EXT_MAP[ext] ?? UNKNOWN_INFO;
 }

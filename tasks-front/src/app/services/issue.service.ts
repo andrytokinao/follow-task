@@ -579,7 +579,13 @@ export class IssueService implements OnInit {
       .get<Repertoire>(url, {withCredentials: true},)
       .pipe(retry(1), catchError(this.handleError));
   }
-
+  getRepertoires(path: string): Observable<Repertoire> {
+    let params = new HttpParams().set('path', path);
+    let url = environment.apiURL + "api/repertoires?" + params.toString();
+    return this.http
+      .get<Repertoire>(url, {withCredentials: true},)
+      .pipe(retry(1), catchError(this.handleError));
+  }
   handleError(error: any) {
     let errorMessage = '';
     if (error.error instanceof ErrorEvent) {

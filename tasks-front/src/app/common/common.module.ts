@@ -3,7 +3,6 @@ import {CUSTOM_ELEMENTS_SCHEMA, forwardRef, NgModule} from '@angular/core';
 import {TreeNodeItemComponent} from "./tree-node-item/tree-node-item.component";
 import {CommonModule, NgClass, NgIf} from "@angular/common";
 import {MaintenanceComponent} from "./maintenance/maintenance.component";
-import {TreeDossierItemComponent} from "./tree-dossier-item/tree-dossier-item.component";
 import {TextFieldComponent} from "./text-field/text-field.component";
 import {MatMenuModule} from "@angular/material/menu";
 import {MatIconModule} from "@angular/material/icon";
@@ -55,6 +54,8 @@ import {NewIssueFormComponent} from "./new-issue-form/new-issue-form.component";
 import {LoadingOverlayComponent} from "./loading-overlay/loading-overlay.component";
 import {SkeletonComponent} from "./skeleton/skeleton.component";
 import {IssutypeForm2Component} from "./issutype-form2/issutype-form2.component";
+import {DossiersComponent} from "./dossiers/dossiers.component";
+import {TreeDossierItemComponent} from "./tree-dossier-item/tree-dossier-item.component";
 
 @NgModule({
   declarations: [
@@ -91,8 +92,9 @@ import {IssutypeForm2Component} from "./issutype-form2/issutype-form2.component"
     ChatWidgetComponent,
     NewIssueFormComponent,
     LoadingOverlayComponent,
-    SkeletonComponent
-
+    SkeletonComponent,
+    DossiersComponent,
+    TreeDossierItemComponent
   ],
   imports: [
     CommonModule,
@@ -132,41 +134,42 @@ import {IssutypeForm2Component} from "./issutype-form2/issutype-form2.component"
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA
   ],
-  exports: [
-    TreeNodeItemComponent,
-    MaintenanceComponent,
-    TreeDossierItemComponent,
-    TextFieldComponent,
-    TelFieldComponent,
-    InstallationComponent,
-    IconeFieldComponent,
-    GroupeFormComponent,
-    CustomfieldFormComponent,
-    IssuetypeFormComponent,
-    StatesFormComponent,
-    AssignFieldComponent,
-    BreadcrumbComponent,
-    StatusFieldComponent,
-    EditEventComponent,
-    NewEventComponent,
-    QuillEditorComponent,
-    EditorComponent,
-    PdfOverviewComponent,
-    DocViewerComponent,
-    IssueFilterComponent,
-    IssueMasterBreadcrumbComponent,
-    LoadingComponent,
-    LabelFormComponent,
-    FelterMatMenueComponent,
-    DocumentMenuComponent,
-    NotificationsComponent,
-    TeamAvatarsComponent,
-    ImageModalContentComponent,
-    ChatWidgetComponent,
-    NewIssueFormComponent,
-    LoadingOverlayComponent,
-    SkeletonComponent
-  ],
+    exports: [
+        TreeNodeItemComponent,
+        MaintenanceComponent,
+        TextFieldComponent,
+        TelFieldComponent,
+        InstallationComponent,
+        IconeFieldComponent,
+        GroupeFormComponent,
+        CustomfieldFormComponent,
+        IssuetypeFormComponent,
+        StatesFormComponent,
+        AssignFieldComponent,
+        BreadcrumbComponent,
+        StatusFieldComponent,
+        EditEventComponent,
+        NewEventComponent,
+        QuillEditorComponent,
+        EditorComponent,
+        PdfOverviewComponent,
+        DocViewerComponent,
+        IssueFilterComponent,
+        IssueMasterBreadcrumbComponent,
+        LoadingComponent,
+        LabelFormComponent,
+        FelterMatMenueComponent,
+        DocumentMenuComponent,
+        NotificationsComponent,
+        TeamAvatarsComponent,
+        ImageModalContentComponent,
+        ChatWidgetComponent,
+        NewIssueFormComponent,
+        LoadingOverlayComponent,
+        SkeletonComponent,
+        DossiersComponent,
+      TreeDossierItemComponent
+    ],
   providers:[
     NgbActiveModal
   ]
