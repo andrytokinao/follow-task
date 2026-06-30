@@ -22,7 +22,8 @@ import {Observable} from "rxjs";
 })
 export class TreeDossierItemComponent implements OnInit, OnChanges {
 
-  _repertoire!: Repertoire;
+  _repertoire: Repertoire = {};
+  _reperoires:Repertoire[] = [];
   @Input() lastSelectedPath: string = '';
   @Input() selectedPaths: Set<string> = new Set();
 
@@ -37,8 +38,22 @@ export class TreeDossierItemComponent implements OnInit, OnChanges {
   }
   @Input()
   set repertoire(repertoire:Repertoire){
+    alert('ici');
     this._repertoire = repertoire;
     this.openDossierByPath(repertoire.absolutePath);
+  }
+  @Input()
+  set repertoires(repertoires:Repertoire[]){
+    alert("JSON.stringify(repertoires)");
+
+    if (!this._repertoire) {
+      this._repertoire = {
+        repertoires:[]
+      };
+    }
+    this._repertoire.repertoires = repertoires;
+    alert(JSON.stringify(repertoires));
+
   }
 
   ngOnInit(): void {

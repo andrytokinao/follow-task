@@ -89,7 +89,7 @@
       <!-- Racine -->
       <ng-container *ngIf="rootRepertoire; else empty">
         <app-dossier-node-item
-          [repertoire]="rootRepertoire"
+          [repertoires]="repertoires"
           [lastSelectedPath]="lastSelectedPath"
           [selectedPaths]="selectedPaths"
           (fileSelected)="onFileSelected($event)"

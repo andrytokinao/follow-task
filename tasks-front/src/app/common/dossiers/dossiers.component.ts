@@ -24,6 +24,7 @@ export class DossiersComponent implements OnInit, OnChanges {
   repertoireApi = environment.apiURL +"api";
 
   rootRepertoire: Repertoire | null = null;
+  repertoires:Repertoire[]= [];
   isLoading = false;
   error: string | null = null;
 
@@ -59,10 +60,13 @@ export class DossiersComponent implements OnInit, OnChanges {
   loadTree(): void {
     this.isLoading = true;
     this.error     = null;
-    this.http.get<Repertoire>(this.repertoireApi+`/repertoires?path=${this.root}`)
+    this.http.get<Repertoire[]>(this.repertoireApi+`/repertoires?path=${this.root}`)
       .subscribe({
         next: (data) => {
-          this.rootRepertoire = data; this.isLoading = false; },
+    //      alert(JSON.stringify(data));
+          this.repertoires = data; this.isLoading = false;
+        },
+
         error: (err) => {
           this.error     = 'Impossible de charger l\'arborescence.';
           this.isLoading = false;
