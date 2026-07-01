@@ -1,57 +1,290 @@
-<script src="home.component.ts"></script>
-<div class="container-fluid d-flex flex-column min-vh-100 py-5 modern-container-light position-relative">
+<div class="paikady-home">
 
-  <!-- Fond décoratif SVG placé dans le HTML -->
-  <svg class="background-svg-light" viewBox="0 0 1440 320" preserveAspectRatio="none">
-    <path fill="#6366f1" fill-opacity="0.1"
-          d="M0,96L80,117.3C160,139,320,181,480,176C640,171,800,117,960,90.7C1120,64,1280,64,1360,64L1440,64L1440,0L1360,0C1280,0,
-      1120,0,960,0C800,0,640,0,480,0C320,0,160,0,80,0L0,0Z">
-    </path>
-  </svg>
+  <!-- ═══ PANNEAU GAUCHE — HERO + SLIDER ═══ -->
+  <div class="hero-panel">
 
-  <!-- Liste des projets -->
-  <div class="row g-4 justify-content-center project-list position-relative flex-grow-1 align-content-center">
-    <div
-      class="col-md-6 col-lg-5"
-      *ngFor="let project of projects"
-      (click)="selectProject(project)"
-    >
-      <div class="card h-100 shadow-sm border-0 modern-card-light hover-shadow transition-all">
-        <!-- Image -->
-        <div class="card-img-top text-center bg-light p-3 rounded-top">
-          <img
-            [src]="issueService.getImageProject(project)"
-            alt="{{ project.name }} Image"
-            class="img-fluid rounded"
-            style="max-height: 150px; object-fit: contain;"
-          />
+    <!-- En-tête marque -->
+    <div class="hero-top">
+      <div class="hero-brand">
+        <div class="brand-icon"><i class="fa fa-cubes"></i></div>
+        <span class="brand-name">Paikady</span>
+      </div>
+      <div class="new-badge">
+        <i class="fa fa-whatsapp me-1"></i> WhatsApp intégré
+      </div>
+    </div>
+
+    <!-- Titre -->
+    <div class="hero-headline">
+      <h1 class="hero-title">Pilotez vos projets<br><span class="hero-accent">sans friction.</span></h1>
+      <p class="hero-sub">Tâches, équipes, échanges WhatsApp et fichiers réunis dans un seul espace.</p>
+    </div>
+
+    <!-- ── Slider fonctionnalités ── -->
+    <div class="slider-section">
+
+      <!-- Header slide courant -->
+      <div class="slide-header" [style.background]="slides[currentSlide].color">
+        <div class="slide-header-icon">
+          <i [class]="'fa ' + slides[currentSlide].icon"></i>
         </div>
-
-        <!-- Détails -->
-        <div class="card-body modern-card-body">
-          <h5 class="card-title d-flex align-items-center gap-2">
-            <i class="fa fa-briefcase text-primary"></i>
-            <span>
-              <b>{{ project.prefix }}</b> - <i>{{ project.name }}</i>
-            </span>
-          </h5>
-          <p class="card-text text-muted small">
-            {{ project.description }}
-          </p>
+        <div>
+          <div class="slide-header-title">{{ slides[currentSlide].title }}</div>
+          <div class="slide-header-desc">{{ slides[currentSlide].desc }}</div>
         </div>
+        <div class="slide-counter">{{ currentSlide + 1 }}/{{ slides.length }}</div>
+      </div>
+
+      <!-- Viewport du slider -->
+      <div class="slide-viewport">
+        <div class="slide-track" [style.transform]="'translateX(-' + (currentSlide * 25) + '%)'">
+
+          <!-- SLIDE 0 : Kanban -->
+          <div class="slide">
+            <div class="mock-kanban">
+              <div class="mk-col">
+                <div class="mk-col-head" style="color:#6366F1;border-color:#C7D2FE">À faire</div>
+                <div class="mk-card"><span class="mk-tag" style="background:#EEF2FF;color:#4338CA">Design</span>Maquettes v2</div>
+                <div class="mk-card"><span class="mk-tag" style="background:#FEF3C7;color:#92400E">Backend</span>Auth JWT</div>
+                <div class="mk-card"><span class="mk-tag" style="background:#EEF2FF;color:#4338CA">Design</span>Charte graphique</div>
+              </div>
+              <div class="mk-col">
+                <div class="mk-col-head" style="color:#F59E0B;border-color:#FDE68A">En cours</div>
+                <div class="mk-card mk-active"><span class="mk-tag" style="background:#ECFDF5;color:#065F46">Front</span>Dashboard stats</div>
+                <div class="mk-card mk-active"><span class="mk-tag" style="background:#FEF3C7;color:#92400E">Back</span>API projets</div>
+              </div>
+              <div class="mk-col">
+                <div class="mk-col-head" style="color:#22C55E;border-color:#BBF7D0">Terminé</div>
+                <div class="mk-card mk-done"><i class="fa fa-check-circle me-1" style="color:#22C55E"></i>CI/CD</div>
+                <div class="mk-card mk-done"><i class="fa fa-check-circle me-1" style="color:#22C55E"></i>DB Schema</div>
+                <div class="mk-card mk-done"><i class="fa fa-check-circle me-1" style="color:#22C55E"></i>Auth service</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SLIDE 1 : WhatsApp -->
+          <div class="slide">
+            <div class="mock-whatsapp">
+              <div class="wa-topbar">
+                <div class="wa-avatar"><i class="fa fa-users" style="font-size:11px"></i></div>
+                <div>
+                  <div class="wa-group-name">Projet Alpha 🚀</div>
+                  <div class="wa-members">Jean, Marie, Thomas, +4</div>
+                </div>
+                <div class="wa-sync-badge"><i class="fa fa-circle me-1" style="font-size:6px;color:#22C55E"></i>Synchronisé</div>
+              </div>
+              <div class="wa-messages">
+                <div class="wa-msg wa-msg-in">
+                  <div class="wa-msg-avatar" style="background:#818CF8">JP</div>
+                  <div>
+                    <div class="wa-msg-name">Jean-Pierre</div>
+                    <div class="wa-bubble wa-bubble-in">Voici le rapport final</div>
+                    <div class="wa-file">
+                      <i class="fa fa-file-pdf-o" style="color:#EF4444"></i>
+                      <span>rapport_final.pdf</span>
+                      <span class="wa-file-size">2.3 MB</span>
+                    </div>
+                    <div class="wa-msg-time">10:32</div>
+                  </div>
+                </div>
+                <div class="wa-msg wa-msg-in">
+                  <div class="wa-msg-avatar" style="background:#34D399">M</div>
+                  <div>
+                    <div class="wa-msg-name">Marie</div>
+                    <div class="wa-bubble wa-bubble-in">Merci, je valide ✅</div>
+                    <div class="wa-msg-time">10:35</div>
+                  </div>
+                </div>
+                <div class="wa-msg wa-msg-in">
+                  <div class="wa-msg-avatar" style="background:#F59E0B">T</div>
+                  <div>
+                    <div class="wa-msg-name">Thomas</div>
+                    <div class="wa-file">
+                      <i class="fa fa-file-image-o" style="color:#6366F1"></i>
+                      <span>maquette_v3.png</span>
+                      <span class="wa-file-size">1.1 MB</span>
+                    </div>
+                    <div class="wa-msg-time">10:38</div>
+                  </div>
+                </div>
+              </div>
+              <div class="wa-archive-bar">
+                <i class="fa fa-cloud-download me-1"></i> 3 fichiers archivés automatiquement
+              </div>
+            </div>
+          </div>
+
+          <!-- SLIDE 2 : Stockage -->
+          <div class="slide">
+            <div class="mock-storage">
+              <div class="st-toolbar">
+                <div class="st-search"><i class="fa fa-search" style="color:#94A3B8;font-size:11px"></i><span>Rechercher…</span></div>
+                <div class="st-stats">
+                  <span class="st-stat-pill" style="background:#EEF2FF;color:#4338CA">12 fichiers</span>
+                  <span class="st-stat-pill" style="background:#F0FDF4;color:#166534">8.4 MB</span>
+                </div>
+              </div>
+              <div class="st-list">
+                <div class="st-row st-row-header">
+                  <span>Nom</span><span>Groupe</span><span>Taille</span><span>Date</span>
+                </div>
+                <div class="st-row">
+                  <span><i class="fa fa-file-pdf-o" style="color:#EF4444"></i> rapport_final.pdf</span>
+                  <span class="st-group-tag" style="background:#DCFCE7;color:#166534">Alpha</span>
+                  <span>2.3 MB</span><span>Auj.</span>
+                </div>
+                <div class="st-row">
+                  <span><i class="fa fa-file-image-o" style="color:#6366F1"></i> maquette_v3.png</span>
+                  <span class="st-group-tag" style="background:#DCFCE7;color:#166534">Alpha</span>
+                  <span>1.1 MB</span><span>Auj.</span>
+                </div>
+                <div class="st-row">
+                  <span><i class="fa fa-file-excel-o" style="color:#22C55E"></i> budget_Q2.xlsx</span>
+                  <span class="st-group-tag" style="background:#EEF2FF;color:#4338CA">Beta</span>
+                  <span>450 KB</span><span>Hier</span>
+                </div>
+                <div class="st-row">
+                  <span><i class="fa fa-file-word-o" style="color:#3B82F6"></i> cahier_charges.docx</span>
+                  <span class="st-group-tag" style="background:#FEF9C3;color:#713F12">Gamma</span>
+                  <span>890 KB</span><span>Hier</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SLIDE 3 : Analytics -->
+          <div class="slide">
+            <div class="mock-analytics">
+              <div class="an-metrics">
+                <div class="an-metric">
+                  <div class="an-metric-val" style="color:#6366F1">247</div>
+                  <div class="an-metric-label">Tâches clôturées</div>
+                </div>
+                <div class="an-metric">
+                  <div class="an-metric-val" style="color:#22C55E">94%</div>
+                  <div class="an-metric-label">Taux de complétion</div>
+                </div>
+                <div class="an-metric">
+                  <div class="an-metric-val" style="color:#F59E0B">1.2j</div>
+                  <div class="an-metric-label">Délai moyen</div>
+                </div>
+              </div>
+              <div class="an-chart-label">Activité sur 7 jours</div>
+              <div class="an-chart">
+                <div class="an-bar-wrap" *ngFor="let bar of chartBars; let bi = index">
+                  <div class="an-bar" [style.height.%]="bar.val" [style.animation-delay.ms]="bi * 80"
+                       [style.background]="bar.val > 70 ? '#6366F1' : '#C7D2FE'"></div>
+                  <div class="an-bar-label">{{ bar.day }}</div>
+                </div>
+              </div>
+              <div class="an-legend">
+                <span class="an-legend-dot" style="background:#6366F1"></span>Haute activité
+                <span class="an-legend-dot ms-3" style="background:#C7D2FE"></span>Activité normale
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <div class="slider-nav">
+        <button class="nav-arrow" (click)="prevSlide()" [disabled]="currentSlide === 0">
+          <i class="fa fa-chevron-left"></i>
+        </button>
+        <div class="nav-dots">
+          <span
+            class="nav-dot"
+            *ngFor="let s of slides; let i = index"
+            [class.active]="i === currentSlide"
+            (click)="goToSlide(i)"
+          ></span>
+        </div>
+        <button class="nav-arrow" (click)="nextSlide()" [disabled]="currentSlide === slides.length - 1">
+          <i class="fa fa-chevron-right"></i>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Stats -->
+    <div class="hero-stats">
+      <div class="stat-item">
+        <span class="stat-val">{{ animatedProjectCount }}</span>
+        <span class="stat-key">Espaces</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-val">{{ animatedMessages }}+</span>
+        <span class="stat-key">Messages archivés</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-val">{{ animatedUptime }}%</span>
+        <span class="stat-key">Disponibilité</span>
       </div>
     </div>
   </div>
 
-  <!-- Bouton création -->
-  <div class="text-center mt-5 position-relative">
-    <button
-      class="btn btn-lg btn-primary px-4 shadow-sm modern-create-btn-light"
-      (click)="createProject()"
-      *ngIf="authGuard.hasAutorityAsync(['ADMIN']) | async"
-    >
-      <i class="fa fa-plus-circle me-2"></i> Créer un nouvel espace de travail
-    </button>
+  <!-- ═══ PANNEAU DROIT — PROJETS ═══ -->
+  <div class="projects-panel">
+
+    <div class="pp-header">
+      <div>
+        <h2 class="pp-title">Espaces de travail</h2>
+        <p class="pp-sub">{{ projects.length }} espace{{ projects.length > 1 ? 's' : '' }} disponible{{ projects.length > 1 ? 's' : '' }}</p>
+      </div>
+      <button
+        class="btn-icon-create"
+        (click)="createProject()"
+        *ngIf="authGuard.hasAutorityAsync(['ADMIN']) | async"
+        title="Créer un espace"
+      >
+        <i class="fa fa-plus"></i>
+      </button>
+    </div>
+
+    <div class="search-wrap">
+      <i class="fa fa-search search-ico"></i>
+      <input
+        class="search-input"
+        type="text"
+        placeholder="Rechercher un espace..."
+        [(ngModel)]="searchTerm"
+      />
+    </div>
+
+    <div class="projects-list">
+      <div class="empty-state" *ngIf="filteredProjects.length === 0">
+        <i class="fa fa-folder-open"></i>
+        <p>Aucun espace trouvé</p>
+      </div>
+      <div
+        class="project-row slide-in"
+        *ngFor="let project of filteredProjects; let i = index"
+        [style.animation-delay.ms]="i * 55"
+        (click)="selectProject(project)"
+      >
+        <div class="p-avatar" [style.background]="getAvatarColor(project.prefix)">
+          {{ project.prefix?.substring(0, 2)?.toUpperCase() }}
+        </div>
+        <div class="p-info">
+          <div class="p-name-row">
+            <span class="p-name">{{ project.name }}</span>
+            <span class="p-prefix">{{ project.prefix }}</span>
+          </div>
+          <p class="p-desc">{{ project.description || 'Aucune description renseignée' }}</p>
+        </div>
+        <i class="fa fa-chevron-right p-arrow"></i>
+      </div>
+    </div>
+
+    <div class="pp-footer" *ngIf="authGuard.hasAutorityAsync(['ADMIN']) | async">
+      <button class="btn-create-full" (click)="createProject()">
+        <i class="fa fa-plus-circle me-2"></i> Nouvel espace de travail
+      </button>
+    </div>
   </div>
+
   <app-loading-overlay [visible]="isLoading" [message]="loadingMessage" />
 </div>
