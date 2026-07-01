@@ -52,11 +52,10 @@ public class GQUserController {
     }
     @GetMapping(value = {
             "/",
-            "/{path:[^\\.]*}",
-            "/{path:[^\\.]*}/**"
+            "/{path:^(?!assets|api)[^\\.]*$}",
+            "/{path:^(?!assets|api)[^\\.]*}/**"
     })
     public String publicRedirection() {
-        logger.info("loading page frontend");
         return "forward:/index.html";
     }
     @PostMapping("/api/upload/photo")
