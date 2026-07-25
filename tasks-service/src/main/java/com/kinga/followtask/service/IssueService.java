@@ -623,7 +623,7 @@ public class IssueService {
         doc = documentRepository.getOne(doc.getId());
         OutputDocument output = new OutputDocument(doc);
        Map<String,OutputDocument> mapDocument = new HashMap<>();
-       mapDocument.put(MessagesService.PROCESS_DOCUMENT,output);
+       mapDocument.put(ChatService.PROCESS_DOCUMENT,output);
         List<DocumentMember> docMembers = new ArrayList<>();
         if (doc.getParent() != null) {
             docMembers = documentMemberRepository.findByDocumentId(doc.getParent().getId());
@@ -649,7 +649,7 @@ public class IssueService {
         Document doc = uploaded.getDocument();
         OutputUploaded out = new OutputUploaded(uploaded);
         Map<String,OutputUploaded> mapUploaded = new HashMap<>();
-        mapUploaded.put(MessagesService.NEW_UPLOADED,out);
+        mapUploaded.put(ChatService.NEW_UPLOADED,out);
         List<DocumentMember> docMembers = new ArrayList<>();
         if (doc.getParent() != null) {
             Document parent = documentRepository.getById(doc.getParent().getId());

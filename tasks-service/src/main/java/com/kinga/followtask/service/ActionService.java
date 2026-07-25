@@ -12,7 +12,7 @@ import org.springframework.util.StringUtils;
 import java.io.IOException;
 import java.util.*;
 
-import static com.kinga.followtask.service.MessagesService.SLIDE_DOSSIER;
+import static com.kinga.followtask.service.ChatService.SLIDE_DOSSIER;
 
 @Service
 @RequiredArgsConstructor
@@ -64,7 +64,7 @@ public class ActionService {
         notification = notificationRepository.save(notification);
         Map<String,Object> map = new HashMap<>();
         OutputNotification notif = new OutputNotification(notification);
-        map.put(MessagesService.NEW_NOTIFICATION,notif);
+        map.put(ChatService.NEW_NOTIFICATION,notif);
         for (String toNotifyItem : notification.getUserIds()) {
             simpMessagingTemplate.convertAndSend("/topic/datas/" + toNotifyItem, map);
         }
@@ -85,7 +85,7 @@ public class ActionService {
         notification = notificationRepository.save(notification);
         Map<String,Object> map = new HashMap<>();
         OutputNotification notif = new OutputNotification(notification);
-        map.put(MessagesService.NEW_NOTIFICATION,notif);
+        map.put(ChatService.NEW_NOTIFICATION,notif);
         for (String toNotifyItem : notification.getUserIds()) {
             simpMessagingTemplate.convertAndSend("/topic/datas/" + toNotifyItem, map);
         }
@@ -177,7 +177,7 @@ public class ActionService {
         Project project = action.getIssue().getProject();
         Set<String> members = getMembers(project.getPrefix());
         Map<String,Object> map = new HashMap<>();
-        map.put(MessagesService.PROCESS_ACTION,new ActionItemInput(action));
+        map.put(ChatService.PROCESS_ACTION,new ActionItemInput(action));
         for (String toNotifyItem : members) {
             simpMessagingTemplate.convertAndSend("/topic/datas/" + toNotifyItem, map);
         }

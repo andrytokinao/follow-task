@@ -16,7 +16,7 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
-public class MessagesService {
+public class ChatService {
     public static String PROCESS_NEW_MESSAGE = "newMessage";
     public static String PROCESS_DOCUMENT = "processDocument";
     public static String NEW_NOTIFICATION = "newNotification";
