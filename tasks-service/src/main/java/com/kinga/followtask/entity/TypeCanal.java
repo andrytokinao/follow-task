@@ -3,5 +3,9 @@ package com.kinga.followtask.entity;
 public enum TypeCanal {
     PROJECT,
     ISSUE,
-    DEFAULT
+    DEFAULT,
+    WHATSAPP,
+    FACEBOOK,
+    TELEGRAM,
+    INSTAGRAM
 }
