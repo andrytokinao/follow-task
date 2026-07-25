@@ -2,8 +2,12 @@ package com.kinga.followtask.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.util.CollectionUtils;
+
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Data
@@ -43,4 +47,10 @@ public class Canall {
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    public List<String> getMembersIds() {
+        if (CollectionUtils.isEmpty(members))
+            return new ArrayList<>();
+        return members.stream().map(m->m.getUser().getId()).collect(Collectors.toList());
+    }
 }

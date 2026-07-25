@@ -40,6 +40,6 @@ public class OutputMessage {
         setText(mes.getText());
         setSender(mes.getSender());
         setCanall(mes.getCanall());
-      //  setUserReades(mes.getUserReades());
+        setUserReades(mes.getUserReades());
     }
 }

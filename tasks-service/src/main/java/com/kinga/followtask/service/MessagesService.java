@@ -32,7 +32,6 @@ public class MessagesService {
     private final SimpMessagingTemplate simpMessagingTemplate;
 
     public MessageApp sendMessage(MessageApp message) {
-      message.setCreated(new Date());
       MessageApp  mes = messagesRepository.save(message);
       sendMessageTo(mes,PROCESS_NEW_MESSAGE);
       return mes;
@@ -127,7 +126,7 @@ public class MessagesService {
            existing.setTypeCanal(TypeCanal.PROJECT);
            existing.setIssueMaster(canall.getIssueMaster());
            existing.setPseudo(canall.getPseudo());
-           existing.setMembersIds(canall.getMembersIds());
+     //      existing.setMembersIds(canall.getMembersIds());
            return canalRepository.save(existing);
        } else {
            if (CollectionUtils.isEmpty(canall.getMembersIds())
@@ -154,7 +153,6 @@ public class MessagesService {
   //  @Scheduled(fixedRate = 10000)
     public void scheduledMessage() {
         MessageApp message = new MessageApp();
-        message.setCreated(new Date());
         message.setText("Message scheduled");
         UserApp userApp = new UserApp();
         userApp.setId("idd");

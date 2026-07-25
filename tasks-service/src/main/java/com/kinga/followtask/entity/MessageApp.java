@@ -3,6 +3,8 @@ package com.kinga.followtask.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -43,4 +45,7 @@ public class MessageApp {
     private boolean processed = false;
 
 
+    public List<String> getUserReades() {
+        return new ArrayList<>();
+    }
 }
