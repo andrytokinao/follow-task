@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 @Data
@@ -12,7 +13,7 @@ import java.util.List;
 public class OutputMessage {
     private Long id;
     private Canall canall;
-    private Date created;
+    private LocalDateTime created;
     private String text;
     private UserApp sender;
     private List<String> userReades;
@@ -39,6 +40,6 @@ public class OutputMessage {
         setText(mes.getText());
         setSender(mes.getSender());
         setCanall(mes.getCanall());
-        setUserReades(mes.getUserReades());
+      //  setUserReades(mes.getUserReades());
     }
 }
