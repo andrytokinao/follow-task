@@ -1,6 +1,8 @@
 package com.kinga.followtask.service.messaging.dto;
 
+import com.kinga.followtask.service.messaging.dto.AttachmentDto;
 import lombok.*;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -9,9 +11,11 @@ public class MessageDto {
     private String externalMessageId;
     private String canalExternalId;
     private String text;
-    private String mediaType;          // TEXT, IMAGE, VIDEO, DOCUMENT, AUDIO...
+    private MediaType mediaType;
     private String senderExternalId;
     private String senderDisplayName;
     private LocalDateTime createdAt;
+    private boolean fromMe;
+    private boolean hasAttachment;
     private List<AttachmentDto> attachments;
 }

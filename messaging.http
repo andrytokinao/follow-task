@@ -28,7 +28,7 @@ Accept: application/json
 ### =====================================================
 ### 3. Lister les messages d'un canal (paginé)
 ### =====================================================
-GET http://localhost:8080/api/messaging/WHATSAPP/canaux/120363012345678901@g.us/messages?page=0&size=20
+GET http://localhost:8081/api/messaging/WHATSAPP/canaux/120363421843973594@g.us/messages?page=0&size=20
 Accept: application/json
 
 
@@ -57,7 +57,7 @@ Content-Type: application/json
 
 
 ### 5b. Envoyer un message avec media
-POST http://localhost:8081/api/messaging/WHATSAPP/canaux/120363426977986286@g.us/messages
+POST http://localhost:8081/api/messaging/WHATSAPP/canaux/120363421843973594@g.us/messages
 Content-Type: application/json
 
 {

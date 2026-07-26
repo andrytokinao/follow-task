@@ -6,7 +6,9 @@ import com.kinga.followtask.repository.MessagesRepository;
 import com.kinga.followtask.service.messaging.MessagingService;
 import com.kinga.followtask.service.messaging.dto.*;
 import com.kinga.followtask.service.messaging.impl.whatsapp.WhatsAppMapper;
+import com.kinga.followtask.service.messaging.impl.whatsapp.WhatsAppTypeResolver;
 import com.kinga.followtask.service.messaging.impl.whatsapp.raw.WhatsAppRawConversationsResponse;
+import com.kinga.followtask.service.messaging.impl.whatsapp.raw.WhatsAppRawMessagesResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -64,16 +66,20 @@ public class WhatsAppMessagingService implements MessagingService {
 
     @Override
     public List<MessageDto> listMessages(String canalExternalId, MessageQueryDto query) {
-        MessageDto[] result = client().get()
-                .uri(uriBuilder -> uriBuilder
-                        .path("/api/groups/{id}/messages")
-                        .queryParam("page", query.getPage())
-                        .queryParam("size", query.getSize())
-                        .queryParamIfPresent("since", Optional.ofNullable(query.getSince()))
-                        .build(canalExternalId))
+        WhatsAppRawMessagesResponse response = client().get()
+                .uri("/api/whatsapp/conversations-history/{jid}/messages", canalExternalId)
                 .retrieve()
-                .body(MessageDto[].class);
-        return result == null ? List.of() : List.of(result);
+                .body(WhatsAppRawMessagesResponse.class);
+
+        if (response == null || !response.isSucces() || response.getDonnees() == null) {
+            log.warn("Réponse invalide (messages) pour le canal {}", canalExternalId);
+            return List.of();
+        }
+
+        return response.getDonnees().getMessages().stream()
+                .map(raw -> mapper.toMessageDto(raw, canalExternalId))
+                .filter(dto -> !WhatsAppTypeResolver.isIgnorable(dto.getMediaType()))
+                .toList();
     }
 
     @Override
@@ -144,9 +150,9 @@ public class WhatsAppMessagingService implements MessagingService {
     }
 
     private void persistMessage(MessageDto dto) {
-        if (messageAppRepository.existsByExternalMessageId(dto.getExternalMessageId())) {
-            return; // déjà connu
-        }
+        if (dto.getMediaType() == MediaType.SYSTEM) return; // bruit technique, pas un vrai message
+        if (messageAppRepository.existsByExternalMessageId(dto.getExternalMessageId())) return;
+
         Canall canall = canallRepository.findByExternalId(dto.getCanalExternalId())
                 .orElseThrow(() -> new IllegalStateException("Canal introuvable : " + dto.getCanalExternalId()));
 
@@ -154,10 +160,9 @@ public class WhatsAppMessagingService implements MessagingService {
         message.setExternalMessageId(dto.getExternalMessageId());
         message.setCanall(canall);
         message.setText(dto.getText());
-        message.setMediaType(dto.getMediaType());
+        message.setMediaType(dto.getMediaType().name());
         message.setCreated(dto.getCreatedAt() != null ? dto.getCreatedAt() : LocalDateTime.now());
         message.setFallbackSenderName(dto.getSenderDisplayName());
-        // resolution du sender via UserApp/Contact à faire si vous avez déjà le mapping
         messageAppRepository.save(message);
     }
 }
