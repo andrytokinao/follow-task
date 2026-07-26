@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CanalRepository extends JpaRepository<Canall, Long> {
     public List<Canall> findByProjectsIdAndMembersUserIdIn(Long projectsIds, List<String> membersIds);
@@ -21,5 +22,5 @@ public interface CanalRepository extends JpaRepository<Canall, Long> {
         HAVING COUNT(u.id) = :userCount
     """)
     List<Canall> exactChannelByMembers(@Param("projectsId") Long projectsId,  @Param("userIds") List<String> userIds, @Param("userCount") long userCount);
-
+    Optional<Canall> findByExternalId(String externalId);
 }
