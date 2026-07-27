@@ -2,19 +2,21 @@ package com.kinga.followtask.service.messaging.impl.whatsapp.raw;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Data;
-
 @Data
-public class WhatsAppRawMessage {
-    private String id;
+public class WhatsAppRawFile {
+    private String messageId;
     private String de;
-    private String nomExpediteur;
     private boolean deMoi;
-    private String texte;
     private String type;
-    private WhatsAppRawMedia media;
+    private String mimetype;
+    private long tailleOctets;
+    private String nomFichierOriginal;
+    private String legende;
+    private boolean aUneMiniature;
 
     @JsonDeserialize(using = WhatsAppTimestampDeserializer.class)
     private Long horodatage;
 
-    private String pushName;
+    private boolean telecharge;
+    private String url;
 }

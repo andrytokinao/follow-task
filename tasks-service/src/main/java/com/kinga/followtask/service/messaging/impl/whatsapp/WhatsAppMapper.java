@@ -1,13 +1,8 @@
 package com.kinga.followtask.service.messaging.impl.whatsapp;
 
 import com.kinga.followtask.entity.TypeCanal;
-import com.kinga.followtask.service.messaging.dto.AttachmentDto;
-import com.kinga.followtask.service.messaging.dto.CanalDto;
-import com.kinga.followtask.service.messaging.dto.MediaType;
-import com.kinga.followtask.service.messaging.dto.MessageDto;
-import com.kinga.followtask.service.messaging.impl.whatsapp.raw.Neo4jTimestampUtil;
-import com.kinga.followtask.service.messaging.impl.whatsapp.raw.WhatsAppRawConversation;
-import com.kinga.followtask.service.messaging.impl.whatsapp.raw.WhatsAppRawMessage;
+import com.kinga.followtask.service.messaging.dto.*;
+import com.kinga.followtask.service.messaging.impl.whatsapp.raw.*;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -30,10 +25,11 @@ public class WhatsAppMapper {
         return MessageDto.builder()
                 .canalExternalId(raw.getJid())
                 .text(dm.getTexte())
-                .createdAt(Neo4jTimestampUtil.toLocalDateTime(dm.getHorodatage()))
+                .createdAt(toLocalDateTime(dm.getHorodatage()))
                 .senderDisplayName(dm.isDeMoi() ? "moi" : raw.getNom())
                 .build();
     }
+
     public CanalDto toCanalDto(WhatsAppRawConversation raw) {
         return CanalDto.builder()
                 .externalId(raw.getJid())
@@ -44,7 +40,46 @@ public class WhatsAppMapper {
                 .messageCount(raw.getNombreMessages())
                 .build();
     }
+    public CanalDto toCanalDetailDto(WhatsAppRawMembersData raw) {
+        List<MemberDto> members = raw.getMembres() == null ? List.of() :
+                raw.getMembres().stream().map(this::toMemberDto).toList();
 
+        return CanalDto.builder()
+                .externalId(raw.getJid())
+                .pseudo(raw.getNom())
+                .typeCanal(TypeCanal.WHATSAPP.name())
+                .isGroup(true)
+                .description(raw.getDescription())
+                .ownerExternalId(raw.getProprietaire())
+                .memberCount(raw.getNombreMembres())
+                .members(members)
+                .build();
+    }
+    private MemberDto toMemberDto(WhatsAppRawMember raw) {
+        return MemberDto.builder()
+                .externalUserId(raw.getJid())
+                .displayName(raw.getNom())
+                .phoneOrContact(raw.getNumero())
+                .admin(Boolean.TRUE.equals(raw.getAdmin()))
+                .build();
+    }
+    public AttachmentDto toAttachmentDto(WhatsAppRawFile raw) {
+        return AttachmentDto.builder()
+                .externalMessageId(raw.getMessageId())
+                .externalAttachmentId(raw.getMessageId())
+                .fileName(raw.getNomFichierOriginal())
+                .mimeType(raw.getMimetype())
+                .sizeBytes(raw.getTailleOctets())
+                .caption(raw.getLegende())
+                .mediaType(com.kinga.followtask.service.messaging.impl.whatsapp.WhatsAppTypeResolver.resolve(raw.getType()))
+                .senderExternalId(raw.isDeMoi() ? null : raw.getDe())
+                .fromMe(raw.isDeMoi())
+                .downloaded(raw.isTelecharge())
+                .downloadUrl(raw.getUrl())
+                .createdAt(LocalDateTime.ofInstant(
+                        Instant.ofEpochSecond(raw.getHorodatage()), ZoneOffset.UTC))
+                .build();
+    }
     // ---------- Messages ----------
 
     public MessageDto toMessageDto(WhatsAppRawMessage raw, String canalExternalId) {
@@ -83,7 +118,8 @@ public class WhatsAppMapper {
                 .build();
     }
 
-    private LocalDateTime toLocalDateTime(long epochSeconds) {
+    private LocalDateTime toLocalDateTime(Long epochSeconds) {
+        if (epochSeconds == null) return null;
         return LocalDateTime.ofInstant(Instant.ofEpochSecond(epochSeconds), ZoneOffset.UTC);
     }
 }

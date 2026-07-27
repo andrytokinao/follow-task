@@ -1,16 +1,3 @@
-Accept: application/json
-
-###
-### =====================================================
-### Variables
-### =====================================================
-@host =
-@type = WHATSAPP
-@canalExternalId = 120363012345678901@g.us
-@messageExternalId = MSG_ID_EXEMPLE_123
-@attachmentExternalId = ATT_ID_EXEMPLE_456
-
-
 ### =====================================================
 ### 1. Lister les canaux (groupes) WhatsApp
 ### =====================================================
@@ -19,9 +6,9 @@ Accept: application/json
 
 
 ### =====================================================
-### 2. Détail d'un canal (avec membres)
+### 2. Détail d'un canal (avec membres, description, propriétaire)
 ### =====================================================
-GET http://localhost:8080/api/messaging/WHATSAPP/canaux/120363012345678901@g.us
+GET http://localhost:8081/api/messaging/WHATSAPP/canaux/120363405529356260@g.us
 Accept: application/json
 
 
@@ -33,21 +20,23 @@ Accept: application/json
 
 
 ### 3b. Avec filtre de date
-GET http://localhost:8080/api/messaging/WHATSAPP/canaux/120363012345678901@g.us/messages?page=0&size=20&since=2026-07-01T00:00:00
+GET http://localhost:8081/api/messaging/WHATSAPP/canaux/120363421843973594@g.us/messages?page=0&size=20&since=2026-07-01T00:00:00
 Accept: application/json
 
 
 ### =====================================================
 ### 4. Récupérer un message précis
+### (non supporté par le provider WhatsApp actuel -> attend 501 Not Implemented)
 ### =====================================================
-GET http://localhost:8080/api/messaging/WHATSAPP/messages/MSG_ID_EXEMPLE_123
+GET http://localhost:8081/api/messaging/WHATSAPP/messages/ACAEC989FB460A61C78B5D46D955E64D
 Accept: application/json
 
 
 ### =====================================================
 ### 5. Envoyer un message texte
+### (non supporté par le provider WhatsApp actuel -> attend 501 Not Implemented)
 ### =====================================================
-POST http://localhost:8080/api/messaging/WHATSAPP/canaux/120363012345678901@g.us/messages
+POST http://localhost:8081/api/messaging/WHATSAPP/canaux/120363427933097506@g.us/messages
 Content-Type: application/json
 
 {
@@ -68,45 +57,55 @@ Content-Type: application/json
 
 
 ### =====================================================
-### 6. Lister les pièces jointes d'un message
+### 6. Lister les pièces jointes d'un canal
 ### =====================================================
-GET http://localhost:8080/api/messaging/WHATSAPP/messages/MSG_ID_EXEMPLE_123/attachments
+GET http://localhost:8081/api/messaging/WHATSAPP/canaux/120363427933097506@g.us/attachments
 Accept: application/json
 
 
 ### =====================================================
 ### 7. Télécharger une pièce jointe
+### (externalAttachmentId = messageId du fichier, ex: cartes 1.0.xlsx)
 ### =====================================================
-GET http://localhost:8080/api/messaging/WHATSAPP/attachments/ATT_ID_EXEMPLE_456/download
+GET http://localhost:8081/api/messaging/WHATSAPP/attachments/ACB89CAF4E7E922C229C08B54F00E4B0/download
 
 
 ### =====================================================
 ### 8. Webhook - simuler une notification entrante WhatsApp
-### (à adapter selon le vrai format renvoyé par votre app d'écoute)
+### (format aligné sur WhatsAppRawMessage, à adapter si le vrai format diffère)
 ### =====================================================
-POST http://localhost:8080/api/messaging/WHATSAPP/webhook
+POST http://localhost:8081/api/messaging/WHATSAPP/webhook
 Content-Type: application/json
 
 {
-  "externalMessageId": "MSG_ID_EXEMPLE_789",
-  "canalExternalId": "120363012345678901@g.us",
-  "text": "Message reçu via webhook",
-  "mediaType": "TEXT",
-  "senderExternalId": "261340000000@c.us",
-  "senderDisplayName": "Rakoto Jean",
-  "createdAt": "2026-07-26T10:15:00",
-  "attachments": []
+  "id": "MSG_ID_EXEMPLE_789",
+  "de": "261340000000@lid",
+  "nomExpediteur": "261340000000",
+  "deMoi": false,
+  "texte": "Message reçu via webhook",
+  "type": "conversation",
+  "media": null,
+  "horodatage": 1784915128,
+  "pushName": "Rakoto Jean"
 }
 
 
 ### =====================================================
 ### 9. Déclencher une synchronisation manuelle (pull)
+### Canaux + membres + messages + upsert en base locale
 ### =====================================================
-POST http://localhost:8080/api/messaging/WHATSAPP/sync
+POST http://localhost:8081/api/messaging/WHATSAPP/sync
 
 
 ### =====================================================
-### 10. Test avec un type non implémenté (doit renvoyer 400/500)
+### 10. Test avec un type non implémenté (doit renvoyer 400/404 selon le handler)
 ### =====================================================
-GET http://localhost:8080/api/messaging/TELEGRAM/canaux
+GET http://localhost:8081/api/messaging/TELEGRAM/canaux
+Accept: application/json
+
+
+### =====================================================
+### 11. Canal inexistant (doit renvoyer 404 via IllegalStateException)
+### =====================================================
+GET http://localhost:8081/api/messaging/WHATSAPP/canaux/000000000000000000@g.us
 Accept: application/json

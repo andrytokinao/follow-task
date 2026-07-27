@@ -7,4 +7,5 @@ public class MemberDto {
     private String externalUserId;
     private String displayName;
     private String phoneOrContact;
+    private Boolean admin;
 }

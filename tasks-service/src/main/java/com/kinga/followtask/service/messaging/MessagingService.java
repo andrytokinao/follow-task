@@ -16,7 +16,7 @@ public interface MessagingService {
     /** Liste les groupes/canaux disponibles côté provider externe. */
     List<CanalDto> listCanaux();
 
-    /** Détail d'un canal (membres inclus). */
+    /** Détail d'un canal (description, propriétaire, membres inclus). */
     CanalDto getCanal(String canalExternalId);
 
     /** Liste des messages d'un canal, avec pagination/filtre date. */
@@ -25,10 +25,10 @@ public interface MessagingService {
     /** Récupère un message précis. */
     MessageDto getMessage(String externalMessageId);
 
-    /** Liste les pièces jointes d'un message. */
-    List<AttachmentDto> getAttachments(String externalMessageId);
+    /** Liste toutes les pièces jointes échangées dans un canal. */
+    List<AttachmentDto> listAttachments(String canalExternalId);
 
-    /** Télécharge le binaire d'une pièce jointe. */
+    /** Télécharge le binaire d'une pièce jointe (déclenche le téléchargement si besoin). */
     byte[] downloadAttachment(String externalAttachmentId);
 
     /** Envoie un message sur le canal. */
@@ -41,8 +41,8 @@ public interface MessagingService {
     void handleIncomingEvent(Object rawPayload);
 
     /**
-     * Synchronise (pull) : va chercher les canaux/messages côté provider
-     * externe et les upsert en base locale (Canall / MessageApp).
+     * Synchronise (pull) : va chercher les canaux/messages/membres côté provider
+     * externe et les upsert en base locale (Canall / MessageApp / CanalMember).
      */
     void syncAll();
 }

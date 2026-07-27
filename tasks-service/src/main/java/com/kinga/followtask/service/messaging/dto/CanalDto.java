@@ -10,8 +10,11 @@ public class CanalDto {
     private String externalId;
     private String pseudo;
     private String typeCanal;
-    private boolean isGroup;       // ajouté : estGroupe
-    private int unreadCount;       // ajouté : nonLus
-    private int messageCount;      // ajouté : nombreMessages
+    private boolean isGroup;
+    private int unreadCount;
+    private int messageCount;
     private List<MemberDto> members;
+    private String description;
+    private String ownerExternalId;
+    private int memberCount;
 }

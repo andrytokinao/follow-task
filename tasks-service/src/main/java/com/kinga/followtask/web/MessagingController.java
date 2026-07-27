@@ -1,10 +1,10 @@
 package com.kinga.followtask.web;
 
 import com.kinga.followtask.entity.TypeCanal;
-import com.kinga.followtask.service.messaging.MessagingService;
 import com.kinga.followtask.service.messaging.MessagingServiceRegistry;
 import com.kinga.followtask.service.messaging.dto.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,8 +38,8 @@ public class MessagingController {
             @PathVariable String externalId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) LocalDateTime since,
-            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) LocalDateTime until
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime since,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime until
     ) {
         MessageQueryDto query = MessageQueryDto.builder()
                 .page(page).size(size).since(since).until(until).build();
@@ -60,11 +60,11 @@ public class MessagingController {
         return registry.get(type).sendMessage(externalId, request);
     }
 
-    // ---------- Pièces jointes ----------
+    // ---------- Pièces jointes (au niveau du canal) ----------
 
-    @GetMapping("/{type}/messages/{externalMessageId}/attachments")
-    public List<AttachmentDto> getAttachments(@PathVariable TypeCanal type, @PathVariable String externalMessageId) {
-        return registry.get(type).getAttachments(externalMessageId);
+    @GetMapping("/{type}/canaux/{externalId}/attachments")
+    public List<AttachmentDto> listAttachments(@PathVariable TypeCanal type, @PathVariable String externalId) {
+        return registry.get(type).listAttachments(externalId);
     }
 
     @GetMapping("/{type}/attachments/{externalAttachmentId}/download")
