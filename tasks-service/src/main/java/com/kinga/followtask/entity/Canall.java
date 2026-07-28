@@ -35,7 +35,7 @@ public class Canall {
     private List<MessageApp> messageApp;
 
     @OneToMany(mappedBy = "canall", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<CanalMember> members;
+    private List<CanalContact> members;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
@@ -48,9 +48,13 @@ public class Canall {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
+
+
     public List<String> getMembersIds() {
         if (CollectionUtils.isEmpty(members))
             return new ArrayList<>();
-        return members.stream().map(m->m.getUser().getId()).collect(Collectors.toList());
+        return members.stream()
+                .map(m -> m.getContact().getId())
+                .collect(Collectors.toList());
     }
 }

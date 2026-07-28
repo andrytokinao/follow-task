@@ -1,14 +1,14 @@
 package com.kinga.followtask.service.messaging.impl;
 
 import com.kinga.followtask.entity.*;
-import com.kinga.followtask.repository.CanalMemberRepository;
-import com.kinga.followtask.repository.CanalRepository;
-import com.kinga.followtask.repository.MessagesRepository;
+import com.kinga.followtask.entity.enumapp.TypeContact;
+import com.kinga.followtask.repository.*;
 import com.kinga.followtask.service.messaging.MessagingService;
 import com.kinga.followtask.service.messaging.dto.*;
 import com.kinga.followtask.service.messaging.impl.whatsapp.WhatsAppMapper;
 import com.kinga.followtask.service.messaging.impl.whatsapp.WhatsAppTypeResolver;
 import com.kinga.followtask.service.messaging.impl.whatsapp.raw.*;
+import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,6 +28,8 @@ public class WhatsAppMessagingService implements MessagingService {
     private final CanalMemberRepository canalMemberRepository;
     private final WhatsAppMapper mapper;
 
+    private final ContactRepository contactRepository;
+    private final CanalContactRepository canalContactRepository;
     @Value("${messaging.whatsapp.base-url}")
     private String whatsAppListenerBaseUrl;
 
@@ -178,6 +180,7 @@ public class WhatsAppMessagingService implements MessagingService {
         return canallRepository.save(canall);
     }
 
+
     private void persistMembers(CanalDto dto) {
         if (dto.getMembers() == null || dto.getMembers().isEmpty()) return;
 
@@ -185,16 +188,29 @@ public class WhatsAppMessagingService implements MessagingService {
                 .orElseThrow(() -> new IllegalStateException("Canal introuvable : " + dto.getExternalId()));
 
         dto.getMembers().forEach(memberDto -> {
-            CanalMember member = canalMemberRepository
-                    .findByCanallAndExternalMemberId(canall, memberDto.getExternalUserId())
-                    .orElseGet(CanalMember::new);
-            member.setCanall(canall);
-            member.setExternalMemberId(memberDto.getExternalUserId());
-            member.setFallbackSenderName(memberDto.getDisplayName());
-           // member.setAdmin(memberDto.getAdmin()); // TODO: AJOUT EN BASE APRES
-            // Résolution optionnelle vers UserApp via Contact.value = memberDto.getPhoneOrContact()
-            canalMemberRepository.save(member);
+            Contact contact = upsertContact(memberDto);
+            upsertCanalContact(canall, contact);
         });
+    }
+
+    private Contact upsertContact(MemberDto dto) {
+        Contact contact = contactRepository
+                .findByTypeContactAndValue(TypeContact.WHATSAPP, dto.getExternalUserId())
+                .orElseGet(Contact::new);
+
+        contact.setTypeContact(TypeContact.WHATSAPP);
+        contact.setValue(dto.getExternalUserId());
+        contact.setDisplayName(dto.getDisplayName());
+        // userApp reste null tant qu'aucune résolution n'a été faite (numéro connu, etc.)
+        return contactRepository.save(contact);
+    }
+
+    private void upsertCanalContact(Canall canall, Contact contact) {
+        CanalContact link = canalContactRepository.findByCanallAndContact(canall, contact)
+                .orElseGet(CanalContact::new);
+        link.setCanall(canall);
+        link.setContact(contact);
+        canalContactRepository.save(link);
     }
 
     private void persistMessage(MessageDto dto) {
@@ -206,6 +222,8 @@ public class WhatsAppMessagingService implements MessagingService {
 
         MessageApp message = new MessageApp();
         message.setExternalMessageId(dto.getExternalMessageId());
+        if (StringUtils.isEmpty(dto.getText()))
+            return;
         message.setCanall(canall);
         message.setText(dto.getText());
         message.setMediaType(dto.getMediaType().name());

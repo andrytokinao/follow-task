@@ -4,11 +4,8 @@ package com.kinga.followtask.service;
 import com.kinga.followtask.dto.OutputMessage;
 import com.kinga.followtask.entity.*;
 import com.kinga.followtask.repository.*;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.messaging.Message;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -104,7 +101,7 @@ public class ChatService {
             userIds.forEach(uid -> {
                     UserApp u = new UserApp();
                     u.setId(uid);
-                    CanalMember cm = new CanalMember();
+                    CanalContact cm = new CanalContact();
                     cm.setCanall(finalCanall);
                     cm.setUser(u);
                     canalMemberRepository.save(cm);
@@ -136,7 +133,7 @@ public class ChatService {
            canall = canalRepository.save(canall);
            Canall finalCanall = canall;
            canall.getMembersIds().forEach(id -> {
-               CanalMember cm = new CanalMember();
+               CanalContact cm = new CanalContact();
                UserApp u = new UserApp();
                u.setId(id);
                cm.setUser(u);
