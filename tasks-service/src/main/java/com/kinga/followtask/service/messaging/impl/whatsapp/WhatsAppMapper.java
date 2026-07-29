@@ -30,6 +30,8 @@ public class WhatsAppMapper {
                 .build();
     }
 
+    // WhatsAppMapper.java
+
     public CanalDto toCanalDto(WhatsAppRawConversation raw) {
         return CanalDto.builder()
                 .externalId(raw.getJid())
@@ -38,8 +40,10 @@ public class WhatsAppMapper {
                 .isGroup(raw.isEstGroupe())
                 .unreadCount(raw.getNonLus())
                 .messageCount(raw.getNombreMessages())
+                .avatarUrl(raw.getPhoto())   // null pour l'instant côté provider WhatsApp
                 .build();
     }
+
     public CanalDto toCanalDetailDto(WhatsAppRawMembersData raw) {
         List<MemberDto> members = raw.getMembres() == null ? List.of() :
                 raw.getMembres().stream().map(this::toMemberDto).toList();
@@ -54,7 +58,11 @@ public class WhatsAppMapper {
                 .memberCount(raw.getNombreMembres())
                 .members(members)
                 .build();
+        // avatarUrl non fourni par cet endpoint spécifique (membres), à récupérer via
+        // getCanalAvatar() séparément si besoin (voir section 5)
     }
+
+
     private MemberDto toMemberDto(WhatsAppRawMember raw) {
         return MemberDto.builder()
                 .externalUserId(raw.getJid())
@@ -84,7 +92,6 @@ public class WhatsAppMapper {
 
     public MessageDto toMessageDto(WhatsAppRawMessage raw, String canalExternalId) {
         MediaType mediaType = com.kinga.followtask.service.messaging.impl.whatsapp.WhatsAppTypeResolver.resolve(raw.getType());
-
         return MessageDto.builder()
                 .externalMessageId(raw.getId())
                 .canalExternalId(canalExternalId)
@@ -93,11 +100,11 @@ public class WhatsAppMapper {
                 .fromMe(raw.isDeMoi())
                 .senderExternalId(raw.isDeMoi() ? null : raw.getDe())
                 .senderDisplayName(resolveSenderName(raw))
+                .senderAvatarUrl(null)
                 .createdAt(toLocalDateTime(raw.getHorodatage()))
                 .hasAttachment(raw.getMedia() != null && raw.getMedia().isDisponible())
                 .attachments(raw.getMedia() != null && raw.getMedia().isDisponible()
-                        ? List.of(toAttachmentDto(raw))
-                        : List.of())
+                        ? List.of(toAttachmentDto(raw)) : List.of())
                 .build();
     }
 

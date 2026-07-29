@@ -45,4 +45,5 @@ public interface MessagingService {
      * externe et les upsert en base locale (Canall / MessageApp / CanalMember).
      */
     void syncAll();
+    String getAvatarUrl(String externalId);
 }

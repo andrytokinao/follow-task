@@ -9,6 +9,4 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CanalMemberRepository extends JpaRepository<CanalContact,Long> {
-    List<CanalContact> findByUserIdIn(Collection<String> userIds);
-    Optional<CanalContact> findByCanallAndExternalMemberId(Canall canall, String externalUserId);
 }

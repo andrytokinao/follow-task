@@ -13,8 +13,10 @@ public class CanalDto {
     private boolean isGroup;
     private int unreadCount;
     private int messageCount;
-    private List<MemberDto> members;
     private String description;
     private String ownerExternalId;
     private int memberCount;
+    private String avatarUrl;
+    private List<MemberDto> members;
+    private MessageDto lastMessage;
 }

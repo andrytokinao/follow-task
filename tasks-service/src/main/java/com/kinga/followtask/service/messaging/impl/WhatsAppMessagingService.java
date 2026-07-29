@@ -169,6 +169,23 @@ public class WhatsAppMessagingService implements MessagingService {
         });
     }
 
+    @Override
+    public String getAvatarUrl(String externalId) {
+        try {
+            WhatsAppRawAvatarResponse response = client().get()
+                    .uri("/api/whatsapp/contacts/{id}/photo", externalId)
+                    .retrieve()
+                    .body(WhatsAppRawAvatarResponse.class);
+
+            if (response == null || !response.isSucces()) {
+                return null;
+            }
+            return response.getUrl(); // ou base64 selon ce que renvoie réellement votre app
+        } catch (Exception e) {
+            log.debug("Avatar indisponible pour {} : {}", externalId, e.getMessage());
+            return null;
+        }
+    }
     // ---------- Persistance locale (upsert) ----------
 
     private Canall persistCanal(CanalDto dto) {

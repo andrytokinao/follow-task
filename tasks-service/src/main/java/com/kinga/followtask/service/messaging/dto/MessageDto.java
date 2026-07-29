@@ -14,6 +14,7 @@ public class MessageDto {
     private MediaType mediaType;
     private String senderExternalId;
     private String senderDisplayName;
+    private String senderAvatarUrl;
     private LocalDateTime createdAt;
     private boolean fromMe;
     private boolean hasAttachment;

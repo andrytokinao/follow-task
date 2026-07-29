@@ -41,7 +41,7 @@ public class ChatService {
         Map<String, Object> map = new HashMap<>();
         map.put(methode,Arrays.asList(output));
         canall.getMembers().forEach(m -> {
-                simpMessagingTemplate.convertAndSend("/topic/datas/"+m.getUser().getId(), map);
+                simpMessagingTemplate.convertAndSend("/topic/datas/"+m.getContact().getUserApp().getId(), map);
         });
     }
 
@@ -85,7 +85,7 @@ public class ChatService {
     }
 
     public List<Canall> myChannels(Long projectId, String me) {
-        return canalRepository.findByProjectsIdAndMembersUserIdIn(projectId, Arrays.asList(me));
+        return canalRepository.findByProjectsIdAndMembersContactUserAppIdIn(projectId, Arrays.asList(me));
     }
     public Canall findExactChannelByMembers(Long projectId, List<String> userIds) {
         Canall canall = new Canall();
@@ -103,7 +103,6 @@ public class ChatService {
                     u.setId(uid);
                     CanalContact cm = new CanalContact();
                     cm.setCanall(finalCanall);
-                    cm.setUser(u);
                     canalMemberRepository.save(cm);
             });
             canall = finalCanall;
@@ -136,7 +135,7 @@ public class ChatService {
                CanalContact cm = new CanalContact();
                UserApp u = new UserApp();
                u.setId(id);
-               cm.setUser(u);
+           //    cm.setCanall(u);
                cm.setCanall(finalCanall);
                canalMemberRepository.save(cm);
            });
@@ -145,7 +144,7 @@ public class ChatService {
     }
 
     public List<Canall> getCanalByProject(Long projectId, List<String> userId) {
-        return canalRepository.findByProjectsIdAndMembersUserIdIn(projectId,userId);
+        return canalRepository.findByProjectsIdAndMembersContactUserAppIdIn(projectId,userId);
     }
   //  @Scheduled(fixedRate = 10000)
     public void scheduledMessage() {
