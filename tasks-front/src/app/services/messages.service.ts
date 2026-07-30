@@ -17,7 +17,7 @@ import {
   ADD_USER_IN_GROUPE,
   CREATE_CANAL,
   GET_CANAL_BY_PROJECT,
-  SEND_MESSAGE,
+  SEND_MESSAGE_APP,
   supprimerTypename
 } from "../type/graphql.operations";
 import {Apollo} from "apollo-angular";
@@ -89,7 +89,7 @@ export class MessagesService {
     }
     this.apollo.mutate(
       {
-        mutation:SEND_MESSAGE,
+        mutation:SEND_MESSAGE_APP,
         variables:{newMessage},
         fetchPolicy:'network-only'
       }

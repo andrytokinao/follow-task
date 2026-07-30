@@ -1,0 +1,98 @@
+extend enum TypeCanal {
+  WHATSAPP
+  FACEBOOK
+  TELEGRAM
+  INSTAGRAM
+  SLACK
+  SMS
+  EMAIL
+}
+
+enum MediaType {
+  TEXT
+  IMAGE
+  VIDEO
+  AUDIO
+  DOCUMENT
+  SYSTEM
+  UNKNOWN
+}
+
+type Member {
+  externalUserId: String!
+  displayName: String
+  phoneOrContact: String
+  admin: Boolean!
+  contactId: ID
+  userAppId: ID
+}
+
+type Attachment {
+  externalMessageId: String!
+  externalAttachmentId: String!
+  fileName: String
+  mimeType: String
+  sizeBytes: Int
+  caption: String
+  mediaType: MediaType!
+  senderExternalId: String
+  fromMe: Boolean!
+  downloaded: Boolean!
+  downloadUrl: String
+  createdAt: String!
+}
+
+type Message {
+  externalMessageId: String!
+  canalExternalId: String!
+  text: String
+  mediaType: MediaType!
+  senderExternalId: String
+  senderDisplayName: String
+  senderAvatarUrl: String
+  createdAt: String!
+  fromMe: Boolean!
+  hasAttachment: Boolean!
+  attachments: [Attachment!]!
+}
+
+type Canal {
+  externalId: String!
+  pseudo: String!
+  typeCanal: TypeCanal!
+  isGroup: Boolean!
+  unreadCount: Int!
+  messageCount: Int!
+  description: String
+  ownerExternalId: String
+  memberCount: Int
+  avatarUrl: String
+  members: [Member!]
+  lastMessage: Message
+}
+
+input SendMessageInput {
+  text: String!
+  mediaUrl: String
+  mediaType: MediaType
+}
+
+input MessageQueryInput {
+  page: Int = 0
+  size: Int = 20
+  since: String
+  until: String
+}
+
+extend type Query {
+  listCanaux(type: TypeCanal!): [Canal!]!
+  getCanal(type: TypeCanal!, externalId: String!): Canal
+  listMessages(type: TypeCanal!, canalExternalId: String!, query: MessageQueryInput): [Message!]!
+  listAttachments(type: TypeCanal!, canalExternalId: String!): [Attachment!]!
+  getMessage(type: TypeCanal!, externalMessageId: String!): Message
+}
+
+extend type Mutation {
+  sendExternalMessage(type: TypeCanal!, canalExternalId: String!, input: SendMessageInput!): Message!
+  syncCanal(type: TypeCanal!): Boolean!
+}

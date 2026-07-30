@@ -1,0 +1,60 @@
+div class="conversation-list">
+
+<!-- État : chargement -->
+<div *ngIf="loading" class="state-message loading">
+  <div class="spinner"></div>
+  <span>Chargement des conversations...</span>
+</div>
+
+<!-- État : erreur -->
+<div *ngIf="!loading && errorMessage" class="state-message error">
+  <span>{{ errorMessage }}</span>
+  <button class="retry-btn" (click)="loadConversations()">Réessayer</button>
+</div>
+
+<!-- État : liste vide -->
+<div *ngIf="!loading && !errorMessage && canaux.length === 0" class="state-message empty">
+  <span>Aucune conversation pour le moment</span>
+</div>
+
+<!-- Liste des conversations -->
+<div
+  *ngFor="let canal of canaux; trackBy: trackByExternalId"
+  class="conversation-item"
+  [class.active]="canal.externalId === selectedId"
+  [class.unread]="canal.unreadCount > 0"
+  (click)="select(canal)"
+>
+  <!-- Avatar de l'interlocuteur + badge du canal en overlay -->
+  <div class="avatar-stack">
+    <app-avatar
+      [url]="canal.avatarUrl"
+      [displayName]="canal.pseudo"
+      [isGroup]="canal.isGroup"
+      style="--avatar-size: 46px"
+    ></app-avatar>
+
+    <div class="channel-badge" [style.background]="channelColor(canal)">
+      <img [src]="channelIcon(canal)" [alt]="canal.typeCanal" />
+    </div>
+  </div>
+
+  <!-- Contenu : nom, aperçu, heure, badge non-lus -->
+  <div class="conversation-content">
+    <div class="conversation-header">
+      <span class="pseudo">{{ canal.pseudo }}</span>
+      <span class="time" *ngIf="canal.lastMessage">
+          {{ canal.lastMessage.createdAt | date:'shortTime' }}
+        </span>
+    </div>
+
+    <div class="conversation-preview">
+      <span class="preview-text">{{ previewText(canal) }}</span>
+      <span class="unread-badge" *ngIf="canal.unreadCount > 0">
+          {{ canal.unreadCount > 99 ? '99+' : canal.unreadCount }}
+        </span>
+    </div>
+  </div>
+</div>
+
+</div>

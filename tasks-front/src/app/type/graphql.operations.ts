@@ -2806,7 +2806,7 @@ export const GET_CANAL_BY_PROJECT = gql`
       }
     }
 `
-export const SEND_MESSAGE = gql`
+export const SEND_MESSAGE_APP = gql`
    mutation sendMessage($newMessage:MessageAppInput) {
      sendMessage(newMessage:$newMessage) {
        id
@@ -2936,7 +2936,121 @@ export const PROPOSE_NEXT_PERCENTEGE = gql`
      }
   }
 `
+export const LIST_CANAUX = gql`
+  query listCanaux($type: TypeCanal!) {
+    listCanaux(type: $type) {
+      externalId
+      pseudo
+      typeCanal
+      isGroup
+      unreadCount
+      messageCount
+      lastMessage {
+        externalMessageId
+        text
+        mediaType
+        createdAt
+        fromMe
+        senderDisplayName
+      }
+    }
+  }
+`;
 
+export const SEND_MESSAGE = gql`
+  mutation sendExternalMessage($type: TypeCanal!, $canalExternalId: String!, $input: SendMessageInput!) {
+    sendExternalMessage(type: $type, canalExternalId: $canalExternalId, input: $input) {
+      externalMessageId
+      text
+      mediaType
+      createdAt
+      fromMe
+    }
+  }
+`;
+export const GET_CANAL = gql`
+  query getCanal($type: TypeCanal!, $externalId: String!) {
+    getCanal(type: $type, externalId: $externalId) {
+      externalId
+      pseudo
+      typeCanal
+      isGroup
+      description
+      ownerExternalId
+      memberCount
+      members {
+        externalUserId
+        displayName
+        phoneOrContact
+        admin
+        contactId
+        userAppId
+      }
+    }
+  }
+`;
+
+// ---------------------------------------------------------------------
+// Messages
+// ---------------------------------------------------------------------
+
+export const LIST_MESSAGES = gql`
+  query listMessages($type: TypeCanal!, $canalExternalId: String!, $query: MessageQueryInput) {
+    listMessages(type: $type, canalExternalId: $canalExternalId, query: $query) {
+      externalMessageId
+      canalExternalId
+      text
+      mediaType
+      senderExternalId
+      senderDisplayName
+      senderAvatarUrl
+      createdAt
+      fromMe
+      hasAttachment
+      attachments {
+        externalAttachmentId
+        fileName
+        mimeType
+        sizeBytes
+        mediaType
+        downloadUrl
+      }
+    }
+  }
+`;
+
+
+// ---------------------------------------------------------------------
+// Pièces jointes
+// ---------------------------------------------------------------------
+
+export const LIST_ATTACHMENTS = gql`
+  query listAttachments($type: TypeCanal!, $canalExternalId: String!) {
+    listAttachments(type: $type, canalExternalId: $canalExternalId) {
+      externalMessageId
+      externalAttachmentId
+      fileName
+      mimeType
+      sizeBytes
+      caption
+      mediaType
+      fromMe
+      downloaded
+      downloadUrl
+      createdAt
+    }
+  }
+`;
+
+// ---------------------------------------------------------------------
+// Synchronisation
+// ---------------------------------------------------------------------
+
+export const SYNC_CANAL = gql`
+  mutation syncCanal($type: TypeCanal!) {
+    syncCanal(type: $type)
+  }
+`;
 export {
   supprimerTypename,
   SAVE_USER,

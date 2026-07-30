@@ -1,0 +1,31 @@
+<div class="message-thread">
+  <ng-container *ngFor="let group of dayGroups">
+    <div class="day-separator"><span>{{ group.dateLabel }}</span></div>
+
+    <div
+      *ngFor="let msg of group.messages; let i = index"
+      class="message-row"
+      [class.from-me]="msg.fromMe"
+    >
+      <app-avatar
+        *ngIf="!msg.fromMe"
+        class="message-avatar"
+        [class.invisible]="!shouldShowAvatar(group.messages, i)"
+        [url]="msg.senderAvatarUrl"
+        [displayName]="msg.senderDisplayName"
+        style="--avatar-size: 32px"
+      ></app-avatar>
+
+      <div class="bubble">
+        <div class="sender-name" *ngIf="isGroup && !msg.fromMe && shouldShowAvatar(group.messages, i)">
+          {{ msg.senderDisplayName }}
+        </div>
+        <div class="text" *ngIf="msg.text">{{ msg.text }}</div>
+        <div class="attachment" *ngIf="msg.hasAttachment && !msg.text">
+          📎 Pièce jointe
+        </div>
+        <div class="time">{{ msg.createdAt | date:'shortTime' }}</div>
+      </div>
+    </div>
+  </ng-container>
+</div>
