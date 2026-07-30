@@ -448,6 +448,24 @@
 ::ng-deep .user-menu-panel .user-menu-logout {
   color: #c0392b !important;
 }
+.nav-item {
+  position: relative; 
+}
+
+.nav-badge {
+  position: absolute;
+  top: 4px;
+  right: 8px;
+  background: #EF4444;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 3px 6px;
+  border-radius: 10px;
+  min-width: 16px;
+  text-align: center;
+}
 ::ng-deep .user-menu-panel .user-menu-logout i {
   color: #c0392b !important;
 }

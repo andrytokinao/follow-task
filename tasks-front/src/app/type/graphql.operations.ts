@@ -2936,9 +2936,7 @@ export const PROPOSE_NEXT_PERCENTEGE = gql`
      }
   }
 `
-// src/app/types/graphql.operations.ts
 
-import { gql } from 'apollo-angular';
 
 // ---------------------------------------------------------------------
 // Canaux (provider externe : WhatsApp, Facebook, ...)
