@@ -23,6 +23,7 @@ import dataset = _default.modes.dataset;
 import {MessagesComponent} from "./messages/messages.component";
 import {ProjectHomeComponent} from "./home/home.component";
 import {DocumentExchangeComponent} from "./document-exchange/document-exchange.component";
+import {MessagingPageComponent} from "./messaging-page/messaging-page.component";
 
 
 
@@ -58,6 +59,7 @@ const projectRoute: Routes = [
             loadChildren: () => import('./show-master/issue-master.module').then(m => m.IssueMasterModule),
           },
           { path: 'messages', component: MessagesComponent , resolve: { breadcrumb: ProjectBreadcrumbResolverService  } , canActivate :[ProjectGuard] , data:{order:13  }},
+          { path: 'messaging', component: MessagingPageComponent , resolve: { breadcrumb: ProjectBreadcrumbResolverService  } , canActivate :[ProjectGuard] , data:{order:14  }},
         ]
       }
     ]

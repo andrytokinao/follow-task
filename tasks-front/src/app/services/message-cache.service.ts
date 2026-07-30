@@ -17,7 +17,7 @@ export class MessageCacheService {
   }
 
   private openDb(): Promise<IDBDatabase> {
-    return new Promise((resolve, reject) => {
+    return new Promise<IDBDatabase>((resolve, reject) => {
       const request = indexedDB.open(DB_NAME, DB_VERSION);
 
       request.onupgradeneeded = () => {
@@ -34,10 +34,9 @@ export class MessageCacheService {
     });
   }
 
-  /** Récupère les messages en cache pour un canal, triés par date croissante. */
   async getMessages(canalExternalId: string): Promise<MessageDto[]> {
     const db = await this.dbPromise;
-    return new Promise((resolve, reject) => {
+    return new Promise<MessageDto[]>((resolve, reject) => {
       const tx = db.transaction(STORE_MESSAGES, 'readonly');
       const index = tx.objectStore(STORE_MESSAGES).index('byCanal');
       const request = index.getAll(IDBKeyRange.only(canalExternalId));
@@ -52,11 +51,10 @@ export class MessageCacheService {
     });
   }
 
-  /** Upsert d'un lot de messages (clé = externalMessageId, donc idempotent). */
   async saveMessages(messages: MessageDto[]): Promise<void> {
     if (!messages.length) return;
     const db = await this.dbPromise;
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       const tx = db.transaction(STORE_MESSAGES, 'readwrite');
       const store = tx.objectStore(STORE_MESSAGES);
       messages.forEach(m => store.put(m));
@@ -66,15 +64,14 @@ export class MessageCacheService {
     });
   }
 
-  /** Date du message le plus récent en cache — sert de curseur pour ne récupérer que le delta. */
   async getLastCachedDate(canalExternalId: string): Promise<string | null> {
     const messages = await this.getMessages(canalExternalId);
     return messages.length ? messages[messages.length - 1].createdAt : null;
   }
 
-  async clearCanal(canalExternalId: string): Promise<unknown> {
+  async clearCanal(canalExternalId: string): Promise<void> {
     const db = await this.dbPromise;
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       const tx = db.transaction(STORE_MESSAGES, 'readwrite');
       const index = tx.objectStore(STORE_MESSAGES).index('byCanal');
       const request = index.openCursor(IDBKeyRange.only(canalExternalId));

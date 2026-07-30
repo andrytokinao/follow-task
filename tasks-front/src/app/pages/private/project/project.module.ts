@@ -55,6 +55,9 @@ import {DocumentExchangeComponent} from "./document-exchange/document-exchange.c
 import {DocumentUsageComponent} from "../../../common/document-usage/document-usage.component";
 import {SpinnerButtonComponent} from "../../../common/spinner-button/spinner-button.component";
 import {OverlayModule} from "@angular/cdk/overlay";
+import {AvatarComponent} from "../../../common/avatar/avatar.component";
+import {MessageThreadComponent} from "../../../common/message-thread/message-thread.component";
+import {MessagingPageComponent} from "./messaging-page/messaging-page.component";
 
 @NgModule({
   declarations: [
@@ -76,8 +79,8 @@ import {OverlayModule} from "@angular/cdk/overlay";
     NewDocumentComponent,
     ExchangeDocumentsComponent,
     ProjectHomeComponent,
-    DocumentExchangeComponent
-
+    DocumentExchangeComponent,
+    MessagingPageComponent
   ],
     exports: [
         StatusComponent,
@@ -123,7 +126,9 @@ import {OverlayModule} from "@angular/cdk/overlay";
     IconeViewComponent,
     DocumentUsageComponent,
     SpinnerButtonComponent,
-    OverlayModule
+    OverlayModule,
+    AvatarComponent,
+    MessageThreadComponent
   ]
 })
 export class ProjectModule { }

@@ -1,0 +1,184 @@
+<!-- src/app/pages/messaging-page/messaging-page.component.html -->
+
+<div class="messaging-layout">
+
+  <!-- ================= Colonne gauche : liste des conversations ================= -->
+  <aside class="pane pane-list">
+
+    <div class="list-header">
+      <h2>Messagerie</h2>
+      <button class="icon-btn" (click)="syncActiveCanal()" title="Synchroniser">
+        <i class="fas fa-rotate"></i>
+      </button>
+    </div>
+
+    <div class="search-bar">
+      <i class="fas fa-search search-icon"></i>
+      <input
+        type="text"
+        placeholder="Rechercher une conversation..."
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="onSearchChange()"
+      />
+    </div>
+
+    <div class="conversation-list">
+
+      <div *ngIf="loadingList" class="state-message loading">
+        <div class="spinner"></div>
+        <span>Chargement...</span>
+      </div>
+
+      <div *ngIf="!loadingList && listError" class="state-message error">
+        <span>{{ listError }}</span>
+        <button class="retry-btn" (click)="loadConversations()">Réessayer</button>
+      </div>
+
+      <div *ngIf="!loadingList && !listError && filteredCanaux.length === 0" class="state-message empty">
+        <span>Aucune conversation</span>
+      </div>
+
+      <div
+        *ngFor="let canal of filteredCanaux; trackBy: trackByExternalId"
+        class="conversation-item"
+        [class.active]="activeCanal?.externalId === canal.externalId"
+        [class.unread]="canal.unreadCount > 0"
+        (click)="openConversation(canal)"
+      >
+        <div class="avatar-stack">
+          <app-avatar
+            [url]="canal.avatarUrl"
+            [displayName]="canal.pseudo"
+            [isGroup]="canal.isGroup"
+            style="--avatar-size: 46px"
+          ></app-avatar>
+          <div class="channel-badge" [style.background]="channelColor(canal)">
+            <img [src]="channelIcon(canal)" [alt]="canal.typeCanal" />
+          </div>
+        </div>
+
+        <div class="conversation-content">
+          <div class="conversation-header">
+            <span class="pseudo">{{ canal.pseudo }}</span>
+            <span class="time" *ngIf="canal.lastMessage">
+              {{ canal.lastMessage.createdAt | date:'shortTime' }}
+            </span>
+          </div>
+          <div class="conversation-preview">
+            <span class="preview-text">{{ previewText(canal) }}</span>
+            <span class="unread-badge" *ngIf="canal.unreadCount > 0">
+              {{ canal.unreadCount > 99 ? '99+' : canal.unreadCount }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </aside>
+
+  <!-- ================= Colonne centrale : fil de messages ================= -->
+  <main class="pane pane-thread">
+
+    <ng-container *ngIf="activeCanal; else noSelection">
+
+      <div class="thread-header">
+        <app-avatar
+          [url]="activeCanal.avatarUrl"
+          [displayName]="activeCanal.pseudo"
+          [isGroup]="activeCanal.isGroup"
+          style="--avatar-size: 38px"
+        ></app-avatar>
+        <div class="thread-title">
+          <span class="pseudo">{{ activeCanal.pseudo }}</span>
+          <span class="sub" *ngIf="activeCanal.isGroup">{{ activeCanal.memberCount || canalDetail?.memberCount || '...' }} membres</span>
+        </div>
+        <button class="icon-btn" (click)="toggleInfoPanel()" title="Informations">
+          <i class="fas fa-circle-info"></i>
+        </button>
+      </div>
+
+      <div class="thread-body">
+        <div *ngIf="loadingMessages" class="state-message loading">
+          <div class="spinner"></div>
+          <span>Chargement des messages...</span>
+        </div>
+
+        <app-message-thread
+          *ngIf="!loadingMessages"
+          [messages]="messages"
+          [isGroup]="activeCanal.isGroup"
+        ></app-message-thread>
+      </div>
+
+      <div class="thread-composer">
+        <input
+          type="text"
+          placeholder="Écrire un message..."
+          [(ngModel)]="draftText"
+          (keyup.enter)="sendMessage()"
+          [disabled]="sending"
+        />
+        <button class="send-btn" (click)="sendMessage()" [disabled]="sending || !draftText.trim()">
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </div>
+
+    </ng-container>
+
+    <ng-template #noSelection>
+      <div class="empty-thread">
+        <i class="fas fa-comments empty-icon"></i>
+        <span>Sélectionnez une conversation pour afficher les messages</span>
+      </div>
+    </ng-template>
+
+  </main>
+
+  <!-- ================= Colonne droite : infos du canal ================= -->
+  <aside class="pane pane-info" *ngIf="showInfoPanel && activeCanal">
+
+    <div class="info-header">
+      <button class="icon-btn" (click)="toggleInfoPanel()" title="Fermer">
+        <i class="fas fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="info-avatar-block">
+      <app-avatar
+        [url]="activeCanal.avatarUrl"
+        [displayName]="activeCanal.pseudo"
+        [isGroup]="activeCanal.isGroup"
+        style="--avatar-size: 84px"
+      ></app-avatar>
+      <h3>{{ activeCanal.pseudo }}</h3>
+      <p class="canal-description" *ngIf="canalDetail?.description">{{ canalDetail?.description }}</p>
+    </div>
+
+    <div *ngIf="loadingDetail" class="state-message loading">
+      <div class="spinner"></div>
+      <span>Chargement...</span>
+    </div>
+
+    <div class="info-section" *ngIf="!loadingDetail && canalDetail?.members?.length">
+      <h4>Membres ({{ canalDetail?.memberCount }})</h4>
+      <div class="member-row" *ngFor="let member of canalDetail?.members">
+        <app-avatar
+          [url]="null"
+          [displayName]="member.displayName"
+          style="--avatar-size: 32px"
+        ></app-avatar>
+        <div class="member-info">
+          <span class="member-name">{{ member.displayName || member.phoneOrContact }}</span>
+          <span class="member-badge" *ngIf="member.admin">Admin</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-section" *ngIf="!loadingDetail && !activeCanal.isGroup">
+      <h4>Contact</h4>
+      <p class="canal-meta">{{ activeCanal.externalId }}</p>
+    </div>
+
+  </aside>
+
+</div>
