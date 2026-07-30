@@ -2936,6 +2936,14 @@ export const PROPOSE_NEXT_PERCENTEGE = gql`
      }
   }
 `
+// src/app/types/graphql.operations.ts
+
+import { gql } from 'apollo-angular';
+
+// ---------------------------------------------------------------------
+// Canaux (provider externe : WhatsApp, Facebook, ...)
+// ---------------------------------------------------------------------
+
 export const LIST_CANAUX = gql`
   query listCanaux($type: TypeCanal!) {
     listCanaux(type: $type) {
@@ -2945,6 +2953,7 @@ export const LIST_CANAUX = gql`
       isGroup
       unreadCount
       messageCount
+      avatarUrl
       lastMessage {
         externalMessageId
         text
@@ -2957,17 +2966,6 @@ export const LIST_CANAUX = gql`
   }
 `;
 
-export const SEND_MESSAGE = gql`
-  mutation sendExternalMessage($type: TypeCanal!, $canalExternalId: String!, $input: SendMessageInput!) {
-    sendExternalMessage(type: $type, canalExternalId: $canalExternalId, input: $input) {
-      externalMessageId
-      text
-      mediaType
-      createdAt
-      fromMe
-    }
-  }
-`;
 export const GET_CANAL = gql`
   query getCanal($type: TypeCanal!, $externalId: String!) {
     getCanal(type: $type, externalId: $externalId) {
@@ -3019,6 +3017,42 @@ export const LIST_MESSAGES = gql`
   }
 `;
 
+export const GET_MESSAGE = gql`
+  query getMessage($type: TypeCanal!, $externalMessageId: String!) {
+    getMessage(type: $type, externalMessageId: $externalMessageId) {
+      externalMessageId
+      canalExternalId
+      text
+      mediaType
+      senderExternalId
+      senderDisplayName
+      senderAvatarUrl
+      createdAt
+      fromMe
+      hasAttachment
+      attachments {
+        externalAttachmentId
+        fileName
+        mimeType
+        sizeBytes
+        mediaType
+        downloadUrl
+      }
+    }
+  }
+`;
+
+export const SEND_EXTERNAL_MESSAGE = gql`
+  mutation sendExternalMessage($type: TypeCanal!, $canalExternalId: String!, $input: SendMessageInput!) {
+    sendExternalMessage(type: $type, canalExternalId: $canalExternalId, input: $input) {
+      externalMessageId
+      text
+      mediaType
+      createdAt
+      fromMe
+    }
+  }
+`;
 
 // ---------------------------------------------------------------------
 // Pièces jointes
@@ -3049,6 +3083,39 @@ export const LIST_ATTACHMENTS = gql`
 export const SYNC_CANAL = gql`
   mutation syncCanal($type: TypeCanal!) {
     syncCanal(type: $type)
+  }
+`;
+
+// ---------------------------------------------------------------------
+// Accès interne aux canaux (CanalWatcher)
+// ---------------------------------------------------------------------
+
+export const LIST_VISIBLE_CANAUX_FOR_USER = gql`
+  query listVisibleCanauxForUser($userId: String!) {
+    listVisibleCanauxForUser(userId: $userId) {
+      id
+      pseudo
+      typeCanal
+      membersIds
+    }
+  }
+`;
+
+export const GRANT_CANAL_ACCESS = gql`
+  mutation grantCanalAccess($canalId: ID!, $userId: String!, $reason: String) {
+    grantCanalAccess(canalId: $canalId, userId: $userId, reason: $reason) {
+      canalId
+      userAppId
+      grantedByUserAppId
+      grantedAt
+      reason
+    }
+  }
+`;
+
+export const REVOKE_CANAL_ACCESS = gql`
+  mutation revokeCanalAccess($canalId: ID!, $userId: String!) {
+    revokeCanalAccess(canalId: $canalId, userId: $userId)
   }
 `;
 export {
