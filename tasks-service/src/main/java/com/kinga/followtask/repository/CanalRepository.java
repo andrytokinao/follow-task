@@ -27,5 +27,14 @@ public interface CanalRepository extends JpaRepository<Canall, Long> {
             @Param("userCount") long userCount
     );
 
+    @Query("""
+    SELECT DISTINCT c FROM Canall c
+    LEFT JOIN CanalWatcher cw ON cw.canall = c
+    LEFT JOIN CanalContact cc ON cc.canall = c
+    LEFT JOIN cc.contact ct
+    WHERE cw.userApp.id = :userId
+       OR ct.userApp.id = :userId
+""")
+    List<Canall> findVisibleCanauxForUser(@Param("userId") String userId);
     Optional<Canall> findByExternalId(String externalId);
 }

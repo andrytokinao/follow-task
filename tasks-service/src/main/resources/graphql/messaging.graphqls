@@ -83,16 +83,25 @@ input MessageQueryInput {
   since: String
   until: String
 }
-
+type CanalWatcherInfo {
+  canalId: ID!
+  userAppId: String!
+  grantedByUserAppId: String
+  grantedAt: String!
+  reason: String
+}
 extend type Query {
   listCanaux(type: TypeCanal!): [Canal!]!
   getCanal(type: TypeCanal!, externalId: String!): Canal
   listMessages(type: TypeCanal!, canalExternalId: String!, query: MessageQueryInput): [Message!]!
   listAttachments(type: TypeCanal!, canalExternalId: String!): [Attachment!]!
   getMessage(type: TypeCanal!, externalMessageId: String!): Message
+  listVisibleCanauxForUser(userId: String!): [Canall!]!
 }
 
 extend type Mutation {
   sendExternalMessage(type: TypeCanal!, canalExternalId: String!, input: SendMessageInput!): Message!
   syncCanal(type: TypeCanal!): Boolean!
+  grantCanalAccess(canalId: ID!, userId: String!, reason: String): CanalWatcherInfo!
+  revokeCanalAccess(canalId: ID!, userId: String!): Boolean!
 }

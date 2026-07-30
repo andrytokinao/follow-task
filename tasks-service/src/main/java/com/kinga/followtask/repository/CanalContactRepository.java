@@ -9,4 +9,5 @@ import java.util.Optional;
 
 public interface CanalContactRepository extends JpaRepository<CanalContact, Long> {
     Optional<CanalContact> findByCanallAndContact(Canall canall, Contact contact);
+    boolean existsByCanallIdAndContactUserAppId(Long canallId, String userAppId);
 }
