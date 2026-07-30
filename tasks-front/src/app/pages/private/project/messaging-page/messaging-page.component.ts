@@ -1,16 +1,10 @@
 // src/app/pages/messaging-page/messaging-page.component.ts
 
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import {MessagingService} from "../../../../services/messaging.service";
-import {MessageCacheService} from "../../../../services/message-cache.service";
-import {CanalDto, MessageDto, SendMessageRequest, TypeCanal} from "../../../../models/messaging.model";
-import {MessageThreadComponent} from "../../../../common/message-thread/message-thread.component";
-import {AvatarComponent} from "../../../../common/avatar/avatar.component";
-import {getChannelConfig} from "../../../../models/canal-channel.config";
-
-
+import { MessagingService } from '../../../../services/messaging.service';
+import { MessageCacheService } from '../../../../services/message-cache.service';
+import { CanalDto, MessageDto, SendMessageRequest, TypeCanal } from '../../../../models/messaging.model';
+import { getChannelConfig } from '../../../../models/canal-channel.config';
 
 @Component({
   selector: 'app-messaging-page',
@@ -33,14 +27,17 @@ export class MessagingPageComponent implements OnInit {
   activeCanal: CanalDto | null = null;
   messages: MessageDto[] = [];
   loadingMessages = false;
+  messagesError: string | null = null;
   draftText = '';
   sending = false;
 
   // Détail canal (colonne droite)
   canalDetail: CanalDto | null = null;
   loadingDetail = false;
-
   showInfoPanel = true;
+
+  // Nouveau : la liste des membres est repliée par défaut, seul le compteur s'affiche
+  showMembersList = false;
 
   constructor(
     private messaging: MessagingService,
@@ -68,7 +65,8 @@ export class MessagingPageComponent implements OnInit {
         this.applyFilter();
         this.loadingList = false;
       },
-      error: () => {
+      error: (err) => {
+        console.error('Erreur listCanaux:', err);
         this.listError = 'Impossible de charger les conversations.';
         this.loadingList = false;
       },
@@ -114,29 +112,44 @@ export class MessagingPageComponent implements OnInit {
     this.activeCanal = canal;
     this.messages = [];
     this.canalDetail = null;
+    this.messagesError = null;
+    this.showMembersList = false; // repli systématique à chaque nouvelle conversation
 
-    // 1. Affichage immédiat depuis le cache local (perception de rapidité)
-    const cached = await this.cache.getMessages(canal.externalId);
-    this.messages = cached;
-    this.loadingMessages = cached.length === 0;
+    try {
+      const cached = await this.cache.getMessages(canal.externalId);
+      this.messages = cached;
+      this.loadingMessages = cached.length === 0;
+    } catch (err) {
+      console.error('Erreur lecture cache:', err);
+      this.loadingMessages = true;
+    }
 
-    // 2. Récupération du delta réseau (uniquement les messages postérieurs au cache)
-    const since = await this.cache.getLastCachedDate(canal.externalId) ?? undefined;
+    let since: string | undefined;
+    try {
+      since = (await this.cache.getLastCachedDate(canal.externalId)) ?? undefined;
+    } catch {
+      since = undefined;
+    }
+
     this.messaging.listMessages(this.channelType, canal.externalId, { since }).subscribe({
       next: async (fresh) => {
-        await this.cache.saveMessages(fresh);
-        this.messages = await this.cache.getMessages(canal.externalId);
+        try {
+          await this.cache.saveMessages(fresh);
+          this.messages = await this.cache.getMessages(canal.externalId);
+        } catch (err) {
+          console.error('Erreur écriture cache:', err);
+          this.messages = fresh;
+        }
         this.loadingMessages = false;
-
-        // Marquer comme lu localement (optimiste, tant que pas de mutation dédiée)
         canal.unreadCount = 0;
       },
-      error: () => {
+      error: (err) => {
+        console.error('Erreur listMessages:', err);
+        this.messagesError = 'Impossible de charger les messages.';
         this.loadingMessages = false;
       },
     });
 
-    // 3. Détail du canal (membres, description...) pour la colonne droite
     this.loadCanalDetail(canal.externalId);
   }
 
@@ -147,7 +160,8 @@ export class MessagingPageComponent implements OnInit {
         this.canalDetail = detail;
         this.loadingDetail = false;
       },
-      error: () => {
+      error: (err) => {
+        console.error('Erreur getCanal:', err);
         this.loadingDetail = false;
       },
     });
@@ -162,12 +176,17 @@ export class MessagingPageComponent implements OnInit {
 
     this.messaging.sendMessage(this.channelType, this.activeCanal.externalId, request).subscribe({
       next: async (sent) => {
-        await this.cache.saveMessages([sent]);
-        this.messages = await this.cache.getMessages(this.activeCanal!.externalId);
+        try {
+          await this.cache.saveMessages([sent]);
+          this.messages = await this.cache.getMessages(this.activeCanal!.externalId);
+        } catch {
+          this.messages = [...this.messages, sent];
+        }
         this.draftText = '';
         this.sending = false;
       },
-      error: () => {
+      error: (err) => {
+        console.error('Erreur sendMessage:', err);
         this.sending = false;
       },
     });
@@ -181,10 +200,17 @@ export class MessagingPageComponent implements OnInit {
     this.showInfoPanel = !this.showInfoPanel;
   }
 
+  toggleMembersList(): void {
+    this.showMembersList = !this.showMembersList;
+  }
+
   syncActiveCanal(): void {
-    this.messaging.syncCanal(this.channelType).subscribe(() => {
-      this.loadConversations();
-      if (this.activeCanal) this.openConversation(this.activeCanal);
+    this.messaging.syncCanal(this.channelType).subscribe({
+      next: () => {
+        this.loadConversations();
+        if (this.activeCanal) this.openConversation(this.activeCanal);
+      },
+      error: (err) => console.error('Erreur syncCanal:', err),
     });
   }
 }

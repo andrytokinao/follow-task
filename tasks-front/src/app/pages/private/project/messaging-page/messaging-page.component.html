@@ -5,23 +5,27 @@
   <!-- ================= Colonne gauche : liste des conversations ================= -->
   <aside class="pane pane-list">
 
-    <div class="list-header">
-      <h2>Messagerie</h2>
-      <button class="icon-btn" (click)="syncActiveCanal()" title="Synchroniser">
-        <i class="fas fa-rotate"></i>
-      </button>
+    <!-- Zone fixe : titre + recherche -->
+    <div class="list-fixed-header">
+      <div class="list-header">
+        <h2>Messagerie</h2>
+        <button class="icon-btn" (click)="syncActiveCanal()" title="Synchroniser">
+          <i class="fas fa-rotate"></i>
+        </button>
+      </div>
+
+      <div class="search-bar">
+        <i class="fas fa-search search-icon"></i>
+        <input
+          type="text"
+          placeholder="Rechercher une conversation..."
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="onSearchChange()"
+        />
+      </div>
     </div>
 
-    <div class="search-bar">
-      <i class="fas fa-search search-icon"></i>
-      <input
-        type="text"
-        placeholder="Rechercher une conversation..."
-        [(ngModel)]="searchTerm"
-        (ngModelChange)="onSearchChange()"
-      />
-    </div>
-
+    <!-- Zone scrollable indépendante : liste des conversations -->
     <div class="conversation-list">
 
       <div *ngIf="loadingList" class="state-message loading">
@@ -50,7 +54,7 @@
             [url]="canal.avatarUrl"
             [displayName]="canal.pseudo"
             [isGroup]="canal.isGroup"
-            style="--avatar-size: 46px"
+            style="--avatar-size: 38px"
           ></app-avatar>
           <div class="channel-badge" [style.background]="channelColor(canal)">
             <img [src]="channelIcon(canal)" [alt]="canal.typeCanal" />
@@ -81,35 +85,48 @@
 
     <ng-container *ngIf="activeCanal; else noSelection">
 
+      <!-- Zone fixe : en-tête conversation -->
       <div class="thread-header">
         <app-avatar
           [url]="activeCanal.avatarUrl"
           [displayName]="activeCanal.pseudo"
           [isGroup]="activeCanal.isGroup"
-          style="--avatar-size: 38px"
+          style="--avatar-size: 32px"
         ></app-avatar>
         <div class="thread-title">
           <span class="pseudo">{{ activeCanal.pseudo }}</span>
-          <span class="sub" *ngIf="activeCanal.isGroup">{{ activeCanal.memberCount || canalDetail?.memberCount || '...' }} membres</span>
+          <span class="sub" *ngIf="activeCanal.isGroup">
+            {{ canalDetail?.memberCount || activeCanal.memberCount || '...' }} membres
+          </span>
         </div>
         <button class="icon-btn" (click)="toggleInfoPanel()" title="Informations">
           <i class="fas fa-circle-info"></i>
         </button>
       </div>
 
+      <!-- Zone scrollable indépendante : messages -->
       <div class="thread-body">
         <div *ngIf="loadingMessages" class="state-message loading">
           <div class="spinner"></div>
           <span>Chargement des messages...</span>
         </div>
 
+        <div *ngIf="!loadingMessages && messagesError" class="state-message error">
+          <span>{{ messagesError }}</span>
+        </div>
+
+        <div *ngIf="!loadingMessages && !messagesError && messages.length === 0" class="state-message empty">
+          <span>Aucun message</span>
+        </div>
+
         <app-message-thread
-          *ngIf="!loadingMessages"
+          *ngIf="!loadingMessages && !messagesError && messages.length > 0"
           [messages]="messages"
           [isGroup]="activeCanal.isGroup"
         ></app-message-thread>
       </div>
 
+      <!-- Zone fixe : composer -->
       <div class="thread-composer">
         <input
           type="text"
@@ -137,46 +154,63 @@
   <!-- ================= Colonne droite : infos du canal ================= -->
   <aside class="pane pane-info" *ngIf="showInfoPanel && activeCanal">
 
+    <!-- Zone fixe : header -->
     <div class="info-header">
       <button class="icon-btn" (click)="toggleInfoPanel()" title="Fermer">
         <i class="fas fa-xmark"></i>
       </button>
     </div>
 
-    <div class="info-avatar-block">
-      <app-avatar
-        [url]="activeCanal.avatarUrl"
-        [displayName]="activeCanal.pseudo"
-        [isGroup]="activeCanal.isGroup"
-        style="--avatar-size: 84px"
-      ></app-avatar>
-      <h3>{{ activeCanal.pseudo }}</h3>
-      <p class="canal-description" *ngIf="canalDetail?.description">{{ canalDetail?.description }}</p>
-    </div>
+    <!-- Zone scrollable indépendante -->
+    <div class="info-scroll">
 
-    <div *ngIf="loadingDetail" class="state-message loading">
-      <div class="spinner"></div>
-      <span>Chargement...</span>
-    </div>
-
-    <div class="info-section" *ngIf="!loadingDetail && canalDetail?.members?.length">
-      <h4>Membres ({{ canalDetail?.memberCount }})</h4>
-      <div class="member-row" *ngFor="let member of canalDetail?.members">
+      <div class="info-avatar-block">
         <app-avatar
-          [url]="null"
-          [displayName]="member.displayName"
-          style="--avatar-size: 32px"
+          [url]="activeCanal.avatarUrl"
+          [displayName]="activeCanal.pseudo"
+          [isGroup]="activeCanal.isGroup"
+          style="--avatar-size: 64px"
         ></app-avatar>
-        <div class="member-info">
-          <span class="member-name">{{ member.displayName || member.phoneOrContact }}</span>
-          <span class="member-badge" *ngIf="member.admin">Admin</span>
+        <h3>{{ activeCanal.pseudo }}</h3>
+        <p class="canal-description" *ngIf="canalDetail?.description">{{ canalDetail?.description }}</p>
+      </div>
+
+      <div *ngIf="loadingDetail" class="state-message loading">
+        <div class="spinner"></div>
+        <span>Chargement...</span>
+      </div>
+
+      <!-- Résumé membres : seul le compteur s'affiche par défaut -->
+      <div class="info-section members-summary" *ngIf="!loadingDetail && activeCanal.isGroup && canalDetail?.memberCount">
+        <button class="members-toggle" (click)="toggleMembersList()">
+          <span class="members-toggle-label">
+            <i class="fas fa-users"></i>
+            Membres ({{ canalDetail?.memberCount }})
+          </span>
+          <i class="fas" [class.fa-chevron-down]="!showMembersList" [class.fa-chevron-up]="showMembersList"></i>
+        </button>
+
+        <!-- Liste déroulée uniquement au clic, avec son propre scroll si longue -->
+        <div class="members-list" *ngIf="showMembersList">
+          <div class="member-row" *ngFor="let member of canalDetail?.members">
+            <app-avatar
+              [url]="null"
+              [displayName]="member.displayName"
+              style="--avatar-size: 26px"
+            ></app-avatar>
+            <div class="member-info">
+              <span class="member-name">{{ member.displayName || member.phoneOrContact }}</span>
+              <span class="member-badge" *ngIf="member.admin">Admin</span>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="info-section" *ngIf="!loadingDetail && !activeCanal.isGroup">
-      <h4>Contact</h4>
-      <p class="canal-meta">{{ activeCanal.externalId }}</p>
+      <div class="info-section" *ngIf="!loadingDetail && !activeCanal.isGroup">
+        <h4>Contact</h4>
+        <p class="canal-meta">{{ activeCanal.externalId }}</p>
+      </div>
+
     </div>
 
   </aside>
