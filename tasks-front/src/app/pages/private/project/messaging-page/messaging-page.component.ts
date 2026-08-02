@@ -3,7 +3,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MessagingService } from '../../../../services/messaging.service';
 import { MessageCacheService } from '../../../../services/message-cache.service';
-import { CanalDto, MessageDto, SendMessageRequest, TypeCanal } from '../../../../models/messaging.model';
+import { AttachmentDto, CanalDto, MessageDto, SendMessageRequest, TypeCanal } from '../../../../models/messaging.model';
 import { getChannelConfig } from '../../../../models/canal-channel.config';
 
 @Component({
@@ -16,14 +16,12 @@ export class MessagingPageComponent implements OnInit {
 
   channelType: TypeCanal = TypeCanal.WHATSAPP;
 
-  // Liste (colonne gauche)
   canaux: CanalDto[] = [];
   filteredCanaux: CanalDto[] = [];
   searchTerm = '';
   loadingList = true;
   listError: string | null = null;
 
-  // Conversation active (colonne centrale)
   activeCanal: CanalDto | null = null;
   messages: MessageDto[] = [];
   loadingMessages = false;
@@ -36,8 +34,12 @@ export class MessagingPageComponent implements OnInit {
   loadingDetail = false;
   showInfoPanel = true;
 
-  // Nouveau : la liste des membres est repliée par défaut, seul le compteur s'affiche
   showMembersList = false;
+
+  attachments: AttachmentDto[] = [];
+  loadingAttachments = false;
+  attachmentsError: string | null = null;
+  showAttachmentsList = false;
 
   constructor(
     private messaging: MessagingService,
@@ -113,7 +115,12 @@ export class MessagingPageComponent implements OnInit {
     this.messages = [];
     this.canalDetail = null;
     this.messagesError = null;
-    this.showMembersList = false; // repli systématique à chaque nouvelle conversation
+
+    // Repli systématique des sections dépliables à chaque nouvelle conversation
+    this.showMembersList = false;
+    this.attachments = [];
+    this.attachmentsError = null;
+    this.showAttachmentsList = false;
 
     try {
       const cached = await this.cache.getMessages(canal.externalId);
@@ -193,7 +200,7 @@ export class MessagingPageComponent implements OnInit {
   }
 
   // ---------------------------------------------------------------------
-  // Colonne droite
+  // Colonne droite : panneau, membres, fichiers
   // ---------------------------------------------------------------------
 
   toggleInfoPanel(): void {
@@ -202,6 +209,45 @@ export class MessagingPageComponent implements OnInit {
 
   toggleMembersList(): void {
     this.showMembersList = !this.showMembersList;
+  }
+
+  toggleAttachmentsList(): void {
+    this.showAttachmentsList = !this.showAttachmentsList;
+    if (this.showAttachmentsList && this.attachments.length === 0 && !this.attachmentsError) {
+      this.loadAttachments();
+    }
+  }
+
+  loadAttachments(): void {
+    if (!this.activeCanal) return;
+    this.loadingAttachments = true;
+    this.attachmentsError = null;
+
+    this.messaging.listAttachments(this.channelType, this.activeCanal.externalId).subscribe({
+      next: (list) => {
+        this.attachments = list;
+        this.loadingAttachments = false;
+      },
+      error: (err) => {
+        console.error('Erreur listAttachments:', err);
+        this.attachmentsError = 'Impossible de charger les fichiers.';
+        this.loadingAttachments = false;
+      },
+    });
+  }
+
+  formatSize(bytes: number | null | undefined): string {
+    if (!bytes) return '';
+    return (bytes / 1024 / 1024).toFixed(1) + ' Mo';
+  }
+
+  attachmentIconClass(att: AttachmentDto): Record<string, boolean> {
+    return {
+      'fa-file-image': att.mediaType === 'IMAGE',
+      'fa-file-video': att.mediaType === 'VIDEO',
+      'fa-file-audio': att.mediaType === 'AUDIO',
+      'fa-file-lines': att.mediaType === 'DOCUMENT' || !att.mediaType,
+    };
   }
 
   syncActiveCanal(): void {
