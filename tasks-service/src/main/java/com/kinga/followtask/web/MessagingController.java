@@ -44,7 +44,8 @@ public class MessagingController {
     ) {
         MessageQueryDto query = MessageQueryDto.builder()
                 .page(page).size(size).since(since).until(until).build();
-        return registry.get(type).listMessages(externalId, query);
+        List<MessageDto> messages = registry.get(type).listMessages(externalId, query);
+        return messages;
     }
 
     @GetMapping("/{type}/messages/{externalMessageId}")

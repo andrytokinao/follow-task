@@ -119,7 +119,7 @@ public class WhatsAppMapper {
         // message, le téléchargement effectif se fera via un endpoint dédié
         // (ex: GET /api/whatsapp/messages/{id}/media côté app externe).
         return AttachmentDto.builder()
-                .externalAttachmentId(raw.getId())
+                .externalMessageId(raw.getId())
                 .mimeType(null) // inconnu tant que non téléchargé
                 .downloadUrl(null)
                 .build();

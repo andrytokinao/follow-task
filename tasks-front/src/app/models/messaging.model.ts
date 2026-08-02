@@ -48,7 +48,7 @@ export interface CanalDto {
 }
 export interface AttachmentDto {
   externalMessageId: string;
-  externalAttachmentId: string;
+  externalAttachmentId?: string;
   fileName: string | null;
   mimeType: string | null;
   sizeBytes: number | null;

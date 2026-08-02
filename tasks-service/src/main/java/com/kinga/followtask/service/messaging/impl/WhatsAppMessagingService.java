@@ -58,6 +58,7 @@ public class WhatsAppMessagingService implements MessagingService {
 
         return response.getDonnees().stream()
                 .map(mapper::toCanalDto)
+                .filter(m->m.isGroup())
                 .toList();
     }
 

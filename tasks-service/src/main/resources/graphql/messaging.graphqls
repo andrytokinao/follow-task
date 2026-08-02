@@ -28,32 +28,32 @@ type Member {
 }
 
 type Attachment {
-  externalMessageId: String!
-  externalAttachmentId: String!
+  externalMessageId: String
+  externalAttachmentId: String
   fileName: String
   mimeType: String
   sizeBytes: Int
   caption: String
-  mediaType: MediaType!
+  mediaType: MediaType
   senderExternalId: String
-  fromMe: Boolean!
-  downloaded: Boolean!
+  fromMe: Boolean
+  downloaded: Boolean
   downloadUrl: String
-  createdAt: String!
+  createdAt: String
 }
 
 type Message {
   externalMessageId: String!
   canalExternalId: String!
   text: String
-  mediaType: MediaType!
+  mediaType: MediaType
   senderExternalId: String
   senderDisplayName: String
   senderAvatarUrl: String
   createdAt: String!
   fromMe: Boolean!
   hasAttachment: Boolean!
-  attachments: [Attachment!]!
+  attachments: [Attachment]
 }
 
 type Canal {

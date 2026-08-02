@@ -1,0 +1,282 @@
+### ==============================================
+### Variables d'environnement
+### ==============================================
+@baseUrl = http://localhost:5000
+@expediteur = 261340000000@s.whatsapp.net
+@numeroTest = 261340000000
+@groupeTest = 120363421247792703@g.us
+
+
+### ==============================================
+### WHATSAPP - Statut & connexion
+### ==============================================
+
+### Vérifier le statut de connexion WhatsApp
+GET {{baseUrl}}/api/whatsapp/statut
+
+###
+
+### Obtenir le QR code (si non connecté)
+GET {{baseUrl}}/api/whatsapp/qr
+
+###
+
+### Envoyer un message (admin)
+POST {{baseUrl}}/api/whatsapp/envoyer
+Content-Type: application/json
+
+{
+  "to": "{{numeroTest}}",
+  "txt": "Bonjour, ceci est un message de test depuis .http"
+}
+
+###
+
+### Envoyer un message avec JID déjà formaté
+POST {{baseUrl}}/api/whatsapp/envoyer
+Content-Type: application/json
+
+{
+  "to": "{{expediteur}}",
+  "txt": "Test avec JID complet"
+}
+
+###
+
+### Cas d'erreur : message vide
+POST {{baseUrl}}/api/whatsapp/envoyer
+Content-Type: application/json
+
+{
+  "to": "{{numeroTest}}",
+  "txt": ""
+}
+
+###
+
+### Cas d'erreur : destinataire manquant
+POST {{baseUrl}}/api/whatsapp/envoyer
+Content-Type: application/json
+
+{
+  "txt": "Message sans destinataire"
+}
+
+###
+
+### Déconnecter le client WhatsApp
+POST {{baseUrl}}/api/whatsapp/deconnecter
+
+
+### ==============================================
+### MESSAGES - Conversations & historique
+### ==============================================
+
+### Lister toutes les conversations (dédupliquées + enrichies)
+GET {{baseUrl}}/api/messages/conversations
+
+###
+
+### Obtenir les détails d'un contact
+GET {{baseUrl}}/api/messages/contact/{{expediteur}}
+
+###
+
+### Obtenir l'historique des messages pour un expéditeur
+GET {{baseUrl}}/api/messages/{{expediteur}}
+
+
+### ==============================================
+### WEBHOOKS (gestion CRUD en base - si applicable côté API tierce)
+### ==============================================
+
+### Lister tous les webhooks
+GET {{baseUrl}}/api/webhooks
+
+###
+
+### Créer un webhook (type: all)
+POST {{baseUrl}}/api/webhooks
+Content-Type: application/json
+
+{
+  "name": "Mon Application Test",
+  "url": "https://example.com/webhook",
+  "eventType": "all"
+}
+
+###
+
+### Créer un webhook (type: text_only)
+POST {{baseUrl}}/api/webhooks
+Content-Type: application/json
+
+{
+  "name": "Notif Texte Uniquement",
+  "url": "https://example.com/webhook/text",
+  "eventType": "text_only"
+}
+
+###
+
+### Créer un webhook (type: media_only)
+POST {{baseUrl}}/api/webhooks
+Content-Type: application/json
+
+{
+  "name": "Notif Media Uniquement",
+  "url": "https://example.com/webhook/media",
+  "eventType": "media_only"
+}
+
+###
+
+### Cas d'erreur : URL invalide
+POST {{baseUrl}}/api/webhooks
+Content-Type: application/json
+
+{
+  "name": "Webhook invalide",
+  "url": "pas-une-url",
+  "eventType": "all"
+}
+
+###
+
+### Cas d'erreur : type d'événement invalide
+POST {{baseUrl}}/api/webhooks
+Content-Type: application/json
+
+{
+  "name": "Webhook type invalide",
+  "url": "https://example.com/webhook",
+  "eventType": "autre"
+}
+
+###
+
+### Supprimer un webhook (remplacer :id par un id réel)
+DELETE {{baseUrl}}/api/webhooks/1
+
+
+### ==============================================
+### MEDIA
+### ==============================================
+
+### Lister les médias
+GET {{baseUrl}}/api/media/liste
+
+
+### ==============================================
+### REALTIME (SSE - Server-Sent Events)
+### ==============================================
+
+### Se connecter au flux d'événements en temps réel
+### Note : les clients REST classiques ne gèrent pas bien le streaming SSE,
+### il est préférable de tester cet endpoint directement dans le navigateur
+### ou avec curl -N
+GET {{baseUrl}}/api/realtime
+Accept: text/event-stream
+
+### ==============================================
+### WHATSAPP - Historique conversations (Baileys, live)
+### ==============================================
+
+### Lister toutes les conversations (issues du store Baileys en mémoire)
+GET {{baseUrl}}/api/whatsapp/conversations-history
+
+###
+
+### Lister les messages d'une conversation individuelle (limite par défaut = 50)
+GET {{baseUrl}}/api/whatsapp/conversations-history/120363427933097506@g.us/messages
+
+###
+
+### Lister les messages avec une limite personnalisée
+GET {{baseUrl}}/api/whatsapp/conversations-history/120363427933097506@g.us/messages?limite=100
+
+###
+
+### Lister les messages d'un groupe
+GET {{baseUrl}}/api/whatsapp/conversations-history/120363427933097506@g.us/messages
+
+###
+
+### Cas d'erreur : limite invalide (hors bornes 1-500)
+GET {{baseUrl}}/api/whatsapp/conversations-history/120363427933097506@g.us/messages?limite=9999
+
+###
+
+### Lister les membres d'un groupe
+GET {{baseUrl}}/api/whatsapp/groupes-history/120363427933097506@g.us/membres
+
+###
+
+### Cas d'erreur : jid fourni n'est pas un groupe (doit se terminer par @g.us)
+GET {{baseUrl}}/api/whatsapp/groupes-history/{{expediteur}}/membres
+
+###
+
+### Cas d'erreur : jid de groupe inexistant / invalide
+GET {{baseUrl}}/api/whatsapp/groupes-history/000000000000-0000000000@g.us/membres
+
+
+### ==============================================
+### WHATSAPP - Fichiers d'une conversation (métadonnées, sans téléchargement)
+### ==============================================
+
+### Lister tous les fichiers/médias d'une conversation individuelle
+### (mimetype, taille, nom original, légende, statut téléchargé) - aucun téléchargement déclenché
+GET {{baseUrl}}/api/whatsapp/conversations-history/120363427933097506@g.us/fichiers
+
+###
+
+### Lister tous les fichiers/médias d'un groupe
+GET {{baseUrl}}/api/whatsapp/conversations-history/120363427933097506@g.us/fichiers
+
+###
+
+### Cas d'erreur : jid manquant / invalide (route mal formée, jid vide)
+GET {{baseUrl}}/api/whatsapp/conversations-history//fichiers
+
+###
+
+### Cas limite : conversation sans aucun média (doit renvoyer un tableau vide, pas une erreur)
+GET {{baseUrl}}/api/whatsapp/conversations-history/000000000000@s.whatsapp.net/fichiers
+
+
+### ==============================================
+### WHATSAPP - Téléchargement à la demande d'un média précis
+### ==============================================
+
+### Télécharger le média d'un message précis (remplacer :messageId par un id réel
+### obtenu via /conversations-history/:jid/fichiers ou /messages)
+### Si WHATSAPP_SAUVEGARDE_LOCALE_MEDIA=false, c'est ce endpoint qui déclenche
+### le premier téléchargement effectif.
+@messageIdTest = 3EB06FC0B44473996568E0
+
+###
+GET {{baseUrl}}/api/whatsapp/conversations-history/120363427933097506@g.us/messages/ACB89CAF4E7E922C229C08B54F00E4B0/media
+
+###
+
+### Re-télécharger le même média (doit retourner le résultat déjà en cache mémoire,
+### sans repasser par Baileys - réponse quasi instantanée)
+GET {{baseUrl}}/api/whatsapp/conversations-history/120363427933097506@g.us/messages/{{messageIdTest}}/media
+###
+
+### Cas d'erreur : messageId inexistant dans le cache mémoire
+GET {{baseUrl}}/api/whatsapp/conversations-history/{{groupeTest}}/messages/ID_INEXISTANT_123/media
+
+###
+
+### Cas d'erreur : le message existe mais ne contient pas de média (message texte)
+GET {{baseUrl}}/api/whatsapp/conversations-history/{{groupeTest}}/messages/{{messageIdTest}}_texte/media
+
+###
+
+### Cas d'erreur : client WhatsApp non connecté (à tester après /deconnecter, avant reconnexion)
+GET {{baseUrl}}/api/whatsapp/conversations-history/{{groupeTest}}/messages/{{messageIdTest}}/media
+###
+
+GET http://10.66.66.12:5000/api/whatsapp/conversations-history/120363427933097506@g.us/messages/ACD134E8D6FAADDDD3D77117AD457EA7/media
