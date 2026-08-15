@@ -161,7 +161,7 @@ public class WhatsAppMessagingService implements MessagingService {
                 persistMembers(detail);
             } catch (Exception e) {
                 log.warn("Échec sync détail/membres pour {} : {}", canalSummary.getExternalId(), e.getMessage());
-                persistCanal(canalSummary); // fallback : au moins le canal minimal
+                persistCanal(canalSummary);
             }
 
             List<MessageDto> messages = listMessages(canalSummary.getExternalId(),
@@ -181,7 +181,7 @@ public class WhatsAppMessagingService implements MessagingService {
             if (response == null || !response.isSucces()) {
                 return null;
             }
-            return response.getUrl(); // ou base64 selon ce que renvoie réellement votre app
+            return response.getUrl();
         } catch (Exception e) {
             log.debug("Avatar indisponible pour {} : {}", externalId, e.getMessage());
             return null;
