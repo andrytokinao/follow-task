@@ -41,9 +41,8 @@ public class Canall {
     @JoinColumn(name = "project_id")
     private Project projects;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "issue_master_id")
-    private Issue issueMaster;
+    @OneToMany(mappedBy = "canal")
+    private List<IssueCanalLink> issueLinks;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();

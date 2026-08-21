@@ -58,7 +58,14 @@ public class Issue {
     private List<IssueLabels> labels = new ArrayList<>();
     @ManyToOne
     private Project project;
+    @OneToMany(mappedBy = "issue")
+    private List<IssueMembership> memberships;
 
+    @OneToMany(mappedBy = "issue")
+    private List<IssueCanalLink> canalLinks;
+
+    @OneToMany(mappedBy = "issue")
+    private List<IssueMessageLink> messageLinks;
     @OneToMany(mappedBy = "issue")
     private List<IssueDocumentUsage> documentUsages;
     public String getEncodedPath(){
