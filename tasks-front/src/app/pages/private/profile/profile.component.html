@@ -90,6 +90,183 @@
   <div class="panel panel-right">
     <mat-tab-group animationDuration="150ms" class="profile-tabs">
 
+      <!-- ============ Onglet Contacts (placé en premier) ============ -->
+      <mat-tab label="Contacts ({{ contacts.length }})">
+        <div class="tab-content">
+
+          <!-- Vue liste -->
+          <ng-container *ngIf="!showAddContact">
+            <div class="contacts-header">
+              <p class="panel-title" style="margin-bottom:0">Contacts associés</p>
+              <button class="btn-outline btn-add" (click)="openAddContact()">
+                <mat-icon>add</mat-icon> Ajouter
+              </button>
+            </div>
+
+            <div class="contact-list">
+              <div class="contact-item" *ngFor="let c of contacts">
+                <div class="contact-icon" [ngClass]="c.typeContact === 'WHATSAPP' ? 'icon-whatsapp' : 'icon-email'">
+                  <mat-icon>{{ c.typeContact === 'WHATSAPP' ? 'chat' : 'mail' }}</mat-icon>
+                </div>
+                <div class="contact-info">
+                  <span class="contact-value">{{ c.value }}</span>
+                  <span class="contact-label" *ngIf="c.label">{{ c.label }}</span>
+                </div>
+                <span class="verified-badge" *ngIf="c.isVerified">
+                  <mat-icon>check_circle</mat-icon> Vérifié
+                </span>
+                <span class="pending-badge" *ngIf="!c.isVerified">En attente</span>
+                <button class="remove-btn" (click)="removeContact(c)" title="Retirer">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+
+              <p class="empty-msg" *ngIf="contacts.length === 0">
+                Aucun contact associé
+              </p>
+            </div>
+          </ng-container>
+
+          <!-- Vue ajout : étape recherche -->
+          <ng-container *ngIf="showAddContact && addContactStep === 'search'">
+            <p class="panel-title">Nouveau contact</p>
+
+            <div class="type-selector">
+              <button
+                class="type-option"
+                [class.selected]="addContactType === 'WHATSAPP'"
+                (click)="selectAddContactType('WHATSAPP')"
+              >
+                <mat-icon>chat</mat-icon>
+                <span>WhatsApp</span>
+              </button>
+              <button
+                class="type-option"
+                [class.selected]="addContactType === 'EMAIL'"
+                (click)="selectAddContactType('EMAIL')"
+              >
+                <mat-icon>mail</mat-icon>
+                <span>Email</span>
+              </button>
+            </div>
+
+            <div class="autocomplete-wrap">
+              <mat-form-field appearance="outline" class="field full">
+                <mat-label>{{ addContactType === 'WHATSAPP' ? 'Numéro WhatsApp' : 'Adresse email' }}</mat-label>
+                <input
+                  matInput
+                  [placeholder]="addContactPlaceholder"
+                  [ngModel]="addContactValue"
+                  (ngModelChange)="onAddContactValueChange($event)"
+                  (focus)="showSuggestions = suggestions.length > 0"
+                  (blur)="hideSuggestionsSoon()"
+                />
+              </mat-form-field>
+
+              <div class="suggestions-panel" *ngIf="showSuggestions">
+                <div
+                  class="suggestion-item"
+                  *ngFor="let s of suggestions"
+                  (mousedown)="pickSuggestion(s)"
+                >
+                  <div class="suggestion-icon" [ngClass]="s.typeContact === 'WHATSAPP' ? 'icon-whatsapp' : 'icon-email'">
+                    <mat-icon>{{ s.typeContact === 'WHATSAPP' ? 'chat' : 'mail' }}</mat-icon>
+                  </div>
+                  <div class="suggestion-text">
+                    <span class="suggestion-name">{{ s.label }}</span>
+                    <span class="suggestion-value">{{ s.value }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <mat-form-field appearance="outline" class="field full">
+              <mat-label>Libellé (optionnel)</mat-label>
+              <input matInput placeholder="Ex: Chef d'équipe" [(ngModel)]="addContactLabel" [ngModelOptions]="{standalone: true}" />
+            </mat-form-field>
+
+            <div class="error-box" *ngIf="addContactError">
+              <mat-icon>error</mat-icon>
+              <span>{{ addContactError }}</span>
+            </div>
+
+            <div class="add-contact-actions">
+              <button class="btn-outline" (click)="cancelAddContact()">Annuler</button>
+              <button
+                class="btn-primary"
+                [disabled]="!isAddContactValueValid || addContactSubmitting"
+                (click)="submitAddContactSearch()"
+              >
+                <span *ngIf="!addContactSubmitting">Envoyer le code</span>
+                <span *ngIf="addContactSubmitting">Envoi en cours...</span>
+              </button>
+            </div>
+          </ng-container>
+
+          <!-- Vue ajout : étape validation du code -->
+          <ng-container *ngIf="showAddContact && addContactStep === 'verify'">
+            <p class="panel-title">Validation</p>
+
+            <div class="verify-intro">
+              <div class="verify-icon" [ngClass]="addContactType === 'WHATSAPP' ? 'icon-whatsapp' : 'icon-email'">
+                <mat-icon>{{ addContactType === 'WHATSAPP' ? 'chat' : 'mail' }}</mat-icon>
+              </div>
+              <p>Un code de validation a été envoyé à<br /><strong>{{ addContactValue }}</strong></p>
+            </div>
+
+            <mat-form-field appearance="outline" class="field full">
+              <mat-label>Code de validation</mat-label>
+              <input
+                matInput
+                inputmode="numeric"
+                maxlength="6"
+                placeholder="000000"
+                class="code-input"
+                [ngModel]="addContactCode"
+                (ngModelChange)="onAddContactCodeInput($event)"
+                [ngModelOptions]="{standalone: true}"
+              />
+            </mat-form-field>
+
+            <div class="error-box" *ngIf="addContactError">
+              <mat-icon>error</mat-icon>
+              <span>{{ addContactError }}</span>
+            </div>
+
+            <div class="add-contact-actions">
+              <button class="btn-outline" (click)="backToSearchStep()">Modifier</button>
+              <button
+                class="btn-primary"
+                [disabled]="!isAddContactCodeValid || addContactSubmitting"
+                (click)="confirmAddContactCode()"
+              >
+                <span *ngIf="!addContactSubmitting">Valider</span>
+                <span *ngIf="addContactSubmitting">Vérification...</span>
+              </button>
+            </div>
+
+            <div class="resend-row">
+              <button class="link-btn" [disabled]="resendCooldown > 0 || addContactSubmitting" (click)="resendAddContactCode()">
+                <span *ngIf="resendCooldown === 0">Renvoyer le code</span>
+                <span *ngIf="resendCooldown > 0">Renvoyer dans {{ resendCooldown }}s</span>
+              </button>
+            </div>
+          </ng-container>
+
+          <!-- Vue ajout : succès -->
+          <ng-container *ngIf="showAddContact && addContactStep === 'success'">
+            <div class="success-body">
+              <div class="success-icon"><mat-icon>check</mat-icon></div>
+              <h3>Contact ajouté</h3>
+              <p>{{ addContactValue }} a été vérifié avec succès.</p>
+              <button class="btn-primary" (click)="cancelAddContact()">Terminer</button>
+            </div>
+          </ng-container>
+
+        </div>
+      </mat-tab>
+
+      <!-- ============ Onglet Sécurité (déplacé après Contacts) ============ -->
       <mat-tab label="Sécurité">
         <div class="tab-content">
           <p class="panel-title">Changer le mot de passe</p>
@@ -146,24 +323,6 @@
             </button>
 
           </form>
-        </div>
-      </mat-tab>
-
-      <mat-tab label="Groupes ({{ memberGroupes.length }})">
-        <div class="tab-content">
-          <p class="panel-title">Groupes associés</p>
-          <div class="group-list">
-            <div class="group-item" *ngFor="let mg of memberGroupes">
-              <div class="group-left">
-                <span class="group-dot"></span>
-                <span class="group-name">{{ mg.groupe?.name }}</span>
-              </div>
-              <span class="group-chip">{{ mg.groupe?.prefix }}</span>
-            </div>
-            <p class="empty-msg" *ngIf="memberGroupes.length === 0">
-              Aucun groupe associé
-            </p>
-          </div>
         </div>
       </mat-tab>
 

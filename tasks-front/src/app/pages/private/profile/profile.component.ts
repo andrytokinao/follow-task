@@ -11,6 +11,24 @@ function passwordMatchValidator(form: AbstractControl): ValidationErrors | null 
   return nw && cf && nw !== cf ? { mismatch: true } : null;
 }
 
+export type ContactType = 'WHATSAPP' | 'EMAIL';
+
+export interface Contact {
+  id: string;
+  typeContact: ContactType;
+  value: string;
+  label: string | null;
+  isVerified: boolean;
+}
+
+interface ContactSuggestion {
+  value: string;
+  label: string;
+  typeContact: ContactType;
+}
+
+type AddContactStep = 'search' | 'verify' | 'success';
+
 @Component({
   selector: 'app-profile',
   standalone: false,
@@ -30,7 +48,6 @@ export class ProfileComponent implements OnInit {
   selectedPhoto: File | any = {};
   isCreate: boolean = false;
 
-  // Visibilité mots de passe
   hideInitPw = true;
   hideCurrent = true;
   hideNew = true;
@@ -38,6 +55,41 @@ export class ProfileComponent implements OnInit {
 
   userForm!: FormGroup;
   passwordForm!: FormGroup;
+
+  // ---------------------------------------------------------------------
+  // Contacts (données fictives pour l'affichage)
+  // ---------------------------------------------------------------------
+
+  contacts: Contact[] = [
+    { id: 'c1', typeContact: 'WHATSAPP', value: '+261 34 12 345 67', label: 'Numéro principal', isVerified: true },
+    { id: 'c2', typeContact: 'EMAIL', value: 'rakoto.jean@example.com', label: 'Email professionnel', isVerified: true },
+    { id: 'c3', typeContact: 'WHATSAPP', value: '+261 32 98 765 43', label: null, isVerified: false },
+  ];
+
+  // Base fictive utilisée pour simuler l'autocomplétion
+  private fakeDirectory: ContactSuggestion[] = [
+    { value: '+261 34 00 111 22', label: 'Andriamampianina Sarah', typeContact: 'WHATSAPP' },
+    { value: '+261 33 55 222 89', label: 'Randria Tojo', typeContact: 'WHATSAPP' },
+    { value: '+261 32 44 777 10', label: 'Rasoanaivo Miora', typeContact: 'WHATSAPP' },
+    { value: 'sarah.andria@example.com', label: 'Andriamampianina Sarah', typeContact: 'EMAIL' },
+    { value: 'tojo.randria@example.com', label: 'Randria Tojo', typeContact: 'EMAIL' },
+    { value: 'miora.rasoa@example.com', label: 'Rasoanaivo Miora', typeContact: 'EMAIL' },
+  ];
+
+  showAddContact = false;
+  addContactStep: AddContactStep = 'search';
+
+  addContactType: ContactType = 'WHATSAPP';
+  addContactValue = '';
+  addContactLabel = '';
+  suggestions: ContactSuggestion[] = [];
+  showSuggestions = false;
+
+  addContactCode = '';
+  addContactSubmitting = false;
+  addContactError: string | null = null;
+  resendCooldown = 0;
+  private cooldownTimer: ReturnType<typeof setInterval> | null = null;
 
   ngOnInit() {
     this.userForm = this.fb.group({
@@ -137,5 +189,156 @@ export class ProfileComponent implements OnInit {
       this.user = user;
       this.userForm?.patchValue(user);
     });
+  }
+
+  // ---------------------------------------------------------------------
+  // Gestion des contacts (flux d'ajout avec données fictives)
+  // ---------------------------------------------------------------------
+
+  removeContact(contact: Contact): void {
+    this.contacts = this.contacts.filter(c => c.id !== contact.id);
+  }
+
+  openAddContact(): void {
+    this.showAddContact = true;
+    this.addContactStep = 'search';
+    this.addContactType = 'WHATSAPP';
+    this.addContactValue = '';
+    this.addContactLabel = '';
+    this.addContactCode = '';
+    this.addContactError = null;
+    this.suggestions = [];
+    this.showSuggestions = false;
+  }
+
+  cancelAddContact(): void {
+    this.showAddContact = false;
+    if (this.cooldownTimer) clearInterval(this.cooldownTimer);
+    this.resendCooldown = 0;
+  }
+
+  selectAddContactType(type: ContactType): void {
+    this.addContactType = type;
+    this.addContactValue = '';
+    this.suggestions = [];
+    this.showSuggestions = false;
+  }
+
+  get addContactPlaceholder(): string {
+    return this.addContactType === 'WHATSAPP'
+      ? 'Ex: +261 34 00 000 00'
+      : 'Ex: nom@exemple.com';
+  }
+
+  /** Simule une recherche d'autocomplétion sur un annuaire fictif. */
+  onAddContactValueChange(raw: string): void {
+    this.addContactValue = raw;
+    const term = raw.trim().toLowerCase();
+
+    if (term.length < 2) {
+      this.suggestions = [];
+      this.showSuggestions = false;
+      return;
+    }
+
+    this.suggestions = this.fakeDirectory
+      .filter(s => s.typeContact === this.addContactType)
+      .filter(s => s.value.toLowerCase().includes(term) || s.label.toLowerCase().includes(term))
+      .slice(0, 5);
+
+    this.showSuggestions = this.suggestions.length > 0;
+  }
+
+  pickSuggestion(sugg: ContactSuggestion): void {
+    this.addContactValue = sugg.value;
+    this.addContactLabel = sugg.label;
+    this.suggestions = [];
+    this.showSuggestions = false;
+  }
+
+  hideSuggestionsSoon(): void {
+    // léger délai pour laisser le clic sur une suggestion s'exécuter avant fermeture
+    setTimeout(() => this.showSuggestions = false, 150);
+  }
+
+  get isAddContactValueValid(): boolean {
+    const v = this.addContactValue.trim();
+    if (!v) return false;
+    if (this.addContactType === 'EMAIL') {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+    }
+    const digits = v.replace(/[^\d]/g, '');
+    return digits.length >= 8 && digits.length <= 15;
+  }
+
+  submitAddContactSearch(): void {
+    if (!this.isAddContactValueValid || this.addContactSubmitting) return;
+
+    this.addContactSubmitting = true;
+    this.addContactError = null;
+
+    // Simule l'appel réseau d'envoi du code (données fictives, pas de vrai backend ici)
+    setTimeout(() => {
+      this.addContactSubmitting = false;
+      this.addContactStep = 'verify';
+      this.startResendCooldown();
+    }, 700);
+  }
+
+  resendAddContactCode(): void {
+    if (this.resendCooldown > 0 || this.addContactSubmitting) return;
+    this.addContactSubmitting = true;
+
+    setTimeout(() => {
+      this.addContactSubmitting = false;
+      this.startResendCooldown();
+    }, 500);
+  }
+
+  private startResendCooldown(): void {
+    this.resendCooldown = 30;
+    if (this.cooldownTimer) clearInterval(this.cooldownTimer);
+    this.cooldownTimer = setInterval(() => {
+      this.resendCooldown--;
+      if (this.resendCooldown <= 0 && this.cooldownTimer) clearInterval(this.cooldownTimer);
+    }, 1000);
+  }
+
+  onAddContactCodeInput(raw: string): void {
+    this.addContactCode = raw.replace(/\D/g, '').slice(0, 6);
+  }
+
+  get isAddContactCodeValid(): boolean {
+    return this.addContactCode.length === 6;
+  }
+
+  confirmAddContactCode(): void {
+    if (!this.isAddContactCodeValid || this.addContactSubmitting) return;
+
+    this.addContactSubmitting = true;
+    this.addContactError = null;
+
+    // Simule la vérification (fictif : accepte n'importe quel code à 6 chiffres)
+    setTimeout(() => {
+      this.addContactSubmitting = false;
+
+      const newContact: Contact = {
+        id: 'c' + Date.now(),
+        typeContact: this.addContactType,
+        value: this.addContactValue.trim(),
+        label: this.addContactLabel.trim() || null,
+        isVerified: true,
+      };
+      this.contacts = [...this.contacts, newContact];
+      this.addContactStep = 'success';
+    }, 700);
+  }
+
+  backToSearchStep(): void {
+    this.addContactStep = 'search';
+    this.addContactCode = '';
+    this.addContactError = null;
+    if (this.cooldownTimer) clearInterval(this.cooldownTimer);
+    this.resendCooldown = 0;
   }
 }

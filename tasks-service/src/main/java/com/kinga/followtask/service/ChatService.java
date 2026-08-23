@@ -120,7 +120,7 @@ public class ChatService {
            existing.setProjects(canall.getProjects());
            existing.setMembers(canall.getMembers());
            existing.setTypeCanal(TypeCanal.PROJECT);
-           existing.setIssueMaster(canall.getIssueMaster());
+
            existing.setPseudo(canall.getPseudo());
      //      existing.setMembersIds(canall.getMembersIds());
            return canalRepository.save(existing);

@@ -7,5 +7,16 @@ public enum MediaType {
     AUDIO,
     DOCUMENT,
     SYSTEM,   // messages techniques (protocolMessage, messageContextInfo, accusés...)
-    UNKNOWN
+    UNKNOWN;
+
+    public static MediaType fromString(String value) {
+        if (value == null || value.isBlank()) {
+            return UNKNOWN;
+        }
+        try {
+            return MediaType.valueOf(value.trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return UNKNOWN;
+        }
+    }
 }
