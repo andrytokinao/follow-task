@@ -94,7 +94,10 @@ export class PrivateComponent implements  OnInit{
 
 
   myProfile() {
-    const dialogRef = this.modalService.open(ProfileComponent, {windowClass: "xlModal"});
+    const dialogRef = this.modalService.open(ProfileComponent, {
+      windowClass: "xlModal",
+      scrollable: true
+    });
     dialogRef.componentInstance.loadUser(this.profile.id);
     dialogRef.componentInstance.action = "Edition d'un utilisateur";
     dialogRef.componentInstance.loadGroupeMember();

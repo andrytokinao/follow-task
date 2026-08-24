@@ -781,3 +781,39 @@ h3 {
   padding: 0 !important;
 }
 }
+/* =========================================================================
+   xlModal — windowClass pour ngbModal (this.modalService.open(..., { windowClass: "xlModal" }))
+   A coller dans le fichier CSS global (styles.css), pas dans le CSS du composant :
+   ngbModal ajoute cette classe sur .modal-dialog, en dehors de l'encapsulation Angular.
+   ========================================================================= */
+
+.xlModal .modal-dialog {
+  max-width: 1100px;
+  width: 95%;
+  margin: 1.75rem auto;
+
+  /* Nécessaire pour que scrollable:true fonctionne correctement :
+     le dialog ne doit jamais dépasser la hauteur de la fenêtre. */
+  max-height: calc(100% - 3.5rem);
+}
+
+.xlModal .modal-content {
+  border: none;
+  border-radius: 14px;
+  overflow: hidden;
+  height: 100%;
+}
+
+@media (max-width: 720px) {
+  .xlModal .modal-dialog {
+    width: 100%;
+    margin: 0;
+    max-height: 100%;
+    max-width: 100%;
+  }
+
+  .xlModal .modal-content {
+    border-radius: 0;
+    min-height: 100vh;
+  }
+}

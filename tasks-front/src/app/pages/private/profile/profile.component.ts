@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { MemberGroupe, User } from '../../../type/issue';
 import { UserService } from '../../../services/user.service';
@@ -39,13 +39,15 @@ export class ProfileComponent implements OnInit {
 
   constructor(private userService: UserService, private fb: FormBuilder) {}
 
+  @ViewChild('photoInput') photoInputRef!: ElementRef<HTMLInputElement>;
+
   savingStatus: string = '';
-  tempPhoto: string | ArrayBuffer | null = null;
+  tempPhoto: string | null = null;
   user: User | any = {};
   activeModal: any;
   action: string = '';
   memberGroupes: MemberGroupe[] = [];
-  selectedPhoto: File | any = {};
+  selectedPhoto: File | null = null;
   isCreate: boolean = false;
 
   hideInitPw = true;
@@ -134,7 +136,7 @@ export class ProfileComponent implements OnInit {
     return 'Fort';
   }
 
-  photoUrl(): string | ArrayBuffer {
+  photoUrl(): string {
     if (this.tempPhoto) return this.tempPhoto;
     return this.user?.photo
       ? environment.apiURL + 'photo/' + this.user.photo
@@ -149,7 +151,14 @@ export class ProfileComponent implements OnInit {
   }
 
   saveUser() {
-    const data = { ...this.user, ...this.userForm.value };
+    // Le champ password n'est affiché qu'en création (isCreate) ; en édition
+    // le FormGroup contient quand même une valeur vide qu'il ne faut pas envoyer,
+    // sous peine d'écraser le mot de passe existant côté backend.
+    const { password, ...formValueWithoutPassword } = this.userForm.value;
+    const data = this.isCreate
+      ? { ...this.user, ...this.userForm.value }
+      : { ...this.user, ...formValueWithoutPassword };
+
     this.userService.saveUser(data).subscribe(
       () => { this.savingStatus = 'success'; },
       (err) => { this.savingStatus = 'error'; console.error(err); }
@@ -165,22 +174,24 @@ export class ProfileComponent implements OnInit {
     );
   }
 
-  selectPhoto($event: any) {
-    const file: File = $event.target.files[0];
+  selectPhoto($event: Event) {
+    const input = $event.target as HTMLInputElement;
+    const file = input.files?.[0];
     if (file) { this.selectedPhoto = file; this.previewImage(file); }
   }
 
   previewImage(file: File) {
     const reader = new FileReader();
     reader.readAsDataURL(file);
-    reader.onload = () => { this.tempPhoto = reader.result; };
+    reader.onload = () => { this.tempPhoto = reader.result as string; };
   }
 
   openPhotoInput() {
-    document.getElementById('photoInput')?.click();
+    this.photoInputRef.nativeElement.click();
   }
 
   uploadPhoto() {
+    if (!this.selectedPhoto) return;
     this.userService.upload(this.selectedPhoto, this.user.id).subscribe();
   }
 
