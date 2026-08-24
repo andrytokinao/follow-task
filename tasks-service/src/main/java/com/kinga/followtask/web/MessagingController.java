@@ -1,93 +1,75 @@
 package com.kinga.followtask.web;
 
 import com.kinga.followtask.entity.TypeCanal;
+import com.kinga.followtask.service.messaging.MessagingReadService;
 import com.kinga.followtask.service.messaging.MessagingServiceRegistry;
 import com.kinga.followtask.service.messaging.dto.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/messaging")
 public class MessagingController {
 
-    private final MessagingServiceRegistry registry;
+    private final MessagingServiceRegistry registry;   // sync, send, webhook, download
+    private final MessagingReadService readService;     // toute la lecture (DB)
 
-    // ---------- Canaux ----------
+    // ---------- Lecture (DB) ----------
 
     @GetMapping("/{type}/canaux")
     public List<CanalDto> listCanaux(@PathVariable TypeCanal type) {
-        return registry.get(type).listCanaux();
+        return readService.listCanaux(type);
     }
 
     @GetMapping("/{type}/canaux/{externalId}")
     public CanalDto getCanal(@PathVariable TypeCanal type, @PathVariable String externalId) {
-        return registry.get(type).getCanal(externalId);
+        return readService.getCanal(type, externalId);
     }
 
-    // ---------- Messages ----------
-
     @GetMapping("/{type}/canaux/{externalId}/messages")
-    public List<MessageDto> listMessages(
-            @PathVariable TypeCanal type,
-            @PathVariable String externalId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime since,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime until
-    ) {
-        MessageQueryDto query = MessageQueryDto.builder()
-                .page(page).size(size).since(since).until(until).build();
-        List<MessageDto> messages = registry.get(type).listMessages(externalId, query);
-        return messages;
+    public Page<MessageDto> listMessages(@PathVariable TypeCanal type, @PathVariable String externalId,
+                                         MessageQueryDto query) {
+        return readService.listMessages(type, externalId, query);
     }
 
     @GetMapping("/{type}/messages/{externalMessageId}")
     public MessageDto getMessage(@PathVariable TypeCanal type, @PathVariable String externalMessageId) {
-        return registry.get(type).getMessage(externalMessageId);
+        return readService.getMessage(type, externalMessageId);
     }
-
-    @PostMapping("/{type}/canaux/{externalId}/messages")
-    public MessageDto sendMessage(
-            @PathVariable TypeCanal type,
-            @PathVariable String externalId,
-            @RequestBody SendMessageRequestDto request
-    ) {
-        return registry.get(type).sendMessage(externalId, request);
-    }
-
-    // ---------- Pièces jointes (au niveau du canal) ----------
 
     @GetMapping("/{type}/canaux/{externalId}/attachments")
     public List<AttachmentDto> listAttachments(@PathVariable TypeCanal type, @PathVariable String externalId) {
-        return registry.get(type).listAttachments(externalId);
+        return readService.listAttachments(type, externalId);
+    }
+
+    // ---------- Écriture / actions live (provider externe) ----------
+
+    @PostMapping("/{type}/canaux/{externalId}/messages")
+    public MessageDto sendMessage(@PathVariable TypeCanal type, @PathVariable String externalId,
+                                  @RequestBody SendMessageRequestDto request) {
+        return registry.get(type).sendMessage(externalId, request);
     }
 
     @GetMapping("/{type}/attachments/{externalAttachmentId}/download")
-    public ResponseEntity<byte[]> downloadAttachment(@PathVariable TypeCanal type, @PathVariable String externalAttachmentId) {
-        byte[] data = registry.get(type).downloadAttachment(externalAttachmentId);
-        return ResponseEntity.ok(data);
+    public ResponseEntity<byte[]> downloadAttachment(@PathVariable TypeCanal type,
+                                                     @PathVariable String externalAttachmentId) {
+        return ResponseEntity.ok(registry.get(type).downloadAttachment(externalAttachmentId));
     }
-
-    // ---------- Webhook (réception push) ----------
-
-    @PostMapping("/{type}/webhook")
-    public ResponseEntity<Void> webhook(@PathVariable TypeCanal type, @RequestBody Object payload) {
-        registry.get(type).handleIncomingEvent(payload);
-        return ResponseEntity.ok().build();
-    }
-
-    // ---------- Synchronisation manuelle (pull) ----------
 
     @PostMapping("/{type}/sync")
     public ResponseEntity<Void> sync(@PathVariable TypeCanal type) {
         registry.get(type).syncAll();
         return ResponseEntity.accepted().build();
+    }
+
+    @PostMapping("/{type}/webhook")
+    public ResponseEntity<Void> webhook(@PathVariable TypeCanal type, @RequestBody Object payload) {
+        registry.get(type).handleIncomingEvent(payload);
+        return ResponseEntity.ok().build();
     }
 }

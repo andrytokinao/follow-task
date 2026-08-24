@@ -1,10 +1,12 @@
 package com.kinga.followtask.repository;
 
 import com.kinga.followtask.entity.Canall;
+import com.kinga.followtask.entity.TypeCanal;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,4 +39,10 @@ public interface CanalRepository extends JpaRepository<Canall, Long> {
 """)
     List<Canall> findVisibleCanauxForUser(@Param("userId") String userId);
     Optional<Canall> findByExternalId(String externalId);
+
+    Collection<Canall> findByTypeCanal(TypeCanal type);
+
+    Optional<Canall> findByExternalIdAfterAndTypeCanal(String canalExternalId, TypeCanal type);
+
+    Optional<Canall> findByExternalIdAndTypeCanal(String canalExternalId, TypeCanal type);
 }

@@ -1,9 +1,13 @@
-package com.kinga.followtask.web.graphql;
+package com.kinga.followtask.web;
 
 import com.kinga.followtask.entity.TypeCanal;
+import com.kinga.followtask.service.messaging.MessagingReadService;
 import com.kinga.followtask.service.messaging.MessagingServiceRegistry;
 import com.kinga.followtask.service.messaging.dto.*;
+import com.kinga.followtask.web.graphql.MessageQueryInput;
+import com.kinga.followtask.web.graphql.SendMessageInput;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
@@ -15,18 +19,19 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MessagingGraphQLController {
 
-    private final MessagingServiceRegistry registry;
+    private final MessagingServiceRegistry registry;   // sync, send (actions live)
+    private final MessagingReadService readService;     // toute la lecture (DB)
 
-    // ---------- Queries ----------
+    // ---------- Queries (lecture DB) ----------
 
     @QueryMapping
     public List<CanalDto> listCanaux(@Argument TypeCanal type) {
-        return registry.get(type).listCanaux();
+        return readService.listCanaux(type);
     }
 
     @QueryMapping
     public CanalDto getCanal(@Argument TypeCanal type, @Argument String externalId) {
-        return registry.get(type).getCanal(externalId);
+        return readService.getCanal(type, externalId);
     }
 
     @QueryMapping
@@ -41,15 +46,22 @@ public class MessagingGraphQLController {
                 .since(query != null ? query.since() : null)
                 .until(query != null ? query.until() : null)
                 .build();
-        return registry.get(type).listMessages(canalExternalId, queryDto);
+
+        Page<MessageDto> page = readService.listMessages(type, canalExternalId, queryDto);
+        return page.getContent();
+    }
+
+    @QueryMapping
+    public MessageDto getMessage(@Argument TypeCanal type, @Argument String externalMessageId) {
+        return readService.getMessage(type, externalMessageId);
     }
 
     @QueryMapping
     public List<AttachmentDto> listAttachments(@Argument TypeCanal type, @Argument String canalExternalId) {
-        return registry.get(type).listAttachments(canalExternalId);
+        return readService.listAttachments(type, canalExternalId);
     }
 
-    // ---------- Mutations ----------
+    // ---------- Mutations (écriture / actions live) ----------
 
     @MutationMapping
     public MessageDto sendExternalMessage(

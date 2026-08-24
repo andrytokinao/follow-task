@@ -1,11 +1,14 @@
 package com.kinga.followtask.repository;
 
-import com.kinga.followtask.entity.ActionItem;
+import com.kinga.followtask.entity.Canall;
 import com.kinga.followtask.entity.MessageApp;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,5 +33,9 @@ public interface MessagesRepository extends JpaRepository<MessageApp,Long> {
     List<MessageApp> findVisibleMessagesForIssue(@Param("issueId") Long issueId);
     Optional<MessageApp> findByExternalMessageId(String externalMessageId);
 
+
+    Page<MessageApp> findByCanallAndCreatedBetween(Canall canall, LocalDateTime since, LocalDateTime until, Pageable pageable);
+
+    Page<MessageApp> findByCanall(Canall canall, Pageable pageable);
 
 }
