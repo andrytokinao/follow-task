@@ -90,13 +90,12 @@
   color: #6B7280;
 }
 
-// ---- Ligne meta : badge issue + heure ----
+// ---- Ligne meta : heure uniquement ----
 
 .bubble-meta {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 5px;
   margin-top: 3px;
 }
 
@@ -105,37 +104,14 @@
   color: #9CA3AF;
 }
 
-.issue-time-badge {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  background: #FEF3C7;
-  color: #92400E;
-  border-radius: 8px;
-  padding: 1px 5px;
-  font-size: 9px;
-  font-weight: 700;
-  cursor: default;
-  line-height: 1.4;
-
-  i.fa-check { font-size: 8px; }
-
-  &.completed {
-    background: #D1FAE5;
-    color: #047857;
-  }
-}
-
-.badge-percent {
-  line-height: 1;
-}
-
 .badge-assignee {
-  background: rgba(255, 255, 255, 0.6);
-  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 5px;
   padding: 0 3px;
-  font-size: 8px;
+  font-size: 7px;
   letter-spacing: 0.02em;
+  color: #374151;
+  opacity: 0.85;
 }
 
 .link-issue-btn {
@@ -160,51 +136,60 @@
   &:hover { background: #EEF2FF; }
 }
 
-// ---- Chips d'issues sous la bulle ----
+// ---- Issues liées : intégrées dans la card, sous le texte ----
 
 .issue-chip-row {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 5px;
-  margin-top: 3px;
+  gap: 4px;
+  margin-top: 4px;
   flex-wrap: wrap;
 }
 
 .issue-chip {
   display: flex;
   align-items: center;
-  gap: 5px;
-  background: white;
-  border: 1px solid #E5E7EB;
-  border-radius: 10px;
-  padding: 2px 7px;
+  gap: 3px;
+  background: rgba(146, 64, 14, 0.08);
+  color: #92400E;
+  border: none;
+  border-radius: 8px;
+  padding: 1px 5px;
   cursor: pointer;
-  transition: border-color 0.12s ease;
+  transition: filter 0.12s ease;
+  line-height: 1.4;
 
-  &:hover { border-color: #6366F1; }
+  &:hover { filter: brightness(0.96); }
+
+  i.fa-check { font-size: 6.5px; }
+
+  &.completed {
+    background: rgba(4, 120, 87, 0.08);
+    color: #047857;
+  }
 }
 
 .issue-chip-key {
-  font-size: 9.5px;
-  font-weight: 700;
-  color: #4F46E5;
+  font-size: 8px;
+  font-weight: 600;
+  opacity: 0.9;
 }
 
 .issue-chip-progress {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
 }
 
 .add-more-btn {
-  width: 18px;
-  height: 18px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   border: 1px dashed #C7D2FE;
   background: transparent;
   color: #6366F1;
-  font-size: 8.5px;
+  font-size: 7px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -256,17 +241,6 @@
   i { font-size: 9px; }
 }
 
-.popover-close {
-  align-self: flex-end;
-  border: none;
-  background: transparent;
-  color: #9CA3AF;
-  font-size: 10px;
-  cursor: pointer;
-
-  &:hover { color: #6B7280; }
-}
-
 // ---- Styles partagés issue (clé, résumé, barre de progression) ----
 
 .issue-key {
@@ -280,7 +254,14 @@
   letter-spacing: 0.02em;
 }
 
-.issue-unlink {
+.issue-popover-actions {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.issue-action-btn {
   border: none;
   background: transparent;
   color: #9CA3AF;
@@ -294,7 +275,13 @@
   justify-content: center;
   flex-shrink: 0;
 
-  &:hover { background: #FEE2E2; color: #DC2626; }
+  &:hover { background: #F3F4F6; color: #6B7280; }
+
+  &.delete {
+    font-size: 9px;
+
+    &:hover { background: #FEE2E2; color: #DC2626; }
+  }
 }
 
 .issue-summary {
@@ -317,7 +304,7 @@
   border-radius: 3px;
   overflow: hidden;
 
-  &.tiny { width: 30px; height: 3px; flex: 0 0 auto; }
+  &.tiny { width: 22px; height: 2px; flex: 0 0 auto; }
 }
 
 .progress-fill {
@@ -338,5 +325,5 @@
   min-width: 26px;
   text-align: right;
 
-  &.tiny { font-size: 8.5px; min-width: 0; }
+  &.tiny { font-size: 7px; min-width: 0; opacity: 0.85; }
 }

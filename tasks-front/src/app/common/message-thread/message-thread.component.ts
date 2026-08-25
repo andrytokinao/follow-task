@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, OnChanges, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AvatarComponent } from '../avatar/avatar.component';
 import { MessageDto, MessageDayGroup, IssueLinkDto } from '../../models/messaging.model';
@@ -28,6 +28,17 @@ export class MessageThreadComponent implements OnChanges {
 
   ngOnChanges(): void {
     this.dayGroups = groupMessagesByDay(this.messages);
+  }
+
+  // Ferme le popover au clic en dehors du composant. Les clics qui doivent
+  // rester "internes" (ouverture depuis un chip, actions dans le popover)
+  // appellent déjà $event.stopPropagation(), donc ils n'atteignent jamais
+  // ce listener document.
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    if (this.openIssuePopoverFor !== null) {
+      this.closeIssuePopover();
+    }
   }
 
   shouldShowAvatar(msgs: MessageDto[], index: number): boolean {
@@ -74,24 +85,8 @@ export class MessageThreadComponent implements OnChanges {
     return 'progress-low';
   }
 
-  // ---------------------------------------------------------------------
-  // Badge de complétion / responsable, affiché à côté de l'heure
-  // ---------------------------------------------------------------------
-
-  primaryIssueLink(message: MessageDto): IssueLinkDto | null {
-    const links = this.getMessageIssues(message);
-    return links.length > 0 ? links[0] : null;
-  }
-
-  isIssueCompleted(link: IssueLinkDto | null): boolean {
-    return (link?.issue.completionPercent ?? 0) >= 100;
-  }
-
-  issueBadgeTooltip(link: IssueLinkDto | null): string {
-    if (!link) return '';
-    const parts = [link.issue.key, link.issue.summary];
-    if (link.issue.assignee) parts.push(`Responsable: ${link.issue.assignee}`);
-    return parts.join(' — ');
+  isCompleted(link: IssueLinkDto): boolean {
+    return (link.issue.completionPercent ?? 0) >= 100;
   }
 
   assigneeInitials(name: string | null | undefined): string {
