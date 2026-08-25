@@ -2952,6 +2952,25 @@ export const LIST_CANAUX = gql`
       unreadCount
       messageCount
       avatarUrl
+      issueLinks {
+        id
+        linkedAt
+        linkedBy {
+          id
+          username
+          photo
+        }
+        issue {
+          id
+          issueKey
+          summary
+          assigne {
+            id
+            username
+            photo
+          }
+        }
+      }
       lastMessage {
         externalMessageId
         text
@@ -3003,6 +3022,20 @@ export const LIST_MESSAGES = gql`
       createdAt
       fromMe
       hasAttachment
+      messageLinks {
+        id
+        issue {
+          id
+          issueKey
+          summary
+          assigne {
+            id
+            username
+            photo
+            firstName
+          }
+        }
+      }
       attachments {
         externalAttachmentId
         fileName

@@ -54,6 +54,7 @@ type Message {
   fromMe: Boolean!
   hasAttachment: Boolean!
   attachments: [Attachment]
+  messageLinks: [IssueMessageLink]
 }
 
 type Canal {
@@ -69,6 +70,7 @@ type Canal {
   avatarUrl: String
   members: [Member!]
   lastMessage: Message
+  issueLinks:[IssueCanalLink]
 }
 
 input SendMessageInput {
@@ -104,4 +106,29 @@ extend type Mutation {
   syncCanal(type: TypeCanal!): Boolean!
   grantCanalAccess(canalId: ID!, userId: String!, reason: String): CanalWatcherInfo!
   revokeCanalAccess(canalId: ID!, userId: String!): Boolean!
+
+  linkIssueToMessage(issueId: Int!, externalMessageId: String!): IssueMessageLink!
+  unlinkIssueFromMessage(linkId: ID!): Boolean!
+  linkIssueToCanal(issueId: Int!, canalExternalId: String!): IssueCanalLink!
+  unlinkIssueFromCanal(linkId: ID!): Boolean!
+}
+
+type IssueMessageLink {
+  id: ID
+  issue: Issue
+  message: Message
+  linkedAt: String
+  linkedBy: UserApp
+}
+
+type IssueCanalLink {
+  id: ID
+  issue: Issue
+  canall: Canall
+  linkedAt: String
+  linkedBy: UserApp
+}
+extend type Issue {
+  canalLinks: [IssueCanalLink]
+  messageLinks: [IssueMessageLink]
 }

@@ -1,4 +1,5 @@
 import {EventEmitter, Input, NgIterable} from "@angular/core";
+import {IssueCanalLink, IssueMessageLink} from "./issue-message.model";
 
 export class Status {
   id: number =0;
@@ -38,6 +39,8 @@ export class Issue {
   constructor() {
 
   }
+  canalLinks?: IssueCanalLink[];
+  messageLinks?: IssueMessageLink[];
 }
 export class User {
   id:string ="";
@@ -406,7 +409,7 @@ export interface Canall {
   issueMaster?:Issue,
   membersIds?:String[]
 }
-export interface MessageApp {
+export class MessageApp {
   id?:Number
   canall:Canall
   created?:String

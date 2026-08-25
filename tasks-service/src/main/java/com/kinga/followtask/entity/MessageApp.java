@@ -43,7 +43,8 @@ public class MessageApp {
 
     @Column(name = "is_processed")
     private boolean processed = false;
-
+    @OneToMany(mappedBy = "message")
+    private List<IssueMessageLink> messageLinks;
 
     public List<String> getUserReades() {
         return new ArrayList<>();
