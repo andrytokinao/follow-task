@@ -94,3 +94,42 @@ export interface MessageDayGroup {
   isoDate: string;
   messages: MessageDto[];
 }
+
+// =====================================================================
+// Liaison Issue (Canal / Message <-> Issue de suivi projet)
+// =====================================================================
+
+export enum IssueStatus {
+  TODO = 'TODO',
+  IN_PROGRESS = 'IN_PROGRESS',
+  IN_REVIEW = 'IN_REVIEW',
+  DONE = 'DONE',
+  BLOCKED = 'BLOCKED',
+}
+
+export interface IssueDto {
+  key: string;                     // ex: "PROJ-123"
+  summary: string;
+  description?: string | null;
+  status?: IssueStatus;
+  completionPercent?: number;      // 0-100
+  url?: string | null;
+  assignee?: string | null;        // nom du responsable (donnée fictive pour le design)
+}
+
+export type IssueTargetType = 'CANAL' | 'MESSAGE';
+
+export interface IssueLinkDto {
+  id: string;
+  issue: IssueDto;
+  targetType: IssueTargetType;
+  targetId: string;                // CanalDto.externalId ou MessageDto.externalMessageId
+  linkedAt: string;                // ISO string
+  linkedBy?: string | null;
+}
+
+export interface LinkIssueRequest {
+  targetType: IssueTargetType;
+  targetId: string;
+  issueKey: string;
+}

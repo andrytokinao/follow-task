@@ -1,18 +1,25 @@
-.message-thread {
+:host {
+  display: block;
+}
+
+.thread-scroll {
+  padding: 12px 16px;
   display: flex;
   flex-direction: column;
-  padding: 12px;
-  overflow-y: auto;
+  gap: 10px;
 }
 
 .day-separator {
-  text-align: center;
-  margin: 12px 0;
+  display: flex;
+  justify-content: center;
+  margin: 10px 0;
+
   span {
-    background: #f0f0f0;
+    background: rgba(255, 255, 255, 0.85);
     color: #6B7280;
-    font-size: 12px;
-    padding: 4px 10px;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 10px;
     border-radius: 10px;
   }
 }
@@ -20,39 +27,316 @@
 .message-row {
   display: flex;
   align-items: flex-end;
-  gap: 8px;
-  margin-bottom: 4px;
+  gap: 7px;
 
   &.from-me {
     flex-direction: row-reverse;
-    .bubble { background: #DCF8C6; }
+
+    .bubble-wrap { align-items: flex-end; }
+    .bubble {
+      background: #DCF8C6;
+      border-top-right-radius: 3px;
+    }
+  }
+
+  &:not(.from-me) .bubble {
+    background: white;
+    border-top-left-radius: 3px;
   }
 }
 
-.message-avatar.invisible {
-  visibility: hidden; // conserve l'espace pour aligner les bulles groupées
+.avatar-spacer {
+  width: 26px;
+  flex-shrink: 0;
+}
+
+.bubble-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  max-width: 65%;
 }
 
 .bubble {
-  max-width: 65%;
-  background: white;
-  border-radius: 10px;
-  padding: 6px 10px;
-  box-shadow: 0 1px 1px rgba(0,0,0,0.08);
+  position: relative;
+  padding: 6px 9px 6px;
+  border-radius: 8px;
+  box-shadow: 0 1px 1px rgba(0,0,0,0.06);
+
+  &:hover .link-issue-btn { opacity: 1; }
 }
 
 .sender-name {
-  font-size: 12px;
-  font-weight: 600;
+  display: block;
+  font-size: 10.5px;
+  font-weight: 700;
   color: #6366F1;
   margin-bottom: 2px;
 }
 
-.text { font-size: 14px; white-space: pre-wrap; word-break: break-word; }
+.bubble-text {
+  font-size: 12px;
+  color: #111827;
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
 
-.time {
-  font-size: 10px;
+.bubble-attachment {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: #6B7280;
+}
+
+// ---- Ligne meta : badge issue + heure ----
+
+.bubble-meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+  margin-top: 3px;
+}
+
+.bubble-time {
+  font-size: 9px;
   color: #9CA3AF;
+}
+
+.issue-time-badge {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  background: #FEF3C7;
+  color: #92400E;
+  border-radius: 8px;
+  padding: 1px 5px;
+  font-size: 9px;
+  font-weight: 700;
+  cursor: default;
+  line-height: 1.4;
+
+  i.fa-check { font-size: 8px; }
+
+  &.completed {
+    background: #D1FAE5;
+    color: #047857;
+  }
+}
+
+.badge-percent {
+  line-height: 1;
+}
+
+.badge-assignee {
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 6px;
+  padding: 0 3px;
+  font-size: 8px;
+  letter-spacing: 0.02em;
+}
+
+.link-issue-btn {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid #E5E7EB;
+  background: white;
+  color: #6366F1;
+  font-size: 9px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+
+  &:hover { background: #EEF2FF; }
+}
+
+// ---- Chips d'issues sous la bulle ----
+
+.issue-chip-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 3px;
+  flex-wrap: wrap;
+}
+
+.issue-chip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: white;
+  border: 1px solid #E5E7EB;
+  border-radius: 10px;
+  padding: 2px 7px;
+  cursor: pointer;
+  transition: border-color 0.12s ease;
+
+  &:hover { border-color: #6366F1; }
+}
+
+.issue-chip-key {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #4F46E5;
+}
+
+.issue-chip-progress {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.add-more-btn {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px dashed #C7D2FE;
+  background: transparent;
+  color: #6366F1;
+  font-size: 8.5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover { background: #EEF2FF; }
+}
+
+// ---- Popover détail issue ----
+
+.issue-popover {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  width: 240px;
+  background: white;
+  border: 1px solid #E5E7EB;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  padding: 8px;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.issue-popover-item {
+  padding-bottom: 8px;
+  border-bottom: 1px solid #F3F4F6;
+
+  &:last-of-type { border-bottom: none; padding-bottom: 0; }
+}
+
+.issue-popover-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.issue-assignee-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  color: #6B7280;
+  margin: 0 0 6px;
+
+  i { font-size: 9px; }
+}
+
+.popover-close {
+  align-self: flex-end;
+  border: none;
+  background: transparent;
+  color: #9CA3AF;
+  font-size: 10px;
+  cursor: pointer;
+
+  &:hover { color: #6B7280; }
+}
+
+// ---- Styles partagés issue (clé, résumé, barre de progression) ----
+
+.issue-key {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #4F46E5;
+  background: #EEF2FF;
+  padding: 1px 6px;
+  border-radius: 5px;
+  text-decoration: none;
+  letter-spacing: 0.02em;
+}
+
+.issue-unlink {
+  border: none;
+  background: transparent;
+  color: #9CA3AF;
+  cursor: pointer;
+  font-size: 10px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  &:hover { background: #FEE2E2; color: #DC2626; }
+}
+
+.issue-summary {
+  font-size: 11px;
+  color: #374151;
+  margin: 5px 0 4px;
+  line-height: 1.3;
+}
+
+.issue-progress {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.progress-track {
+  flex: 1;
+  height: 5px;
+  background: #E5E7EB;
+  border-radius: 3px;
+  overflow: hidden;
+
+  &.tiny { width: 30px; height: 3px; flex: 0 0 auto; }
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.2s ease;
+
+  &.progress-low { background: #EF4444; }
+  &.progress-mid { background: #F59E0B; }
+  &.progress-high { background: #22C55E; }
+}
+
+.progress-label {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: #6B7280;
+  flex-shrink: 0;
+  min-width: 26px;
   text-align: right;
-  margin-top: 2px;
+
+  &.tiny { font-size: 8.5px; min-width: 0; }
 }

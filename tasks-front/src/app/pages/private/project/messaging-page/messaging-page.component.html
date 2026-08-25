@@ -1,4 +1,4 @@
-<!-- src/app/pages/messaging-page/messaging-page.component.html -->
+<!-- src/app/pages/private/project/messaging-page/messaging-page.component.html -->
 
 <div class="messaging-layout">
 
@@ -119,6 +119,9 @@
           *ngIf="!loadingMessages && !messagesError && messages.length > 0"
           [messages]="messages"
           [isGroup]="activeCanal.isGroup"
+          [issueLinksByMessage]="messageIssueLinks"
+          (linkIssueToMessage)="onLinkIssueToMessage($event)"
+          (unlinkIssueFromMessage)="unlinkIssue($event)"
         ></app-message-thread>
       </div>
 
@@ -198,6 +201,67 @@
         </div>
       </div>
 
+      <!-- Issues liées : repliées par défaut, chargées à la demande -->
+      <div class="info-section collapsible-section" *ngIf="!loadingDetail">
+        <button class="section-toggle" (click)="toggleIssuesList()">
+          <span class="section-toggle-label">
+            <i class="fas fa-link"></i>
+            Issues liées
+            <span class="count-pill" *ngIf="issueLinks.length">{{ issueLinks.length }}</span>
+          </span>
+          <i class="fas" [class.fa-chevron-down]="!showIssuesList" [class.fa-chevron-up]="showIssuesList"></i>
+        </button>
+
+        <div class="section-list issues-list" *ngIf="showIssuesList">
+
+          <div *ngIf="loadingIssues" class="state-message loading">
+            <div class="spinner"></div>
+            <span>Chargement...</span>
+          </div>
+
+          <div *ngIf="!loadingIssues && issuesError" class="state-message error">
+            <span>{{ issuesError }}</span>
+            <button class="retry-btn" (click)="loadIssueLinks()">Réessayer</button>
+          </div>
+
+          <div *ngIf="!loadingIssues && !issuesError && issueLinks.length === 0" class="state-message empty">
+            <span>Aucune issue liée</span>
+          </div>
+
+          <div class="issue-card" *ngFor="let link of issueLinks">
+            <div class="issue-card-top">
+              <a class="issue-key" [href]="link.issue.url" target="_blank" *ngIf="link.issue.url">{{ link.issue.key }}</a>
+              <span class="issue-key" *ngIf="!link.issue.url">{{ link.issue.key }}</span>
+              <button class="issue-unlink" (click)="unlinkIssue(link)" title="Retirer le lien">
+                <i class="fas fa-xmark"></i>
+              </button>
+            </div>
+            <p class="issue-summary">{{ link.issue.summary }}</p>
+            <p class="issue-assignee-row" *ngIf="link.issue.assignee">
+              <i class="fas fa-user"></i> {{ link.issue.assignee }}
+            </p>
+            <div
+              class="issue-progress"
+              *ngIf="link.issue.completionPercent !== null && link.issue.completionPercent !== undefined"
+            >
+              <div class="progress-track">
+                <div
+                  class="progress-fill"
+                  [ngClass]="progressClass(link.issue.completionPercent)"
+                  [style.width.%]="link.issue.completionPercent"
+                ></div>
+              </div>
+              <span class="progress-label">{{ link.issue.completionPercent }}%</span>
+            </div>
+          </div>
+
+          <button class="add-issue-btn" (click)="openIssuePicker('CANAL', activeCanal.externalId, activeCanal.pseudo)">
+            <i class="fas fa-plus"></i> Lier une issue
+          </button>
+
+        </div>
+      </div>
+
       <!-- Fichiers partagés : repliés par défaut, chargés à la demande -->
       <div class="info-section collapsible-section" *ngIf="!loadingDetail">
         <button class="section-toggle" (click)="toggleAttachmentsList()">
@@ -247,4 +311,77 @@
 
   </aside>
 
+</div>
+
+<!-- ================= Modal : lier une issue (canal ou message) ================= -->
+<div class="issue-picker-overlay" *ngIf="showIssuePicker" (click)="closeIssuePicker()">
+  <div class="issue-picker-modal" (click)="$event.stopPropagation()">
+    <div class="issue-picker-header">
+      <div>
+        <h3>Lier une issue</h3>
+        <p class="issue-picker-sub" *ngIf="issuePickerContext?.label">
+          {{ issuePickerContext?.type === 'MESSAGE' ? 'au message' : 'au canal' }} « {{ issuePickerContext?.label }} »
+        </p>
+      </div>
+      <button class="icon-btn" (click)="closeIssuePicker()">
+        <i class="fas fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="issue-picker-search">
+      <i class="fas fa-search search-icon"></i>
+      <input
+        type="text"
+        placeholder="Rechercher par clé ou titre (ex: PROJ-101)"
+        [(ngModel)]="issueSearchTerm"
+        (ngModelChange)="onIssueSearchChange()"
+        autofocus
+      />
+    </div>
+
+    <div class="issue-picker-results">
+      <div *ngIf="searchingIssues" class="state-message loading">
+        <div class="spinner"></div>
+        <span>Recherche...</span>
+      </div>
+
+      <div *ngIf="!searchingIssues && issueSearchTerm && issueSearchResults.length === 0" class="state-message empty">
+        <span>Aucune issue trouvée</span>
+      </div>
+
+      <div *ngIf="!issueSearchTerm" class="state-message empty">
+        <span>Commencez à taper pour rechercher une issue</span>
+      </div>
+
+      <button
+        class="issue-result-row"
+        *ngFor="let issue of issueSearchResults"
+        (click)="confirmLinkIssue(issue)"
+        [disabled]="linkingIssueKey === issue.key"
+      >
+        <div class="issue-result-main">
+          <span class="issue-key">{{ issue.key }}</span>
+          <span class="issue-result-summary">{{ issue.summary }}</span>
+          <span class="issue-result-assignee" *ngIf="issue.assignee">
+            <i class="fas fa-user"></i> {{ issue.assignee }}
+          </span>
+        </div>
+        <div
+          class="issue-progress"
+          *ngIf="issue.completionPercent !== null && issue.completionPercent !== undefined"
+        >
+          <div class="progress-track small">
+            <div
+              class="progress-fill"
+              [ngClass]="progressClass(issue.completionPercent)"
+              [style.width.%]="issue.completionPercent"
+            ></div>
+          </div>
+          <span class="progress-label">{{ issue.completionPercent }}%</span>
+        </div>
+        <i class="fas fa-spinner fa-spin" *ngIf="linkingIssueKey === issue.key"></i>
+        <i class="fas fa-plus" *ngIf="linkingIssueKey !== issue.key"></i>
+      </button>
+    </div>
+  </div>
 </div>

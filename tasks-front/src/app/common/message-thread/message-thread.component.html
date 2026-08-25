@@ -1,31 +1,125 @@
-<div class="message-thread">
-  <ng-container *ngFor="let group of dayGroups">
-    <div class="day-separator"><span>{{ group.dateLabel }}</span></div>
+<div class="thread-scroll">
+
+  <div class="day-group" *ngFor="let group of dayGroups">
+    <div class="day-separator">
+      <span>{{ group.dateLabel }}</span>
+    </div>
 
     <div
-      *ngFor="let msg of group.messages; let i = index"
       class="message-row"
+      *ngFor="let msg of group.messages; let i = index"
       [class.from-me]="msg.fromMe"
     >
       <app-avatar
-        *ngIf="!msg.fromMe"
-        class="message-avatar"
-        [class.invisible]="!shouldShowAvatar(group.messages, i)"
+        *ngIf="!msg.fromMe && shouldShowAvatar(group.messages, i)"
         [url]="msg.senderAvatarUrl"
-        [displayName]="msg.senderDisplayName"
-        style="--avatar-size: 32px"
+        [displayName]="msg.senderDisplayName || msg.senderExternalId"
+        style="--avatar-size: 26px"
       ></app-avatar>
+      <div class="avatar-spacer" *ngIf="!msg.fromMe && !shouldShowAvatar(group.messages, i)"></div>
 
-      <div class="bubble">
-        <div class="sender-name" *ngIf="isGroup && !msg.fromMe && shouldShowAvatar(group.messages, i)">
-          {{ msg.senderDisplayName }}
+      <div class="bubble-wrap">
+        <div class="bubble">
+          <span class="sender-name" *ngIf="isGroup && !msg.fromMe && shouldShowAvatar(group.messages, i)">
+            {{ msg.senderDisplayName || msg.senderExternalId }}
+          </span>
+
+          <p class="bubble-text" *ngIf="msg.text">{{ msg.text }}</p>
+          <div class="bubble-attachment" *ngIf="msg.hasAttachment && !msg.text">
+            <i class="fas fa-paperclip"></i> Pièce jointe
+          </div>
+
+          <div class="bubble-meta">
+            <div
+              class="issue-time-badge"
+              *ngIf="primaryIssueLink(msg) as primaryIssue"
+              [class.completed]="isIssueCompleted(primaryIssue)"
+              [title]="issueBadgeTooltip(primaryIssue)"
+            >
+              <ng-container *ngIf="isIssueCompleted(primaryIssue); else inProgressBadge">
+                <i class="fas fa-check"></i>
+              </ng-container>
+              <ng-template #inProgressBadge>
+                <span class="badge-percent">{{ primaryIssue.issue.completionPercent ?? 0 }}%</span>
+              </ng-template>
+
+              <span class="badge-assignee" *ngIf="primaryIssue.issue.assignee">
+                {{ assigneeInitials(primaryIssue.issue.assignee) }}
+              </span>
+            </div>
+
+            <span class="bubble-time">{{ msg.createdAt | date:'shortTime' }}</span>
+          </div>
+
+          <!-- Bouton de liaison : visible au survol si aucune issue liée -->
+          <button
+            class="link-issue-btn"
+            *ngIf="!hasIssues(msg)"
+            (click)="onLinkIssue(msg, $event)"
+            title="Lier une issue"
+          >
+            <i class="fas fa-link"></i>
+          </button>
         </div>
-        <div class="text" *ngIf="msg.text">{{ msg.text }}</div>
-        <div class="attachment" *ngIf="msg.hasAttachment && !msg.text">
-          📎 Pièce jointe
+
+        <!-- Chips d'issues liées -->
+        <div class="issue-chip-row" *ngIf="hasIssues(msg)">
+          <div
+            class="issue-chip"
+            *ngFor="let link of getMessageIssues(msg)"
+            (click)="toggleIssuePopover(msg, $event)"
+          >
+            <span class="issue-chip-key">{{ link.issue.key }}</span>
+            <div class="issue-chip-progress" *ngIf="link.issue.completionPercent !== undefined && link.issue.completionPercent !== null">
+              <div class="progress-track tiny">
+                <div
+                  class="progress-fill"
+                  [ngClass]="progressClass(link.issue.completionPercent)"
+                  [style.width.%]="link.issue.completionPercent"
+                ></div>
+              </div>
+              <span class="progress-label tiny">{{ link.issue.completionPercent }}%</span>
+            </div>
+          </div>
+
+          <button class="add-more-btn" (click)="onLinkIssue(msg, $event)" title="Lier une autre issue">
+            <i class="fas fa-plus"></i>
+          </button>
+
+          <!-- Popover détail -->
+          <div
+            class="issue-popover"
+            *ngIf="openIssuePopoverFor === msg.externalMessageId"
+            (click)="$event.stopPropagation()"
+          >
+            <div class="issue-popover-item" *ngFor="let link of getMessageIssues(msg)">
+              <div class="issue-popover-top">
+                <a class="issue-key" [href]="link.issue.url" target="_blank" *ngIf="link.issue.url">{{ link.issue.key }}</a>
+                <span class="issue-key" *ngIf="!link.issue.url">{{ link.issue.key }}</span>
+                <button class="issue-unlink" (click)="onUnlinkIssue(link, $event)" title="Retirer le lien">
+                  <i class="fas fa-xmark"></i>
+                </button>
+              </div>
+              <p class="issue-summary">{{ link.issue.summary }}</p>
+              <p class="issue-assignee-row" *ngIf="link.issue.assignee">
+                <i class="fas fa-user"></i> {{ link.issue.assignee }}
+              </p>
+              <div class="issue-progress" *ngIf="link.issue.completionPercent !== undefined && link.issue.completionPercent !== null">
+                <div class="progress-track">
+                  <div
+                    class="progress-fill"
+                    [ngClass]="progressClass(link.issue.completionPercent)"
+                    [style.width.%]="link.issue.completionPercent"
+                  ></div>
+                </div>
+                <span class="progress-label">{{ link.issue.completionPercent }}%</span>
+              </div>
+            </div>
+            <button class="popover-close" (click)="closeIssuePopover()">Fermer</button>
+          </div>
         </div>
-        <div class="time">{{ msg.createdAt | date:'shortTime' }}</div>
       </div>
     </div>
-  </ng-container>
+  </div>
+
 </div>
