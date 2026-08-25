@@ -13,7 +13,7 @@ import { groupMessagesByDay } from '../../utils/message-day-group.util';
 })
 export class MessageThreadComponent implements OnChanges {
   @Input() messages: MessageDto[] = [];
-  @Input() isGroup = false; // en 1-to-1, pas besoin d'afficher l'avatar à chaque message
+  @Input() isGroup = false;
 
   // Liens d'issues résolus par le parent : externalMessageId -> issues liées
   @Input() issueLinksByMessage: Map<string, IssueLinkDto[]> = new Map();
