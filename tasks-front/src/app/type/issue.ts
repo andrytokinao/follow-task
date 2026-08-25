@@ -1,10 +1,10 @@
 import {EventEmitter, Input, NgIterable} from "@angular/core";
-import {IssueCanalLink, IssueMessageLink} from "./issue-message.model";
+import {IssueCanalLink, IssueMessageLink} from "../models/messaging.model";
 
 export class Status {
   id: number =0;
-  color:String
-  style:String
+  color?:String
+  style?:String
   displayName: String  ="";
   icone :Icone | undefined;
 }
@@ -29,10 +29,11 @@ export class Issue {
   values?:CustomFieldValue[];
   reporter?:User = new User();
   issueType?:IssueType | any = {};
-  parent?:Issue
-  labels?:IssueLabels[]
+  parent?:Issue;
+  labels?:IssueLabels[];
   comments? :Comment[] = [];
   project?:Project;
+  completionPercent?:number;
   observerIds?:String[];
     attachments?: NgIterable<unknown> & NgIterable<any>;
   planning?: NgIterable<any> & NgIterable<any>;

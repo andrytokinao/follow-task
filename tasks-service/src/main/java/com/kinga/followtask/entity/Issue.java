@@ -80,3 +80,4 @@ public class Issue {
     }
 
 }
+// completionPercent : TODO , A REDEFINIR

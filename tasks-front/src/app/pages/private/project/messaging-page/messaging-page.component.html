@@ -230,15 +230,15 @@
 
           <div class="issue-card" *ngFor="let link of issueLinks">
             <div class="issue-card-top">
-              <a class="issue-key" [href]="link.issue.url" target="_blank" *ngIf="link.issue.url">{{ link.issue.key }}</a>
-              <span class="issue-key" *ngIf="!link.issue.url">{{ link.issue.key }}</span>
+              <a class="issue-key" [href]="'link.issue.url'" target="_blank" *ngIf="'link.issue.url'">{{ link.issue.issueKey }}</a>
+              <span class="issue-key" *ngIf="link.issue.issueKey">{{ link.issue.issueKey }}</span>
               <button class="issue-unlink" (click)="unlinkIssue(link)" title="Retirer le lien">
                 <i class="fas fa-xmark"></i>
               </button>
             </div>
             <p class="issue-summary">{{ link.issue.summary }}</p>
-            <p class="issue-assignee-row" *ngIf="link.issue.assignee">
-              <i class="fas fa-user"></i> {{ link.issue.assignee }}
+            <p class="issue-assignee-row" *ngIf="link.issue.assigne">
+              <i class="fas fa-user"></i> {{ link.issue.assigne.username }}
             </p>
             <div
               class="issue-progress"
@@ -357,13 +357,13 @@
         class="issue-result-row"
         *ngFor="let issue of issueSearchResults"
         (click)="confirmLinkIssue(issue)"
-        [disabled]="linkingIssueKey === issue.key"
+        [disabled]="linkingIssueKey === issue.issueKey"
       >
         <div class="issue-result-main">
-          <span class="issue-key">{{ issue.key }}</span>
+          <span class="issue-key">{{ issue.issueKey }}</span>
           <span class="issue-result-summary">{{ issue.summary }}</span>
-          <span class="issue-result-assignee" *ngIf="issue.assignee">
-            <i class="fas fa-user"></i> {{ issue.assignee }}
+          <span class="issue-result-assignee" *ngIf="issue.assigne">
+            <i class="fas fa-user"></i> {{ issue.assigne.username }}
           </span>
         </div>
         <div
@@ -379,8 +379,8 @@
           </div>
           <span class="progress-label">{{ issue.completionPercent }}%</span>
         </div>
-        <i class="fas fa-spinner fa-spin" *ngIf="linkingIssueKey === issue.key"></i>
-        <i class="fas fa-plus" *ngIf="linkingIssueKey !== issue.key"></i>
+        <i class="fas fa-spinner fa-spin" *ngIf="linkingIssueKey === issue.issueKey"></i>
+        <i class="fas fa-plus" *ngIf="linkingIssueKey !== issue.issueKey"></i>
       </button>
     </div>
   </div>

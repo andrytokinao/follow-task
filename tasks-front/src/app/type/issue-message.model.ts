@@ -1,6 +1,7 @@
 // models/issue-message.model.ts
 
 import {Canall, Issue, MessageApp, User} from "./issue";
+import {IssueTargetType} from "../models/messaging.model";
 
 export type MediaType = 'TEXT' | 'IMAGE' | 'VIDEO' | 'AUDIO' | 'DOCUMENT' | 'SYSTEM' | 'UNKNOWN';
 
@@ -23,18 +24,4 @@ export interface IssueCanalMessagesDto {
   messages: IssueMessageDto[];
 }
 
-export class IssueMessageLink {
-  id: number;
-  issue: Issue;
-  message: MessageApp;
-  linkedAt: String
-  linkedBy: User
-}
 
-export class IssueCanalLink {
-  id: number;
-  issue: Issue;
-  canall?: Canall;
-  linkedAt?: String;
-  linkedBy?: User;
-}

@@ -2,76 +2,161 @@ import { Component, OnInit } from '@angular/core';
 import { MessagingService } from '../../../../services/messaging.service';
 import { MessageCacheService } from '../../../../services/message-cache.service';
 import {
-  AttachmentDto, CanalDto, IssueDto, IssueLinkDto, IssueStatus, IssueTargetType,
+  AttachmentDto, CanalDto, IssueMessageLink, IssueStatus, IssueTargetType,
   MessageDto, SendMessageRequest, TypeCanal,
 } from '../../../../models/messaging.model';
 import { getChannelConfig } from '../../../../models/canal-channel.config';
+import {Issue} from "../../../../type/issue";
 
 // =====================================================================
 // Données de test (simulent un backend "issues" — Jira-like)
 // =====================================================================
 
-const MOCK_ISSUES: IssueDto[] = [
+const MOCK_ISSUES: Issue[] = [
   {
-    key: 'PROJ-101',
+    issueKey: 'PROJ-101',
     summary: 'Corriger le bug d\'affichage des messages non lus',
     description: 'Le badge de compteur ne se réinitialise pas correctement après lecture.',
-    status: IssueStatus.IN_PROGRESS,
+    status:{
+      id:0,
+      icone:{
+        id:0,
+        typeIcone:'',
+        value:'id'
+      },
+      displayName:'In Progress',
+
+    },
     completionPercent: 45,
-    url: 'https://jira.example.com/browse/PROJ-101',
-    assignee: 'Fanja R.',
+    assigne: {
+      id:'',
+      username:'rasoa'
+
+    },
   },
   {
-    key: 'PROJ-102',
+   issueKey: 'PROJ-102',
     summary: 'Ajouter la synchronisation automatique WhatsApp',
     description: 'Mettre en place un job planifié pour synchroniser les canaux toutes les 5 minutes.',
-    status: IssueStatus.IN_PROGRESS,
+    status:{
+      id:0,
+      icone:{
+        id:0,
+        typeIcone:'',
+        value:'id'
+      },
+      displayName:'In Progress',
+
+    },
     completionPercent: 80,
-    url: 'https://jira.example.com/browse/PROJ-102',
-    assignee: 'Tojo A.',
+    assigne: {
+      id:'',
+      username:'rasoa'
+
+    },
   },
   {
-    key: 'PROJ-103',
+   issueKey: 'PROJ-103',
     summary: 'Refonte de la page messagerie (3 colonnes)',
     description: 'Nouvelle disposition avec panneau d\'informations repliable.',
-    status: IssueStatus.IN_PROGRESS,
+    status:{
+      id:0,
+      icone:{
+        id:0,
+        typeIcone:'',
+        value:'id'
+      },
+      displayName:'In Progress',
+
+    },
     completionPercent: 20,
-    url: 'https://jira.example.com/browse/PROJ-103',
-    assignee: 'Nomena L.',
+    assigne: {
+      id:'',
+      username:'rasoa'
+
+    },
   },
   {
-    key: 'PROJ-104',
+   issueKey: 'PROJ-104',
     summary: 'Export des pièces jointes en PDF',
     description: 'Permettre l\'export groupé des fichiers partagés d\'une conversation.',
-    status: IssueStatus.DONE,
+    status:{
+      id:0,
+      icone:{
+        id:0,
+        typeIcone:'',
+        value:'id'
+      },
+      displayName:'In Progress',
+
+    },
     completionPercent: 100,
-    url: 'https://jira.example.com/browse/PROJ-104',
-    assignee: 'Fanja R.',
+    assigne: {
+     id:'',
+      username:'rasoa'
+
+    },
   },
   {
-    key: 'PROJ-105',
+   issueKey: 'PROJ-105',
     summary: 'Notifications push en temps réel',
     description: 'Intégration WebSocket pour les nouveaux messages.',
-    status: IssueStatus.TODO,
+    status:{
+      id:0,
+      icone:{
+        id:0,
+        typeIcone:'',
+        value:'id'
+      },
+      displayName:'In Progress',
+
+    },
     completionPercent: 5,
-    url: 'https://jira.example.com/browse/PROJ-105',
-    assignee: 'Hery M.',
+    assigne: {
+      id:'',
+      username:'rasoa'
+
+    },
   },
   {
-    key: 'SUP-42',
+   issueKey: 'SUP-42',
     summary: 'Client signale une réponse tardive sur Instagram',
-    status: IssueStatus.TODO,
+    status:{
+      id:0,
+      icone:{
+        id:0,
+        typeIcone:'',
+        value:'id'
+      },
+      displayName:'In Progress',
+
+    },
     completionPercent: 0,
-    url: 'https://jira.example.com/browse/SUP-42',
-    assignee: 'Nomena L.',
+    assigne: {
+      id:'',
+      username:'rasoa'
+
+    },
   },
   {
-    key: 'SUP-58',
+    issueKey: 'SUP-58',
     summary: 'Doublon de conversation après resynchronisation',
-    status: IssueStatus.IN_PROGRESS,
+    status:{
+      id:0,
+      icone:{
+        id:0,
+        typeIcone:'',
+        value:'id'
+      },
+      displayName:'In Progress',
+
+    },
     completionPercent: 60,
-    url: 'https://jira.example.com/browse/SUP-58',
-    assignee: 'Tojo A.',
+    assigne: {
+      id:'',
+      username:'rasoa'
+
+    },
   },
 ];
 
@@ -114,7 +199,7 @@ export class MessagingPageComponent implements OnInit {
   // Issues liées — Canal (colonne droite)
   // -------------------------------------------------------------------
 
-  issueLinks: IssueLinkDto[] = [];
+  issueLinks: IssueMessageLink[] = [];
   loadingIssues = false;
   issuesError: string | null = null;
   showIssuesList = false;
@@ -123,7 +208,7 @@ export class MessagingPageComponent implements OnInit {
   // Issues liées — Messages (fil central)
   // -------------------------------------------------------------------
 
-  messageIssueLinks: Map<string, IssueLinkDto[]> = new Map();
+  messageIssueLinks: Map<string, IssueMessageLink[]> = new Map();
 
   // -------------------------------------------------------------------
   // Sélecteur d'issue (modal, réutilisé canal + message)
@@ -132,13 +217,13 @@ export class MessagingPageComponent implements OnInit {
   showIssuePicker = false;
   issuePickerContext: { type: IssueTargetType; targetId: string; label?: string } | null = null;
   issueSearchTerm = '';
-  issueSearchResults: IssueDto[] = [];
+  issueSearchResults: Issue[] = [];
   searchingIssues = false;
-  linkingIssueKey: string | null = null;
+  linkingIssueKey: String | null = null;
   private issueSearchDebounce: any;
 
   // Store local simulant le backend "issue links" (targetType:targetId -> links[])
-  private issueLinksStore = new Map<string, IssueLinkDto[]>();
+  private issueLinksStore = new Map<string, IssueMessageLink[]>();
   private linkIdCounter = 1000;
 
   constructor(
@@ -410,7 +495,7 @@ export class MessagingPageComponent implements OnInit {
   }
 
   private rebuildMessageIssueLinks(): void {
-    const map = new Map<string, IssueLinkDto[]>();
+    const map = new Map<string, IssueMessageLink[]>();
     for (const msg of this.messages) {
       const links = this.issueLinksStore.get(this.storeKey('MESSAGE', msg.externalMessageId));
       if (links?.length) map.set(msg.externalMessageId, links);
@@ -423,13 +508,17 @@ export class MessagingPageComponent implements OnInit {
       const demoKey = this.storeKey('MESSAGE', target.externalMessageId);
       if (!this.issueLinksStore.has(demoKey)) {
         const demoIssue = MOCK_ISSUES[Math.floor(Math.random() * MOCK_ISSUES.length)];
-        const demoLink: IssueLinkDto = {
+        const demoLink: IssueMessageLink = {
           id: `${demoKey}-demo`,
           issue: demoIssue,
           targetType: 'MESSAGE',
           targetId: target.externalMessageId,
           linkedAt: new Date().toISOString(),
-          linkedBy: 'Système',
+          linkedBy: {
+            id:'er',
+            username:'Vous'
+
+          } ,
         };
         this.issueLinksStore.set(demoKey, [demoLink]);
         map.set(target.externalMessageId, [demoLink]);
@@ -469,34 +558,38 @@ export class MessagingPageComponent implements OnInit {
     this.searchingIssues = true;
     this.issueSearchDebounce = setTimeout(() => {
       this.issueSearchResults = MOCK_ISSUES.filter(issue =>
-        issue.key.toLowerCase().includes(term) ||
+        issue.issueKey.toLowerCase().includes(term) ||
         issue.summary.toLowerCase().includes(term)
       );
       this.searchingIssues = false;
     }, 300);
   }
 
-  confirmLinkIssue(issue: IssueDto): void {
+  confirmLinkIssue(issue: Issue): void {
     if (!this.issuePickerContext) return;
     const { type, targetId } = this.issuePickerContext;
 
     const key = this.storeKey(type, targetId);
     const existing = this.issueLinksStore.get(key) ?? [];
-    if (existing.some(l => l.issue.key === issue.key)) {
+    if (existing.some(l => l.issue.issueKey === issue.issueKey)) {
       this.closeIssuePicker();
       return;
     }
 
-    this.linkingIssueKey = issue.key;
+    this.linkingIssueKey = issue.issueKey;
 
     setTimeout(() => {
-      const newLink: IssueLinkDto = {
+      const newLink: IssueMessageLink = {
         id: `link-${this.linkIdCounter++}`,
         issue,
         targetType: type,
         targetId,
         linkedAt: new Date().toISOString(),
-        linkedBy: 'Vous',
+        linkedBy: {
+          id:'er',
+          username:'Vous'
+
+        } ,
       };
 
       const links = [...existing, newLink];
@@ -513,8 +606,8 @@ export class MessagingPageComponent implements OnInit {
     }, 400);
   }
 
-  unlinkIssue(link: IssueLinkDto): void {
-    if (!confirm(`Retirer le lien vers l'issue ${link.issue.key} ?`)) return;
+  unlinkIssue(link: IssueMessageLink): void {
+    if (!confirm(`Retirer le lien vers l'issue ${link.issue.issueKey} ?`)) return;
 
     const key = this.storeKey(link.targetType, link.targetId);
     const links = (this.issueLinksStore.get(key) ?? []).filter(l => l.id !== link.id);
@@ -538,19 +631,23 @@ export class MessagingPageComponent implements OnInit {
     return `${type}:${targetId}`;
   }
 
-  private getOrSeedLinks(type: IssueTargetType, targetId: string): IssueLinkDto[] {
+  private getOrSeedLinks(type: IssueTargetType, targetId: string): IssueMessageLink[] {
     const key = this.storeKey(type, targetId);
     if (!this.issueLinksStore.has(key)) {
       // Pré-remplit avec 0 à 2 issues aléatoires pour la démo
       const count = Math.floor(Math.random() * 3);
       const shuffled = [...MOCK_ISSUES].sort(() => 0.5 - Math.random());
-      const seeded: IssueLinkDto[] = shuffled.slice(0, count).map((issue, i) => ({
+      const seeded: IssueMessageLink[] = shuffled.slice(0, count).map((issue, i) => ({
         id: `${key}-seed-${i}`,
         issue,
         targetType: type,
         targetId,
         linkedAt: new Date(Date.now() - i * 86400000).toISOString(),
-        linkedBy: 'Système',
+        linkedBy: {
+          id:'er',
+          username:'Vous'
+
+        } ,
       }));
       this.issueLinksStore.set(key, seeded);
     }

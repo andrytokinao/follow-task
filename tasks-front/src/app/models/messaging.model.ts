@@ -1,5 +1,7 @@
 // src/app/models/messaging.model.ts
 
+import {Canall, Issue, User} from "../type/issue";
+
 export enum TypeCanal {
   PROJECT = 'PROJECT',
   ISSUE = 'ISSUE',
@@ -73,6 +75,8 @@ export interface MessageDto {
   fromMe: boolean;
   hasAttachment: boolean;
   attachments: AttachmentDto[];
+  messageLinks: IssueMessageLink[];
+
 }
 
 export interface SendMessageRequest {
@@ -107,29 +111,29 @@ export enum IssueStatus {
   BLOCKED = 'BLOCKED',
 }
 
-export interface IssueDto {
-  key: string;                     // ex: "PROJ-123"
-  summary: string;
-  description?: string | null;
-  status?: IssueStatus;
-  completionPercent?: number;      // 0-100
-  url?: string | null;
-  assignee?: string | null;        // nom du responsable (donnée fictive pour le design)
-}
 
 export type IssueTargetType = 'CANAL' | 'MESSAGE';
 
-export interface IssueLinkDto {
-  id: string;
-  issue: IssueDto;
-  targetType: IssueTargetType;
-  targetId: string;                // CanalDto.externalId ou MessageDto.externalMessageId
-  linkedAt: string;                // ISO string
-  linkedBy?: string | null;
-}
+
 
 export interface LinkIssueRequest {
   targetType: IssueTargetType;
   targetId: string;
   issueKey: string;
+}
+
+export interface IssueMessageLink {
+  id: string;
+  issue: Issue;
+  targetType: IssueTargetType;
+  targetId: string;                // CanalDto.externalId ou MessageDto.externalMessageId
+  linkedAt: string;                // ISO string
+  linkedBy?: User | null;
+}
+export class IssueCanalLink {
+  id: number;
+  issue: Issue;
+  canall?: Canall;
+  linkedAt?: String;
+  linkedBy?: User;
 }

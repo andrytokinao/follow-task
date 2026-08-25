@@ -1,7 +1,7 @@
 import { Component, EventEmitter, HostListener, Input, OnChanges, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AvatarComponent } from '../avatar/avatar.component';
-import { MessageDto, MessageDayGroup, IssueLinkDto } from '../../models/messaging.model';
+import {MessageDto, MessageDayGroup, IssueMessageLink} from '../../models/messaging.model';
 import { groupMessagesByDay } from '../../utils/message-day-group.util';
 
 @Component({
@@ -16,10 +16,10 @@ export class MessageThreadComponent implements OnChanges {
   @Input() isGroup = false;
 
   // Liens d'issues résolus par le parent : externalMessageId -> issues liées
-  @Input() issueLinksByMessage: Map<string, IssueLinkDto[]> = new Map();
+  @Input() issueLinksByMessage: Map<string, IssueMessageLink[]> = new Map();
 
   @Output() linkIssueToMessage = new EventEmitter<MessageDto>();
-  @Output() unlinkIssueFromMessage = new EventEmitter<IssueLinkDto>();
+  @Output() unlinkIssueFromMessage = new EventEmitter<IssueMessageLink>();
 
   dayGroups: MessageDayGroup[] = [];
 
@@ -47,7 +47,7 @@ export class MessageThreadComponent implements OnChanges {
     return index === 0 || msgs[index - 1].senderExternalId !== msgs[index].senderExternalId;
   }
 
-  getMessageIssues(message: MessageDto): IssueLinkDto[] {
+  getMessageIssues(message: MessageDto): IssueMessageLink[] {
     return this.issueLinksByMessage.get(message.externalMessageId) ?? [];
   }
 
@@ -72,7 +72,7 @@ export class MessageThreadComponent implements OnChanges {
     this.linkIssueToMessage.emit(message);
   }
 
-  onUnlinkIssue(link: IssueLinkDto, event: Event): void {
+  onUnlinkIssue(link: IssueMessageLink, event: Event): void {
     event.stopPropagation();
     this.unlinkIssueFromMessage.emit(link);
     this.closeIssuePopover();
@@ -85,7 +85,7 @@ export class MessageThreadComponent implements OnChanges {
     return 'progress-low';
   }
 
-  isCompleted(link: IssueLinkDto): boolean {
+  isCompleted(link: IssueMessageLink): boolean {
     return (link.issue.completionPercent ?? 0) >= 100;
   }
 
