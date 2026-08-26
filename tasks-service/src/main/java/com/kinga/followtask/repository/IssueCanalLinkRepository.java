@@ -9,4 +9,5 @@ public interface IssueCanalLinkRepository extends JpaRepository<IssueCanalLink, 
     List<IssueCanalLink> findByCanalIdAndEndedAtIsNull(Long canalId);
     List<IssueCanalLink> findByIssueIdAndEndedAtIsNull(Long issueId);
     Optional<IssueCanalLink> findByIssueIdAndCanalIdAndEndedAtIsNull(Long issueId, Long canalId);
+
 }

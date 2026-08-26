@@ -1,6 +1,7 @@
 package com.kinga.followtask.service;
 
 import com.kinga.followtask.config.ConfigSystem;
+import com.kinga.followtask.config.CurrentUserProvider;
 import com.kinga.followtask.dto.*;
 import com.kinga.followtask.entity.CustomFieldValue;
 import com.kinga.followtask.entity.*;
@@ -98,7 +99,8 @@ public class IssueService {
     private ActionService actionService;
     @Autowired
     private NotificationRepository notificationRepository;
-
+    @Autowired
+    private  CurrentUserProvider currentUserProvider;
     public Issue saveIssue(Issue issue) throws IOException {
 
 

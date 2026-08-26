@@ -6,6 +6,7 @@ import com.kinga.followtask.service.messaging.dto.AttachmentDto;
 import com.kinga.followtask.service.messaging.dto.CanalDto;
 import com.kinga.followtask.service.messaging.dto.MessageDto;
 import com.kinga.followtask.service.messaging.dto.MessageQueryDto;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -13,7 +14,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +28,7 @@ public class MessagingDataServiceImpl implements MessagingDataService {
     private final MessagingMapper mapper;
     private final IssueCanalLinkRepository canalLinkRepository;
     private final IssueMessageLinkRepository messageLinkRepository;
+    private final IssueRepository issueRepository;
 
     @Override
     public List<CanalDto> listCanaux(TypeCanal type) {
@@ -73,27 +77,73 @@ public class MessagingDataServiceImpl implements MessagingDataService {
                 "listAttachments doit encore passer par MessagingServiceRegistry.get(type) tant que les pièces jointes ne sont pas persistées");
     }
 
+    // ---------- Issue <-> Message ----------
+
     @Override
-    public IssueMessageLink linkIssueToMessage(Long issueId, String externalMessageId) {
-       // TODO: Detection si existant , return l'existant
-        return null;
+    public IssueMessageLink linkIssueToMessage(Long issueId, String externalMessageId, UserApp currentUser) {
+        MessageApp message = messageAppRepository.findByExternalMessageId(externalMessageId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Message non trouvé/synchronisé : " + externalMessageId));
+
+        Optional<IssueMessageLink> existing =
+                messageLinkRepository.findByIssueIdAndMessageId(issueId, message.getId());
+        if (existing.isPresent()) {
+            return existing.get();
+        }
+
+        IssueMessageLink link = new IssueMessageLink();
+        link.setIssue(issueRepository.getReferenceById(issueId));
+        link.setMessage(message);
+        link.setLinkedAt(LocalDateTime.now());
+        link.setLinkedBy(currentUser);
+
+        return messageLinkRepository.save(link);
     }
 
     @Override
-    public Boolean unlinkIssueFromMessage(Long linkId) {
+    public Boolean unlinkIssueFromMessage(Long linkId, UserApp currentUser) {
+        if (!messageLinkRepository.existsById(linkId)) {
+            return false;
+        }
         messageLinkRepository.deleteById(linkId);
         return true;
     }
 
+    // ---------- Issue <-> Canal ----------
+
     @Override
-    public IssueCanalLink linkIssueToCanal(Long issueId, String canalExternalId) {
-        // TODO: Detection si existant , return l'existant
-        return null;
+    public IssueCanalLink linkIssueToCanal(Long issueId, String canalExternalId, UserApp currentUser) {
+        Canall canal = canallRepository.findByExternalId(canalExternalId)
+                .orElseThrow(() -> new EntityNotFoundException("Canal introuvable : " + canalExternalId));
+
+        // Un lien "actif" = pas encore terminé (endedAt == null).
+        Optional<IssueCanalLink> existing =
+                canalLinkRepository.findByIssueIdAndCanalIdAndEndedAtIsNull(issueId, canal.getId());
+        if (existing.isPresent()) {
+            return existing.get();
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        IssueCanalLink link = new IssueCanalLink();
+        link.setIssue(issueRepository.getReferenceById(issueId));
+        link.setCanal(canal);
+        link.setSince(now);
+        link.setLinkedAt(now);
+        link.setLinkedBy(currentUser);
+
+        return canalLinkRepository.save(link);
     }
 
     @Override
-    public Boolean unlinkIssueFromCanal(Long linkId) {
-        canalLinkRepository.deleteById(linkId);
-        return Boolean.TRUE;
+    public Boolean unlinkIssueFromCanal(Long linkId, UserApp currentUser) {
+        Optional<IssueCanalLink> link = canalLinkRepository.findById(linkId);
+        if (link.isEmpty()) {
+            return false;
+        }
+        // Lien basé sur une période (since/endedAt) : on clôture plutôt que de supprimer,
+        // pour conserver l'historique des messages déjà associés pendant cette période.
+        link.get().setEndedAt(LocalDateTime.now());
+        canalLinkRepository.save(link.get());
+        return true;
     }
 }

@@ -1,8 +1,10 @@
 package com.kinga.followtask.web;
 
+import com.kinga.followtask.config.CurrentUserProvider;
 import com.kinga.followtask.entity.IssueCanalLink;
 import com.kinga.followtask.entity.IssueMessageLink;
 import com.kinga.followtask.entity.TypeCanal;
+import com.kinga.followtask.entity.UserApp;
 import com.kinga.followtask.service.messaging.MessagingDataService;
 import com.kinga.followtask.service.messaging.MessagingServiceRegistry;
 import com.kinga.followtask.service.messaging.dto.*;
@@ -20,7 +22,7 @@ import java.util.List;
 @Controller
 @RequiredArgsConstructor
 public class MessagingGraphQLController {
-
+    private final CurrentUserProvider currentUserProvider;
     private final MessagingServiceRegistry registry;   // sync, send (actions live)
     private final MessagingDataService readService;     // toute la lecture (DB)
 
@@ -86,18 +88,22 @@ public class MessagingGraphQLController {
     }
     @MutationMapping
     public IssueMessageLink linkIssueToMessage(@Argument Long issueId, @Argument String externalMessageId){
-       return readService.linkIssueToMessage(issueId,externalMessageId);
+        UserApp user = currentUserProvider.getCurrentUser();
+       return readService.linkIssueToMessage(issueId,externalMessageId,user);
     }
     @MutationMapping
     public Boolean unlinkIssueFromMessage(@Argument Long linkId){
-        return readService.unlinkIssueFromMessage(linkId);
+        UserApp user = currentUserProvider.getCurrentUser();
+        return readService.unlinkIssueFromMessage(linkId,user);
     }
     @MutationMapping
     public IssueCanalLink linkIssueToCanal(@Argument Long issueId, @Argument String canalExternalId){
-        return readService.linkIssueToCanal( issueId,canalExternalId);
+        UserApp user = currentUserProvider.getCurrentUser();
+        return readService.linkIssueToCanal( issueId,canalExternalId,user);
     }
     @MutationMapping
     public Boolean unlinkIssueFromCanal(@Argument Long linkId){
-       return readService.unlinkIssueFromCanal(linkId);
+        UserApp user = currentUserProvider.getCurrentUser();
+        return readService.unlinkIssueFromCanal(linkId,user);
     }
 }

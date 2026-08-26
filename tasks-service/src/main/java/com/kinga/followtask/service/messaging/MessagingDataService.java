@@ -3,6 +3,7 @@ package com.kinga.followtask.service.messaging;
 import com.kinga.followtask.entity.IssueCanalLink;
 import com.kinga.followtask.entity.IssueMessageLink;
 import com.kinga.followtask.entity.TypeCanal;
+import com.kinga.followtask.entity.UserApp;
 import com.kinga.followtask.service.messaging.dto.AttachmentDto;
 import com.kinga.followtask.service.messaging.dto.CanalDto;
 import com.kinga.followtask.service.messaging.dto.MessageDto;
@@ -17,8 +18,8 @@ public interface MessagingDataService {
     Page<MessageDto> listMessages(TypeCanal type, String canalExternalId, MessageQueryDto query);
     MessageDto getMessage(TypeCanal type, String externalMessageId);
     List<AttachmentDto> listAttachments(TypeCanal type, String canalExternalId); // si les métadonnées sont en DB
-    public IssueMessageLink linkIssueToMessage(Long issueId, String externalMessageId);
-    public Boolean unlinkIssueFromMessage(Long linkId);
-    public IssueCanalLink linkIssueToCanal(Long issueId, String canalExternalId);
-    public Boolean unlinkIssueFromCanal(Long linkId);
+    public IssueMessageLink linkIssueToMessage(Long issueId, String externalMessageId,UserApp currentUser);
+    public Boolean unlinkIssueFromMessage(Long linkId, UserApp currentUser);
+    public IssueCanalLink linkIssueToCanal(Long issueId, String canalExternalId, UserApp currentUser);
+    public Boolean unlinkIssueFromCanal(Long linkId, UserApp currentUser);
 }
