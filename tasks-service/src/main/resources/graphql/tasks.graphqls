@@ -429,6 +429,7 @@ input ConfigProjectInput {
     value:String
 }
 input IssueSearchCriteriaInput {
+    textSearch: String
     key: String
     summary: String
     dateFrom: String

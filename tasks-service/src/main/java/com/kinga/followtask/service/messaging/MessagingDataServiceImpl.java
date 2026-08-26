@@ -1,12 +1,7 @@
 package com.kinga.followtask.service.messaging;
 
-import com.kinga.followtask.entity.Canall;
-import com.kinga.followtask.entity.CanalContact;
-import com.kinga.followtask.entity.MessageApp;
-import com.kinga.followtask.entity.TypeCanal;
-import com.kinga.followtask.repository.CanalContactRepository;
-import com.kinga.followtask.repository.CanalRepository;
-import com.kinga.followtask.repository.MessagesRepository;
+import com.kinga.followtask.entity.*;
+import com.kinga.followtask.repository.*;
 import com.kinga.followtask.service.messaging.dto.AttachmentDto;
 import com.kinga.followtask.service.messaging.dto.CanalDto;
 import com.kinga.followtask.service.messaging.dto.MessageDto;
@@ -22,12 +17,14 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class MessagingReadServiceImpl implements MessagingReadService {
+public class MessagingDataServiceImpl implements MessagingDataService {
 
     private final CanalRepository canallRepository;
     private final MessagesRepository messageAppRepository;
     private final CanalContactRepository canalContactRepository;
     private final MessagingMapper mapper;
+    private final IssueCanalLinkRepository canalLinkRepository;
+    private final IssueMessageLinkRepository messageLinkRepository;
 
     @Override
     public List<CanalDto> listCanaux(TypeCanal type) {
@@ -74,5 +71,29 @@ public class MessagingReadServiceImpl implements MessagingReadService {
         // déléguer au provider live plutôt que renvoyer une liste vide trompeuse.
         throw new UnsupportedOperationException(
                 "listAttachments doit encore passer par MessagingServiceRegistry.get(type) tant que les pièces jointes ne sont pas persistées");
+    }
+
+    @Override
+    public IssueMessageLink linkIssueToMessage(Long issueId, String externalMessageId) {
+       // TODO: Detection si existant , return l'existant
+        return null;
+    }
+
+    @Override
+    public Boolean unlinkIssueFromMessage(Long linkId) {
+        messageLinkRepository.deleteById(linkId);
+        return true;
+    }
+
+    @Override
+    public IssueCanalLink linkIssueToCanal(Long issueId, String canalExternalId) {
+        // TODO: Detection si existant , return l'existant
+        return null;
+    }
+
+    @Override
+    public Boolean unlinkIssueFromCanal(Long linkId) {
+        canalLinkRepository.deleteById(linkId);
+        return Boolean.TRUE;
     }
 }

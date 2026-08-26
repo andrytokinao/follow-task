@@ -5,6 +5,7 @@ import com.kinga.followtask.entity.Issue;
 import jakarta.persistence.criteria.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +42,20 @@ public class IssueSpecification implements Specification<Issue> {
         if (criteria.getSummary() != null) {
             predicates.add(criteriaBuilder.like(root.get("summary"), "%" + criteria.getSummary() + "%"));
         }
+
+        // -----------------------------------------------------------------
+        // Recherche libre (autocomplétion) : OR sur issueKey / summary / description
+        // Champ indépendant de key/summary ci-dessus, pour ne pas toucher
+        // leur comportement existant (recherche exacte sur key, etc.).
+        // -----------------------------------------------------------------
+        if (StringUtils.hasText(criteria.getTextSearch())) {
+            String pattern = "%" + criteria.getTextSearch().toLowerCase() + "%";
+            predicates.add(criteriaBuilder.or(
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("issueKey")), pattern),
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("summary")), pattern)
+            ));
+        }
+
         if (criteria.getDateFrom() != null && criteria.getDateTo() != null) {
             predicates.add (criteriaBuilder.between (root.get ("dateCreation"), criteria.getDateFrom (), criteria.getDateTo ()));
         } else if (criteria.getDateFrom() != null) {

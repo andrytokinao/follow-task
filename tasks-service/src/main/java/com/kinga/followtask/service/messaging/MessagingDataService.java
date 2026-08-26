@@ -1,5 +1,7 @@
 package com.kinga.followtask.service.messaging;
 
+import com.kinga.followtask.entity.IssueCanalLink;
+import com.kinga.followtask.entity.IssueMessageLink;
 import com.kinga.followtask.entity.TypeCanal;
 import com.kinga.followtask.service.messaging.dto.AttachmentDto;
 import com.kinga.followtask.service.messaging.dto.CanalDto;
@@ -9,10 +11,14 @@ import org.springframework.data.domain.Page;
 
 import java.util.List;
 
-public interface MessagingReadService {
+public interface MessagingDataService {
     List<CanalDto> listCanaux(TypeCanal type);
     CanalDto getCanal(TypeCanal type, String externalId);
     Page<MessageDto> listMessages(TypeCanal type, String canalExternalId, MessageQueryDto query);
     MessageDto getMessage(TypeCanal type, String externalMessageId);
     List<AttachmentDto> listAttachments(TypeCanal type, String canalExternalId); // si les métadonnées sont en DB
+    public IssueMessageLink linkIssueToMessage(Long issueId, String externalMessageId);
+    public Boolean unlinkIssueFromMessage(Long linkId);
+    public IssueCanalLink linkIssueToCanal(Long issueId, String canalExternalId);
+    public Boolean unlinkIssueFromCanal(Long linkId);
 }

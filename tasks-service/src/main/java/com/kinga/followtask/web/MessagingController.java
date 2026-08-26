@@ -1,7 +1,7 @@
 package com.kinga.followtask.web;
 
 import com.kinga.followtask.entity.TypeCanal;
-import com.kinga.followtask.service.messaging.MessagingReadService;
+import com.kinga.followtask.service.messaging.MessagingDataService;
 import com.kinga.followtask.service.messaging.MessagingServiceRegistry;
 import com.kinga.followtask.service.messaging.dto.*;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ import java.util.List;
 public class MessagingController {
 
     private final MessagingServiceRegistry registry;   // sync, send, webhook, download
-    private final MessagingReadService readService;     // toute la lecture (DB)
+    private final MessagingDataService readService;     // toute la lecture (DB)
 
     // ---------- Lecture (DB) ----------
 

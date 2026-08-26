@@ -1,7 +1,9 @@
 package com.kinga.followtask.web;
 
+import com.kinga.followtask.entity.IssueCanalLink;
+import com.kinga.followtask.entity.IssueMessageLink;
 import com.kinga.followtask.entity.TypeCanal;
-import com.kinga.followtask.service.messaging.MessagingReadService;
+import com.kinga.followtask.service.messaging.MessagingDataService;
 import com.kinga.followtask.service.messaging.MessagingServiceRegistry;
 import com.kinga.followtask.service.messaging.dto.*;
 import com.kinga.followtask.web.graphql.MessageQueryInput;
@@ -20,7 +22,7 @@ import java.util.List;
 public class MessagingGraphQLController {
 
     private final MessagingServiceRegistry registry;   // sync, send (actions live)
-    private final MessagingReadService readService;     // toute la lecture (DB)
+    private final MessagingDataService readService;     // toute la lecture (DB)
 
     // ---------- Queries (lecture DB) ----------
 
@@ -81,5 +83,21 @@ public class MessagingGraphQLController {
     public boolean syncCanal(@Argument TypeCanal type) {
         registry.get(type).syncAll();
         return true;
+    }
+    @MutationMapping
+    public IssueMessageLink linkIssueToMessage(@Argument Long issueId, @Argument String externalMessageId){
+       return readService.linkIssueToMessage(issueId,externalMessageId);
+    }
+    @MutationMapping
+    public Boolean unlinkIssueFromMessage(@Argument Long linkId){
+        return readService.unlinkIssueFromMessage(linkId);
+    }
+    @MutationMapping
+    public IssueCanalLink linkIssueToCanal(@Argument Long issueId, @Argument String canalExternalId){
+        return readService.linkIssueToCanal( issueId,canalExternalId);
+    }
+    @MutationMapping
+    public Boolean unlinkIssueFromCanal(@Argument Long linkId){
+       return readService.unlinkIssueFromCanal(linkId);
     }
 }

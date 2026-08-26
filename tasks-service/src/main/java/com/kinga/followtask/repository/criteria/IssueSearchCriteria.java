@@ -12,6 +12,7 @@ import java.util.Map;
 @AllArgsConstructor
 @Data
 public class IssueSearchCriteria {
+    public String textSearch;
     private String key;
     private String summary;
     private Date dateFrom;

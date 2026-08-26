@@ -9,6 +9,7 @@ export interface CustomFilter {
 }
 export interface IssueSearchCriteriaInput {
   key?: string;
+  textSearch?: string;
   summary?: string;
   dateFrom?: string;  // Utilisation de string au lieu de Date
   dateTo?: string;    // Utilisation de string au lieu de Date

@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subject, of } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, catchError, tap, takeUntil } from 'rxjs/operators';
 import { MessagingService } from '../../../../services/messaging.service';
 import { MessageCacheService } from '../../../../services/message-cache.service';
 import {
@@ -7,9 +9,14 @@ import {
 } from '../../../../models/messaging.model';
 import { getChannelConfig } from '../../../../models/canal-channel.config';
 import {Issue} from "../../../../type/issue";
+import {IssueService} from "../../../../services/issue.service";
+import {IssueSearchCriteriaInput} from "../../../../type/issue-search-criteria.util";
 
 // =====================================================================
 // Données de test (simulent un backend "issues" — Jira-like)
+// Utilisées uniquement pour les liens issue<->canal/message (mock non
+// encore branché sur un vrai backend). L'autocomplétion, elle, utilise
+// désormais issueService.searchIssues en temps réel.
 // =====================================================================
 
 const MOCK_ISSUES: Issue[] = [
@@ -35,7 +42,7 @@ const MOCK_ISSUES: Issue[] = [
     },
   },
   {
-   issueKey: 'PROJ-102',
+    issueKey: 'PROJ-102',
     summary: 'Ajouter la synchronisation automatique WhatsApp',
     description: 'Mettre en place un job planifié pour synchroniser les canaux toutes les 5 minutes.',
     status:{
@@ -56,7 +63,7 @@ const MOCK_ISSUES: Issue[] = [
     },
   },
   {
-   issueKey: 'PROJ-103',
+    issueKey: 'PROJ-103',
     summary: 'Refonte de la page messagerie (3 colonnes)',
     description: 'Nouvelle disposition avec panneau d\'informations repliable.',
     status:{
@@ -77,7 +84,7 @@ const MOCK_ISSUES: Issue[] = [
     },
   },
   {
-   issueKey: 'PROJ-104',
+    issueKey: 'PROJ-104',
     summary: 'Export des pièces jointes en PDF',
     description: 'Permettre l\'export groupé des fichiers partagés d\'une conversation.',
     status:{
@@ -92,13 +99,13 @@ const MOCK_ISSUES: Issue[] = [
     },
     completionPercent: 100,
     assigne: {
-     id:'',
+      id:'',
       username:'rasoa'
 
     },
   },
   {
-   issueKey: 'PROJ-105',
+    issueKey: 'PROJ-105',
     summary: 'Notifications push en temps réel',
     description: 'Intégration WebSocket pour les nouveaux messages.',
     status:{
@@ -119,7 +126,7 @@ const MOCK_ISSUES: Issue[] = [
     },
   },
   {
-   issueKey: 'SUP-42',
+    issueKey: 'SUP-42',
     summary: 'Client signale une réponse tardive sur Instagram',
     status:{
       id:0,
@@ -166,7 +173,7 @@ const MOCK_ISSUES: Issue[] = [
   templateUrl: './messaging-page.component.html',
   styleUrls: ['./messaging-page.component.scss'],
 })
-export class MessagingPageComponent implements OnInit {
+export class MessagingPageComponent implements OnInit, OnDestroy {
 
   channelType: TypeCanal = TypeCanal.WHATSAPP;
 
@@ -220,19 +227,59 @@ export class MessagingPageComponent implements OnInit {
   issueSearchResults: Issue[] = [];
   searchingIssues = false;
   linkingIssueKey: String | null = null;
-  private issueSearchDebounce: any;
+
+  // Sujet RxJS pilotant la recherche temps réel (remplace l'ancien
+  // setTimeout + filtre sur MOCK_ISSUES)
+  private issueSearch$ = new Subject<string>();
+  private destroy$ = new Subject<void>();
 
   // Store local simulant le backend "issue links" (targetType:targetId -> links[])
+  // Reste sur mock : uniquement les liens issue<->canal/message, pas la recherche.
   private issueLinksStore = new Map<string, IssueMessageLink[]>();
   private linkIdCounter = 1000;
 
   constructor(
     private messaging: MessagingService,
     private cache: MessageCacheService,
-  ) {}
+    private issueService: IssueService
+  ) {
+    this.issueSearch$.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      tap(term => {
+        this.searchingIssues = !!term;
+        if (!term) {
+          this.issueSearchResults = [];
+        }
+      }),
+      switchMap(term => {
+        if (!term) {
+          return of<Issue[]>([]);
+        }
+        const criteria: IssueSearchCriteriaInput = {
+          textSearch: term
+        };
+        return this.issueService.searchIssues(criteria, null as any).pipe(
+          catchError(err => {
+            console.error('Erreur searchIssues:', err);
+            return of<Issue[]>([]);
+          })
+        );
+      }),
+      takeUntil(this.destroy$)
+    ).subscribe(results => {
+      this.issueSearchResults = results;
+      this.searchingIssues = false;
+    });
+  }
 
   ngOnInit(): void {
     this.loadConversations();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   // ---------------------------------------------------------------------
@@ -542,27 +589,13 @@ export class MessagingPageComponent implements OnInit {
   closeIssuePicker(): void {
     this.showIssuePicker = false;
     this.issuePickerContext = null;
-    clearTimeout(this.issueSearchDebounce);
+    this.issueSearchTerm = '';
+    this.issueSearchResults = [];
   }
 
   onIssueSearchChange(): void {
-    clearTimeout(this.issueSearchDebounce);
-    const term = this.issueSearchTerm.trim().toLowerCase();
-
-    if (!term) {
-      this.issueSearchResults = [];
-      this.searchingIssues = false;
-      return;
-    }
-
-    this.searchingIssues = true;
-    this.issueSearchDebounce = setTimeout(() => {
-      this.issueSearchResults = MOCK_ISSUES.filter(issue =>
-        issue.issueKey.toLowerCase().includes(term) ||
-        issue.summary.toLowerCase().includes(term)
-      );
-      this.searchingIssues = false;
-    }, 300);
+    const term = this.issueSearchTerm.trim();
+    this.issueSearch$.next(term);
   }
 
   confirmLinkIssue(issue: Issue): void {
