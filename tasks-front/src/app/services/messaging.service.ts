@@ -15,6 +15,10 @@ import {
   LIST_VISIBLE_CANAUX_FOR_USER,
   GRANT_CANAL_ACCESS,
   REVOKE_CANAL_ACCESS,
+  LINK_ISSUE_TO_MESSAGE,
+  UNLINK_ISSUE_FROM_MESSAGE,
+  LINK_ISSUE_TO_CANAL,
+  UNLINK_ISSUE_FROM_CANAL,
 } from '../type/graphql.operations';
 
 import {
@@ -24,6 +28,8 @@ import {
   MessageQuery,
   SendMessageRequest,
   TypeCanal,
+  IssueMessageLink,
+  IssueCanalLink,
 } from '../models/messaging.model';
 
 import { CanallInterne, CanalWatcherInfo } from '../models/canal-watcher.model';
@@ -127,5 +133,37 @@ export class MessagingService {
       mutation: REVOKE_CANAL_ACCESS,
       variables: { canalId, userId },
     }).pipe(map(r => !!r.data?.revokeCanalAccess));
+  }
+
+  // ---------------------------------------------------------------------
+  // Liaison Issue <-> Canal / Message
+  // ---------------------------------------------------------------------
+
+  linkIssueToMessage(issueId: number, externalMessageId: string): Observable<IssueMessageLink> {
+    return this.apollo.mutate<{ linkIssueToMessage: IssueMessageLink }>({
+      mutation: LINK_ISSUE_TO_MESSAGE,
+      variables: { issueId, externalMessageId },
+    }).pipe(map(r => r.data!.linkIssueToMessage));
+  }
+
+  unlinkIssueFromMessage(linkId: string): Observable<boolean> {
+    return this.apollo.mutate<{ unlinkIssueFromMessage: boolean }>({
+      mutation: UNLINK_ISSUE_FROM_MESSAGE,
+      variables: { linkId },
+    }).pipe(map(r => !!r.data?.unlinkIssueFromMessage));
+  }
+
+  linkIssueToCanal(issueId: number, canalExternalId: string): Observable<IssueCanalLink> {
+    return this.apollo.mutate<{ linkIssueToCanal: IssueCanalLink }>({
+      mutation: LINK_ISSUE_TO_CANAL,
+      variables: { issueId, canalExternalId },
+    }).pipe(map(r => r.data!.linkIssueToCanal));
+  }
+
+  unlinkIssueFromCanal(linkId: string): Observable<boolean> {
+    return this.apollo.mutate<{ unlinkIssueFromCanal: boolean }>({
+      mutation: UNLINK_ISSUE_FROM_CANAL,
+      variables: { linkId },
+    }).pipe(map(r => !!r.data?.unlinkIssueFromCanal));
   }
 }

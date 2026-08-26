@@ -3149,6 +3149,91 @@ export const REVOKE_CANAL_ACCESS = gql`
     revokeCanalAccess(canalId: $canalId, userId: $userId)
   }
 `;
+// ---------------------------------------------------------------------
+// Liaison Issue <-> Canal / Message
+// ---------------------------------------------------------------------
+
+export const LINK_ISSUE_TO_MESSAGE = gql`
+  mutation linkIssueToMessage($issueId: Int!, $externalMessageId: String!) {
+    linkIssueToMessage(issueId: $issueId, externalMessageId: $externalMessageId) {
+      id
+      linkedAt
+      issue {
+        id
+        issueKey
+        summary
+        status {
+          id
+          displayName
+          icone {
+            id
+            typeIcone
+            value
+          }
+        }
+        assigne {
+          id
+          username
+          photo
+        }
+      }
+      message {
+        externalMessageId
+        text
+      }
+      linkedBy {
+        id
+        username
+        photo
+      }
+    }
+  }
+`;
+
+export const UNLINK_ISSUE_FROM_MESSAGE = gql`
+  mutation unlinkIssueFromMessage($linkId: ID!) {
+    unlinkIssueFromMessage(linkId: $linkId)
+  }
+`;
+
+export const LINK_ISSUE_TO_CANAL = gql`
+  mutation linkIssueToCanal($issueId: Int!, $canalExternalId: String!) {
+    linkIssueToCanal(issueId: $issueId, canalExternalId: $canalExternalId) {
+      id
+      linkedAt
+      issue {
+        id
+        issueKey
+        summary
+        status {
+          id
+          displayName
+          icone {
+            id
+            typeIcone
+            value
+          }
+        }
+        assigne {
+          id
+          username
+          photo
+        }
+      }
+      linkedBy {
+        id
+        username
+        photo
+      }
+    }
+  }
+`;
+
+export const UNLINK_ISSUE_FROM_CANAL = gql`
+  mutation unlinkIssueFromCanal($linkId: ID!) {
+    unlinkIssueFromCanal(linkId: $linkId)
+  }
+`;
 export {
   supprimerTypename,
   SAVE_USER,
