@@ -1,4 +1,4 @@
-package com.kinga.followtask.service.messaging.impl.whatsapp;
+package com.kinga.followtask.service.messaging.impl.whatsapp.raw;
 
 import com.kinga.followtask.service.messaging.dto.MediaType;
 
