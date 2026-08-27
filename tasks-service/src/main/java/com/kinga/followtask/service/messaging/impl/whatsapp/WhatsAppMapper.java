@@ -79,7 +79,7 @@ public class WhatsAppMapper {
                 .mimeType(raw.getMimetype())
                 .sizeBytes(raw.getTailleOctets())
                 .caption(raw.getLegende())
-                .mediaType(com.kinga.followtask.service.messaging.impl.whatsapp.WhatsAppTypeResolver.resolve(raw.getType()))
+                .mediaType(WhatsAppTypeResolver.resolve(raw.getType()))
                 .senderExternalId(raw.isDeMoi() ? null : raw.getDe())
                 .fromMe(raw.isDeMoi())
                 .downloaded(raw.isTelecharge())
@@ -91,7 +91,7 @@ public class WhatsAppMapper {
     // ---------- Messages ----------
 
     public MessageDto toMessageDto(WhatsAppRawMessage raw, String canalExternalId) {
-        MediaType mediaType = com.kinga.followtask.service.messaging.impl.whatsapp.WhatsAppTypeResolver.resolve(raw.getType());
+        MediaType mediaType = WhatsAppTypeResolver.resolve(raw.getType());
         return MessageDto.builder()
                 .externalMessageId(raw.getId())
                 .canalExternalId(canalExternalId)
