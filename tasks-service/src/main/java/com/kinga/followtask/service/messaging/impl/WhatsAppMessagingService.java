@@ -6,7 +6,6 @@ import com.kinga.followtask.repository.*;
 import com.kinga.followtask.service.messaging.MessagingService;
 import com.kinga.followtask.service.messaging.dto.*;
 import com.kinga.followtask.service.messaging.impl.whatsapp.WhatsAppMapper;
-import com.kinga.followtask.service.messaging.impl.whatsapp.WhatsAppTypeResolver;
 import com.kinga.followtask.service.messaging.impl.whatsapp.raw.*;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;

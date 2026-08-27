@@ -1,0 +1,172 @@
+::ng-deep .issue-picker-menu.mat-mdc-menu-panel {
+  min-width: 260px;
+  max-width: 320px;
+}
+
+::ng-deep .issue-picker-menu .mat-mdc-menu-content {
+  padding: 0;
+}
+
+.issue-tree-scroll {
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+
+.issue-tree-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+// Chevron de dépliage — pas d'icône de dossier, juste une rotation pour
+// indiquer l'état ouvert/fermé.
+.issue-tree-toggle {
+  width: 22px;
+  height: 34px;
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
+  color: #9CA3AF;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover { color: #6366F1; }
+
+  i {
+    font-size: 8px;
+    transition: transform 0.15s ease;
+
+    &.expanded { transform: rotate(90deg); }
+  }
+}
+
+.issue-tree-toggle-spacer {
+  width: 22px;
+  flex-shrink: 0;
+}
+
+.issue-tree-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  flex: 1;
+  padding: 0 12px 0 4px;
+  font-size: 12px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.1s ease;
+
+  &:hover { background: #F9FAFB; }
+
+  &.selected {
+    background: #EEF2FF;
+  }
+}
+
+.issue-tree-checkbox {
+  width: 15px;
+  height: 15px;
+  border-radius: 4px;
+  border: 1.5px solid #D1D5DB;
+  background: white;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s ease, border-color 0.12s ease;
+
+  i {
+    font-size: 8px;
+    color: white;
+  }
+
+  &.checked {
+    background: #6366F1;
+    border-color: #6366F1;
+  }
+}
+
+.issue-picker-key {
+  font-size: 10px;
+  font-weight: 700;
+  color: #4F46E5;
+  background: #EEF2FF;
+  padding: 1px 5px;
+  border-radius: 4px;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+}
+
+.issue-picker-summary {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #374151;
+  text-align: left;
+}
+
+.issue-picker-progress {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9.5px;
+  color: #6B7280;
+  flex-shrink: 0;
+}
+
+.progress-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+
+  &.progress-low { background: #EF4444; }
+  &.progress-mid { background: #F59E0B; }
+  &.progress-high { background: #22C55E; }
+}
+
+.issue-picker-empty {
+  padding: 10px 14px;
+  font-size: 11px;
+  color: #9CA3AF;
+  text-align: center;
+}
+
+// ---- Pied de menu ----
+
+.issue-picker-footer {
+  display: flex;
+  border-top: 1px solid #E5E7EB;
+}
+
+::ng-deep .footer-btn.mat-mdc-menu-item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 38px;
+  font-size: 11.5px;
+  font-weight: 600;
+
+  i { font-size: 10px; }
+}
+
+::ng-deep .footer-btn-secondary.mat-mdc-menu-item {
+  color: #6B7280;
+
+  i { color: #9CA3AF; }
+}
+
+::ng-deep .footer-btn-primary.mat-mdc-menu-item {
+  color: #6366F1;
+
+  &[disabled] {
+    color: #C7D2FE;
+    opacity: 1;
+  }
+}

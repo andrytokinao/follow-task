@@ -10,7 +10,9 @@
   height: 100%;
   overflow: hidden;
 }
-
+app-issue-picker-menu {
+  display: none;
+}
 .thread-scroll {
   flex: 1;
   overflow-y: auto;

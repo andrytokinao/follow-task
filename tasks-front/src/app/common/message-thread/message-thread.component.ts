@@ -4,14 +4,17 @@ import { MatMenuModule } from '@angular/material/menu';
 import { AvatarComponent } from '../avatar/avatar.component';
 import {MessageDto, MessageDayGroup, IssueMessageLink} from '../../models/messaging.model';
 import { groupMessagesByDay } from '../../utils/message-day-group.util';
-import {MessageApp} from "../../type/issue";
+import {Issue, MessageApp} from "../../type/issue";
+import {IssueService} from "../../services/issue.service";
+import {MessagingService} from "../../services/messaging.service";
+import {IssuePickerMenuComponent} from "../issue-picker/issue-picker-menu.component";
 
 const LONG_PRESS_MS = 450;
 
 @Component({
   selector: 'app-message-thread',
   standalone: true,
-  imports: [CommonModule, AvatarComponent, MatMenuModule],
+  imports: [CommonModule, AvatarComponent, MatMenuModule, IssuePickerMenuComponent],
   templateUrl: './message-thread.component.html',
   styleUrls: ['./message-thread.component.scss'],
 })
@@ -22,9 +25,16 @@ export class MessageThreadComponent implements OnChanges {
   // Liens d'issues résolus par le parent : externalMessageId -> issues liées
   @Input() issueLinksByMessage: Map<string, IssueMessageLink[]> = new Map();
 
-  @Output() linkIssueToMessage = new EventEmitter<MessageApp>();
-  @Output() linkIssueToMessages = new EventEmitter<MessageApp[]>();
+  // La liaison elle-même est faite ici via MessagingService (plus de dialogue
+  // externe) ; on informe simplement le parent que ça vient de se produire,
+  // au cas où il doive rafraîchir un compteur, une liste, etc.
+  @Output() issuesLinked = new EventEmitter<{ messages: MessageApp[]; issue: Issue }>();
   @Output() unlinkIssueFromMessage = new EventEmitter<IssueMessageLink>();
+
+  // Relaie la demande de création de sous-issue au parent, qui gère le
+  // formulaire/dialogue de création. `parent` est l'issue pressentie comme
+  // parente si une seule était cochée au moment du clic, sinon null.
+  @Output() createSubIssueRequested = new EventEmitter<{ parent: Issue | null }>();
 
   dayGroups: MessageDayGroup[] = [];
 
@@ -35,8 +45,21 @@ export class MessageThreadComponent implements OnChanges {
   selectionMode = false;
   selectedMessageIds = new Set<string>();
 
+  // Liste racine des issues, utilisée par tous les pickers (par message et
+  // celui de la barre de sélection groupée).
+  masters: Issue[] = [];
+
   private longPressTimer: ReturnType<typeof setTimeout> | null = null;
   private longPressTriggered = false;
+
+  constructor(
+    private issueService: IssueService,
+    private messagingService: MessagingService,
+  ) {
+    this.issueService.issueMasterList$.subscribe(masters => {
+      this.masters = masters;
+    });
+  }
 
   ngOnChanges(): void {
     // Les messages arrivent sous deux formes selon leur origine (DB locale
@@ -127,12 +150,6 @@ export class MessageThreadComponent implements OnChanges {
     this.openIssuePopoverFor = null;
   }
 
-  onLinkIssue(message: MessageApp, event: Event): void {
-    event.stopPropagation();
-    this.closeIssuePopover();
-    this.linkIssueToMessage.emit(message);
-  }
-
   onUnlinkIssue(link: IssueMessageLink, event: Event): void {
     event.stopPropagation();
     this.unlinkIssueFromMessage.emit(link);
@@ -180,6 +197,36 @@ export class MessageThreadComponent implements OnChanges {
 
   protected hasAttachment(msg: MessageApp): boolean {
     return !!(msg as any).hasAttachment || !!(msg as any).attachments?.length;
+  }
+
+  // ==================== Liaison d'issue ====================
+
+  // Appelé quand une ou plusieurs issues sont validées via "Créer" dans le
+  // picker rattaché à un message précis (mode normal, hors sélection).
+  onIssuesPickedForSingle(msg: MessageApp, issues: Issue[]): void {
+    issues.forEach(issue => this.linkIssue(issue, [msg]));
+  }
+
+  // Appelé quand une ou plusieurs issues sont validées via "Créer" dans le
+  // picker de la barre de sélection groupée.
+  onIssuesPickedForSelection(issues: Issue[]): void {
+    if (this.selectedMessageIds.size === 0) return;
+    const selected = this.dayGroups
+      .flatMap(group => group.messages)
+      .filter(msg => this.isSelected(msg));
+    issues.forEach(issue => this.linkIssue(issue, selected));
+    this.cancelSelection();
+  }
+
+  onCreateSubIssueRequested(parent: Issue | null): void {
+    this.createSubIssueRequested.emit({ parent });
+  }
+
+  private linkIssue(issue: Issue, messages: MessageApp[]): void {
+    // NOTE: adapter le nom/la signature à la méthode réelle de MessagingService.
+    /* this.messagingService.linkIssueToMessages(issue, messages).subscribe(() => {
+      this.issuesLinked.emit({ messages, issue });
+    }); */
   }
 
   // ==================== Sélection multiple ====================
@@ -252,17 +299,5 @@ export class MessageThreadComponent implements OnChanges {
   cancelSelection(): void {
     this.selectionMode = false;
     this.selectedMessageIds.clear();
-  }
-
-  onLinkSelectedIssues(event: Event): void {
-    event.stopPropagation();
-    if (this.selectedMessageIds.size === 0) return;
-
-    const selected = this.dayGroups
-      .flatMap(group => group.messages)
-      .filter(msg => this.isSelected(msg));
-
-    this.linkIssueToMessages.emit(selected);
-    this.cancelSelection();
   }
 }

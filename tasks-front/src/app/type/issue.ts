@@ -37,6 +37,7 @@ export class Issue {
   observerIds?:String[];
     attachments?: NgIterable<unknown> & NgIterable<any>;
   planning?: NgIterable<any> & NgIterable<any>;
+  children?: Issue[];
   constructor() {
 
   }

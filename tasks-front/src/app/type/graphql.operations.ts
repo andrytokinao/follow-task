@@ -1918,6 +1918,18 @@ const SEARCH_ISSUES = gql`
         }
         color
       }
+      children {
+        id
+        issueKey
+        summary
+        assigne {
+          id
+          lastName
+          firstName
+          username
+          photo
+        }
+      }
       issueType {
         id
         name
@@ -1995,6 +2007,7 @@ const SEARCH_ISSUES = gql`
         }
       }
     }
+
   }
 `
 const SAVE_EVENT = gql`

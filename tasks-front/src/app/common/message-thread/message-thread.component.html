@@ -47,8 +47,8 @@
               <i class="fas fa-paperclip"></i> Pièce jointe
             </div>
 
-            <!-- Déclencheur du menu de liaison d'issue — masqué en mode sélection,
-                 où la liaison se fait via la barre d'action groupée -->
+            <!-- Déclencheur du menu d'actions — masqué en mode sélection,
+                 où la liaison se fait via la barre du bas. -->
             <button
               class="link-issue-btn"
               *ngIf="!selectionMode"
@@ -60,7 +60,10 @@
             </button>
 
             <mat-menu #messageActionsMenu="matMenu" class="message-actions-menu">
-              <button mat-menu-item (click)="onLinkIssue(msg, $event)">
+              <!-- "Lier une issue" ouvre directement l'arborescence des
+                   issues (masters + sous-issues) en sous-menu, sans étape
+                   intermédiaire ni dialogue externe. -->
+              <button mat-menu-item [matMenuTriggerFor]="rootPicker.menu">
                 <i class="fas fa-link"></i>
                 <span>Lier une issue</span>
               </button>
@@ -68,8 +71,14 @@
                 <i class="fas fa-check-double"></i>
                 <span>Sélectionner plusieurs</span>
               </button>
-              <!-- futures actions : répondre, copier, etc. -->
             </mat-menu>
+
+            <app-issue-picker-menu
+              #rootPicker
+              [issues]="masters"
+              (issuesSelected)="onIssuesPickedForSingle(msg, $event)"
+              (createSubIssueRequested)="onCreateSubIssueRequested($event)"
+            ></app-issue-picker-menu>
 
             <!-- Issues liées : unique zone d'affichage, à l'intérieur de la card -->
             <div class="issue-chip-row" *ngIf="hasIssues(msg)">
@@ -153,10 +162,16 @@
     <button
       class="selection-link-btn"
       [disabled]="selectedMessageIds.size === 0"
-      (click)="onLinkSelectedIssues($event)"
+      [matMenuTriggerFor]="selectionRootPicker.menu"
     >
       <i class="fas fa-link"></i>
       <span>Lier une issue</span>
     </button>
+    <app-issue-picker-menu
+      #selectionRootPicker
+      [issues]="masters"
+      (issuesSelected)="onIssuesPickedForSelection($event)"
+      (createSubIssueRequested)="onCreateSubIssueRequested($event)"
+    ></app-issue-picker-menu>
   </div>
 </div>
