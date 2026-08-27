@@ -18,7 +18,7 @@ import {
   LINK_ISSUE_TO_MESSAGE,
   UNLINK_ISSUE_FROM_MESSAGE,
   LINK_ISSUE_TO_CANAL,
-  UNLINK_ISSUE_FROM_CANAL,
+  UNLINK_ISSUE_FROM_CANAL, LIST_MESSAGES_ENTITY,
 } from '../type/graphql.operations';
 
 import {
@@ -33,6 +33,7 @@ import {
 } from '../models/messaging.model';
 
 import { CanallInterne, CanalWatcherInfo } from '../models/canal-watcher.model';
+import {MessageApp} from "../type/issue";
 
 @Injectable({ providedIn: 'root' })
 export class MessagingService {
@@ -69,6 +70,13 @@ export class MessagingService {
       variables: { type, canalExternalId, query: { page: 0, size: 50, ...query } },
       fetchPolicy: 'network-only',
     }).pipe(map(r => r.data.listMessages));
+  }
+  listMessagesEntity(type: TypeCanal, canalExternalId: string, query: Partial<MessageQuery> = {}): Observable<MessageApp[]> {
+    return this.apollo.query<{ listMessagesEntity: MessageApp[] }>({
+      query: LIST_MESSAGES_ENTITY,
+      variables: { type, canalExternalId, query: { page: 0, size: 50, ...query } },
+      fetchPolicy: 'network-only',
+    }).pipe(map(r => r.data.listMessagesEntity));
   }
 
   getMessage(type: TypeCanal, externalMessageId: string): Observable<MessageDto> {
@@ -160,7 +168,7 @@ export class MessagingService {
     }).pipe(map(r => r.data!.linkIssueToCanal));
   }
 
-  unlinkIssueFromCanal(linkId: string): Observable<boolean> {
+  unlinkIssueFromCanal(linkId: number): Observable<boolean> {
     return this.apollo.mutate<{ unlinkIssueFromCanal: boolean }>({
       mutation: UNLINK_ISSUE_FROM_CANAL,
       variables: { linkId },

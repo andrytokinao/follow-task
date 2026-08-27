@@ -39,7 +39,7 @@ public class MessagingDataServiceImpl implements MessagingDataService {
 
     @Override
     public CanalDto getCanal(TypeCanal type, String externalId) {
-        Canall canall = canallRepository.findByExternalIdAfterAndTypeCanal(externalId, type)
+        Canall canall = canallRepository.findByExternalIdAndTypeCanal(externalId, type)
                 .orElseThrow(() -> new IllegalStateException("Canal introuvable : " + externalId));
 
         List<CanalContact> links = canalContactRepository.findByCanall(canall);
@@ -48,6 +48,13 @@ public class MessagingDataServiceImpl implements MessagingDataService {
 
     @Override
     public Page<MessageDto> listMessages(TypeCanal type, String canalExternalId, MessageQueryDto query) {
+
+        Page<MessageApp> page = listMessagesEntity(type, canalExternalId, query);
+        return page.map(mapper::toMessageDto);
+    }
+
+    @Override
+    public Page<MessageApp> listMessagesEntity(TypeCanal type, String canalExternalId, MessageQueryDto query) {
         Canall canall = canallRepository.findByExternalIdAndTypeCanal(canalExternalId, type)
                 .orElseThrow(() -> new IllegalStateException("Canal introuvable : " + canalExternalId));
 
@@ -58,8 +65,7 @@ public class MessagingDataServiceImpl implements MessagingDataService {
                 ? messageAppRepository.findByCanallAndCreatedBetween(
                 canall, query.getSince(), query.getUntil(), pageable)
                 : messageAppRepository.findByCanall(canall, pageable);
-
-        return page.map(mapper::toMessageDto);
+        return page;
     }
 
     @Override

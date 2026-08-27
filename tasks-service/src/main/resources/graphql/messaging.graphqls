@@ -22,7 +22,7 @@ type Member {
   externalUserId: String!
   displayName: String
   phoneOrContact: String
-  admin: Boolean!
+  admin: Boolean
   contactId: ID
   userAppId: ID
 }
@@ -42,7 +42,7 @@ type Attachment {
   createdAt: String
 }
 
-type Message {
+type MessageDto {
   externalMessageId: String!
   canalExternalId: String!
   text: String
@@ -57,19 +57,43 @@ type Message {
   messageLinks: [IssueMessageLink]
 }
 
+type MessageApp {
+  id: ID!
+  externalMessageId: String
+  canalExternalId:String
+  canall: Canal!
+  created: String!
+  text: String!
+  mediaType: String
+  sender: UserApp
+  fallbackSenderName: String
+  processed: Boolean!
+  messageLinks: [IssueMessageLink!]
+  userReades: [ID!]
+}
+
+input MessageAppInput {
+  id: ID
+  canall: CanallInput
+  created: String
+  text: String
+  sender: UserAppInput
+  userReades: [ID]
+}
+
 type Canal {
-  externalId: String!
-  pseudo: String!
-  typeCanal: TypeCanal!
-  isGroup: Boolean!
-  unreadCount: Int!
-  messageCount: Int!
+  externalId: String
+  pseudo: String
+  typeCanal: TypeCanal
+  isGroup: Boolean
+  unreadCount: Int
+  messageCount: Int
   description: String
   ownerExternalId: String
   memberCount: Int
   avatarUrl: String
-  members: [Member!]
-  lastMessage: Message
+  members: [Member]
+  lastMessage: MessageDto
   issueLinks:[IssueCanalLink]
 }
 
@@ -95,14 +119,15 @@ type CanalWatcherInfo {
 extend type Query {
   listCanaux(type: TypeCanal!): [Canal!]!
   getCanal(type: TypeCanal!, externalId: String!): Canal
-  listMessages(type: TypeCanal!, canalExternalId: String!, query: MessageQueryInput): [Message!]!
+  listMessages(type: TypeCanal!, canalExternalId: String!, query: MessageQueryInput): [MessageDto!]!
+  listMessagesEntity(type: TypeCanal!, canalExternalId: String!, query: MessageQueryInput): [MessageApp!]!
   listAttachments(type: TypeCanal!, canalExternalId: String!): [Attachment!]!
-  getMessage(type: TypeCanal!, externalMessageId: String!): Message
+  getMessage(type: TypeCanal!, externalMessageId: String!): MessageDto
   listVisibleCanauxForUser(userId: String!): [Canall!]!
 }
 
 extend type Mutation {
-  sendExternalMessage(type: TypeCanal!, canalExternalId: String!, input: SendMessageInput!): Message!
+  sendExternalMessage(type: TypeCanal!, canalExternalId: String!, input: SendMessageInput!): MessageDto!
   syncCanal(type: TypeCanal!): Boolean!
   grantCanalAccess(canalId: ID!, userId: String!, reason: String): CanalWatcherInfo!
   revokeCanalAccess(canalId: ID!, userId: String!): Boolean!
@@ -116,7 +141,7 @@ extend type Mutation {
 type IssueMessageLink {
   id: ID
   issue: Issue
-  message: Message
+  message: MessageDto
   linkedAt: String
   linkedBy: UserApp
 }

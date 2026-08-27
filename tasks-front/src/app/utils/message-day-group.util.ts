@@ -1,15 +1,16 @@
 
 import { MessageDto, MessageDayGroup } from '../models/messaging.model';
+import {MessageApp} from "../type/issue";
 
-export function groupMessagesByDay(messages: MessageDto[]): MessageDayGroup[] {
-  const groups = new Map<string, MessageDto[]>();
+export function groupMessagesByDay(messages: MessageApp[]): MessageDayGroup[] {
+  const groups = new Map<string, MessageApp[]>();
 
   const sorted = [...messages].sort(
-    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    (a, b) => new Date(a.created).getTime() - new Date(b.created).getTime()
   );
 
   for (const msg of sorted) {
-    const iso = new Date(msg.createdAt).toISOString().slice(0, 10); // YYYY-MM-DD
+    const iso = new Date(msg.created).toISOString().slice(0, 10); // YYYY-MM-DD
     if (!groups.has(iso)) groups.set(iso, []);
     groups.get(iso)!.push(msg);
   }

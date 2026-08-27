@@ -2,6 +2,7 @@
 
 import { Injectable } from '@angular/core';
 import { MessageDto } from '../models/messaging.model';
+import {MessageApp} from "../type/issue";
 
 const DB_NAME = 'followtask-messaging';
 const DB_VERSION = 1;
@@ -34,16 +35,16 @@ export class MessageCacheService {
     });
   }
 
-  async getMessages(canalExternalId: string): Promise<MessageDto[]> {
+  async getMessages(canalExternalId: string): Promise<MessageApp[]> {
     const db = await this.dbPromise;
-    return new Promise<MessageDto[]>((resolve, reject) => {
+    return new Promise<MessageApp[]>((resolve, reject) => {
       const tx = db.transaction(STORE_MESSAGES, 'readonly');
       const index = tx.objectStore(STORE_MESSAGES).index('byCanal');
       const request = index.getAll(IDBKeyRange.only(canalExternalId));
 
       request.onsuccess = () => {
-        const messages = (request.result as MessageDto[]).sort(
-          (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        const messages = (request.result as MessageApp[]).sort(
+          (a, b) => new Date(a.created).getTime() - new Date(b.created).getTime()
         );
         resolve(messages);
       };
@@ -51,13 +52,13 @@ export class MessageCacheService {
     });
   }
 
-  async saveMessages(messages: MessageDto[]): Promise<void> {
+  async saveMessages(messages: MessageApp[]): Promise<void> {
     if (!messages.length) return;
     const db = await this.dbPromise;
     return new Promise<void>((resolve, reject) => {
       const tx = db.transaction(STORE_MESSAGES, 'readwrite');
       const store = tx.objectStore(STORE_MESSAGES);
-      messages.forEach(m => store.put(m));
+      messages.forEach(m =>  store.put(m));
 
       tx.oncomplete = () => resolve();
       tx.onerror = () => reject(tx.error);
@@ -66,7 +67,7 @@ export class MessageCacheService {
 
   async getLastCachedDate(canalExternalId: string): Promise<string | null> {
     const messages = await this.getMessages(canalExternalId);
-    return messages.length ? messages[messages.length - 1].createdAt : null;
+    return messages.length ? messages[messages.length - 1].created : null;
   }
 
   async clearCanal(canalExternalId: string): Promise<void> {

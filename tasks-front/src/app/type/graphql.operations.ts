@@ -3046,6 +3046,42 @@ export const LIST_MESSAGES = gql`
       }
     }
   }
+`;export const LIST_MESSAGES_ENTITY = gql`
+  query listMessagesEntity($type: TypeCanal!, $canalExternalId: String!, $query: MessageQueryInput) {
+    listMessagesEntity(type: $type, canalExternalId: $canalExternalId, query: $query) {
+      externalMessageId
+      canalExternalId
+      fallbackSenderName
+      canall {
+        externalId
+        isGroup
+      }
+      text
+      mediaType
+      sender {
+        id
+        username
+        firstName
+        lastName
+        photo
+      }
+      created
+      messageLinks {
+        id
+        issue {
+          id
+          issueKey
+          summary
+          assigne {
+            id
+            username
+            photo
+            firstName
+          }
+        }
+      }
+    }
+  }
 `;
 
 export const GET_MESSAGE = gql`
@@ -3068,6 +3104,20 @@ export const GET_MESSAGE = gql`
         sizeBytes
         mediaType
         downloadUrl
+      }
+      messageLinks {
+        id
+        linkedAt
+        issue {
+          id
+          summary
+          issueKey
+          assigne {
+            id
+            username
+            photo
+          }
+        }
       }
     }
   }

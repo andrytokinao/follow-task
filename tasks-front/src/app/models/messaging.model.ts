@@ -1,6 +1,6 @@
 // src/app/models/messaging.model.ts
 
-import {Canall, Issue, User} from "../type/issue";
+import {Canall, Issue, MessageApp, User} from "../type/issue";
 
 export enum TypeCanal {
   PROJECT = 'PROJECT',
@@ -35,6 +35,7 @@ export interface MemberDto {
 }
 
 export interface CanalDto {
+  issueLinks: IssueCanalLink[];
   externalId: string;
   pseudo: string;
   typeCanal: TypeCanal;
@@ -96,7 +97,7 @@ export interface MessageQuery {
 export interface MessageDayGroup {
   dateLabel: string;
   isoDate: string;
-  messages: MessageDto[];
+  messages: MessageApp[];
 }
 
 // =====================================================================

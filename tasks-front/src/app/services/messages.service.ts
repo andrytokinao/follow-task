@@ -81,7 +81,7 @@ export class MessagesService {
   getCanall(workspaceId:Number, userIds:String[]) {
 
   }
-  sendMessage(text:String , cannalId:Number) {
+  sendMessage(text:string , cannalId:Number) {
     let newMessage:MessageApp ={
       canall:{id:cannalId,typeCanal:'PROJECT'},
       sender:{id:this.connectedUser.id},

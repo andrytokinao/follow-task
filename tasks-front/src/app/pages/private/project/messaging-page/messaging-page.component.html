@@ -121,7 +121,7 @@
           [isGroup]="activeCanal.isGroup"
           [issueLinksByMessage]="messageIssueLinks"
           (linkIssueToMessage)="onLinkIssueToMessage($event)"
-          (unlinkIssueFromMessage)="unlinkIssue($event)"
+          (unlinkIssueFromMessage)="unlinkMessageLink($event)"
         ></app-message-thread>
       </div>
 
@@ -177,7 +177,7 @@
       </div>
 
       <!-- Membres : repliés par défaut -->
-      <div class="info-section collapsible-section" *ngIf="!loadingDetail && activeCanal.isGroup && canalDetail?.memberCount">
+      <div class="info-section collapsible-section" *ngIf="!loadingDetail && canalDetail?.memberCount">
         <button class="section-toggle" (click)="toggleMembersList()">
           <span class="section-toggle-label">
             <i class="fas fa-users"></i>
@@ -201,7 +201,9 @@
         </div>
       </div>
 
-      <!-- Issues liées : repliées par défaut, chargées à la demande -->
+      <!-- Issues liées : repliées par défaut. Alimentées directement par
+           activeCanal.issueLinks (fourni par LIST_CANAUX), pas de chargement
+           réseau séparé -> pas d'état loading/error ici. -->
       <div class="info-section collapsible-section" *ngIf="!loadingDetail">
         <button class="section-toggle" (click)="toggleIssuesList()">
           <span class="section-toggle-label">
@@ -214,25 +216,14 @@
 
         <div class="section-list issues-list" *ngIf="showIssuesList">
 
-          <div *ngIf="loadingIssues" class="state-message loading">
-            <div class="spinner"></div>
-            <span>Chargement...</span>
-          </div>
-
-          <div *ngIf="!loadingIssues && issuesError" class="state-message error">
-            <span>{{ issuesError }}</span>
-            <button class="retry-btn" (click)="loadIssueLinks()">Réessayer</button>
-          </div>
-
-          <div *ngIf="!loadingIssues && !issuesError && issueLinks.length === 0" class="state-message empty">
+          <div *ngIf="issueLinks.length === 0" class="state-message empty">
             <span>Aucune issue liée</span>
           </div>
 
           <div class="issue-card" *ngFor="let link of issueLinks">
             <div class="issue-card-top">
-              <a class="issue-key" [href]="'link.issue.url'" target="_blank" *ngIf="'link.issue.url'">{{ link.issue.issueKey }}</a>
-              <span class="issue-key" *ngIf="link.issue.issueKey">{{ link.issue.issueKey }}</span>
-              <button class="issue-unlink" (click)="unlinkIssue(link)" title="Retirer le lien">
+              <span class="issue-key">{{ link.issue.issueKey }}</span>
+              <button class="issue-unlink" (click)="unlinkCanalLink(link)" title="Retirer le lien">
                 <i class="fas fa-xmark"></i>
               </button>
             </div>

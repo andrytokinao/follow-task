@@ -795,24 +795,6 @@ enum TypeCanal {
     DEFAULT
 }
 
-type MessageApp {
-    id: ID!
-    canall: Canall!
-    created: String
-    text: String!
-    sender: UserApp!
-    userReades: [ID]
-}
-
-input MessageAppInput {
-    id: ID
-    canall: CanallInput
-    created: String
-    text: String
-    sender: UserAppInput
-    userReades: [ID]
-}
-
 type ResponseApp {
     status:String
     message:String

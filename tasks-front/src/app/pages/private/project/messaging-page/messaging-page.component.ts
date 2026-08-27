@@ -4,168 +4,13 @@ import { debounceTime, distinctUntilChanged, switchMap, catchError, tap, takeUnt
 import { MessagingService } from '../../../../services/messaging.service';
 import { MessageCacheService } from '../../../../services/message-cache.service';
 import {
-  AttachmentDto, CanalDto, IssueMessageLink, IssueStatus, IssueTargetType,
+  AttachmentDto, CanalDto, IssueCanalLink, IssueMessageLink, IssueTargetType,
   MessageDto, SendMessageRequest, TypeCanal,
 } from '../../../../models/messaging.model';
 import { getChannelConfig } from '../../../../models/canal-channel.config';
-import {Issue} from "../../../../type/issue";
+import {Issue, MessageApp, Project} from "../../../../type/issue";
 import {IssueService} from "../../../../services/issue.service";
 import {IssueSearchCriteriaInput} from "../../../../type/issue-search-criteria.util";
-
-// =====================================================================
-// Données de test (simulent un backend "issues" — Jira-like)
-// Utilisées uniquement pour les liens issue<->canal/message (mock non
-// encore branché sur un vrai backend). L'autocomplétion, elle, utilise
-// désormais issueService.searchIssues en temps réel.
-// =====================================================================
-
-const MOCK_ISSUES: Issue[] = [
-  {
-    issueKey: 'PROJ-101',
-    summary: 'Corriger le bug d\'affichage des messages non lus',
-    description: 'Le badge de compteur ne se réinitialise pas correctement après lecture.',
-    status:{
-      id:0,
-      icone:{
-        id:0,
-        typeIcone:'',
-        value:'id'
-      },
-      displayName:'In Progress',
-
-    },
-    completionPercent: 45,
-    assigne: {
-      id:'',
-      username:'rasoa'
-
-    },
-  },
-  {
-    issueKey: 'PROJ-102',
-    summary: 'Ajouter la synchronisation automatique WhatsApp',
-    description: 'Mettre en place un job planifié pour synchroniser les canaux toutes les 5 minutes.',
-    status:{
-      id:0,
-      icone:{
-        id:0,
-        typeIcone:'',
-        value:'id'
-      },
-      displayName:'In Progress',
-
-    },
-    completionPercent: 80,
-    assigne: {
-      id:'',
-      username:'rasoa'
-
-    },
-  },
-  {
-    issueKey: 'PROJ-103',
-    summary: 'Refonte de la page messagerie (3 colonnes)',
-    description: 'Nouvelle disposition avec panneau d\'informations repliable.',
-    status:{
-      id:0,
-      icone:{
-        id:0,
-        typeIcone:'',
-        value:'id'
-      },
-      displayName:'In Progress',
-
-    },
-    completionPercent: 20,
-    assigne: {
-      id:'',
-      username:'rasoa'
-
-    },
-  },
-  {
-    issueKey: 'PROJ-104',
-    summary: 'Export des pièces jointes en PDF',
-    description: 'Permettre l\'export groupé des fichiers partagés d\'une conversation.',
-    status:{
-      id:0,
-      icone:{
-        id:0,
-        typeIcone:'',
-        value:'id'
-      },
-      displayName:'In Progress',
-
-    },
-    completionPercent: 100,
-    assigne: {
-      id:'',
-      username:'rasoa'
-
-    },
-  },
-  {
-    issueKey: 'PROJ-105',
-    summary: 'Notifications push en temps réel',
-    description: 'Intégration WebSocket pour les nouveaux messages.',
-    status:{
-      id:0,
-      icone:{
-        id:0,
-        typeIcone:'',
-        value:'id'
-      },
-      displayName:'In Progress',
-
-    },
-    completionPercent: 5,
-    assigne: {
-      id:'',
-      username:'rasoa'
-
-    },
-  },
-  {
-    issueKey: 'SUP-42',
-    summary: 'Client signale une réponse tardive sur Instagram',
-    status:{
-      id:0,
-      icone:{
-        id:0,
-        typeIcone:'',
-        value:'id'
-      },
-      displayName:'In Progress',
-
-    },
-    completionPercent: 0,
-    assigne: {
-      id:'',
-      username:'rasoa'
-
-    },
-  },
-  {
-    issueKey: 'SUP-58',
-    summary: 'Doublon de conversation après resynchronisation',
-    status:{
-      id:0,
-      icone:{
-        id:0,
-        typeIcone:'',
-        value:'id'
-      },
-      displayName:'In Progress',
-
-    },
-    completionPercent: 60,
-    assigne: {
-      id:'',
-      username:'rasoa'
-
-    },
-  },
-];
 
 @Component({
   selector: 'app-messaging-page',
@@ -184,7 +29,7 @@ export class MessagingPageComponent implements OnInit, OnDestroy {
   listError: string | null = null;
 
   activeCanal: CanalDto | null = null;
-  messages: MessageDto[] = [];
+  messages: MessageApp[] = [];
   loadingMessages = false;
   messagesError: string | null = null;
   draftText = '';
@@ -204,15 +49,18 @@ export class MessagingPageComponent implements OnInit, OnDestroy {
 
   // -------------------------------------------------------------------
   // Issues liées — Canal (colonne droite)
+  // Alimenté directement par activeCanal.issueLinks (déjà renvoyé par
+  // LIST_CANAUX), aucune requête séparée nécessaire.
   // -------------------------------------------------------------------
 
-  issueLinks: IssueMessageLink[] = [];
-  loadingIssues = false;
-  issuesError: string | null = null;
+  issueLinks: IssueCanalLink[] = [];
   showIssuesList = false;
+  linkingIssue = false;
 
   // -------------------------------------------------------------------
   // Issues liées — Messages (fil central)
+  // Alimenté directement par message.messageLinks (déjà renvoyé par
+  // LIST_MESSAGES), aucune requête séparée nécessaire.
   // -------------------------------------------------------------------
 
   messageIssueLinks: Map<string, IssueMessageLink[]> = new Map();
@@ -228,15 +76,10 @@ export class MessagingPageComponent implements OnInit, OnDestroy {
   searchingIssues = false;
   linkingIssueKey: String | null = null;
 
-  // Sujet RxJS pilotant la recherche temps réel (remplace l'ancien
-  // setTimeout + filtre sur MOCK_ISSUES)
+  // Sujet RxJS pilotant la recherche temps réel
   private issueSearch$ = new Subject<string>();
   private destroy$ = new Subject<void>();
-
-  // Store local simulant le backend "issue links" (targetType:targetId -> links[])
-  // Reste sur mock : uniquement les liens issue<->canal/message, pas la recherche.
-  private issueLinksStore = new Map<string, IssueMessageLink[]>();
-  private linkIdCounter = 1000;
+  private project: Project;
 
   constructor(
     private messaging: MessagingService,
@@ -257,7 +100,8 @@ export class MessagingPageComponent implements OnInit, OnDestroy {
           return of<Issue[]>([]);
         }
         const criteria: IssueSearchCriteriaInput = {
-          textSearch: term
+          textSearch: term,
+          projectId:this.project.id
         };
         return this.issueService.searchIssues(criteria, null as any).pipe(
           catchError(err => {
@@ -271,6 +115,9 @@ export class MessagingPageComponent implements OnInit, OnDestroy {
       this.issueSearchResults = results;
       this.searchingIssues = false;
     });
+    this.issueService.project$.subscribe(p=> {
+      this.project = p;
+    })
   }
 
   ngOnInit(): void {
@@ -298,6 +145,16 @@ export class MessagingPageComponent implements OnInit, OnDestroy {
         );
         this.applyFilter();
         this.loadingList = false;
+
+        // Garde la conversation active synchronisée avec la nouvelle référence
+        // de la liste (issueLinks à jour) si elle est toujours ouverte.
+        if (this.activeCanal) {
+          const refreshed = this.canaux.find(c => c.externalId === this.activeCanal!.externalId);
+          if (refreshed) {
+            this.activeCanal = refreshed;
+            this.issueLinks = refreshed.issueLinks ?? [];
+          }
+        }
       },
       error: (err) => {
         console.error('Erreur listCanaux:', err);
@@ -354,8 +211,7 @@ export class MessagingPageComponent implements OnInit, OnDestroy {
     this.attachmentsError = null;
     this.showAttachmentsList = false;
 
-    this.issueLinks = [];
-    this.issuesError = null;
+    this.issueLinks = canal.issueLinks ?? [];
     this.showIssuesList = false;
     this.messageIssueLinks = new Map();
 
@@ -376,7 +232,7 @@ export class MessagingPageComponent implements OnInit, OnDestroy {
       since = undefined;
     }
 
-    this.messaging.listMessages(this.channelType, canal.externalId, { since }).subscribe({
+    this.messaging.listMessagesEntity(this.channelType, canal.externalId, { since }).subscribe({
       next: async (fresh) => {
         try {
           await this.cache.saveMessages(fresh);
@@ -502,76 +358,29 @@ export class MessagingPageComponent implements OnInit, OnDestroy {
 
   // ---------------------------------------------------------------------
   // Issues liées — Canal
-  // (implémentation mockée en mémoire ; à remplacer par messaging.service
-  //  une fois les endpoints backend disponibles : listIssueLinks / linkIssue / unlinkIssue)
+  // Les données sont déjà présentes sur activeCanal.issueLinks (renvoyées
+  // par LIST_CANAUX) : pas besoin de requête réseau supplémentaire.
   // ---------------------------------------------------------------------
 
   toggleIssuesList(): void {
     this.showIssuesList = !this.showIssuesList;
-    if (this.showIssuesList && this.issueLinks.length === 0 && !this.issuesError) {
-      this.loadIssueLinks();
-    }
-  }
-
-  loadIssueLinks(): void {
-    if (!this.activeCanal) return;
-    this.loadingIssues = true;
-    this.issuesError = null;
-
-    const targetId = this.activeCanal.externalId;
-
-    // Simule un appel réseau
-    setTimeout(() => {
-      try {
-        this.issueLinks = this.getOrSeedLinks('CANAL', targetId);
-        this.loadingIssues = false;
-      } catch (err) {
-        console.error('Erreur loadIssueLinks:', err);
-        this.issuesError = 'Impossible de charger les issues liées.';
-        this.loadingIssues = false;
-      }
-    }, 350);
   }
 
   // ---------------------------------------------------------------------
   // Issues liées — Message
   // ---------------------------------------------------------------------
 
-  onLinkIssueToMessage(message: MessageDto): void {
+  onLinkIssueToMessage(message: MessageApp): void {
     this.openIssuePicker('MESSAGE', message.externalMessageId, message.text?.slice(0, 40) ?? undefined);
   }
 
   private rebuildMessageIssueLinks(): void {
     const map = new Map<string, IssueMessageLink[]>();
     for (const msg of this.messages) {
-      const links = this.issueLinksStore.get(this.storeKey('MESSAGE', msg.externalMessageId));
-      if (links?.length) map.set(msg.externalMessageId, links);
-    }
-
-    // Démo : lie automatiquement une issue fictive au premier message entrant
-    // de la conversation active, pour visualiser le badge sans clic manuel.
-    if (map.size === 0 && this.messages.length > 0) {
-      const target = this.messages.find(m => !m.fromMe) ?? this.messages[0];
-      const demoKey = this.storeKey('MESSAGE', target.externalMessageId);
-      if (!this.issueLinksStore.has(demoKey)) {
-        const demoIssue = MOCK_ISSUES[Math.floor(Math.random() * MOCK_ISSUES.length)];
-        const demoLink: IssueMessageLink = {
-          id: `${demoKey}-demo`,
-          issue: demoIssue,
-          targetType: 'MESSAGE',
-          targetId: target.externalMessageId,
-          linkedAt: new Date().toISOString(),
-          linkedBy: {
-            id:'er',
-            username:'Vous'
-
-          } ,
-        };
-        this.issueLinksStore.set(demoKey, [demoLink]);
-        map.set(target.externalMessageId, [demoLink]);
+      if (msg.messageLinks?.length) {
+        map.set(msg.externalMessageId, msg.messageLinks);
       }
     }
-
     this.messageIssueLinks = map;
   }
 
@@ -599,58 +408,86 @@ export class MessagingPageComponent implements OnInit, OnDestroy {
   }
 
   confirmLinkIssue(issue: Issue): void {
-    if (!this.issuePickerContext) return;
+    if (!this.issuePickerContext || this.linkingIssue) return;
     const { type, targetId } = this.issuePickerContext;
 
-    const key = this.storeKey(type, targetId);
-    const existing = this.issueLinksStore.get(key) ?? [];
-    if (existing.some(l => l.issue.issueKey === issue.issueKey)) {
-      this.closeIssuePicker();
-      return;
+    if (type === 'CANAL') {
+      if (this.issueLinks.some(l => l.issue.issueKey === issue.issueKey)) {
+        this.closeIssuePicker();
+        return;
+      }
+    } else {
+      const existing = this.messageIssueLinks.get(targetId) ?? [];
+      if (existing.some(l => l.issue.issueKey === issue.issueKey)) {
+        this.closeIssuePicker();
+        return;
+      }
     }
 
     this.linkingIssueKey = issue.issueKey;
+    this.linkingIssue = true;
 
-    setTimeout(() => {
-      const newLink: IssueMessageLink = {
-        id: `link-${this.linkIdCounter++}`,
-        issue,
-        targetType: type,
-        targetId,
-        linkedAt: new Date().toISOString(),
-        linkedBy: {
-          id:'er',
-          username:'Vous'
-
-        } ,
-      };
-
-      const links = [...existing, newLink];
-      this.issueLinksStore.set(key, links);
-
-      if (type === 'CANAL' && this.activeCanal?.externalId === targetId) {
-        this.issueLinks = links;
-      } else if (type === 'MESSAGE') {
-        this.rebuildMessageIssueLinks();
-      }
-
+    const onError = (err: any) => {
+      console.error('Erreur linkIssue:', err);
       this.linkingIssueKey = null;
-      this.closeIssuePicker();
-    }, 400);
+      this.linkingIssue = false;
+    };
+
+    if (type === 'CANAL') {
+      this.messaging.linkIssueToCanal(issue.id!, targetId).subscribe({
+        next: (link) => {
+          this.issueLinks = [...this.issueLinks, link];
+          if (this.activeCanal) {
+            this.activeCanal.issueLinks = this.issueLinks;
+          }
+          this.linkingIssueKey = null;
+          this.linkingIssue = false;
+          this.closeIssuePicker();
+        },
+        error: onError,
+      });
+    } else {
+      this.messaging.linkIssueToMessage(issue.id!, targetId).subscribe({
+        next: (link) => {
+          const message = this.messages.find(m => m.externalMessageId === targetId);
+          if (message) {
+            message.messageLinks = [...(message.messageLinks ?? []), link];
+          }
+          this.rebuildMessageIssueLinks();
+          this.linkingIssueKey = null;
+          this.linkingIssue = false;
+          this.closeIssuePicker();
+        },
+        error: onError,
+      });
+    }
   }
 
-  unlinkIssue(link: IssueMessageLink): void {
+  unlinkCanalLink(link: IssueCanalLink): void {
     if (!confirm(`Retirer le lien vers l'issue ${link.issue.issueKey} ?`)) return;
 
-    const key = this.storeKey(link.targetType, link.targetId);
-    const links = (this.issueLinksStore.get(key) ?? []).filter(l => l.id !== link.id);
-    this.issueLinksStore.set(key, links);
+    this.messaging.unlinkIssueFromCanal(link.id).subscribe({
+      next: (ok) => {
+        if (!ok) return;
+        this.issueLinks = this.issueLinks.filter(l => l.id !== link.id);
+        if (this.activeCanal) {
+          this.activeCanal.issueLinks = this.issueLinks;
+        }
+      },
+      error: (err) => console.error('Erreur unlinkIssueFromCanal:', err),
+    });
+  }
 
-    if (link.targetType === 'CANAL' && this.activeCanal?.externalId === link.targetId) {
-      this.issueLinks = links;
-    } else if (link.targetType === 'MESSAGE') {
-      this.rebuildMessageIssueLinks();
-    }
+  unlinkMessageLink(link: IssueMessageLink): void {
+    if (!confirm(`Retirer le lien vers l'issue ${link.issue.issueKey} ?`)) return;
+
+    this.messaging.unlinkIssueFromMessage(link.id).subscribe({
+      next: (ok) => {
+        if (!ok) return;
+        this.rebuildMessageIssueLinks();
+      },
+      error: (err) => console.error('Erreur unlinkIssueFromMessage:', err),
+    });
   }
 
   progressClass(percent: number | null | undefined): string {
@@ -658,32 +495,5 @@ export class MessagingPageComponent implements OnInit, OnDestroy {
     if (p >= 70) return 'progress-high';
     if (p >= 30) return 'progress-mid';
     return 'progress-low';
-  }
-
-  private storeKey(type: IssueTargetType, targetId: string): string {
-    return `${type}:${targetId}`;
-  }
-
-  private getOrSeedLinks(type: IssueTargetType, targetId: string): IssueMessageLink[] {
-    const key = this.storeKey(type, targetId);
-    if (!this.issueLinksStore.has(key)) {
-      // Pré-remplit avec 0 à 2 issues aléatoires pour la démo
-      const count = Math.floor(Math.random() * 3);
-      const shuffled = [...MOCK_ISSUES].sort(() => 0.5 - Math.random());
-      const seeded: IssueMessageLink[] = shuffled.slice(0, count).map((issue, i) => ({
-        id: `${key}-seed-${i}`,
-        issue,
-        targetType: type,
-        targetId,
-        linkedAt: new Date(Date.now() - i * 86400000).toISOString(),
-        linkedBy: {
-          id:'er',
-          username:'Vous'
-
-        } ,
-      }));
-      this.issueLinksStore.set(key, seeded);
-    }
-    return this.issueLinksStore.get(key)!;
   }
 }

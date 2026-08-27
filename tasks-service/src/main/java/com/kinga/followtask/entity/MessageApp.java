@@ -49,4 +49,7 @@ public class MessageApp {
     public List<String> getUserReades() {
         return new ArrayList<>();
     }
+    public String getCanalExternalId(){
+        return this.canall == null? "": this.canall.getExternalId();
+    }
 }

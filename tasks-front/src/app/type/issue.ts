@@ -411,13 +411,20 @@ export interface Canall {
   membersIds?:String[]
 }
 export class MessageApp {
-  id?:Number
-  canall:Canall
-  created?:String
-  text:String
-  sender:User
-  userReades?:String[];
+  id?: number;
+  externalMessageId?: string;
+  canalExternalId?:string;
+  canall?: Canall;
+  created?: string;
+  text: string;
+  mediaType?: string;
+  sender?: User;
+  fallbackSenderName?: string;
+  processed?: boolean;
+  messageLinks?: IssueMessageLink[];
+  userReades?: string[];
 }
+
 export abstract class ActionItem {
   id?:Number
   actionType : 'CHANGE_FIELD' | 'CUSTOM_FIELD' | 'STATUS' | 'ASSIGN'|'ADD_EVENT'| 'CHANGE_PROFILE' | 'UPLOAD' | 'COMMENT' | 'DOCUMENT'

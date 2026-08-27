@@ -1,10 +1,7 @@
 package com.kinga.followtask.web;
 
 import com.kinga.followtask.config.CurrentUserProvider;
-import com.kinga.followtask.entity.IssueCanalLink;
-import com.kinga.followtask.entity.IssueMessageLink;
-import com.kinga.followtask.entity.TypeCanal;
-import com.kinga.followtask.entity.UserApp;
+import com.kinga.followtask.entity.*;
 import com.kinga.followtask.service.messaging.MessagingDataService;
 import com.kinga.followtask.service.messaging.MessagingServiceRegistry;
 import com.kinga.followtask.service.messaging.dto.*;
@@ -54,7 +51,22 @@ public class MessagingGraphQLController {
         Page<MessageDto> page = readService.listMessages(type, canalExternalId, queryDto);
         return page.getContent();
     }
+    @QueryMapping
+    public List<MessageApp> listMessagesEntity(
+            @Argument TypeCanal type,
+            @Argument String canalExternalId,
+            @Argument MessageQueryInput query
+    ) {
+        MessageQueryDto queryDto = MessageQueryDto.builder()
+                .page(query != null && query.page() != null ? query.page() : 0)
+                .size(query != null && query.size() != null ? query.size() : 20)
+                .since(query != null ? query.since() : null)
+                .until(query != null ? query.until() : null)
+                .build();
 
+        Page<MessageApp> page = readService.listMessagesEntity(type, canalExternalId, queryDto);
+        return page.getContent();
+    }
     @QueryMapping
     public MessageDto getMessage(@Argument TypeCanal type, @Argument String externalMessageId) {
         return readService.getMessage(type, externalMessageId);
