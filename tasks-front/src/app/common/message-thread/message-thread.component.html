@@ -1,118 +1,162 @@
-<div class="thread-scroll">
+<div class="thread-container">
+  <div class="thread-scroll" [class.has-selection-bar]="selectionMode">
 
-  <div class="day-group" *ngFor="let group of dayGroups">
-    <div class="day-separator">
-      <span>{{ group.dateLabel }}</span>
-    </div>
+    <div class="day-group" *ngFor="let group of dayGroups">
+      <div class="day-separator">
+        <span>{{ group.dateLabel }}</span>
+      </div>
 
-    <div
-      class="message-row"
-      *ngFor="let msg of group.messages; let i = index"
-      [class.from-me]="isFromMe(msg)"
-    >
-      <app-avatar
-        *ngIf="!isFromMe(msg) && shouldShowAvatar(group.messages, i)"
-        [url]="avatarPhotoFor(msg)"
-        [displayName]="displayNameFor(msg)"
-        style="--avatar-size: 26px"
-      ></app-avatar>
-      <div class="avatar-spacer" *ngIf="!isFromMe(msg) && !shouldShowAvatar(group.messages, i)"></div>
+      <div
+        class="message-row"
+        *ngFor="let msg of group.messages; let i = index"
+        [class.from-me]="isFromMe(msg)"
+        [class.selected]="isSelected(msg)"
+      >
+        <div
+          class="select-check"
+          *ngIf="selectionMode"
+          (click)="toggleSelect(msg, $event)"
+        >
+          <i class="fas fa-check" *ngIf="isSelected(msg)"></i>
+        </div>
 
-      <div class="bubble-wrap">
-        <div class="bubble">
-          <span class="sender-name" *ngIf="isGroup && !isFromMe(msg) && shouldShowAvatar(group.messages, i)">
-            {{ displayNameFor(msg) }}
-          </span>
+        <app-avatar
+          *ngIf="!isFromMe(msg) && shouldShowAvatar(group.messages, i)"
+          [url]="avatarPhotoFor(msg)"
+          [displayName]="displayNameFor(msg)"
+          style="--avatar-size: 26px"
+        ></app-avatar>
+        <div class="avatar-spacer" *ngIf="!isFromMe(msg) && !shouldShowAvatar(group.messages, i)"></div>
 
-          <p class="bubble-text" *ngIf="msg.text">{{ msg.text }}</p>
-          <div class="bubble-attachment" *ngIf="hasAttachment(msg) && !msg.text">
-            <i class="fas fa-paperclip"></i> Pièce jointe
-          </div>
-
-          <!-- Bouton de liaison : visible au survol uniquement si aucune issue liée -->
-          <button
-            class="link-issue-btn"
-            *ngIf="!hasIssues(msg)"
-            (click)="onLinkIssue(msg, $event)"
-            title="Lier une issue"
+        <div class="bubble-wrap">
+          <div
+            class="bubble"
+            (mousedown)="onBubblePressStart(msg)"
+            (mouseup)="onBubblePressEnd()"
+            (mouseleave)="onBubblePressEnd()"
+            (touchstart)="onBubblePressStart(msg)"
+            (touchend)="onBubblePressEnd()"
+            (click)="onBubbleClick(msg, $event)"
           >
-            <i class="fas fa-link"></i>
-          </button>
+            <span class="sender-name" *ngIf="isGroup && !isFromMe(msg) && shouldShowAvatar(group.messages, i)">
+              {{ displayNameFor(msg) }}
+            </span>
 
-          <!-- Issues liées : unique zone d'affichage, à l'intérieur de la card -->
-          <div class="issue-chip-row" *ngIf="hasIssues(msg)">
-            <div
-              class="issue-chip"
-              *ngFor="let link of msg.messageLinks"
-              [class.completed]="isCompleted(link)"
-              (click)="toggleIssuePopover(msg, $event)"
-            >
-              <i class="fas fa-check" *ngIf="isCompleted(link)"></i>
-              <span class="issue-chip-key">{{ link.issue.issueKey }}</span>
-              <div class="issue-chip-progress" *ngIf="!isCompleted(link) && link.issue.currentCompletionPercent !== undefined && link.issue.currentCompletionPercent !== null">
-                <div class="progress-track tiny">
-                  <div
-                    class="progress-fill"
-                    [ngClass]="progressClass(link.issue.currentCompletionPercent)"
-                    [style.width.%]="link.issue.currentCompletionPercent"
-                  ></div>
-                </div>
-                <span class="progress-label tiny">{{ link.issue.currentCompletionPercent }}%</span>
-              </div>
-              <span class="badge-assignee" *ngIf="link.issue.assigne">
-                {{ assigneeInitials(link.issue.assigne.username) }}
-              </span>
+            <p class="bubble-text" *ngIf="msg.text">{{ msg.text }}</p>
+            <div class="bubble-attachment" *ngIf="hasAttachment(msg) && !msg.text">
+              <i class="fas fa-paperclip"></i> Pièce jointe
             </div>
 
-            <button class="add-more-btn" (click)="onLinkIssue(msg, $event)" title="Lier une autre issue">
-              <i class="fas fa-plus"></i>
+            <!-- Déclencheur du menu de liaison d'issue — masqué en mode sélection,
+                 où la liaison se fait via la barre d'action groupée -->
+            <button
+              class="link-issue-btn"
+              *ngIf="!selectionMode"
+              [matMenuTriggerFor]="messageActionsMenu"
+              (click)="$event.stopPropagation()"
+              title="Lier une issue"
+            >
+              <i class="fas fa-link"></i>
             </button>
 
-            <!-- Popover détail -->
-            <div
-              class="issue-popover"
-              *ngIf="openIssuePopoverFor === msg.externalMessageId"
-              (click)="$event.stopPropagation()"
-            >
-              <div class="issue-popover-item" *ngFor="let link of msg.messageLinks">
-                <div class="issue-popover-top">
-                  <span class="issue-key">{{ link.issue.issueKey }}</span>
-                  <div class="issue-popover-actions">
-                    <button class="issue-action-btn delete" (click)="onUnlinkIssue(link, $event)" title="Retirer le lien">
-                      <i class="fas fa-trash"></i>
-                    </button>
-                    <button class="issue-action-btn" (click)="closeIssuePopover()" title="Fermer">
-                      <i class="fas fa-xmark"></i>
-                    </button>
-                  </div>
-                </div>
-                <p class="issue-summary">{{ link.issue.summary }}</p>
-                <p class="issue-assignee-row" *ngIf="link.issue.assigne">
-                  <i class="fas fa-user"></i> {{ link.issue.assigne.username }}
-                </p>
-                <p class="issue-duration-row" *ngIf="link.issue.elapsedDurationMinutes">
-                  <i class="fas fa-clock"></i> {{ formatDuration(link.issue.elapsedDurationMinutes) }}
-                </p>
-                <div class="issue-progress" *ngIf="link.issue.currentCompletionPercent !== undefined && link.issue.currentCompletionPercent !== null">
-                  <div class="progress-track">
+            <mat-menu #messageActionsMenu="matMenu" class="message-actions-menu">
+              <button mat-menu-item (click)="onLinkIssue(msg, $event)">
+                <i class="fas fa-link"></i>
+                <span>Lier une issue</span>
+              </button>
+              <button mat-menu-item (click)="startSelection(msg, $event)">
+                <i class="fas fa-check-double"></i>
+                <span>Sélectionner plusieurs</span>
+              </button>
+              <!-- futures actions : répondre, copier, etc. -->
+            </mat-menu>
+
+            <!-- Issues liées : unique zone d'affichage, à l'intérieur de la card -->
+            <div class="issue-chip-row" *ngIf="hasIssues(msg)">
+              <div
+                class="issue-chip"
+                *ngFor="let link of msg.messageLinks"
+                [class.completed]="isCompleted(link)"
+                (click)="toggleIssuePopover(msg, $event)"
+              >
+                <i class="fas fa-check" *ngIf="isCompleted(link)"></i>
+                <span class="issue-chip-key">{{ link.issue.issueKey }}</span>
+                <div class="issue-chip-progress" *ngIf="!isCompleted(link) && link.issue.currentCompletionPercent !== undefined && link.issue.currentCompletionPercent !== null">
+                  <div class="progress-track tiny">
                     <div
                       class="progress-fill"
                       [ngClass]="progressClass(link.issue.currentCompletionPercent)"
                       [style.width.%]="link.issue.currentCompletionPercent"
                     ></div>
                   </div>
-                  <span class="progress-label">{{ link.issue.currentCompletionPercent }}%</span>
+                  <span class="progress-label tiny">{{ link.issue.currentCompletionPercent }}%</span>
+                </div>
+                <span class="badge-assignee" *ngIf="link.issue.assigne">
+                  {{ assigneeInitials(link.issue.assigne.username) }}
+                </span>
+              </div>
+
+              <!-- Popover détail -->
+              <div
+                class="issue-popover"
+                *ngIf="openIssuePopoverFor === msg.externalMessageId"
+                (click)="$event.stopPropagation()"
+              >
+                <div class="issue-popover-item" *ngFor="let link of msg.messageLinks">
+                  <div class="issue-popover-top">
+                    <span class="issue-key">{{ link.issue.issueKey }}</span>
+                    <div class="issue-popover-actions">
+                      <button class="issue-action-btn delete" (click)="onUnlinkIssue(link, $event)" title="Retirer le lien">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                      <button class="issue-action-btn" (click)="closeIssuePopover()" title="Fermer">
+                        <i class="fas fa-xmark"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <p class="issue-summary">{{ link.issue.summary }}</p>
+                  <p class="issue-assignee-row" *ngIf="link.issue.assigne">
+                    <i class="fas fa-user"></i> {{ link.issue.assigne.username }}
+                  </p>
+                  <p class="issue-duration-row" *ngIf="link.issue.elapsedDurationMinutes">
+                    <i class="fas fa-clock"></i> {{ formatDuration(link.issue.elapsedDurationMinutes) }}
+                  </p>
+                  <div class="issue-progress" *ngIf="link.issue.currentCompletionPercent !== undefined && link.issue.currentCompletionPercent !== null">
+                    <div class="progress-track">
+                      <div
+                        class="progress-fill"
+                        [ngClass]="progressClass(link.issue.currentCompletionPercent)"
+                        [style.width.%]="link.issue.currentCompletionPercent"
+                      ></div>
+                    </div>
+                    <span class="progress-label">{{ link.issue.currentCompletionPercent }}%</span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div class="bubble-meta">
-            <span class="bubble-time">{{ msg.created | date:'shortTime' }}</span>
+            <div class="bubble-meta">
+              <span class="bubble-time">{{ msg.created | date:'shortTime' }}</span>
+            </div>
           </div>
         </div>
       </div>
     </div>
+
   </div>
 
+  <div class="selection-bar" *ngIf="selectionMode">
+    <button class="selection-cancel" (click)="cancelSelection()" title="Annuler">
+      <i class="fas fa-xmark"></i>
+    </button>
+    <span class="selection-count">{{ selectedMessageIds.size }} sélectionné(s)</span>
+    <button
+      class="selection-link-btn"
+      [disabled]="selectedMessageIds.size === 0"
+      (click)="onLinkSelectedIssues($event)"
+    >
+      <i class="fas fa-link"></i>
+      <span>Lier une issue</span>
+    </button>
+  </div>
 </div>

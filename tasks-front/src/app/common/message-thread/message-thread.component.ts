@@ -1,14 +1,17 @@
 import { Component, EventEmitter, HostListener, Input, OnChanges, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatMenuModule } from '@angular/material/menu';
 import { AvatarComponent } from '../avatar/avatar.component';
 import {MessageDto, MessageDayGroup, IssueMessageLink} from '../../models/messaging.model';
 import { groupMessagesByDay } from '../../utils/message-day-group.util';
 import {MessageApp} from "../../type/issue";
 
+const LONG_PRESS_MS = 450;
+
 @Component({
   selector: 'app-message-thread',
   standalone: true,
-  imports: [CommonModule, AvatarComponent],
+  imports: [CommonModule, AvatarComponent, MatMenuModule],
   templateUrl: './message-thread.component.html',
   styleUrls: ['./message-thread.component.scss'],
 })
@@ -20,12 +23,20 @@ export class MessageThreadComponent implements OnChanges {
   @Input() issueLinksByMessage: Map<string, IssueMessageLink[]> = new Map();
 
   @Output() linkIssueToMessage = new EventEmitter<MessageApp>();
+  @Output() linkIssueToMessages = new EventEmitter<MessageApp[]>();
   @Output() unlinkIssueFromMessage = new EventEmitter<IssueMessageLink>();
 
   dayGroups: MessageDayGroup[] = [];
 
   // Id du message dont le popover d'issue est ouvert
   openIssuePopoverFor: string | null = null;
+
+  // ---- Mode sélection multiple ----
+  selectionMode = false;
+  selectedMessageIds = new Set<string>();
+
+  private longPressTimer: ReturnType<typeof setTimeout> | null = null;
+  private longPressTriggered = false;
 
   ngOnChanges(): void {
     // Les messages arrivent sous deux formes selon leur origine (DB locale
@@ -106,6 +117,7 @@ export class MessageThreadComponent implements OnChanges {
 
   toggleIssuePopover(message: MessageApp, event: Event): void {
     event.stopPropagation();
+    if (this.selectionMode) return;
     this.openIssuePopoverFor = this.openIssuePopoverFor === message.externalMessageId
       ? null
       : message.externalMessageId ?? null;
@@ -168,5 +180,89 @@ export class MessageThreadComponent implements OnChanges {
 
   protected hasAttachment(msg: MessageApp): boolean {
     return !!(msg as any).hasAttachment || !!(msg as any).attachments?.length;
+  }
+
+  // ==================== Sélection multiple ====================
+
+  private keyFor(msg: MessageApp): string {
+    return msg.externalMessageId ?? '';
+  }
+
+  isSelected(msg: MessageApp): boolean {
+    return this.selectedMessageIds.has(this.keyFor(msg));
+  }
+
+  // Appui long sur une bulle : démarre le mode sélection avec ce message
+  // pré-sélectionné. Un simple tap ne doit pas déclencher ce comportement,
+  // d'où le timer annulé sur mouseup/touchend/mouseleave.
+  onBubblePressStart(msg: MessageApp): void {
+    if (this.selectionMode) return;
+    this.longPressTriggered = false;
+    this.clearLongPressTimer();
+    this.longPressTimer = setTimeout(() => {
+      this.longPressTriggered = true;
+      this.startSelection(msg);
+    }, LONG_PRESS_MS);
+  }
+
+  onBubblePressEnd(): void {
+    this.clearLongPressTimer();
+  }
+
+  private clearLongPressTimer(): void {
+    if (this.longPressTimer) {
+      clearTimeout(this.longPressTimer);
+      this.longPressTimer = null;
+    }
+  }
+
+  // Le click qui suit un appui long déjà traité est ignoré (sinon il
+  // rouvrirait/refermerait la sélection juste créée). Hors sélection, un
+  // click normal sur la bulle ne fait rien de spécial.
+  onBubbleClick(msg: MessageApp, event: Event): void {
+    if (this.longPressTriggered) {
+      this.longPressTriggered = false;
+      event.stopPropagation();
+      return;
+    }
+    if (this.selectionMode) {
+      event.stopPropagation();
+      this.toggleSelect(msg);
+    }
+  }
+
+  startSelection(msg: MessageApp, event?: Event): void {
+    event?.stopPropagation();
+    this.closeIssuePopover();
+    this.selectionMode = true;
+    this.selectedMessageIds.clear();
+    this.selectedMessageIds.add(this.keyFor(msg));
+  }
+
+  toggleSelect(msg: MessageApp, event?: Event): void {
+    event?.stopPropagation();
+    const key = this.keyFor(msg);
+    if (this.selectedMessageIds.has(key)) {
+      this.selectedMessageIds.delete(key);
+    } else {
+      this.selectedMessageIds.add(key);
+    }
+  }
+
+  cancelSelection(): void {
+    this.selectionMode = false;
+    this.selectedMessageIds.clear();
+  }
+
+  onLinkSelectedIssues(event: Event): void {
+    event.stopPropagation();
+    if (this.selectedMessageIds.size === 0) return;
+
+    const selected = this.dayGroups
+      .flatMap(group => group.messages)
+      .filter(msg => this.isSelected(msg));
+
+    this.linkIssueToMessages.emit(selected);
+    this.cancelSelection();
   }
 }
