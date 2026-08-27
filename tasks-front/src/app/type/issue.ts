@@ -42,6 +42,8 @@ export class Issue {
   }
   canalLinks?: IssueCanalLink[];
   messageLinks?: IssueMessageLink[];
+  elapsedDurationMinutes?:number;
+  currentCompletionPercent?:number;
 }
 export class User {
   id:string ="";

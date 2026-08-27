@@ -135,7 +135,17 @@ export class MessageThreadComponent implements OnChanges {
   }
 
   isCompleted(link: IssueMessageLink): boolean {
-    return (link.issue.completionPercent ?? 0) >= 100;
+    return (link.issue.currentCompletionPercent ?? 0) >= 100;
+  }
+
+  // Formatte une durée en minutes en texte court : "2h30", "3h", "45min".
+  formatDuration(minutes: number | null | undefined): string {
+    if (!minutes || minutes <= 0) return '';
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    if (h > 0 && m > 0) return `${h}h${m.toString().padStart(2, '0')}`;
+    if (h > 0) return `${h}h`;
+    return `${m}min`;
   }
 
   assigneeInitials(name: string | null | undefined): string {

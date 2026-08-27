@@ -67,6 +67,8 @@ type  Issue {
     project:Project
     labels:[IssueLabels]
     observerIds:[String]
+    elapsedDurationMinutes:Int
+    currentCompletionPercent:Int
 
 }
 

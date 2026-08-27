@@ -49,15 +49,15 @@
             >
               <i class="fas fa-check" *ngIf="isCompleted(link)"></i>
               <span class="issue-chip-key">{{ link.issue.issueKey }}</span>
-              <div class="issue-chip-progress" *ngIf="!isCompleted(link) && link.issue.completionPercent !== undefined && link.issue.completionPercent !== null">
+              <div class="issue-chip-progress" *ngIf="!isCompleted(link) && link.issue.currentCompletionPercent !== undefined && link.issue.currentCompletionPercent !== null">
                 <div class="progress-track tiny">
                   <div
                     class="progress-fill"
-                    [ngClass]="progressClass(link.issue.completionPercent)"
-                    [style.width.%]="link.issue.completionPercent"
+                    [ngClass]="progressClass(link.issue.currentCompletionPercent)"
+                    [style.width.%]="link.issue.currentCompletionPercent"
                   ></div>
                 </div>
-                <span class="progress-label tiny">{{ link.issue.completionPercent }}%</span>
+                <span class="progress-label tiny">{{ link.issue.currentCompletionPercent }}%</span>
               </div>
               <span class="badge-assignee" *ngIf="link.issue.assigne">
                 {{ assigneeInitials(link.issue.assigne.username) }}
@@ -90,15 +90,18 @@
                 <p class="issue-assignee-row" *ngIf="link.issue.assigne">
                   <i class="fas fa-user"></i> {{ link.issue.assigne.username }}
                 </p>
-                <div class="issue-progress" *ngIf="link.issue.completionPercent !== undefined && link.issue.completionPercent !== null">
+                <p class="issue-duration-row" *ngIf="link.issue.elapsedDurationMinutes">
+                  <i class="fas fa-clock"></i> {{ formatDuration(link.issue.elapsedDurationMinutes) }}
+                </p>
+                <div class="issue-progress" *ngIf="link.issue.currentCompletionPercent !== undefined && link.issue.currentCompletionPercent !== null">
                   <div class="progress-track">
                     <div
                       class="progress-fill"
-                      [ngClass]="progressClass(link.issue.completionPercent)"
-                      [style.width.%]="link.issue.completionPercent"
+                      [ngClass]="progressClass(link.issue.currentCompletionPercent)"
+                      [style.width.%]="link.issue.currentCompletionPercent"
                     ></div>
                   </div>
-                  <span class="progress-label">{{ link.issue.completionPercent }}%</span>
+                  <span class="progress-label">{{ link.issue.currentCompletionPercent }}%</span>
                 </div>
               </div>
             </div>

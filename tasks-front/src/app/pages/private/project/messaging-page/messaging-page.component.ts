@@ -217,7 +217,7 @@ export class MessagingPageComponent implements OnInit, OnDestroy {
 
     try {
       const cached = await this.cache.getMessages(canal.externalId);
-      this.messages = cached;
+      // this.messages = cached;
       this.loadingMessages = cached.length === 0;
       this.rebuildMessageIssueLinks();
     } catch (err) {
@@ -227,7 +227,7 @@ export class MessagingPageComponent implements OnInit, OnDestroy {
 
     let since: string | undefined;
     try {
-      since = (await this.cache.getLastCachedDate(canal.externalId)) ?? undefined;
+    //  since = (await this.cache.getLastCachedDate(canal.externalId)) ?? undefined;
     } catch {
       since = undefined;
     }

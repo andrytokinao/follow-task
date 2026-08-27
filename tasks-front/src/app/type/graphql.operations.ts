@@ -3072,6 +3072,8 @@ export const LIST_MESSAGES = gql`
           id
           issueKey
           summary
+          elapsedDurationMinutes
+          currentCompletionPercent
           assigne {
             id
             username
