@@ -113,7 +113,21 @@
               >
                 <div class="issue-popover-item" *ngFor="let link of msg.messageLinks">
                   <div class="issue-popover-top">
-                    <span class="issue-key">{{ link.issue.issueKey }}</span>
+                    <!-- Cliquable seulement si l'issue appartient au projet
+                         courant : sinon on n'a pas le contexte projet pour
+                         l'afficher (cf. IssueService.getIssueUrl). -->
+                    <a
+                      *ngIf="issueUrl(link) as url; else plainKey"
+                      class="issue-key"
+                      [routerLink]="url"
+                      (click)="closeIssuePopover()"
+                    >{{ link.issue.issueKey }}</a>
+                    <ng-template #plainKey>
+                      <span
+                        class="issue-key not-clickable"
+                        title="Issue d'un autre projet"
+                      >{{ link.issue.issueKey }}</span>
+                    </ng-template>
                     <div class="issue-popover-actions">
                       <button class="issue-action-btn delete" (click)="onUnlinkIssue(link, $event)" title="Retirer le lien">
                         <i class="fas fa-trash"></i>

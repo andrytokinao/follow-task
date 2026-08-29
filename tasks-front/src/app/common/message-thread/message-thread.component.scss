@@ -400,6 +400,24 @@ app-issue-picker-menu {
   letter-spacing: 0.02em;
 }
 
+// Variante lien : la clé mène à la page de l'issue.
+a.issue-key {
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+
+  &:hover {
+    background: #E0E7FF;
+    text-decoration: underline;
+  }
+}
+
+// Issue d'un autre projet : affichée en gris, sans interaction.
+.issue-key.not-clickable {
+  color: #9CA3AF;
+  background: #F3F4F6;
+  cursor: default;
+}
+
 .issue-popover-actions {
   display: flex;
   align-items: center;

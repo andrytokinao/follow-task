@@ -28,6 +28,9 @@ const masterRoute: Routes = [
           { path: 'details', component: IssueDetailsComponent },
           { path: 'sources-files', component: DossierSourceComponent },
           { path: 'subtask', component: Subtask2Component },
+          // Lien direct vers une sous-issue précise :
+          // /working/{prefix}/issue/{parentKey}/subtask/{subtaskKey}
+          { path: 'subtask/:subtaskKey', component: Subtask2Component },
           { path: 'planning', component: PlanningComponent },
           { path: 'uploaded', component: UploadedFilesComponent },
           { path: 'comments', component: CommentsComponent },

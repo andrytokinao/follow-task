@@ -1267,9 +1267,73 @@ export class IssueService implements OnInit {
   }
 
 
+  // ==================== URLs de consultation d'une issue ====================
+
+  // Construit l'URL de consultation d'une issue, sans se soucier du projet
+  // courant :
+  //   - issue master (parent null) : /working/{prefix}/issue/{issueKey}/details
+  //   - sous-issue                 : /working/{prefix}/issue/{parentKey}/subtask/{issueKey}
+  // Le préfixe vient du projet de l'issue, à défaut de celui de son parent, à
+  // défaut du projet courant. Renvoie null si les données ne permettent pas de
+  // construire une URL valide.
+  buildIssueUrl(issue: Issue | null | undefined): string | null {
+    if (!issue?.issueKey) return null;
+
+    const prefix = this.projectOf(issue)?.prefix ?? this.projectSubject.value?.prefix;
+    if (!prefix) return null;
+
+    const parent = issue.parent;
+    if (!parent) {
+      return `/working/${prefix}/issue/${issue.issueKey}/details`;
+    }
+    if (!parent.issueKey) return null;
+    return `/working/${prefix}/issue/${parent.issueKey}/subtask/${issue.issueKey}`;
+  }
+
+  // URL cliquable d'une issue : comme buildIssueUrl, mais renvoie null quand
+  // l'issue appartient à un autre projet que le projet courant — l'affichage
+  // doit alors la rendre non cliquable, faute de contexte projet chargé.
+  getIssueUrl(issue: Issue | null | undefined): string | null {
+    if (!this.isInCurrentProject(issue)) return null;
+    return this.buildIssueUrl(issue);
+  }
+
+  isIssueClickable(issue: Issue | null | undefined): boolean {
+    return this.getIssueUrl(issue) !== null;
+  }
+
+  // Navigue vers l'issue si elle est consultable ; ne fait rien sinon.
+  openIssue(issue: Issue | null | undefined): void {
+    const url = this.getIssueUrl(issue);
+    if (url) this.router.navigateByUrl(url);
+  }
+
+  // Projet porteur de l'issue : le sien, à défaut celui de son parent.
+  private projectOf(issue: Issue): Project | undefined {
+    return issue.project ?? issue.parent?.project;
+  }
+
+  private isInCurrentProject(issue: Issue | null | undefined): boolean {
+    if (!issue) return false;
+    const current = this.projectSubject.value;
+    if (!current) return false;
+
+    const project = this.projectOf(issue);
+    // Sans projet sur l'issue, on considère qu'elle vient du contexte courant
+    // (cas des listes chargées pour le projet ouvert).
+    if (!project) return true;
+
+    if (project.id != null && current.id != null) {
+      return String(project.id) === String(current.id);
+    }
+    return project.prefix === current.prefix;
+  }
+
+  // Navigation historique vers la vue "details" d'un master, dans le projet
+  // courant. Conservée telle quelle : appelée depuis le fil d'ariane, le
+  // planning et les listes, qui n'ont pas la contrainte "même projet".
   browsIssueMaster(issue: Issue) {
     this.router.navigate(["working/" + this.projectSubject.value.prefix + "/issue/" + issue.issueKey + "/details"])
-
   }
 
   allIssueType(projectId: Number) {

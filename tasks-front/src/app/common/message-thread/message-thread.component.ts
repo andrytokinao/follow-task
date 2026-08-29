@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatMenuModule } from '@angular/material/menu';
+import { RouterLink } from '@angular/router';
 import { AvatarComponent } from '../avatar/avatar.component';
 import {MessageDto, MessageDayGroup, IssueMessageLink} from '../../models/messaging.model';
 import { groupMessagesByDay } from '../../utils/message-day-group.util';
@@ -24,7 +25,7 @@ const LONG_PRESS_MS = 450;
 @Component({
   selector: 'app-message-thread',
   standalone: true,
-  imports: [CommonModule, AvatarComponent, MatMenuModule, IssuePickerMenuComponent],
+  imports: [CommonModule, AvatarComponent, MatMenuModule, RouterLink, IssuePickerMenuComponent],
   templateUrl: './message-thread.component.html',
   styleUrls: ['./message-thread.component.scss'],
 })
@@ -178,6 +179,13 @@ export class MessageThreadComponent implements OnChanges {
   closeIssuePopover(): void {
     this.openIssuePopoverFor = null;
     this.counters.reset();
+  }
+
+  // URL de consultation de l'issue liée, ou null si elle n'est pas cliquable
+  // (autre projet que le projet courant). La construction est centralisée
+  // dans IssueService.
+  issueUrl(link: IssueMessageLink): string | null {
+    return this.issueService.getIssueUrl(link.issue);
   }
 
   private issueKeyOf(link: IssueMessageLink): string {
