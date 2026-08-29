@@ -1,59 +1,251 @@
-/* Spinner styles */
-.spinner-container {
+/* =========================================================================
+   Liste des demandes — vue cartes
+   ========================================================================= */
+:host {
+  --c-primary: #1565c0;
+  --c-text: #111827;
+  --c-text-muted: #6b7280;
+  --c-text-faint: #9ca3af;
+  --c-border: #e5e7eb;
+  --c-border-soft: #f1f2f4;
+  --c-surface: #ffffff;
+  --c-surface-muted: #f9fafb;
+  --c-error: #c62828;
+  --c-error-bg: #fdecea;
+
+  display: block;
+  font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: var(--c-text);
+}
+
+.master-list {
+  padding: 12px;
+}
+
+/* =========================================================================
+   État vide
+   ========================================================================= */
+.empty-state {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 200px;
+  padding: 48px 16px;
+  border: 1px dashed var(--c-border);
+  border-radius: 12px;
+  background: var(--c-surface);
+  text-align: center;
 }
-
-.spinner {
-  border: 8px solid #f3f3f3; /* Light gray */
-  border-top: 8px solid #3498db; /* Blue */
+.empty-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin-bottom: 12px;
   border-radius: 50%;
-  width: 60px;
-  height: 60px;
-  animation: spin 1s linear infinite;
+  background: var(--c-surface-muted);
+  color: var(--c-text-faint);
+  font-size: 15px;
+}
+.empty-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+.empty-sub {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--c-text-muted);
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* Project list styles */
-.project-list {
+/* =========================================================================
+   Grille
+   -------------------------------------------------------------------------
+   minmax(300px, 1fr) : l'ancienne valeur de 750 px imposait une colonne plus
+   large que l'écran sur mobile et provoquait un débordement horizontal.
+   ========================================================================= */
+.master-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(750px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 12px;
+  align-items: start;
 }
 
-.project-card {
-  background-color: #ffffff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s, box-shadow 0.2s;
+/* =========================================================================
+   Carte
+   ========================================================================= */
+.master-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--c-border);
+  /* Liseré gauche coloré par le statut (getStyleByStatus). */
+  border-left: 3px solid var(--c-border);
+  border-radius: 12px;
+  background: var(--c-surface);
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.master-card:hover {
+  box-shadow: 0 4px 14px rgba(16, 24, 40, 0.08);
 }
 
-.project-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
 }
 
-.project-title {
-  font-size: 1.25rem;
-  font-weight: bold;
-  color: #333333;
+.card-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 7px;
+  border-radius: 5px;
+  background: #eef2ff;
+  color: #4338ca;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
 }
 
-.project-description {
-  font-size: 1rem;
-  color: #666666;
-  margin-top: 10px;
+.card-title {
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--c-text);
+  cursor: pointer;
+  /* Deux lignes maximum : sans ça les titres longs déséquilibrent la grille. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
-.master-item{
-  display: grid;
-  grid-template-columns: auto 300px;
+.card-title:hover {
+  color: var(--c-primary);
 }
-.master-controle{
-   text-align: right;
+
+.card-desc {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--c-text-muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+/* La description vient d'un éditeur riche : on neutralise ses marges et on
+   borne les médias, sinon une image pleine taille casse la carte. */
+.card-desc :is(p, ul, ol, h1, h2, h3, h4) {
+  margin: 0;
+  font-size: inherit;
+  font-weight: inherit;
+}
+.card-desc img {
+  max-width: 100%;
+  height: auto;
+}
+
+.card-fields,
+.card-labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-width: 0;
+}
+
+/* =========================================================================
+   Pied de carte
+   ========================================================================= */
+.card-foot {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 8px;
+  border-top: 1px solid var(--c-border-soft);
+}
+
+.card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+
+.card-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  font-size: 10.5px;
+  color: var(--c-text-faint);
+}
+.card-date i {
+  font-size: 9px;
+}
+
+.card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.card-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 26px;
+  padding: 0 9px;
+  border: 1px solid var(--c-border);
+  border-radius: 6px;
+  background: var(--c-surface);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--c-text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.card-btn i {
+  font-size: 10px;
+}
+.card-btn:hover {
+  background: var(--c-surface-muted);
+  color: var(--c-text);
+  border-color: #d1d5db;
+}
+.card-btn-danger:hover {
+  background: var(--c-error-bg);
+  color: var(--c-error);
+  border-color: #f3bcbc;
+}
+
+/* =========================================================================
+   Responsive
+   ========================================================================= */
+@media (max-width: 640px) {
+  .master-list {
+    padding: 10px 8px;
+  }
+  .master-grid {
+    grid-template-columns: 1fr;
+  }
+  /* Cibles tactiles : 26 px est trop bas pour un doigt. */
+  .card-btn {
+    height: 32px;
+    padding: 0 11px;
+    font-size: 11.5px;
+  }
+  .card-actions {
+    gap: 8px;
+  }
 }

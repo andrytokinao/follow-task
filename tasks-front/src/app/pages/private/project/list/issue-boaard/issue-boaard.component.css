@@ -1,70 +1,366 @@
-.board {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(20px, 1fr));
-  -moz-box-pack: start;
-  justify-content: flex-start;
-  -moz-box-align: stretch;
-  align-items: stretch;
-  user-select: none;
-  padding: 0px 0px 40px 34px;
-  min-width: fit-content;
-  gap: 0px;
-}
-.entete {
-  user-select: none;
-  width: 100%;
-  padding: 20px;
-  max-width: 100%;
-  box-sizing: border-box;
-  height: 48px;
-  position: relative;
-  background-color: #F4F5F7;
-  border-top-left-radius: 6px;
-  border-top-right-radius: 6px;
-  transition: background-color 0.2s ease 0s;
-  cursor: default;
-}
-.column {
-  position: relative;
-  display: flex;
-  margin: 5px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  min-height: 100vh;
-  flex-direction: column;
-  align-self: auto;
-  flex: 1 1 auto;
-  min-width: 182px;
-  max-width: 282px;
-  transition: min-width 300ms ease 0s, max-width 300ms ease-in 0s;
+/* =========================================================================
+   Liste des demandes — vue board (kanban)
+   ========================================================================= */
+:host {
+  --c-primary: #1565c0;
+  --c-primary-bg: #e8f1fb;
+  --c-text: #111827;
+  --c-text-muted: #6b7280;
+  --c-text-faint: #9ca3af;
+  --c-border: #e5e7eb;
+  --c-surface: #ffffff;
+  --c-surface-muted: #f9fafb;
+  --c-column-bg: #f4f5f7;
+
+  --column-width: 272px;
+
+  /* Hauteur du board = viewport moins ce qui le surplombe (barre d'outils du
+     parent + marges). Un seul point de réglage si l'en-tête change.
+     dvh plutôt que vh : sur mobile, vh ignore la barre d'adresse rétractable
+     et coupait le bas des colonnes. */
+  --board-offset: 180px;
+  --board-min-height: 460px;
+
+  display: block;
+  font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: var(--c-text);
 }
 
-.issie-board{
-  margin-top: 5px;
+/* Défilement horizontal porté par un conteneur dédié : c'est le
+   comportement attendu d'un board dès que les colonnes dépassent l'écran,
+   plutôt que de compresser les colonnes jusqu'à l'illisible. */
+.board-wrap {
+  padding: 12px;
+  /* border-box : la hauteur ci-dessous doit inclure le padding, sinon le
+     board dépasse et fait défiler la page entière. */
+  box-sizing: border-box;
+  /* max() garantit un plancher : sur un écran bas (ou un portable 13"), la
+     soustraction seule laissait des colonnes de quelques centimètres. */
+  height: max(var(--board-min-height), calc(100dvh - var(--board-offset)));
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
 }
-.myCard {
-  position: relative;
-  width: 100%;
-  border: 1px solid #ccc;
+
+.board {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  height: 100%;
+  min-width: min-content;
+}
+
+/* =========================================================================
+   Colonne
+   ========================================================================= */
+/* La colonne occupe toute la hauteur du board ; seul son corps défile, donc
+   l'en-tête de statut et le bouton d'ajout restent visibles. */
+.column {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 var(--column-width);
+  width: var(--column-width);
+  height: 100%;
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  background: var(--c-column-bg);
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+/* Retour visuel pendant le glisser-déposer : sans lui, rien n'indique la
+   colonne qui recevra la carte. */
+.column.drag-over {
+  border-color: var(--c-primary);
+  background: var(--c-primary-bg);
+}
+
+.column-head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--c-border);
+}
+
+.column-icon {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  font-size: 12px;
+  color: var(--c-text-muted);
+}
+
+.column-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--c-text-muted);
+}
+
+.column-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: rgba(17, 24, 39, 0.08);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--c-text-muted);
+}
+
+/* flex:1 + min-height:0 : le corps prend toute la hauteur restante de la
+   colonne et défile seul. Sans min-height:0, un enfant flex refuse de
+   rétrécir sous sa taille de contenu et le défilement ne s'active jamais. */
+.column-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-height: 0;
+  padding: 8px;
+  overflow-y: auto;
+}
+
+.column-empty {
+  margin: 0;
+  padding: 14px 0;
+  text-align: center;
+  font-size: 11px;
+  color: var(--c-text-faint);
+}
+
+/* =========================================================================
+   Carte
+   ========================================================================= */
+.issue-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 9px 10px;
+  border: 1px solid var(--c-border);
   border-radius: 8px;
+  background: var(--c-surface);
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+  cursor: grab;
+  transition: box-shadow 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
+}
+.issue-card:hover {
+  box-shadow: 0 4px 12px rgba(16, 24, 40, 0.1);
+}
+.issue-card:active {
+  cursor: grabbing;
+}
+.issue-card.dragging {
+  opacity: 0.5;
+}
+
+.card-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.card-type {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  font-size: 11px;
+  color: var(--c-text-muted);
+}
+
+.card-key {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--c-primary);
+  text-decoration: none;
+}
+.card-key:hover {
+  text-decoration: underline;
+}
+
+.card-title {
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--c-text);
+  /* Trois lignes maximum : les colonnes restent comparables d'un coup d'œil. */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-.content {
-  padding: 10px;
+/* L'avatar était en position absolue et débordait de la carte ; il est
+   maintenant posé dans le flux, aligné à droite. */
+.card-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 }
 
-h3 {
-  margin-top: 0;
+.card-assignee {
+  display: inline-flex;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+  line-height: 0;
+}
+.card-assignee img {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--c-border);
+  transition: border-color 0.15s ease;
+}
+.card-assignee:hover img {
+  border-color: var(--c-primary);
 }
 
-.image {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  width: 30px;
-  height: auto;
-  border-radius: 4px;
+/* =========================================================================
+   Ajout
+   ========================================================================= */
+.add-card {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  height: 32px;
+  border: 1px dashed #cbd0d6;
+  border-radius: 8px;
+  background: transparent;
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--c-text-muted);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
-.active {
-  background-color: #e0e0e0; /* Exemple de couleur de fond pour l'élément actif */
+.add-card i {
+  font-size: 10px;
+}
+.add-card:hover {
+  border-color: var(--c-primary);
+  background: var(--c-surface);
+  color: var(--c-primary);
+}
+
+/* =========================================================================
+   Menu d'affectation
+   ========================================================================= */
+:host ::ng-deep .assign-menu.mat-mdc-menu-panel {
+  min-width: 210px;
+  max-width: 260px;
+}
+:host ::ng-deep .assign-menu .mat-mdc-menu-content {
+  padding: 4px 0;
+}
+
+.assign-title {
+  margin: 0;
+  padding: 4px 14px 8px;
+  border-bottom: 1px solid var(--c-border);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--c-text-muted);
+}
+
+:host ::ng-deep .assign-item.mat-mdc-menu-item {
+  min-height: 36px;
+  padding: 0 12px;
+  font-size: 12px;
+}
+
+/* Material projette le contenu de mat-menu-item dans un
+   .mat-mdc-menu-item-text : c'est CE conteneur qui doit porter la
+   disposition, sinon l'avatar, le nom et la coche restent en flux inline et
+   se chevauchent. */
+:host ::ng-deep .assign-item .mat-mdc-menu-item-text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+:host ::ng-deep .assign-item img {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+:host ::ng-deep .assign-item .mat-mdc-menu-item-text > span {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:host ::ng-deep .assign-item .fa-check {
+  flex-shrink: 0;
+  font-size: 10px;
+  color: var(--c-primary);
+}
+
+:host ::ng-deep .assign-item.active {
+  background: var(--c-primary-bg);
+}
+:host ::ng-deep .assign-item.active .mat-mdc-menu-item-text {
+  color: var(--c-primary);
+  font-weight: 600;
+}
+
+.assign-empty {
+  margin: 0;
+  padding: 14px 0;
+  text-align: center;
+  font-size: 11px;
+  color: var(--c-text-faint);
+}
+
+/* =========================================================================
+   Responsive
+   ========================================================================= */
+@media (max-width: 640px) {
+  :host {
+    /* Colonnes un peu plus étroites, et la suivante reste visible sur le
+       bord de l'écran : l'utilisateur comprend qu'il peut faire défiler. */
+    --column-width: 240px;
+  }
+  .board-wrap {
+    padding: 10px 8px;
+    /* Barre de navigation mobile du parent (position:fixed) + barre d'outils
+       masquée sur mobile : l'espace disponible n'est pas le même. */
+    padding-bottom: 72px;
+    --board-offset: 130px;
+    --board-min-height: 380px;
+  }
+  .card-assignee img {
+    width: 26px;
+    height: 26px;
+  }
 }

@@ -53,15 +53,55 @@ export class IssueBoaardComponent {
       this.issues = issues;
     });*/
     this.essueService.issueMasterList$.subscribe(issues => {
-      this.issues = issues;
+      this.setIssues(issues);
       this.currentWorkflows = this.issueService.getDistinctWorkflows(issues);
       if (this.currentWorkflows != null && this.currentWorkflows.length != 0) {
         this.currentWorkflow = this.currentWorkflows[0];
         this.loadByWorkFlow(this.currentWorkflow);
       }
-      this.issues = issues;
-
     });
+  }
+
+  // Regroupement calculé une fois par changement de liste. Le gabarit
+  // appelait `filterByStatus(status)` deux fois par colonne (cartes +
+  // compteur) : autant de parcours complets du tableau à CHAQUE cycle de
+  // détection de changements.
+  private issuesByStatusId = new Map<number, Issue[]>();
+
+  private setIssues(issues: Issue[]) {
+    this.issues = issues ?? [];
+    this.regroupByStatus();
+  }
+
+  private regroupByStatus() {
+    const grouped = new Map<number, Issue[]>();
+    for (const issue of this.issues) {
+      const statusId = issue.status?.id;
+      if (statusId == null) continue;
+      const bucket = grouped.get(statusId);
+      if (bucket) {
+        bucket.push(issue);
+      } else {
+        grouped.set(statusId, [issue]);
+      }
+    }
+    this.issuesByStatusId = grouped;
+  }
+
+  issuesFor(status: Status): Issue[] {
+    return this.issuesByStatusId.get(status?.id) ?? [];
+  }
+
+  trackByIssue(_index: number, issue: Issue): number | string {
+    return issue.id ?? String(issue.issueKey);
+  }
+
+  trackByStatus(_index: number, status: Status): number {
+    return status.id;
+  }
+
+  trackByUser(_index: number, user: User): string {
+    return user.id;
   }
 
   newIssueTest(status: Status) {
@@ -69,7 +109,9 @@ export class IssueBoaardComponent {
     dialogRef.componentInstance.status = status;
     dialogRef.componentInstance.project = this.project;
     dialogRef.result.then((result) => {
-      this.issues.push(result.issue);
+      // setIssues plutôt qu'un push : le regroupement par statut doit être
+      // recalculé, sinon la nouvelle carte n'apparaît dans aucune colonne.
+      this.setIssues([...this.issues, result.issue]);
       this.essueService.ajouterAuGroupe(this.issuesBoard, result.issue.status, result.issue);
     }).catch((reason) => {
       console.log('modal cancelled' + reason.message);
@@ -81,8 +123,7 @@ export class IssueBoaardComponent {
     dialogRef.componentInstance.allIssueTypes = this.currentWorkflow.allIssueTypes;
     dialogRef.componentInstance.status = status;
     dialogRef.result.then((result) => {
-      this.issues = <Issue[]>stripTypename(result.issues)
-
+      this.setIssues(<Issue[]>stripTypename(result.issues));
     })
   }
 
@@ -100,32 +141,62 @@ export class IssueBoaardComponent {
     return false;
   }
 
+  // Statut actuellement survolé pendant un glisser-déposer.
+  dragOverStatusId: number | null = null;
+
   onDragStart($event: DragEvent, issue: Issue) {
     this.currentIssue = issue;
+    // Sans effectAllowed/setData, Firefox refuse de démarrer le glissement.
+    $event.dataTransfer?.setData('text/plain', String(issue.id ?? ''));
+    if ($event.dataTransfer) $event.dataTransfer.effectAllowed = 'move';
+  }
+
+  onDragEnd() {
+    this.currentIssue = null;
+    this.dragOverStatusId = null;
   }
 
   onDrop($event: DragEvent, status: any) {
-    if (this.currentIssue != null) {
-      this.currentIssue.status = status;
-      this.issueService.saveIssue(this.currentIssue).subscribe({
-          next: (result: any) => {
-            this.currentIssue = (result.data.saveIssue)
-          },
-          error: (err) => {
-            console.error(err)
-          }
-        }
-      );
-
-    }
-  }
-
-  onDragOver($event: DragEvent) {
     $event.preventDefault();
+    this.dragOverStatusId = null;
+
+    const moved = this.currentIssue;
+    if (moved == null) return;
+
+    const previousStatus = moved.status;
+    if (previousStatus?.id === status?.id) {
+      this.currentIssue = null;
+      return;
+    }
+
+    // Déplacement optimiste : la carte change de colonne immédiatement, et
+    // revient à sa place si l'enregistrement échoue.
+    moved.status = status;
+    this.regroupByStatus();
+
+    this.issueService.saveIssue(moved).subscribe({
+      next: () => {
+        this.currentIssue = null;
+      },
+      error: (err) => {
+        console.error(err);
+        moved.status = previousStatus;
+        this.regroupByStatus();
+        this.currentIssue = null;
+      }
+    });
   }
 
-  filterByStatus(status: any): Issue[] {
-    return this.issues.filter(is => is.status != null && is.status.id == status.id);
+  onDragOver($event: DragEvent, status?: any) {
+    $event.preventDefault();
+    if ($event.dataTransfer) $event.dataTransfer.dropEffect = 'move';
+    if (status) this.dragOverStatusId = status.id;
+  }
+
+  onDragLeave(status: any) {
+    if (this.dragOverStatusId === status?.id) {
+      this.dragOverStatusId = null;
+    }
   }
 
   filerWorkFlow(): Status[] {
@@ -144,8 +215,11 @@ export class IssueBoaardComponent {
   assigneToUser(user: User) {
     if (this.currentIssue != null) {
       this.currentIssue.assigne = user;
-      this.issueService.assigneToUser(this.currentIssue,user).subscribe((issue:Issue)=>{
-          this.currentIssue = issue;
+      this.issueService.assigneToUser(this.currentIssue,user).subscribe(()=>{
+          // On garde l'objet déjà présent dans la liste : le remplacer par la
+          // réponse du serveur détacherait la carte de `issues`, et l'avatar
+          // ne se rafraîchirait pas.
+          this.currentIssue = null;
         }
       );
     }
@@ -182,7 +256,7 @@ export class IssueBoaardComponent {
       criteria.operator ="eq";
     }
     this.issueService.issueByCriteria(criterias).subscribe(issues => {
-      this.issues = issues;
+      this.setIssues(issues);
     });
   }
   getUrlPhoto(user:User){

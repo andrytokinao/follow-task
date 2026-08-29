@@ -1,46 +1,80 @@
-<div *ngIf="isLoading" class="spinner-container">
-  <div class="spinner"></div>
-</div>
+<div class="master-list">
 
-<div *ngIf="!isLoading" class="project-list list-group">
-  <div class="list-group"  *ngFor="let master of issues" class="project-card" >
-    <a class="list-group-item list-group-item-action" [ngStyle]="getStyleByStatus(master)">
-      <div class="master-item">
-        <div>
-          <h5 class="mb-1">
-            <app-icone-view [icon]="master.issueType.icone"></app-icone-view> {{master.issueKey}}  {{master.summary}}</h5>
-          <p class="mb-2" [innerHTML]="master.description"></p>
+  <!-- État vide -->
+  <div class="empty-state" *ngIf="!issues.length">
+    <span class="empty-icon"><i class="fas fa-inbox"></i></span>
+    <p class="empty-title">Aucune demande</p>
+    <p class="empty-sub">Ce projet ne contient pas encore de demande.</p>
+  </div>
 
+  <div class="master-grid" *ngIf="issues.length">
 
+    <article
+      class="master-card"
+      *ngFor="let master of issues; trackBy: trackByIssue"
+      [ngStyle]="getStyleByStatus(master)"
+    >
+      <!-- En-tête : identité de la demande + statut modifiable -->
+      <header class="card-head">
+        <span class="card-key">
+          <app-icone-view [icon]="master.issueType?.icone"></app-icone-view>
+          {{ master.issueKey }}
+        </span>
+        <app-status-field [issue]="master"></app-status-field>
+      </header>
+
+      <h3 class="card-title" (click)="editIssue(master)" [title]="master.summary">
+        {{ master.summary }}
+      </h3>
+
+      <!-- Description bornée à trois lignes : elle vient d'un éditeur riche
+           et peut faire plusieurs paragraphes, ce qui déformait les cartes. -->
+      <div class="card-desc" *ngIf="master.description" [innerHTML]="master.description"></div>
+
+      <div class="card-fields" *ngIf="master.values?.length">
+        <ng-container *ngFor="let value of master.values">
+          <app-custom-field
+            *ngIf="canShowInList(value)"
+            [customFieldValue]="value"
+            (saved)="saveCustomFieldValue($event)"
+            [viewMode]="viewModeField"
+          ></app-custom-field>
+        </ng-container>
+      </div>
+
+      <div class="card-labels">
+        <app-label-form [issue]="master"></app-label-form>
+      </div>
+
+      <footer class="card-foot">
+        <div class="card-meta">
+          <app-assign-field [issue]="master"></app-assign-field>
+          <span class="card-date" *ngIf="master.creationDate">
+            <i class="fas fa-clock"></i> {{ master.creationDate | date:'dd/MM/yyyy' }}
+          </span>
         </div>
-        <small class="master-controle" >
-          <b >  <app-assign-field [issue]="master" ></app-assign-field> </b>
-          <span *ngIf="master.creationDate">{{master.creationDate | date}}</span>
-          <span> <app-status-field  [issue]="master"></app-status-field></span>
-          <p style="text-align: right">
-          </p>
 
-          <p  style="text-align:right">
-            <span (click)="editIssue(master)" class="controle" >  <i class="fas fa-calendar" > </i>  Details </span>
-            <span (click)="addPlanning(master)" class="controle">  <i class="fas fa-calendar">  </i>  Planing  </span>
-            <span (click)="deleteIssue(master)" class="controle" *ngIf="projectGruard.hasCredential(['CAN_DELETE_TASK']) | async"  >  <i class="fas fa-remove" > </i> supprimer </span>
-          </p>
-        </small>
-
-      </div>
-      <div>
-        <span  *ngFor="let value of master.values">
-        <app-custom-field *ngIf="canShowInList(value)"
-                          [customFieldValue]="value" (saved)="saveCustomFieldValue($event)"
-                          [viewMode]="viewModeField"
-        > </app-custom-field>
-      </span>
-        <div> <app-label-form [issue]="master"></app-label-form> </div>
-      </div>
-
-
-    </a>
+        <div class="card-actions">
+          <button type="button" class="card-btn" (click)="editIssue(master)">
+            <i class="fas fa-arrow-up-right-from-square"></i>
+            <span>Détails</span>
+          </button>
+          <button type="button" class="card-btn" (click)="addPlanning(master)">
+            <i class="fas fa-calendar-plus"></i>
+            <span>Planning</span>
+          </button>
+          <button
+            type="button"
+            class="card-btn card-btn-danger"
+            (click)="deleteIssue(master)"
+            *ngIf="projectGruard.hasCredential(['CAN_DELETE_TASK']) | async"
+          >
+            <i class="fas fa-trash"></i>
+            <span>Supprimer</span>
+          </button>
+        </div>
+      </footer>
+    </article>
 
   </div>
 </div>
-

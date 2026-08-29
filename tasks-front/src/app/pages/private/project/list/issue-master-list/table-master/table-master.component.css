@@ -1,141 +1,308 @@
-.container {
-  padding: 1.5rem;
+/* =========================================================================
+   Liste des demandes — vue tableau
+   ========================================================================= */
+:host {
+  --c-primary: #1565c0;
+  --c-text: #111827;
+  --c-text-muted: #6b7280;
+  --c-text-faint: #9ca3af;
+  --c-border: #e5e7eb;
+  --c-border-soft: #f1f2f4;
+  --c-surface: #ffffff;
+  --c-surface-muted: #f9fafb;
+  --c-error: #c62828;
+  --c-error-bg: #fdecea;
+
+  display: block;
+  font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: var(--c-text);
 }
 
-/* --- État vide --- */
+.table-wrap {
+  padding: 12px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* =========================================================================
+   État vide
+   ========================================================================= */
 .empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 3rem 1rem;
-  background: #fff;
-  border: 0.5px solid #e5e5e3;
+  padding: 48px 16px;
+  border: 1px dashed var(--c-border);
   border-radius: 12px;
+  background: var(--c-surface);
   text-align: center;
 }
 .empty-icon {
-  width: 36px;
-  height: 36px;
-  color: #aaa;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
   margin-bottom: 12px;
+  border-radius: 50%;
+  background: var(--c-surface-muted);
+  color: var(--c-text-faint);
+  font-size: 15px;
 }
 .empty-title {
+  margin: 0;
   font-size: 13px;
-  font-weight: 500;
-  color: #555;
+  font-weight: 600;
+  color: var(--c-text);
 }
 .empty-sub {
+  margin: 4px 0 0;
   font-size: 12px;
-  color: #999;
-  margin-top: 4px;
+  color: var(--c-text-muted);
 }
 
-/* --- Tableau --- */
+/* =========================================================================
+   Tableau
+   ========================================================================= */
+/* Le conteneur porte la bordure et le rognage : `overflow:hidden` sur la
+   table elle-même empêcherait le collage de l'en-tête (position:sticky). */
+.table-scroll {
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  background: var(--c-surface);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 .issue-table {
   width: 100%;
-  border-collapse: collapse;
-  background: #fff;
-  border: 0.5px solid #e5e5e3;
-  border-radius: 12px;
-  overflow: hidden;
+  min-width: 900px;
+  border-collapse: separate;
+  border-spacing: 0;
   font-size: 12.5px;
 }
 
-.issue-table thead tr {
-  border-bottom: 0.5px solid #e5e5e3;
-}
-
-.issue-table th {
-  padding: 9px 12px;
+.issue-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--c-border);
+  background: var(--c-surface-muted);
   text-align: left;
-  font-size: 11px;
-  font-weight: 500;
-  color: #999;
-  letter-spacing: 0.04em;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
+  color: var(--c-text-muted);
   white-space: nowrap;
 }
 
 .issue-table td {
   padding: 9px 12px;
-  color: #222;
+  border-bottom: 1px solid var(--c-border-soft);
+  color: var(--c-text);
   vertical-align: middle;
-  border-bottom: 0.5px solid #f0f0ee;
 }
 
 .issue-table tbody tr:last-child td {
   border-bottom: none;
 }
 
+.issue-table tbody tr {
+  transition: background 0.12s ease;
+}
 .issue-table tbody tr:hover {
-  background: #f9f9f7;
+  background: var(--c-surface-muted);
 }
 
-/* --- Clé --- */
+/* Largeurs indicatives : le titre absorbe l'espace restant. */
+.col-key { width: 110px; }
+.col-type { width: 130px; }
+.col-summary { width: auto; }
+.col-status { width: 150px; }
+.col-assignee { width: 140px; }
+.col-actions { width: 78px; }
+
 .issue-key {
   font-size: 11.5px;
-  font-weight: 500;
-  color: #185FA5;
+  font-weight: 600;
+  color: var(--c-primary);
   text-decoration: none;
   letter-spacing: 0.01em;
+  white-space: nowrap;
 }
 .issue-key:hover {
   text-decoration: underline;
 }
 
-/* --- Titre --- */
 .issue-summary {
-  max-width: 240px;
   display: block;
-  white-space: nowrap;
+  max-width: 320px;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-/* --- Badge IssueType --- */
 .issue-type-badge {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-size: 11px;
-  font-weight: 500;
   padding: 2px 8px;
   border-radius: 4px;
+  font-size: 10.5px;
+  font-weight: 600;
   white-space: nowrap;
 }
 .issue-type-dot {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   flex-shrink: 0;
 }
 
-/* --- Actions --- */
+/* =========================================================================
+   Actions
+   ========================================================================= */
+/* display:flex reste sur un conteneur interne plutôt que sur la cellule :
+   un <td> en flex casse l'alignement vertical du reste de la ligne. */
 .actions {
-  display: flex;
-  gap: 6px;
+  white-space: nowrap;
+  text-align: right;
 }
 .btn-icon {
-  background: none;
-  border: 0.5px solid #ddd;
-  border-radius: 6px;
-  width: 26px;
-  height: 26px;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  color: #aaa;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid var(--c-border);
+  border-radius: 6px;
+  background: var(--c-surface);
+  color: var(--c-text-faint);
   font-size: 11px;
-  transition: background 0.15s, color 0.15s;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.btn-icon + .btn-icon {
+  margin-left: 6px;
 }
 .btn-icon:hover {
-  background: #f5f5f3;
-  color: #444;
+  background: var(--c-surface-muted);
+  color: var(--c-text);
+  border-color: #d1d5db;
 }
 .btn-icon.btn-danger:hover {
-  background: #fff0ee;
-  color: #c0392b;
-  border-color: #f5c0b8;
+  background: var(--c-error-bg);
+  color: var(--c-error);
+  border-color: #f3bcbc;
+}
+
+/* =========================================================================
+   Mobile — chaque ligne devient une carte
+   -------------------------------------------------------------------------
+   Un tableau à huit colonnes est inexploitable sur téléphone. Plutôt que de
+   dupliquer le gabarit, on remet les éléments du tableau en flux bloc et on
+   réaffiche l'intitulé de colonne depuis l'attribut data-label.
+   ========================================================================= */
+@media (max-width: 900px) {
+  .table-wrap {
+    padding: 10px 8px;
+  }
+
+  .table-scroll {
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    overflow-x: visible;
+  }
+
+  .issue-table,
+  .issue-table tbody,
+  .issue-table tr,
+  .issue-table td {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .issue-table thead {
+    display: none;
+  }
+
+  .issue-table tbody tr {
+    margin-bottom: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--c-border);
+    border-radius: 12px;
+    background: var(--c-surface);
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+  }
+  .issue-table tbody tr:hover {
+    background: var(--c-surface);
+  }
+
+  .issue-table td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 5px 0;
+    border: none;
+    min-height: 28px;
+  }
+  .issue-table tbody tr td:last-child {
+    border-bottom: none;
+  }
+
+  .issue-table td::before {
+    content: attr(data-label);
+    flex-shrink: 0;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--c-text-faint);
+  }
+
+  /* Le titre passe sur toute la largeur, sans troncature. */
+  .issue-table td[data-label="Titre"] {
+    display: block;
+    padding-top: 2px;
+    padding-bottom: 8px;
+  }
+  .issue-table td[data-label="Titre"]::before {
+    display: block;
+    margin-bottom: 2px;
+  }
+  .issue-summary {
+    max-width: none;
+    white-space: normal;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.35;
+  }
+
+  .actions {
+    justify-content: flex-end;
+    padding-top: 10px;
+    margin-top: 4px;
+    border-top: 1px solid var(--c-border-soft);
+  }
+  .actions::before {
+    content: none;
+  }
+  .btn-icon {
+    width: 30px;
+    height: 30px;
+  }
 }

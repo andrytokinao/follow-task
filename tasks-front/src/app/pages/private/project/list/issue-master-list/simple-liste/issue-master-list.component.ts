@@ -97,10 +97,9 @@ export class IssueMasterListComponent {
   viewModeField: string = 'chip';
 
   ngOnInit() {
-    // Simule un chargement
-    setTimeout(() => {
-      this.isLoading = false;
-    }, 2000); // Attendre 2 secondes avant de masquer le spinner
+    // Le chargement est affiché par le parent (app-loading, alimenté par
+    // issueService.loadingListSubtask$). Cette vue n'a plus de spinner
+    // propre — l'ancien setTimeout de 2 s retardait l'affichage pour rien.
     this.essueService.issueMasterList$.subscribe((res: any) => {
       this.issues = stripTypename(res);
       this.dataSource =  new MatTableDataSource<Issue>(this.issues);
@@ -124,9 +123,15 @@ export class IssueMasterListComponent {
     }
     return (value.customField.configDisplay.find(cf =>  cf == 'DisplayInList') != null)
   }
+  trackByIssue(_index: number, issue: Issue): number | string {
+    return issue.id ?? String(issue.issueKey);
+  }
+
+  // Colore le seul liseré gauche : teinter les quatre bords rendait les
+  // cartes bruyantes quand plusieurs statuts se côtoient dans la grille.
   getStyleByStatus(issue:Issue){
     if (issue.status && issue.status.color) {
-      return {['border-color']:issue.status.color}
+      return {['border-left-color']:issue.status.color}
     }
     return undefined;
   }

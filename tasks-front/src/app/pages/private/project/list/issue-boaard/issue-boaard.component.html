@@ -1,46 +1,101 @@
-<!--<mat-form-field>
-  <mat-label>Work flow </mat-label>
-  <mat-select [(value)]="currentWorkflow" *ngIf="project" >
-    <mat-option *ngFor="let wf of project?.workFlows" [value]="wf" (select)="loadByWorkFlow(wf)"> <app-icone-view ></app-icone-view>{{wf.name}}</mat-option>
-  </mat-select>
-</mat-form-field>-->
+<div class="board-wrap">
+  <div class="board">
 
+    <section
+      class="column"
+      *ngFor="let status of currentWorkflow?.statuses; trackBy: trackByStatus"
+      [class.drag-over]="dragOverStatusId === status.id"
+      (dragover)="onDragOver($event, status)"
+      (dragleave)="onDragLeave(status)"
+      (drop)="onDrop($event, status)"
+    >
+      <header class="column-head">
+        <span class="column-icon">
+          <app-icone-view [icon]="status.icone"></app-icone-view>
+        </span>
+        <span class="column-title" [title]="status.displayName">{{ status.displayName }}</span>
+        <span class="column-count">{{ issuesFor(status).length }}</span>
+      </header>
 
+      <div class="column-body">
 
-<div class="board" >
-  <div class="column" *ngFor='let status of currentWorkflow?.statuses' (dragover)="onDragOver($event)" (drop)= "onDrop($event, status)" >
-    <div class="entete"> <app-icone-view [icon]="status.icone"></app-icone-view>{{ status.displayName }} </div>
-    <div class="issie-board" *ngFor="let issue of filterByStatus(status)" draggable="true" (dragstart)="onDragStart($event,issue)"  >
-      <div class="myCard"  >
-        <div class="content details" (click)="viewIssue(issue)">
-          <app-icone-view [icon] = issue.issueType.icone></app-icone-view><b>{{issue.summary}}</b>
-<!--
-          <p [innerHTML]="issue.description"></p>
--->
-        </div>
-        <div class="content details" (click)="viewIssue(issue)">
-          <b><a [routerLink]="['/working', project.prefix, 'issue', issue.issueKey,'details']" class="company-link">{{ issue.issueKey }}
-        </a> </b>
-        <img *ngIf="issue.assigne !== null" [src]="getUrlPhoto(issue.assigne)" class="image" alt="l'assigné a" mat-icon-button [matMenuTriggerFor]="menu2" (click)="assign(issue)" />
-        <img *ngIf="!issue.assigne" src="/assets/nonAssigner.jpg" alt="non assigner" mat-icon-button class="image" [matMenuTriggerFor]="menu2" (click)="assign(issue)" />
+        <article
+          class="issue-card"
+          *ngFor="let issue of issuesFor(status); trackBy: trackByIssue"
+          draggable="true"
+          (dragstart)="onDragStart($event, issue)"
+          (dragend)="onDragEnd()"
+          [class.dragging]="currentIssue?.id === issue.id"
+        >
+          <div class="card-top">
+            <span class="card-type">
+              <app-icone-view [icon]="issue.issueType?.icone"></app-icone-view>
+            </span>
+            <a
+              class="card-key"
+              [routerLink]="['/working', project?.prefix, 'issue', issue.issueKey, 'details']"
+            >
+              {{ issue.issueKey }}
+            </a>
+          </div>
+
+          <p class="card-title" [title]="issue.summary">{{ issue.summary }}</p>
+
+          <div class="card-bottom">
+            <!-- Le déclencheur du menu est ici, hors de la boucle du menu
+                 lui-même : une seule instance de mat-menu existe pour tout
+                 le board (voir plus bas). -->
+            <button
+              type="button"
+              class="card-assignee"
+              [matMenuTriggerFor]="assignMenu"
+              (click)="assign(issue)"
+              [title]="issue.assigne ? (issue.assigne.firstName + ' ' + issue.assigne.lastName) : 'Non assigné'"
+            >
+              <img
+                [src]="issue.assigne ? getUrlPhoto(issue.assigne) : '/assets/nonAssigner.jpg'"
+                [alt]="issue.assigne ? 'Assigné' : 'Non assigné'"
+              />
+            </button>
+          </div>
+        </article>
+
+        <p class="column-empty" *ngIf="!issuesFor(status).length">Aucune demande</p>
+
+        <!-- Sibling des cartes, et non enfant : la version précédente était
+             imbriquée dans le *ngFor, donc répétée une fois par demande et
+             absente des colonnes vides. -->
+        <button
+          type="button"
+          class="add-card"
+          (click)="newIssue(status)"
+          *ngIf="authGuard.hasAutorityAsync(['CAN_CREATE_TASK']) | async"
+        >
+          <i class="fas fa-plus"></i> Nouvelle demande
+        </button>
       </div>
-    </div>
-    <div  class="issie-board new " (click)="newIssue( status)" *ngIf="authGuard.hasAutorityAsync(['CAN_CREATE_TASK']) | async" >
-      <div class="card">
-        <div class="content details">
-          <p><i class="fas fa-plus"></i> Creer un nouveau demande </p>
-        </div>
-      </div>
-    </div>
+    </section>
+
   </div>
-
-  <mat-menu #menu2="matMenu"  >
-    <div *ngIf="authGuard.hasAutorityAsync(['CAN_ASSIGN_TASK']) | async">
-      <h4> Assigner a </h4>
-      <button mat-menu-item *ngFor="let user of users" (click)="assigneToUser(user)" [ngClass]="{'active': isActive(user)}" >
-        <img [src]="getUrlPhoto(user)" alt="Image"  width="30px"  >
-        <span>{{user.firstName}} {{user.lastName}}</span>
-      </button>
-    </div>
-  </mat-menu>
 </div>
+
+<!-- Menu d'affectation : instance unique, en dehors de la boucle des
+     colonnes. Il était auparavant déclaré à l'intérieur, ce qui créait une
+     référence #menu2 par statut. -->
+<mat-menu #assignMenu="matMenu" class="assign-menu">
+  <div class="assign-panel" *ngIf="authGuard.hasAutorityAsync(['CAN_ASSIGN_TASK']) | async">
+    <p class="assign-title">Assigner à</p>
+    <button
+      mat-menu-item
+      class="assign-item"
+      *ngFor="let user of users; trackBy: trackByUser"
+      (click)="assigneToUser(user)"
+      [class.active]="isActive(user)"
+    >
+      <img [src]="getUrlPhoto(user)" alt="" />
+      <span>{{ user.firstName }} {{ user.lastName }}</span>
+      <i class="fas fa-check" *ngIf="isActive(user)"></i>
+    </button>
+    <p class="assign-empty" *ngIf="!users.length">Aucun membre</p>
+  </div>
+</mat-menu>

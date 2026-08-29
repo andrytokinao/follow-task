@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ListModule} from "../../list.module";
 import {NgForOf, NgIf} from "@angular/common";
 import {Issue, Project, User} from "../../../../../../type/issue";
@@ -25,10 +25,29 @@ import {NewIssueFormComponent} from "../../../../../../common/new-issue-form/new
   templateUrl: './show-master-list.component.html',
   styleUrl: './show-master-list.component.css'
 })
-export class ShowMasterListComponent implements OnInit{
+export class ShowMasterListComponent implements OnInit, OnDestroy {
   issues:Issue[] =[];
   project: Project | undefined;
   currentView: string = 'table-master';
+
+  // Même point de rupture que la feuille de style (.master-topbar masquée,
+  // barre du bas affichée) : les deux doivent basculer ensemble.
+  private static readonly MOBILE_QUERY = '(max-width: 640px)';
+  private mobileQuery?: MediaQueryList;
+  private onMobileChange = (event: MediaQueryListEvent) => {
+    this.isMobile = event.matches;
+  };
+  isMobile = false;
+
+  // Vue réellement rendue. Un tableau de huit colonnes n'est pas exploitable
+  // sur téléphone : on retombe sur la liste en cartes, sans écraser le choix
+  // de l'utilisateur — il retrouve son tableau en repassant sur grand écran.
+  get effectiveView(): string {
+    if (this.isMobile && this.currentView === 'table-master') {
+      return 'details';
+    }
+    return this.currentView;
+  }
   views = [
     { id: 'list', icon: 'fas fa-list', title: 'Liste de tâches' },
     { id: 'board', icon: 'fas fa-columns', title: 'Kanban' },
@@ -122,6 +141,10 @@ export class ShowMasterListComponent implements OnInit{
   }
 
   ngOnInit(): void {
+    this.mobileQuery = window.matchMedia(ShowMasterListComponent.MOBILE_QUERY);
+    this.isMobile = this.mobileQuery.matches;
+    this.mobileQuery.addEventListener('change', this.onMobileChange);
+
     this.issueService.masterFilters$.subscribe(filters => {
       this.masterFilter = filters;
       this.issueService.filterMasterIssue(null);
@@ -212,5 +235,9 @@ export class ShowMasterListComponent implements OnInit{
 
   onMenuOpened() {
     this.newIssueForm.useIssueTypeMaster(undefined);
+  }
+
+  ngOnDestroy(): void {
+    this.mobileQuery?.removeEventListener('change', this.onMobileChange);
   }
 }

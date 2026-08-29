@@ -46,7 +46,24 @@ export class TableMasterComponent implements OnInit{
     this.issueService.loadIssueMasters(null);
   }
 
+  trackByIssue(_index: number, issue: Issue): number | string {
+    return issue.id ?? String(issue.issueKey);
+  }
+
+  edit(issue: Issue) {
+    this.issueService.openEditIssue(issue);
+  }
+
+  // La suppression emporte les dossiers et l'historique : elle passe par une
+  // confirmation, comme dans la vue liste. Le service était déjà injecté mais
+  // n'était pas utilisé ici.
   delete(issue: Issue) {
-    this.essueService.deleteIssue(issue.id);
+    this.confirmationDialogService
+      .confirm(
+        'Suppression de "' + issue.summary + '"',
+        'Tous les dossiers et informations seront perdus !!! Voulez-vous supprimer cette demande ?'
+      )
+      .then(() => this.essueService.deleteIssue(issue.id))
+      .catch(() => undefined);
   }
 }

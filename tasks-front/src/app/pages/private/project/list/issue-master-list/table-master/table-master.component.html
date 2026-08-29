@@ -1,72 +1,78 @@
-<div class="container">
+<div class="table-wrap">
 
   <!-- État vide -->
   <div *ngIf="issues.length === 0" class="empty-state">
-    <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
-      <rect x="3" y="3" width="18" height="18" rx="2"/>
-      <path d="M3 9h18M9 21V9"/>
-    </svg>
-    <p class="empty-title">Aucun ticket trouvé</p>
-    <p class="empty-sub">Ce projet ne contient pas encore de tickets.</p>
+    <span class="empty-icon"><i class="fas fa-table-list"></i></span>
+    <p class="empty-title">Aucune demande</p>
+    <p class="empty-sub">Ce projet ne contient pas encore de demande.</p>
   </div>
 
-  <!-- Tableau -->
-  <table *ngIf="issues.length > 0" class="issue-table">
-    <thead>
-    <tr>
-      <th>Type</th>
-      <th>Clé</th>
-      <th>Titre</th>
-      <th>Équipes</th>
-      <th>Tags</th>
-      <th>Assigné</th>
-      <th>Statut</th>
-      <th></th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr *ngFor="let issue of issues">
-      <td>
+  <!-- Tableau. Sous 900 px, chaque ligne devient une carte : les libellés
+       de colonne sont repris depuis les attributs data-label (cf. CSS). -->
+  <div class="table-scroll" *ngIf="issues.length > 0">
+    <table class="issue-table">
+      <thead>
+      <tr>
+        <th class="col-type">Type</th>
+        <th class="col-key">Clé</th>
+        <th class="col-summary">Titre</th>
+        <th class="col-team">Équipes</th>
+        <th class="col-tags">Tags</th>
+        <th class="col-assignee">Assigné</th>
+        <th class="col-status">Statut</th>
+        <th class="col-actions"><span class="sr-only">Actions</span></th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let issue of issues; trackBy: trackByIssue">
+        <td data-label="Type">
           <span class="issue-type-badge"
-                [style.background]="issue.issueType?.color ? issue.issueType.color + '22' : 'var(--bs-secondary-bg)'"
-                [style.color]="issue.issueType?.color ?? 'var(--bs-secondary-color)'">
+                [style.background]="issue.issueType?.color ? issue.issueType.color + '1f' : '#f3f4f6'"
+                [style.color]="issue.issueType?.color ?? '#6b7280'">
             <span class="issue-type-dot"
-                  [style.background]="issue.issueType?.color ?? 'var(--bs-secondary-color)'">
-            </span>
+                  [style.background]="issue.issueType?.color ?? '#9ca3af'"></span>
             {{ issue.issueType?.name ?? 'Tâche' }}
           </span>
-      </td>
-      <td>
-        <a [routerLink]="['/working', project?.prefix, 'issue', issue.issueKey, 'details']"
-           class="issue-key">
-          {{ issue.issueKey }}
-        </a>
-      </td>
-      <td>
-        <span class="issue-summary">{{ issue.summary }}</span>
-      </td>
-      <td>
-        <app-team-avatars [teamsIds]="issue.observerIds"></app-team-avatars>
-      </td>
-      <td>
-        <app-label-form [issue]="issue"></app-label-form>
-      </td>
-      <td>
-        <app-assign-field [issue]="issue"></app-assign-field>
-      </td>
-      <td>
-        <app-status-field [issue]="issue"></app-status-field>
-      </td>
-      <td class="actions">
-        <button class="btn-icon" title="Modifier">
-          <i class="fas fa-pen"></i>
-        </button>
-        <button class="btn-icon btn-danger" (click)="delete(issue)"  title="Supprimer">
-          <i class="fas fa-trash"></i>
-        </button>
-      </td>
-    </tr>
-    </tbody>
-  </table>
+        </td>
+
+        <td data-label="Clé">
+          <a [routerLink]="['/working', project?.prefix, 'issue', issue.issueKey, 'details']"
+             class="issue-key">
+            {{ issue.issueKey }}
+          </a>
+        </td>
+
+        <td data-label="Titre">
+          <span class="issue-summary" [title]="issue.summary">{{ issue.summary }}</span>
+        </td>
+
+        <td data-label="Équipes">
+          <app-team-avatars [teamsIds]="issue.observerIds"></app-team-avatars>
+        </td>
+
+        <td data-label="Tags">
+          <app-label-form [issue]="issue"></app-label-form>
+        </td>
+
+        <td data-label="Assigné">
+          <app-assign-field [issue]="issue"></app-assign-field>
+        </td>
+
+        <td data-label="Statut">
+          <app-status-field [issue]="issue"></app-status-field>
+        </td>
+
+        <td class="actions">
+          <button class="btn-icon" type="button" (click)="edit(issue)" title="Ouvrir la demande">
+            <i class="fas fa-pen"></i>
+          </button>
+          <button class="btn-icon btn-danger" type="button" (click)="delete(issue)" title="Supprimer">
+            <i class="fas fa-trash"></i>
+          </button>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
 
 </div>

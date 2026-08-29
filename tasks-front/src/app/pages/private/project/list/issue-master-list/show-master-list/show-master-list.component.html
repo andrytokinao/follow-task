@@ -66,19 +66,20 @@
   </div>
 </div>
 
-<!-- Contenu principal -->
+<!-- Contenu principal. effectiveView, et non currentView : sur mobile la vue
+     tableau retombe automatiquement sur la liste en cartes. -->
 <div class="master-content">
-  <app-table-master      *ngIf="currentView === 'table-master'"></app-table-master>
-  <app-issue-master-list *ngIf="currentView === 'details'"></app-issue-master-list>
-  <app-issue-boaard      *ngIf="currentView === 'board'"></app-issue-boaard>
+  <app-table-master      *ngIf="effectiveView === 'table-master'"></app-table-master>
+  <app-issue-master-list *ngIf="effectiveView === 'details'"></app-issue-master-list>
+  <app-issue-boaard      *ngIf="effectiveView === 'board'"></app-issue-boaard>
 </div>
 
 <!-- Barre mobile en bas (pas de topbar sur mobile) -->
 <nav class="mobile-bottom-bar">
-  <button [class.active]="currentView === 'board'" (click)="setView('board')">
+  <button [class.active]="effectiveView === 'board'" (click)="setView('board')">
     <i class="fas fa-columns"></i><span>Board</span>
   </button>
-  <button [class.active]="currentView === 'details'" (click)="setView('details')">
+  <button [class.active]="effectiveView === 'details'" (click)="setView('details')">
     <i class="fas fa-th-list"></i><span>Liste</span>
   </button>
   <button [matMenuTriggerFor]="filterMenu"
