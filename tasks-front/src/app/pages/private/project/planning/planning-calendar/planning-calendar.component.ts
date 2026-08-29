@@ -30,8 +30,6 @@ import {MatMenuTrigger} from "@angular/material/menu";
   styleUrl:'planning-calendar.component.css'
 })
 export class PlanningCalendarComponent implements AfterViewInit {
-  hoveredParent: number | null = null;
-
   @ViewChild("day") day!: DayPilotCalendarComponent;
   @ViewChild("week") week!: DayPilotCalendarComponent;
   @ViewChild("month") month!: DayPilotMonthComponent;
@@ -273,10 +271,8 @@ export class PlanningCalendarComponent implements AfterViewInit {
       }
     ),
   };
-  issueMasters: Issue[]=[];
   private masterFilter: CustomFilter = {} ;
   dateCustomFields: CustomField[] = [];
-  curentFilter: CustomFilter ;
 
   constructor(
     protected eventService: EventsService,
@@ -324,9 +320,6 @@ export class PlanningCalendarComponent implements AfterViewInit {
       this.refreshView();
     })
 
-    this.issueService.issueMasterList$.subscribe((res: any) => {
-      this.issueMasters = res;
-    });
     this.userService.allMembers$.subscribe((users: any) => {
       this.users = users;
     });
@@ -336,9 +329,6 @@ export class PlanningCalendarComponent implements AfterViewInit {
     this.issueService.allCustomField$.subscribe(customFields=> {
       this.dateCustomFields = customFields.filter(cf=> (cf.type === 'Date'))
     });
-    this.issueService.currentMasterFilter$.subscribe(curentFilter=> {
-      this.curentFilter = curentFilter;
-    })
   }
 
     loadEvents(): void {
@@ -470,26 +460,6 @@ export class PlanningCalendarComponent implements AfterViewInit {
     this.eventService.editDialogAndSet(args,criteria);
   }
 
-  isSelectedParent(id: number) {
-    return id == this.parentSelectedId;
-  }
-  changesParents(event: any, issue: Issue) {
-    if (event.checked) {
-      this.parentSelectedId = issue.id;
-      this.parentSelected = issue;
-    } else {
-      this.parentSelectedId = undefined;
-      this.parentSelected = undefined;
-
-    }
-    if (this.parentSelectedId != null){
-      this.eventCriteria.parrentIds = [this.parentSelectedId];
-    } else {
-      this.eventCriteria.parrentIds = undefined;
-    }
-    this.eventService.searchEventsAndSet(this.eventCriteria);
-  }
-
   isSelectedUser(id: String) {
      return  this.usersSelected.some(userId => userId === id)
   }
@@ -500,9 +470,25 @@ export class PlanningCalendarComponent implements AfterViewInit {
     } else {
       this.usersSelected = this.usersSelected.filter(u => u != id);
     }
-    this.eventCriteria.userIds = this.usersSelected;
+    this.applyUsersFilter();
+  }
+
+  clearSelectedUsers() {
+    this.usersSelected = [];
+    this.applyUsersFilter();
+  }
+
+  private applyUsersFilter() {
     this.eventCriteria.userIds = this.usersSelected;
     this.eventService.searchEventsAndSet(this.eventCriteria);
+  }
+
+  // Initiales affichées dans la pastille du menu équipe.
+  userInitials(user: User): string {
+    const first = user?.firstName?.charAt(0) ?? '';
+    const last = user?.lastName?.charAt(0) ?? '';
+    const initials = (last + first).trim();
+    return initials ? initials.toUpperCase() : '?';
   }
   private mouveEventAtResources(args:any){
     this.eventService.mouveEventAtResources(args,this.eventCriteria);

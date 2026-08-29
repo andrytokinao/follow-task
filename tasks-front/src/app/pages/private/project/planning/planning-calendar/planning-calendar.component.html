@@ -1,7 +1,66 @@
-<div class="contenue">
-  <div class="navigator">
-   <div style="display: grid;grid-template-columns: 1fr 1fr">
-    <div>
+<div class="planning-shell">
+
+  <!-- Barre d'outils : tout ce qui pilote l'affichage est regroupé en haut
+       (type de vue à gauche, filtres à droite). Le calendrier récupère ainsi
+       toute la largeur, la colonne de gauche ne garde que le calendrier de
+       saisie. -->
+  <header class="planning-toolbar">
+
+    <nav class="view-switch" aria-label="Type d'affichage">
+      <button
+        type="button"
+        class="view-btn"
+        *ngIf="projectGuard.hasCredential(['CAN_VIEW_TEAM_AGENDA']) | async"
+        [class.active]="configNavigator.selectMode === 'None'"
+        (click)="viewResources()"
+      >
+        <i class="fas fa-users"></i><span>Équipe</span>
+      </button>
+      <button
+        type="button"
+        class="view-btn"
+        [class.active]="configNavigator.selectMode === 'Day'"
+        (click)="viewDay()"
+      >
+        <i class="fas fa-calendar-day"></i><span>Jour</span>
+      </button>
+      <button
+        type="button"
+        class="view-btn"
+        [class.active]="configNavigator.selectMode === 'Week'"
+        (click)="viewWeek()"
+      >
+        <i class="fas fa-calendar-week"></i><span>Semaine</span>
+      </button>
+      <button
+        type="button"
+        class="view-btn"
+        [class.active]="configNavigator.selectMode === 'Month'"
+        (click)="viewMonth()"
+      >
+        <i class="fas fa-calendar-alt"></i><span>Mois</span>
+      </button>
+    </nav>
+
+    <div class="toolbar-actions">
+      <button
+        type="button"
+        class="toolbar-btn"
+        [class.has-value]="usersSelected.length > 0"
+        [matMenuTriggerFor]="teamMenu"
+      >
+        <i class="fas fa-user-group"></i>
+        <span>Équipe</span>
+        <span class="count-badge" *ngIf="usersSelected.length > 0">{{ usersSelected.length }}</span>
+        <i class="fas fa-chevron-down caret"></i>
+      </button>
+    </div>
+  </header>
+
+  <div class="planning-body">
+
+    <!-- Calendrier de saisie : sélection de la période affichée. -->
+    <aside class="planning-aside">
       <daypilot-navigator
         [config]="configNavigator"
         [events]="events"
@@ -9,120 +68,60 @@
         (dateChange)="changeDate($event)"
         #navigator>
       </daypilot-navigator>
-      </div>
-      <div>
-        <div class="buttons">
-          <button (click)="viewResources()" *ngIf="projectGuard.hasCredential(['CAN_VIEW_TEAM_AGENDA']) | async"
-                  [class]="this.configNavigator.selectMode == 'None' ? 'selected' : ''">Equipe
-          </button>
-          <button (click)="viewDay()" [class]="this.configNavigator.selectMode == 'Day' ? 'selected' : ''">Jours</button>
-          <button (click)="viewWeek()" [class]="this.configNavigator.selectMode == 'Week' ? 'selected' : ''">Semaine</button>
-          <button (click)="viewMonth()" [class]="this.configNavigator.selectMode == 'Month' ? 'selected' : ''">Mois
-          </button>
-        </div>
-      </div>
-    </div>
+    </aside>
 
-    <div>
-<!--      <div class="card" style="margin-top: 15px;padding-top: 5px;padding-bottom: 5px">
-        <h1> Date personnalisé </h1>
-        <div class="sidebar-heding ">
-          <div
-            *ngFor="let dateField of dateCustomFields"
-            class="parent-container"
-            (mouseenter)="hoveredParent = dateField.id"
-            (mouseleave)="hoveredParent = null"
-          >
-            <mat-checkbox
-              [checked]="isSelectedCustomFieldDate(dateField.id)"
-              (change)="selectField($event, dateField)"
-              class="custom-checkbox"
-            >
-              {{ dateField.name }}
-            </mat-checkbox>
-
-          </div>
-
-        </div>
-      </div>-->
-      <div class="card" style="margin-top: 15px;padding-top: 5px;padding-bottom: 5px">
-        <div class="header" [matMenuTriggerFor]="masterList">
-          <span class="title" >Demande :</span>
-          <div class="filter-container">
-            <p class="filter-text" >
-              {{ curentFilter?.name }}
-            </p>
-            <i class="fas fa-angle-down"  ></i>
-          </div>
-        </div>
-
-      </div>
-
-    </div>
-    <form class="card" style="margin-top: 15px;padding-top: 5px;padding-bottom: 5px">
-      <h1> Equipe </h1>
-      <div class="sidebar-heding ">
-        <div *ngFor="let user of users" [class]="isSelectedUser(user.id) ? 'selected' : ''">
-          <mat-checkbox
-            [checked]="isSelectedUser(user.id)"
-            (change)="changeUsersSelected($event,user.id)"
-          >
-            {{ user.lastName + ' ' + user.firstName }}
-          </mat-checkbox>
-        </div>
-      </div>
-    </form>
-  </div>
-
-  <div class="my-content">
-<!--
-    <span class="selected-date"> <b> {{ this.navigator.date.toDate() | date }} </b></span>
--->
-
-
-    <daypilot-calendar [config]="configDay" [events]="events" #day></daypilot-calendar>
-    <daypilot-calendar [config]="configWeek" [events]="events" #week></daypilot-calendar>
-    <daypilot-month [config]="configMonth" [events]="events" #month></daypilot-month>
-    <daypilot-calendar [config]="configResource" #calendar></daypilot-calendar>
+    <section class="planning-main">
+      <daypilot-calendar [config]="configDay" [events]="events" #day></daypilot-calendar>
+      <daypilot-calendar [config]="configWeek" [events]="events" #week></daypilot-calendar>
+      <daypilot-month [config]="configMonth" [events]="events" #month></daypilot-month>
+      <daypilot-calendar [config]="configResource" #calendar></daypilot-calendar>
+    </section>
   </div>
 </div>
 
-<!--    <div
-      id="current-time-marker"
-      style="position: absolute; width: 100%; height: 2px; background-color: red; z-index: 1000;">
-    </div>-->
+<!-- =====================================================================
+     Menus
+     ===================================================================== -->
 
+<!-- Filtre équipe. stopPropagation est indispensable : le panneau de
+     mat-menu émet `closed` sur n'importe quel clic, ce qui refermerait le
+     menu à chaque case cochée. -->
+<mat-menu #teamMenu="matMenu" class="planning-menu">
+  <div class="menu-panel" (click)="$event.stopPropagation()">
+    <div class="menu-head">
+      <span class="menu-title">Membres de l'équipe</span>
+      <button
+        type="button"
+        class="menu-clear"
+        *ngIf="usersSelected.length > 0"
+        (click)="clearSelectedUsers()"
+      >
+        Effacer
+      </button>
+    </div>
 
-<!--
+    <div class="menu-list">
+      <div
+        class="member-row"
+        *ngFor="let user of users"
+        [class.selected]="isSelectedUser(user.id)"
+      >
+        <mat-checkbox
+          [checked]="isSelectedUser(user.id)"
+          (change)="changeUsersSelected($event, user.id)"
+        >
+          <span class="member-avatar">{{ userInitials(user) }}</span>
+          <span class="member-name">{{ user.lastName }} {{ user.firstName }}</span>
+        </mat-checkbox>
+      </div>
 
-Mat menue
--->
-
-<mat-menu #filterList="matMenu">
-  <felter-mastert-menue></felter-mastert-menue>
-</mat-menu>
-<mat-menu #masterList="matMenu">
-<div class="sidebar-heding ">
-  <i class="fas fa-angle-down position-fixed" style="position:absolute;top: 1px;"  ></i>
-  <div
-    *ngFor="let parent of issueMasters"
-    class="parent-container"
-    (mouseenter)="hoveredParent = parent.id"
-    (mouseleave)="hoveredParent = null"
-  >
-    <mat-checkbox
-      [checked]="isSelectedParent(parent.id)"
-      (change)="changesParents($event, parent)"
-      class="custom-checkbox"
-    >
-      {{ parent.issueKey + ' ' + parent.summary }}
-    </mat-checkbox>
-    <show-issue-full-option [issue]="parent" [label]="'...'">  </show-issue-full-option>
+      <p class="menu-empty" *ngIf="!users.length">Aucun membre</p>
+    </div>
   </div>
-</div>
 </mat-menu>
 
-<!-- Trigger invisible positionné dynamiquement -->
+<!-- Trigger invisible positionné dynamiquement (édition d'un événement
+     depuis le menu contextuel DayPilot). -->
 <div
   #addPlanningTrigger="matMenuTrigger"
   [matMenuTriggerFor]="addPlanning"

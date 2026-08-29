@@ -1,167 +1,318 @@
+/* =========================================================================
+   Planning — calendrier + barre d'outils
+   ========================================================================= */
+:host {
+  --c-primary: #1565c0;
+  --c-primary-dark: #0d47a1;
+  --c-primary-bg: #e8f1fb;
 
-.contenue {
+  --c-text: #111827;
+  --c-text-muted: #6b7280;
+  --c-text-faint: #9ca3af;
+  --c-border: #e5e7eb;
+  --c-border-strong: #d1d5db;
+  --c-surface: #ffffff;
+  --c-surface-muted: #f9fafb;
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-pill: 999px;
+
+  --fs-xs: 10px;
+  --fs-sm: 11px;
+  --fs-base: 12px;
+  --fs-md: 13px;
+
+  display: block;
+  font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: var(--fs-base);
+  color: var(--c-text);
+}
+
+.planning-shell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp, 12px);
+  min-width: 0;
+}
+
+/* =========================================================================
+   Barre d'outils
+   ========================================================================= */
+.planning-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 8px 12px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-md);
+  background: var(--c-surface);
+}
+
+/* ---- Sélecteur de vue (contrôle segmenté) ---- */
+.view-switch {
+  display: inline-flex;
+  padding: 2px;
+  border-radius: var(--radius-md);
+  background: var(--c-surface-muted);
+  border: 1px solid var(--c-border);
+}
+
+.view-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 12px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font-family: inherit;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--c-text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+.view-btn i {
+  font-size: 11px;
+}
+.view-btn:hover:not(.active) {
+  color: var(--c-text);
+  background: rgba(0, 0, 0, 0.03);
+}
+
+/* L'onglet actif est une "pastille" blanche surélevée : plus lisible qu'un
+   aplat sombre, et cohérent avec le reste de l'application. */
+.view-btn.active {
+  background: var(--c-surface);
+  color: var(--c-primary);
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.08);
+}
+
+/* ---- Boutons de filtre ---- */
+.toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toolbar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--c-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--c-surface);
+  font-family: inherit;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--c-text);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.toolbar-btn i {
+  font-size: 11px;
+  color: var(--c-text-faint);
+}
+.toolbar-btn .caret {
+  font-size: 9px;
+}
+.toolbar-btn:hover {
+  background: var(--c-surface-muted);
+  border-color: var(--c-text-faint);
+}
+
+/* Filtre actif : le bouton porte la couleur primaire, pour qu'on voie d'un
+   coup d'œil que la vue est restreinte. */
+.toolbar-btn.has-value {
+  border-color: var(--c-primary);
+  background: var(--c-primary-bg);
+  color: var(--c-primary);
+}
+.toolbar-btn.has-value i {
+  color: var(--c-primary);
+}
+
+.count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: var(--radius-pill);
+  background: var(--c-primary);
+  color: #fff;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+}
+
+/* =========================================================================
+   Corps : calendrier de saisie + vues
+   ========================================================================= */
+.planning-body {
   display: grid;
-  grid-template-columns: 1fr 3fr;
+  grid-template-columns: 232px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
 }
 
-.navigator {
-  margin-right: 10px;
+.planning-aside {
+  padding: 8px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-md);
+  background: var(--c-surface);
 }
 
-.my-content {
-  flex-grow: 1;
+/* min-width:0 : sans ça, la largeur intrinsèque des tableaux DayPilot fait
+   déborder la colonne de la grille. */
+.planning-main {
+  min-width: 0;
+  overflow-x: auto;
 }
 
-.buttons {
-  margin-bottom: 10px;
-  display: block;
+/* =========================================================================
+   Menu équipe
+   ========================================================================= */
+.menu-panel {
+  width: 260px;
+  padding: 4px 0;
 }
 
-button {
-  background-color: #dddddd;
-  border: 0;
-  padding: .5rem 1rem;
-  width: 100px;
-  font-size: 15px;
-  font-weight: 500;
-  cursor: pointer;
-  margin-right: 1px;
-  transition: all 0.2s;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.08);
-  box-sizing: border-box;
-  display: block;
-}
-
-button:last-child {
-  margin-right: 0;
-}
-
-button.selected {
-  background-color: #444444;
-  box-shadow: 0 3px 5px rgba(0,0,0,0.1);
-  color: white;
-
-}
-selected{
-  background-color: #888888;
-}
-
-
-
-button:hover {
-  background-color: #2f66c4;
-  box-shadow: 0 5px 7px rgba(0,0,0,0.1);
-}
-
-button:active {
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-.selected-date{
-  border-radius: 21px;
-  background-color: #aaaaaa;
-  padding: 15px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-}
-/* Conteneur parent */
-.parent-container {
+.menu-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px;
-  margin: 5px 0;
-  border: 1px solid #e0e0e0;
-  border-radius: 5px;
-  background-color: #f9f9f9;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  gap: 8px;
+  padding: 4px 12px 8px;
+  border-bottom: 1px solid var(--c-border);
 }
 
-/* Changement de couleur au survol */
-.parent-container:hover {
-  background-color: #e3f2fd; /* Couleur de fond bleu clair */
-  color: #1565c0; /* Texte bleu foncé */
+.menu-title {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--c-text-muted);
 }
 
-/* Style pour le checkbox */
-.custom-checkbox {
-  font-size: 16px;
-  color: #424242;
-}
-
-/* Changement de couleur au survol du checkbox */
-.custom-checkbox:hover {
-  color: #1565c0; /* Bleu foncé */
-}
-
-/* Icône masquée par défaut */
-.icon-hidden {
-  visibility: hidden;
-  opacity: 0;
-  transition: visibility 0.2s, opacity 0.2s ease-in-out, color 0.3s ease;
-  font-size: 16px;
-  margin-right: 10px;
+.menu-clear {
+  border: none;
+  background: none;
+  padding: 0;
+  font-family: inherit;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--c-primary);
   cursor: pointer;
 }
-
-/* Icône visible au survol */
-.icon-visible {
-  visibility: visible;
-  opacity: 1;
-  color: #1565c0; /* Bleu foncé par défaut */
+.menu-clear:hover {
+  text-decoration: underline;
 }
 
-/* Changement de couleur au survol de l'icône */
-.icon-visible:hover {
-  color: #0d47a1; /* Bleu plus foncé */
+.menu-list {
+  max-height: 280px;
+  overflow-y: auto;
+  padding: 4px;
 }
 
-/* Style pour le texte dans le checkbox */
-mat-checkbox .mat-checkbox-label {
-  font-size: 14px;
-  color: inherit;
+.member-row {
+  border-radius: var(--radius-sm);
+  transition: background 0.12s ease;
+}
+.member-row:hover {
+  background: var(--c-surface-muted);
+}
+.member-row.selected {
+  background: var(--c-primary-bg);
 }
 
-
-.header {
-  display: flex;
-  justify-content: space-between;
+.member-avatar {
+  display: inline-flex;
   align-items: center;
-  font-size: 18px;
-  font-weight: bold;
-  margin-bottom: 10px;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin-right: 8px;
+  border-radius: var(--radius-pill);
+  background: #e0e7ff;
+  color: #4338ca;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  vertical-align: middle;
 }
 
-/* Titre "Projets :" */
-.title {
-  color: #333;
+.member-name {
+  font-size: var(--fs-base);
+  color: var(--c-text);
+  vertical-align: middle;
 }
 
-/* Conteneur pour le texte du filtre et l'icône */
-.filter-container {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 200px; /* Ajuster la largeur selon le besoin */
-}
-
-/* Texte du filtre */
-.filter-text {
-  color: #777;
-  cursor: pointer;
+.menu-empty {
   margin: 0;
-  font-size: 16px;
-  flex-grow: 1; /* Laisse de l'espace à l'icône pour se placer à droite */
+  padding: 16px 0;
+  text-align: center;
+  font-size: var(--fs-sm);
+  color: var(--c-text-faint);
 }
 
-/* Icône à droite du filtre */
-.filter-container i {
-  font-size: 20px;
-  color: #0a3622;
-  cursor: pointer; /* L'icône est cliquable */
+/* =========================================================================
+   Angular Material — densité
+   ========================================================================= */
+:host ::ng-deep .planning-menu.mat-mdc-menu-panel {
+  min-width: 260px;
+  max-width: 300px;
+}
+:host ::ng-deep .planning-menu .mat-mdc-menu-content {
+  padding: 0;
 }
 
-/* Menu déroulant style (pour l'exemple avec Angular Material) */
-.mat-menu-item {
-  font-size: 14px;
-  padding: 10px;
-  color: #333;
+:host ::ng-deep .member-row .mat-mdc-checkbox {
+  width: 100%;
+}
+:host ::ng-deep .member-row .mdc-form-field {
+  width: 100%;
+  font-family: inherit;
+}
+:host ::ng-deep .member-row .mdc-label {
+  display: flex;
+  align-items: center;
+  padding-left: 2px;
+  font-family: inherit;
+  font-size: var(--fs-base);
+  color: var(--c-text);
+  cursor: pointer;
+}
+/* La case Material réserve 40 px de zone tactile : trop pour une liste. */
+:host ::ng-deep .member-row .mat-mdc-checkbox-touch-target {
+  display: none;
+}
+:host ::ng-deep .member-row .mdc-checkbox {
+  --mdc-checkbox-state-layer-size: 28px;
+}
+
+/* =========================================================================
+   Responsive
+   ========================================================================= */
+@media (max-width: 900px) {
+  .planning-body {
+    grid-template-columns: 1fr;
+  }
+  .planning-aside {
+    display: flex;
+    justify-content: center;
+  }
+  .view-btn span {
+    display: none;
+  }
+  .view-btn {
+    padding: 0 10px;
+  }
 }
