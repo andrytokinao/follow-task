@@ -43,6 +43,29 @@
     </nav>
 
     <div class="toolbar-actions">
+      <!-- Densité d'affichage : agit sur les dimensions natives de DayPilot. -->
+      <div class="zoom-control" role="group" aria-label="Densité d'affichage">
+        <button
+          type="button"
+          class="zoom-btn"
+          [disabled]="!canZoomOut"
+          (click)="zoomOut()"
+          title="Réduire l'affichage"
+        >
+          <i class="fas fa-minus"></i>
+        </button>
+        <span class="zoom-level">{{ zoomLabel }}</span>
+        <button
+          type="button"
+          class="zoom-btn"
+          [disabled]="!canZoomIn"
+          (click)="zoomIn()"
+          title="Agrandir l'affichage"
+        >
+          <i class="fas fa-plus"></i>
+        </button>
+      </div>
+
       <button
         type="button"
         class="toolbar-btn"

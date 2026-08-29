@@ -116,6 +116,35 @@ export class PlanningCalendarComponent implements AfterViewInit {
     ]
   });
 
+  // Paliers de densité d'affichage. On agit sur les dimensions natives de
+  // DayPilot (cellHeight, hourWidth, headerHeight...) et non sur un
+  // `transform: scale()` CSS : un scale garderait la place d'origine dans la
+  // page, rendrait le texte flou et fausserait le rendu des événements.
+  private static readonly ZOOM_LEVELS = [
+    {
+      label: 'S',
+      cellHeight: 18, hourWidth: 42, headerHeight: 22, resourceHeaderHeight: 64,
+      monthCellHeight: 68, eventHeight: 16,
+      navCell: 20, navTitleHeight: 22, navDayHeaderHeight: 18,
+    },
+    {
+      label: 'M',
+      cellHeight: 24, hourWidth: 50, headerHeight: 26, resourceHeaderHeight: 80,
+      monthCellHeight: 88, eventHeight: 20,
+      navCell: 23, navTitleHeight: 25, navDayHeaderHeight: 20,
+    },
+    {
+      label: 'L',
+      cellHeight: 30, hourWidth: 60, headerHeight: 30, resourceHeaderHeight: 100,
+      monthCellHeight: 110, eventHeight: 25,
+      navCell: 26, navTitleHeight: 28, navDayHeaderHeight: 22,
+    },
+  ];
+
+  // Démarre sur le palier compact : l'affichage par défaut de DayPilot est
+  // trop haut pour une semaine complète à l'écran.
+  zoomIndex = 0;
+
   configNavigator: DayPilot.NavigatorConfig = {
     showMonths: 1,
     cellWidth: 23,
@@ -289,6 +318,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
+    this.applyZoom();
     this.viewWeek();
     // Ajouter un "fake event" pour l'heure actuelle
     this.addCurrentTimeMarker();
@@ -481,6 +511,62 @@ export class PlanningCalendarComponent implements AfterViewInit {
   private applyUsersFilter() {
     this.eventCriteria.userIds = this.usersSelected;
     this.eventService.searchEventsAndSet(this.eventCriteria);
+  }
+
+  // ---------------------------------------------------------------------
+  // Zoom / densité d'affichage
+  // ---------------------------------------------------------------------
+
+  get zoomLabel(): string {
+    return PlanningCalendarComponent.ZOOM_LEVELS[this.zoomIndex].label;
+  }
+
+  get canZoomIn(): boolean {
+    return this.zoomIndex < PlanningCalendarComponent.ZOOM_LEVELS.length - 1;
+  }
+
+  get canZoomOut(): boolean {
+    return this.zoomIndex > 0;
+  }
+
+  zoomIn(): void {
+    if (!this.canZoomIn) return;
+    this.zoomIndex++;
+    this.applyZoom();
+  }
+
+  zoomOut(): void {
+    if (!this.canZoomOut) return;
+    this.zoomIndex--;
+    this.applyZoom();
+  }
+
+  // Les composants DayPilot comparent un hash du contenu de `config` à chaque
+  // cycle (ngDoCheck) : muter les propriétés en place suffit, pas besoin de
+  // recréer les objets.
+  private applyZoom(): void {
+    const zoom = PlanningCalendarComponent.ZOOM_LEVELS[this.zoomIndex];
+
+    for (const config of [this.configDay, this.configWeek]) {
+      config.cellHeight = zoom.cellHeight;
+      config.hourWidth = zoom.hourWidth;
+      config.headerHeight = zoom.headerHeight;
+    }
+
+    this.configResource.cellHeight = zoom.cellHeight;
+    this.configResource.hourWidth = zoom.hourWidth;
+    // La vue Équipe affiche les noms en en-tête de colonne : elle a besoin de
+    // plus de hauteur que les vues Jour/Semaine.
+    this.configResource.headerHeight = zoom.resourceHeaderHeight;
+
+    this.configMonth.cellHeight = zoom.monthCellHeight;
+    this.configMonth.eventHeight = zoom.eventHeight;
+    this.configMonth.headerHeight = zoom.headerHeight;
+
+    this.configNavigator.cellWidth = zoom.navCell;
+    this.configNavigator.cellHeight = zoom.navCell;
+    this.configNavigator.titleHeight = zoom.navTitleHeight;
+    this.configNavigator.dayHeaderHeight = zoom.navDayHeaderHeight;
   }
 
   // Initiales affichées dans la pastille du menu équipe.

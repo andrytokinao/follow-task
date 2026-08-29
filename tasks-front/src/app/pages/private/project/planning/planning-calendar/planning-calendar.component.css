@@ -140,6 +140,50 @@
   color: var(--c-primary);
 }
 
+/* ---- Zoom ---- */
+.zoom-control {
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  border: 1px solid var(--c-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--c-surface);
+  overflow: hidden;
+}
+
+.zoom-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 100%;
+  border: none;
+  background: transparent;
+  color: var(--c-text-muted);
+  font-size: 10px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.zoom-btn:hover:not(:disabled) {
+  background: var(--c-surface-muted);
+  color: var(--c-primary);
+}
+.zoom-btn:disabled {
+  color: #d1d5db;
+  cursor: default;
+}
+
+.zoom-level {
+  min-width: 20px;
+  text-align: center;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--c-text);
+  border-left: 1px solid var(--c-border);
+  border-right: 1px solid var(--c-border);
+  line-height: 28px;
+}
+
 .count-badge {
   display: inline-flex;
   align-items: center;
@@ -261,6 +305,40 @@
   text-align: center;
   font-size: var(--fs-sm);
   color: var(--c-text-faint);
+}
+
+/* =========================================================================
+   DayPilot — typographie
+   -------------------------------------------------------------------------
+   Le thème par défaut hérite de la police du document. Sans ça les libellés
+   (heures, jours, titres d'événements) restent surdimensionnés même sur le
+   palier de zoom le plus compact, puisque le zoom ne joue que sur les
+   dimensions des cellules.
+   ========================================================================= */
+:host ::ng-deep .navigator_default_main,
+:host ::ng-deep .calendar_default_main,
+:host ::ng-deep .month_default_main {
+  font-family: inherit;
+  font-size: var(--fs-sm);
+}
+
+:host ::ng-deep .calendar_default_colheader_inner,
+:host ::ng-deep .calendar_default_rowheader_inner,
+:host ::ng-deep .calendar_default_corner_inner,
+:host ::ng-deep .month_default_header_inner {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+
+:host ::ng-deep .calendar_default_event_inner,
+:host ::ng-deep .calendar_default_alldayevent_inner,
+:host ::ng-deep .month_default_event_inner {
+  font-size: var(--fs-sm);
+  line-height: 1.35;
+}
+
+:host ::ng-deep .month_default_cell_inner {
+  font-size: var(--fs-sm);
 }
 
 /* =========================================================================
