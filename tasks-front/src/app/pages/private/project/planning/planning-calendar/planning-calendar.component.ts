@@ -146,6 +146,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
   zoomIndex = 0;
 
   configNavigator: DayPilot.NavigatorConfig = {
+    locale: PlanningCalendarComponent.LOCALE,
     showMonths: 1,
     cellWidth: 23,
     cellHeight: 25,
@@ -179,7 +180,16 @@ export class PlanningCalendarComponent implements AfterViewInit {
     this.configResource.startDate = date;
   }
 
+  // Locale française fournie en standard par DayPilot : noms de jours/mois en
+  // français, horloge 24 h et semaine démarrant le lundi (au lieu du format
+  // US par défaut : "8/30/2026" et AM/PM).
+  private static readonly LOCALE = 'fr-fr';
+
   configDay: DayPilot.CalendarConfig = {
+    locale: PlanningCalendarComponent.LOCALE,
+    timeFormat: "Clock24Hours",
+    // Une seule colonne : on peut se permettre le format long.
+    headerDateFormat: "dddd d MMMM",
     durationBarVisible: true,
     contextMenu: this.contextMenu,
     onTimeRangeSelected: this.newEvent.bind(this),
@@ -199,12 +209,16 @@ export class PlanningCalendarComponent implements AfterViewInit {
 
   configWeek: DayPilot.CalendarConfig = {
     viewType: "Week",
+    locale: PlanningCalendarComponent.LOCALE,
+    // Sept colonnes : format court, sinon les en-têtes sont tronqués au
+    // palier de zoom compact.
+    headerDateFormat: "ddd d MMM",
     durationBarVisible: true ,
     visible:true,
     heightSpec:"BusinessHours",
     businessBeginsHour:6,
     businessEndsHour:20,
-    timeFormat:"Auto",
+    timeFormat:"Clock24Hours",
     contextMenu: this.contextMenu,
     onTimeRangeSelected: this.newEvent.bind(this),
 /*
@@ -223,6 +237,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
   };
 
   configMonth: DayPilot.MonthConfig = {
+    locale: PlanningCalendarComponent.LOCALE,
     contextMenu: this.contextMenu,
     eventBarVisible: false,
     onTimeRangeSelected: this.newEvent.bind(this),
@@ -232,6 +247,8 @@ export class PlanningCalendarComponent implements AfterViewInit {
   };
   configResource: DayPilot.CalendarConfig = {
     viewType: "Resources",
+    locale: PlanningCalendarComponent.LOCALE,
+    timeFormat: "Clock24Hours",
     headerHeight: 100,
     heightSpec:"BusinessHours",
     businessBeginsHour:6,
