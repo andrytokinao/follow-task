@@ -127,18 +127,20 @@
                   <p class="issue-assignee-row" *ngIf="link.issue.assigne">
                     <i class="fas fa-user"></i> {{ link.issue.assigne.username }}
                   </p>
+                  <!-- Durée : compteur animé 0 -> durée réelle à l'ouverture -->
                   <p class="issue-duration-row" *ngIf="link.issue.elapsedDurationMinutes">
-                    <i class="fas fa-clock"></i> {{ formatDuration(link.issue.elapsedDurationMinutes) }}
+                    <i class="fas fa-clock"></i> {{ animatedDuration(link) }}
                   </p>
+                  <!-- Pourcentage : barre + chiffre animés 0% -> valeur réelle -->
                   <div class="issue-progress" *ngIf="link.issue.currentCompletionPercent !== undefined && link.issue.currentCompletionPercent !== null">
                     <div class="progress-track">
                       <div
                         class="progress-fill"
                         [ngClass]="progressClass(link.issue.currentCompletionPercent)"
-                        [style.width.%]="link.issue.currentCompletionPercent"
+                        [style.width.%]="animatedPercent(link)"
                       ></div>
                     </div>
-                    <span class="progress-label">{{ link.issue.currentCompletionPercent }}%</span>
+                    <span class="progress-label">{{ animatedPercent(link) }}%</span>
                   </div>
                 </div>
               </div>

@@ -3098,6 +3098,19 @@ export const LIST_MESSAGES = gql`
           summary
           elapsedDurationMinutes
           currentCompletionPercent
+          parent {
+            project {
+              prefix
+              id
+            }
+            id
+            issueKey
+            summary
+          }
+          project {
+            prefix
+            id
+          }
           assigne {
             id
             username

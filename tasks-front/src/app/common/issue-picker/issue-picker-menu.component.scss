@@ -19,6 +19,10 @@
   gap: 2px;
 }
 
+.issue-tree-children {
+  will-change: height, opacity;
+}
+
 // Chevron de dépliage — pas d'icône de dossier, juste une rotation pour
 // indiquer l'état ouvert/fermé.
 .issue-tree-toggle {
@@ -82,6 +86,7 @@
   i {
     font-size: 8px;
     color: white;
+    transform-origin: center;
   }
 
   &.checked {
@@ -110,23 +115,52 @@
   text-align: left;
 }
 
-.issue-picker-progress {
+.issue-picker-duration {
   display: flex;
   align-items: center;
   gap: 4px;
   font-size: 9.5px;
   color: #6B7280;
   flex-shrink: 0;
+  font-variant-numeric: tabular-nums; // évite que les chiffres "sautent" en largeur pendant le compteur
+
+  i { font-size: 8.5px; }
 }
 
-.progress-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
+// ---- Pourcentage : barre + valeur ----
+
+.issue-picker-progress {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9.5px;
+  color: #6B7280;
+  flex-shrink: 0;
+}
+
+.progress-track {
+  width: 32px;
+  height: 4px;
+  border-radius: 2px;
+  background: #E5E7EB;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.progress-fill {
+  display: block;
+  height: 100%;
+  border-radius: 2px;
 
   &.progress-low { background: #EF4444; }
   &.progress-mid { background: #F59E0B; }
   &.progress-high { background: #22C55E; }
+}
+
+.progress-value {
+  font-variant-numeric: tabular-nums;
+  min-width: 24px;
+  text-align: right;
 }
 
 .issue-picker-empty {

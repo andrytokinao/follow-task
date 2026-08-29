@@ -1,9 +1,19 @@
-import { Component, EventEmitter, HostListener, Input, OnChanges, Output } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  HostListener,
+  Input,
+  NgZone,
+  OnChanges,
+  Output,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatMenuModule } from '@angular/material/menu';
 import { AvatarComponent } from '../avatar/avatar.component';
 import {MessageDto, MessageDayGroup, IssueMessageLink} from '../../models/messaging.model';
 import { groupMessagesByDay } from '../../utils/message-day-group.util';
+import { CountUpAnimator } from '../../utils/count-up.animator';
 import {Issue, MessageApp} from "../../type/issue";
 import {IssueService} from "../../services/issue.service";
 import {MessagingService} from "../../services/messaging.service";
@@ -52,10 +62,17 @@ export class MessageThreadComponent implements OnChanges {
   private longPressTimer: ReturnType<typeof setTimeout> | null = null;
   private longPressTriggered = false;
 
+  // Compteurs animés du popover de détail : le pourcentage et la durée
+  // repartent de 0 à chaque ouverture et montent jusqu'à leur valeur réelle.
+  private readonly counters: CountUpAnimator;
+
   constructor(
     private issueService: IssueService,
     private messagingService: MessagingService,
+    zone: NgZone,
+    cdr: ChangeDetectorRef,
   ) {
+    this.counters = new CountUpAnimator(zone, cdr);
     this.issueService.issueMasterList$.subscribe(masters => {
       this.masters = masters;
     });
@@ -141,13 +158,41 @@ export class MessageThreadComponent implements OnChanges {
   toggleIssuePopover(message: MessageApp, event: Event): void {
     event.stopPropagation();
     if (this.selectionMode) return;
-    this.openIssuePopoverFor = this.openIssuePopoverFor === message.externalMessageId
-      ? null
-      : message.externalMessageId ?? null;
+    const wasOpen = this.openIssuePopoverFor === message.externalMessageId;
+    this.openIssuePopoverFor = wasOpen ? null : message.externalMessageId ?? null;
+
+    if (wasOpen) {
+      this.counters.reset();
+      return;
+    }
+    // Ouverture : relance les compteurs pour les issues affichées.
+    this.counters.start(
+      (message.messageLinks ?? []).map(link => ({
+        key: this.issueKeyOf(link),
+        percent: link.issue.currentCompletionPercent,
+        minutes: link.issue.elapsedDurationMinutes,
+      })),
+    );
   }
 
   closeIssuePopover(): void {
     this.openIssuePopoverFor = null;
+    this.counters.reset();
+  }
+
+  private issueKeyOf(link: IssueMessageLink): string {
+    return String(link.issue.id ?? link.issue.issueKey);
+  }
+
+  // Valeurs animées lues par le template du popover.
+  animatedPercent(link: IssueMessageLink): number {
+    return this.counters.percentFor(this.issueKeyOf(link));
+  }
+
+  animatedDuration(link: IssueMessageLink): string {
+    // formatDuration renvoie '' à 0 : on affiche "0min" pour que la ligne ne
+    // reste pas vide sur les premières frames de la montée.
+    return this.formatDuration(this.counters.minutesFor(this.issueKeyOf(link))) || '0min';
   }
 
   onUnlinkIssue(link: IssueMessageLink, event: Event): void {
