@@ -278,6 +278,7 @@ input  IssueInput {
     project:ProjectInput
     labels:[IssueLabelsInput]
     observerIds:[String]
+    children:[IssueInput]
 }
 
 input IssueLabelsInput {
@@ -893,4 +894,9 @@ type PercentageProposal {
     averageStep:Int
     reason:String
     candidates:[Int]
+}
+type UserHoursData {
+    userName: String
+    hours: Int
+    display: String
 }

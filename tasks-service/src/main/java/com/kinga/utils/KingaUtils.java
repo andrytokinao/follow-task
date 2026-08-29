@@ -1,6 +1,7 @@
 package com.kinga.utils;
 
 import com.kinga.followtask.config.StorageConfig;
+import com.kinga.followtask.entity.PlanningEvent;
 import com.kinga.followtask.entity.Project;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -12,8 +13,11 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
+import java.util.List;
 import java.util.Random;
 import java.util.StringJoiner;
 import java.util.regex.Matcher;
@@ -235,5 +239,26 @@ public class KingaUtils {
         System.out.println("OK       : " + original.equals(decoded));
 
 
+    }
+    public static Duration getOwnElapsedDuration(List<PlanningEvent> events ){
+        if (events == null || events.isEmpty()) {
+            return Duration.ZERO;
+        }
+        LocalDateTime now = LocalDateTime.now();
+        Duration total = Duration.ZERO;
+
+        for (PlanningEvent event : events) {
+            LocalDateTime start = event.getStartTime();
+            if (start == null || start.isAfter(now)) {
+                // pas encore commencé -> aucune durée écoulée à compter
+                continue;
+            }
+
+            LocalDateTime end = event.getEndTime();
+            LocalDateTime effectiveEnd = (end != null && !end.isAfter(now)) ? end : now;
+
+            total = total.plus(Duration.between(start, effectiveEnd));
+        }
+        return total;
     }
 }

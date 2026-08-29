@@ -824,4 +824,37 @@ public class IssueService {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
+
+    public List<UserHoursData> loadUserHours(Long issueId) {
+        Issue issue = issueRepository.getById(issueId);
+        List<PlanningEvent> events = issue.getAllEvents();
+
+        if (CollectionUtils.isEmpty(events)) {
+            return List.of();
+        }
+
+        Map<String, List<PlanningEvent>> eventsByUsername = events.stream()
+                .collect(Collectors.groupingBy(event -> event.getUser().getUsername()));
+
+        return eventsByUsername.entrySet().stream()
+                .map(entry -> toUserHoursData(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
+    }
+
+    private UserHoursData toUserHoursData(String username, List<PlanningEvent> events) {
+        Duration duration = KingaUtils.getOwnElapsedDuration(events);
+
+        UserHoursData hour = new UserHoursData();
+        hour.setUserName(username);
+        hour.setHours((int) duration.toMinutes());
+        hour.setDisplay(formatDuration(duration)); // hh:mm réel au lieu du texte fixe
+        return hour;
+    }
+
+    private String formatDuration(Duration duration) {
+        long totalMinutes = duration.toMinutes();
+        long hours = totalMinutes / 60;
+        long minutes = totalMinutes % 60;
+        return String.format("%02d:%02d", hours, minutes);
+    }
 }

@@ -65,4 +65,5 @@ type Query {
     getIssuePlanningSummaries(issueIds: [ID!]!): [IssuePlanningSummary!]!
     proposeNextPercentage(issueId:ID!):PercentageProposal
     getAtachedDocumentIssue(documentId:ID):[IssueDocumentUsage]
+    loadUserHours(issueId:ID!):[UserHoursData]
 }

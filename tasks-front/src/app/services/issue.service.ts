@@ -30,7 +30,7 @@ import {
   ActionItem,
   ActionGroupe,
   ActionAssigne,
-  ActionStatus, UploadingState, DocumentMember, DocumentPage, IssuePlanningSummary
+  ActionStatus, UploadingState, DocumentMember, DocumentPage, IssuePlanningSummary, UserHoursData
 } from "../type/issue";
 import {Apollo} from "apollo-angular";
 import * as operation from "../type/graphql.operations";
@@ -1965,5 +1965,22 @@ export class IssueService implements OnInit {
     this.allProjects().subscribe(project => {
       this.allProjectSubject.next(project);
     })
+  }
+
+  loadUserHours(issueId:number) {
+    return new Observable<UserHoursData[]>(observer => {
+      this.apollo.query({
+        query: operation.LOAD_USER_HOURS,
+        variables: {issueId},
+        fetchPolicy: "network-only"
+      }).subscribe((res: any) => {
+          observer.next(res.data.loadUserHours);
+          observer.complete();
+        }, error1 => {
+          observer.error(error1);
+          observer.complete();
+        }
+      );
+    });
   }
 }

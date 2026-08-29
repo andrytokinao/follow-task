@@ -542,7 +542,11 @@ export interface FileTypeInfo {
   iconColor: string;    // couleur CSS
   badgeClass: string;   // classe CSS du badge
 }
-
+export interface UserHoursData {
+  userName: string;
+  hours: number;   // total minutes
+  display: string; // "hh:mm"
+}
 const EXT_MAP: Record<string, FileTypeInfo> = {
   // Documents texte
   docx: { category: 'doc',     badge: 'DOC',  icon: 'ti-file-text',        iconColor: '#3B82F6', badgeClass: 'ft-doc'     },

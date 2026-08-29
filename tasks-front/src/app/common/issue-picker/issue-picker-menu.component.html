@@ -48,6 +48,7 @@
           <ng-container *ngTemplateOutlet="nodeList; context: { issues: issue.children, depth: depth + 1 }"></ng-container>
         </ng-container>
       </ng-container>
+      +
     </ng-template>
 
     <div class="issue-picker-empty" *ngIf="!issues.length">

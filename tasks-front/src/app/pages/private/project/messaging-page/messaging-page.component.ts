@@ -235,8 +235,9 @@ export class MessagingPageComponent implements OnInit, OnDestroy {
     this.messaging.listMessagesEntity(this.channelType, canal.externalId, { since }).subscribe({
       next: async (fresh) => {
         try {
-          await this.cache.saveMessages(fresh);
-          this.messages = await this.cache.getMessages(canal.externalId);
+        //  await this.cache.saveMessages(fresh);
+         // this.messages = await this.cache.getMessages(canal.externalId);
+          this.messages = fresh ;
         } catch (err) {
           console.error('Erreur écriture cache:', err);
           this.messages = fresh;

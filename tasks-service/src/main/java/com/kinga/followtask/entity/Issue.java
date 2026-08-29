@@ -5,6 +5,7 @@ import com.kinga.utils.KingaUtils;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.util.CollectionUtils;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -54,7 +55,7 @@ public class Issue {
     @OneToMany(mappedBy = "issue")
     private List<CustomFieldValue> values;
     @OneToMany(mappedBy = "issue")
-    private List<PlanningEvent> events;
+    private List<PlanningEvent> events = new ArrayList<>();
     @OneToMany(mappedBy = "issue")
     private List<IssueLabels> labels = new ArrayList<>();
     @ManyToOne
@@ -146,25 +147,16 @@ public class Issue {
      * comme brique de base à chaque niveau de la récursion).
      */
     private Duration getOwnElapsedDuration() {
-        if (events == null || events.isEmpty()) {
-            return Duration.ZERO;
-        }
-        LocalDateTime now = LocalDateTime.now();
-        Duration total = Duration.ZERO;
-
-        for (PlanningEvent event : events) {
-            LocalDateTime start = event.getStartTime();
-            if (start == null || start.isAfter(now)) {
-                // pas encore commencé -> aucune durée écoulée à compter
-                continue;
-            }
-
-            LocalDateTime end = event.getEndTime();
-            LocalDateTime effectiveEnd = (end != null && !end.isAfter(now)) ? end : now;
-
-            total = total.plus(Duration.between(start, effectiveEnd));
-        }
-        return total;
+       return KingaUtils.getOwnElapsedDuration(events);
     }
 
+    public List<PlanningEvent> getAllEvents() {
+        List<PlanningEvent> events = this.getEvents();
+        if (CollectionUtils.isEmpty(this.getChildren()))
+            return events;
+        for (Issue issue : getChildren()){
+            events.addAll(issue.getAllEvents());
+        }
+        return events;
+    }
 }

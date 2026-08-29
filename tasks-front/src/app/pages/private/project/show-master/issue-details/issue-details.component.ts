@@ -1,5 +1,13 @@
 import { Component, Input, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
-import { Comment, CustomField, CustomFieldValue, Issue, IssueType, UsingCustomField } from '../../../../../type/issue';
+import {
+  Comment,
+  CustomField,
+  CustomFieldValue,
+  Issue,
+  IssueType,
+  UserHoursData,
+  UsingCustomField
+} from '../../../../../type/issue';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ConfigService } from '../../../../../services/config.service';
@@ -44,11 +52,7 @@ export interface SubtaskStatusData {
   id?: number | string;
 }
 
-export interface UserHoursData {
-  userName: string;
-  hours: number;   // total minutes
-  display: string; // "hh:mm"
-}
+
 
 // ─────────────────────────────────────────────────
 @Component({
@@ -232,27 +236,15 @@ export class IssueDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /** Load per-user work hours */
   loadUserHours(): void {
-    const svc = this.issueService as any;
-    if (typeof svc.getUserHours === 'function') {
-      svc.getUserHours(this.parentIssue.id)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe((data: Array<{ user: any; minutes: number }>) => {
-          this.userHoursData = data.map(d => ({
-            userName: `${d.user?.firstname || ''} ${d.user?.lastname || ''}`.trim(),
-            hours: d.minutes,
-            display: this.formatMinutes(d.minutes),
-          }));
-          this.renderHoursChart();
-        });
-    } else {
-      // Demo data when endpoint not yet available
-      this.userHoursData = [
+      this.issueService.loadUserHours(this.parentIssue.id).subscribe(hours =>{
+        this.userHoursData = hours ;
+        this.renderHoursChart();
+      })
+ /*     this.userHoursData = [
         { userName: 'Alice M.', hours: 185, display: '03:05' },
         { userName: 'Bob D.',   hours: 320, display: '05:20' },
         { userName: 'Carol L.', hours: 95,  display: '01:35' },
-      ];
-      this.renderHoursChart();
-    }
+      ];*/
   }
 
   // ── Business Logic ────────────────────────────

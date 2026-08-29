@@ -376,4 +376,8 @@ public class GQIssueController {
     public PercentageProposalDTO proposeNextPercentage(@Argument Long issueId) {
         return progressService.proposeNextPercentage(issueId);
     }
+    @QueryMapping
+    public List<UserHoursData> loadUserHours(@Argument Long issueId) {
+        return this.issueService.loadUserHours(issueId);
+    }
 }

@@ -1,5 +1,16 @@
 import {Apollo, gql} from "apollo-angular";
 
+export let LOAD_USER_HOURS = gql`
+   query loadUserHours($issueId:ID!) {
+     loadUserHours(issueId:$issueId) {
+        display
+       hours
+       userName
+     }
+   }
+`;
+
+
 export let GET_ATACHED_DOCUMENT_ISSUE = gql`
   query getAtachedDocumentIssue($documentId:ID) {
     getAtachedDocumentIssue(documentId: $documentId) {
