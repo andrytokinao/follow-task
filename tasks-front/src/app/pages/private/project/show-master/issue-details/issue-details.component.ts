@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
+import { Component, ElementRef, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import {
   Comment,
   CustomField,
@@ -49,10 +49,7 @@ export interface SubtaskStatusData {
   label: string;
   count: number;
   color: string;
-  id?: number | string;
 }
-
-
 
 // ─────────────────────────────────────────────────
 @Component({
@@ -61,7 +58,7 @@ export interface SubtaskStatusData {
   templateUrl: './issue-details.component.html',
   styleUrl: './issue-details.component.scss',
 })
-export class IssueDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
+export class IssueDetailsComponent implements OnInit, OnDestroy {
 
   // ── State ─────────────────────────────────────
   private project: any;
@@ -89,15 +86,44 @@ export class IssueDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
   // ── Statistics ────────────────────────────────
   subtaskStatusData: SubtaskStatusData[] = [];
   userHoursData: UserHoursData[] = [];
+  uploadedFiles: any[] = [];
   totalFiles = 0;
   imageFiles = 0;
   docFiles = 0;
+
+  /** true tant que la requête des heures est en cours (évite le flash "aucune donnée") */
+  loadingUserHours = false;
+  userHoursError = false;
 
   // ── Charts ────────────────────────────────────
   private subtaskChart: Chart | null = null;
   private hoursChart: Chart | null = null;
   private filesChart: Chart | null = null;
-  private chartsReady = false;
+
+  private subtaskCanvas?: HTMLCanvasElement;
+  private hoursCanvas?: HTMLCanvasElement;
+  private filesCanvas?: HTMLCanvasElement;
+
+  private destroyed = false;
+
+  // Les canvas sont sous *ngIf : on redessine dès qu'ils entrent/sortent du DOM.
+  @ViewChild('subtaskChartCanvas')
+  set subtaskChartCanvasRef(ref: ElementRef<HTMLCanvasElement> | undefined) {
+    this.subtaskCanvas = ref?.nativeElement;
+    this.scheduleRender(() => this.renderSubtaskChart());
+  }
+
+  @ViewChild('userHoursCanvas')
+  set userHoursCanvasRef(ref: ElementRef<HTMLCanvasElement> | undefined) {
+    this.hoursCanvas = ref?.nativeElement;
+    this.scheduleRender(() => this.renderHoursChart());
+  }
+
+  @ViewChild('filesProgressCanvas')
+  set filesProgressCanvasRef(ref: ElementRef<HTMLCanvasElement> | undefined) {
+    this.filesCanvas = ref?.nativeElement;
+    this.scheduleRender(() => this.renderFilesChart());
+  }
 
   // ── Colors ────────────────────────────────────
   private readonly STATUS_COLORS: Record<string, string> = {
@@ -146,6 +172,9 @@ export class IssueDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(issue => {
         this.parentIssue = issue;
+        // On repart d'un état propre : sinon les stats de la tâche
+        // précédente restent affichées si la nouvelle n'en a pas.
+        this.resetStatistics();
         if (this.parentIssue?.id) {
           this.loadValues();
           this.loadComments();
@@ -156,17 +185,28 @@ export class IssueDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
-  ngAfterViewInit(): void {
-    // Charts will be initialized after data loads
-    this.chartsReady = true;
-  }
-
   ngOnDestroy(): void {
+    this.destroyed = true;
     this.destroy$.next();
     this.destroy$.complete();
     this.subtaskChart?.destroy();
     this.hoursChart?.destroy();
     this.filesChart?.destroy();
+    this.subtaskChart = this.hoursChart = this.filesChart = null;
+  }
+
+  private resetStatistics(): void {
+    this.subtasks = [];
+    this.subtaskStatusData = [];
+    this.userHoursData = [];
+    this.uploadedFiles = [];
+    this.totalFiles = 0;
+    this.imageFiles = 0;
+    this.docFiles = 0;
+    this.userHoursError = false;
+    this.renderSubtaskChart();
+    this.renderHoursChart();
+    this.renderFilesChart();
   }
 
   // ── Data Loaders ──────────────────────────────
@@ -202,49 +242,99 @@ export class IssueDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   loadSubtasks(): void {
     const svc = this.issueService as any;
-    if (typeof svc.getSubtasks === 'function') {
-      svc.getSubtasks(this.parentIssue.id)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe((subtasks: Issue[]) => {
-          this.subtasks = subtasks;
-          this.buildSubtaskStatusData();
-          this.renderSubtaskChart();
-        });
-    } else {
+    if (typeof svc.getSubtasks !== 'function') {
       this.subtasks = [];
       this.buildSubtaskStatusData();
       this.renderSubtaskChart();
+      return;
     }
+    svc.getSubtasks(this.parentIssue.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (subtasks: Issue[]) => {
+          this.subtasks = subtasks ?? [];
+          this.buildSubtaskStatusData();
+          this.renderSubtaskChart();
+        },
+        error: () => {
+          this.subtasks = [];
+          this.buildSubtaskStatusData();
+          this.renderSubtaskChart();
+        },
+      });
   }
 
   /** Load file attachments count */
   loadFiles(): void {
     const svc = this.issueService as any;
-    if (typeof svc.getFiles === 'function') {
-      svc.getFiles(this.parentIssue.id)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe((files: any[]) => {
-          this.totalFiles = files.length;
-          this.imageFiles = files.filter(f =>
-            /\.(png|jpg|jpeg|gif|webp|svg)$/i.test(f.name || f.filename || '')
-          ).length;
-          this.docFiles = this.totalFiles - this.imageFiles;
-          this.renderFilesChart();
-        });
+    if (typeof svc.getFiles !== 'function') {
+      this.applyFiles([]);
+      return;
     }
+    svc.getFiles(this.parentIssue.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (files: any[]) => this.applyFiles(files),
+        error: () => this.applyFiles([]),
+      });
+  }
+
+  private applyFiles(files: any[]): void {
+    const list = files ?? [];
+    this.uploadedFiles = list.map(f => {
+      const name = f?.name || f?.filename || '';
+      return { ...f, name, isImage: this.isImageFile(name) };
+    });
+    this.totalFiles = this.uploadedFiles.length;
+    this.imageFiles = this.uploadedFiles.filter(f => f.isImage).length;
+    this.docFiles = this.totalFiles - this.imageFiles;
+    this.renderFilesChart();
+  }
+
+  private isImageFile(name: string): boolean {
+    return /\.(png|jpg|jpeg|gif|webp|svg|bmp)$/i.test(name);
   }
 
   /** Load per-user work hours */
   loadUserHours(): void {
-      this.issueService.loadUserHours(this.parentIssue.id).subscribe(hours =>{
-        this.userHoursData = hours ;
-        this.renderHoursChart();
+    this.loadingUserHours = true;
+    this.userHoursError = false;
+    this.issueService.loadUserHours(this.parentIssue.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: hours => {
+          this.loadingUserHours = false;
+          this.userHoursData = this.normalizeUserHours(hours);
+          this.renderHoursChart();
+        },
+        error: () => {
+          this.loadingUserHours = false;
+          this.userHoursError = true;
+          this.userHoursData = [];
+          this.renderHoursChart();
+        },
+      });
+  }
+
+  /**
+   * Le backend peut renvoyer null, des minutes nulles ou un `display` absent :
+   * on nettoie tout ici pour que le graphe ne reçoive jamais de NaN.
+   */
+  private normalizeUserHours(hours: UserHoursData[] | null | undefined): UserHoursData[] {
+    return (hours ?? [])
+      .filter(h => !!h)
+      .map(h => {
+        const minutes = Number(h.hours);
+        const safeMinutes = Number.isFinite(minutes) && minutes > 0 ? minutes : 0;
+        return {
+          ...h,
+          userName: (h.userName || '').trim() || 'Non assigné',
+          hours: safeMinutes,
+          display: h.display || this.formatMinutes(safeMinutes),
+        };
       })
- /*     this.userHoursData = [
-        { userName: 'Alice M.', hours: 185, display: '03:05' },
-        { userName: 'Bob D.',   hours: 320, display: '05:20' },
-        { userName: 'Carol L.', hours: 95,  display: '01:35' },
-      ];*/
+      .filter(h => h.hours > 0)
+      .sort((a, b) => b.hours - a.hours);
   }
 
   // ── Business Logic ────────────────────────────
@@ -301,7 +391,7 @@ export class IssueDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
   buildSubtaskStatusData(): void {
     const map = new Map<string, number>();
     for (const sub of this.subtasks) {
-      const key = sub?.status?.displayName.toString() || 'Unknown';
+      const key = sub?.status?.displayName?.toString() || 'Inconnu';
       map.set(key, (map.get(key) ?? 0) + 1);
     }
     this.subtaskStatusData = Array.from(map.entries()).map(([label, count]) => ({
@@ -312,141 +402,162 @@ export class IssueDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   formatMinutes(totalMinutes: number): string {
-    const h = Math.floor(totalMinutes / 60);
-    const m = totalMinutes % 60;
+    const safe = Number.isFinite(totalMinutes) && totalMinutes > 0 ? Math.round(totalMinutes) : 0;
+    const h = Math.floor(safe / 60);
+    const m = safe % 60;
     return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
   }
 
+  colorForUser(index: number): string {
+    return this.USER_PALETTE[index % this.USER_PALETTE.length];
+  }
+
+  get hasUserHours(): boolean {
+    return this.userHoursData.length > 0;
+  }
+
+  get totalUserMinutes(): number {
+    return this.userHoursData.reduce((sum, d) => sum + d.hours, 0);
+  }
+
+  get totalUserHoursDisplay(): string {
+    return this.formatMinutes(this.totalUserMinutes);
+  }
+
+  get hasSubtaskStats(): boolean {
+    return this.subtaskStatusData.length > 0;
+  }
+
   // ── Chart Rendering ───────────────────────────
-  uploadedFiles: any[] =[];
-  private waitForCanvas(id: string, cb: (el: HTMLCanvasElement) => void): void {
-    const attempt = () => {
-      const el = document.getElementById(id) as HTMLCanvasElement | null;
-      if (el) { cb(el); }
-      else { requestAnimationFrame(attempt); }
-    };
-    attempt();
+  /**
+   * Le rendu passe par un setTimeout : les setters @ViewChild sont appelés
+   * pendant la détection de changement, on laisse Angular finir son cycle
+   * avant de toucher au canvas.
+   */
+  private scheduleRender(fn: () => void): void {
+    setTimeout(() => { if (!this.destroyed) fn(); });
   }
 
   renderSubtaskChart(): void {
-    if (this.subtaskStatusData.length === 0) return;
-    this.waitForCanvas('subtaskStatusChart', (canvas) => {
-      this.subtaskChart?.destroy();
-      this.subtaskChart = new Chart(canvas, {
-        type: 'doughnut',
-        data: {
-          labels: this.subtaskStatusData.map(d => d.label),
-          datasets: [{
-            data: this.subtaskStatusData.map(d => d.count),
-            backgroundColor: this.subtaskStatusData.map(d => d.color),
-            borderWidth: 3,
-            borderColor: '#fff',
-            hoverBorderColor: '#fff',
-            hoverOffset: 6,
-          }],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          cutout: '68%',
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              callbacks: {
-                label: ctx => ` ${ctx.label}: ${ctx.parsed} tâche(s)`,
-              },
+    // Toujours détruire d'abord : sans ça un graphe vidé garde l'ancien rendu.
+    this.subtaskChart?.destroy();
+    this.subtaskChart = null;
+    if (!this.subtaskCanvas || this.subtaskStatusData.length === 0) return;
+
+    this.subtaskChart = new Chart(this.subtaskCanvas, {
+      type: 'doughnut',
+      data: {
+        labels: this.subtaskStatusData.map(d => d.label),
+        datasets: [{
+          data: this.subtaskStatusData.map(d => d.count),
+          backgroundColor: this.subtaskStatusData.map(d => d.color),
+          borderWidth: 3,
+          borderColor: '#fff',
+          hoverBorderColor: '#fff',
+          hoverOffset: 6,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '68%',
+        animation: { duration: 300 },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => ` ${ctx.label}: ${ctx.parsed} tâche(s)`,
             },
           },
         },
-      });
+      },
     });
   }
 
   renderHoursChart(): void {
-    if (this.userHoursData.length === 0) return;
-    this.waitForCanvas('userHoursChart', (canvas) => {
-      this.hoursChart?.destroy();
-      this.hoursChart = new Chart(canvas, {
-        type: 'bar',
-        data: {
-          labels: this.userHoursData.map(d => d.userName),
-          datasets: [{
-            label: 'Heures',
-            data: this.userHoursData.map(d => +(d.hours / 60).toFixed(2)),
-            backgroundColor: this.userHoursData.map((_, i) =>
-              this.USER_PALETTE[i % this.USER_PALETTE.length] + 'CC'
-            ),
-            borderColor: this.userHoursData.map((_, i) =>
-              this.USER_PALETTE[i % this.USER_PALETTE.length]
-            ),
-            borderWidth: 2,
-            borderRadius: 8,
-            borderSkipped: false,
-          }],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              callbacks: {
-                label: ctx => {
-                  const d = this.userHoursData[ctx.dataIndex];
-                  return ` ${d.display} (hh:mm)`;
-                },
-              },
-            },
-          },
-          scales: {
-            x: {
-              grid: { display: false },
-              ticks: { font: { size: 11 }, color: '#64748B' },
-            },
-            y: {
-              grid: { color: '#F1F5F9' },
-              ticks: {
-                font: { size: 11 },
-                color: '#64748B',
-                callback: v => `${v}h`,
-              },
-              beginAtZero: true,
+    this.hoursChart?.destroy();
+    this.hoursChart = null;
+    if (!this.hoursCanvas || this.userHoursData.length === 0) return;
+
+    const data = this.userHoursData;
+    this.hoursChart = new Chart(this.hoursCanvas, {
+      type: 'bar',
+      data: {
+        labels: data.map(d => d.userName),
+        datasets: [{
+          label: 'Heures',
+          data: data.map(d => +(d.hours / 60).toFixed(2)),
+          backgroundColor: data.map((_, i) => this.colorForUser(i) + 'CC'),
+          borderColor: data.map((_, i) => this.colorForUser(i)),
+          borderWidth: 2,
+          borderRadius: 8,
+          borderSkipped: false,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 300 },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              // On lit le snapshot `data`, pas le champ de la classe :
+              // un rechargement pendant le survol ne peut plus donner undefined.
+              label: ctx => ` ${data[ctx.dataIndex]?.display ?? ''} (hh:mm)`,
             },
           },
         },
-      });
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { font: { size: 11 }, color: '#64748B' },
+          },
+          y: {
+            grid: { color: '#F1F5F9' },
+            ticks: {
+              font: { size: 11 },
+              color: '#64748B',
+              callback: v => `${v}h`,
+            },
+            beginAtZero: true,
+          },
+        },
+      },
     });
   }
 
   renderFilesChart(): void {
-    this.waitForCanvas('filesProgressChart', (canvas) => {
-      this.filesChart?.destroy();
-      this.filesChart = new Chart(canvas, {
-        type: 'line',
-        data: {
-          labels: ['', 'Images', 'Docs', 'Total'],
-          datasets: [{
-            data: [0, this.imageFiles, this.docFiles, this.totalFiles],
-            borderColor: '#2563EB',
-            backgroundColor: 'rgba(37,99,235,.1)',
-            fill: true,
-            tension: 0.4,
-            pointBackgroundColor: '#2563EB',
-            pointRadius: 4,
-            pointHoverRadius: 6,
-            borderWidth: 2,
-          }],
+    this.filesChart?.destroy();
+    this.filesChart = null;
+    if (!this.filesCanvas || this.totalFiles === 0) return;
+
+    this.filesChart = new Chart(this.filesCanvas, {
+      type: 'line',
+      data: {
+        labels: ['', 'Images', 'Docs', 'Total'],
+        datasets: [{
+          data: [0, this.imageFiles, this.docFiles, this.totalFiles],
+          borderColor: '#2563EB',
+          backgroundColor: 'rgba(37,99,235,.1)',
+          fill: true,
+          tension: 0.4,
+          pointBackgroundColor: '#2563EB',
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          borderWidth: 2,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 300 },
+        plugins: { legend: { display: false }, tooltip: { enabled: true } },
+        scales: {
+          x: { display: false },
+          y: { display: false, beginAtZero: true },
         },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false }, tooltip: { enabled: true } },
-          scales: {
-            x: { display: false },
-            y: { display: false, beginAtZero: true },
-          },
-        },
-      });
+      },
     });
   }
 }

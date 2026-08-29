@@ -105,27 +105,54 @@
             <div class="stat-card-header">
               <span class="stat-label"><i class="fas fa-tasks"></i> Tâches par statut</span>
             </div>
-            <div class="chart-wrapper chart-sm">
-              <canvas id="subtaskStatusChart"></canvas>
-            </div>
-            <div class="chart-legend" *ngIf="subtasks?.length > 0">
-              <div class="legend-item" *ngFor="let item of subtaskStatusData" (click)="router.navigate(['/issues', item.id])">
-                <span class="legend-dot" [style.background]="item.color"></span>
-                <span class="legend-label">{{ item.label }}</span>
-                <span class="legend-count">{{ item.count }}</span>
+            <ng-container *ngIf="hasSubtaskStats; else noSubtaskStats">
+              <div class="chart-wrapper chart-sm">
+                <canvas #subtaskChartCanvas id="subtaskStatusChart"></canvas>
               </div>
-            </div>
-            <div class="empty-state-inline" *ngIf="!subtasks || subtasks.length === 0">
-              <i class="fas fa-chart-pie"></i><span>Aucune donnée</span>
-            </div>
+              <div class="chart-legend">
+                <div class="legend-item" *ngFor="let item of subtaskStatusData">
+                  <span class="legend-dot" [style.background]="item.color"></span>
+                  <span class="legend-label">{{ item.label }}</span>
+                  <span class="legend-count">{{ item.count }}</span>
+                </div>
+              </div>
+            </ng-container>
+            <ng-template #noSubtaskStats>
+              <div class="empty-state-inline">
+                <i class="fas fa-chart-pie"></i><span>Aucune donnée</span>
+              </div>
+            </ng-template>
           </div>
           <div class="stat-card chart-card">
             <div class="stat-card-header">
               <span class="stat-label"><i class="fas fa-clock"></i> Heures de travail</span>
+              <span class="stat-total" *ngIf="hasUserHours">{{ totalUserHoursDisplay }}</span>
             </div>
-            <div class="chart-wrapper">
-              <canvas id="userHoursChart"></canvas>
+
+            <div class="empty-state-inline" *ngIf="loadingUserHours">
+              <i class="fas fa-spinner fa-spin"></i><span>Chargement…</span>
             </div>
+
+            <ng-container *ngIf="!loadingUserHours">
+              <ng-container *ngIf="hasUserHours; else noUserHours">
+                <div class="chart-wrapper">
+                  <canvas #userHoursCanvas id="userHoursChart"></canvas>
+                </div>
+                <div class="chart-legend">
+                  <div class="legend-item" *ngFor="let item of userHoursData; let i = index">
+                    <span class="legend-dot" [style.background]="colorForUser(i)"></span>
+                    <span class="legend-label">{{ item.userName }}</span>
+                    <span class="legend-count">{{ item.display }}</span>
+                  </div>
+                </div>
+              </ng-container>
+              <ng-template #noUserHours>
+                <div class="empty-state-inline">
+                  <i class="fas" [ngClass]="userHoursError ? 'fa-triangle-exclamation' : 'fa-hourglass-half'"></i>
+                  <span>{{ userHoursError ? 'Heures indisponibles' : 'Aucune heure enregistrée' }}</span>
+                </div>
+              </ng-template>
+            </ng-container>
           </div>
           <div class="stat-card kpi-card">
             <div class="stat-card-header">
@@ -135,8 +162,8 @@
               <span class="kpi-number">{{ totalFiles }}</span>
               <span class="kpi-unit">fichiers</span>
             </div>
-            <div class="kpi-visual">
-              <canvas id="filesProgressChart"></canvas>
+            <div class="kpi-visual" *ngIf="totalFiles > 0">
+              <canvas #filesProgressCanvas id="filesProgressChart"></canvas>
             </div>
             <div class="kpi-sub">
               <span class="kpi-detail"><i class="fas fa-image"></i> {{ imageFiles }} images</span>
