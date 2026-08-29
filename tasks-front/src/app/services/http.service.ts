@@ -10,7 +10,7 @@ import {
 import { BehaviorSubject, Observable, throwError, of } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
-import { ToastrService, GlobalConfig } from 'ngx-toastr';
+import { ToastrService } from 'ngx-toastr';
 import { User } from '../type/issue';
 import {AuthService} from "./auth.service";
 
@@ -31,17 +31,10 @@ export class HttpInterceptorService implements HttpInterceptor {
     private toastr: ToastrService,
     private injector: Injector
   ) {
-    const config: Partial<GlobalConfig> = {
-      positionClass: 'toast-bottom-left',
-      timeOut: 4000,
-      closeButton: true,
-      progressBar: true,
-      tapToDismiss: true,
-      maxOpened: 1,
-      autoDismiss: true,
-      toastClass: 'ngx-toastr custom-toast-small'
-    };
-    this.toastr.toastrConfig = { ...this.toastr.toastrConfig, ...config };
+    // Cet intercepteur écrasait ici `toastr.toastrConfig`, donc la
+    // configuration de TOUS les toasts de l'application (position, classe,
+    // durée), pas seulement des siens. Les erreurs réseau utilisent
+    // désormais la configuration globale d'app.module.ts, comme le reste.
   }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {

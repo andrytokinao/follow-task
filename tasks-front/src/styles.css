@@ -1,5 +1,9 @@
 @import "@fortawesome/fontawesome-free/css/all.css";
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
+/* Feuille de base de ngx-toastr : elle n'était pas importée, d'où l'absence
+   d'animations, de bouton de fermeture et de barre de progression stylés.
+   Les surcharges de ce fichier passent après (voir section "Toasts"). */
+@import 'ngx-toastr/toastr';
 /* styles.scss global */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@600&display=swap');
 body, html {
@@ -564,49 +568,172 @@ h3 {
     display: none; /* Hide left menu on smaller screens */
   }
 }
-.toast-container {
-  top: 100vh !important;
-  right: 0;
-  transform: translateY(-100%);
+/* =========================================================================
+   Toasts (ngx-toastr)
+   -------------------------------------------------------------------------
+   Cartes blanches avec liseré et icône colorés selon le type, plutôt que des
+   aplats de couleur : plus lisible, et cohérent avec le reste de l'interface.
+   La couleur d'accent est portée par --toast-accent, déclinée par variante.
+   ========================================================================= */
+
+/* Conteneur — `positionClass: 'custom-toast-position'` (app.module.ts).
+   ngx-toastr pose cette classe sur #toast-container. */
+#toast-container.custom-toast-position {
   position: fixed;
-  width: 100%;
-}
-/*!* Position du toast *!
-.custom-toast-position {
-  top: 90vh !important;
-  right: 0;
-  transform: translateY(-100%);
-  position: fixed;
-}*/
-.custom-toast-small {
-  font-size: 13px !important;
-  padding: 6px 10px !important;
-  border-radius: 6px !important;
-  min-width: 200px !important;
-  max-width: 260px !important;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
-}
-
-
-.toast-success {
-  background-color: #4caf50 !important;
-  color: white !important;
+  top: 16px;
+  right: 16px;
+  left: auto;
+  bottom: auto;
+  width: auto;
+  max-width: calc(100vw - 32px);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  /* Au-dessus des modales Bootstrap (1055) et des overlays CDK (1000) :
+     un message d'erreur doit rester visible par-dessus une boîte de dialogue. */
+  z-index: 1100;
+  /* Le conteneur couvre une zone plus large que les toasts eux-mêmes ;
+     sans ça il intercepterait les clics sur l'interface en dessous. */
+  pointer-events: none;
 }
 
-
-.toast-error {
-  background-color: #702930 !important;
-  color: white !important;
+#toast-container.custom-toast-position > div {
+  pointer-events: auto;
 }
 
-.toast-warning {
-  background-color: #ff9800 !important;
-  color: white !important;
+/* ---- Carte ---- */
+#toast-container > div.ngx-toastr {
+  position: relative;
+  display: block;
+  width: 340px;
+  max-width: 100%;
+  margin: 0;
+  padding: 12px 36px 12px 42px;
+  border: 1px solid #e5e7eb;
+  border-left: 3px solid var(--toast-accent, #6b7280);
+  border-radius: 10px;
+  background: #fff;
+  /* Neutralise l'icône SVG blanche du thème par défaut, invisible sur fond
+     clair — elle est remplacée par l'icône FontAwesome ci-dessous. */
+  background-image: none;
+  box-shadow: 0 8px 24px rgba(16, 24, 40, 0.12);
+  color: #111827;
+  font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  opacity: 1;
+  overflow: hidden;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
 }
 
-.toast-info{
-  background-color: #2196f3 !important;
-  color: white !important;
+#toast-container > div.ngx-toastr:hover {
+  box-shadow: 0 10px 28px rgba(16, 24, 40, 0.18);
+  opacity: 1;
+}
+
+/* ---- Icône ---- */
+#toast-container > div.ngx-toastr::before {
+  content: "\f05a";
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  position: absolute;
+  top: 13px;
+  left: 14px;
+  font-size: 15px;
+  line-height: 1;
+  color: var(--toast-accent, #6b7280);
+}
+
+#toast-container .toast-title {
+  margin: 0 0 2px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: #111827;
+}
+
+#toast-container .toast-message {
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: #4b5563;
+  word-break: break-word;
+}
+
+#toast-container .toast-close-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: #9ca3af;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 18px;
+  text-shadow: none;
+  opacity: 1;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+#toast-container .toast-close-button:hover,
+#toast-container .toast-close-button:focus {
+  background: #f3f4f6;
+  color: #111827;
+  opacity: 1;
+}
+
+#toast-container .toast-progress {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  background-color: var(--toast-accent, #6b7280);
+  opacity: 0.85;
+}
+
+/* ---- Variantes ---- */
+#toast-container > div.toast-success { --toast-accent: #16a34a; }
+#toast-container > div.toast-success::before { content: "\f058"; }
+
+#toast-container > div.toast-error { --toast-accent: #dc2626; }
+#toast-container > div.toast-error::before { content: "\f06a"; }
+
+#toast-container > div.toast-warning { --toast-accent: #d97706; }
+#toast-container > div.toast-warning::before { content: "\f071"; }
+
+#toast-container > div.toast-info { --toast-accent: #2563eb; }
+#toast-container > div.toast-info::before { content: "\f05a"; }
+
+/* ---- Mobile ----
+   Ancrage en bas et pleine largeur : plus près du pouce, et le toast ne
+   recouvre pas la barre de navigation haute. env(safe-area-inset-bottom)
+   dégage la barre d'accueil des iPhone. */
+@media (max-width: 576px) {
+  #toast-container.custom-toast-position {
+    top: auto;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    left: 12px;
+    right: 12px;
+    max-width: none;
+    /* Le plus récent reste en bas, donc le plus accessible. */
+    flex-direction: column-reverse;
+  }
+
+  #toast-container > div.ngx-toastr {
+    width: 100%;
+    padding: 11px 34px 11px 40px;
+    border-radius: 12px;
+  }
+
+  #toast-container .toast-title { font-size: 12.5px; }
+  #toast-container .toast-message { font-size: 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #toast-container > div.ngx-toastr {
+    animation: none !important;
+    transition: none !important;
+  }
 }
 .issue-list{
   display: grid;

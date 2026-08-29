@@ -11,7 +11,7 @@ import { provideRouter } from "@angular/router";
 
 import { CookieService } from "ngx-cookie-service";
 import { HttpInterceptorService } from "./services/http.service";
-import { provideToastr, ToastrModule } from "ngx-toastr";
+import { ToastrModule } from "ngx-toastr";
 import { MarkdownModule } from "ngx-markdown";
 import { QuillModule } from "ngx-quill";
 import { NgbModule } from "@ng-bootstrap/ng-bootstrap";
@@ -40,9 +40,19 @@ import {OverlayModule} from "@angular/cdk/overlay";
     ToastrModule.forRoot({
       positionClass: 'custom-toast-position',
       preventDuplicates: true,
-      timeOut: 10000,
+      // 10 s, c'était long pour une confirmation ; 5 s suffisent, et le toast
+      // reste affiché tant que la souris est dessus (extendedTimeOut).
+      timeOut: 5000,
+      extendedTimeOut: 2000,
       closeButton: true,
-      progressBar: true
+      progressBar: true,
+      progressAnimation: 'decreasing',
+      newestOnTop: true,
+      // Au-delà, la pile masque l'interface — surtout sur mobile.
+      maxOpened: 4,
+      autoDismiss: true,
+      tapToDismiss: true,
+      easeTime: 200,
     }),
     MarkdownModule.forRoot(),
     QuillModule.forRoot({
@@ -72,7 +82,6 @@ import {OverlayModule} from "@angular/cdk/overlay";
       multi: true
     },
     provideAnimations(),
-    provideToastr(),
     provideNativeDateAdapter(),
     provideRouter(appRoutes),
   ],
