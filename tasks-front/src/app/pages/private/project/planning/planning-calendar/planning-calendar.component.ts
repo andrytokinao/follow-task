@@ -147,6 +147,10 @@ export class PlanningCalendarComponent implements AfterViewInit {
 
   configNavigator: DayPilot.NavigatorConfig = {
     locale: PlanningCalendarComponent.LOCALE,
+    // Explicite plutôt que "Auto" : navigateur, vue Semaine et vue Mois
+    // doivent démarrer sur le même jour, sinon la sélection du navigateur ne
+    // correspond pas à la semaine affichée.
+    weekStarts: 1,
     showMonths: 1,
     cellWidth: 23,
     cellHeight: 25,
@@ -210,6 +214,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
   configWeek: DayPilot.CalendarConfig = {
     viewType: "Week",
     locale: PlanningCalendarComponent.LOCALE,
+    weekStarts: 1,
     // Sept colonnes : format court, sinon les en-têtes sont tronqués au
     // palier de zoom compact.
     headerDateFormat: "ddd d MMM",
@@ -238,6 +243,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
 
   configMonth: DayPilot.MonthConfig = {
     locale: PlanningCalendarComponent.LOCALE,
+    weekStarts: 1,
     contextMenu: this.contextMenu,
     eventBarVisible: false,
     onTimeRangeSelected: this.newEvent.bind(this),
