@@ -87,8 +87,16 @@ export class LoginComponent implements OnInit{
     this.authService.loadProfile();
     this.authService.loadConnectedUserByUsername(username);
   }
-  signup() : void{
-   this.signupMode = !this.signupMode;
+  // Bascule explicite entre les deux onglets. Chaque méthode ferme aussi
+  // l'écran "mot de passe oublié", qui est un troisième état indépendant.
+  showSignIn(): void {
+    this.signupMode = false;
+    this.forgotPasword = false;
+  }
+
+  showSignUp(): void {
+    this.signupMode = true;
+    this.forgotPasword = false;
   }
   eventGateway = inject(EventGateway);
   private isValidContact():ValidatorFn{
@@ -182,7 +190,7 @@ export class LoginComponent implements OnInit{
     user.password = this.form.value.password;
     this.userService.saveUser(user).subscribe(user => {
       this.toast.success("Resister successful","Successful");
-       this.signup() ;
+       this.showSignIn() ;
       }, error =>  {
       this.toast.error("Sign up error :"+error.message,"Sign up error");
     })

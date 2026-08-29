@@ -1,162 +1,318 @@
+<div class="auth-page">
 
-<div class="container" [ngClass] ="{'sign-up-mode':signupMode===true}">
-  <div class="forms-container">
-    <div class="signin-signup">
-      <form action="" (ngSubmit)="login()" class="sign-in-form" *ngIf="!forgotPasword">
-        <h2 class="title">Sign In</h2>
-        <div class="input-field">
-          <i class="fas fa-user"></i>
-          <input type="text" [(ngModel)]= "username" placeholder="Username"  [ngModelOptions]="{standalone: true}" />
-        </div>
-        <div class="input-field">
-          <i class="fas fa-lock"></i>
-          <input type="password" [(ngModel)]= "password" placeholder="Password"  [ngModelOptions]="{standalone: true}" />
+  <!-- ===================================================================
+       Vitrine : ce que l'application apporte. Masquée sous 960 px, où
+       l'écran doit être entièrement dédié au formulaire.
+       =================================================================== -->
+  <aside class="brand-panel">
+    <div class="brand-overlay"></div>
 
-        </div>
-        <div (click)="forgotPasword = true" style="cursor: pointer"> Mots de passe oubliés  </div>
-        <input
-          type="submit"
-          [disabled]="loginInProgress"
-          [value]="loginInProgress ? 'Connexion en cours...' : 'Se connecter'"
-          class="btn solid"
-        />
-
-        <div *ngIf="loginErrorMessage" class="error-message">
-          {{ loginErrorMessage }}
-        </div>
-
-        <div *ngIf="loginMessage" class="success-message">
-          {{ loginMessage }}
-        </div>
-        <!--<p class="social-text">Or Sign in with social platforms</p>
-        <div class="social-media">
-          <a href="#" class="social-icon">
-            <i class="fab fa-facebook-f"></i>
-          </a>
-          <a href="#" class="social-icon">
-            <i class="fab fa-twitter"></i>
-          </a>
-          <a href="#" class="social-icon">
-            <i class="fab fa-google"></i>
-          </a>
-          <a href="#" class="social-icon">
-            <i class="fab fa-linkedin-in"></i>
-          </a>
-        </div>-->
-      </form>
-
-      <div class="mafo" *ngIf="forgotPasword">
-        <app-forgot-pasword (result)="forgotResult($event)" ></app-forgot-pasword>
+    <div class="brand-content">
+      <div class="brand-logo">
+        <span class="brand-mark"><i class="fas fa-check-double"></i></span>
+        <span class="brand-name">Follow Task</span>
       </div>
 
-
-      <form   [formGroup]="form" (ngSubmit)="onSubmit()" action="" class="sign-up-form">
-        <h2 class="title" > Sign Up</h2>
-        <div class="input-field">
-          <i class="fas fa-user"></i>
-          <input type="text"  formControlName="username" placeholder="Username"  />
-        </div>
-        <div class="error-container">
-          <span *ngIf="form.controls.username.touched && form.controls.username.errors?.['required']">Merci de compléter ce champ.</span>
-        </div>
-        <div  class="input-field" >
-          <i class="fas fa-id-card"></i>
-          <input id="lastname" type="text" formControlName="lastname"  placeholder="Nom" />
-        </div>
-        <div class="error-container">
-          <span *ngIf="form.controls.lastname.touched && form.controls.lastname.errors?.['required']">Merci de compléter ce champ.</span>
-        </div>
-        <div class="input-field">
-          <i class="fas fa-id-card-alt"></i>
-          <input id="firstname" type="text" formControlName="firstname" placeholder="Prénom"/>
-        </div>
-        <div class="error-container">
-          <span *ngIf="form.controls.firstname.touched && form.controls.firstname.errors?.['required']">Merci de compléter ce champ.</span>
-        </div>
-        <div class="input-field">
-          <i class="fas fa-envelope"></i>
-          <input id="email" type="email" formControlName="email" placeholder="Email" />
-
-        </div>
-        <div class="error-container">
-          <span *ngIf="form.controls.email.touched && form.controls.email.errors?.['required']">Merci de compléter ce champ.</span>
-          <span *ngIf="form.controls.email.touched && form.controls.email.errors?.['email']">Merci de saisir un email valide.</span>
-        </div>
-        <div class="input-field">
-          <i class="fas fa-lock"></i>
-          <input id="contact" type="text" name="contact" [(ngModel)]="contact"   formControlName="contact" placeholder="Contact" />
-        </div>
-        <div class="error-container">
-          <span *ngIf="form.controls.contact.touched && form.controls.contact.errors?.['required']">Merci de compléter votre contact.</span>
-          <span *ngIf="form.controls.contact.touched && form.controls.contact.errors?.['alredyUsed']">Merci de compléter votre contact.</span>
-          <span *ngIf="form.controls.contact.touched && form.controls.contact.errors?.['invalidContact']">Merci de saisir un contact valid.</span>
-        </div>
-        <div class="input-field">
-          <i class="fas fa-lock"></i>
-          <input id="newPasword" type="password" name="password" [(ngModel)]="newPassword"   formControlName="password" placeholder="Pasword" />
-        </div>
-
-        <div class="error-container">
-          <span *ngIf="form.controls.password.touched && form.controls.password.errors?.['required']">Merci de compléter ce champ.</span>
-        </div>
-        <div class="input-field">
-          <i class="fas fa-lock"></i>
-            <input id="confirmPasword" type="password" [(ngModel)]="confirmPassword" name="password" formControlName="confirmPassword" placeholder="Confirm" />
-        </div>
-        <div class="error-container">
-        <span *ngIf="
-          (form.controls.confirmPassword.touched && form.controls.confirmPassword.errors?.['required'])
-          || (form.controls.confirmPassword.touched && form.errors?.['notConfirmed'])
-        ">
-          Merci de confirmer le mots de pass
-        </span>
-          <span *ngIf="form.errors?.['childTicketOnly']">
-          Au moins une personne majeure doit assister à l'événement
-        </span>
-          <span *ngIf="form.errors?.['remainingSeats'] as remainingSeats">
-          Il ne reste que {{ remainingSeats }} places pour cet événement.
-        </span>
-        </div>
-        <input type="submit" value="Sign Up" class="btn solid" />
-
-        <!--
-                <p class="social-text">Or Sign up with social platforms</p>
-                <div class="social-media">
-                  <a href="#" class="social-icon">
-                    <i class="fab fa-facebook-f"></i>
-                  </a>
-                  <a href="#" class="social-icon">
-                    <i class="fab fa-twitter"></i>
-                  </a>
-                  <a href="#" class="social-icon">
-                    <i class="fab fa-google"></i>
-                  </a>
-                  <a href="#" class="social-icon">
-                    <i class="fab fa-linkedin-in"></i>
-                  </a>
-                </div>-->
-      </form>
-    </div>
-  </div>
-  <div class="panels-container">
-
-    <div class="panel left-panel">
-      <div class="content-lg">
-        <h3>New here?</h3>
-        <p>Inscrivez-vous dès maintenant et contribuez à notre succès collectif !</p>
-        <button class="btn transparent" id="sign-up-btn" (click)="signup()">Sign Up</button>
+      <div class="brand-pitch">
+        <h1>Pilotez vos projets,<br />suivez vos équipes.</h1>
+        <p>
+          Planification, avancement et échanges réunis dans un seul espace de
+          travail — pour que chacun sache quoi faire, et où en est le projet.
+        </p>
       </div>
-      <img src="./assets/log.svg" class="image" alt="">
-    </div>
 
-    <div class="panel right-panel">
-      <div class="content-lg">
-        <h3>One of us?</h3>
-        <p>Inscrivez-vous dès maintenant et contribuez à notre succès collectif !</p>
-        <button class="btn transparent" id="sign-in-btn" (click)="signup()">Sign In</button>
-      </div>
-      <img src="./assets/register.svg" class="image" alt="">
+      <ul class="brand-features">
+        <li>
+          <span class="feature-icon"><i class="fas fa-calendar-check"></i></span>
+          <span class="feature-text">
+            <strong>Planification d'équipe</strong>
+            Répartissez la charge et visualisez l'agenda de chacun.
+          </span>
+        </li>
+        <li>
+          <span class="feature-icon"><i class="fas fa-chart-line"></i></span>
+          <span class="feature-text">
+            <strong>Suivi d'avancement</strong>
+            Pourcentages, durées passées et alertes en temps réel.
+          </span>
+        </li>
+        <li>
+          <span class="feature-icon"><i class="fas fa-comments"></i></span>
+          <span class="feature-text">
+            <strong>Échanges centralisés</strong>
+            Messages et documents rattachés directement aux tâches.
+          </span>
+        </li>
+      </ul>
     </div>
-  </div>
+  </aside>
+
+  <!-- ===================================================================
+       Authentification
+       =================================================================== -->
+  <main class="auth-panel">
+    <div class="auth-card">
+
+      <!-- Logo repris ici : sur mobile, la vitrine est masquée. -->
+      <div class="auth-brand">
+        <span class="brand-mark"><i class="fas fa-check-double"></i></span>
+        <span class="brand-name">Follow Task</span>
+      </div>
+
+      <!-- ---- Mot de passe oublié ---- -->
+      <ng-container *ngIf="forgotPasword">
+        <header class="auth-head">
+          <h2>Mot de passe oublié</h2>
+          <p>Renseignez votre identifiant pour recevoir un lien de réinitialisation.</p>
+        </header>
+
+        <app-forgot-pasword (result)="forgotResult($event)"></app-forgot-pasword>
+
+        <button type="button" class="link-back" (click)="showSignIn()">
+          <i class="fas fa-arrow-left"></i> Retour à la connexion
+        </button>
+      </ng-container>
+
+      <ng-container *ngIf="!forgotPasword">
+
+        <div class="auth-tabs" role="tablist">
+          <button
+            type="button"
+            class="auth-tab"
+            role="tab"
+            [class.active]="!signupMode"
+            [attr.aria-selected]="!signupMode"
+            (click)="showSignIn()"
+          >
+            Connexion
+          </button>
+          <button
+            type="button"
+            class="auth-tab"
+            role="tab"
+            [class.active]="signupMode"
+            [attr.aria-selected]="signupMode"
+            (click)="showSignUp()"
+          >
+            Créer un compte
+          </button>
+        </div>
+
+        <!-- ---- Connexion ---- -->
+        <form (ngSubmit)="login()" class="auth-form" *ngIf="!signupMode">
+          <header class="auth-head">
+            <h2>Bon retour parmi nous</h2>
+            <p>Connectez-vous pour accéder à vos projets.</p>
+          </header>
+
+          <label class="field">
+            <span class="field-label">Nom d'utilisateur</span>
+            <span class="field-control">
+              <i class="fas fa-user"></i>
+              <input
+                type="text"
+                autocomplete="username"
+                placeholder="Votre identifiant"
+                [(ngModel)]="username"
+                [ngModelOptions]="{ standalone: true }"
+              />
+            </span>
+          </label>
+
+          <label class="field">
+            <span class="field-label">Mot de passe</span>
+            <span class="field-control">
+              <i class="fas fa-lock"></i>
+              <input
+                type="password"
+                autocomplete="current-password"
+                placeholder="••••••••"
+                [(ngModel)]="password"
+                [ngModelOptions]="{ standalone: true }"
+              />
+            </span>
+          </label>
+
+          <div class="field-row">
+            <button type="button" class="link-btn" (click)="forgotPasword = true">
+              Mot de passe oublié ?
+            </button>
+          </div>
+
+          <button type="submit" class="btn-primary" [disabled]="loginInProgress">
+            <i class="fas fa-spinner fa-spin" *ngIf="loginInProgress"></i>
+            {{ loginInProgress ? 'Connexion en cours...' : 'Se connecter' }}
+          </button>
+
+          <div class="alert alert-error" *ngIf="loginErrorMessage">
+            <i class="fas fa-circle-exclamation"></i>
+            <span>{{ loginErrorMessage }}</span>
+          </div>
+
+          <div class="alert alert-success" *ngIf="loginMessage">
+            <i class="fas fa-circle-check"></i>
+            <span>{{ loginMessage }}</span>
+          </div>
+        </form>
+
+        <!-- ---- Inscription ---- -->
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="auth-form" *ngIf="signupMode">
+          <header class="auth-head">
+            <h2>Créer un compte</h2>
+            <p>Quelques informations et vous rejoignez l'espace de travail.</p>
+          </header>
+
+          <label class="field">
+            <span class="field-label">Nom d'utilisateur</span>
+            <span class="field-control">
+              <i class="fas fa-user"></i>
+              <input type="text" formControlName="username" placeholder="Identifiant" autocomplete="username" />
+            </span>
+            <span class="field-error">
+              <span *ngIf="form.controls.username.touched && form.controls.username.errors?.['required']">
+                Merci de compléter ce champ.
+              </span>
+            </span>
+          </label>
+
+          <div class="field-grid">
+            <label class="field">
+              <span class="field-label">Nom</span>
+              <span class="field-control">
+                <i class="fas fa-id-card"></i>
+                <input id="lastname" type="text" formControlName="lastname" placeholder="Nom" autocomplete="family-name" />
+              </span>
+              <span class="field-error">
+                <span *ngIf="form.controls.lastname.touched && form.controls.lastname.errors?.['required']">
+                  Merci de compléter ce champ.
+                </span>
+              </span>
+            </label>
+
+            <label class="field">
+              <span class="field-label">Prénom</span>
+              <span class="field-control">
+                <i class="fas fa-id-card-alt"></i>
+                <input id="firstname" type="text" formControlName="firstname" placeholder="Prénom" autocomplete="given-name" />
+              </span>
+              <span class="field-error">
+                <span *ngIf="form.controls.firstname.touched && form.controls.firstname.errors?.['required']">
+                  Merci de compléter ce champ.
+                </span>
+              </span>
+            </label>
+          </div>
+
+          <label class="field">
+            <span class="field-label">Email</span>
+            <span class="field-control">
+              <i class="fas fa-envelope"></i>
+              <input id="email" type="email" formControlName="email" placeholder="nom@exemple.com" autocomplete="email" />
+            </span>
+            <span class="field-error">
+              <span *ngIf="form.controls.email.touched && form.controls.email.errors?.['required']">
+                Merci de compléter ce champ.
+              </span>
+              <span *ngIf="form.controls.email.touched && form.controls.email.errors?.['email']">
+                Merci de saisir un email valide.
+              </span>
+            </span>
+          </label>
+
+          <label class="field">
+            <span class="field-label">Contact</span>
+            <span class="field-control">
+              <i class="fas fa-phone"></i>
+              <input
+                id="contact"
+                type="text"
+                name="contact"
+                formControlName="contact"
+                placeholder="034 00 000 00"
+                autocomplete="tel"
+                [(ngModel)]="contact"
+              />
+            </span>
+            <span class="field-error">
+              <span *ngIf="form.controls.contact.touched && form.controls.contact.errors?.['required']">
+                Merci de compléter votre contact.
+              </span>
+              <span *ngIf="form.controls.contact.touched && form.controls.contact.errors?.['alredyUsed']">
+                Merci de compléter votre contact.
+              </span>
+              <span *ngIf="form.controls.contact.touched && form.controls.contact.errors?.['invalidContact']">
+                Merci de saisir un contact valide.
+              </span>
+            </span>
+          </label>
+
+          <div class="field-grid">
+            <label class="field">
+              <span class="field-label">Mot de passe</span>
+              <span class="field-control">
+                <i class="fas fa-lock"></i>
+                <input
+                  id="newPasword"
+                  type="password"
+                  name="password"
+                  formControlName="password"
+                  placeholder="••••••••"
+                  autocomplete="new-password"
+                  [(ngModel)]="newPassword"
+                />
+              </span>
+              <span class="field-error">
+                <span *ngIf="form.controls.password.touched && form.controls.password.errors?.['required']">
+                  Merci de compléter ce champ.
+                </span>
+              </span>
+            </label>
+
+            <label class="field">
+              <span class="field-label">Confirmation</span>
+              <span class="field-control">
+                <i class="fas fa-lock"></i>
+                <input
+                  id="confirmPasword"
+                  type="password"
+                  name="password"
+                  formControlName="confirmPassword"
+                  placeholder="••••••••"
+                  autocomplete="new-password"
+                  [(ngModel)]="confirmPassword"
+                />
+              </span>
+              <span class="field-error">
+                <span *ngIf="
+                  (form.controls.confirmPassword.touched && form.controls.confirmPassword.errors?.['required'])
+                  || (form.controls.confirmPassword.touched && form.errors?.['notConfirmed'])
+                ">
+                  Merci de confirmer le mot de passe.
+                </span>
+              </span>
+            </label>
+          </div>
+
+          <div class="alert alert-error" *ngIf="form.errors?.['childTicketOnly']">
+            <i class="fas fa-circle-exclamation"></i>
+            <span>Au moins une personne majeure doit assister à l'événement</span>
+          </div>
+          <div class="alert alert-error" *ngIf="form.errors?.['remainingSeats'] as remainingSeats">
+            <i class="fas fa-circle-exclamation"></i>
+            <span>Il ne reste que {{ remainingSeats }} places pour cet événement.</span>
+          </div>
+
+          <button type="submit" class="btn-primary">Créer mon compte</button>
+        </form>
+
+      </ng-container>
+
+      <p class="auth-footnote">
+        {{ signupMode ? 'Vous avez déjà un compte ?' : 'Pas encore de compte ?' }}
+        <button type="button" class="link-btn" (click)="signupMode ? showSignIn() : showSignUp()">
+          {{ signupMode ? 'Se connecter' : 'Créer un compte' }}
+        </button>
+      </p>
+    </div>
+  </main>
 </div>
-
