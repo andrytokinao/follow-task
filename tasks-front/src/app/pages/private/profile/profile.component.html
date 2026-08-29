@@ -1,6 +1,9 @@
 <div class="modal-header">
-  <span class="modal-title">{{ action }}</span>
-  <button class="close-btn" (click)="activeModal.dismiss()">
+  <div class="modal-heading">
+    <span class="modal-title">{{ action || 'Mon profil' }}</span>
+    <span class="modal-subtitle">Informations du compte, contacts et sécurité</span>
+  </div>
+  <button class="close-btn" (click)="close()" title="Fermer">
     <mat-icon>close</mat-icon>
   </button>
 </div>
@@ -26,7 +29,9 @@
           </button>
         </div>
       </div>
-      <input style="display:none" type="file" id="photoInput"
+      <!-- #photoInput : référence lue par @ViewChild('photoInput') pour
+           déclencher le sélecteur de fichier depuis l'avatar. -->
+      <input #photoInput style="display:none" type="file" id="photoInput"
              (change)="selectPhoto($event)" accept="image/*" />
     </div>
 
@@ -331,7 +336,7 @@
 </div>
 
 <div class="modal-footer">
-  <button class="btn-outline" (click)="activeModal.dismiss()">Annuler</button>
+  <button class="btn-outline" (click)="close()">Annuler</button>
   <button class="btn-primary" (click)="saveUser()" [disabled]="userForm?.invalid">
     Enregistrer
   </button>

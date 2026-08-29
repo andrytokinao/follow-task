@@ -44,6 +44,8 @@ export class ProfileComponent implements OnInit {
   savingStatus: string = '';
   tempPhoto: string | null = null;
   user: User | any = {};
+  // Renseigné par l'appelant quand le composant est ouvert en modale
+  // (modalService.open). Reste undefined sur la route /working/profile.
   activeModal: any;
   action: string = '';
   memberGroupes: MemberGroupe[] = [];
@@ -134,6 +136,13 @@ export class ProfileComponent implements OnInit {
     if (s < 40) return 'Faible';
     if (s < 80) return 'Moyen';
     return 'Fort';
+  }
+
+  // Ferme la modale. Aucun appelant n'affecte `activeModal` aujourd'hui, et
+  // le composant est aussi routé (/working/profile) : sans cette garde, les
+  // boutons "Fermer" et "Annuler" lèvent une erreur.
+  close(): void {
+    this.activeModal?.dismiss();
   }
 
   photoUrl(): string {
