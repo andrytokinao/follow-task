@@ -1,6 +1,7 @@
 package com.kinga.followtask.service;
 
 import com.kinga.followtask.dto.Criteria;
+import com.kinga.followtask.dto.Response;
 import com.kinga.followtask.dto.UploadedDto;
 import com.kinga.followtask.dto.UserDetailsDeto;
 import com.kinga.followtask.entity.*;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -523,6 +525,41 @@ public class ProjectService {
         IssueType child = issueTypeRepository.getById(childId);
         child.setParent(null);
         return issueTypeRepository.save(child);
+    }
+
+    /**
+     * Supprime un type de tache. La suppression est refusee tant que le type
+     * est utilise par des taches ou qu'il porte des sous-types, pour ne pas
+     * laisser de references orphelines.
+     */
+    @Transactional
+    public Response deleteIssueType(Long issueTypeId) {
+        IssueType issueType = issueTypeRepository.findById(issueTypeId)
+                .orElseThrow(() -> new RuntimeException("Type de tache introuvable : " + issueTypeId));
+
+        List<Issue> issues = issueRepository.findByIssueTypeIdIn(List.of(issueTypeId));
+        if (!CollectionUtils.isEmpty(issues)) {
+            throw new RuntimeException("Ce type est utilise par " + issues.size()
+                    + " tache(s) : il ne peut pas etre supprime.");
+        }
+
+        List<IssueType> children = issueTypeRepository.findByParentId(issueTypeId);
+        if (!CollectionUtils.isEmpty(children)) {
+            throw new RuntimeException("Ce type possede " + children.size()
+                    + " sous-type(s) : supprimez ou detachez-les d'abord.");
+        }
+
+        List<UsingCustomField> usings = usingCustomFieldRepository.findByIssueTypeId(issueTypeId);
+        if (!CollectionUtils.isEmpty(usings)) {
+            usingCustomFieldRepository.deleteAll(usings);
+        }
+        issueTypeRepository.delete(issueType);
+
+        Response response = new Response();
+        response.setStatus("success");
+        response.setCode("OK");
+        response.setMessage("Type " + issueType.getName() + " supprime");
+        return response;
     }
 
     public List<IssueType> listIssueTypeMaster(Long projectId) {

@@ -1,6 +1,7 @@
 import {
   Component,
   EventEmitter,
+  Input,
   Output, ViewChild
 } from '@angular/core';
 import {
@@ -9,7 +10,6 @@ import {
   ReactiveFormsModule,
   Validators
 } from '@angular/forms';
-import { MatCard, MatCardContent, MatCardHeader } from '@angular/material/card';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatFormField, MatFormFieldModule } from '@angular/material/form-field';
@@ -21,7 +21,6 @@ import { NgxColorsModule } from 'ngx-colors';
 import { IssueType, Project, Icone } from '../../type/issue';
 import { IssueService } from '../../services/issue.service';
 import { ChooseDialogComponent } from '../icone-field/choose-dialog/choose-dialog.component';
-import {MyCommonModule} from "../common.module";
 import {IconeViewComponent} from "../icone-view/icone-view.component";
 
 @Component({
@@ -51,9 +50,15 @@ export class IssutypeForm2Component {
   @ViewChild(MatMenuTrigger) iconMenuTrigger!: MatMenuTrigger;
 
   @Output() oneSaved = new EventEmitter<IssueType>();
+  @Output() cancelled = new EventEmitter<void>();
 
-  level: 'PARENT' | 'SUB_TASK' = 'PARENT';
-  parent: IssueType | null = null;
+  @Input() level: 'PARENT' | 'SUB_TASK' = 'PARENT';
+  @Input() parent: IssueType | null = null;
+  /** true quand le formulaire est integre a un panneau et non a un menu flottant */
+  @Input() embedded: boolean = false;
+
+  /** type en cours de modification ; null pour une creation */
+  private edited: IssueType | null = null;
   selectedIcone: Icone | undefined;
   project: Project;
   saving = false;
@@ -80,13 +85,38 @@ export class IssutypeForm2Component {
     this.issueService.project$.subscribe(p => this.project = p);
   }
 
+  /**
+   * Alimente le formulaire pour une modification ; null repasse en creation.
+   */
+  @Input() set issueType(value: IssueType | null | undefined) {
+    this.edited = value || null;
+    if (!this.edited) {
+      this.onReset();
+      return;
+    }
+    this.errorMessage = undefined;
+    this.form.reset({
+      name: this.edited.name || '',
+      prefix: this.edited.prefix || '',
+      description: this.edited.description || '',
+      color: this.edited.color || '#6C63FF'
+    });
+    this.selectedIcone = this.edited.icone;
+    this.level = (this.edited.level as 'PARENT' | 'SUB_TASK') || 'PARENT';
+    this.parent = this.edited.parent || null;
+  }
+
+  get isEdit(): boolean {
+    return this.edited != null && this.edited.id != null;
+  }
+
   setLevel(level: 'PARENT' | 'SUB_TASK'): void {
     this.level = level;
     this.onReset();
   }
 
-  setParent(parent: IssueType | null): void {
-    this.parent = parent;
+  setParent(parent: IssueType | null | undefined): void {
+    this.parent = parent || null;
     if (this.parent) {
       this.setLevel('SUB_TASK');
     }
@@ -94,30 +124,48 @@ export class IssutypeForm2Component {
 
   onIconSelected(icone: Icone | any): void {
     this.selectedIcone = icone;
-    this.iconMenuTrigger.closeMenu();
+    this.iconMenuTrigger?.closeMenu();
   }
 
   onReset(): void {
-    this.form.reset({ color: '#6C63FF' });
-    this.selectedIcone = undefined;
+    this.form.reset({ color: '#6C63FF', name: '', prefix: '', description: '' });
+    this.selectedIcone = this.edited ? this.edited.icone : undefined;
     this.errorMessage = undefined;
   }
 
+  onCancel(): void {
+    this.cancelled.emit();
+  }
+
   onSubmit(): void {
-    if (this.form.invalid || !this.level) return;
+    if (this.form.invalid || !this.level || this.saving) {
+      this.form.markAllAsTouched();
+      return;
+    }
 
     this.errorMessage = undefined;
     this.saving = true;
 
+    const projectId = this.edited?.project?.id || this.project?.id;
     const issueType: IssueType = {
-      level:   this.level,
-      name:    this.form.value.name,
-      prefix:  this.form.value.prefix,
-      color:   this.form.value.color,
-      style:   this.form.value.description,
-      icone:   this.selectedIcone,
-      project: { id: this.project.id },
+      level:       this.level,
+      name:        this.form.value.name,
+      prefix:      this.form.value.prefix,
+      description: this.form.value.description,
+      color:       this.form.value.color,
+      icone:       this.selectedIcone,
+      project:     { id: projectId },
     };
+
+    if (this.isEdit) {
+      // en modification, les relations non editees sont renvoyees telles quelles
+      // pour ne pas etre ecrasees cote serveur.
+      issueType.id = this.edited.id;
+      issueType.style = this.edited.style;
+      if (this.edited.curentWorkFlow) {
+        issueType.curentWorkFlow = {id: this.edited.curentWorkFlow.id};
+      }
+    }
 
     if (this.level === 'SUB_TASK' && this.parent) {
       issueType.parent = { id: this.parent.id };
@@ -127,12 +175,19 @@ export class IssutypeForm2Component {
       next: (saved) => {
         this.saving = false;
         this.oneSaved.emit(saved);
-        this.onReset();
+        if (!this.isEdit) {
+          this.onReset();
+        }
       },
-      error: () => {
-        this.errorMessage = 'Erreur lors de la création.';
+      error: (error) => {
+        this.errorMessage = this.extractMessage(error);
         this.saving = false;
       }
     });
+  }
+
+  private extractMessage(error: any): string {
+    const graphQlMessage = error?.graphQLErrors?.length ? error.graphQLErrors[0].message : null;
+    return graphQlMessage || error?.message || "Erreur lors de l'enregistrement.";
   }
 }

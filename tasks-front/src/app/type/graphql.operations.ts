@@ -831,7 +831,15 @@ const  SAVE_ISSUE_TYPE = gql`
     saveIssueType(issueType: $issueType){
       id
       name
+      description
       prefix
+      level
+      color
+      style
+      parent {
+        id
+        name
+      }
       icone {
         id
         value
@@ -851,6 +859,15 @@ const  SAVE_ISSUE_TYPE = gql`
         }
       }
 
+    }
+  }
+`;
+const DELETE_ISSUE_TYPE = gql`
+  mutation deleteIssueType ($issueTypeId:Int) {
+    deleteIssueType(issueTypeId: $issueTypeId){
+      status
+      message
+      code
     }
   }
 `;
@@ -894,7 +911,10 @@ const ALL_ISSUE_TYPE =gql`
     allIssueType(projectId: $projectId){
       id
       name
+      description
       prefix
+      color
+      style
       project {
         id
         name
@@ -941,7 +961,10 @@ const ALL_ISSUE_TYPE =gql`
       children {
         id
         name
+        description
         prefix
+        color
+        style
         project {
           id
 
@@ -3463,6 +3486,7 @@ export {
   INIT_USER,
   SAVE_PROJECT,
   SAVE_ISSUE_TYPE,
+  DELETE_ISSUE_TYPE,
   AFFECT_WORKFLOW,
   ADD_STATUS,
   ALL_PROJECT,

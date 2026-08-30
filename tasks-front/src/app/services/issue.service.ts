@@ -719,6 +719,23 @@ export class IssueService implements OnInit {
     })
   }
 
+  deleteIssueType(issueTypeId: number) {
+    return new Observable<ResponseApp>((observer) => {
+      this.apollo.mutate({
+        mutation: operation.DELETE_ISSUE_TYPE,
+        variables: {issueTypeId},
+        fetchPolicy: "network-only"
+      }).subscribe((res: any) => {
+          observer.next(supprimerTypename(res.data.deleteIssueType));
+          observer.complete();
+        }, (err: any) => {
+          observer.error(err);
+          observer.complete();
+        }
+      )
+    })
+  }
+
   getIssueType(issueTypeId: number) {
     return new Observable<IssueType>((observer) => {
       this.apollo.mutate({
@@ -1125,7 +1142,7 @@ export class IssueService implements OnInit {
         variables: {childId},
         fetchPolicy: "network-only"
       }).subscribe((res: any) => {
-        observer.next(supprimerTypename(res.data.affectIssueTypeForParent));
+        observer.next(supprimerTypename(res.data.removeIssueTypeParent));
         observer.complete();
       }, error => {
         observer.error(error);

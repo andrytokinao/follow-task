@@ -1,206 +1,346 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
-import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
-import {IssueTypeModalComponent} from "../issue-type/issue-type-modal/issue-type-modal.component";
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import {Subscription} from "rxjs";
+import {IssueTypeModalComponent} from "../issue-type/issue-type-modal/issue-type-modal.component";
 import {IssueService} from "../../../../../services/issue.service";
-import {CustomField, IssueType, Project, UsingCustomField, WorkFlow} from "../../../../../type/issue";
-import namespace from "quill/core/logger";
-import {BehaviorSubject} from "rxjs";
-import {MatMenuTrigger} from "@angular/material/menu";
-import {HttpInterceptorService} from "../../../../../services/http.service";
+import {ConfirmationDialogService} from "../../../../../services/confirmation-dialog.service";
+import {IssueType, Project} from "../../../../../type/issue";
 
-
+type FormMode = 'idle' | 'create' | 'edit';
 
 @Component({
   selector: 'app-issue-type2',
-  standalone:false,
+  standalone: false,
   templateUrl: './issue-type2.component.html',
   styleUrls: ['./issue-type2.component.css']
 })
-export class IssueType2Component implements OnInit {
-  private issueTypeLevelSubject = new BehaviorSubject<'PARENT' | 'SUB_TASK'>('PARENT');
-  protected currentLevel$ = this.issueTypeLevelSubject.asObservable();
-  private selectedParentSubject = new BehaviorSubject<IssueType>(undefined);
-  selectedParent$ = this.selectedParentSubject.asObservable();
-  @ViewChild('createIssueTypeTrigger') createIssueTypeTrigger!: MatMenuTrigger;
-
- constructor(
-   private modalService:NgbModal,
-   private issueService:IssueService,
- ) {
- }
+export class IssueType2Component implements OnInit, OnDestroy {
 
   issueTypes: IssueType[] = [];
   selectedIssue: IssueType | null = null;
+  project: Project | undefined;
+  search: string = '';
+  loading: boolean = false;
+  errorMessage: string = '';
+
+  // ---- panneau de formulaire ----
+  formMode: FormMode = 'idle';
+  formLevel: 'PARENT' | 'SUB_TASK' = 'PARENT';
+  formParent: IssueType | null = null;
+  editingType: IssueType | null = null;
+
+  // ---- glisser-deposer ----
   draggedItem?: IssueType;
-  draggedParentItem?: IssueType;
-  oldParent?: IssueType;
-  project:Project | undefined;
+  draggedFromParent?: IssueType;
+  dropTarget?: IssueType;
 
+  private subscriptions: Subscription[] = [];
 
-
-  customFieldsDemo: CustomField[] = [
-    { id: 1, name: 'Priorité'},
-    { id: 2, name: 'Durée estimée' },
-    { id: 3, name: 'Assigné à' },
-    { id: 4, name: 'Complexité'},
-  ];
-
-  ngOnInit(): void {
-    this.generateDemoData();
-    this.issueService.project$.subscribe(project => {this.project = project});
-    this.issueService.issueType$.subscribe( issueTypes => this.issueTypes = issueTypes)
+  constructor(
+    private modalService: NgbModal,
+    private issueService: IssueService,
+    private confirmationDialog: ConfirmationDialogService
+  ) {
   }
 
-  /** Génère la structure DEMO */
-  generateDemoData() {
-    const project: Project = { id: 1, name: 'Demo Project' };
-    const workflow: WorkFlow = { id: 1, name: 'Default Workflow' };
+  ngOnInit(): void {
+    this.subscriptions.push(
+      this.issueService.project$.subscribe(project => {
+        const changed = project?.id != this.project?.id;
+        this.project = project;
+        // le projet n'est connu qu'apres emission : on charge des qu'il arrive
+        if (changed) {
+          this.reload();
+        }
+      }),
+      this.issueService.issueType$.subscribe(issueTypes => {
+        this.issueTypes = issueTypes || [];
+        this.loading = false;
+        this.refreshSelection();
+      })
+    );
+  }
 
-    const parentNames = [
-      'Type Parent 1',
-      'Type Parent 2',
-      'Type Parent 3',
-      'Type Parent 4',
-      'Type Parent 5'
-    ];
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
+  }
 
-    const subTasks = [
-      ['Type sous-tâche A', 'Type sous-tâche B', 'Type sous-tâche C'],
-      ['Type sous-tâche A', 'Type sous-tâche C'],
-      ['Type sous-tâche D', 'Type sous-tâche E'],
-      ['Type sous-tâche A', 'Type sous-tâche F'],
-      ['Type sous-tâche A', 'Type sous-tâche B']
-    ];
+  reload() {
+    if (!this.project?.id) {
+      return;
+    }
+    this.loading = true;
+    this.issueService.allIssueType(this.project.id);
+  }
 
-    const icons = [
-      'fas fa-bug',
-      'fas fa-tasks',
-      'fas fa-code',
-      'fas fa-wrench',
-      'fas fa-project-diagram'
-    ];
+  /** Garde la selection courante synchronisee avec la liste rechargee. */
+  private refreshSelection() {
+    if (!this.selectedIssue) {
+      return;
+    }
+    const found = this.findById(this.selectedIssue.id);
+    this.selectedIssue = found || null;
+    if (this.formMode == 'edit') {
+      this.editingType = this.selectedIssue;
+      if (!this.editingType) {
+        this.closeForm();
+      }
+    }
+  }
 
-    this.issueTypes = parentNames.map((name, index) => {
+  private findById(id: number | undefined): IssueType | null {
+    if (id == null) {
+      return null;
+    }
+    for (const parent of this.issueTypes) {
+      if (parent.id == id) {
+        return parent;
+      }
+      const child = (parent.children || []).find(item => item.id == id);
+      if (child) {
+        return child;
+      }
+    }
+    return null;
+  }
 
-      const parent: IssueType = {
-        id: Date.now() + index,
-        name,
-        prefix: 'P' + (index + 1),
-        level: 'PARENT',
-        project,
-        color: '#2196f3',
-        style: '',
-        curentWorkFlow: workflow,
-        parent: null,
-        children: []
-      };
+  // -----------------------------------------------------------------
+  // Recherche
+  // -----------------------------------------------------------------
 
-      parent.children = subTasks[index].map((st, i2) => ({
-        id: Date.now() + index * 100 + i2,
-        name: st,
-        prefix: 'S' + (i2 + 1),
-        level: 'SUB_TASK',
-        project,
-        color: '#4caf50',
-        style: '',
-        curentWorkFlow: workflow,
-        parent,
-        children: []
-      }));
+  get filteredTypes(): IssueType[] {
+    const term = (this.search || '').toLowerCase().trim();
+    if (!term) {
+      return this.issueTypes;
+    }
+    return this.issueTypes
+      .map(parent => {
+        if (this.matches(parent, term)) {
+          return parent;
+        }
+        const children = (parent.children || []).filter(child => this.matches(child, term));
+        return children.length ? {...parent, children} : null;
+      })
+      .filter(parent => parent != null) as IssueType[];
+  }
 
-      return parent;
+  private matches(issueType: IssueType, term: string): boolean {
+    return ('' + (issueType.name || '')).toLowerCase().includes(term)
+      || ('' + (issueType.prefix || '')).toLowerCase().includes(term);
+  }
+
+  get totalCount(): number {
+    return this.issueTypes.reduce((total, parent) => total + 1 + (parent.children || []).length, 0);
+  }
+
+  // -----------------------------------------------------------------
+  // Selection et formulaire
+  // -----------------------------------------------------------------
+
+  select(issueType: IssueType) {
+    this.selectedIssue = issueType;
+    if (this.formMode == 'edit') {
+      this.startEdit(issueType);
+    }
+  }
+
+  startCreateParent() {
+    this.errorMessage = '';
+    this.formMode = 'create';
+    this.formLevel = 'PARENT';
+    this.formParent = null;
+    this.editingType = null;
+  }
+
+  startCreateSubTask(parent: IssueType) {
+    this.errorMessage = '';
+    this.selectedIssue = parent;
+    this.formMode = 'create';
+    this.formLevel = 'SUB_TASK';
+    this.formParent = parent;
+    this.editingType = null;
+  }
+
+  startEdit(issueType: IssueType) {
+    this.errorMessage = '';
+    this.selectedIssue = issueType;
+    this.formMode = 'edit';
+    this.formLevel = (issueType.level as 'PARENT' | 'SUB_TASK') || 'PARENT';
+    this.formParent = issueType.parent || null;
+    this.editingType = issueType;
+  }
+
+  closeForm() {
+    this.formMode = 'idle';
+    this.editingType = null;
+    this.formParent = null;
+    this.formLevel = 'PARENT';
+  }
+
+  onSaved(savedIssueType: IssueType) {
+    this.selectedIssue = savedIssueType;
+    this.closeForm();
+    this.reload();
+  }
+
+  // -----------------------------------------------------------------
+  // Suppression
+  // -----------------------------------------------------------------
+
+  remove(issueType: IssueType, event?: Event) {
+    if (event) {
+      event.stopPropagation();
+    }
+    if (issueType.id == null) {
+      return;
+    }
+    const childCount = (issueType.children || []).length;
+    const warning = childCount
+      ? ` Ce type possède ${childCount} sous-type(s) qu'il faudra détacher au préalable.`
+      : '';
+    this.confirmationDialog.confirm(
+      'Supprimer le type',
+      `Supprimer définitivement « ${issueType.name} » ?${warning}`,
+      'Supprimer',
+      'Annuler'
+    ).then((confirmed) => {
+      if (!confirmed) {
+        return;
+      }
+      this.errorMessage = '';
+      this.issueService.deleteIssueType(issueType.id).subscribe({
+        next: () => {
+          if (this.selectedIssue?.id == issueType.id) {
+            this.selectedIssue = null;
+            this.closeForm();
+          }
+          this.reload();
+        },
+        error: (error) => this.errorMessage = this.extractMessage(error)
+      });
+    }).catch(() => {
     });
   }
 
-  /** Sélection pour afficher détails */
-  select(issue: IssueType) {
-    this.selectedIssue = issue;
-  }
+  // -----------------------------------------------------------------
+  // Hierarchie : rattachement / detachement
+  // -----------------------------------------------------------------
 
-  /** Drag & Drop */
-  drop(event:any, parent?: IssueType) {
-    if (event.previousContainer === event.container) {
-      moveItemInArray(
-        event.container.data,
-        event.previousIndex,
-        event.currentIndex
-      );
-    } else {
-      transferArrayItem(
-        event.previousContainer.data,
-        event.container.data,
-        event.previousIndex,
-        event.currentIndex
-      );
+  /** Detache un sous-type : il redevient un type principal. */
+  detach(child: IssueType, event?: Event) {
+    if (event) {
+      event.stopPropagation();
     }
-  }
-
-  /** Ajouter parent ou sous-tâche */
-  addIssueTypeParent() {
-    this.issueTypeLevelSubject.next('PARENT');
-
-  }
-
-  /** Changer icône */
-  updateIcon(icon: string) {
-
-  }
-
-  dragOver(event: DragEvent) {
-    event.preventDefault();
-  }
-
-  dropOnParent(newParent: IssueType) {
-    if (!(this.draggedItem || this.draggedParentItem)) return;
-    if (this.oldParent) {
-      this.oldParent.children = this.oldParent.children.filter(c => c.id !== this.draggedItem!.id);
+    if (child.id == null) {
+      return;
     }
+    this.errorMessage = '';
+    this.issueService.removeIssueTypeParent(child.id).subscribe({
+      next: () => this.reload(),
+      error: (error) => this.errorMessage = this.extractMessage(error)
+    });
+  }
 
-    if (this.draggedItem) {
-      newParent.children.push(this.draggedItem);
-
-    } else {
-      this.draggedParentItem.level ='SUB_TASK';
-      newParent.children.push(this.draggedParentItem);
-
+  private attachTo(child: IssueType, parent: IssueType) {
+    if (child.id == null || parent.id == null || child.id == parent.id) {
+      return;
     }
+    // un type ne peut pas devenir le sous-type d'un de ses propres enfants
+    if ((child.children || []).some(item => item.id == parent.id)) {
+      this.errorMessage = "Impossible : « " + parent.name + " » est déjà un sous-type de « " + child.name + " ».";
+      return;
+    }
+    this.errorMessage = '';
+    this.issueService.affectIssueTypeForParent(child.id, parent.id).subscribe({
+      next: () => this.reload(),
+      error: (error) => this.errorMessage = this.extractMessage(error)
+    });
+  }
 
-    this.draggedItem.level = 'SUB_TASK';
+  dragStart(issueType: IssueType, parent?: IssueType) {
+    this.draggedItem = issueType;
+    this.draggedFromParent = parent;
+  }
+
+  dragEnd() {
     this.draggedItem = undefined;
-    this.oldParent = undefined;
+    this.draggedFromParent = undefined;
+    this.dropTarget = undefined;
   }
 
-
-
-  dragChildStart(child: IssueType, parent: IssueType) {
-    this.draggedItem = child;
-    this.oldParent = parent;
+  dragOver(event: DragEvent, parent: IssueType) {
+    if (!this.draggedItem || this.draggedItem.id == parent.id) {
+      return;
+    }
+    event.preventDefault();
+    this.dropTarget = parent;
   }
 
-  dragParentStart(parent: IssueType) {
-    this.draggedParentItem = parent;
+  dragLeave(parent: IssueType) {
+    if (this.dropTarget?.id == parent.id) {
+      this.dropTarget = undefined;
+    }
   }
-  showConfigType(issueType:any) {
-    const dialogRef = this.modalService.open(IssueTypeModalComponent,{windowClass: "xlModal"} );
-   dialogRef.componentInstance.issueType = issueType;
-   dialogRef.componentInstance.project = this.project;
+
+  dropOnParent(event: DragEvent, newParent: IssueType) {
+    event.preventDefault();
+    const dragged = this.draggedItem;
+    this.dragEnd();
+    if (!dragged || dragged.id == newParent.id) {
+      return;
+    }
+    if (this.draggedFromParent?.id == newParent.id) {
+      return;
+    }
+    this.attachTo(dragged, newParent);
+  }
+
+  isDropTarget(parent: IssueType): boolean {
+    return this.dropTarget?.id == parent.id;
+  }
+
+  // -----------------------------------------------------------------
+  // Divers
+  // -----------------------------------------------------------------
+
+  showConfigType(issueType: any, event?: Event) {
+    if (event) {
+      event.stopPropagation();
+    }
+    const dialogRef = this.modalService.open(IssueTypeModalComponent, {windowClass: "xlModal"});
+    dialogRef.componentInstance.issueType = issueType;
+    dialogRef.componentInstance.project = this.project;
     dialogRef.result.then((res) => {
-      this.selectedIssue = res
-    })
+      if (res) {
+        this.selectedIssue = res;
+      }
+      this.reload();
+    }, () => {
+    });
   }
 
-  protected readonly namespace = namespace;
-
-  addIssueTypeSubTask(parent: IssueType) {
-    this.issueTypeLevelSubject.next('SUB_TASK');
-    this.selectedParentSubject.next(parent);
+  trackByType(index: number, issueType: IssueType): number | undefined {
+    return issueType.id;
   }
 
-  reloaList(savedIssueType:IssueType) {
-    this.createIssueTypeTrigger.closeMenu();
-    this.issueService.allIssueType(this.project.id);
-    this.selectedIssue = savedIssueType;
+  describe(issueType: IssueType): string {
+    return '' + (issueType?.description || '');
+  }
 
+  colorOf(issueType: IssueType, fallback: string): string {
+    return '' + (issueType?.color || fallback);
+  }
+
+  iconOf(issueType: IssueType, fallback: string): string {
+    return '' + (issueType?.icone?.value || fallback);
+  }
+
+  childCount(issueType: IssueType): number {
+    return (issueType?.children || []).length;
+  }
+
+  private extractMessage(error: any): string {
+    const graphQlMessage = error?.graphQLErrors?.length ? error.graphQLErrors[0].message : null;
+    return graphQlMessage || error?.message || "L'opération a échoué.";
   }
 }

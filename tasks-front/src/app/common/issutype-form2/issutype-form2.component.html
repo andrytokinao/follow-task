@@ -1,10 +1,10 @@
-<div class="form-shell" (click)="$event.stopPropagation()">
+<div class="form-shell" [class.embedded]="embedded" (click)="$event.stopPropagation()">
   <ng-container >
 
     <!-- Label de niveau -->
     <div class="level-strip" [class.is-sub]="level === 'SUB_TASK'">
       <mat-icon>{{ level === 'SUB_TASK' ? 'subdirectory_arrow_right' : 'folder_special' }}</mat-icon>
-      <span>{{ level === 'SUB_TASK' ? 'Typet Tache' : 'Type principal' }}</span>
+      <span>{{ isEdit ? 'Modifier' : 'Nouveau' }} — {{ level === 'SUB_TASK' ? 'sous-type' : 'type principal' }}</span>
       <span class="parent-hint" *ngIf="level === 'SUB_TASK' && parent">
         — {{ parent.name }}
       </span>
@@ -82,12 +82,15 @@
 
       <!-- Actions -->
       <div class="actions">
+        <button mat-button type="button" (click)="onCancel()" [disabled]="saving">
+          Annuler
+        </button>
         <button mat-button type="button" (click)="onReset()" [disabled]="saving">
           Réinitialiser
         </button>
         <button mat-flat-button color="primary" type="submit"
                 [disabled]="form.invalid || saving">
-          {{ saving ? 'Enregistrement…' : 'Créer' }}
+          {{ saving ? 'Enregistrement…' : (isEdit ? 'Enregistrer' : 'Créer') }}
         </button>
       </div>
 

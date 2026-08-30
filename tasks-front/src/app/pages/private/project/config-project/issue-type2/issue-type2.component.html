@@ -1,78 +1,186 @@
 <div class="issue-type-container">
 
-  <!-- COLONNE GAUCHE : LISTE + DnD -->
+  <!-- COLONNE GAUCHE : ARBORESCENCE -->
   <div class="left-panel">
 
-    <div class="header">
-      <h2>Type de projets </h2>
-      <button mat-raised-button color="primary" (click)="addIssueTypeParent()" [matMenuTriggerFor]="newIssueType" #createIssueTypeTrigger="matMenuTrigger" >+ Ajouter</button>
+    <div class="panel-header">
+      <div class="panel-title">
+        <span>Types de tâche</span>
+        <span class="count-badge" *ngIf="!loading">{{ totalCount }}</span>
+      </div>
+      <button class="btn-primary" (click)="startCreateParent()">
+        <i class="fas fa-plus"></i> Nouveau type
+      </button>
     </div>
 
-    <div class="parent-list" *ngFor="let parent of issueTypes" draggable="false" (dragstart)="dragParentStart(parent)"  (drop)="drop($event, parent)">
+    <div class="search-wrap">
+      <i class="fas fa-search"></i>
+      <input type="text" placeholder="Rechercher un type ou un préfixe..." [(ngModel)]="search"/>
+      <i class="fas fa-times clear-search" *ngIf="search" (click)="search = ''" title="Effacer"></i>
+    </div>
 
-      <!-- parent -->
-      <div class="issue-item parent"
-           (click)="select(parent)">
-        <i class="{{ parent.icone?.value }} icon"></i>
-        {{ parent.name }}
-        <button mat-icon-button (click)="addIssueTypeSubTask(parent);"  [matMenuTriggerFor]="newIssueType" #createIssueTypeTrigger="matMenuTrigger">
-          <i class="fas fa-plus"></i>
-        </button>
-      </div>
+    <div class="banner error" *ngIf="errorMessage">
+      <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+      <i class="fas fa-times close" (click)="errorMessage = ''"></i>
+    </div>
 
-      <!-- children -->
-      <div class="children" >
-        <div class="issue-item child"
-             *ngFor="let child of parent.children"
+    <div class="state-block" *ngIf="loading">
+      <i class="fas fa-circle-notch fa-spin"></i> Chargement des types...
+    </div>
+
+    <div class="state-block" *ngIf="!loading && filteredTypes.length === 0">
+      <i class="fas fa-layer-group"></i>
+      <span *ngIf="search">Aucun type ne correspond à « {{ search }} »</span>
+      <span *ngIf="!search">Aucun type de tâche : créez le premier</span>
+    </div>
+
+    <div class="type-tree">
+      <div class="parent-block" *ngFor="let parent of filteredTypes; trackBy: trackByType"
+           [class.drop-target]="isDropTarget(parent)"
+           (dragover)="dragOver($event, parent)"
+           (dragleave)="dragLeave(parent)"
+           (drop)="dropOnParent($event, parent)">
+
+        <!-- type principal -->
+        <div class="issue-item parent"
+             [class.selected]="selectedIssue?.id === parent.id"
              draggable="true"
-             (dragover)="dragOver($event)"
-             (drop)="dropOnParent(parent)"
-             (dragstart)="dragChildStart(child, parent)"
-             (click)="select(child)">
-          <i class="{{ child.icone?.value }} icon"></i>
-          {{ child.name }}
+             (dragstart)="dragStart(parent)"
+             (dragend)="dragEnd()"
+             (click)="select(parent)">
+          <span class="type-color" [style.background]="colorOf(parent, '#6b7280')"></span>
+          <i [ngClass]="iconOf(parent, 'fas fa-folder')" class="icon"></i>
+          <span class="type-name" [title]="describe(parent)">{{ parent.name }}</span>
+          <code class="type-prefix" *ngIf="parent.prefix">{{ parent.prefix }}</code>
+          <span class="child-count" *ngIf="childCount(parent)">{{ childCount(parent) }}</span>
+
+          <span class="item-actions">
+            <button class="icon-btn" title="Ajouter un sous-type"
+                    (click)="startCreateSubTask(parent); $event.stopPropagation()">
+              <i class="fas fa-plus"></i>
+            </button>
+            <button class="icon-btn" title="Modifier"
+                    (click)="startEdit(parent); $event.stopPropagation()">
+              <i class="fas fa-pen"></i>
+            </button>
+            <button class="icon-btn" title="Workflow et champs"
+                    (click)="showConfigType(parent, $event)">
+              <i class="fas fa-sliders-h"></i>
+            </button>
+            <button class="icon-btn danger" title="Supprimer" (click)="remove(parent, $event)">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+          </span>
+        </div>
+
+        <!-- sous-types -->
+        <div class="children">
+          <div class="issue-item child"
+               *ngFor="let child of parent.children; trackBy: trackByType"
+               [class.selected]="selectedIssue?.id === child.id"
+               draggable="true"
+               (dragstart)="dragStart(child, parent); $event.stopPropagation()"
+               (dragend)="dragEnd()"
+               (click)="select(child)">
+            <span class="type-color" [style.background]="colorOf(child, '#9ca3af')"></span>
+            <i [ngClass]="iconOf(child, 'fas fa-file')" class="icon"></i>
+            <span class="type-name" [title]="describe(child)">{{ child.name }}</span>
+            <code class="type-prefix" *ngIf="child.prefix">{{ child.prefix }}</code>
+
+            <span class="item-actions">
+              <button class="icon-btn" title="Modifier"
+                      (click)="startEdit(child); $event.stopPropagation()">
+                <i class="fas fa-pen"></i>
+              </button>
+              <button class="icon-btn" title="Détacher du parent" (click)="detach(child, $event)">
+                <i class="fas fa-link-slash"></i>
+              </button>
+              <button class="icon-btn danger" title="Supprimer" (click)="remove(child, $event)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </span>
+          </div>
+
+          <div class="drop-hint" *ngIf="isDropTarget(parent)">
+            <i class="fas fa-arrow-down"></i> Déposer ici pour rattacher à « {{ parent.name }} »
+          </div>
         </div>
       </div>
     </div>
-
   </div>
 
-  <!-- COLONNE DROITE : DÉTAILS -->
-  <div class="right-panel" *ngIf="selectedIssue">
+  <!-- COLONNE DROITE : FORMULAIRE / DÉTAILS -->
+  <div class="right-panel">
 
-    <h3>Détails : {{ selectedIssue.name }}</h3>
+    <ng-container *ngIf="formMode !== 'idle'; else details">
+      <app-issutype-form2
+        [embedded]="true"
+        [level]="formLevel"
+        [parent]="formParent"
+        [issueType]="editingType"
+        (oneSaved)="onSaved($event)"
+        (cancelled)="closeForm()">
+      </app-issutype-form2>
+    </ng-container>
 
-    <mat-form-field class="full">
-      <mat-label>Nom</mat-label>
-      <input matInput [(ngModel)]="selectedIssue.name">
-    </mat-form-field>
+    <ng-template #details>
+      <div class="details-card" *ngIf="selectedIssue; else noSelection">
+        <div class="details-header">
+          <span class="type-color big" [style.background]="colorOf(selectedIssue, '#6b7280')"></span>
+          <i [ngClass]="iconOf(selectedIssue, 'fas fa-folder')" class="big-icon"></i>
+          <div class="details-title">
+            <h3>{{ selectedIssue.name }}</h3>
+            <span class="details-subtitle">
+              {{ selectedIssue.level === 'SUB_TASK' ? 'Sous-type' : 'Type principal' }}
+              <span *ngIf="selectedIssue.parent"> de {{ selectedIssue.parent.name }}</span>
+            </span>
+          </div>
+          <button class="btn-primary" (click)="startEdit(selectedIssue)">
+            <i class="fas fa-pen"></i> Modifier
+          </button>
+        </div>
 
-    <mat-form-field class="full">
-      <mat-label>Préfixe</mat-label>
-      <input matInput [(ngModel)]="selectedIssue.prefix">
-    </mat-form-field>
+        <p class="details-description" *ngIf="selectedIssue.description">{{ selectedIssue.description }}</p>
 
-    <mat-form-field class="full">
-      <mat-label>Couleur</mat-label>
-      <input type="color" matInput [(ngModel)]="selectedIssue.color">
-    </mat-form-field>
+        <div class="details-grid">
+          <div class="details-row">
+            <span class="label">Préfixe</span>
+            <span class="value"><code>{{ selectedIssue.prefix || '—' }}</code></span>
+          </div>
+          <div class="details-row">
+            <span class="label">Flux de travail</span>
+            <span class="value">{{ selectedIssue.curentWorkFlow?.name || 'Aucun' }}</span>
+          </div>
+          <div class="details-row" *ngIf="childCount(selectedIssue)">
+            <span class="label">Sous-types</span>
+            <span class="value">{{ childCount(selectedIssue) }}</span>
+          </div>
+        </div>
 
-    <h4>Icône</h4>
-    <div class="icon-box">
-      <i class="{{ selectedIssue.icone?.value }} big-icon"></i>
+        <div class="details-section">
+          <h4>Champs personnalisés</h4>
+          <div class="custom-field" *ngFor="let cf of selectedIssue.usingCustomFields">
+            <i class="fas fa-check-square"></i> {{ cf.customField?.name }}
+          </div>
+          <div class="empty-inline" *ngIf="!selectedIssue.usingCustomFields?.length">
+            Aucun champ personnalisé
+          </div>
+          <button class="btn-secondary" (click)="showConfigType(selectedIssue)">
+            <i class="fas fa-sliders-h"></i> Configurer workflow et champs
+          </button>
+        </div>
+      </div>
 
-      <input matInput placeholder="fas fa-bug"
-             (change)="updateIcon('')">
-    </div>
-
-    <h4>Custom Fields</h4>
-    <div class="custom-field" *ngFor="let cf of selectedIssue.usingCustomFields">
-      <mat-checkbox >{{ cf.customField?.name }}</mat-checkbox>
-    </div>
+      <ng-template #noSelection>
+        <div class="state-block tall">
+          <i class="fas fa-hand-pointer"></i>
+          <span>Sélectionnez un type pour voir son détail</span>
+          <button class="btn-primary" (click)="startCreateParent()">
+            <i class="fas fa-plus"></i> Créer un type
+          </button>
+        </div>
+      </ng-template>
+    </ng-template>
 
   </div>
-
 </div>
-<mat-menu #newIssueType="matMenu">
-   <app-issutype-form2   (oneSaved) = "reloaList($event)"></app-issutype-form2>
-</mat-menu>

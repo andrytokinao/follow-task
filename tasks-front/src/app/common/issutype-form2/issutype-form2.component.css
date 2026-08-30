@@ -10,6 +10,15 @@
   gap: 14px;
 }
 
+/* Integre dans un panneau : ni carte flottante ni largeur fixe */
+.form-shell.embedded {
+  width: 100%;
+  max-width: 100%;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
 /* Bandeau niveau */
 .level-strip {
   display: inline-flex;

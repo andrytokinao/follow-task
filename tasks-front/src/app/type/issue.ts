@@ -176,6 +176,7 @@ export interface Project {
 export interface IssueType{
   id?:number
   name?:String
+  description?:String
   prefix?:String
   level?:String
   project?:Project

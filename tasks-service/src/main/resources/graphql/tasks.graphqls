@@ -95,11 +95,12 @@ type IssueLabels {
 type IssueType{
     id:Int
     name:String
+    description:String
     icone:Icone
     level:String
     prefix:String
     project:Project
-    color:String 
+    color:String
     style:String
     curentWorkFlow:WorkFlow
     usingCustomFields:[UsingCustomField]
@@ -304,6 +305,7 @@ input IssueLabelsInput {
 input IssueTypeInput{
     id:Int
     name:String
+    description:String
     prefix:String
     level:String
     color:String
