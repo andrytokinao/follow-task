@@ -930,9 +930,10 @@
 // ============================================================
 
 .list-collapsed {
-  // Le titre et la recherche n'ont plus la place, mais le filtre par
-  // fournisseur reste : c'est le seul accès aux autres canaux, et sur mobile
-  // le rail est le seul état possible.
+  // Le titre et la recherche n'ont plus la place. Le filtre reste, en
+  // colonne : c'est le seul accès aux autres fournisseurs quand la liste est
+  // repliée sur desktop. Sur mobile il n'est pas rendu ici du tout, il coiffe
+  // le fil (.mobile-filter-bar).
   .list-header,
   .search-bar { display: none; }
 
@@ -997,6 +998,27 @@
   .info-inner {
     width: 100%;
     opacity: 1;
+  }
+
+  // Filtre coiffant le fil : pleine largeur de la colonne des messages, donc
+  // les sept fournisseurs tiennent sur une ligne au lieu d'être entassés
+  // verticalement dans un rail de 60 px.
+  .mobile-filter-bar {
+    flex: 0 0 auto;
+    background: white;
+    border-bottom: 1px solid #E5E7EB;
+  }
+
+  .mobile-filter-bar .channel-filter {
+    padding: 6px 8px;
+    justify-content: flex-start;
+  }
+
+  // Cible tactile : 27 px est trop bas pour un doigt.
+  .mobile-filter-bar .channel-filter-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 15px;
   }
 
   // Le tiroir est visible : il doit rester interactif même si la grille
