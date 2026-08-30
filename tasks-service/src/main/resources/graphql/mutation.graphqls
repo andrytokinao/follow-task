@@ -22,6 +22,7 @@ type Mutation {
     removeStatusFromWorkFlow(workFlowId:Int,statusId:Int):WorkFlow
     deleteWorkFlow(workFlowId:Int):ResponseApp
     saveCustomField(customField:CustomFieldImput):CustomField
+    deleteCustomField(customFieldId:Int):ResponseApp
     useCustomField(usingCustomField:UsingCustomFieldInput):[UsingCustomField]
     unUseCustomField(usingCustomField:UsingCustomFieldInput):[UsingCustomField],
     assigneToUser(issue:IssueInput,executor:String):Issue

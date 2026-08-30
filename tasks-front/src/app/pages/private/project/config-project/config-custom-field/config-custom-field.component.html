@@ -1,20 +1,112 @@
-<div class="">
-  <div class="modal-body ">
-    <div class="custom-field">
-      <div>
-        <h1> Champ personnalisé </h1>
-        <ul class="list-group">
-          <li class="list-group-item list-group-item-action pointer-event" *ngFor="let field of customFields" (click)="editCustomField(field)">
-            <app-icone-view [icon]="getIcone(field)" [width]="'fa-1x'"></app-icone-view>
-            {{ field.name }}
-          </li>
-          <li class="list-group-item list-group-item-action" style="text-align: center;margin-top: 5px" (click)="newCustomField()" > <i class="fas fa-plus-square"> </i> Nouveau</li>
+<div class="custom-field-page">
 
-        </ul>
+  <!-- COLONNE GAUCHE : LISTE DES CHAMPS -->
+  <aside class="field-list">
+    <div class="panel-header">
+      <div class="panel-title">
+        <span>Champs personnalisés</span>
+        <span class="count-badge">{{ customFields.length }}</span>
+      </div>
+      <button class="btn-primary" (click)="newCustomField()">
+        <i class="fas fa-plus"></i> Nouveau
+      </button>
+    </div>
+
+    <div class="search-wrap">
+      <i class="fas fa-search"></i>
+      <input type="text" placeholder="Rechercher un champ ou un type..." [(ngModel)]="search"/>
+      <i class="fas fa-times clear-search" *ngIf="search" (click)="search = ''" title="Effacer"></i>
+    </div>
+
+    <div class="banner error" *ngIf="errorMessage">
+      <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+      <i class="fas fa-times close" (click)="errorMessage = ''"></i>
+    </div>
+
+    <div class="field-item" *ngFor="let field of filteredFields; trackBy: trackByField"
+         [class.selected]="isSelected(field)"
+         (click)="select(field)">
+      <app-icone-view [icon]="getIcone(field)" [width]="'fa-1x'"></app-icone-view>
+      <div class="field-text">
+        <span class="field-name">{{ field.name }}</span>
+        <span class="field-type">{{ typeLabel(field) }}</span>
+      </div>
+      <span class="count-badge" [title]="usageCount(field) + ' type(s) de tâche'">
+        {{ usageCount(field) }}
+      </span>
+      <span class="item-actions">
+        <button class="icon-btn" title="Modifier" (click)="editCustomField(field, $event)">
+          <i class="fas fa-pen"></i>
+        </button>
+        <button class="icon-btn danger" title="Supprimer" (click)="deleteCustomField(field, $event)">
+          <i class="fas fa-trash-alt"></i>
+        </button>
+      </span>
+    </div>
+
+    <div class="state-block" *ngIf="filteredFields.length === 0">
+      <i class="fas fa-list-check"></i>
+      <span *ngIf="search">Aucun champ ne correspond à « {{ search }} »</span>
+      <span *ngIf="!search">Aucun champ personnalisé pour ce projet</span>
+    </div>
+  </aside>
+
+  <!-- COLONNE DROITE : DETAIL ET AFFECTATIONS -->
+  <section class="field-detail">
+
+    <ng-container *ngIf="selected; else noSelection">
+      <div class="detail-header">
+        <app-icone-view [icon]="getIcone(selected)" [width]="'fa-2x'"></app-icone-view>
+        <div class="detail-title">
+          <h3>{{ selected.name }}</h3>
+          <span class="detail-subtitle">{{ typeLabel(selected) }}</span>
+        </div>
+        <button class="btn-ghost" (click)="editCustomField(selected)">
+          <i class="fas fa-pen"></i> Modifier
+        </button>
       </div>
 
-    </div>
-  </div>
+      <div class="detail-section" *ngIf="optionsOf(selected).length">
+        <h4>Valeurs proposées</h4>
+        <div class="option-list">
+          <span class="option-chip" *ngFor="let option of optionsOf(selected)">{{ option }}</span>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h4>Types de tâche utilisant ce champ</h4>
+        <p class="section-hint">
+          Cochez un type pour y rendre le champ disponible, décochez pour l'en retirer.
+        </p>
+
+        <div class="type-list">
+          <label class="type-row" *ngFor="let issueType of flatIssueTypes; trackBy: trackByType"
+                 [class.used]="isUsedByType(selected, issueType)"
+                 [class.child]="issueType.level === 'SUB_TASK'">
+            <input type="checkbox" [checked]="isUsedByType(selected, issueType)"
+                   [disabled]="saving"
+                   (change)="toggleIssueType(issueType, $event)"/>
+            <i class="fas" [ngClass]="issueType.level === 'SUB_TASK' ? 'fa-file' : 'fa-folder'"></i>
+            <span class="type-name">{{ issueType.name }}</span>
+            <code class="type-prefix" *ngIf="issueType.prefix">{{ issueType.prefix }}</code>
+          </label>
+
+          <div class="state-block" *ngIf="flatIssueTypes.length === 0">
+            <i class="fas fa-layer-group"></i>
+            <span>Aucun type de tâche dans ce projet</span>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-template #noSelection>
+      <div class="state-block tall">
+        <i class="fas fa-hand-pointer"></i>
+        <span>Sélectionnez un champ pour voir son détail et ses affectations</span>
+        <button class="btn-primary" (click)="newCustomField()">
+          <i class="fas fa-plus"></i> Créer un champ
+        </button>
+      </div>
+    </ng-template>
+  </section>
 </div>
-
-

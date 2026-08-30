@@ -1001,6 +1001,22 @@ export class IssueService implements OnInit {
     })
   };
 
+  deleteCustomField(customFieldId: number) {
+    return new Observable<ResponseApp>(observer => {
+      this.apollo.mutate({
+        mutation: operation.DELETE_CUSTOM_FIELD,
+        variables: {customFieldId},
+        fetchPolicy: "network-only"
+      }).subscribe((res: any) => {
+        observer.next(supprimerTypename(res.data.deleteCustomField));
+        observer.complete();
+      }, error => {
+        observer.error(error);
+        observer.complete();
+      });
+    });
+  }
+
   saveCustomField(customField: CustomField) {
     customField.project = {id: this.project.id}
     return new Observable<CustomField>(observer => {

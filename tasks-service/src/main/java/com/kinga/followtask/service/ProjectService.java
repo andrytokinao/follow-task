@@ -50,6 +50,7 @@ public class ProjectService {
     final IssueLabelsRepository issueLabelsRepository;
     final UsingCustomFieldRepository usingCustomFieldRepository;
     public final CustomFieldRepository customFieldRepository;
+    final CustomFieldValueRepository customFieldValueRepository;
     final ConfigProjectRepo configProjectRepo;
     final GroupeUserRepository groupeUserRepository;
     final MemberGroupeRepository memberGroupeRepository;
@@ -618,6 +619,35 @@ public class ProjectService {
 
     public List<UsingCustomField> customFieldsByIssueType(Long issueTypeId) {
         return usingCustomFieldRepository.findByIssueTypeId(issueTypeId);
+    }
+
+    /**
+     * Supprime un champ personnalise. La suppression est refusee tant que des
+     * taches portent une valeur pour ce champ ; les affectations aux types de
+     * tache sont en revanche retirees automatiquement.
+     */
+    @Transactional
+    public Response deleteCustomField(Long customFieldId) {
+        CustomField customField = customFieldRepository.findById(customFieldId)
+                .orElseThrow(() -> new RuntimeException("Champ personnalise introuvable : " + customFieldId));
+
+        long valueCount = customFieldValueRepository.countByCustomFieldId(customFieldId);
+        if (valueCount > 0) {
+            throw new RuntimeException("Ce champ porte " + valueCount
+                    + " valeur(s) sur des taches : il ne peut pas etre supprime.");
+        }
+
+        List<UsingCustomField> usings = usingCustomFieldRepository.findByCustomFieldId(customFieldId);
+        if (!CollectionUtils.isEmpty(usings)) {
+            usingCustomFieldRepository.deleteAll(usings);
+        }
+        customFieldRepository.delete(customField);
+
+        Response response = new Response();
+        response.setStatus("success");
+        response.setCode("OK");
+        response.setMessage("Champ " + customField.getName() + " supprime");
+        return response;
     }
 
     public ConfigProject setPath(String path, Long projectId) {

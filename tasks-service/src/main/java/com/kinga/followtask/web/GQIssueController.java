@@ -194,6 +194,10 @@ public class GQIssueController {
      public CustomField saveCustomField(@Argument CustomField customField){
         return projectService.saveCustomField (customField);
      }
+     @MutationMapping
+     public Response deleteCustomField(@Argument Long customFieldId){
+        return projectService.deleteCustomField (customFieldId);
+     }
     @MutationMapping
     public List<UsingCustomField> useCustomField(@Argument UsingCustomField usingCustomField){
         return projectService.useCustomField (usingCustomField);

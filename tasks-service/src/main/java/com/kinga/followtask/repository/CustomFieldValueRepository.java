@@ -4,4 +4,5 @@ import com.kinga.followtask.entity.CustomFieldValue;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CustomFieldValueRepository extends JpaRepository<CustomFieldValue, Long> {
+    long countByCustomFieldId(Long customFieldId);
   }

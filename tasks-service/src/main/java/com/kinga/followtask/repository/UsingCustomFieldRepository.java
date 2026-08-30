@@ -9,4 +9,5 @@ import java.util.List;
 public interface UsingCustomFieldRepository extends JpaRepository<UsingCustomField,Long> {
     public List<UsingCustomField> findByCustomFieldIdAndIssueTypeId(Long fieldId, Long typeId);
     public List<UsingCustomField> findByIssueTypeId(Long typeId);
+    public List<UsingCustomField> findByCustomFieldId(Long fieldId);
 }

@@ -1420,10 +1420,14 @@ const ALL_CUSTOM_FIELD = gql`
        id
        name
        options
+       configDisplay
        issueTypes {
          id
          issueType {
            id
+           name
+           prefix
+           level
          }
          customField {
            id
@@ -1434,6 +1438,15 @@ const ALL_CUSTOM_FIELD = gql`
        type
      }
    }
+`
+const DELETE_CUSTOM_FIELD = gql`
+  mutation deleteCustomField($customFieldId:Int) {
+    deleteCustomField(customFieldId: $customFieldId){
+      status
+      message
+      code
+    }
+  }
 `
 const USE_CUSTOM_FIELD = gql`
     mutation useCustomField($usingCustomField:UsingCustomFieldInput!) {
@@ -3499,6 +3512,7 @@ export {
   ISSUE_BY_CRITERIA,
   SEVE_CUSTOM_FIELD,
   ALL_CUSTOM_FIELD,
+  DELETE_CUSTOM_FIELD,
   USE_CUSTOM_FIELD,
   UN_USE_CUSTOM_FIELD,
   CUSTOM_FIELD_BY_ISSUE_TYPE,
