@@ -927,13 +927,19 @@
 // Le contenu textuel est masqué plutôt que retiré du DOM : la colonne
 // s'anime en largeur, et une suppression de nœuds ferait sauter la
 // transition.
+//
+// IMPORTANT : ce bloc est scopé à `.pane-list` (et non appliqué globalement
+// sous `.list-collapsed`), pour ne jamais atteindre le `.channel-filter` du
+// `.mobile-filter-bar`. Sans ce scope, comme le mobile force aussi
+// `listCollapsed = true`, la règle `flex-direction: column` du filtre
+// « rail » se propageait au filtre horizontal affiché au-dessus du fil sur
+// mobile.
 // ============================================================
 
-.list-collapsed {
+.list-collapsed .pane-list {
   // Le titre et la recherche n'ont plus la place. Le filtre reste, en
   // colonne : c'est le seul accès aux autres fournisseurs quand la liste est
-  // repliée sur desktop. Sur mobile il n'est pas rendu ici du tout, il coiffe
-  // le fil (.mobile-filter-bar).
+  // repliée sur desktop.
   .list-header,
   .search-bar { display: none; }
 
@@ -967,7 +973,8 @@
 // Mobile
 // ------------------------------------------------------------
 // La liste reste au rail d'avatars et le panneau de détail devient un
-// tiroir superposé, ouvert depuis le titre du fil.
+// tiroir superposé, ouvert depuis le titre du fil. Le filtre par
+// fournisseur coiffe le fil, en pleine largeur, donc horizontal.
 // ============================================================
 
 @media (max-width: 860px) {
@@ -1002,23 +1009,27 @@
 
   // Filtre coiffant le fil : pleine largeur de la colonne des messages, donc
   // les sept fournisseurs tiennent sur une ligne au lieu d'être entassés
-  // verticalement dans un rail de 60 px.
+  // verticalement dans un rail de 60 px. Explicitement horizontal + wrap au
+  // cas où l'espace vienne à manquer, plutôt que de dépendre du seul
+  // scroll-x hérité de `.channel-filter`.
   .mobile-filter-bar {
     flex: 0 0 auto;
     background: white;
     border-bottom: 1px solid #E5E7EB;
-  }
 
-  .mobile-filter-bar .channel-filter {
-    padding: 6px 8px;
-    justify-content: flex-start;
-  }
+    .channel-filter {
+      flex-direction: row;
+      flex-wrap: nowrap;
+      padding: 6px 8px;
+      justify-content: flex-start;
+    }
 
-  // Cible tactile : 27 px est trop bas pour un doigt.
-  .mobile-filter-bar .channel-filter-btn {
-    width: 32px;
-    height: 32px;
-    font-size: 15px;
+    // Cible tactile : 27 px est trop bas pour un doigt.
+    .channel-filter-btn {
+      width: 32px;
+      height: 32px;
+      font-size: 15px;
+    }
   }
 
   // Le tiroir est visible : il doit rester interactif même si la grille
