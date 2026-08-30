@@ -48,16 +48,13 @@
       </button>
     </mat-menu>
 
+    <!-- La liste en cartes n'est pas proposée ici : c'est la vue mobile. -->
     <div class="view-toggle">
-      <button [class.active]="currentView === 'table-master'"
+      <button [class.active]="effectiveView === 'table-master'"
               (click)="setView('table-master')" title="Tableau">
         <i class="fas fa-table"></i>
       </button>
-      <button [class.active]="currentView === 'details'"
-              (click)="setView('details')" title="Liste cartes">
-        <i class="fas fa-th-list"></i>
-      </button>
-      <button [class.active]="currentView === 'board'"
+      <button [class.active]="effectiveView === 'board'"
               (click)="setView('board')" title="Board">
         <i class="fas fa-columns"></i>
       </button>
@@ -74,14 +71,9 @@
   <app-issue-boaard      *ngIf="effectiveView === 'board'"></app-issue-boaard>
 </div>
 
-<!-- Barre mobile en bas (pas de topbar sur mobile) -->
+<!-- Barre mobile en bas (pas de topbar sur mobile).
+     Plus de sélecteur de vue : la liste en cartes est la seule vue mobile. -->
 <nav class="mobile-bottom-bar">
-  <button [class.active]="effectiveView === 'board'" (click)="setView('board')">
-    <i class="fas fa-columns"></i><span>Board</span>
-  </button>
-  <button [class.active]="effectiveView === 'details'" (click)="setView('details')">
-    <i class="fas fa-th-list"></i><span>Liste</span>
-  </button>
   <button [matMenuTriggerFor]="filterMenu"
           [class.active]="selectedFilter && selectedFilter.id !== noFilter.id">
     <i class="fas fa-filter"></i><span>Filtres</span>

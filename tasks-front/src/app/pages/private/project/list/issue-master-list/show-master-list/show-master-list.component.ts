@@ -39,14 +39,19 @@ export class ShowMasterListComponent implements OnInit, OnDestroy {
   };
   isMobile = false;
 
-  // Vue réellement rendue. Un tableau de huit colonnes n'est pas exploitable
-  // sur téléphone : on retombe sur la liste en cartes, sans écraser le choix
-  // de l'utilisateur — il retrouve son tableau en repassant sur grand écran.
+  // Vue réellement rendue. Chaque support n'expose que les vues qui s'y
+  // exploitent, et `currentView` n'est jamais écrasé : l'utilisateur retrouve
+  // son tableau ou son board en repassant sur grand écran.
+  //
+  //   mobile  -> liste en cartes uniquement (un tableau à huit colonnes et un
+  //              board à défilement horizontal n'y sont pas utilisables) ;
+  //   desktop -> tableau ou board, la liste en cartes étant retirée du
+  //              sélecteur.
   get effectiveView(): string {
-    if (this.isMobile && this.currentView === 'table-master') {
+    if (this.isMobile) {
       return 'details';
     }
-    return this.currentView;
+    return this.currentView === 'details' ? 'table-master' : this.currentView;
   }
   views = [
     { id: 'list', icon: 'fas fa-list', title: 'Liste de tâches' },

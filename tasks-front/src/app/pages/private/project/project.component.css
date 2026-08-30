@@ -162,7 +162,12 @@
 /* ── Content ── */
 .project-content {
   background: var(--content-bg);
-  min-height: 100vh; overflow: auto;
+  /* Pas d'`overflow: auto` ici : avec `min-height` (et non `height`), ce bloc
+     grandit avec son contenu et ne défile donc jamais lui-même — il devenait
+     malgré tout le scrollport de référence, ce qui neutralisait tout
+     `position: sticky` des pages enfants. Le défilement appartient au
+     document, comme pour la barre mobile .topbar-mobile juste au-dessus. */
+  min-height: 100vh;
   grid-column: 2; grid-row: 1;
 }
 

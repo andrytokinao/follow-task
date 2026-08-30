@@ -1,17 +1,67 @@
 <div class="master-list">
 
-  <!-- État vide -->
-  <div class="empty-state" *ngIf="!issues.length">
-    <span class="empty-icon"><i class="fas fa-inbox"></i></span>
-    <p class="empty-title">Aucune demande</p>
-    <p class="empty-sub">Ce projet ne contient pas encore de demande.</p>
+  <!-- Récapitulatif par statut, épinglé en haut pendant le défilement.
+       Icône + compteur ; le libellé n'apparaît qu'à partir de la tablette. -->
+  <div class="status-bar" *ngIf="statusSummary.length">
+    <button
+      type="button"
+      class="status-chip"
+      *ngFor="let entry of statusSummary; trackBy: trackByStatus"
+      [ngStyle]="statusChipStyle(entry.status)"
+      [class.is-empty]="entry.count === 0"
+      [class.is-selected]="isStatusSelected(entry.status)"
+      [attr.aria-pressed]="isStatusSelected(entry.status)"
+      [title]="entry.status.displayName + ' : ' + entry.count"
+      (click)="toggleStatus(entry.status)"
+    >
+      <span class="chip-icon">
+        <app-icone-view *ngIf="entry.status.icone" [icon]="entry.status.icone"></app-icone-view>
+        <!-- Repli quand le statut n'a pas d'icône : une pastille de sa
+             couleur, sinon la puce n'aurait aucun repère visuel. -->
+        <span class="chip-dot" *ngIf="!entry.status.icone"
+              [style.background]="statusColor(entry.status)"></span>
+      </span>
+      <span class="chip-label">{{ entry.status.displayName }}</span>
+      <span class="chip-count">{{ entry.count }}</span>
+    </button>
+
+    <button
+      type="button"
+      class="status-clear"
+      *ngIf="hasStatusFilter"
+      (click)="clearStatusFilter()"
+      title="Afficher tous les statuts"
+    >
+      <i class="fas fa-xmark"></i>
+      <span>Tout</span>
+    </button>
   </div>
 
-  <div class="master-grid" *ngIf="issues.length">
+  <!-- État vide : distinguer « projet vide » de « filtre trop restrictif »,
+       sinon l'utilisateur croit avoir perdu ses demandes. -->
+  <div class="empty-state" *ngIf="!visibleIssues.length">
+    <span class="empty-icon"><i class="fas fa-inbox"></i></span>
+
+    <ng-container *ngIf="!issues.length; else noMatch">
+      <p class="empty-title">Aucune demande</p>
+      <p class="empty-sub">Ce projet ne contient pas encore de demande.</p>
+    </ng-container>
+
+    <ng-template #noMatch>
+      <p class="empty-title">Aucune demande pour ce filtre</p>
+      <p class="empty-sub">Aucune demande ne correspond aux statuts sélectionnés.</p>
+      <button type="button" class="card-btn empty-action" (click)="clearStatusFilter()">
+        <i class="fas fa-rotate-left"></i>
+        <span>Afficher tout</span>
+      </button>
+    </ng-template>
+  </div>
+
+  <div class="master-grid" *ngIf="visibleIssues.length">
 
     <article
       class="master-card"
-      *ngFor="let master of issues; trackBy: trackByIssue"
+      *ngFor="let master of visibleIssues; trackBy: trackByIssue"
       [ngStyle]="getStyleByStatus(master)"
     >
       <!-- En-tête : identité de la demande + statut modifiable -->

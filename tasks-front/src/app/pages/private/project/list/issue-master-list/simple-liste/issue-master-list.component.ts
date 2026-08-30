@@ -102,10 +102,115 @@ export class IssueMasterListComponent {
     // propre — l'ancien setTimeout de 2 s retardait l'affichage pour rien.
     this.essueService.issueMasterList$.subscribe((res: any) => {
       this.issues = stripTypename(res);
+      this.computeStatusSummary();
+      this.applyStatusFilter();
       this.dataSource =  new MatTableDataSource<Issue>(this.issues);
       this.dataSource.paginator = this.paginator;
       this.isLoading = false;
     });
+  }
+
+  // ---------------------------------------------------------------------
+  // Filtre par statut
+  // ---------------------------------------------------------------------
+
+  // Aucun statut coché = aucun filtre : tout est affiché. C'est le
+  // comportement attendu d'une barre de facettes, et ça évite l'état
+  // « rien de coché, donc liste vide » qui n'aurait aucun sens ici.
+  selectedStatusIds = new Set<number>();
+
+  // Liste réellement rendue. Précalculée plutôt qu'exposée en getter : un
+  // getter renverrait un nouveau tableau à chaque cycle de détection de
+  // changements, forçant *ngFor à re-différencier toute la grille.
+  visibleIssues: Issue[] = [];
+
+  isStatusSelected(status: Status): boolean {
+    return this.selectedStatusIds.has(status.id);
+  }
+
+  get hasStatusFilter(): boolean {
+    return this.selectedStatusIds.size > 0;
+  }
+
+  toggleStatus(status: Status): void {
+    if (this.selectedStatusIds.has(status.id)) {
+      this.selectedStatusIds.delete(status.id);
+    } else {
+      this.selectedStatusIds.add(status.id);
+    }
+    this.applyStatusFilter();
+  }
+
+  clearStatusFilter(): void {
+    this.selectedStatusIds.clear();
+    this.applyStatusFilter();
+  }
+
+  private applyStatusFilter(): void {
+    if (this.selectedStatusIds.size === 0) {
+      this.visibleIssues = this.issues;
+      return;
+    }
+    this.visibleIssues = this.issues.filter(
+      issue => issue.status?.id != null && this.selectedStatusIds.has(issue.status.id)
+    );
+  }
+
+  // ---------------------------------------------------------------------
+  // Récapitulatif par statut, épinglé en haut de la liste
+  // ---------------------------------------------------------------------
+
+  statusSummary: { status: Status; count: number }[] = [];
+
+  private computeStatusSummary(): void {
+    const counts = new Map<number, number>();
+    for (const issue of this.issues) {
+      const id = issue.status?.id;
+      if (id == null) continue;
+      counts.set(id, (counts.get(id) ?? 0) + 1);
+    }
+
+    // Ordre du workflow en priorité : il porte la progression métier
+    // (À faire -> En cours -> Terminé) et fait apparaître les statuts à zéro,
+    // ce qui est justement l'information utile. À défaut, on retombe sur les
+    // statuts réellement présents dans les demandes.
+    const workflowStatuses = this.issueService.getDistinctWorkflows(this.issues)?.[0]?.statuses;
+    const statuses = workflowStatuses?.length ? workflowStatuses : this.distinctStatuses();
+
+    this.statusSummary = statuses.map(status => ({
+      status,
+      count: counts.get(status.id) ?? 0,
+    }));
+  }
+
+  private distinctStatuses(): Status[] {
+    const byId = new Map<number, Status>();
+    for (const issue of this.issues) {
+      const status = issue.status;
+      if (status?.id != null && !byId.has(status.id)) {
+        byId.set(status.id, status);
+      }
+    }
+    return Array.from(byId.values());
+  }
+
+  trackByStatus(_index: number, entry: { status: Status }): number {
+    return entry.status.id;
+  }
+
+  statusColor(status: Status): string {
+    return String(status?.color ?? '#6b7280');
+  }
+
+  // Pastille teintée : le suffixe hexadécimal ajoute l'alpha (14 ≈ 8 %,
+  // 55 ≈ 33 %), pour rester lisible quelle que soit la couleur du statut.
+  statusChipStyle(status: Status) {
+    const color = this.statusColor(status);
+    return {
+      color,
+      'border-color': color + '55',
+      'background-color': color + '14',
+    };
   }
 
   saveCustomFieldValue($event: CustomFieldValue) {
