@@ -1,22 +1,32 @@
+<div class="admin-shell" [class.collapsed]="collapsed">
+  <aside class="admin-sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-brand">
+        <div class="brand-icon"><i class="fas fa-shield-alt"></i></div>
+        <div class="brand-text">
+          <span class="brand-title">Administration</span>
+          <span class="brand-subtitle">Espace de travail</span>
+        </div>
+      </div>
+      <button class="collapse-btn" (click)="toggleSidebar()"
+              [title]="collapsed ? 'Déplier le menu' : 'Replier le menu'">
+        <i class="fas" [ngClass]="collapsed ? 'fa-chevron-right' : 'fa-chevron-left'"></i>
+      </button>
+    </div>
 
-<div class="projet">
-  <div class="menu">
-    <h3>Admin </h3>
-    <ul>
-      <li class="menu-item controle " routerLinkActive="active" routerLink ="users">
-        <i class="fas fa-tasks"></i> Gestion des utilisateurs
-      </li>
-      <li class="menu-item controle" routerLinkActive="active" routerLink ="groups">
-        <i class="fas fa-calendar"></i> Gestion des groupe
-      </li>
-      <li class="menu-item controle" routerLinkActive="active" routerLink ="config">
-        <i class="fas fa-chart-line"></i> Configurations
-      </li>
-    </ul>
-  </div>
+    <nav class="sidebar-nav">
+      <a class="admin-nav-item" *ngFor="let menu of visibleMenus"
+         [routerLink]="menu.route" routerLinkActive="active" [title]="menu.label">
+        <i [ngClass]="menu.icon"></i>
+        <span class="nav-text">
+          <span class="nav-label">{{ menu.label }}</span>
+          <span class="nav-description">{{ menu.description }}</span>
+        </span>
+      </a>
+    </nav>
+  </aside>
 
-  <div class="project-content" >
+  <section class="admin-content">
     <router-outlet></router-outlet>
-  </div>
+  </section>
 </div>
-
