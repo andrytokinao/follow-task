@@ -1,12 +1,39 @@
-<div class="config-project">
-  <ul class="navigation-config">
-    <li class="" routerLink="issue-type"routerLinkActive="active" *ngIf="projectGuard.hasCredential(['CAN_CONFIG_ISSUE_TYPE'])"><a > <i class="fas fa-list-dots" > </i> Type de tache </a></li>
-    <li class="" routerLink="work-flow" routerLinkActive="active" *ngIf="projectGuard.hasCredential(['CAN_CONFIG_WORKFLOW'])"><a  ><i class="fas fa-chart-gantt" > </i> Flux de travail </a></li>
-    <li class="" routerLink="custom-field" routerLinkActive="active" *ngIf="projectGuard.hasCredential(['CAN_CONFIG_CUSTOM_FIELD'])"><a  ><i class="fas fa-edit" > </i> Champ personnalisé</a></li>
-    <li class="" routerLink="storage" routerLinkActive="active" *ngIf="projectGuard.hasCredential(['CAN_CONFIG_STORAGE'])"><a>     <i class="fas fa-laptop"></i> Stockage </a></li>
-    <li class="" routerLink="accessibility" routerLinkActive="active" *ngIf="projectGuard.hasCredential(['CAN_EDIT_ROLE_USER'])"><a><i class="fas fa-people-group"></i> Equipe  </a></li>
-  </ul>
-  <div>
+<div class="config-project" [class.collapsed]="collapsed">
+  <aside class="config-sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-brand">
+        <div class="brand-icon"><i class="fas fa-sliders-h"></i></div>
+        <div class="brand-text">
+          <span class="brand-title">Configuration</span>
+          <span class="brand-subtitle" [title]="project?.name">
+            {{ project?.prefix || project?.name || 'Projet' }}
+          </span>
+        </div>
+      </div>
+      <button class="collapse-btn" (click)="toggleSidebar()"
+              [title]="collapsed ? 'Déplier le menu' : 'Replier le menu'">
+        <i class="fas" [ngClass]="collapsed ? 'fa-chevron-right' : 'fa-chevron-left'"></i>
+      </button>
+    </div>
+
+    <nav class="navigation-config">
+      <a class="config-nav-item" *ngFor="let menu of visibleMenus"
+         [routerLink]="menu.route" routerLinkActive="active" [title]="menu.label">
+        <i [ngClass]="menu.icon"></i>
+        <span class="nav-text">
+          <span class="nav-label">{{ menu.label }}</span>
+          <span class="nav-description">{{ menu.description }}</span>
+        </span>
+      </a>
+
+      <div class="nav-empty" *ngIf="visibleMenus.length === 0">
+        <i class="fas fa-lock"></i>
+        <span>Aucun paramètre accessible</span>
+      </div>
+    </nav>
+  </aside>
+
+  <section class="config-content">
     <router-outlet></router-outlet>
-  </div>
+  </section>
 </div>
