@@ -20,6 +20,11 @@
 
 .master-list {
   padding: 12px;
+  /* Empêche un enfant large (barre de statuts, tag, champ personnalisé) de
+     pousser la largeur de la page. Seule la barre de statuts défile
+     horizontalement, et elle le fait dans son propre cadre. */
+  max-width: 90%;
+  min-width: 0;
 }
 
 /* =========================================================================
@@ -42,7 +47,16 @@
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(6px);
   border-bottom: 1px solid var(--c-border);
+  /* Le défilement horizontal est confiné ici. min-width:0 est nécessaire :
+     un conteneur flex a `min-width: auto` par défaut, il refuse donc de
+     rétrécir sous la largeur cumulée de ses puces — et c'est la page qui
+     s'élargissait au lieu de la barre qui défile. */
+  min-width: 0;
+  max-width: 100%;
   overflow-x: auto;
+  /* Empêche le geste de défilement horizontal de se propager au document
+     une fois la barre arrivée en bout de course. */
+  overscroll-behavior-x: contain;
   scrollbar-width: thin;
 }
 .status-bar::-webkit-scrollbar {

@@ -162,12 +162,16 @@
 /* ── Content ── */
 .project-content {
   background: var(--content-bg);
-  /* Pas d'`overflow: auto` ici : avec `min-height` (et non `height`), ce bloc
-     grandit avec son contenu et ne défile donc jamais lui-même — il devenait
+  /* `overflow: auto` a été retiré : avec `min-height` (et non `height`), ce
+     bloc grandit avec son contenu et ne défile jamais lui-même — il devenait
      malgré tout le scrollport de référence, ce qui neutralisait tout
-     `position: sticky` des pages enfants. Le défilement appartient au
-     document, comme pour la barre mobile .topbar-mobile juste au-dessus. */
+     `position: sticky` des pages enfants.
+     `clip` (et non `hidden`) sur le seul axe horizontal : il retient les
+     débordements en largeur SANS créer de conteneur de défilement, donc le
+     sticky continue de fonctionner. `hidden` forcerait l'axe vertical en
+     `auto` et casserait à nouveau le collage. */
   min-height: 100vh;
+  overflow-x: clip;
   grid-column: 2; grid-row: 1;
 }
 
