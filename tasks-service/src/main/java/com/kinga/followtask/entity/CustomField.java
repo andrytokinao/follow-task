@@ -21,7 +21,7 @@ public class CustomField {
     private List<String> options;
     @Convert(converter = StringListConverter.class)
     private List<String> configDisplay;
-    @OneToMany
+    @OneToMany(mappedBy = "customField")
     @EqualsAndHashCode.Exclude
     private List<UsingCustomField> issueTypes;
     private String type;
