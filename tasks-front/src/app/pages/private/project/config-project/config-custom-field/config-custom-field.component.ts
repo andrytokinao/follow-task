@@ -26,8 +26,10 @@ export class ConfigCustomFieldComponent implements OnInit, OnDestroy {
   selected: CustomField | null = null;
   search: string = '';
   errorMessage: string = '';
+  savedMessage: string = '';
   saving: boolean = false;
 
+  private savedTimer: any = null;
   private subscriptions: Subscription[] = [];
 
   constructor(private modalService: NgbModal,
@@ -48,6 +50,9 @@ export class ConfigCustomFieldComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(subscription => subscription.unsubscribe());
+    if (this.savedTimer) {
+      clearTimeout(this.savedTimer);
+    }
   }
 
   private refreshSelection() {
@@ -136,11 +141,20 @@ export class ConfigCustomFieldComponent implements OnInit, OnDestroy {
     if (!this.selected || this.selected.id == null || issueType.id == null || this.saving) {
       return;
     }
+    const field = this.selected;
+    const used = this.isUsedByType(field, issueType);
     const payload: any = {
-      customField: {id: this.selected.id},
+      customField: {id: field.id},
       issueType: {id: issueType.id}
     };
-    const used = this.isUsedByType(this.selected, issueType);
+
+    // mise a jour optimiste : sans elle la case revient a son ancien etat
+    // pendant l'aller-retour serveur, ce qui laisse croire a un echec.
+    const previous = field.issueTypes || [];
+    field.issueTypes = used
+      ? previous.filter(using => using.issueType?.id != issueType.id)
+      : [...previous, <any>{customField: {id: field.id}, issueType: issueType}];
+
     const call = used
       ? this.issueService.unUseCustomField(payload)
       : this.issueService.useCustomField(payload);
@@ -150,15 +164,28 @@ export class ConfigCustomFieldComponent implements OnInit, OnDestroy {
     call.subscribe({
       next: () => {
         this.saving = false;
+        this.flashSaved(issueType, used);
         // la mutation renvoie les affectations du type ; on recharge les champs
         // pour que la colonne de gauche reste juste.
         this.issueService.loadAllCustomField();
       },
       error: (error) => {
         this.saving = false;
+        field.issueTypes = previous;
         this.errorMessage = this.extractMessage(error);
       }
     });
+  }
+
+  /** Message de confirmation transitoire apres un enregistrement reussi. */
+  private flashSaved(issueType: IssueType, removed: boolean) {
+    this.savedMessage = removed
+      ? `« ${issueType.name} » retiré — enregistré`
+      : `« ${issueType.name} » ajouté — enregistré`;
+    if (this.savedTimer) {
+      clearTimeout(this.savedTimer);
+    }
+    this.savedTimer = setTimeout(() => this.savedMessage = '', 2500);
   }
 
   // -----------------------------------------------------------------

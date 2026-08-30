@@ -74,9 +74,18 @@
       </div>
 
       <div class="detail-section">
-        <h4>Types de tâche utilisant ce champ</h4>
+        <div class="section-head">
+          <h4>Types de tâche utilisant ce champ</h4>
+          <span class="saved-flag" *ngIf="savedMessage">
+            <i class="fas fa-check-circle"></i> {{ savedMessage }}
+          </span>
+          <span class="saving-flag" *ngIf="saving">
+            <i class="fas fa-circle-notch fa-spin"></i> Enregistrement...
+          </span>
+        </div>
         <p class="section-hint">
           Cochez un type pour y rendre le champ disponible, décochez pour l'en retirer.
+          Chaque changement est enregistré immédiatement.
         </p>
 
         <div class="type-list">
