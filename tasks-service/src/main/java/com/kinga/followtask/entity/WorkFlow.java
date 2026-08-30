@@ -22,6 +22,11 @@ public class WorkFlow {
     private Project project;
     private boolean active;
     private String statesIds;
+    /** positions des noeuds du diagramme, au format JSON : {"<statusId>":{"x":0,"y":0}} */
+    // TODO : Ajouts dans le versionning de la base de donne
+    @Lob
+    @Column(nullable = true, columnDefinition = "LONGTEXT")
+    private String layout;
     @ManyToMany
     private List<Status> statuses;
     @OneToMany(mappedBy = "curentWorkFlow")

@@ -1,6 +1,7 @@
 package com.kinga.followtask.service;
 
 import com.kinga.followtask.dto.Criteria;
+import com.kinga.followtask.dto.CrossingStateInput;
 import com.kinga.followtask.dto.Response;
 import com.kinga.followtask.dto.UploadedDto;
 import com.kinga.followtask.dto.UserDetailsDeto;
@@ -27,6 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.kinga.followtask.entity.enumapp.Niveau.SUB_TASK;
 
@@ -42,6 +44,7 @@ public class ProjectService {
     final IssueTypeRepository issueTypeRepository;
     final IssueRepository issueRepository;
     final WorkFlowRepository workFlowRepository;
+    final CrossingStateRepository crossingStateRepository;
     final ConfigRepository configRepository;
     final IconeRepository iconeRepository;
     final IssueLabelsRepository issueLabelsRepository;
@@ -387,14 +390,17 @@ public class ProjectService {
         if (status.getIcone() != null)
             iconeRepository.save(status.getIcone());
         status = statusRepository.save(status);
-        workFlow = workFlowRepository.findById(workFlow.getId()).get();
+        workFlow = loadWorkFlow(workFlow.getId());
         Status finalStatus = status;
+        if (workFlow.getStatuses() == null) {
+            workFlow.setStatuses(new ArrayList<>());
+        }
         boolean existe = workFlow.getStatuses().stream()
-                .anyMatch(s -> s.getId() == finalStatus.getId());
+                .anyMatch(s -> Objects.equals(s.getId(), finalStatus.getId()));
         if (existe)
             return workFlow;
         workFlow.getStatuses().add(status);
-        String statusIds = workFlow.getStatesIds();
+        String statusIds = StringUtils.hasText(workFlow.getStatesIds()) ? workFlow.getStatesIds() : "";
         statusIds += (StringUtils.isEmpty(statusIds) ? "" : ",") + status.getId();
         workFlow.setStatesIds(statusIds);
         logger.debug("add status " + status.toString() + " " + workFlow.toString() + " " + workFlow.getProject().toString());
@@ -411,6 +417,142 @@ public class ProjectService {
 
     public WorkFlow saveWorkFlow(WorkFlow workFlow) {
         return workFlowRepository.save(workFlow);
+    }
+
+    // -----------------------------------------------------------------
+    // Edition du diagramme de workflow : statuts (noeuds) et transitions
+    // -----------------------------------------------------------------
+
+    private WorkFlow loadWorkFlow(Long workFlowId) {
+        return workFlowRepository.findById(workFlowId)
+                .orElseThrow(() -> new RuntimeException("Flux de travail introuvable : " + workFlowId));
+    }
+
+    /**
+     * Enregistre la position des noeuds du diagramme (JSON serialise cote client).
+     */
+    @Transactional
+    public WorkFlow saveWorkFlowLayout(Long workFlowId, String layout) {
+        WorkFlow workFlow = loadWorkFlow(workFlowId);
+        workFlow.setLayout(layout);
+        return workFlowRepository.save(workFlow);
+    }
+
+    /**
+     * Cree ou met a jour une transition entre deux statuts du flux.
+     */
+    @Transactional
+    public WorkFlow saveCrossingState(Long workFlowId, CrossingStateInput input) {
+        WorkFlow workFlow = loadWorkFlow(workFlowId);
+        if (input == null || input.getFrom() == null || input.getTo() == null) {
+            throw new RuntimeException("Une transition doit avoir un statut de depart et un statut d'arrivee.");
+        }
+        if (input.getFrom().equals(input.getTo())) {
+            throw new RuntimeException("Une transition ne peut pas boucler sur le meme statut.");
+        }
+        Status from = statusRepository.findById(input.getFrom())
+                .orElseThrow(() -> new RuntimeException("Statut de depart introuvable"));
+        Status to = statusRepository.findById(input.getTo())
+                .orElseThrow(() -> new RuntimeException("Statut d'arrivee introuvable"));
+
+        List<CrossingStatus> crossings = workFlow.getCrossingStates() == null
+                ? new ArrayList<>() : new ArrayList<>(workFlow.getCrossingStates());
+
+        boolean duplicate = crossings.stream().anyMatch(crossing ->
+                !crossing.getId().equals(input.getId())
+                        && crossing.getFrom() != null && crossing.getTo() != null
+                        && crossing.getFrom().getId().equals(from.getId())
+                        && crossing.getTo().getId().equals(to.getId()));
+        if (duplicate) {
+            throw new RuntimeException("Cette transition existe deja dans ce flux.");
+        }
+
+        CrossingStatus toSave = input.getId() == null
+                ? new CrossingStatus()
+                : crossingStateRepository.findById(input.getId()).orElse(new CrossingStatus());
+        toSave.setName(input.getName());
+        toSave.setDescription(input.getDescription());
+        toSave.setFrom(from);
+        toSave.setTo(to);
+        final CrossingStatus crossing = crossingStateRepository.save(toSave);
+
+        if (crossings.stream().noneMatch(item -> item.getId().equals(crossing.getId()))) {
+            crossings.add(crossing);
+            workFlow.setCrossingStates(crossings);
+            workFlow = workFlowRepository.save(workFlow);
+        }
+        return loadWorkFlow(workFlow.getId());
+    }
+
+    @Transactional
+    public WorkFlow deleteCrossingState(Long workFlowId, Long crossingStateId) {
+        WorkFlow workFlow = loadWorkFlow(workFlowId);
+        if (!CollectionUtils.isEmpty(workFlow.getCrossingStates())) {
+            List<CrossingStatus> remaining = workFlow.getCrossingStates().stream()
+                    .filter(crossing -> !crossing.getId().equals(crossingStateId))
+                    .collect(Collectors.toList());
+            workFlow.setCrossingStates(remaining);
+            workFlow = workFlowRepository.save(workFlow);
+        }
+        crossingStateRepository.findById(crossingStateId).ifPresent(crossingStateRepository::delete);
+        return loadWorkFlow(workFlow.getId());
+    }
+
+    /**
+     * Retire un statut du flux ainsi que toutes les transitions qui le touchent.
+     * Le statut lui-meme n'est pas supprime : il peut servir dans d'autres flux.
+     */
+    @Transactional
+    public WorkFlow removeStatusFromWorkFlow(Long workFlowId, Long statusId) {
+        WorkFlow workFlow = loadWorkFlow(workFlowId);
+
+        List<CrossingStatus> orphans = CollectionUtils.isEmpty(workFlow.getCrossingStates())
+                ? new ArrayList<>()
+                : workFlow.getCrossingStates().stream()
+                    .filter(crossing -> (crossing.getFrom() != null && statusId.equals(crossing.getFrom().getId()))
+                            || (crossing.getTo() != null && statusId.equals(crossing.getTo().getId())))
+                    .collect(Collectors.toList());
+
+        if (!CollectionUtils.isEmpty(workFlow.getCrossingStates())) {
+            List<CrossingStatus> remaining = workFlow.getCrossingStates().stream()
+                    .filter(crossing -> !orphans.contains(crossing))
+                    .collect(Collectors.toList());
+            workFlow.setCrossingStates(remaining);
+        }
+        if (!CollectionUtils.isEmpty(workFlow.getStatuses())) {
+            List<Status> statuses = workFlow.getStatuses().stream()
+                    .filter(status -> !statusId.equals(status.getId()))
+                    .collect(Collectors.toList());
+            workFlow.setStatuses(statuses);
+        }
+        workFlow = workFlowRepository.save(workFlow);
+        orphans.forEach(crossingStateRepository::delete);
+        return loadWorkFlow(workFlow.getId());
+    }
+
+    /**
+     * Supprime un flux de travail, refuse tant qu'un type de tache l'utilise.
+     */
+    @Transactional
+    public Response deleteWorkFlow(Long workFlowId) {
+        WorkFlow workFlow = loadWorkFlow(workFlowId);
+        if (!CollectionUtils.isEmpty(workFlow.getIssueTypes())) {
+            throw new RuntimeException("Ce flux est utilise par " + workFlow.getIssueTypes().size()
+                    + " type(s) de tache : il ne peut pas etre supprime.");
+        }
+        List<CrossingStatus> crossings = CollectionUtils.isEmpty(workFlow.getCrossingStates())
+                ? new ArrayList<>() : new ArrayList<>(workFlow.getCrossingStates());
+        workFlow.setCrossingStates(new ArrayList<>());
+        workFlow.setStatuses(new ArrayList<>());
+        workFlowRepository.save(workFlow);
+        crossings.forEach(crossingStateRepository::delete);
+        workFlowRepository.delete(workFlow);
+
+        Response response = new Response();
+        response.setStatus("success");
+        response.setCode("OK");
+        response.setMessage("Flux " + workFlow.getName() + " supprime");
+        return response;
     }
 
     private WorkFlow SaveWorkFlos(WorkFlow wf) {

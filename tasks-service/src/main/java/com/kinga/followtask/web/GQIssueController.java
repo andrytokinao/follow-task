@@ -166,6 +166,26 @@ public class GQIssueController {
      public WorkFlow saveWorkFlow(@Argument WorkFlow workFlow) {
         return projectService.saveWorkFlow(workFlow);
      }
+     @MutationMapping
+     public WorkFlow saveWorkFlowLayout(@Argument Long workFlowId, @Argument String layout) {
+        return projectService.saveWorkFlowLayout(workFlowId, layout);
+     }
+     @MutationMapping
+     public WorkFlow saveCrossingState(@Argument Long workFlowId, @Argument CrossingStateInput crossingState) {
+        return projectService.saveCrossingState(workFlowId, crossingState);
+     }
+     @MutationMapping
+     public WorkFlow deleteCrossingState(@Argument Long workFlowId, @Argument Long crossingStateId) {
+        return projectService.deleteCrossingState(workFlowId, crossingStateId);
+     }
+     @MutationMapping
+     public WorkFlow removeStatusFromWorkFlow(@Argument Long workFlowId, @Argument Long statusId) {
+        return projectService.removeStatusFromWorkFlow(workFlowId, statusId);
+     }
+     @MutationMapping
+     public Response deleteWorkFlow(@Argument Long workFlowId) {
+        return projectService.deleteWorkFlow(workFlowId);
+     }
      @QueryMapping
      public List<Issue> issueByCriteria(@Argument List<Criteria> criterias){
         return projectService.issueByCriteria(criterias);

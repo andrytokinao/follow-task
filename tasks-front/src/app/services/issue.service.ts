@@ -31,7 +31,7 @@ import {
   ActionGroupe,
   ActionAssigne,
   ActionStatus, UploadingState, DocumentMember, DocumentPage, IssuePlanningSummary, UserHoursData,
-  IssueMembership
+  IssueMembership, CrossingStateInput
 } from "../type/issue";
 import {Apollo} from "apollo-angular";
 import * as operation from "../type/graphql.operations";
@@ -897,6 +897,57 @@ export class IssueService implements OnInit {
         }
       );
     })
+  }
+
+  /**
+   * Mutation de workflow renvoyant le flux complet (transitions incluses).
+   */
+  private workFlowMutation(mutation: any, variables: any, field: string) {
+    return new Observable<WorkFlow>(observer => {
+      this.apollo.mutate({
+        mutation,
+        variables,
+        fetchPolicy: "network-only"
+      }).subscribe((res: any) => {
+        observer.next(supprimerTypename(res.data[field]));
+        observer.complete();
+      }, error => {
+        observer.error(error);
+        observer.complete();
+      });
+    });
+  }
+
+  saveWorkFlowLayout(workFlowId: number, layout: string) {
+    return this.workFlowMutation(operation.SAVE_WORK_FLOW_LAYOUT, {workFlowId, layout}, 'saveWorkFlowLayout');
+  }
+
+  saveCrossingState(workFlowId: number, crossingState: CrossingStateInput) {
+    return this.workFlowMutation(operation.SAVE_CROSSING_STATE, {workFlowId, crossingState}, 'saveCrossingState');
+  }
+
+  deleteCrossingState(workFlowId: number, crossingStateId: number) {
+    return this.workFlowMutation(operation.DELETE_CROSSING_STATE, {workFlowId, crossingStateId}, 'deleteCrossingState');
+  }
+
+  removeStatusFromWorkFlow(workFlowId: number, statusId: number) {
+    return this.workFlowMutation(operation.REMOVE_STATUS_FROM_WORK_FLOW, {workFlowId, statusId}, 'removeStatusFromWorkFlow');
+  }
+
+  deleteWorkFlow(workFlowId: number) {
+    return new Observable<ResponseApp>(observer => {
+      this.apollo.mutate({
+        mutation: operation.DELETE_WORK_FLOW,
+        variables: {workFlowId},
+        fetchPolicy: "network-only"
+      }).subscribe((res: any) => {
+        observer.next(supprimerTypename(res.data.deleteWorkFlow));
+        observer.complete();
+      }, error => {
+        observer.error(error);
+        observer.complete();
+      });
+    });
   }
 
   getDistinctWorkflows(issues: Issue[]): WorkFlow[] {

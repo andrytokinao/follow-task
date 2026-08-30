@@ -31,7 +31,6 @@ type CrossingState {
     description:String
     from:Status
     to:Status
-    credential:Credential
 }
 type GroupeUser {
     id:Int!
@@ -211,6 +210,7 @@ type WorkFlow {
     id:Int,
     name:String,
     active :Boolean,
+    layout:String,
     statuses :[Status],
     issueTypes :[IssueType],
     project:Project
@@ -264,7 +264,6 @@ input CrossingStateInput{
     description:String
     from:Int
     to:Int
-    credential:Int
 }
 input GroupeUserInput {
     id:Int!
@@ -405,6 +404,7 @@ input WorkFlowInput {
     name:String,
     project:ProjectInput
     active :Boolean,
+    layout:String,
     statuses :[StatusInput],
     issueTypes :[IssueTypeInput],
     crossingStates :[CrossingStateInput],

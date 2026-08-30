@@ -198,14 +198,27 @@ export interface WorkFlow {
   issueTypes? :IssueType[],
   project?:Project
   crossingStates? :CrossingState[],
+  /** positions des noeuds du diagramme, JSON : {"<statusId>":{"x":0,"y":0}} */
+  layout?:String,
 }
-interface CrossingState {
-  id:Number
-  name:String
-  description:String
-  from:Status
-  to:Status
-  credential:Credential
+export interface CrossingState {
+  id?:number
+  name?:String
+  description?:String
+  from?:Status
+  to?:Status
+}
+/** entree de transition : les statuts sont references par leur identifiant */
+export interface CrossingStateInput {
+  id?:number
+  name?:String
+  description?:String
+  from?:number
+  to?:number
+}
+export interface NodePosition {
+  x:number;
+  y:number;
 }
 export interface Menu {
   label :string

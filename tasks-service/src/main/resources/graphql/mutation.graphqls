@@ -16,6 +16,11 @@ type Mutation {
     saveWorkFlow(workFlow:WorkFlowInput):WorkFlow
     affectWorkFlow(issueType:IssueTypeInput):WorkFlow
     addStatus(status:StatusInput, workFlow:WorkFlowInput):WorkFlow
+    saveWorkFlowLayout(workFlowId:Int,layout:String):WorkFlow
+    saveCrossingState(workFlowId:Int,crossingState:CrossingStateInput):WorkFlow
+    deleteCrossingState(workFlowId:Int,crossingStateId:Int):WorkFlow
+    removeStatusFromWorkFlow(workFlowId:Int,statusId:Int):WorkFlow
+    deleteWorkFlow(workFlowId:Int):ResponseApp
     saveCustomField(customField:CustomFieldImput):CustomField
     useCustomField(usingCustomField:UsingCustomFieldInput):[UsingCustomField]
     unUseCustomField(usingCustomField:UsingCustomFieldInput):[UsingCustomField],

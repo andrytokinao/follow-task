@@ -1,21 +1,196 @@
 <div class="work-flow">
-  <div>
-    <h1>Flux de travails </h1>
-    <ul class="list-group">
-      <li class="list-group-item list-group-item-action pointer-event" *ngFor="let flow of workFlows"
-          (click)="openStepper(flow)">
-        {{ flow.name }}
-      </li>
 
-      <li class="list-group-item list-group-item-action" style="text-align: center;margin-top: 5px"
-          (click)="openStepper(null)"><i class="fas fa-plus-square"> </i> Nouveau
-      </li>
+  <!-- COLONNE GAUCHE : LISTE DES FLUX -->
+  <aside class="flow-list">
+    <div class="panel-header">
+      <div class="panel-title">
+        <span>Flux de travail</span>
+        <span class="count-badge">{{ workFlows.length }}</span>
+      </div>
+      <button class="btn-primary" (click)="toggleWorkFlowForm()" title="Nouveau flux">
+        <i class="fas fa-plus"></i>
+      </button>
+    </div>
 
-    </ul>
+    <div class="inline-form" *ngIf="showWorkFlowForm">
+      <input type="text" placeholder="Nom du flux" [(ngModel)]="newWorkFlowName"
+             (keyup.enter)="createWorkFlow()"/>
+      <div class="inline-actions">
+        <button class="btn-ghost" (click)="toggleWorkFlowForm()">Annuler</button>
+        <button class="btn-primary" [disabled]="!newWorkFlowName.trim() || saving" (click)="createWorkFlow()">
+          Créer
+        </button>
+      </div>
+    </div>
 
-  </div>
+    <div class="flow-item" *ngFor="let flow of workFlows"
+         [class.selected]="isSelectedWorkFlow(flow)"
+         (click)="selectWorkFlow(flow)">
+      <i class="fas fa-diagram-project"></i>
+      <span class="flow-name">{{ flow.name }}</span>
+      <span class="count-badge">{{ statusCount(flow) }}</span>
+      <button class="icon-btn danger" title="Supprimer" (click)="deleteWorkFlow(flow, $event)">
+        <i class="fas fa-trash-alt"></i>
+      </button>
+    </div>
 
+    <div class="state-block" *ngIf="workFlows.length === 0">
+      <i class="fas fa-diagram-project"></i>
+      <span>Aucun flux : créez le premier</span>
+    </div>
+  </aside>
+
+  <!-- COLONNE DROITE : DIAGRAMME -->
+  <section class="flow-editor">
+
+    <div class="editor-toolbar" *ngIf="selected">
+      <div class="toolbar-left">
+        <ng-container *ngIf="!renaming">
+          <h3 class="flow-title">{{ selected.name }}</h3>
+          <button class="icon-btn" title="Renommer" (click)="startRename()">
+            <i class="fas fa-pen"></i>
+          </button>
+        </ng-container>
+        <ng-container *ngIf="renaming">
+          <input class="rename-input" type="text" [(ngModel)]="workFlowName"
+                 (keyup.enter)="applyRename()" (keyup.escape)="renaming = false"/>
+          <button class="btn-primary" (click)="applyRename()">OK</button>
+          <button class="btn-ghost" (click)="renaming = false">Annuler</button>
+        </ng-container>
+      </div>
+
+      <div class="toolbar-right">
+        <button class="btn-ghost" (click)="toggleStatusForm()">
+          <i class="fas fa-plus"></i> Statut
+        </button>
+        <button class="btn-ghost" (click)="autoLayout()" title="Réorganiser automatiquement">
+          <i class="fas fa-wand-magic-sparkles"></i> Réorganiser
+        </button>
+        <div class="zoom-group">
+          <button class="icon-btn" (click)="zoomOut()" title="Zoom arrière"><i class="fas fa-minus"></i></button>
+          <span class="zoom-value" (click)="resetView()" title="Réinitialiser la vue">{{ zoomPercent }}%</span>
+          <button class="icon-btn" (click)="zoomIn()" title="Zoom avant"><i class="fas fa-plus"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="inline-form" *ngIf="showStatusForm">
+      <input type="text" placeholder="Nom du statut (ex : En cours)" [(ngModel)]="newStatusName"
+             (keyup.enter)="addStatus()"/>
+      <input type="color" class="color-input" [(ngModel)]="newStatusColor" title="Couleur"/>
+      <div class="inline-actions">
+        <button class="btn-ghost" (click)="toggleStatusForm()">Annuler</button>
+        <button class="btn-primary" [disabled]="!newStatusName.trim() || saving" (click)="addStatus()">
+          Ajouter
+        </button>
+      </div>
+    </div>
+
+    <div class="banner error" *ngIf="errorMessage">
+      <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+      <i class="fas fa-times close" (click)="errorMessage = ''"></i>
+    </div>
+
+    <div class="banner info" *ngIf="connectFrom">
+      <i class="fas fa-arrow-right-long"></i>
+      Cliquez sur le statut d'arrivée pour créer la transition depuis
+      « {{ connectFrom.displayName }} »
+      <button class="btn-ghost" (click)="cancelConnect()">Annuler</button>
+    </div>
+
+    <!-- Barre d'édition de la transition sélectionnée -->
+    <div class="banner edge-bar" *ngIf="selectedEdge">
+      <i class="fas fa-arrow-right-long"></i>
+      <span class="edge-ends">
+        {{ selectedEdge.from?.displayName }} → {{ selectedEdge.to?.displayName }}
+      </span>
+      <input type="text" class="edge-name" [ngModel]="selectedEdge.name"
+             #edgeName (keyup.enter)="renameEdge(edgeName.value)" placeholder="Libellé de la transition"/>
+      <button class="btn-primary" [disabled]="saving" (click)="renameEdge(edgeName.value)">Renommer</button>
+      <button class="btn-ghost danger" (click)="deleteEdge(selectedEdge)">
+        <i class="fas fa-trash-alt"></i> Supprimer
+      </button>
+      <i class="fas fa-times close" (click)="selectedEdge = null"></i>
+    </div>
+
+    <div class="state-block tall" *ngIf="!selected && !loading">
+      <i class="fas fa-diagram-project"></i>
+      <span>Sélectionnez un flux pour afficher son diagramme</span>
+    </div>
+
+    <div class="state-block tall" *ngIf="loading">
+      <i class="fas fa-circle-notch fa-spin"></i>
+      <span>Chargement du flux...</span>
+    </div>
+
+    <!-- CANEVAS -->
+    <div class="canvas-viewport" *ngIf="selected && !loading"
+         (pointerdown)="startPan($event)">
+
+      <div class="state-block empty-canvas" *ngIf="nodes.length === 0">
+        <i class="fas fa-circle-nodes"></i>
+        <span>Aucun statut dans ce flux</span>
+        <button class="btn-primary" (click)="toggleStatusForm()">
+          <i class="fas fa-plus"></i> Ajouter un statut
+        </button>
+      </div>
+
+      <div class="canvas" #canvas
+           [style.width.px]="canvasWidth"
+           [style.height.px]="canvasHeight"
+           [style.transform]="'translate(' + panX + 'px, ' + panY + 'px) scale(' + zoom + ')'">
+
+        <svg class="edge-layer" [attr.width]="canvasWidth" [attr.height]="canvasHeight">
+          <defs>
+            <marker id="wf-arrow" viewBox="0 0 10 10" refX="9" refY="5"
+                    markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" class="arrow-head"/>
+            </marker>
+          </defs>
+
+          <g *ngFor="let edge of edges; trackBy: trackByEdge" class="edge-group"
+             [class.selected]="isSelectedEdge(edge)">
+            <!-- trace epais invisible : facilite la selection a la souris -->
+            <path [attr.d]="edge.path" class="edge-hit" (click)="selectEdge(edge, $event)"/>
+            <path [attr.d]="edge.path" class="edge" marker-end="url(#wf-arrow)"/>
+            <text *ngIf="edge.crossing.name" [attr.x]="edge.labelX" [attr.y]="edge.labelY"
+                  class="edge-label" text-anchor="middle" (click)="selectEdge(edge, $event)">
+              {{ edge.crossing.name }}
+            </text>
+          </g>
+        </svg>
+
+        <div class="node" *ngFor="let node of nodes; trackBy: trackByNode"
+             [class.connect-source]="isConnectSource(node)"
+             [class.connect-mode]="connectFrom && !isConnectSource(node)"
+             [style.left.px]="node.x"
+             [style.top.px]="node.y"
+             [style.border-left-color]="colorOf(node.status, '#185FA5')"
+             (pointerdown)="startNodeDrag($event, node)"
+             (click)="onNodeClick(node, $event)">
+
+          <i class="{{ node.status.icone?.value || 'fas fa-circle' }} node-icon"
+             [style.color]="colorOf(node.status, '#185FA5')"></i>
+          <span class="node-name">{{ node.status.displayName }}</span>
+
+          <span class="node-actions">
+            <button class="icon-btn" title="Créer une transition depuis ce statut"
+                    (click)="startConnect(node.status, $event)"
+                    (pointerdown)="$event.stopPropagation()">
+              <i class="fas fa-arrow-right-long"></i>
+            </button>
+            <button class="icon-btn danger" title="Retirer du flux"
+                    (click)="removeStatus(node.status, $event)"
+                    (pointerdown)="$event.stopPropagation()">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+          </span>
+        </div>
+      </div>
+
+      <div class="canvas-hint">
+        <i class="fas fa-hand"></i> Glissez le fond pour déplacer la vue, un statut pour le repositionner
+      </div>
+    </div>
+  </section>
 </div>
-
-
-

@@ -1016,73 +1016,93 @@ const ALL_ISSUE_TYPE =gql`
     }
   }
 `;
+const WORK_FLOW_FIELDS = `
+  id
+  name
+  active
+  layout
+  statuses {
+    id
+    displayName
+    color
+    style
+    icone {
+      id
+      typeIcone
+      value
+    }
+  }
+  crossingStates {
+    id
+    name
+    description
+    from {
+      id
+      displayName
+    }
+    to {
+      id
+      displayName
+    }
+  }
+  issueTypes {
+    id
+    name
+  }
+  project {
+    id
+    name
+  }
+`
 const SAVE_WORK_FLOW = gql`
     mutation saveWorkFlow($workFlow:WorkFlowInput) {
       saveWorkFlow(workFlow: $workFlow) {
-        id
-        name
-        statuses {
-          id
-          displayName
-          icone {
-            id
-            typeIcone
-            value
-          }
-        }
-        crossingStates {
-          id
-          name
-          description
-          credential {
-            id
-            name
-          }
-        }
-        active
-        issueTypes {
-          id
-          name
-        }
-        project {
-          id
-          name
-        }
+        ${WORK_FLOW_FIELDS}
       }
     }
 `
 const GET_WORK_FLOW = gql`
   query getWorkFlow($workFlowId:Int) {
     getWorkFlow(workFlowId: $workFlowId) {
+      ${WORK_FLOW_FIELDS}
+    }
+  }
+`
+const SAVE_WORK_FLOW_LAYOUT = gql`
+  mutation saveWorkFlowLayout($workFlowId:Int,$layout:String) {
+    saveWorkFlowLayout(workFlowId: $workFlowId, layout: $layout) {
       id
-      name
-      statuses {
-        id
-        displayName
-        icone {
-          id
-          typeIcone
-          value
-        }
-      }
-      crossingStates {
-        id
-        name
-        description
-        credential {
-          id
-          name
-        }
-      }
-      active
-      issueTypes {
-        id
-        name
-      }
-      project {
-        id
-        name
-      }
+      layout
+    }
+  }
+`
+const SAVE_CROSSING_STATE = gql`
+  mutation saveCrossingState($workFlowId:Int,$crossingState:CrossingStateInput) {
+    saveCrossingState(workFlowId: $workFlowId, crossingState: $crossingState) {
+      ${WORK_FLOW_FIELDS}
+    }
+  }
+`
+const DELETE_CROSSING_STATE = gql`
+  mutation deleteCrossingState($workFlowId:Int,$crossingStateId:Int) {
+    deleteCrossingState(workFlowId: $workFlowId, crossingStateId: $crossingStateId) {
+      ${WORK_FLOW_FIELDS}
+    }
+  }
+`
+const REMOVE_STATUS_FROM_WORK_FLOW = gql`
+  mutation removeStatusFromWorkFlow($workFlowId:Int,$statusId:Int) {
+    removeStatusFromWorkFlow(workFlowId: $workFlowId, statusId: $statusId) {
+      ${WORK_FLOW_FIELDS}
+    }
+  }
+`
+const DELETE_WORK_FLOW = gql`
+  mutation deleteWorkFlow($workFlowId:Int) {
+    deleteWorkFlow(workFlowId: $workFlowId) {
+      status
+      message
+      code
     }
   }
 `
@@ -1131,35 +1151,7 @@ const  AFFECT_WORKFLOW = gql`
 const  ADD_STATUS = gql`
   mutation addStatus ($status:StatusInput ,$workFlow:WorkFlowInput) {
     addStatus(workFlow: $workFlow, status: $status){
-      id
-      name
-      statuses {
-        id
-        displayName
-        icone {
-          id
-          typeIcone
-          value
-        }
-      }
-      crossingStates {
-        id
-        name
-        description
-        credential {
-          id
-          name
-        }
-      }
-      active
-      issueTypes {
-        id
-        name
-      }
-      project {
-        id
-        name
-      }
+      ${WORK_FLOW_FIELDS}
     }
   }
 `;
@@ -1197,9 +1189,13 @@ const GET_PROJECT = gql`
             id
             name
             description
-            credential {
+            from {
               id
-              name
+              displayName
+            }
+            to {
+              id
+              displayName
             }
           }
           statuses {
@@ -3495,6 +3491,11 @@ export {
   SAVE_WORK_FLOW,
   GET_WORK_FLOW,
   WORK_FLOWS_BY_PROJECT,
+  SAVE_WORK_FLOW_LAYOUT,
+  SAVE_CROSSING_STATE,
+  DELETE_CROSSING_STATE,
+  REMOVE_STATUS_FROM_WORK_FLOW,
+  DELETE_WORK_FLOW,
   ISSUE_BY_CRITERIA,
   SEVE_CUSTOM_FIELD,
   ALL_CUSTOM_FIELD,
