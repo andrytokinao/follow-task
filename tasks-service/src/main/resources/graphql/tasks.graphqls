@@ -69,7 +69,21 @@ type  Issue {
     observerIds:[String]
     elapsedDurationMinutes:Int
     currentCompletionPercent:Int
+    memberships:[IssueMembership]
+    activeMemberships:[IssueMembership]
+    assignes:[UserApp]
 
+}
+
+type IssueMembership {
+    id:Int
+    issue:Issue
+    user:UserApp
+    role:String
+    assignedAt:String
+    assignedBy:UserApp
+    unassignedAt:String
+    unassignedBy:UserApp
 }
 
 type IssueLabels {

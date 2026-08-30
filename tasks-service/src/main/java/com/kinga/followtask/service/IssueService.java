@@ -101,6 +101,8 @@ public class IssueService {
     private NotificationRepository notificationRepository;
     @Autowired
     private  CurrentUserProvider currentUserProvider;
+    @Autowired
+    private IssueMembershipService issueMembershipService;
     public Issue saveIssue(Issue issue) throws IOException {
 
 
@@ -425,17 +427,14 @@ public class IssueService {
             return "";
         }
     }
+    /**
+     * Assignation a un seul utilisateur : delegue a la gestion des memberships
+     * pour que Issue.assigne et IssueMembership restent coherents.
+     */
     public Issue assigneToUser (Issue is , String executeUser) {
-        Optional<Issue> optionalIssue = issueRepository.findById (is.getId ());
-        Optional<UserApp> userApp = userAppRepository.findById (is.getAssigne ().getId ());
-        if(optionalIssue.isPresent ()) {
-            Issue issue = optionalIssue.get ();
-            issue.setAssigne (userApp.get ());
-            issue.addObserverIds(is.getAssigne().getId ());
-            issueRepository.save (issue);
-        }
-        actionService.ceateAssigneAction(executeUser,optionalIssue.get());
-        return issueRepository.getById (is.getId ());
+        String assigneId = is.getAssigne () == null ? null : is.getAssigne ().getId ();
+        List<String> userIds = assigneId == null ? List.of () : List.of (assigneId);
+        return issueMembershipService.assignUsers (is.getId (), userIds, executeUser);
     }
     public CustomField getCustomField (Long id) {
         return customFieldRepository.getById (id);

@@ -1,6 +1,7 @@
 package com.kinga.followtask.entity;
 
 import com.kinga.followtask.entity.converter.IssueDocumentUsage;
+import com.kinga.followtask.entity.enumapp.IssueRole;
 import com.kinga.utils.KingaUtils;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -73,6 +74,30 @@ public class Issue {
     public String getEncodedPath(){
         return KingaUtils.encodeText(this.getDirectory());
     }
+    /**
+     * Membres actuellement rattaches a l'issue (assignation non revoquee).
+     */
+    public List<IssueMembership> getActiveMemberships() {
+        if (CollectionUtils.isEmpty(memberships)) {
+            return new ArrayList<>();
+        }
+        return memberships.stream()
+                .filter(m -> m.getUnassignedAt() == null)
+                .sorted(Comparator.comparing(IssueMembership::getAssignedAt,
+                        Comparator.nullsLast(Comparator.naturalOrder())))
+                .toList();
+    }
+
+    /**
+     * Utilisateurs actuellement assignes a l'issue (role ASSIGNEE ou superieur).
+     */
+    public List<UserApp> getAssignes() {
+        return getActiveMemberships().stream()
+                .filter(m -> m.getRole() != null && m.getRole().atLeast(IssueRole.ASSIGNEE))
+                .map(IssueMembership::getUser)
+                .toList();
+    }
+
     public Set<String> addObserverIds(String observerId) {
         if (this.observerIds == null) {
             this.observerIds = new HashSet<>();

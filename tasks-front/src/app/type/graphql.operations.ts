@@ -1613,6 +1613,58 @@ const ASSIGNE_TO_USER =  gql `
     }
 `;
 
+const ASSIGN_USERS = gql`
+    mutation assignUsers($issueId:Int,$userIds:[String],$executor:String) {
+      assignUsers(issueId: $issueId, userIds: $userIds, executor: $executor){
+        id
+        issueKey
+        summary
+        observerIds
+        assigne {
+          id
+          username
+          lastName
+          firstName
+          photo
+        }
+        activeMemberships {
+          id
+          role
+          assignedAt
+          user {
+            id
+            username
+            lastName
+            firstName
+            photo
+          }
+        }
+      }
+    }
+`;
+
+const ISSUE_MEMBERSHIPS = gql`
+    query issueMemberships($issueId:Int) {
+      issueMemberships(issueId: $issueId){
+        id
+        role
+        assignedAt
+        unassignedAt
+        user {
+          id
+          username
+          lastName
+          firstName
+          photo
+        }
+        assignedBy {
+          id
+          username
+        }
+      }
+    }
+`;
+
 const GET_CONFIG_PROJECT =gql`
   query getConfigProject($projectId:Int){
     getConfigProject(projectId: $projectId){
@@ -1733,6 +1785,18 @@ const GET_ISSUE = gql`
         lastName
         photo
       }
+      activeMemberships {
+        id
+        role
+        assignedAt
+        user {
+          id
+          username
+          firstName
+          lastName
+          photo
+        }
+      }
       reporter {
         id
         username
@@ -1811,6 +1875,18 @@ const LOAD_SUBTASK = gql`
           firstName
           photo
         }
+        activeMemberships {
+          id
+          role
+          assignedAt
+          user {
+            id
+            username
+            lastName
+            firstName
+            photo
+          }
+        }
         parent {
           id
           summary
@@ -1884,6 +1960,18 @@ const LOAD_ISSUE_MASTER_BY_PROJECT = gql`
         lastName
         firstName
         photo
+      }
+      activeMemberships {
+        id
+        role
+        assignedAt
+        user {
+          id
+          username
+          lastName
+          firstName
+          photo
+        }
       }
     }
   }
@@ -2002,6 +2090,18 @@ const SEARCH_ISSUES = gql`
         lastName
         firstName
         photo
+      }
+      activeMemberships {
+        id
+        role
+        assignedAt
+        user {
+          id
+          username
+          lastName
+          firstName
+          photo
+        }
       }
       parent {
         id
@@ -3359,6 +3459,8 @@ export {
   UN_USE_CUSTOM_FIELD,
   CUSTOM_FIELD_BY_ISSUE_TYPE,
   ASSIGNE_TO_USER,
+  ASSIGN_USERS,
+  ISSUE_MEMBERSHIPS,
   GET_CUSTOM_FIELD,
   GET_CONFIG_PROJECT,
   SAVE_CONFIG_PROJECT,

@@ -30,7 +30,8 @@ import {
   ActionItem,
   ActionGroupe,
   ActionAssigne,
-  ActionStatus, UploadingState, DocumentMember, DocumentPage, IssuePlanningSummary, UserHoursData
+  ActionStatus, UploadingState, DocumentMember, DocumentPage, IssuePlanningSummary, UserHoursData,
+  IssueMembership
 } from "../type/issue";
 import {Apollo} from "apollo-angular";
 import * as operation from "../type/graphql.operations";
@@ -798,6 +799,44 @@ export class IssueService implements OnInit {
         variables: {issue,executor}
       }).subscribe((res: any) => {
         observer.next(supprimerTypename(res.data.assigneToUser));
+        observer.complete();
+      }, error => {
+        observer.error(error);
+        observer.complete();
+      })
+    });
+  }
+
+  /**
+   * Assigne l'issue a plusieurs utilisateurs : la liste passee remplace
+   * integralement les assignes courants (cote back : IssueMembership).
+   */
+  assignUsers(is: Issue, users: User[]) {
+    let executor: String = this.user.id;
+    let issueId = is.id;
+    let userIds = (users || []).map(user => user.id);
+    return new Observable<Issue>((observer) => {
+      this.apollo.mutate({
+        mutation: operation.ASSIGN_USERS,
+        variables: {issueId, userIds, executor}
+      }).subscribe((res: any) => {
+        observer.next(supprimerTypename(res.data.assignUsers));
+        observer.complete();
+      }, error => {
+        observer.error(error);
+        observer.complete();
+      })
+    });
+  }
+
+  getIssueMemberships(issueId: number) {
+    return new Observable<IssueMembership[]>((observer) => {
+      this.apollo.query({
+        query: operation.ISSUE_MEMBERSHIPS,
+        variables: {issueId},
+        fetchPolicy: 'network-only'
+      }).subscribe((res: any) => {
+        observer.next(supprimerTypename(res.data.issueMemberships));
         observer.complete();
       }, error => {
         observer.error(error);

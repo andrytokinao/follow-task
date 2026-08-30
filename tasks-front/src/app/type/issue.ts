@@ -45,6 +45,21 @@ export class Issue {
   messageLinks?: IssueMessageLink[];
   elapsedDurationMinutes?:number;
   currentCompletionPercent?:number;
+  memberships?:IssueMembership[];
+  activeMemberships?:IssueMembership[];
+  assignes?:User[];
+}
+export type IssueRole = 'ADMIN' | 'ASSIGNEE' | 'OBSERVER';
+
+export class IssueMembership {
+  id?:number;
+  issue?:Issue;
+  user?:User;
+  role?:IssueRole;
+  assignedAt?:string;
+  assignedBy?:User;
+  unassignedAt?:string;
+  unassignedBy?:User;
 }
 export class User {
   id:string ="";

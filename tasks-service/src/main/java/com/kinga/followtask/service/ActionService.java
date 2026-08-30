@@ -115,6 +115,10 @@ public class ActionService {
     }
 
     public void ceateAssigneAction(String userId,Issue issue) {
+        ceateAssigneAction(userId, issue, issue.getAssigne());
+    }
+
+    public void ceateAssigneAction(String userId,Issue issue, UserApp assigne) {
         ActionGroupe actionGroupe = new ActionGroupe();
         actionGroupe.setIssue(issue);
         actionGroupe.setCreated(new Date());
@@ -123,7 +127,7 @@ public class ActionService {
         actionGroupe.setUser(user);
         actionGroupe = actionGroupeRepository.save(actionGroupe);
         ActionAssigne actonItem= new ActionAssigne();
-        actonItem.setAssigne(issue.getAssigne());
+        actonItem.setAssigne(assigne);
         actonItem.setIssue(issue);
         actonItem.setActionGroupe(actionGroupe);
         actonItem = actionItemRepository.save(actonItem);

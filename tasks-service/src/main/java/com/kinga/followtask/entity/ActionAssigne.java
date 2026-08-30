@@ -23,7 +23,6 @@ public class ActionAssigne extends ActionItem {
     @Override
     public String buildMDetails() {
         if (this.issue != null  && this.assigne != null ) {
-            assigne = this.issue.getAssigne();
             this.details.put("assigne", "Assigne to "+ assigne.toString() );
             return "Assigne to " + assigne.toString();
         }
@@ -31,7 +30,6 @@ public class ActionAssigne extends ActionItem {
     }
     public String buildMDetails(String notify) {
         if (this.issue != null  && this.assigne != null &&  !StringUtils.isEmpty(notify) ) {
-            assigne = this.issue.getAssigne();
             this.details.put("assigne", "Assigne to "+ assigne.getId() );
             return "Assigne "+issue.getIssueKey()+" to " + (assigne.getId().equalsIgnoreCase(notify)? " You" : assigne.getUsername());
         }
