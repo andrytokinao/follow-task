@@ -5,6 +5,7 @@ import { retry, catchError } from 'rxjs/operators';
 import {ConfigEntry, GroupeUser, Issue, MemberGroupe, Permission, Status, User} from "../type/issue";
 import {
   ADD_USER_IN_GROUPE,
+  ALL_GROUPES,
   ALL_ISSUE,
   ALL_USERS, GET_GROUPE_USER_FOR_PROJECT, GET_USER,
   INIT_USER,
@@ -30,6 +31,8 @@ export class UserService {
    allMembers$ = this.allMemberSubject.asObservable();
   private groupeUsersSubject = new BehaviorSubject<GroupeUser[]>([]);
   groupeUsers$=this.groupeUsersSubject.asObservable();
+  private usersLoadingSubject = new BehaviorSubject<boolean>(false);
+  usersLoading$ = this.usersLoadingSubject.asObservable();
 
   constructor(private http: HttpClient, private apollo: Apollo) {
     this.allUsers();
@@ -47,16 +50,37 @@ export class UserService {
       .get<User[]>(url)
       .pipe(retry(1), catchError(this.handleError));
   }
-  allUsers() {
+  /**
+   * Recharge la liste des utilisateurs et alimente users$.
+   * @param forceReload ignore le cache Apollo (utile apres une creation/edition)
+   */
+  allUsers(forceReload: boolean = false) {
+      this.usersLoadingSubject.next(true);
       this.apollo
         .query({
           query: ALL_USERS ,
+          fetchPolicy: forceReload ? "network-only" : "cache-first"
         }).subscribe((res:any)=> {
           let users:User[] = stripTypename(res.data.allUsers);
           this.usersSubject.next(users.filter(u => u.username && u.firstName && u.lastName));
+          this.usersLoadingSubject.next(false);
         },error => {
-          error.error(error);
+          console.error("allUsers ==> ", error);
+          this.usersLoadingSubject.next(false);
         })
+  }
+
+  allGroupes(): Observable<GroupeUser[]> {
+    return this.apollo.query({
+      query: ALL_GROUPES,
+      fetchPolicy: "network-only"
+    }).pipe(
+      map((res: any) => supprimerTypename(res.data.allGroupes) as GroupeUser[]),
+      catchError(error => {
+        console.error("allGroupes ==> ", error);
+        return throwError(() => error);
+      })
+    );
   }
   handleError(error: any) {
     let errorMessage = '';
@@ -69,12 +93,22 @@ export class UserService {
       return errorMessage;
     });
   }
-  loadGroupeMember(userId:number){
+  loadGroupeMember(userId:string){
     return this.apollo
       .query({
         query: LOAD_GROUPE_MEMBER,
-        variables:{userId}
+        variables:{userId},
+        fetchPolicy:"network-only"
       });
+  }
+
+  /**
+   * Groupes/roles d'un utilisateur, deja nettoyes du __typename.
+   */
+  getGroupeMember(userId: string): Observable<MemberGroupe[]> {
+    return this.loadGroupeMember(userId).pipe(
+      map((res: any) => supprimerTypename(res.data.loadGroupeMember) as MemberGroupe[])
+    );
   }
   saveUser(user:User) {
     var userApp:any = {...user};

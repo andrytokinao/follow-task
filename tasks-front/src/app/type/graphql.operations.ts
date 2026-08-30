@@ -385,7 +385,25 @@ const ALL_USERS = gql`
       address,
       cin,
       code,
-      photo
+      photo,
+      groupes {
+        id
+        roles
+        groupe {
+          id
+          name
+        }
+      }
+    }
+  }
+`;
+const ALL_GROUPES = gql`
+  query allGroupes {
+    allGroupes {
+      id
+      name
+      prefix
+      type
     }
   }
 `;
@@ -3428,6 +3446,7 @@ export {
   SAVE_USER,
   GET_USER,
   ALL_USERS,
+  ALL_GROUPES,
   SAVE_ISSUE,
   GET_ISSUE_BY_ASSIGN,
   ALL_ISSUE,

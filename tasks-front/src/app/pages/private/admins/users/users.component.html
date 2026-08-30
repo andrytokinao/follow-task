@@ -1,35 +1,72 @@
-<h2 style="margin: 20px;">Liste des utilisateur
-  <span  class="btn controle" (click)="create()"> <i class="fa fa-user-plus" style="font-size:16px"> </i> Creer</span>
-</h2>
+<div class="users-toolbar">
+  <h2 class="users-title">
+    Liste des utilisateurs
+    <span class="users-count" *ngIf="!loading">{{ filteredUsers.length }} / {{ users.length }}</span>
+  </h2>
+
+  <div class="toolbar-actions">
+    <div class="search-wrap">
+      <i class="fa fa-search"></i>
+      <input type="text" placeholder="Rechercher (nom, identifiant, e-mail, CIN, contact, groupe)"
+             [(ngModel)]="search"/>
+      <i class="fa fa-times clear-search" *ngIf="search" (click)="clearSearch()" title="Effacer"></i>
+    </div>
+    <span class="btn controle" (click)="loadList()" title="Recharger la liste">
+      <i class="fa fa-sync" [class.fa-spin]="loading"></i> Actualiser
+    </span>
+    <span class="btn controle primary" (click)="create()">
+      <i class="fa fa-user-plus" style="font-size:16px"></i> Créer
+    </span>
+  </div>
+</div>
+
 <ul class="modern-list">
   <li>
-    <div class="item"> <h3>Nom prenom</h3></div>
-    <div class="item"> <h3>Nom d'utilisateur</h3>  </div>
-    <div class="item"> <h3>CIN</h3></div>
-    <div class="status-item "> <h3>Contact</h3> </div>
-    <div class="item"> <h3>Groupe et role </h3> </div>
+    <div class="item sortable" (click)="sortBy('name')">
+      <h3>Nom prénom <i class="fa" [ngClass]="sortField === 'name' ? (sortAsc ? 'fa-caret-up' : 'fa-caret-down') : ''"></i></h3>
+    </div>
+    <div class="item sortable" (click)="sortBy('username')">
+      <h3>Nom d'utilisateur <i class="fa" [ngClass]="sortField === 'username' ? (sortAsc ? 'fa-caret-up' : 'fa-caret-down') : ''"></i></h3>
+    </div>
+    <div class="item sortable" (click)="sortBy('cin')">
+      <h3>CIN <i class="fa" [ngClass]="sortField === 'cin' ? (sortAsc ? 'fa-caret-up' : 'fa-caret-down') : ''"></i></h3>
+    </div>
+    <div class="status-item"><h3>Contact</h3></div>
+    <div class="item"><h3>Groupe et rôle</h3></div>
+    <div class="items actions-col"><h3>Actions</h3></div>
   </li>
 
-  <li *ngFor =" let user of users" class="controle">
-    <div class="item" >
-      <img [src] ="getPhoto(user)" alt="Photo">
+  <li *ngIf="loading" class="state-row">
+    <i class="fa fa-circle-notch fa-spin"></i> Chargement des utilisateurs...
+  </li>
+
+  <li *ngIf="!loading && filteredUsers.length === 0" class="state-row">
+    <i class="fa fa-user-slash"></i>
+    <span *ngIf="search">Aucun utilisateur ne correspond à « {{ search }} »</span>
+    <span *ngIf="!search">Aucun utilisateur pour le moment</span>
+  </li>
+
+  <li *ngFor="let user of filteredUsers; trackBy: trackByUser" class="controle">
+    <div class="item">
+      <img [src]="getPhoto(user)" alt="Photo">
       <div class="details">
-        <h3> {{user.lastName}}  {{user.firstName}}</h3>
-<!--
-        <p>Chef de projet </p>
--->
+        <h3>{{ fullName(user) }}</h3>
+        <p class="user-email" *ngIf="user.email">{{ user.email }}</p>
       </div>
     </div>
-    <div class="item">{{user.username}}</div>
-    <div class="item">{{user.cin}} </div>
-    <div class="item "> <strong *ngIf="user.code">({{user.code}})</strong> {{user.contact}}  </div>
-    <div class="item">
-      <span *ngFor = "let member of user.groupes">
-       {{ member.groupe ? member.groupe.name : '' }}
-        {{ member.roles ? member.roles : '' }}
+    <div class="item">{{ user.username }}</div>
+    <div class="item">{{ user.cin }}</div>
+    <div class="item"><strong *ngIf="user.code">({{ user.code }})</strong> {{ user.contact }}</div>
+    <div class="item groupes-cell" [title]="groupesLabel(user)">
+      <span class="groupe-badge" *ngFor="let member of user.groupes">
+        {{ member.groupe ? member.groupe.name : '' }}
+        <em *ngIf="member.roles && member.roles.length">{{ member.roles.join(', ') }}</em>
       </span>
+      <span class="no-groupe" *ngIf="!user.groupes || user.groupes.length === 0">Aucun groupe</span>
     </div>
-    <div class="items " style="float:right;width: 200px "> <span class="controle btn" (click)="editProfile(user)"> <i class="fa fa-user-edit "></i> Editer </span> <span class="controle btn" (click)="editProfile(user)"> <i class="fa far fa-eye"> </i> Consulter</span> </div>
+    <div class="items actions-col">
+      <span class="controle btn" (click)="editProfile(user)"><i class="fa fa-user-edit"></i> Éditer</span>
+      <span class="controle btn" (click)="viewProfile(user)"><i class="fa far fa-eye"></i> Consulter</span>
+    </div>
   </li>
 </ul>
-

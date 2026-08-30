@@ -19,6 +19,7 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -74,5 +75,23 @@ public class GQUserController {
     @MutationMapping
     public Response deleteMember(@Argument Long memberId) {
         return authorizationService.deleteMember(memberId);
+    }
+
+    @QueryMapping
+    public List<GroupeUser> allGroupes() {
+        return authorizationService.allGroupes();
+    }
+
+    /**
+     * Les groupes d'un utilisateur sont portes par MemberGroupe.user et non par
+     * la relation UserApp.groupes (jamais alimentee) : on resout donc le champ
+     * a partir du referentiel des membres.
+     */
+    @SchemaMapping(typeName = "UserApp", field = "groupes")
+    public List<MemberGroupe> groupes(UserApp userApp) {
+        if (userApp == null || userApp.getId() == null) {
+            return List.of();
+        }
+        return authorizationService.loadGroupeMember(userApp.getId());
     }
 }

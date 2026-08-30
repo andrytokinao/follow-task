@@ -1396,7 +1396,7 @@ export class IssueService implements OnInit {
 
   private loadUsers() {
     if (this.project && this.project.id)
-      this.userService.loadGroupeMember(this.project.id.valueOf());
+      this.userService.loadGroupeMember(String(this.project.id));
   }
 
   loadIssueType() {

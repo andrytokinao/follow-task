@@ -3,14 +3,17 @@
   <div class="modal-header">
     <div class="header-left">
       <div class="header-icon">
-        <i class="fas fa-user-edit"></i>
+        <i class="fas" [ngClass]="readOnly ? 'fa-user' : (isCreate ? 'fa-user-plus' : 'fa-user-edit')"></i>
       </div>
       <div>
         <span class="modal-title">{{ action }}</span>
-        <span class="modal-subtitle">Gérer les informations du compte</span>
+        <span class="modal-subtitle">
+          {{ readOnly ? 'Consultation du compte' : 'Gérer les informations du compte' }}
+          <span class="dirty-badge" *ngIf="isDirty && !readOnly">• modifications non enregistrées</span>
+        </span>
       </div>
     </div>
-    <button class="close-btn" (click)="activeModal.dismiss()">
+    <button class="close-btn" (click)="close()" title="Fermer">
       <i class="fas fa-times"></i>
     </button>
   </div>
@@ -20,7 +23,10 @@
     <i class="fas fa-check-circle"></i> Enregistrement réussi.
   </div>
   <div class="status-banner error" *ngIf="savingStatus === 'error'">
-    <i class="fas fa-exclamation-circle"></i> Une erreur est survenue.
+    <i class="fas fa-exclamation-circle"></i> {{ errorMessage || 'Une erreur est survenue.' }}
+  </div>
+  <div class="status-banner info" *ngIf="loading">
+    <i class="fas fa-circle-notch fa-spin"></i> Chargement de l'utilisateur...
   </div>
 
   <!-- Body -->
@@ -30,16 +36,23 @@
       <!-- LEFT: Form -->
       <div class="form-panel">
         <div class="avatar-section">
-          <div class="avatar-wrapper" (click)="openPhotoInput()">
+          <div class="avatar-wrapper" (click)="openPhotoInput()" [class.disabled]="readOnly">
             <img [src]="photoUrl()" alt="Photo utilisateur" class="avatar-img" />
-            <div class="avatar-overlay">
+            <div class="avatar-overlay" *ngIf="!readOnly">
               <i class="fas fa-camera"></i>
             </div>
           </div>
-          <input style="display:none" type="file" id="photoInput" (change)="selectPhoto($event)" accept="image/*" />
-          <button *ngIf="tempPhoto" class="btn-save-photo" (click)="uploadPhoto()">
-            <i class="fas fa-check"></i> Confirmer la photo
-          </button>
+          <div class="avatar-info">
+            <div class="avatar-name">{{ displayName() || 'Nouvel utilisateur' }}</div>
+            <div class="avatar-hint" *ngIf="!readOnly">Cliquez sur la photo pour la remplacer</div>
+            <input style="display:none" type="file" id="photoInput" (change)="selectPhoto($event)" accept="image/*" />
+            <button *ngIf="tempPhoto && user.id" class="btn-save-photo" (click)="uploadPhoto()">
+              <i class="fas fa-check"></i> Confirmer la photo
+            </button>
+            <div class="avatar-hint" *ngIf="tempPhoto && !user.id">
+              La photo sera envoyée après la création du compte
+            </div>
+          </div>
         </div>
 
         <div class="section-label">Informations personnelles</div>
@@ -49,47 +62,57 @@
             <label>Nom</label>
             <div class="input-wrap">
               <i class="fas fa-user"></i>
-              <input type="text" placeholder="Nom de famille" [(ngModel)]="user.firstName" [ngModelOptions]="{standalone: true}" />
+              <input type="text" placeholder="Nom de famille" [readonly]="readOnly"
+                     [(ngModel)]="user.firstName" [ngModelOptions]="{standalone: true}" />
             </div>
           </div>
           <div class="input-group half">
-            <label>Prénom</label>
-            <div class="input-wrap">
+            <label>Prénom <span class="required">*</span></label>
+            <div class="input-wrap" [class.invalid]="showErrorFor('lastName')">
               <i class="fas fa-user"></i>
-              <input type="text" placeholder="Prénom" [(ngModel)]="user.lastName" [ngModelOptions]="{standalone: true}" />
+              <input type="text" placeholder="Prénom" [readonly]="readOnly"
+                     [(ngModel)]="user.lastName" [ngModelOptions]="{standalone: true}" />
             </div>
+            <div class="field-error" *ngIf="showErrorFor('lastName')">{{ errors['lastName'] }}</div>
           </div>
         </div>
 
         <div class="input-group">
-          <label>Nom d'utilisateur</label>
-          <div class="input-wrap">
+          <label>Nom d'utilisateur <span class="required">*</span></label>
+          <div class="input-wrap" [class.invalid]="showErrorFor('username')">
             <i class="fas fa-at"></i>
-            <input type="text" placeholder="ex: jean.dupont" [(ngModel)]="user.username" [ngModelOptions]="{standalone: true}" />
+            <input type="text" placeholder="ex: jean.dupont" [readonly]="readOnly"
+                   [(ngModel)]="user.username" [ngModelOptions]="{standalone: true}" />
           </div>
+          <div class="field-error" *ngIf="showErrorFor('username')">{{ errors['username'] }}</div>
         </div>
 
         <div class="input-group">
           <label>Adresse e-mail</label>
-          <div class="input-wrap">
+          <div class="input-wrap" [class.invalid]="showErrorFor('email')">
             <i class="fas fa-envelope"></i>
-            <input type="email" placeholder="email@exemple.com" [(ngModel)]="user.email" [ngModelOptions]="{standalone: true}" />
+            <input type="email" placeholder="email@exemple.com" [readonly]="readOnly"
+                   [(ngModel)]="user.email" [ngModelOptions]="{standalone: true}" />
           </div>
+          <div class="field-error" *ngIf="showErrorFor('email')">{{ errors['email'] }}</div>
         </div>
 
         <div class="input-row">
           <div class="input-group half">
             <label>Téléphone</label>
-            <div class="input-wrap">
+            <div class="input-wrap" [class.invalid]="showErrorFor('contact')">
               <i class="fas fa-phone"></i>
-              <input type="text" placeholder="+261 XX XXX XXX" [(ngModel)]="user.contact" [ngModelOptions]="{standalone: true}" />
+              <input type="text" placeholder="0341234567" [readonly]="readOnly"
+                     [(ngModel)]="user.contact" [ngModelOptions]="{standalone: true}" />
             </div>
+            <div class="field-error" *ngIf="showErrorFor('contact')">{{ errors['contact'] }}</div>
           </div>
           <div class="input-group half">
             <label>CIN</label>
             <div class="input-wrap">
               <i class="fas fa-id-card"></i>
-              <input type="text" placeholder="Numéro CIN" [(ngModel)]="user.cin" [ngModelOptions]="{standalone: true}" />
+              <input type="text" placeholder="Numéro CIN" [readonly]="readOnly"
+                     [(ngModel)]="user.cin" [ngModelOptions]="{standalone: true}" />
             </div>
           </div>
         </div>
@@ -98,16 +121,19 @@
           <label>Adresse</label>
           <div class="input-wrap">
             <i class="fas fa-map-marker-alt"></i>
-            <input type="text" placeholder="Adresse complète" [(ngModel)]="user.address" [ngModelOptions]="{standalone: true}" />
+            <input type="text" placeholder="Adresse complète" [readonly]="readOnly"
+                   [(ngModel)]="user.address" [ngModelOptions]="{standalone: true}" />
           </div>
         </div>
 
         <div class="input-group" *ngIf="isCreate">
-          <label>Mot de passe</label>
-          <div class="input-wrap">
+          <label>Mot de passe <span class="required">*</span></label>
+          <div class="input-wrap" [class.invalid]="showErrorFor('password')">
             <i class="fas fa-lock"></i>
-            <input type="password" placeholder="••••••••" [(ngModel)]="user.password" [ngModelOptions]="{standalone: true}" />
+            <input type="password" placeholder="••••••••" [(ngModel)]="user.password"
+                   [ngModelOptions]="{standalone: true}" />
           </div>
+          <div class="field-error" *ngIf="showErrorFor('password')">{{ errors['password'] }}</div>
         </div>
       </div>
 
@@ -125,12 +151,14 @@
           <div class="group-row" *ngFor="let memberGroupe of memberGroupes">
             <span class="group-name">
               <i class="fas fa-users"></i>
-              {{ memberGroupe.groupe.name }}
+              {{ memberGroupe.groupe ? memberGroupe.groupe.name : '' }}
             </span>
             <span class="group-role">{{ memberGroupe.roles }}</span>
             <span class="group-actions">
-              <button class="icon-btn danger" title="Supprimer"><i class="fas fa-trash-alt"></i></button>
-              <button class="icon-btn" title="Paramètres"><i class="fas fa-sliders-h"></i></button>
+              <button class="icon-btn danger" title="Retirer du groupe" [disabled]="readOnly"
+                      (click)="removeGroupe(memberGroupe)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
             </span>
           </div>
 
@@ -140,7 +168,35 @@
           </div>
         </div>
 
-        <button class="btn-add-group">
+        <!-- Ajout d'un groupe -->
+        <div class="add-groupe-panel" *ngIf="showAddGroupe">
+          <label>Groupe</label>
+          <select class="select-groupe" [(ngModel)]="selectedGroupeId" [ngModelOptions]="{standalone: true}">
+            <option [ngValue]="null">-- Choisir un groupe --</option>
+            <option *ngFor="let groupe of groupes" [ngValue]="groupe.id">{{ groupe.name }}</option>
+          </select>
+
+          <label>Rôles</label>
+          <div class="role-list">
+            <label class="role-item" *ngFor="let role of availableRoles">
+              <input type="checkbox" [checked]="selectedRoles.includes(role.value)"
+                     (change)="onRoleChange(role.value, $any($event.target).checked)" />
+              <span class="role-value">{{ role.value }}</span>
+              <span class="role-help">{{ role.affichage }}</span>
+            </label>
+          </div>
+
+          <div class="add-groupe-actions">
+            <button class="btn-cancel" (click)="toggleAddGroupe()">Annuler</button>
+            <button class="btn-primary" [disabled]="!selectedGroupeId" (click)="addGroupe()">
+              <i class="fas fa-plus"></i> Ajouter
+            </button>
+          </div>
+        </div>
+
+        <button class="btn-add-group" *ngIf="!showAddGroupe && !readOnly"
+                [disabled]="!user.id" [title]="user.id ? '' : 'Enregistrez d\'abord l\'utilisateur'"
+                (click)="toggleAddGroupe()">
           <i class="fas fa-plus"></i> Ajouter un groupe
         </button>
       </div>
@@ -149,11 +205,12 @@
 
   <!-- Footer -->
   <div class="modal-footer">
-    <button class="btn-cancel" (click)="activeModal.dismiss()">
-      Annuler
+    <button class="btn-cancel" (click)="close()">
+      {{ readOnly ? 'Fermer' : 'Annuler' }}
     </button>
-    <button class="btn-primary" (click)="saveUser()">
-      <i class="fas fa-save"></i> Enregistrer
+    <button class="btn-primary" *ngIf="!readOnly" [disabled]="saving" (click)="saveUser()">
+      <i class="fas" [ngClass]="saving ? 'fa-circle-notch fa-spin' : 'fa-save'"></i>
+      {{ saving ? 'Enregistrement...' : 'Enregistrer' }}
     </button>
   </div>
 </div>

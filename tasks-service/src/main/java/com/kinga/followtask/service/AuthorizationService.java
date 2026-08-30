@@ -196,6 +196,10 @@ public class AuthorizationService {
      return newModule;
     }
 
+    public List<GroupeUser> allGroupes() {
+        return groupeUserRepository.findAll();
+    }
+
     public Response deleteMember(Long memberId) {
         this.memberGroupeRepository.deleteById(memberId);
         Response response = new Response();

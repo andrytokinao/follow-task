@@ -13,6 +13,7 @@ type Query {
     getIssueTypeById(issueTypeId:Int):IssueType
     loadDirectory(issueId:Int):Repertoire
     loadGroupeMember(userId:String):[MemberGroupe]
+    allGroupes:[GroupeUser]
     getConfig(typeEntry:String):[ConfigEntry]
     allConfig:[ConfigEntry]
     allProjects:[Project]
