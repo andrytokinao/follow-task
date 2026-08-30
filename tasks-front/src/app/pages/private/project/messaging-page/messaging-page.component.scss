@@ -86,6 +86,67 @@
   &:hover { background: #F9FAFB; color: #4F46E5; }
 }
 
+// ---- Filtre par type de canal ----
+// Les icônes portent la couleur de leur marque : c'est le repère le plus
+// rapide. Les types non sélectionnés sont désaturés plutôt que masqués, pour
+// qu'on voie d'un coup d'œil ce qui est disponible.
+.channel-filter {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 0 10px 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  min-width: 0;
+
+  &::-webkit-scrollbar { display: none; }
+}
+
+.channel-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 27px;
+  height: 27px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  font-size: 13px;
+  cursor: pointer;
+  filter: grayscale(1);
+  opacity: 0.5;
+  transition: filter 0.15s ease, opacity 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    filter: grayscale(0);
+    opacity: 1;
+    background: #F3F4F6;
+  }
+
+  // currentColor : la teinte vient de [style.color], donc le fond et la
+  // bordure suivent automatiquement la marque du fournisseur.
+  &.active {
+    filter: grayscale(0);
+    opacity: 1;
+    border-color: currentColor;
+    background: color-mix(in srgb, currentColor 12%, white);
+  }
+
+  // Le bouton « Tous » n'a pas de marque : gris neutre.
+  &.all {
+    color: #6B7280;
+    filter: none;
+
+    &.active {
+      border-color: #6366F1;
+      background: #EEF2FF;
+      color: #4F46E5;
+    }
+  }
+}
+
 .search-bar {
   position: relative;
   margin: 6px 12px 10px;
@@ -869,7 +930,20 @@
 // ============================================================
 
 .list-collapsed {
-  .list-fixed-header { display: none; }
+  // Le titre et la recherche n'ont plus la place, mais le filtre par
+  // fournisseur reste : c'est le seul accès aux autres canaux, et sur mobile
+  // le rail est le seul état possible.
+  .list-header,
+  .search-bar { display: none; }
+
+  .channel-filter {
+    flex-direction: column;
+    gap: 2px;
+    padding: 6px 0;
+    max-height: 150px;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
 
   .conversation-item {
     justify-content: center;

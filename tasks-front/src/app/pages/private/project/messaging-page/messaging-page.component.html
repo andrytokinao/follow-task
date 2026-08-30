@@ -32,6 +32,33 @@
         </div>
       </div>
 
+      <!-- Filtre par fournisseur. Chaque pastille relance listCanaux(type) :
+           l'API filtre côté serveur et n'accepte qu'un type à la fois. -->
+      <div class="channel-filter" role="group" aria-label="Type de canal">
+        <button
+          type="button"
+          class="channel-filter-btn all"
+          [class.active]="allChannels"
+          (click)="selectAllChannels()"
+          title="Tous les canaux"
+        >
+          <i class="fas fa-layer-group"></i>
+        </button>
+
+        <button
+          type="button"
+          class="channel-filter-btn"
+          *ngFor="let type of channelFilters"
+          [class.active]="isChannelFilterActive(type)"
+          [style.color]="filterColor(type)"
+          (click)="selectChannelType(type)"
+          [title]="filterLabel(type)"
+          [attr.aria-pressed]="isChannelFilterActive(type)"
+        >
+          <i [class]="filterIconClass(type)"></i>
+        </button>
+      </div>
+
       <div class="search-bar">
         <i class="fas fa-search search-icon"></i>
         <input

@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Subject, of } from 'rxjs';
-import { debounceTime, distinctUntilChanged, switchMap, catchError, tap, takeUntil } from 'rxjs/operators';
+import { Subject, of, forkJoin } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, catchError, tap, takeUntil, map, take } from 'rxjs/operators';
 import { MessagingService } from '../../../../services/messaging.service';
 import { MessageCacheService } from '../../../../services/message-cache.service';
 import {
@@ -20,7 +20,34 @@ import {IssueSearchCriteriaInput} from "../../../../type/issue-search-criteria.u
 })
 export class MessagingPageComponent implements OnInit, OnDestroy {
 
+  // -------------------------------------------------------------------
+  // Filtre par type de canal
+  // -------------------------------------------------------------------
+  //
+  // `listCanaux(type)` est filtré par le backend et n'accepte QU'UN type à la
+  // fois. Chaque pastille déclenche donc une vraie requête, et non un filtre
+  // local. Jusqu'ici `channelType` était figé sur WHATSAPP : les canaux des
+  // autres fournisseurs étaient inatteignables depuis cette page.
+  //
+  // Seuls les types de messagerie externe sont proposés : PROJECT, ISSUE et
+  // DEFAULT sont des natures de canal internes (tasks.graphqls), pas des
+  // fournisseurs.
+  readonly channelFilters: TypeCanal[] = [
+    TypeCanal.WHATSAPP,
+    TypeCanal.FACEBOOK,
+    TypeCanal.TELEGRAM,
+    TypeCanal.INSTAGRAM,
+    TypeCanal.SLACK,
+    TypeCanal.SMS,
+    TypeCanal.EMAIL,
+  ];
+
   channelType: TypeCanal = TypeCanal.WHATSAPP;
+
+  // « Tous » n'existe pas côté API : il faut interroger chaque type puis
+  // fusionner. Volontairement pas la sélection par défaut, pour ne pas lancer
+  // sept requêtes à l'ouverture de la page.
+  allChannels = false;
 
   canaux: CanalDto[] = [];
   filteredCanaux: CanalDto[] = [];
@@ -168,11 +195,78 @@ export class MessagingPageComponent implements OnInit, OnDestroy {
   // Colonne gauche : liste + filtre
   // ---------------------------------------------------------------------
 
+  // ---------------------------------------------------------------------
+  // Sélection du type de canal
+  // ---------------------------------------------------------------------
+
+  // Type à utiliser pour les appels portant sur la conversation ouverte
+  // (messages, détail, envoi, pièces jointes, synchro). En mode « Tous » la
+  // liste mélange les fournisseurs : c'est le canal lui-même qui fait foi,
+  // pas le filtre sélectionné.
+  private get activeType(): TypeCanal {
+    return this.activeCanal?.typeCanal ?? this.channelType;
+  }
+
+  isChannelFilterActive(type: TypeCanal): boolean {
+    return !this.allChannels && this.channelType === type;
+  }
+
+  selectChannelType(type: TypeCanal): void {
+    if (this.isChannelFilterActive(type)) return;
+    this.allChannels = false;
+    this.channelType = type;
+    this.resetForChannelChange();
+    this.loadConversations();
+  }
+
+  selectAllChannels(): void {
+    if (this.allChannels) return;
+    this.allChannels = true;
+    this.resetForChannelChange();
+    this.loadConversations();
+  }
+
+  // La conversation ouverte appartient au type qu'on quitte : la garder
+  // afficherait un fil qui n'est plus dans la liste.
+  private resetForChannelChange(): void {
+    this.activeCanal = null;
+    this.messages = [];
+    this.canalDetail = null;
+    this.issueLinks = [];
+    this.messageIssueLinks = new Map();
+  }
+
+  filterIconClass(type: TypeCanal): string {
+    return getChannelConfig(type).iconClass;
+  }
+
+  filterLabel(type: TypeCanal): string {
+    return getChannelConfig(type).label;
+  }
+
+  filterColor(type: TypeCanal): string {
+    return getChannelConfig(type).color;
+  }
+
   loadConversations(): void {
     this.loadingList = true;
     this.listError = null;
 
-    this.messaging.listCanaux(this.channelType).subscribe({
+    // Un type = une requête ; « Tous » = une requête par type, fusionnées.
+    const source$ = this.allChannels
+      ? forkJoin(
+          this.channelFilters.map(type =>
+            this.messaging.listCanaux(type).pipe(
+              take(1),
+              // Un fournisseur non configuré ne doit pas faire échouer
+              // l'ensemble : on renvoie une liste vide pour ce type.
+              catchError(() => of<CanalDto[]>([])),
+            )
+          )
+        ).pipe(map(lists => lists.flat()))
+      : this.messaging.listCanaux(this.channelType);
+
+    source$.subscribe({
       next: (list) => {
         this.canaux = [...list].sort((a, b) =>
           new Date(b.lastMessage?.createdAt ?? 0).getTime() -
@@ -275,7 +369,7 @@ export class MessagingPageComponent implements OnInit, OnDestroy {
       since = undefined;
     }
 
-    this.messaging.listMessagesEntity(this.channelType, canal.externalId, { since }).subscribe({
+    this.messaging.listMessagesEntity(canal.typeCanal, canal.externalId, { since }).subscribe({
       next: async (fresh) => {
         try {
         //  await this.cache.saveMessages(fresh);
@@ -301,7 +395,7 @@ export class MessagingPageComponent implements OnInit, OnDestroy {
 
   loadCanalDetail(externalId: string): void {
     this.loadingDetail = true;
-    this.messaging.getCanal(this.channelType, externalId).subscribe({
+    this.messaging.getCanal(this.activeType, externalId).subscribe({
       next: (detail) => {
         this.canalDetail = detail;
         this.loadingDetail = false;
@@ -320,7 +414,7 @@ export class MessagingPageComponent implements OnInit, OnDestroy {
     this.sending = true;
     const request: SendMessageRequest = { text };
 
-    this.messaging.sendMessage(this.channelType, this.activeCanal.externalId, request).subscribe({
+    this.messaging.sendMessage(this.activeType, this.activeCanal.externalId, request).subscribe({
       next: async (sent) => {
         try {
           await this.cache.saveMessages([sent]);
@@ -367,7 +461,7 @@ export class MessagingPageComponent implements OnInit, OnDestroy {
     this.loadingAttachments = true;
     this.attachmentsError = null;
 
-    this.messaging.listAttachments(this.channelType, this.activeCanal.externalId).subscribe({
+    this.messaging.listAttachments(this.activeType, this.activeCanal.externalId).subscribe({
       next: (list) => {
         this.attachments = list;
         this.loadingAttachments = false;
@@ -395,7 +489,7 @@ export class MessagingPageComponent implements OnInit, OnDestroy {
   }
 
   syncActiveCanal(): void {
-    this.messaging.syncCanal(this.channelType).subscribe({
+    this.messaging.syncCanal(this.activeType).subscribe({
       next: () => {
         this.loadConversations();
         if (this.activeCanal) this.openConversation(this.activeCanal);
