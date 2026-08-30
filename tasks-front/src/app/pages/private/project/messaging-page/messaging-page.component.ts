@@ -40,6 +40,36 @@ export class MessagingPageComponent implements OnInit, OnDestroy {
   loadingDetail = false;
   showInfoPanel = true;
 
+  // -------------------------------------------------------------------
+  // Disposition : repli des colonnes latérales
+  // -------------------------------------------------------------------
+
+  // Colonne gauche repliée : seules les photos des canaux restent visibles.
+  listCollapsed = false;
+
+  // Même point de rupture que la feuille de style : les deux doivent basculer
+  // ensemble, sinon l'état JS et la mise en page se contredisent.
+  private static readonly MOBILE_QUERY = '(max-width: 860px)';
+  private mobileQuery?: MediaQueryList;
+  private onMobileChange = (event: MediaQueryListEvent) => this.applyLayoutFor(event.matches);
+  isMobile = false;
+
+  // Sur mobile : la liste est toujours réduite au rail d'avatars, et le
+  // panneau de détail devient un tiroir, fermé par défaut.
+  private applyLayoutFor(isMobile: boolean): void {
+    this.isMobile = isMobile;
+    if (isMobile) {
+      this.listCollapsed = true;
+      this.showInfoPanel = false;
+    } else {
+      this.listCollapsed = false;
+    }
+  }
+
+  toggleList(): void {
+    this.listCollapsed = !this.listCollapsed;
+  }
+
   showMembersList = false;
 
   attachments: AttachmentDto[] = [];
@@ -121,10 +151,15 @@ export class MessagingPageComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.mobileQuery = window.matchMedia(MessagingPageComponent.MOBILE_QUERY);
+    this.applyLayoutFor(this.mobileQuery.matches);
+    this.mobileQuery.addEventListener('change', this.onMobileChange);
+
     this.loadConversations();
   }
 
   ngOnDestroy(): void {
+    this.mobileQuery?.removeEventListener('change', this.onMobileChange);
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -181,6 +216,14 @@ export class MessagingPageComponent implements OnInit, OnDestroy {
 
   channelIcon(canal: CanalDto): string {
     return getChannelConfig(canal.typeCanal).icon;
+  }
+
+  channelIconClass(canal: CanalDto): string {
+    return getChannelConfig(canal.typeCanal).iconClass;
+  }
+
+  channelLabel(canal: CanalDto): string {
+    return getChannelConfig(canal.typeCanal).label;
   }
 
   channelColor(canal: CanalDto): string {
@@ -302,6 +345,10 @@ export class MessagingPageComponent implements OnInit, OnDestroy {
 
   toggleInfoPanel(): void {
     this.showInfoPanel = !this.showInfoPanel;
+  }
+
+  closeInfoPanel(): void {
+    this.showInfoPanel = false;
   }
 
   toggleMembersList(): void {

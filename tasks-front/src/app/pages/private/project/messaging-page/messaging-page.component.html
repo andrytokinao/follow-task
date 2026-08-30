@@ -1,6 +1,13 @@
 <!-- src/app/pages/private/project/messaging-page/messaging-page.component.html -->
 
-<div class="messaging-layout">
+<!-- info-hidden inclut le cas « aucun canal actif » : il n'y a alors rien à
+     détailler, et la colonne se referme plutôt que de laisser 260 px de vide. -->
+<div
+  class="messaging-layout"
+  [class.list-collapsed]="listCollapsed"
+  [class.info-hidden]="!showInfoPanel || !activeCanal"
+  [class.is-mobile]="isMobile"
+>
 
   <!-- ================= Colonne gauche : liste des conversations ================= -->
   <aside class="pane pane-list">
@@ -8,9 +15,21 @@
     <div class="list-fixed-header">
       <div class="list-header">
         <h2>Messagerie</h2>
-        <button class="icon-btn" (click)="syncActiveCanal()" title="Synchroniser">
-          <i class="fas fa-rotate"></i>
-        </button>
+        <div class="list-header-actions">
+          <button class="icon-btn" (click)="syncActiveCanal()" title="Synchroniser">
+            <i class="fas fa-rotate"></i>
+          </button>
+          <!-- Repli de la colonne : masqué sur mobile, où le rail d'avatars
+               est le seul état possible. -->
+          <button
+            class="icon-btn collapse-btn"
+            *ngIf="!isMobile"
+            (click)="toggleList()"
+            [title]="listCollapsed ? 'Déplier la liste' : 'Replier la liste'"
+          >
+            <i class="fas" [class.fa-angles-left]="!listCollapsed" [class.fa-angles-right]="listCollapsed"></i>
+          </button>
+        </div>
       </div>
 
       <div class="search-bar">
@@ -23,6 +42,17 @@
         />
       </div>
     </div>
+
+    <!-- Bouton de dépliage visible uniquement en mode replié sur desktop :
+         l'en-tête complet est masqué à cette largeur. -->
+    <button
+      class="rail-expand"
+      *ngIf="listCollapsed && !isMobile"
+      (click)="toggleList()"
+      title="Déplier la liste"
+    >
+      <i class="fas fa-angles-right"></i>
+    </button>
 
     <div class="conversation-list">
 
@@ -46,6 +76,7 @@
         [class.active]="activeCanal?.externalId === canal.externalId"
         [class.unread]="canal.unreadCount > 0"
         (click)="openConversation(canal)"
+        [attr.title]="listCollapsed ? canal.pseudo + ' · ' + channelLabel(canal) : null"
       >
         <div class="avatar-stack">
           <app-avatar
@@ -54,9 +85,14 @@
             [isGroup]="canal.isGroup"
             style="--avatar-size: 38px"
           ></app-avatar>
-          <div class="channel-badge" [style.background]="channelColor(canal)">
-            <img [src]="channelIcon(canal)" [alt]="canal.typeCanal" />
-          </div>
+          <!-- Pastille du type de canal (WhatsApp, Telegram...) : reste
+               visible en mode replié, c'est le seul repère avec la photo. -->
+          <span class="channel-badge" [style.background]="channelColor(canal)" [title]="channelLabel(canal)">
+            <i [class]="channelIconClass(canal)"></i>
+          </span>
+          <!-- En mode replié il n'y a plus de place pour le compteur : une
+               pastille suffit à signaler des messages non lus. -->
+          <span class="rail-unread-dot" *ngIf="canal.unreadCount > 0"></span>
         </div>
 
         <div class="conversation-content">
@@ -83,19 +119,33 @@
 
     <ng-container *ngIf="activeCanal; else noSelection">
 
+      <!-- Le titre est cliquable : c'est le geste attendu pour ouvrir la
+           fiche du canal, et le seul accès au panneau de détail sur mobile. -->
       <div class="thread-header">
-        <app-avatar
-          [url]="activeCanal.avatarUrl"
-          [displayName]="activeCanal.pseudo"
-          [isGroup]="activeCanal.isGroup"
-          style="--avatar-size: 32px"
-        ></app-avatar>
-        <div class="thread-title">
-          <span class="pseudo">{{ activeCanal.pseudo }}</span>
-          <span class="sub" *ngIf="activeCanal.isGroup">
-            {{ canalDetail?.memberCount || activeCanal.memberCount || '...' }} membres
+        <button class="thread-identity" (click)="toggleInfoPanel()" title="Détails du canal">
+          <app-avatar
+            [url]="activeCanal.avatarUrl"
+            [displayName]="activeCanal.pseudo"
+            [isGroup]="activeCanal.isGroup"
+            style="--avatar-size: 32px"
+          ></app-avatar>
+          <span class="thread-title">
+            <span class="pseudo">
+              {{ activeCanal.pseudo }}
+              <i class="thread-chevron fas fa-chevron-down"></i>
+            </span>
+            <span class="sub">
+              <span class="channel-tag" [style.color]="channelColor(activeCanal)">
+                <i [class]="channelIconClass(activeCanal)"></i>
+                {{ channelLabel(activeCanal) }}
+              </span>
+              <ng-container *ngIf="activeCanal.isGroup">
+                · {{ canalDetail?.memberCount || activeCanal.memberCount || '...' }} membres
+              </ng-container>
+            </span>
           </span>
-        </div>
+        </button>
+
         <button class="icon-btn" (click)="toggleInfoPanel()" title="Informations">
           <i class="fas fa-circle-info"></i>
         </button>
@@ -125,6 +175,7 @@
 
       <div class="thread-composer">
         <input
+          class="composer-input"
           type="text"
           placeholder="Écrire un message..."
           [(ngModel)]="draftText"
@@ -147,16 +198,25 @@
 
   </main>
 
-  <!-- ================= Colonne droite : infos du canal ================= -->
-  <aside class="pane pane-info" *ngIf="showInfoPanel && activeCanal">
+  <!-- Voile du tiroir de détail sur mobile. -->
+  <div class="info-backdrop" *ngIf="isMobile && showInfoPanel && activeCanal" (click)="closeInfoPanel()"></div>
 
-    <div class="info-header">
-      <button class="icon-btn" (click)="toggleInfoPanel()" title="Fermer">
-        <i class="fas fa-xmark"></i>
-      </button>
-    </div>
+  <!-- ================= Colonne droite : infos du canal =================
+       Conservée dans le DOM même repliée : c'est ce qui permet d'animer sa
+       largeur (desktop) ou son glissement (mobile). `*ngIf` la détruisait,
+       donc aucune transition n'était possible. -->
+  <aside class="pane pane-info" *ngIf="activeCanal" [attr.aria-hidden]="!showInfoPanel">
 
-    <div class="info-scroll">
+    <div class="info-inner">
+
+      <div class="info-header">
+        <span class="info-header-title">Détails</span>
+        <button class="icon-btn" (click)="closeInfoPanel()" title="Fermer">
+          <i class="fas fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="info-scroll">
 
       <div class="info-avatar-block">
         <app-avatar
@@ -296,6 +356,7 @@
         <p class="canal-meta">{{ activeCanal.externalId }}</p>
       </div>
 
+      </div>
     </div>
 
   </aside>
