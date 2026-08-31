@@ -23,7 +23,7 @@ public class IssueMessageLink {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "message_id", nullable = false)
     private MessageApp message;
-
+    @Column(name = "linked_at")
     private LocalDateTime linkedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
