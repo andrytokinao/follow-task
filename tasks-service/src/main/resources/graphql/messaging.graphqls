@@ -136,6 +136,7 @@ extend type Mutation {
   linkIssuesToMessages(issueIds: [Int!], externalMessageIds: [String!]): [IssueMessageLink!]
   unlinkIssueFromMessage(linkId: ID!): Boolean!
   linkIssueToCanal(issueId: Int!, canalExternalId: String!): IssueCanalLink!
+  linkIssuesToCanal(issueIds: [Int!], canalExternalId: String!): [IssueCanalLink!]
   unlinkIssueFromCanal(linkId: ID!): Boolean!
 }
 

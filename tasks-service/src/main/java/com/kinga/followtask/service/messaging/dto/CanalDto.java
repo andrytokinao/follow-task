@@ -1,5 +1,6 @@
 package com.kinga.followtask.service.messaging.dto;
 
+import com.kinga.followtask.entity.IssueCanalLink;
 import com.kinga.followtask.service.messaging.dto.MemberDto;
 import lombok.*;
 
@@ -19,4 +20,10 @@ public class CanalDto {
     private String avatarUrl;
     private List<MemberDto> members;
     private MessageDto lastMessage;
+
+    // Liens actifs (endedAt == null) vers les issues de suivi. Rempli
+    // uniquement par getCanal : les remonter pour chaque canal de listCanaux
+    // coûterait une requête par canal pour une donnée affichée seulement dans
+    // le panneau de la conversation ouverte.
+    private List<IssueCanalLink> issueLinks;
 }

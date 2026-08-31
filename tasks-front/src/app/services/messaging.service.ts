@@ -19,7 +19,8 @@ import {
   UNLINK_ISSUE_FROM_MESSAGE,
   LINK_ISSUE_TO_CANAL,
   UNLINK_ISSUE_FROM_CANAL, LIST_MESSAGES_ENTITY,
-  LINK_ISSUES_TO_MESSAGES
+  LINK_ISSUES_TO_MESSAGES,
+  LINK_ISSUES_TO_CANAL
 } from '../type/graphql.operations';
 
 import {
@@ -174,6 +175,15 @@ export class MessagingService {
       mutation: UNLINK_ISSUE_FROM_CANAL,
       variables: { linkId },
     }).pipe(map(r => !!r.data?.unlinkIssueFromCanal));
+  }
+
+  // Pendant multi-issues de `linkIssueToCanal` : le picker d'issues valide
+  // plusieurs issues d'un coup, on évite autant d'aller-retours réseau.
+  linkIssuesToCanal(issueIds: number[], canalExternalId: string): Observable<IssueCanalLink[]> {
+    return this.apollo.mutate<{ linkIssuesToCanal: IssueCanalLink[] }>({
+      mutation: LINK_ISSUES_TO_CANAL,
+      variables: { issueIds, canalExternalId },
+    }).pipe(map(r => r.data!.linkIssuesToCanal));
   }
 
   linkIssuesToMessages(issueIds: number[], externalMessageIds: String[]) {

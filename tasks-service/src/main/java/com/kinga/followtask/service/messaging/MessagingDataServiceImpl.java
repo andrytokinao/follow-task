@@ -46,7 +46,11 @@ public class MessagingDataServiceImpl implements MessagingDataService {
                 .orElseThrow(() -> new IllegalStateException("Canal introuvable : " + externalId));
 
         List<CanalContact> links = canalContactRepository.findByCanall(canall);
-        return mapper.toCanalDetailDto(canall, links);
+        // Seuls les liens encore ouverts : unlinkIssueFromCanal clôture le lien
+        // (endedAt) au lieu de le supprimer, canall.getIssueLinks() remonterait
+        // donc aussi les liaisons déjà retirées.
+        List<IssueCanalLink> issueLinks = canalLinkRepository.findByCanalIdAndEndedAtIsNull(canall.getId());
+        return mapper.toCanalDetailDto(canall, links, issueLinks);
     }
 
     @Override
@@ -165,5 +169,17 @@ public class MessagingDataServiceImpl implements MessagingDataService {
             }
         }
         return messageLinks;
+    }
+
+    @Override
+    public List<IssueCanalLink> linkIssuesToCanal(List<Long> issueIds, String canalExternalId, UserApp user) {
+        List<IssueCanalLink> canalLinks = new ArrayList<>();
+        if (issueIds == null) {
+            return canalLinks;
+        }
+        for (Long issueId : issueIds) {
+            canalLinks.add(linkIssueToCanal(issueId, canalExternalId, user));
+        }
+        return canalLinks;
     }
 }

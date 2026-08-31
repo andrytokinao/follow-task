@@ -273,9 +273,9 @@
         </div>
       </div>
 
-      <!-- Issues liées : repliées par défaut. Alimentées directement par
-           activeCanal.issueLinks (fourni par LIST_CANAUX), pas de chargement
-           réseau séparé -> pas d'état loading/error ici. -->
+      <!-- Issues liées : repliées par défaut, remplies par getCanal en même
+           temps que le reste du détail du canal -> l'état de chargement est
+           celui du panneau (loadingDetail), pas de spinner dédié. -->
       <div class="info-section collapsible-section" *ngIf="!loadingDetail">
         <button class="section-toggle" (click)="toggleIssuesList()">
           <span class="section-toggle-label">
@@ -294,33 +294,63 @@
 
           <div class="issue-card" *ngFor="let link of issueLinks">
             <div class="issue-card-top">
-              <span class="issue-key">{{ link.issue.issueKey }}</span>
+              <!-- Cliquable seulement si l'issue est dans le projet courant :
+                   sinon on n'a pas le contexte pour construire l'URL
+                   (cf. IssueService.getIssueUrl). -->
+              <a
+                *ngIf="issueUrl(link) as url; else plainKey"
+                class="issue-key"
+                [routerLink]="url"
+              >{{ link.issue.issueKey }}</a>
+              <ng-template #plainKey>
+                <span class="issue-key not-clickable" title="Issue d'un autre projet">
+                  {{ link.issue.issueKey }}
+                </span>
+              </ng-template>
               <button class="issue-unlink" (click)="unlinkCanalLink(link)" title="Retirer le lien">
                 <i class="fas fa-xmark"></i>
               </button>
             </div>
             <p class="issue-summary">{{ link.issue.summary }}</p>
-            <p class="issue-assignee-row" *ngIf="link.issue.assigne">
-              <i class="fas fa-user"></i> {{ link.issue.assigne.username }}
+            <p class="issue-meta-row" *ngIf="link.issue.assigne || link.issue.elapsedDurationMinutes">
+              <span *ngIf="link.issue.assigne">
+                <i class="fas fa-user"></i> {{ link.issue.assigne.username }}
+              </span>
+              <span *ngIf="link.issue.elapsedDurationMinutes">
+                <i class="fas fa-clock"></i> {{ formatDuration(link.issue.elapsedDurationMinutes) }}
+              </span>
             </p>
             <div
               class="issue-progress"
-              *ngIf="link.issue.completionPercent !== null && link.issue.completionPercent !== undefined"
+              *ngIf="link.issue.currentCompletionPercent !== null && link.issue.currentCompletionPercent !== undefined"
             >
               <div class="progress-track">
                 <div
                   class="progress-fill"
-                  [ngClass]="progressClass(link.issue.completionPercent)"
-                  [style.width.%]="link.issue.completionPercent"
+                  [ngClass]="progressClass(link.issue.currentCompletionPercent)"
+                  [style.width.%]="link.issue.currentCompletionPercent"
                 ></div>
               </div>
-              <span class="progress-label">{{ link.issue.completionPercent }}%</span>
+              <span class="progress-label">{{ link.issue.currentCompletionPercent }}%</span>
             </div>
           </div>
 
-          <button class="add-issue-btn" (click)="openIssuePicker('CANAL', activeCanal.externalId, activeCanal.pseudo)">
-            <i class="fas fa-plus"></i> Lier une issue
+          <!-- Même sélecteur que dans le fil de messages : arborescence des
+               issues avec sélection multiple, ouverte directement en menu
+               (plus de modale de recherche intermédiaire). -->
+          <button
+            class="add-issue-btn"
+            [disabled]="linkingIssue"
+            [matMenuTriggerFor]="canalIssuePicker.menu"
+          >
+            <i class="fas" [class.fa-plus]="!linkingIssue" [class.fa-spinner]="linkingIssue" [class.fa-spin]="linkingIssue"></i>
+            Lier une issue
           </button>
+          <app-issue-picker-menu
+            #canalIssuePicker
+            [issues]="masters"
+            (issuesSelected)="onIssuesPickedForCanal($event)"
+          ></app-issue-picker-menu>
 
         </div>
       </div>

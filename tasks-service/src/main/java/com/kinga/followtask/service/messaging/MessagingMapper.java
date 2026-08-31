@@ -18,7 +18,7 @@ public class MessagingMapper {
                 .build();
     }
 
-    public CanalDto toCanalDetailDto(Canall canall, List<CanalContact> links) {
+    public CanalDto toCanalDetailDto(Canall canall, List<CanalContact> links, List<IssueCanalLink> issueLinks) {
         List<MemberDto> members = links.stream()
                 .map(link -> toMemberDto(link.getContact()))
                 .toList();
@@ -30,6 +30,7 @@ public class MessagingMapper {
             //   .isGroup(canall.isGroup())
                 .memberCount(members.size())
                 .members(members)
+                .issueLinks(issueLinks)
                 .build();
     }
 

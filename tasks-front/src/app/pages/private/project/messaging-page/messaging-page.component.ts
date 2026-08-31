@@ -114,6 +114,10 @@ export class MessagingPageComponent implements OnInit, OnDestroy {
   showIssuesList = false;
   linkingIssue = false;
 
+  // Arborescence des issues (masters + sous-issues) alimentant
+  // app-issue-picker-menu, le même sélecteur que celui du fil de messages.
+  masters: Issue[] = [];
+
   // -------------------------------------------------------------------
   // Issues liées — Messages (fil central)
   // Alimenté directement par message.messageLinks (déjà renvoyé par
@@ -175,6 +179,11 @@ export class MessagingPageComponent implements OnInit, OnDestroy {
     this.issueService.project$.subscribe(p=> {
       this.project = p;
     })
+    this.issueService.issueMasterList$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(masters => {
+        this.masters = masters;
+      });
   }
 
   ngOnInit(): void {
@@ -276,12 +285,12 @@ export class MessagingPageComponent implements OnInit, OnDestroy {
         this.loadingList = false;
 
         // Garde la conversation active synchronisée avec la nouvelle référence
-        // de la liste (issueLinks à jour) si elle est toujours ouverte.
+        // de la liste si elle est toujours ouverte. Les issues liées ne sont
+        // pas touchées ici : elles viennent de getCanal, pas de listCanaux.
         if (this.activeCanal) {
           const refreshed = this.canaux.find(c => c.externalId === this.activeCanal!.externalId);
           if (refreshed) {
             this.activeCanal = refreshed;
-            this.issueLinks = refreshed.issueLinks ?? [];
           }
         }
       },
@@ -348,9 +357,14 @@ export class MessagingPageComponent implements OnInit, OnDestroy {
       this.attachmentsError = null;
       this.showAttachmentsList = false;
       this.showIssuesList = false;
+
+      // Les issues liées arrivent avec le détail du canal (getCanal), chargé
+      // plus bas : on vide en attendant plutôt que d'afficher celles du canal
+      // précédent. En reload, loadCanalDetail n'est pas rappelé -> on garde
+      // la liste déjà chargée.
+      this.issueLinks = [];
     }
 
-    this.issueLinks = this.activeCanal.issueLinks ?? [];
     this.messageIssueLinks = new Map();
 
     try {
@@ -404,6 +418,10 @@ export class MessagingPageComponent implements OnInit, OnDestroy {
     this.messaging.getCanal(this.activeType, externalId).subscribe({
       next: (detail) => {
         this.canalDetail = detail;
+        // getCanal est la seule source des liens issue<->canal : listCanaux ne
+        // les remonte pas (une requête par canal pour une donnée affichée
+        // seulement ici).
+        this.issueLinks = detail?.issueLinks ?? [];
         this.loadingDetail = false;
       },
       error: (err) => {
@@ -506,12 +524,49 @@ export class MessagingPageComponent implements OnInit, OnDestroy {
 
   // ---------------------------------------------------------------------
   // Issues liées — Canal
-  // Les données sont déjà présentes sur activeCanal.issueLinks (renvoyées
-  // par LIST_CANAUX) : pas besoin de requête réseau supplémentaire.
+  // Chargées avec le détail du canal (getCanal), qui ne renvoie que les
+  // liens actifs : un lien retiré est clôturé côté back (endedAt), pas
+  // supprimé, et ne doit donc pas réapparaître au rechargement.
   // ---------------------------------------------------------------------
 
   toggleIssuesList(): void {
     this.showIssuesList = !this.showIssuesList;
+  }
+
+  // Validation de app-issue-picker-menu : une ou plusieurs issues cochées sont
+  // liées au canal ouvert en un seul appel. Les issues déjà liées sont écartées
+  // ici pour ne pas envoyer d'ids inutiles (le back est de toute façon
+  // idempotent : il renvoie le lien actif existant).
+  onIssuesPickedForCanal(issues: Issue[]): void {
+    if (!this.activeCanal || !issues.length || this.linkingIssue) return;
+
+    const linkedIssueIds = new Set(this.issueLinks.map(l => l.issue?.id));
+    const toLink = issues.filter(i => i.id != null && !linkedIssueIds.has(i.id));
+    if (!toLink.length) return;
+
+    // La conversation peut changer pendant la requête : on retient le canal
+    // visé pour ne pas coller les liens sur le canal ouvert entre-temps.
+    const targetCanalId = this.activeCanal.externalId;
+    this.linkingIssue = true;
+
+    this.messaging.linkIssuesToCanal(toLink.map(i => i.id!), targetCanalId).subscribe({
+      next: (links) => {
+        this.linkingIssue = false;
+        if (this.activeCanal?.externalId !== targetCanalId) return;
+
+        const byId = new Map<number, IssueCanalLink>(this.issueLinks.map(l => [l.id, l]));
+        for (const link of links) {
+          byId.set(link.id, link);
+        }
+        this.issueLinks = Array.from(byId.values());
+        this.syncDetailIssueLinks();
+        this.showIssuesList = true;
+      },
+      error: (err) => {
+        console.error('Erreur linkIssuesToCanal:', err);
+        this.linkingIssue = false;
+      },
+    });
   }
 
   // ---------------------------------------------------------------------
@@ -585,9 +640,7 @@ export class MessagingPageComponent implements OnInit, OnDestroy {
       this.messaging.linkIssueToCanal(issue.id!, targetId).subscribe({
         next: (link) => {
           this.issueLinks = [...this.issueLinks, link];
-          if (this.activeCanal) {
-            this.activeCanal.issueLinks = this.issueLinks;
-          }
+          this.syncDetailIssueLinks();
           this.linkingIssueKey = null;
           this.linkingIssue = false;
           this.closeIssuePicker();
@@ -618,12 +671,19 @@ export class MessagingPageComponent implements OnInit, OnDestroy {
       next: (ok) => {
         if (!ok) return;
         this.issueLinks = this.issueLinks.filter(l => l.id !== link.id);
-        if (this.activeCanal) {
-          this.activeCanal.issueLinks = this.issueLinks;
-        }
+        this.syncDetailIssueLinks();
       },
       error: (err) => console.error('Erreur unlinkIssueFromCanal:', err),
     });
+  }
+
+  // Le détail du canal n'est rechargé qu'à l'ouverture d'une conversation :
+  // on y reporte les liaisons créées/retirées entre-temps pour qu'un simple
+  // reload des messages ne réaffiche pas une liste périmée.
+  private syncDetailIssueLinks(): void {
+    if (this.canalDetail) {
+      this.canalDetail.issueLinks = this.issueLinks;
+    }
   }
 
   unlinkMessageLink(link: IssueMessageLink): void {
@@ -636,6 +696,22 @@ export class MessagingPageComponent implements OnInit, OnDestroy {
       },
       error: (err) => console.error('Erreur unlinkIssueFromMessage:', err),
     });
+  }
+
+  // URL de consultation de l'issue liée, ou null si elle n'appartient pas au
+  // projet courant (la construction est centralisée dans IssueService).
+  issueUrl(link: IssueCanalLink): string | null {
+    return this.issueService.getIssueUrl(link.issue);
+  }
+
+  // Durée courte : "2h30", "3h", "45min".
+  formatDuration(minutes: number | null | undefined): string {
+    if (!minutes || minutes <= 0) return '';
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    if (h > 0 && m > 0) return `${h}h${m.toString().padStart(2, '0')}`;
+    if (h > 0) return `${h}h`;
+    return `${m}min`;
   }
 
   progressClass(percent: number | null | undefined): string {

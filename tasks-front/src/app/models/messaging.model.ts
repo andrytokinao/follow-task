@@ -35,7 +35,9 @@ export interface MemberDto {
 }
 
 export interface CanalDto {
-  issueLinks: IssueCanalLink[];
+  // Uniquement renseigné par getCanal (détail) : listCanaux ne remonte pas
+  // les liaisons vers les issues.
+  issueLinks?: IssueCanalLink[];
   externalId: string;
   pseudo: string;
   typeCanal: TypeCanal;

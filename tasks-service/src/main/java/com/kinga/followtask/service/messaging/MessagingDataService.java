@@ -22,4 +22,5 @@ public interface MessagingDataService {
     public Boolean unlinkIssueFromCanal(Long linkId, UserApp currentUser);
 
     List<IssueMessageLink> linkIssuesToMessages(List<Long> issueIds, List<String> externalMessageIds, UserApp user);
+    List<IssueCanalLink> linkIssuesToCanal(List<Long> issueIds, String canalExternalId, UserApp user);
 }

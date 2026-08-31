@@ -715,6 +715,23 @@
   line-height: 1.3;
 }
 
+.issue-key.not-clickable {
+  color: #6B7280;
+  background: #F3F4F6;
+  cursor: default;
+}
+
+.issue-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 10.5px;
+  color: #6B7280;
+  margin: 0 0 6px;
+
+  i { margin-right: 3px; }
+}
+
 .issue-progress {
   display: flex;
   align-items: center;

@@ -3126,25 +3126,6 @@ export const LIST_CANAUX = gql`
       unreadCount
       messageCount
       avatarUrl
-      issueLinks {
-        id
-        linkedAt
-        linkedBy {
-          id
-          username
-          photo
-        }
-        issue {
-          id
-          issueKey
-          summary
-          assigne {
-            id
-            username
-            photo
-          }
-        }
-      }
       lastMessage {
         externalMessageId
         text
@@ -3174,6 +3155,26 @@ export const GET_CANAL = gql`
         admin
         contactId
         userAppId
+      }
+      issueLinks {
+        id
+        linkedAt
+        issue {
+          id
+          issueKey
+          project {
+            id
+            prefix
+          }
+          summary
+          elapsedDurationMinutes
+          currentCompletionPercent
+          assigne {
+            id
+            username
+            photo
+          }
+        }
       }
     }
   }
@@ -3479,6 +3480,45 @@ export const LINK_ISSUE_TO_CANAL = gql`
         id
         issueKey
         summary
+        status {
+          id
+          displayName
+          icone {
+            id
+            typeIcone
+            value
+          }
+        }
+        assigne {
+          id
+          username
+          photo
+        }
+      }
+      linkedBy {
+        id
+        username
+        photo
+      }
+    }
+  }
+`;
+
+export const LINK_ISSUES_TO_CANAL = gql`
+  mutation linkIssuesToCanal($issueIds: [Int!], $canalExternalId: String!) {
+    linkIssuesToCanal(issueIds: $issueIds, canalExternalId: $canalExternalId) {
+      id
+      linkedAt
+      issue {
+        id
+        issueKey
+        summary
+        currentCompletionPercent
+        elapsedDurationMinutes
+        project {
+          id
+          prefix
+        }
         status {
           id
           displayName

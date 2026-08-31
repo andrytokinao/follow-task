@@ -58,6 +58,7 @@ import {OverlayModule} from "@angular/cdk/overlay";
 import {AvatarComponent} from "../../../common/avatar/avatar.component";
 import {MessageThreadComponent} from "../../../common/message-thread/message-thread.component";
 import {MessagingPageComponent} from "./messaging-page/messaging-page.component";
+import {IssuePickerMenuComponent} from "../../../common/issue-picker/issue-picker-menu.component";
 
 @NgModule({
   declarations: [
@@ -128,7 +129,8 @@ import {MessagingPageComponent} from "./messaging-page/messaging-page.component"
     SpinnerButtonComponent,
     OverlayModule,
     AvatarComponent,
-    MessageThreadComponent
+    MessageThreadComponent,
+    IssuePickerMenuComponent
   ]
 })
 export class ProjectModule { }
