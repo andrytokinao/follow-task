@@ -335,10 +335,12 @@ export class MessagingPageComponent implements OnInit, OnDestroy {
   // ---------------------------------------------------------------------
   // Colonne centrale : ouverture d'une conversation
   // ---------------------------------------------------------------------
-  async loadMessageList(){
+  async reLoadMessageList(isReload:boolean){
+    if (!isReload){
+      this.canalDetail = null;
+      this.messagesError = null;
+    }
     this.messages = [];
-    this.canalDetail = null;
-    this.messagesError = null;
 
     // Repli systématique des sections dépliables à chaque nouvelle conversation
     this.showMembersList = false;
@@ -392,7 +394,8 @@ export class MessagingPageComponent implements OnInit, OnDestroy {
   }
   async openConversation(canal: CanalDto): Promise<void> {
     this.activeCanal = canal;
-    await this.loadMessageList();
+
+    await this.reLoadMessageList(this.activeCanal  && this.activeCanal.externalId === canal.externalId);
   }
 
   loadCanalDetail(externalId: string): void {
@@ -641,7 +644,4 @@ export class MessagingPageComponent implements OnInit, OnDestroy {
     return 'progress-low';
   }
 
-  async  reloadMessageList() {
-    await this.loadMessageList();
-  }
 }
