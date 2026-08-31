@@ -229,12 +229,14 @@ public class KingaUtils {
 
     public static void main(String[] args) {
         // Test encode → decode
-        String original = "MonTexteSecret";
+        String original = "Andrea_Env";
         String encoded = encodeText(original);
+        String encodePassword = encodePassword(original);
         String decoded = decodeText(encoded);
 
         System.out.println("Original : " + original);
         System.out.println("Encodé   : " + encoded);
+        System.out.println("Chifree   : " + encodePassword);
         System.out.println("Décodé   : " + decoded);
         System.out.println("OK       : " + original.equals(decoded));
 
