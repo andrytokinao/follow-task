@@ -335,9 +335,7 @@ export class MessagingPageComponent implements OnInit, OnDestroy {
   // ---------------------------------------------------------------------
   // Colonne centrale : ouverture d'une conversation
   // ---------------------------------------------------------------------
-
-  async openConversation(canal: CanalDto): Promise<void> {
-    this.activeCanal = canal;
+  async loadMessageList(){
     this.messages = [];
     this.canalDetail = null;
     this.messagesError = null;
@@ -348,12 +346,12 @@ export class MessagingPageComponent implements OnInit, OnDestroy {
     this.attachmentsError = null;
     this.showAttachmentsList = false;
 
-    this.issueLinks = canal.issueLinks ?? [];
+    this.issueLinks = this.activeCanal.issueLinks ?? [];
     this.showIssuesList = false;
     this.messageIssueLinks = new Map();
 
     try {
-      const cached = await this.cache.getMessages(canal.externalId);
+      const cached = await this.cache.getMessages(this.activeCanal.externalId);
       // this.messages = cached;
       this.loadingMessages = cached.length === 0;
       this.rebuildMessageIssueLinks();
@@ -364,23 +362,23 @@ export class MessagingPageComponent implements OnInit, OnDestroy {
 
     let since: string | undefined;
     try {
-    //  since = (await this.cache.getLastCachedDate(canal.externalId)) ?? undefined;
+      //  since = (await this.cache.getLastCachedDate(canal.externalId)) ?? undefined;
     } catch {
       since = undefined;
     }
 
-    this.messaging.listMessagesEntity(canal.typeCanal, canal.externalId, { since }).subscribe({
+    this.messaging.listMessagesEntity(this.activeCanal.typeCanal, this.activeCanal.externalId, { since }).subscribe({
       next: async (fresh) => {
         try {
-        //  await this.cache.saveMessages(fresh);
-         // this.messages = await this.cache.getMessages(canal.externalId);
+          //  await this.cache.saveMessages(fresh);
+          // this.messages = await this.cache.getMessages(canal.externalId);
           this.messages = fresh ;
         } catch (err) {
           console.error('Erreur écriture cache:', err);
           this.messages = fresh;
         }
         this.loadingMessages = false;
-        canal.unreadCount = 0;
+        this.activeCanal.unreadCount = 0;
         this.rebuildMessageIssueLinks();
       },
       error: (err) => {
@@ -390,7 +388,11 @@ export class MessagingPageComponent implements OnInit, OnDestroy {
       },
     });
 
-    this.loadCanalDetail(canal.externalId);
+    this.loadCanalDetail(this.activeCanal.externalId);
+  }
+  async openConversation(canal: CanalDto): Promise<void> {
+    this.activeCanal = canal;
+    await this.loadMessageList();
   }
 
   loadCanalDetail(externalId: string): void {
@@ -637,5 +639,9 @@ export class MessagingPageComponent implements OnInit, OnDestroy {
     if (p >= 70) return 'progress-high';
     if (p >= 30) return 'progress-mid';
     return 'progress-low';
+  }
+
+  async  reloadMessageList() {
+    await this.loadMessageList();
   }
 }

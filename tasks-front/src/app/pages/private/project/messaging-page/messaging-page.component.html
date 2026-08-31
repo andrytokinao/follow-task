@@ -181,6 +181,7 @@
           *ngIf="!loadingMessages && !messagesError && messages.length > 0"
           [messages]="messages"
           [isGroup]="activeCanal.isGroup"
+          (issuesLinked) = "reloadMessageList()"
           [issueLinksByMessage]="messageIssueLinks"
         ></app-message-thread>
       </div>
