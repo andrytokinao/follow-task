@@ -27,13 +27,13 @@ public class IssueMembership {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private IssueRole role;
-
+    @Column(name = "assigned_at")
     private LocalDateTime assignedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "assigned_by")
     private UserApp assignedBy;
-
+    @Column(name = "unassigned_at")
     private LocalDateTime unassignedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
