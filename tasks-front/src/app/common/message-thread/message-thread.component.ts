@@ -205,8 +205,11 @@ export class MessageThreadComponent implements OnChanges {
 
   onUnlinkIssue(link: IssueMessageLink, event: Event): void {
     event.stopPropagation();
-    this.unlinkIssueFromMessage.emit(link);
-    this.closeIssuePopover();
+    this.messagingService.unlinkIssueFromMessage(link.id).subscribe(evt => {
+      this.unlinkIssueFromMessage.emit(link);
+      this.closeIssuePopover();
+
+    })
   }
 
   progressClass(percent: number | null | undefined): string {

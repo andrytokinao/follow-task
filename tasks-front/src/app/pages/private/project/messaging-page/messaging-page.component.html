@@ -182,6 +182,7 @@
           [messages]="messages"
           [isGroup]="activeCanal.isGroup"
           (issuesLinked) = "reLoadMessageList(true)"
+          (unlinkIssueFromMessage) ="reLoadMessageList(true)"
           [issueLinksByMessage]="messageIssueLinks"
         ></app-message-thread>
       </div>
