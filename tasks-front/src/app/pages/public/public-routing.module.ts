@@ -14,8 +14,8 @@ const publicRoute: Routes = [
         path: '',
         children: [
           { path: '', component: HomeComponent , data:{state:'home'} },
-          { path: 'help', component: HelpComponent  },
-          { path: 'login', component: LoginComponent , data:{state:'login'}}
+          { path: 'help', component: HelpComponent , data:{title:'Aide'} },
+          { path: 'login', component: LoginComponent , data:{state:'login', title:'Connexion'}}
         ]
       }
     ]

@@ -1,9 +1,11 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {animate, style, transition, trigger} from "@angular/animations";
 import {ActivatedRoute, Router} from "@angular/router";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import {Subscription} from "rxjs";
 import {ConfigService} from "../../../../services/config.service";
 import {IssueService} from "../../../../services/issue.service";
+import {PageTitleService} from "../../../../services/page-title.service";
 import {CustomField, Issue, Project} from "../../../../type/issue";
 
 @Component({
@@ -29,7 +31,7 @@ import {CustomField, Issue, Project} from "../../../../type/issue";
     ]),
   ],
 })
-export class ShowMasterComponent implements OnInit{
+export class ShowMasterComponent implements OnInit, OnDestroy {
   tabs = ['Commentaire', 'Champ', 'Sous-tâche', 'Livraison'];
   activeTab = this.tabs[0];
 
@@ -46,11 +48,15 @@ export class ShowMasterComponent implements OnInit{
   selectTab(tab: string) {
     this.activeTab = tab;
   }
+  /** Abonnement du titre, tenu à part pour être libéré (voir ngOnDestroy). */
+  private titleSubscription?: Subscription;
+
   constructor(private router: Router,
               private modalService: NgbModal,
               private configService:ConfigService,
               protected issueService:IssueService,
-              private route: ActivatedRoute
+              private route: ActivatedRoute,
+              private pageTitle: PageTitleService
   ) {
   }
   addSubtask() {
@@ -71,6 +77,18 @@ export class ShowMasterComponent implements OnInit{
       this.customFields = customFields;
 
     })
+
+    // Titre de l'onglet : « PRJ-12 · Refaire le métré · Paikady ».
+    // Abonnement distinct de celui ci-dessus, et explicitement libéré : les
+    // autres abonnements de ce composant ne le sont pas, et un titre qui
+    // survivrait à la navigation écraserait celui de la page suivante.
+    this.titleSubscription = this.issueService.issueMaster$.subscribe(issue => {
+      this.pageTitle.set(issue?.issueKey?.toString(), issue?.summary?.toString());
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.titleSubscription?.unsubscribe();
   }
   /**
    * TODO :

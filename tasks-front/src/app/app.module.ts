@@ -7,7 +7,8 @@ import { BrowserAnimationsModule, provideAnimations } from '@angular/platform-br
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { FormsModule } from '@angular/forms';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
-import { provideRouter } from "@angular/router";
+import { provideRouter, TitleStrategy } from "@angular/router";
+import { AppTitleStrategy } from "./services/app-title.strategy";
 
 import { CookieService } from "ngx-cookie-service";
 import { HttpInterceptorService } from "./services/http.service";
@@ -84,6 +85,9 @@ import {OverlayModule} from "@angular/cdk/overlay";
     provideAnimations(),
     provideNativeDateAdapter(),
     provideRouter(appRoutes),
+    // Déclaré après les imports : ce provider remplace le DefaultTitleStrategy
+    // fourni par RouterModule.forRoot().
+    { provide: TitleStrategy, useClass: AppTitleStrategy },
   ],
 })
 export class AppModule { }
