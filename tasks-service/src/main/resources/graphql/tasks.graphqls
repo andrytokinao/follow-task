@@ -85,7 +85,16 @@ type IssueMembership {
     unassignedAt:String
     unassignedBy:UserApp
 }
-
+input IssueMembershipInput {
+    id:Int
+    issue:IssueInput
+    user:UserAppInput
+    role:String
+    assignedAt:String
+    assignedBy:UserAppInput
+    unassignedAt:String
+    unassignedBy:UserAppInput
+}
 type IssueLabels {
     id:Int
     issue:Issue
@@ -293,6 +302,7 @@ input  IssueInput {
     project:ProjectInput
     labels:[IssueLabelsInput]
     observerIds:[String]
+    activeMemberships:[IssueMembershipInput]
     children:[IssueInput]
 }
 
