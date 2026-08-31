@@ -133,6 +133,7 @@ extend type Mutation {
   revokeCanalAccess(canalId: ID!, userId: String!): Boolean!
 
   linkIssueToMessage(issueId: Int!, externalMessageId: String!): IssueMessageLink!
+  linkIssuesToMessages(issueIds: [Int!], externalMessageIds: [String!]): [IssueMessageLink!]
   unlinkIssueFromMessage(linkId: ID!): Boolean!
   linkIssueToCanal(issueId: Int!, canalExternalId: String!): IssueCanalLink!
   unlinkIssueFromCanal(linkId: ID!): Boolean!

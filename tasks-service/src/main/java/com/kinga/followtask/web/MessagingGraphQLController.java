@@ -104,6 +104,11 @@ public class MessagingGraphQLController {
        return readService.linkIssueToMessage(issueId,externalMessageId,user);
     }
     @MutationMapping
+    public List<IssueMessageLink> linkIssuesToMessages(@Argument List<Long> issueIds, @Argument List<String> externalMessageIds){
+        UserApp user = currentUserProvider.getCurrentUser();
+       return readService.linkIssuesToMessages(issueIds,externalMessageIds,user);
+    }
+    @MutationMapping
     public Boolean unlinkIssueFromMessage(@Argument Long linkId){
         UserApp user = currentUserProvider.getCurrentUser();
         return readService.unlinkIssueFromMessage(linkId,user);

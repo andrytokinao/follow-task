@@ -39,7 +39,7 @@ export class MessageThreadComponent implements OnChanges {
   // La liaison elle-même est faite ici via MessagingService (plus de dialogue
   // externe) ; on informe simplement le parent que ça vient de se produire,
   // au cas où il doive rafraîchir un compteur, une liste, etc.
-  @Output() issuesLinked = new EventEmitter<{ messages: MessageApp[]; issue: Issue }>();
+  @Output() issuesLinked = new EventEmitter<{ messages: MessageApp[]; issues: Issue[] }>();
   @Output() unlinkIssueFromMessage = new EventEmitter<IssueMessageLink>();
 
   // Relaie la demande de création de sous-issue au parent, qui gère le
@@ -257,7 +257,7 @@ export class MessageThreadComponent implements OnChanges {
   // Appelé quand une ou plusieurs issues sont validées via "Créer" dans le
   // picker rattaché à un message précis (mode normal, hors sélection).
   onIssuesPickedForSingle(msg: MessageApp, issues: Issue[]): void {
-    issues.forEach(issue => this.linkIssue(issue, [msg]));
+     this.linkIssue(issues, [msg]);
   }
 
   // Appelé quand une ou plusieurs issues sont validées via "Créer" dans le
@@ -267,7 +267,7 @@ export class MessageThreadComponent implements OnChanges {
     const selected = this.dayGroups
       .flatMap(group => group.messages)
       .filter(msg => this.isSelected(msg));
-    issues.forEach(issue => this.linkIssue(issue, selected));
+    this.linkIssue(issues, selected)
     this.cancelSelection();
   }
 
@@ -275,11 +275,12 @@ export class MessageThreadComponent implements OnChanges {
     this.createSubIssueRequested.emit({ parent });
   }
 
-  private linkIssue(issue: Issue, messages: MessageApp[]): void {
-    // NOTE: adapter le nom/la signature à la méthode réelle de MessagingService.
-    /* this.messagingService.linkIssueToMessages(issue, messages).subscribe(() => {
-      this.issuesLinked.emit({ messages, issue });
-    }); */
+  private linkIssue(issues: Issue[], messages: MessageApp[]): void {
+    let issueIds:number[] = issues.map(issue => issue.id);
+    let externalMessageId:String[] = messages.map(message => message.externalMessageId);
+    this.messagingService.linkIssuesToMessages(issueIds, externalMessageId).subscribe(() => {
+      this.issuesLinked.emit({ messages, issues });
+    });
   }
 
   // ==================== Sélection multiple ====================

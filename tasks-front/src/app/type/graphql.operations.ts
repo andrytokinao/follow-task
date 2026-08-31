@@ -3427,6 +3427,41 @@ export const LINK_ISSUE_TO_MESSAGE = gql`
       }
     }
   }
+`;export const LINK_ISSUES_TO_MESSAGES = gql`
+  mutation linkIssuesToMessages($issueIds: [Int!], $externalMessageIds: [String!]) {
+    linkIssuesToMessages(issueIds: $issueIds, externalMessageIds: $externalMessageIds) {
+      id
+      linkedAt
+      issue {
+        id
+        issueKey
+        summary
+        status {
+          id
+          displayName
+          icone {
+            id
+            typeIcone
+            value
+          }
+        }
+        assigne {
+          id
+          username
+          photo
+        }
+      }
+      message {
+        externalMessageId
+        text
+      }
+      linkedBy {
+        id
+        username
+        photo
+      }
+    }
+  }
 `;
 
 export const UNLINK_ISSUE_FROM_MESSAGE = gql`

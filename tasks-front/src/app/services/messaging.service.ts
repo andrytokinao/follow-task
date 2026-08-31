@@ -19,6 +19,7 @@ import {
   UNLINK_ISSUE_FROM_MESSAGE,
   LINK_ISSUE_TO_CANAL,
   UNLINK_ISSUE_FROM_CANAL, LIST_MESSAGES_ENTITY,
+  LINK_ISSUES_TO_MESSAGES
 } from '../type/graphql.operations';
 
 import {
@@ -33,7 +34,7 @@ import {
 } from '../models/messaging.model';
 
 import { CanallInterne, CanalWatcherInfo } from '../models/canal-watcher.model';
-import {MessageApp} from "../type/issue";
+import {Issue, MessageApp} from "../type/issue";
 
 @Injectable({ providedIn: 'root' })
 export class MessagingService {
@@ -173,5 +174,12 @@ export class MessagingService {
       mutation: UNLINK_ISSUE_FROM_CANAL,
       variables: { linkId },
     }).pipe(map(r => !!r.data?.unlinkIssueFromCanal));
+  }
+
+  linkIssuesToMessages(issueIds: number[], externalMessageIds: String[]) {
+    return this.apollo.mutate< {linkIssuesToMessages:IssueMessageLink[]}>({
+      mutation: LINK_ISSUES_TO_MESSAGES,
+      variables: { issueIds, externalMessageIds },
+    }).pipe(map(r => r.data!.linkIssuesToMessages));
   }
 }

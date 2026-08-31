@@ -10,9 +10,10 @@ import {
 import { CommonModule } from '@angular/common';
 import { MatMenu, MatMenuModule } from '@angular/material/menu';
 import { trigger, transition, style, animate } from '@angular/animations';
-import { Issue } from '../../type/issue';
+import {Issue, MessageApp} from '../../type/issue';
 import { CountUpAnimator } from '../../utils/count-up.animator';
 import { RenderedDirective } from './rendered.directive';
+import {MessagingService} from "../../services/messaging.service";
 
 // Arborescence d'issues affichée dans un seul mat-menu : dépliage inline
 // (comme un sous-dossier), sélection multiple par case à cocher sur
@@ -76,7 +77,7 @@ export class IssuePickerMenuComponent {
   // remis à zéro à la fermeture pour rejouer l'animation la fois suivante.
   private readonly counters: CountUpAnimator;
 
-  constructor(cdr: ChangeDetectorRef, zone: NgZone) {
+  constructor(cdr: ChangeDetectorRef, zone: NgZone,private messagingService:MessagingService) {
     this.counters = new CountUpAnimator(zone, cdr);
   }
 

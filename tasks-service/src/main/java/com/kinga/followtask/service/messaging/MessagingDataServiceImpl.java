@@ -8,6 +8,7 @@ import com.kinga.followtask.service.messaging.dto.MessageDto;
 import com.kinga.followtask.service.messaging.dto.MessageQueryDto;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,9 +16,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MessagingDataServiceImpl implements MessagingDataService {
@@ -151,5 +154,16 @@ public class MessagingDataServiceImpl implements MessagingDataService {
         link.get().setEndedAt(LocalDateTime.now());
         canalLinkRepository.save(link.get());
         return true;
+    }
+
+    @Override
+    public List<IssueMessageLink> linkIssuesToMessages(List<Long> issueIds, List<String> externalMessageIds, UserApp user) {
+        List<IssueMessageLink> messageLinks = new ArrayList<>();
+        for (Long issueId: issueIds) {
+            for (String externalId : externalMessageIds) {
+                messageLinks.add(linkIssueToMessage(issueId,externalId,user));
+            }
+        }
+        return messageLinks;
     }
 }
