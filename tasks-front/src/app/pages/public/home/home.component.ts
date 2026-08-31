@@ -26,42 +26,42 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
   }
 
   stats = [
-    {value: '6 vues', label: 'Kanban, liste, calendrier, Gantt, planning et rapports'},
-    {value: 'Temps réel', label: 'Messages et notifications sans rechargement'},
-    {value: 'Sur mesure', label: 'Statuts, champs et rôles propres à chaque projet'},
-    {value: 'Web & mobile', label: 'Le même espace de travail sur tous les écrans'},
+    {value: 'Temps réel', label: 'Agendas et avancement mis à jour en direct, sans rafraîchir'},
+    {value: 'WhatsApp', label: 'Le groupe du projet raccordé, ses messages convertis en missions'},
+    {value: 'Multi-espaces', label: 'Un espace de travail par département de votre société'},
+    {value: 'Accès client', label: 'Le donneur d\'ordre suit son projet en lecture seule'},
   ];
 
   features = [
     {
-      icon: 'fa-table-columns',
-      title: 'Tableau Kanban',
-      description: 'Faites glisser les tâches d\'une colonne à l\'autre et lisez l\'état du projet en un coup d\'œil.',
+      icon: 'fa-satellite-dish',
+      title: 'Qui fait quoi, en direct',
+      description: 'Les agendas de toute l\'équipe se mettent à jour en temps réel. Vous voyez qui est sur quoi à l\'instant même, sans réunion de point ni relance.',
     },
     {
-      icon: 'fa-chart-gantt',
-      title: 'Planning et Gantt',
-      description: 'Jalons, durées et dépendances sur une même frise, pour anticiper les retards avant qu\'ils arrivent.',
+      icon: 'fa-list-check',
+      title: 'Planning de journée et auto-évaluation',
+      description: 'Chacun planifie sa journée, puis rend compte lui-même : terminé, bloqué, reporté ou prolongé — avec le pourcentage d\'avancement et le motif.',
     },
     {
-      icon: 'fa-users-gear',
-      title: 'Répartition de charge',
-      description: 'Voyez qui est disponible, qui sature, et rééquilibrez le travail en quelques clics.',
+      icon: 'fa-wand-magic-sparkles',
+      title: 'Le message devient une mission',
+      description: 'Groupe WhatsApp raccordé ou canal interne : au lieu de laisser passer un message, transformez-le en mission assignée, datée et suivie.',
     },
     {
-      icon: 'fa-comments',
-      title: 'Messagerie intégrée',
-      description: 'Chaque échange reste rattaché à sa tâche : plus de décision perdue au fond d\'une boîte mail.',
+      icon: 'fa-user-tie',
+      title: 'Votre client suit son projet',
+      description: 'Quand le projet le justifie, ouvrez un accès en lecture au client. Il voit l\'avancement réel quand il veut, au lieu de vous appeler pour le demander.',
     },
     {
-      icon: 'fa-folder-open',
-      title: 'Documents centralisés',
-      description: 'Plans, devis et livrables partagés au bon endroit, avec l\'historique des versions.',
+      icon: 'fa-sitemap',
+      title: 'Un espace par département',
+      description: 'Créez autant d\'espaces de travail que de départements. Chacun garde ses projets, ses membres et ses règles, sous une même organisation.',
     },
     {
-      icon: 'fa-chart-pie',
-      title: 'Rapports et statistiques',
-      description: 'Temps passé, taux d\'avancement, écarts au planning : les chiffres se calculent tout seuls.',
+      icon: 'fa-clock-rotate-left',
+      title: 'Tout reste traçable',
+      description: 'Message d\'origine, document, décision, temps passé : chaque mission garde son historique complet et alimente les rapports toute seule.',
     },
   ];
 
@@ -100,16 +100,16 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
 
   steps = [
     {
-      title: 'Créez votre projet',
-      description: 'Nommez-le, définissez ses statuts et ses champs. Quelques minutes suffisent.',
+      title: 'Ouvrez votre espace',
+      description: 'Un espace de travail par département, et vos projets à l\'intérieur. Quelques minutes suffisent.',
     },
     {
-      title: 'Invitez votre équipe',
-      description: 'Attribuez les rôles, répartissez les tâches et fixez les échéances.',
+      title: 'Raccordez votre canal',
+      description: 'Branchez le groupe WhatsApp du projet, invitez l\'équipe, ouvrez l\'accès au client si besoin.',
     },
     {
-      title: 'Suivez l\'avancement',
-      description: 'Tableaux, plannings et rapports se mettent à jour au fil du travail réel.',
+      title: 'Transformez et suivez',
+      description: 'Les messages deviennent des missions ; agendas, avancement et rapports se mettent à jour tout seuls.',
     },
   ];
 

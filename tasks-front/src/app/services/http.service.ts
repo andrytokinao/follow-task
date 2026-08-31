@@ -98,7 +98,24 @@ export class HttpInterceptorService implements HttpInterceptor {
     return typeof error === 'string' && /<form[^>]*class=["']form-signin["']/.test(error);
   }
 
+  /** Routes servies par le module public : on y est chez soi sans session. */
+  private static readonly PUBLIC_ROUTES = ['/', '/login', '/help'];
+
+  private isOnPublicPage(): boolean {
+    const url = this.router.url.split('?')[0].split('#')[0];
+    return HttpInterceptorService.PUBLIC_ROUTES.includes(url);
+  }
+
   private handleSessionExpired(): void {
+    // Un visiteur de la page d'accueil n'a jamais eu de session : lui annoncer
+    // une expiration et le renvoyer vers /login serait faux. On coupe donc la
+    // redirection sur les pages publiques, pour qu'un appel de fond en 401 ne
+    // puisse pas rendre la vitrine inaccessible.
+    if (this.isOnPublicPage()) {
+      this.userSubject.next(null);
+      return;
+    }
+
     if (this.isNavigating) return;
     this.isNavigating = true;
 

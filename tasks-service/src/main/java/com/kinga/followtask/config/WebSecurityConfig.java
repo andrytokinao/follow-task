@@ -50,8 +50,11 @@ public class WebSecurityConfig {
                         .requestMatchers(new AntPathRequestMatcher("/ws/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/graphql")).authenticated()
                         .requestMatchers(new AntPathRequestMatcher("/api/init-user")).permitAll()
+                        // UpdateController est monté sur "/api/updates" (pluriel). La règle
+                        // au singulier ne correspondait à aucune route : la vérification de
+                        // version retombait sur "/api/**" et exigeait donc une session.
+                        .requestMatchers(new AntPathRequestMatcher("/api/updates/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/upload")).authenticated()
-                        .requestMatchers(new AntPathRequestMatcher("/api/update/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/messaging/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/update/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/**")).authenticated()

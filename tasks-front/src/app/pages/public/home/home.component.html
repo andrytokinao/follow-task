@@ -9,7 +9,7 @@
 
       <a class="brand" routerLink="/" (click)="closeMenu()">
         <span class="brand-mark"><i class="fas fa-check-double"></i></span>
-        <span class="brand-name">Follow Task</span>
+        <span class="brand-name">Paikady</span>
       </a>
 
       <nav class="site-nav" [class.open]="menuOpen">
@@ -58,17 +58,18 @@
 
         <div class="hero-copy">
           <span class="eyebrow">
-            <i class="fas fa-bolt"></i> Gestion de projet collaborative
+            <i class="fas fa-bolt"></i> Suivi d'équipe en temps réel
           </span>
 
           <h1 class="hero-title">
-            Pilotez vos projets,<br />
-            <span class="grad">suivez vos équipes.</span>
+            Vos conversations<br />
+            <span class="grad">deviennent des missions.</span>
           </h1>
 
           <p class="hero-lead">
-            Tâches, plannings, documents et échanges réunis dans un seul espace de
-            travail. Chacun sait quoi faire — vous savez où en est le projet.
+            Dans un groupe WhatsApp, les messages défilent et se perdent. Ici, chacun
+            devient une mission assignée, planifiée et suivie — et vous voyez en direct
+            qui fait quoi, où en est le projet, et ce qui bloque.
           </p>
 
           <div class="hero-cta">
@@ -82,9 +83,9 @@
           </div>
 
           <ul class="hero-proof">
-            <li><i class="fas fa-check"></i> Aucune installation côté poste</li>
-            <li><i class="fas fa-check"></i> Web &amp; mobile</li>
-            <li><i class="fas fa-check"></i> Vos données restent chez vous</li>
+            <li><i class="fas fa-check"></i> Agendas partagés en direct</li>
+            <li><i class="fas fa-check"></i> Groupe WhatsApp raccordé</li>
+            <li><i class="fas fa-check"></i> Suivi ouvert au client</li>
           </ul>
         </div>
 
@@ -96,7 +97,7 @@
               <span class="dot red"></span>
               <span class="dot amber"></span>
               <span class="dot green"></span>
-              <span class="mock-url">follow-task • Rénovation site pilote</span>
+              <span class="mock-url">paikady • Rénovation site pilote</span>
             </div>
 
             <div class="mock-body">
@@ -132,10 +133,10 @@
           </div>
 
           <div class="float-card float-msg">
-            <span class="fc-icon blue"><i class="fas fa-comment-dots"></i></span>
+            <span class="fc-icon green"><i class="fab fa-whatsapp"></i></span>
             <span class="fc-text">
-              <strong>Nouveau message</strong>
-              Sur « Livraison lot 3 »
+              <strong>Message → mission</strong>
+              Depuis le groupe « Lot 3 »
             </span>
           </div>
         </div>
@@ -163,10 +164,11 @@
 
         <header class="section-head reveal">
           <span class="eyebrow dark"><i class="fas fa-layer-group"></i> Fonctionnalités</span>
-          <h2 class="section-title">Tout le projet, au même endroit</h2>
+          <h2 class="section-title">Ce qui change vraiment</h2>
           <p class="section-lead">
-            Fini les tableurs éparpillés et les décisions perdues dans les mails.
-            Chaque information vit à côté de la tâche qu'elle concerne.
+            Un outil de tâches de plus ne sert à rien. Paikady relie la
+            conversation, l'agenda et le travail réel — pour que rien ne se perde
+            entre les deux.
           </p>
         </header>
 
@@ -179,6 +181,106 @@
           </article>
         </div>
 
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         Du message à la mission — la démonstration du différenciateur
+         =================================================================== -->
+    <section id="conversion" class="flow">
+      <div class="shell">
+
+        <header class="section-head reveal">
+          <span class="eyebrow dark"><i class="fas fa-arrow-right-arrow-left"></i> Conversion</span>
+          <h2 class="section-title">Du message à la mission, en un geste</h2>
+          <p class="section-lead">
+            Raccordez le groupe WhatsApp du projet. Les messages arrivent dans le
+            canal, et celui qui compte devient une mission — sans ressaisie, et sans
+            perdre le fil d'origine.
+          </p>
+        </header>
+
+        <div class="flow-demo reveal">
+
+          <!-- Avant : le canal -->
+          <article class="flow-panel">
+            <header class="flow-head">
+              <span class="chan-badge wa"><i class="fab fa-whatsapp"></i></span>
+              <span class="flow-head-text">
+                <strong>Chantier — Lot 3</strong>
+                Groupe raccordé · 14 membres
+              </span>
+            </header>
+
+            <ul class="chat-list">
+              <li class="bubble">
+                <span class="bubble-author">Hery</span>
+                Les fournitures sont arrivées ce matin.
+              </li>
+              <li class="bubble focus">
+                <span class="bubble-author">Client</span>
+                Il faut refaire le métré de la façade avant vendredi.
+                <span class="bubble-pin"><i class="fas fa-thumbtack"></i></span>
+              </li>
+              <li class="bubble">
+                <span class="bubble-author">Naina</span>
+                Ok, je regarde ça.
+              </li>
+            </ul>
+
+            <p class="flow-note flow-note-bad">
+              <i class="fas fa-circle-xmark"></i>
+              Ailleurs : le message descend, personne n'est nommé, l'échéance s'oublie.
+            </p>
+          </article>
+
+          <div class="flow-arrow" aria-hidden="true">
+            <span class="flow-arrow-line"></span>
+            <span class="flow-arrow-chip"><i class="fas fa-wand-magic-sparkles"></i> Transformer</span>
+            <span class="flow-arrow-line"></span>
+          </div>
+
+          <!-- Après : la mission -->
+          <article class="flow-panel">
+            <header class="flow-head">
+              <span class="chan-badge task"><i class="fas fa-flag"></i></span>
+              <span class="flow-head-text">
+                <strong>Mission créée</strong>
+                Projet · Chantier Lot 3
+              </span>
+            </header>
+
+            <div class="mission-card">
+              <span class="mission-title">Refaire le métré de la façade</span>
+
+              <ul class="mission-meta">
+                <li><i class="fas fa-user-check"></i> Assignée à <b>Naina</b></li>
+                <li><i class="fas fa-calendar-day"></i> Échéance <b>vendredi 17 h</b></li>
+                <li><i class="fas fa-link"></i> Liée au message d'origine</li>
+                <li><i class="fas fa-eye"></i> Visible par le client</li>
+              </ul>
+
+              <div class="mission-progress">
+                <span class="mission-progress-label">
+                  <span>Auto-évaluation</span>
+                  <span>40 %</span>
+                </span>
+                <span class="mission-progress-bar"><i></i></span>
+              </div>
+
+              <div class="mission-chips">
+                <span class="chip in-progress"><i class="fas fa-spinner"></i> En cours</span>
+                <span class="chip"><i class="fas fa-clock"></i> 2 h 30 passées</span>
+              </div>
+            </div>
+
+            <p class="flow-note flow-note-good">
+              <i class="fas fa-circle-check"></i>
+              Ici : quelqu'un est responsable, la date est posée, l'avancement remonte seul.
+            </p>
+          </article>
+
+        </div>
       </div>
     </section>
 
@@ -269,7 +371,7 @@
       <div class="footer-brand">
         <a class="brand" routerLink="/">
           <span class="brand-mark"><i class="fas fa-check-double"></i></span>
-          <span class="brand-name">Follow Task</span>
+          <span class="brand-name">Paikady</span>
         </a>
         <p class="footer-pitch">
           Planification, avancement et échanges réunis dans un seul espace de travail.
@@ -293,7 +395,7 @@
     </div>
 
     <div class="shell footer-bottom">
-      <span>© {{ year }} Follow Task. Tous droits réservés.</span>
+      <span>© {{ year }} Paikady. Tous droits réservés.</span>
       <button type="button" class="to-top" (click)="scrollToTop()">
         Haut de page <i class="fas fa-arrow-up"></i>
       </button>
