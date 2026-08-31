@@ -1,5 +1,6 @@
+/* min-height plutôt que height : la page d'accueil publique dépasse
+   largement un écran et serait tronquée par une hauteur fixe. */
 .public{
   width: 100%;
-  height: 100vh;
-  padding: -200px;
+  min-height: 100vh;
 }

@@ -1,84 +1,303 @@
-<div class="hero">
-  <div class="hero-content">
-    <h1 class="hero-title">
-      Bienvenue sur <span class="highlight">Votre Plateforme</span>
-    </h1>
-    <p class="hero-subtitle">
-      Organisez, attribuez et suivez les tâches de votre équipe de manière efficace et collaborative.<span class="wave">👋</span>
-    </p>
-    <button mat-raised-button color="primary" (click)="start()">Commencez</button>
-  </div>
-  <canvas id="background-animation"></canvas>
-</div>
-<!-- Bouton principal -->
-<button mat-button [matMenuTriggerFor]="menuPrincipal">Ouvrir le formulaire</button>
+<div class="landing">
 
-<mat-menu #menuPrincipal="matMenu" [hasBackdrop]="true">
-  <div class="menu-form" (click)="$event.stopPropagation()">
-    <form #form="ngForm">
-      <mat-form-field appearance="fill">
-        <mat-label>Nom</mat-label>
-        <input matInput name="nom" ngModel>
-      </mat-form-field>
+  <!-- =====================================================================
+       En-tête : transparent sur le héros, puis fond opaque au défilement
+       (classe .scrolled posée par le composant).
+       ===================================================================== -->
+  <header class="site-header" [class.scrolled]="scrolled" [class.menu-open]="menuOpen">
+    <div class="shell header-inner">
 
-      <!-- Sous-menu -->
+      <a class="brand" routerLink="/" (click)="closeMenu()">
+        <span class="brand-mark"><i class="fas fa-check-double"></i></span>
+        <span class="brand-name">Follow Task</span>
+      </a>
+
+      <nav class="site-nav" [class.open]="menuOpen">
+        <a href="#fonctionnalites" (click)="goTo($event, 'fonctionnalites')">Fonctionnalités</a>
+        <a href="#metiers" (click)="goTo($event, 'metiers')">Métiers</a>
+        <a href="#demarrer" (click)="goTo($event, 'demarrer')">Comment ça marche</a>
+        <a routerLink="/help" (click)="closeMenu()">Aide</a>
+
+        <!-- Repris dans le tiroir mobile : les actions de droite y sont masquées. -->
+        <div class="nav-actions-mobile">
+          <button type="button" class="btn btn-ghost" (click)="start()">Se connecter</button>
+          <button type="button" class="btn btn-primary" (click)="start()">Commencer</button>
+        </div>
+      </nav>
+
+      <div class="header-actions">
+        <button type="button" class="btn btn-ghost" (click)="start()">Se connecter</button>
+        <button type="button" class="btn btn-primary" (click)="start()">
+          Commencer <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+
       <button
-        mat-button
-        [matMenuTriggerFor]="sousMenu"
-        #subMenuTrigger="matMenuTrigger"
-        (click)="$event.stopPropagation()"
+        type="button"
+        class="burger"
+        [attr.aria-expanded]="menuOpen"
+        aria-label="Ouvrir le menu"
+        (click)="toggleMenu()"
       >
-        Choisir une option : {{ selectedValue || 'Aucune' }}
+        <i class="fas" [ngClass]="menuOpen ? 'fa-xmark' : 'fa-bars'"></i>
       </button>
 
-      <mat-menu #sousMenu="matMenu" [hasBackdrop]="false">
-        <div class="sub-options" (click)="$event.stopPropagation()">
-          <button mat-button (click)="select('Option 1', subMenuTrigger)">Option 1</button>
-          <button mat-button (click)="select('Option 2', subMenuTrigger)">Option 2</button>
-          <button mat-button (click)="select('Option 3', subMenuTrigger)">Option 3</button>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ===================================================================
+         Héros
+         =================================================================== -->
+    <section class="hero">
+      <div class="hero-glow" aria-hidden="true"></div>
+      <div class="hero-grid-bg" aria-hidden="true"></div>
+
+      <div class="shell hero-inner">
+
+        <div class="hero-copy">
+          <span class="eyebrow">
+            <i class="fas fa-bolt"></i> Gestion de projet collaborative
+          </span>
+
+          <h1 class="hero-title">
+            Pilotez vos projets,<br />
+            <span class="grad">suivez vos équipes.</span>
+          </h1>
+
+          <p class="hero-lead">
+            Tâches, plannings, documents et échanges réunis dans un seul espace de
+            travail. Chacun sait quoi faire — vous savez où en est le projet.
+          </p>
+
+          <div class="hero-cta">
+            <button type="button" class="btn btn-primary btn-lg" (click)="start()">
+              Démarrer maintenant <i class="fas fa-arrow-right"></i>
+            </button>
+            <a class="btn btn-outline btn-lg" href="#fonctionnalites"
+               (click)="goTo($event, 'fonctionnalites')">
+              <i class="fas fa-circle-play"></i> Découvrir l'outil
+            </a>
+          </div>
+
+          <ul class="hero-proof">
+            <li><i class="fas fa-check"></i> Aucune installation côté poste</li>
+            <li><i class="fas fa-check"></i> Web &amp; mobile</li>
+            <li><i class="fas fa-check"></i> Vos données restent chez vous</li>
+          </ul>
         </div>
-      </mat-menu>
 
-      <div class="actions">
-        <button mat-raised-button color="primary" (click)="save(form)">Save</button>
+        <!-- Aperçu de l'application, entièrement en HTML/CSS : pas de capture
+             d'écran à re-générer à chaque évolution de l'interface. -->
+        <div class="hero-visual" aria-hidden="true">
+          <div class="mock">
+            <div class="mock-bar">
+              <span class="dot red"></span>
+              <span class="dot amber"></span>
+              <span class="dot green"></span>
+              <span class="mock-url">follow-task • Rénovation site pilote</span>
+            </div>
+
+            <div class="mock-body">
+              <div class="mock-col" *ngFor="let col of mockBoard">
+                <div class="mock-col-head">
+                  <span class="mock-col-title">{{ col.title }}</span>
+                  <span class="mock-count">{{ col.cards.length }}</span>
+                </div>
+
+                <div class="mock-card" *ngFor="let card of col.cards" [style.--accent]="col.color">
+                  <span class="mock-tag">{{ card.tag }}</span>
+                  <span class="mock-line w-90"></span>
+                  <span class="mock-line w-60"></span>
+                  <div class="mock-foot">
+                    <span class="mock-avatars">
+                      <i class="av" *ngFor="let a of card.avatars" [style.background]="a"></i>
+                    </span>
+                    <span class="mock-progress"><i [style.width.%]="card.progress"></i></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cartes flottantes : donnent du relief et illustrent deux
+               fonctions clés sans surcharger la maquette. -->
+          <div class="float-card float-stat">
+            <span class="fc-icon ok"><i class="fas fa-arrow-trend-up"></i></span>
+            <span class="fc-text">
+              <strong>+18 %</strong>
+              Avancement cette semaine
+            </span>
+          </div>
+
+          <div class="float-card float-msg">
+            <span class="fc-icon blue"><i class="fas fa-comment-dots"></i></span>
+            <span class="fc-text">
+              <strong>Nouveau message</strong>
+              Sur « Livraison lot 3 »
+            </span>
+          </div>
+        </div>
+
       </div>
-    </form>
-  </div>
-</mat-menu>
+    </section>
 
-
-
-<section id="features" class="features">
-  <h2 class="section-title">Avantage </h2>
-  <div class="features-grid">
-    <mat-card class="feature" *ngFor="let feature of features">
-      <mat-icon class="feature-icon">{{ feature.icon }}</mat-icon>
-      <h3>{{ feature.title }}</h3>
-      <p>{{ feature.description }}</p>
-    </mat-card>
-  </div>
-  <button type="button" class="btn btn-primary"
-          [ngbPopover]="formTemplate"
-          popoverTitle="Formulaire"
-          triggers="click:click"
-          placement="auto">
-    Ouvrire
-  </button>
-
-  <ng-template #formTemplate>
-    <form (ngSubmit)="onSubmit()" #f="ngForm" style="width: 200px;">
-      <div class="mb-2">
-        <label>Nom :</label>
-        <input name="nom" ngModel class="form-control">
+    <!-- ===================================================================
+         Bandeau de repères
+         =================================================================== -->
+    <section class="stats reveal">
+      <div class="shell stats-grid">
+        <div class="stat" *ngFor="let s of stats">
+          <span class="stat-value">{{ s.value }}</span>
+          <span class="stat-label">{{ s.label }}</span>
+        </div>
       </div>
-      <div class="mb-2">
-        <label>Email :</label>
-        <input name="email" ngModel type="email" class="form-control">
+    </section>
+
+    <!-- ===================================================================
+         Fonctionnalités
+         =================================================================== -->
+    <section id="fonctionnalites" class="features">
+      <div class="shell">
+
+        <header class="section-head reveal">
+          <span class="eyebrow dark"><i class="fas fa-layer-group"></i> Fonctionnalités</span>
+          <h2 class="section-title">Tout le projet, au même endroit</h2>
+          <p class="section-lead">
+            Fini les tableurs éparpillés et les décisions perdues dans les mails.
+            Chaque information vit à côté de la tâche qu'elle concerne.
+          </p>
+        </header>
+
+        <div class="features-grid">
+          <article class="feature-card reveal" *ngFor="let f of features; let i = index"
+                   [style.--delay]="i * 60 + 'ms'">
+            <span class="feature-icon"><i class="fas" [ngClass]="f.icon"></i></span>
+            <h3 class="feature-title">{{ f.title }}</h3>
+            <p class="feature-text">{{ f.description }}</p>
+          </article>
+        </div>
+
       </div>
-      <button class="btn btn-success w-100" type="submit">Envoyer</button>
-    </form>
-  </ng-template>
+    </section>
 
+    <!-- ===================================================================
+         Métiers
+         =================================================================== -->
+    <section id="metiers" class="sectors">
+      <div class="shell">
 
-</section>
+        <header class="section-head reveal">
+          <span class="eyebrow dark"><i class="fas fa-briefcase"></i> Métiers</span>
+          <h2 class="section-title">Conçu pour votre façon de travailler</h2>
+          <p class="section-lead">
+            Statuts, champs et vues se configurent projet par projet — l'outil
+            s'aligne sur votre métier, pas l'inverse.
+          </p>
+        </header>
 
+        <div class="sectors-grid">
+          <article class="sector-card reveal" *ngFor="let s of sectors; let i = index"
+                   [style.--delay]="i * 60 + 'ms'">
+            <img class="sector-img" [src]="s.image" [alt]="s.title" loading="lazy" />
+            <div class="sector-veil"></div>
+            <div class="sector-body">
+              <h3 class="sector-title">{{ s.title }}</h3>
+              <p class="sector-text">{{ s.description }}</p>
+            </div>
+          </article>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         Mise en route
+         =================================================================== -->
+    <section id="demarrer" class="steps">
+      <div class="shell">
+
+        <header class="section-head reveal">
+          <span class="eyebrow dark"><i class="fas fa-flag-checkered"></i> Mise en route</span>
+          <h2 class="section-title">Opérationnel en trois étapes</h2>
+          <p class="section-lead">
+            Pas de paramétrage interminable : votre premier projet tourne dans la foulée.
+          </p>
+        </header>
+
+        <ol class="steps-grid">
+          <li class="step reveal" *ngFor="let s of steps; let i = index"
+              [style.--delay]="i * 80 + 'ms'">
+            <span class="step-num">{{ i + 1 }}</span>
+            <h3 class="step-title">{{ s.title }}</h3>
+            <p class="step-text">{{ s.description }}</p>
+          </li>
+        </ol>
+
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         Appel à l'action
+         =================================================================== -->
+    <section class="cta-band reveal">
+      <div class="shell cta-inner">
+        <div class="cta-copy">
+          <h2 class="cta-title">Prêt à reprendre la main sur vos projets ?</h2>
+          <p class="cta-text">
+            Créez votre espace, invitez votre équipe et suivez l'avancement dès aujourd'hui.
+          </p>
+        </div>
+        <div class="cta-actions">
+          <button type="button" class="btn btn-light btn-lg" (click)="start()">
+            Créer mon espace <i class="fas fa-arrow-right"></i>
+          </button>
+          <a class="btn btn-ghost-light btn-lg" routerLink="/help">Poser une question</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =====================================================================
+       Pied de page
+       ===================================================================== -->
+  <footer class="site-footer">
+    <div class="shell footer-inner">
+
+      <div class="footer-brand">
+        <a class="brand" routerLink="/">
+          <span class="brand-mark"><i class="fas fa-check-double"></i></span>
+          <span class="brand-name">Follow Task</span>
+        </a>
+        <p class="footer-pitch">
+          Planification, avancement et échanges réunis dans un seul espace de travail.
+        </p>
+      </div>
+
+      <nav class="footer-links">
+        <span class="footer-title">Produit</span>
+        <a href="#fonctionnalites" (click)="goTo($event, 'fonctionnalites')">Fonctionnalités</a>
+        <a href="#metiers" (click)="goTo($event, 'metiers')">Métiers</a>
+        <a href="#demarrer" (click)="goTo($event, 'demarrer')">Mise en route</a>
+      </nav>
+
+      <nav class="footer-links">
+        <span class="footer-title">Accès</span>
+        <a routerLink="/login">Connexion</a>
+        <a routerLink="/login">Créer un compte</a>
+        <a routerLink="/help">Aide</a>
+      </nav>
+
+    </div>
+
+    <div class="shell footer-bottom">
+      <span>© {{ year }} Follow Task. Tous droits réservés.</span>
+      <button type="button" class="to-top" (click)="scrollToTop()">
+        Haut de page <i class="fas fa-arrow-up"></i>
+      </button>
+    </div>
+  </footer>
+
+</div>
