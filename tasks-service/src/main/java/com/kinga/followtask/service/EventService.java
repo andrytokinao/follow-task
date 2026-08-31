@@ -37,7 +37,9 @@ public class EventService {
   private static final LocalTime DAY_START = LocalTime.of(8, 0);
   private static final LocalTime DAY_END   = LocalTime.of(20, 0);
 
-  public PlanningEvent saveEvent(PlanningEvent event){
+  public PlanningEvent saveEvent(PlanningEvent event,UserApp user){
+    if (event.getId() == null)
+      event.setUser(user);
     if ("CUSTOM_FIELD".equalsIgnoreCase(event.getEventType().getName())) {
        CustomFieldValue value = event.getDateValue();
        if (value != null) {
@@ -161,7 +163,7 @@ public class EventService {
     event.setIssue(value.getIssue());
     event.setDateValue(dateValue);
 
-    return saveEvent(event);
+    return saveEvent(event,null);
 
   }
   public EventType eventTypeByName(String eventName) {

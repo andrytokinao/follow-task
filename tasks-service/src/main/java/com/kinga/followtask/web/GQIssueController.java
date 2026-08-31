@@ -1,5 +1,6 @@
 package com.kinga.followtask.web;
 
+import com.kinga.followtask.config.CurrentUserProvider;
 import com.kinga.followtask.dto.*;
 import com.kinga.followtask.entity.Uploaded;
 import com.kinga.followtask.entity.*;
@@ -40,6 +41,8 @@ public class GQIssueController {
     private final DocumentService documentService;
     private final PlanningEventProgressService progressService;
     private final IssueMembershipService issueMembershipService;
+    private final CurrentUserProvider currentUserProvider;
+
 
     @QueryMapping
     public List<Issue> allIssue(){
@@ -313,7 +316,8 @@ public class GQIssueController {
     }
     @MutationMapping
     public PlanningEvent saveEvent(@Argument PlanningEvent event){
-        return eventService.saveEvent(event);
+        UserApp user = currentUserProvider.getCurrentUser();
+        return eventService.saveEvent(event,user);
     }
     @MutationMapping
     public PlanningEvent deleteEvent(@Argument Long eventId){

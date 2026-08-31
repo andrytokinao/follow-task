@@ -98,6 +98,9 @@ export class EventsService {
       return colors;
   }
   saveEvent(event:EventApp){
+    event.user = {
+      id:event.user.id
+    };
     return new Observable<EventApp>(observer => {
       this.apollo.mutate({
         mutation:operation.SAVE_EVENT,

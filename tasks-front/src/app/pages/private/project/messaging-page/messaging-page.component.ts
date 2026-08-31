@@ -335,31 +335,34 @@ export class MessagingPageComponent implements OnInit, OnDestroy {
   // ---------------------------------------------------------------------
   // Colonne centrale : ouverture d'une conversation
   // ---------------------------------------------------------------------
-  async reLoadMessageList(isReload:boolean){
-    if (!isReload){
+  async reLoadMessageList(isReload: boolean) {
+    if (!isReload) {
       this.canalDetail = null;
       this.messagesError = null;
-    }
-    this.messages = [];
+      this.messages = [];
 
-    // Repli systématique des sections dépliables à chaque nouvelle conversation
-    this.showMembersList = false;
-    this.attachments = [];
-    this.attachmentsError = null;
-    this.showAttachmentsList = false;
+      // Repli systématique des sections dépliables, uniquement à l'ouverture
+      // d'une NOUVELLE conversation — pas lors d'un simple rafraîchissement.
+      this.showMembersList = false;
+      this.attachments = [];
+      this.attachmentsError = null;
+      this.showAttachmentsList = false;
+      this.showIssuesList = false;
+    }
 
     this.issueLinks = this.activeCanal.issueLinks ?? [];
-    this.showIssuesList = false;
     this.messageIssueLinks = new Map();
 
     try {
       const cached = await this.cache.getMessages(this.activeCanal.externalId);
-      // this.messages = cached;
-      this.loadingMessages = cached.length === 0;
+      // En reload, on garde les messages déjà affichés le temps que le
+      // réseau réponde, au lieu de repasser par un état "loading" qui
+      // vide visuellement le fil.
+      this.loadingMessages = !isReload && cached.length === 0;
       this.rebuildMessageIssueLinks();
     } catch (err) {
       console.error('Erreur lecture cache:', err);
-      this.loadingMessages = true;
+      this.loadingMessages = !isReload;
     }
 
     let since: string | undefined;
@@ -371,14 +374,7 @@ export class MessagingPageComponent implements OnInit, OnDestroy {
 
     this.messaging.listMessagesEntity(this.activeCanal.typeCanal, this.activeCanal.externalId, { since }).subscribe({
       next: async (fresh) => {
-        try {
-          //  await this.cache.saveMessages(fresh);
-          // this.messages = await this.cache.getMessages(canal.externalId);
-          this.messages = fresh ;
-        } catch (err) {
-          console.error('Erreur écriture cache:', err);
-          this.messages = fresh;
-        }
+        this.messages = fresh;
         this.loadingMessages = false;
         this.activeCanal.unreadCount = 0;
         this.rebuildMessageIssueLinks();
@@ -390,12 +386,17 @@ export class MessagingPageComponent implements OnInit, OnDestroy {
       },
     });
 
-    this.loadCanalDetail(this.activeCanal.externalId);
+    // Le détail du canal (membres, description...) ne change pas quand on
+    // ne fait que rafraîchir les messages d'une conversation déjà ouverte.
+    if (!isReload) {
+      this.loadCanalDetail(this.activeCanal.externalId);
+    }
   }
   async openConversation(canal: CanalDto): Promise<void> {
+    const isReload = this.activeCanal?.externalId === canal.externalId;
     this.activeCanal = canal;
 
-    await this.reLoadMessageList(this.activeCanal  && this.activeCanal.externalId === canal.externalId);
+    await this.reLoadMessageList(isReload);
   }
 
   loadCanalDetail(externalId: string): void {
