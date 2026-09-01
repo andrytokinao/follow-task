@@ -25,6 +25,7 @@ import {MessagesService} from "../../../services/messages.service";
 import {filter} from "rxjs";
 import {ProfileComponent} from "../profile/profile.component";
 import {AuthService} from "../../../services/auth.service";
+import {LayoutService} from "../../../services/layout.service";
 
 @Component({
   selector: 'app-project',
@@ -92,7 +93,8 @@ export class ProjectComponent implements OnInit{
     protected projectGuard:ProjectGuard,
     private breadcrumb:ProjectBreadcrumbResolverService,
     private messagesService:MessagesService,
-    protected authService: AuthService
+    protected authService: AuthService,
+    protected layout: LayoutService
   ) {
   }
 
@@ -132,6 +134,13 @@ export class ProjectComponent implements OnInit{
   }
 
   ngOnInit(): void {
+
+    // Le repli vient du service : la fleche de la sidebar et le bouton du
+    // calendrier pilotent le meme etat, et la preference est restauree au
+    // chargement.
+    this.layout.sidebarReduite$.subscribe(reduite => {
+      this.sidebarCollapsed = reduite;
+    });
 
     this.issueService.loadedWorkspace$.subscribe(value => {
       this.isworkspace = value.valueOf();

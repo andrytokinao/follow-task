@@ -1,4 +1,4 @@
-import {Component, ViewChild, AfterViewInit, Input} from "@angular/core";
+import {Component, ViewChild, AfterViewInit, Input, OnDestroy} from "@angular/core";
 import {
   DayPilot,
   DayPilotCalendarComponent,
@@ -22,6 +22,7 @@ import {ProjectGuard} from "../../../../../services/ProjectGuard";
 import {Format} from "@angular-devkit/build-angular/src/builders/extract-i18n/schema";
 import {EditEventComponent} from "../../../../../common/edit-event/edit-event.component";
 import {MatMenuTrigger} from "@angular/material/menu";
+import {LayoutService} from "../../../../../services/layout.service";
 
 @Component({
   standalone:false,
@@ -29,7 +30,7 @@ import {MatMenuTrigger} from "@angular/material/menu";
   templateUrl:'planning-calendar.component.html',
   styleUrl:'planning-calendar.component.css'
 })
-export class PlanningCalendarComponent implements AfterViewInit {
+export class PlanningCalendarComponent implements AfterViewInit, OnDestroy {
   @ViewChild("day") day!: DayPilotCalendarComponent;
   @ViewChild("week") week!: DayPilotCalendarComponent;
   @ViewChild("month") month!: DayPilotMonthComponent;
@@ -182,6 +183,7 @@ export class PlanningCalendarComponent implements AfterViewInit {
     this.configWeek.startDate = date;
     this.configMonth.startDate = date;
     this.configResource.startDate = date;
+    this.closeAsideOnMobile();
   }
 
   // Locale française fournie en standard par DayPilot : noms de jours/mois en
@@ -333,11 +335,22 @@ export class PlanningCalendarComponent implements AfterViewInit {
     private issueService:IssueService,
     private userService:UserService,
     protected authGuard:AuthGuard,
-    protected projectGuard:ProjectGuard
+    protected projectGuard:ProjectGuard,
+    protected layout:LayoutService
 ) {
+    // Dans le constructeur et non dans ngAfterViewInit : le gabarit lit
+    // `isMobile` dès la première passe de détection de changements, le
+    // renseigner plus tard déclencherait un ExpressionChangedAfterItHasBeenChecked.
+    this.mobileQuery = window.matchMedia(PlanningCalendarComponent.MOBILE_QUERY);
+    this.isMobile = this.mobileQuery.matches;
+    this.mobileQuery.addEventListener('change', this.onViewportChange);
 /*
     this.viewWeek();
 */
+  }
+
+  ngOnDestroy(): void {
+    this.mobileQuery?.removeEventListener('change', this.onViewportChange);
   }
 
   ngAfterViewInit(): void {
@@ -590,6 +603,71 @@ export class PlanningCalendarComponent implements AfterViewInit {
     this.configNavigator.cellHeight = zoom.navCell;
     this.configNavigator.titleHeight = zoom.navTitleHeight;
     this.configNavigator.dayHeaderHeight = zoom.navDayHeaderHeight;
+  }
+
+  // ---------------------------------------------------------------------
+  // Panneau latéral (mini-calendrier)
+  // ---------------------------------------------------------------------
+
+  private static readonly ASIDE_KEY = 'planning-aside-ouvert';
+  // Même seuil que le reste de la feuille de style de la page.
+  private static readonly MOBILE_QUERY = '(max-width: 900px)';
+
+  isMobile = false;
+  private mobileQuery: MediaQueryList;
+
+  // Deux états séparés plutôt qu'un booléen unique : sur mobile le panneau est
+  // une surcouche qui masque le calendrier, la rouvrir automatiquement au
+  // chargement parce que l'utilisateur l'avait laissée ouverte sur son écran
+  // large serait une gêne.
+  private asideOpenDesktop =
+    localStorage.getItem(PlanningCalendarComponent.ASIDE_KEY) !== 'false';
+  private asideOpenMobile = false;
+
+  private onViewportChange = (event: MediaQueryListEvent): void => {
+    this.isMobile = event.matches;
+    // Le repli mobile est transitoire : en repassant sur grand écran on ne
+    // veut pas qu'il déteigne sur la préférence bureau.
+    if (!event.matches) {
+      this.asideOpenMobile = false;
+    }
+  };
+
+  get asideOpen(): boolean {
+    return this.isMobile ? this.asideOpenMobile : this.asideOpenDesktop;
+  }
+
+  toggleAside(): void {
+    if (this.isMobile) {
+      this.asideOpenMobile = !this.asideOpenMobile;
+      return;
+    }
+    this.asideOpenDesktop = !this.asideOpenDesktop;
+    localStorage.setItem(
+      PlanningCalendarComponent.ASIDE_KEY,
+      String(this.asideOpenDesktop)
+    );
+    this.notifyResize();
+  }
+
+  // Sur mobile le panneau recouvre le calendrier : une fois la date choisie il
+  // n'a plus de raison de rester ouvert.
+  closeAsideOnMobile(): void {
+    if (this.isMobile) {
+      this.asideOpenMobile = false;
+    }
+  }
+
+  toggleWorkspaceSidebar(): void {
+    this.layout.basculerSidebar();
+    this.notifyResize();
+  }
+
+  // DayPilot calcule la largeur de ses tableaux au rendu et ne réagit qu'au
+  // redimensionnement de la fenêtre : sans ce signal, la grille garde la
+  // largeur d'avant le repli. Le délai laisse la transition CSS se terminer.
+  private notifyResize(): void {
+    setTimeout(() => window.dispatchEvent(new Event('resize')), 260);
   }
 
   // Initiales affichées dans la pastille du menu équipe.

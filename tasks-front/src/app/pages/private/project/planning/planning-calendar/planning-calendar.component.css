@@ -51,6 +51,42 @@
   background: var(--c-surface);
 }
 
+.toolbar-lead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* ---- Boutons carrés (repli des panneaux) ---- */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--c-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--c-surface);
+  color: var(--c-text-muted);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.icon-btn:hover {
+  background: var(--c-surface-muted);
+  border-color: var(--c-text-faint);
+  color: var(--c-text);
+}
+/* Etat "panneau ouvert" : le bouton reste allumé tant que le panneau est
+   visible, l'utilisateur sait ce qu'un second clic va refermer. */
+.icon-btn.active {
+  border-color: var(--c-primary);
+  background: var(--c-primary-bg);
+  color: var(--c-primary);
+}
+
 /* ---- Sélecteur de vue (contrôle segmenté) ---- */
 .view-switch {
   display: inline-flex;
@@ -202,10 +238,24 @@
    Corps : calendrier de saisie + vues
    ========================================================================= */
 .planning-body {
+  /* Pilote à la fois la colonne de la grille et la position de la poignée :
+     les deux doivent glisser ensemble pendant la transition. */
+  --aside-w: 232px;
+  --aside-rail: 24px;
+
+  position: relative;
   display: grid;
-  grid-template-columns: 232px minmax(0, 1fr);
+  grid-template-columns: var(--aside-w) minmax(0, 1fr);
   gap: 12px;
   align-items: start;
+  transition: grid-template-columns 0.22s ease;
+}
+
+/* Replié : comme le menu du projet, la colonne ne disparaît pas tout à fait,
+   elle se réduit à un rail qui ne porte plus que la poignée. Le calendrier
+   récupère les ~208 px libérés. */
+.planning-body.aside-collapsed {
+  --aside-w: var(--aside-rail);
 }
 
 .planning-aside {
@@ -213,6 +263,57 @@
   border: 1px solid var(--c-border);
   border-radius: var(--radius-md);
   background: var(--c-surface);
+  overflow: hidden;
+  transition: opacity 0.18s ease;
+}
+
+.planning-body.aside-collapsed .planning-aside {
+  padding: 0;
+  border-width: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ---- Poignée de repli ----
+   Même vocabulaire que la flèche de la barre latérale du projet : pastille
+   ronde posée sur le bord du panneau. Hors flux (absolute) pour ne pas
+   compter comme une troisième colonne de la grille. */
+.aside-handle {
+  position: absolute;
+  top: 10px;
+  left: calc(var(--aside-w) - 10px);
+  z-index: 12;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 1px solid var(--c-border);
+  border-radius: 50%;
+  background: var(--c-surface);
+  color: var(--c-text-muted);
+  font-size: 8px;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  transition: left 0.22s ease, background 0.15s ease, color 0.15s ease,
+    border-color 0.15s ease;
+}
+.aside-handle:hover {
+  background: var(--c-primary);
+  border-color: var(--c-primary);
+  color: #fff;
+}
+
+/* Centrée dans le rail une fois replié : elle reste la seule chose visible de
+   la colonne, elle ne doit pas mordre sur la grille du calendrier. */
+.planning-body.aside-collapsed .aside-handle {
+  left: 2px;
+}
+
+/* Voile mobile uniquement : sur grand écran le repli ne masque rien. */
+.aside-backdrop {
+  display: none;
 }
 
 /* min-width:0 : sans ça, la largeur intrinsèque des tableaux DayPilot fait
@@ -379,18 +480,78 @@
 /* =========================================================================
    Responsive
    ========================================================================= */
-@media (max-width: 900px) {
-  .planning-body {
-    grid-template-columns: 1fr;
+
+/* Une seule commande de repli par format : sur grand écran c'est la poignée
+   posée sur le bord du panneau, comme pour le menu du projet. */
+@media (min-width: 901px) {
+  .aside-toggle {
+    display: none;
   }
+}
+
+@media (max-width: 900px) {
+  /* Une seule colonne : le mini-calendrier ne peut plus être une colonne
+     voisine. Empilé, il mangeait la moitié de la hauteur utile avant même que
+     le calendrier commence — il devient donc une surcouche appelée à la
+     demande, refermée dès qu'une date est choisie. */
+  .planning-body,
+  .planning-body.aside-collapsed {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+
   .planning-aside {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 30;
     display: flex;
     justify-content: center;
+    width: max-content;
+    max-width: 92vw;
+    padding: 8px;
+    border-width: 1px;
+    opacity: 1;
+    box-shadow: 0 12px 28px rgba(16, 24, 40, 0.18);
+    transition: transform 0.22s ease, opacity 0.18s ease;
   }
+
+  .planning-body.aside-collapsed .planning-aside {
+    /* translate plutôt que display:none : le panneau glisse hors champ mais
+       reste mesurable par DayPilot. */
+    transform: translateX(-110%);
+    opacity: 0;
+    padding: 8px;
+    border-width: 1px;
+    pointer-events: none;
+  }
+
+  .aside-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 29;
+    background: rgba(17, 24, 39, 0.32);
+  }
+
+  /* Un rail vertical n'a pas de sens quand le panneau flotte au-dessus du
+     calendrier : c'est le bouton de la barre d'outils qui prend le relais. */
+  .aside-handle {
+    display: none;
+  }
+
   .view-btn span {
     display: none;
   }
   .view-btn {
     padding: 0 10px;
+  }
+}
+
+/* Sous le seuil mobile de l'application, le menu du projet est déjà remplacé
+   par le tiroir de la barre supérieure : le bouton de repli n'a plus d'objet. */
+@media (max-width: 768px) {
+  .workspace-toggle {
+    display: none;
   }
 }
