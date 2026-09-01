@@ -587,6 +587,34 @@ export class IssueService implements OnInit {
       .get<Repertoire>(url, {withCredentials: true},)
       .pipe(retry(1), catchError(this.handleError));
   }
+
+  /** Cree un sous dossier dans le dossier encode passe en parametre. */
+  createDossier(path: String, name: string): Observable<Repertoire> {
+    let params = new HttpParams().set('path', path.toString()).set('name', name);
+    return this.http.post<Repertoire>(environment.apiURL + "api/dossier", null, {
+      params,
+      withCredentials: true
+    });
+  }
+
+  /**
+   * Envoie un fichier dans le dossier encode. relativePath permet de recreer
+   * l'arborescence quand l'utilisateur depose un dossier complet.
+   */
+  uploadDansDossier(file: File, directory: String, relativePath?: string): Observable<HttpEvent<any>> {
+    const formData: FormData = new FormData();
+    formData.append('file', file);
+    let params = new HttpParams().set('directory', directory.toString());
+    if (relativePath) {
+      params = params.set('relativePath', relativePath);
+    }
+    const req = new HttpRequest('POST', environment.apiURL + "api/dossier/upload", formData, {
+      params,
+      reportProgress: true,
+      withCredentials: true
+    });
+    return this.http.request(req);
+  }
   handleError(error: any) {
     let errorMessage = '';
     if (error.error instanceof ErrorEvent) {

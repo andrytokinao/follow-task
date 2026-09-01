@@ -1,4 +1,102 @@
-<app-documents [typeDocument]="'SOURCE_FILE'" ></app-documents>
-<!--
-<app-document-uploader></app-document-uploader>
--->
+<ng-template #arbre let-noeud>
+  <div class="arbre-noeud">
+    <div class="arbre-titre" [class.actif]="noeud.absolutePath === courant?.absolutePath" (click)="ouvrir(noeud)">
+      <i class="fas" [ngClass]="estOuvert(noeud) ? 'fa-folder-open' : 'fa-folder'"></i>
+      <span>{{ noeud.fileName }}</span>
+    </div>
+    <div class="arbre-enfants" *ngIf="estOuvert(noeud)">
+      <ng-container *ngFor="let enfant of sousDossiers(noeud)">
+        <ng-container *ngTemplateOutlet="arbre; context: {$implicit: enfant}"></ng-container>
+      </ng-container>
+    </div>
+  </div>
+</ng-template>
+
+<div class="dossier-explorer">
+  <div class="explorer-entete">
+    <h3><i class="fas fa-folder-tree"></i> Dossiers sources</h3>
+    <span>
+      <button type="button" class="btn-plat" (click)="rafraichir()" [disabled]="chargement">
+        <i class="fas fa-sync"></i> Rafraichir
+      </button>
+    </span>
+  </div>
+
+  <div class="explorer-erreur" *ngIf="erreur">{{ erreur }}</div>
+  <div class="explorer-chargement" *ngIf="chargement">Chargement de l'arborescence...</div>
+  <div class="explorer-chargement" *ngIf="!chargement && !parentIssue?.id">
+    Aucune issue selectionnee : l'arborescence ne peut pas etre chargee.
+  </div>
+  <div class="explorer-chargement" *ngIf="!chargement && parentIssue?.id && !racine">
+    Aucune arborescence chargee pour {{ parentIssue?.issueKey }}.
+  </div>
+
+  <div class="explorer-corps">
+    <div class="explorer-arbre" *ngIf="racine">
+      <ng-container *ngTemplateOutlet="arbre; context: {$implicit: racine}"></ng-container>
+    </div>
+
+    <div class="explorer-contenu">
+      <div class="fil-ariane">
+        <span *ngFor="let noeud of chemin; let i = index">
+          <span class="fil-item" (click)="allerA(i)">{{ noeud.fileName }}</span>
+          <span class="fil-separateur" *ngIf="i < chemin.length - 1">/</span>
+        </span>
+      </div>
+
+      <div class="barre-actions">
+        <button type="button" class="btn-plat" [disabled]="!courant" (click)="creationDossier = !creationDossier">
+          <i class="fas fa-folder-plus"></i> Nouveau dossier
+        </button>
+        <button type="button" class="btn-plat" [disabled]="!courant" (click)="fileInput.click()">
+          <i class="fas fa-file-upload"></i> Ajouter des fichiers
+        </button>
+        <button type="button" class="btn-plat" [disabled]="!courant" (click)="dirInput.click()">
+          <i class="fas fa-folder-open"></i> Ajouter un dossier
+        </button>
+        <input type="file" multiple hidden #fileInput (change)="onFilesSelected($event)">
+        <input type="file" multiple hidden webkitdirectory #dirInput (change)="onFilesSelected($event)">
+      </div>
+
+      <div class="nouveau-dossier" *ngIf="creationDossier">
+        <input type="text" placeholder="Nom du dossier" [(ngModel)]="nomNouveauDossier"
+               [ngModelOptions]="{standalone: true}" (keyup.enter)="creerDossier()">
+        <button type="button" class="btn-plat" (click)="creerDossier()">Creer</button>
+        <button type="button" class="btn-plat" (click)="creationDossier = false; nomNouveauDossier = ''">Annuler</button>
+      </div>
+
+      <div class="zone-depot" [class.survol]="surZone"
+           (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
+        <p>Glissez-deposez des fichiers ou des dossiers ici</p>
+        <small>Destination : {{ courant?.fileName }}</small>
+      </div>
+
+      <div class="liste-attente" *ngIf="enAttente.length > 0">
+        <div class="ligne-attente" *ngFor="let item of enAttente; let i = index" [ngClass]="item.status">
+          <i class="fas fa-arrow-up-from-bracket"></i>
+          <span class="nom">{{ item.relativePath }}</span>
+          <span class="etat">{{ item.progression }}%</span>
+          <span class="retirer" (click)="retirer(i)"><i class="fas fa-times"></i></span>
+        </div>
+        <button type="button" class="btn-envoyer" (click)="envoyer()" [disabled]="!aEnvoyer">
+          Uploader ({{ enAttente.length }})
+        </button>
+      </div>
+
+      <div class="liste-contenu">
+        <div class="ligne-dossier" *ngFor="let dossier of sousDossiers(courant)" (click)="ouvrir(dossier)">
+          <i class="fas fa-folder"></i> <span>{{ dossier.fileName }}</span>
+        </div>
+        <div class="ligne-fichier" *ngFor="let fichier of fichiers(courant)">
+          <i [class]="getFileIconClass(fichier.fileName.toString())"></i>
+          <span>{{ fichier.fileName }}</span>
+          <a [href]="downloadUrl(fichier)" class="telecharger"><i class="fa fa-download"></i></a>
+        </div>
+        <div class="vide" *ngIf="courant && sousDossiers(courant).length === 0 && fichiers(courant).length === 0">
+          Ce dossier est vide.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

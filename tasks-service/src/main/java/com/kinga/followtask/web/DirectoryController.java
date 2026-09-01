@@ -4,6 +4,7 @@ import com.kinga.followtask.dto.Dossier;
 import com.kinga.followtask.dto.Fichier;
 import com.kinga.followtask.dto.Repertoire;
 import com.kinga.followtask.service.ActionService;
+import com.kinga.followtask.service.DirectoryService;
 import com.kinga.followtask.service.IssueService;
 import com.kinga.utils.KingaUtils;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -25,6 +27,7 @@ import java.util.List;
 public class DirectoryController {
     final IssueService issueService;
     private final ActionService actionService;
+    private final DirectoryService directoryService;
 
     @GetMapping(path = "/api/load-directory")
     @ResponseBody
@@ -70,5 +73,21 @@ public class DirectoryController {
     @GetMapping("/api/slide-next")
     public Fichier getSlideImage(@RequestParam String path, @RequestParam Integer numero, @RequestParam String action ) throws IOException {
        return  this.actionService.getSlideImage(path,numero,action);
+    }
+    @PostMapping(path = "/api/dossier")
+    @ResponseBody
+    public Dossier creerDossier(@RequestParam String path, @RequestParam String name) throws IOException {
+        return directoryService.creerDossier(path, name);
+    }
+    @PostMapping(path = "/api/dossier/upload")
+    @ResponseBody
+    public Repertoire uploadDansDossier(@RequestPart("file") MultipartFile file,
+                                        @RequestParam String directory,
+                                        @RequestParam(required = false) String relativePath) throws IOException {
+        return directoryService.uploadFichier(file, directory, relativePath);
+    }
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleIllegalArgument(IllegalArgumentException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
     }
 }
