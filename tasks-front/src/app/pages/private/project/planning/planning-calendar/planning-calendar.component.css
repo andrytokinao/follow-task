@@ -176,6 +176,137 @@
   color: var(--c-primary);
 }
 
+/* ---- Filtre équipe : pile d'avatars ----
+   Les visages se chevauchent légèrement (pile classique) : la rangée reste
+   compacte dans la barre, et le décalage se résorbe au survol pour dégager
+   celui qu'on vise. */
+.member-filter {
+  display: inline-flex;
+  align-items: center;
+  padding-left: 6px;
+}
+
+.avatar-chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  margin-left: -6px;
+  padding: 0;
+  border: 2px solid var(--c-surface);
+  border-radius: var(--radius-pill);
+  background: var(--c-surface-muted);
+  overflow: visible;
+  cursor: pointer;
+  /* Non sélectionné : atténué. Ce n'est pas un état désactivé, seulement un
+     contraste plus faible que les visages retenus. */
+  opacity: 0.55;
+  filter: grayscale(1);
+  transition: opacity 0.15s ease, filter 0.15s ease, transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+.avatar-chip:hover {
+  opacity: 1;
+  filter: none;
+  transform: translateY(-1px);
+  z-index: 3;
+}
+
+/* Sélectionné : couleur restituée et anneau primaire, lisible même à 26 px. */
+.avatar-chip.selected {
+  opacity: 1;
+  filter: none;
+  border-color: var(--c-primary);
+  box-shadow: 0 0 0 1px var(--c-primary);
+  z-index: 2;
+}
+
+.avatar-chip-img,
+.avatar-chip-initials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+
+.avatar-chip-initials {
+  background: #e0e7ff;
+  color: #4338ca;
+  font-family: inherit;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+}
+
+/* Pastille de débordement : même gabarit, sans photo. */
+.avatar-chip--more {
+  opacity: 1;
+  filter: none;
+  background: var(--c-surface-muted);
+  border-color: var(--c-border-strong);
+  color: var(--c-text-muted);
+  font-family: inherit;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+}
+.avatar-chip--more:hover {
+  color: var(--c-primary);
+  border-color: var(--c-primary);
+}
+
+/* ---- Infobulle du nom ---- */
+.chip-tip {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  z-index: 20;
+  transform: translateX(-50%) translateY(-2px);
+  padding: 3px 7px;
+  border-radius: var(--radius-sm);
+  background: #111827;
+  color: #fff;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s ease, transform 0.12s ease;
+}
+.avatar-chip:hover .chip-tip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.filter-reset {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-left: 6px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--c-text-faint);
+  font-size: 10px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.filter-reset:hover {
+  background: var(--c-surface-muted);
+  color: var(--c-text);
+}
+
+.member-filter-empty {
+  font-size: var(--fs-sm);
+  color: var(--c-text-faint);
+}
+
 /* ---- Zoom ---- */
 .zoom-control {
   display: inline-flex;
@@ -362,42 +493,25 @@
   text-decoration: underline;
 }
 
-.menu-list {
+/* Grille et non liste : le menu ne sert plus qu'au débordement, une grille de
+   visages y tient trois fois plus de monde à hauteur égale. */
+.menu-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
   max-height: 280px;
   overflow-y: auto;
-  padding: 4px;
+  /* Marge basse généreuse : la grille défile, donc elle écrête ce qui déborde.
+     Sans cette réserve, l'infobulle de la dernière rangée serait coupée. */
+  padding: 12px 12px 32px;
 }
 
-.member-row {
-  border-radius: var(--radius-sm);
-  transition: background 0.12s ease;
-}
-.member-row:hover {
-  background: var(--c-surface-muted);
-}
-.member-row.selected {
-  background: var(--c-primary-bg);
-}
-
-.member-avatar {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  margin-right: 8px;
-  border-radius: var(--radius-pill);
-  background: #e0e7ff;
-  color: #4338ca;
-  font-size: var(--fs-xs);
-  font-weight: 700;
-  vertical-align: middle;
-}
-
-.member-name {
-  font-size: var(--fs-base);
-  color: var(--c-text);
-  vertical-align: middle;
+/* Les avatars ne se chevauchent pas dans la grille : ici on a la place, et le
+   chevauchement gênerait la lecture d'une rangée sur plusieurs lignes. */
+.menu-grid .avatar-chip {
+  width: 32px;
+  height: 32px;
+  margin-left: 0;
 }
 
 .menu-empty {
@@ -451,30 +565,6 @@
 }
 :host ::ng-deep .planning-menu .mat-mdc-menu-content {
   padding: 0;
-}
-
-:host ::ng-deep .member-row .mat-mdc-checkbox {
-  width: 100%;
-}
-:host ::ng-deep .member-row .mdc-form-field {
-  width: 100%;
-  font-family: inherit;
-}
-:host ::ng-deep .member-row .mdc-label {
-  display: flex;
-  align-items: center;
-  padding-left: 2px;
-  font-family: inherit;
-  font-size: var(--fs-base);
-  color: var(--c-text);
-  cursor: pointer;
-}
-/* La case Material réserve 40 px de zone tactile : trop pour une liste. */
-:host ::ng-deep .member-row .mat-mdc-checkbox-touch-target {
-  display: none;
-}
-:host ::ng-deep .member-row .mdc-checkbox {
-  --mdc-checkbox-state-layer-size: 28px;
 }
 
 /* =========================================================================

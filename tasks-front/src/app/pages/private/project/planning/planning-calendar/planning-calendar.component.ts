@@ -333,7 +333,7 @@ export class PlanningCalendarComponent implements AfterViewInit, OnDestroy {
     private modalService: NgbModal,
     private authService:AuthService,
     private issueService:IssueService,
-    private userService:UserService,
+    protected userService:UserService,
     protected authGuard:AuthGuard,
     protected projectGuard:ProjectGuard,
     protected layout:LayoutService
@@ -412,7 +412,7 @@ export class PlanningCalendarComponent implements AfterViewInit, OnDestroy {
     this.configWeek.visible = false;
     this.configMonth.visible = false;
     this.configResource.visible = true;
-    this.eventCriteria.userIds = [];
+    this.eventCriteria.userIds = this.currentUserFilter();
     this.loadEvents();
 
   }
@@ -423,7 +423,7 @@ export class PlanningCalendarComponent implements AfterViewInit, OnDestroy {
     this.configMonth.visible = false;
     this.configResource.visible = false;
     if (this.user) {
-      this.eventCriteria.userIds = [this.user.id];
+      this.eventCriteria.userIds = this.currentUserFilter();
       this.loadEvents();
     }
 
@@ -436,7 +436,7 @@ export class PlanningCalendarComponent implements AfterViewInit, OnDestroy {
     this.configMonth.visible = false;
     this.configResource.visible = false;
     if (this.user) {
-      this.eventCriteria.userIds = [this.user.id];
+      this.eventCriteria.userIds = this.currentUserFilter();
       this.loadEvents();
     }
 
@@ -450,7 +450,7 @@ export class PlanningCalendarComponent implements AfterViewInit, OnDestroy {
     this.configMonth.visible = true;
     this.configResource.visible = false;
     if (this.user)
-      this.eventCriteria.userIds = [this.user.id];
+      this.eventCriteria.userIds = this.currentUserFilter();
 
   }
 
@@ -530,13 +530,47 @@ export class PlanningCalendarComponent implements AfterViewInit, OnDestroy {
      return  this.usersSelected.some(userId => userId === id)
   }
 
-  changeUsersSelected(event: any, id: String) {
-    if (event.checked) {
-      this.usersSelected.push(id);
-    } else {
+  toggleUser(id: String) {
+    if (this.isSelectedUser(id)) {
       this.usersSelected = this.usersSelected.filter(u => u != id);
+    } else {
+      this.usersSelected = [...this.usersSelected, id];
     }
     this.applyUsersFilter();
+  }
+
+  // ---------------------------------------------------------------------
+  // Filtre équipe : pile d'avatars
+  // ---------------------------------------------------------------------
+
+  // Au-delà, les visages poussent la barre d'outils sur une deuxième ligne.
+  private static readonly MAX_AVATARS = 6;
+
+  // Un membre sélectionné reste toujours visible dans la barre, même s'il se
+  // trouve au-delà du seuil : sinon le filtre agirait sans qu'on voie sur qui.
+  get visibleUsers(): User[] {
+    const head = this.users.slice(0, PlanningCalendarComponent.MAX_AVATARS);
+    const selectedTail = this.users
+      .slice(PlanningCalendarComponent.MAX_AVATARS)
+      .filter(user => this.isSelectedUser(user.id));
+    return [...head, ...selectedTail];
+  }
+
+  get overflowUsers(): User[] {
+    return this.users
+      .slice(PlanningCalendarComponent.MAX_AVATARS)
+      .filter(user => !this.isSelectedUser(user.id));
+  }
+
+  // `visibleUsers` reconstruit son tableau à chaque cycle de détection : sans
+  // trackBy, Angular recréerait les avatars (et rechargerait les images) à
+  // chaque passe.
+  trackByUserId(index: number, user: User): String {
+    return user.id;
+  }
+
+  memberFullName(user: User): string {
+    return `${user?.lastName ?? ''} ${user?.firstName ?? ''}`.trim();
   }
 
   clearSelectedUsers() {
@@ -544,8 +578,23 @@ export class PlanningCalendarComponent implements AfterViewInit, OnDestroy {
     this.applyUsersFilter();
   }
 
+  // Un seul endroit décide de `userIds`. Les vues le recalculaient chacune de
+  // leur côté avec l'utilisateur connecté : changer de vue effaçait
+  // silencieusement la sélection, les avatars restaient allumés sans effet.
+  private currentUserFilter(): String[] {
+    if (this.usersSelected.length) {
+      return this.usersSelected;
+    }
+    // La vue Équipe montre tout le monde par nature ; les autres retombent sur
+    // l'agenda de l'utilisateur connecté.
+    if (this.configNavigator.selectMode === 'None') {
+      return [];
+    }
+    return this.user ? [this.user.id] : [];
+  }
+
   private applyUsersFilter() {
-    this.eventCriteria.userIds = this.usersSelected;
+    this.eventCriteria.userIds = this.currentUserFilter();
     this.eventService.searchEventsAndSet(this.eventCriteria);
   }
 

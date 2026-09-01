@@ -83,17 +83,59 @@
         </button>
       </div>
 
-      <button
-        type="button"
-        class="toolbar-btn"
-        [class.has-value]="usersSelected.length > 0"
-        [matMenuTriggerFor]="teamMenu"
-      >
-        <i class="fas fa-user-group"></i>
-        <span>Équipe</span>
-        <span class="count-badge" *ngIf="usersSelected.length > 0">{{ usersSelected.length }}</span>
-        <i class="fas fa-chevron-down caret"></i>
-      </button>
+      <!-- Filtre équipe : les membres sont donnés à voir directement, sans
+           passer par un menu. Un seul clic sur un visage suffit pour restreindre
+           l'agenda ; le nom n'apparaît qu'au survol pour ne pas encombrer la
+           barre. -->
+      <div class="member-filter" role="group" aria-label="Filtrer par membre">
+        <button
+          type="button"
+          class="avatar-chip"
+          *ngFor="let member of visibleUsers; trackBy: trackByUserId"
+          [class.selected]="isSelectedUser(member.id)"
+          [attr.aria-pressed]="isSelectedUser(member.id)"
+          [attr.aria-label]="memberFullName(member)"
+          (click)="toggleUser(member.id)"
+        >
+          <user-avatar
+            *ngIf="member.photo; else chipInitials"
+            [src]="userService.getUrlPhoto(member)"
+            [alt]="memberFullName(member)"
+            class="avatar-chip-img"
+          />
+          <ng-template #chipInitials>
+            <span class="avatar-chip-initials">{{ userInitials(member) }}</span>
+          </ng-template>
+
+          <!-- Infobulle maison plutôt que `title` : l'attribut natif met une
+               seconde à apparaître, trop lent pour survoler une rangée de
+               visages. -->
+          <span class="chip-tip">{{ memberFullName(member) }}</span>
+        </button>
+
+        <!-- Débordement : au-delà de six visages la barre se disloque. -->
+        <button
+          type="button"
+          class="avatar-chip avatar-chip--more"
+          *ngIf="overflowUsers.length"
+          [matMenuTriggerFor]="teamMenu"
+          [attr.aria-label]="overflowUsers.length + ' autres membres'"
+        >
+          +{{ overflowUsers.length }}
+        </button>
+
+        <button
+          type="button"
+          class="filter-reset"
+          *ngIf="usersSelected.length > 0"
+          (click)="clearSelectedUsers()"
+          title="Tout désélectionner"
+        >
+          <i class="fas fa-xmark"></i>
+        </button>
+
+        <span class="member-filter-empty" *ngIf="!users.length">Aucun membre</span>
+      </div>
 
       <!-- Repli du menu de navigation du projet. Le calendrier est la page la
            plus gourmande en largeur : on offre le basculement ici plutôt que
@@ -161,9 +203,9 @@
      Menus
      ===================================================================== -->
 
-<!-- Filtre équipe. stopPropagation est indispensable : le panneau de
-     mat-menu émet `closed` sur n'importe quel clic, ce qui refermerait le
-     menu à chaque case cochée. -->
+<!-- Débordement du filtre équipe : même grille d'avatars que dans la barre.
+     stopPropagation est indispensable : le panneau de mat-menu émet `closed`
+     sur n'importe quel clic, ce qui le refermerait à chaque sélection. -->
 <mat-menu #teamMenu="matMenu" class="planning-menu">
   <div class="menu-panel" (click)="$event.stopPropagation()">
     <div class="menu-head">
@@ -178,20 +220,27 @@
       </button>
     </div>
 
-    <div class="menu-list">
-      <div
-        class="member-row"
-        *ngFor="let user of users"
-        [class.selected]="isSelectedUser(user.id)"
+    <div class="menu-grid">
+      <button
+        type="button"
+        class="avatar-chip"
+        *ngFor="let member of users; trackBy: trackByUserId"
+        [class.selected]="isSelectedUser(member.id)"
+        [attr.aria-pressed]="isSelectedUser(member.id)"
+        [attr.aria-label]="memberFullName(member)"
+        (click)="toggleUser(member.id)"
       >
-        <mat-checkbox
-          [checked]="isSelectedUser(user.id)"
-          (change)="changeUsersSelected($event, user.id)"
-        >
-          <span class="member-avatar">{{ userInitials(user) }}</span>
-          <span class="member-name">{{ user.lastName }} {{ user.firstName }}</span>
-        </mat-checkbox>
-      </div>
+        <user-avatar
+          *ngIf="member.photo; else menuInitials"
+          [src]="userService.getUrlPhoto(member)"
+          [alt]="memberFullName(member)"
+          class="avatar-chip-img"
+        />
+        <ng-template #menuInitials>
+          <span class="avatar-chip-initials">{{ userInitials(member) }}</span>
+        </ng-template>
+        <span class="chip-tip">{{ memberFullName(member) }}</span>
+      </button>
 
       <p class="menu-empty" *ngIf="!users.length">Aucun membre</p>
     </div>
