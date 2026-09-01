@@ -205,7 +205,7 @@ export class LoginComponent implements OnInit{
 
     this.authService.getProfile().subscribe(profile=>{
       if (profile) {
-        this.router.navigate(['/working']);
+        this.authService.redirigerApresConnexion();
       }
     });
     this.configService.nextIntallation().subscribe(path=>{

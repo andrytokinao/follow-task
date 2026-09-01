@@ -13,6 +13,7 @@ import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { User } from '../type/issue';
 import {AuthService} from "./auth.service";
+import {RedirectionService} from "./redirection.service";
 
 @Injectable({
   providedIn: 'root'
@@ -29,7 +30,8 @@ export class HttpInterceptorService implements HttpInterceptor {
   constructor(
     private router: Router,
     private toastr: ToastrService,
-    private injector: Injector
+    private injector: Injector,
+    private redirection: RedirectionService
   ) {
     // Cet intercepteur écrasait ici `toastr.toastrConfig`, donc la
     // configuration de TOUS les toasts de l'application (position, classe,
@@ -118,6 +120,11 @@ export class HttpInterceptorService implements HttpInterceptor {
 
     if (this.isNavigating) return;
     this.isNavigating = true;
+
+    // Memorise avant le toast : l'utilisateur peut naviguer pendant les
+    // quelques secondes d'affichage, on veut la page ou l'expiration l'a
+    // surpris, pas celle ou il se trouve au moment du clic.
+    this.redirection.memoriser(this.router.url);
 
     this.userSubject.next(null);
     this.showErrorOnce('Votre session a expiré. Veuillez vous reconnecter.', () => {

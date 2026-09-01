@@ -38,7 +38,16 @@
   background: var(--sidebar-bg);
   border-right: 1px solid var(--sidebar-border);
   padding: 10px 0 8px;
-  position: relative;
+  /* La grille est en `min-height: 100vh` : sans hauteur propre, la sidebar
+     s'étire avec le contenu de la page et son bas (« Mon compte ») descend
+     sous la ligne de flottaison dès que la page est longue. `sticky` + une
+     hauteur d'un écran la gardent entière et visible pendant le défilement.
+     `sticky` remplace `relative` sans casser le `.toggle-btn` en absolu : il
+     établit lui aussi un bloc conteneur. */
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  align-self: start;
   width: var(--sidebar-w);
   transition: width var(--t);
   overflow: hidden;
@@ -118,6 +127,13 @@
 .nav {
   display: flex; flex-direction: column;
   gap: 1px; padding: 0 8px; flex: 1;
+  /* Filet de sécurité : si les entrées dépassent la hauteur d'écran, c'est la
+     liste qui défile, pas `.nav-bottom` qui se fait pousser hors du cadre.
+     `min-height: 0` est nécessaire, un enfant flex refuse sinon de se
+     comprimer sous la taille de son contenu. */
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 .nav-item {
   display: flex; align-items: center; gap: 9px;
@@ -157,7 +173,8 @@
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 
-.nav-bottom { padding: 0 8px 4px; }
+/* Ne doit jamais être comprimé : c'est le bloc « Config » + « Mon compte ». */
+.nav-bottom { padding: 0 8px 4px; flex-shrink: 0; }
 
 /* ── Content ── */
 .project-content {

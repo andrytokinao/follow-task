@@ -7,6 +7,7 @@ import { environment } from '../../environments/environment';
 import { User } from '../type/issue';
 import { UserService } from './user.service';
 import {Router} from "@angular/router";
+import {RedirectionService} from "./redirection.service";
 
 @Injectable({
   providedIn: 'root'
@@ -22,12 +23,19 @@ export class AuthService {
 
   private profileLoading = false;
   private connectedLoading = false;
+  /**
+   * Deux chemins declenchent la redirection post-connexion (le chargement du
+   * profil et celui de l'utilisateur connecte). Sans ce garde, le second
+   * ecraserait la destination memorisee par une navigation vers /working.
+   */
+  private redirectionDemandee = false;
 
   constructor(
     private http: HttpClient,
     private cookieService: CookieService,
     private userService: UserService,
-    private router:Router
+    private router:Router,
+    private redirection: RedirectionService
   ) {}
 
   login(username: string, password: string): Observable<'success' | string> {
@@ -62,10 +70,31 @@ export class AuthService {
     this.connectedLoading = true;
     this.userService.getUser(username).subscribe((res) => {
       this.userSubject.next(res);
-      this.router.navigate(['/working/']);
+      this.redirigerApresConnexion();
 
       this.connectedLoading = false;
     });
+  }
+
+  /**
+   * Renvoie l'utilisateur la ou son expiration de session l'a interrompu, ou
+   * a defaut sur l'espace de travail.
+   */
+  redirigerApresConnexion(): void {
+    if (this.redirectionDemandee) {
+      return;
+    }
+    this.redirectionDemandee = true;
+    const cible = this.redirection.consommer();
+    this.router.navigateByUrl(cible || '/working/')
+      .then(ok => {
+        // La cible memorisee peut avoir disparu ou etre refusee par un garde :
+        // on ne laisse pas l'utilisateur sur la page de connexion.
+        if (!ok && cible) {
+          this.router.navigate(['/working']);
+        }
+      })
+      .catch(() => this.router.navigate(['/working']));
   }
   getProfile(forceRefresh = false): Observable<any> {
     if (this.profile && !forceRefresh) {
@@ -91,6 +120,8 @@ export class AuthService {
           this.profileLoading = false;
         }),
         catchError((err) => {
+          this.redirection.memoriser(this.router.url);
+          this.redirectionDemandee = false;
           this.router.navigate(["/login"]);
           console.error('Erreur chargement profile', err);
           this.profile = null;
@@ -114,6 +145,11 @@ export class AuthService {
   }
 
   logout(): Observable<any> {
+    // Deconnexion volontaire : on oublie la destination memorisee, sinon la
+    // prochaine connexion ramenerait sur une page que l'utilisateur a quittee
+    // deliberement.
+    this.redirection.oublier();
+    this.redirectionDemandee = false;
     return this.http.get(`${environment.apiURL}logout`, { withCredentials: true, responseType: 'text' })
       .pipe(
         tap(() => {
@@ -166,6 +202,8 @@ export class AuthService {
   nextConnectedUser(user: undefined) {
     this.userSubject.next(user);
     this.profileSubject.next(user);
-
+    // Appele lors d'une expiration de session : la prochaine connexion doit
+    // pouvoir rediriger a nouveau.
+    this.redirectionDemandee = false;
   }
 }
