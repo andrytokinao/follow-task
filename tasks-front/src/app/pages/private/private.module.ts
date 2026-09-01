@@ -29,6 +29,7 @@ import {MessageComponent} from "../../common/message/message.component";
 import {MatChipsModule} from "@angular/material/chips";
 import {MatListModule} from "@angular/material/list";
 import {MatProgressBarModule} from "@angular/material/progress-bar";
+import {TimerWidgetComponent} from "../../common/timer-widget/timer-widget.component";
 
 
 @NgModule({
@@ -63,7 +64,8 @@ import {MatProgressBarModule} from "@angular/material/progress-bar";
     CanalsComponent,
     MessageComponent,
     MatChipsModule,
-    MatProgressBarModule,MatIconModule
+    MatProgressBarModule,MatIconModule,
+    TimerWidgetComponent
 
   ],
 

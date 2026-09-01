@@ -1,0 +1,81 @@
+<div class="timer-end">
+
+  <header class="head">
+    <span class="badge"><i class="fas fa-hourglass-end"></i></span>
+    <div class="head-text">
+      <h2 class="title">Temps écoulé</h2>
+      <p class="subtitle">Session de {{ sessionLabel }} terminée — où en es-tu ?</p>
+    </div>
+  </header>
+
+  <!-- ===================================================================
+       Étape 1 : la question
+       =================================================================== -->
+  <div class="choices" *ngIf="!choosingTime">
+
+    <button type="button" class="choice choice-done" (click)="done()">
+      <span class="choice-icon"><i class="fas fa-check"></i></span>
+      <span class="choice-text">
+        <span class="choice-label">C'est bon</span>
+        <span class="choice-hint">La tâche est terminée</span>
+      </span>
+    </button>
+
+    <button type="button" class="choice choice-blocked" (click)="blocked()">
+      <span class="choice-icon"><i class="fas fa-triangle-exclamation"></i></span>
+      <span class="choice-text">
+        <span class="choice-label">Bloqué</span>
+        <span class="choice-hint">Je n'avance plus, j'ai besoin d'aide</span>
+      </span>
+    </button>
+
+    <button type="button" class="choice choice-extend" (click)="askMoreTime()">
+      <span class="choice-icon"><i class="fas fa-plus"></i></span>
+      <span class="choice-text">
+        <span class="choice-label">Demander plus de temps</span>
+        <span class="choice-hint">Repartir pour un tour</span>
+      </span>
+      <i class="fas fa-chevron-right choice-arrow"></i>
+    </button>
+  </div>
+
+  <!-- ===================================================================
+       Étape 2 : combien de temps en plus
+       =================================================================== -->
+  <div class="extension" *ngIf="choosingTime">
+
+    <p class="extension-label">Combien de temps en plus ?</p>
+
+    <div class="extension-presets">
+      <button type="button"
+              class="extension-preset"
+              *ngFor="let minutes of extensions"
+              [class.active]="!customMinutes && selectedMinutes === minutes"
+              (click)="select(minutes)">
+        + {{ minutes }} min
+      </button>
+    </div>
+
+    <div class="extension-custom">
+      <input type="number"
+             min="1"
+             max="600"
+             class="custom-input"
+             placeholder="Autre"
+             [(ngModel)]="customMinutes"
+             (keydown.enter)="confirmExtension()"
+             aria-label="Rallonge personnalisée en minutes" />
+      <span class="custom-unit">min</span>
+    </div>
+
+    <div class="extension-actions">
+      <button type="button" class="btn btn-ghost" (click)="back()">
+        <i class="fas fa-chevron-left"></i> Retour
+      </button>
+      <button type="button" class="btn btn-primary" (click)="confirmExtension()">
+        <i class="fas fa-play"></i> Repartir pour {{ extensionMinutes }} min
+      </button>
+    </div>
+  </div>
+
+</div>

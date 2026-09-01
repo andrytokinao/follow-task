@@ -944,3 +944,10 @@ h3 {
     min-height: 100vh;
   }
 }
+
+/* Question de fin du minuteur : la surface Material est carrée par défaut,
+   on l'aligne sur les arrondis de la pastille. */
+.timer-end-dialog-panel .mat-mdc-dialog-surface {
+  border-radius: 16px;
+  box-shadow: 0 18px 44px rgba(11, 18, 32, 0.2);
+}

@@ -1,0 +1,106 @@
+<div class="timer-widget" *ngIf="state$ | async as state" [class.is-open]="expanded">
+
+  <!-- ===================================================================
+       Panneau : durées et commandes. Rendu seulement une fois ouvert.
+       =================================================================== -->
+  <section class="timer-panel" *ngIf="expanded" role="dialog" aria-label="Minuteur">
+
+    <header class="panel-head">
+      <span class="panel-title"><i class="fas fa-hourglass-half"></i> Minuteur</span>
+      <button type="button" class="icon-btn" (click)="togglePanel()" aria-label="Réduire">
+        <i class="fas fa-chevron-down"></i>
+      </button>
+    </header>
+
+    <!-- Anneau de progression : dégradé conique piloté par le pourcentage. -->
+    <div class="dial-wrap">
+      <div class="dial"
+           [class.running]="state.status === 'running'"
+           [class.finished]="state.status === 'finished'"
+           [style.--progress]="state.progressPercent">
+        <div class="dial-inner">
+          <span class="dial-time">{{ format(state.remainingSeconds) }}</span>
+          <span class="dial-status">{{ statusLabel(state) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Durées prédéfinies : verrouillées pendant le décompte, pour ne pas
+         fausser une session en cours. -->
+    <div class="presets">
+      <button type="button"
+              class="preset"
+              *ngFor="let minutes of presets"
+              [class.active]="isPreset(state, minutes)"
+              [disabled]="state.status === 'running'"
+              (click)="choosePreset(minutes)">
+        {{ minutes }} min
+      </button>
+    </div>
+
+    <div class="custom-row">
+      <input type="number"
+             min="1"
+             max="600"
+             class="custom-input"
+             placeholder="Autre"
+             [disabled]="state.status === 'running'"
+             [(ngModel)]="customMinutes"
+             (keydown.enter)="applyCustom()"
+             aria-label="Durée personnalisée en minutes" />
+      <span class="custom-unit">min</span>
+      <button type="button"
+              class="btn btn-ghost"
+              [disabled]="state.status === 'running' || !customMinutes"
+              (click)="applyCustom()">
+        Appliquer
+      </button>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn btn-primary"
+              *ngIf="state.status !== 'running'"
+              (click)="start()">
+        <i class="fas fa-play"></i>
+        {{ state.status === 'paused' ? 'Reprendre' : 'Démarrer' }}
+      </button>
+
+      <button type="button" class="btn btn-primary"
+              *ngIf="state.status === 'running'"
+              (click)="pause()">
+        <i class="fas fa-pause"></i> Pause
+      </button>
+
+      <button type="button" class="btn btn-ghost"
+              [disabled]="state.status === 'idle'"
+              (click)="reset()">
+        <i class="fas fa-rotate-left"></i> Réinitialiser
+      </button>
+    </div>
+  </section>
+
+  <!-- ===================================================================
+       Pastille toujours visible
+       =================================================================== -->
+  <button type="button"
+          class="timer-pill"
+          [class.running]="state.status === 'running'"
+          [class.paused]="state.status === 'paused'"
+          [class.finished]="state.status === 'finished'"
+          [attr.aria-label]="statusLabel(state) + ' — ' + format(state.remainingSeconds)"
+          [attr.aria-expanded]="expanded"
+          (click)="onPillClick(state)">
+
+    <span class="pill-icon"><i class="fas fa-hourglass-half"></i></span>
+    <span class="pill-time">{{ format(state.remainingSeconds) }}</span>
+
+    <!-- Marche/pause directement depuis la pastille, sans ouvrir le panneau. -->
+    <span class="pill-run"
+          role="button"
+          [attr.aria-label]="state.status === 'running' ? 'Mettre en pause' : 'Démarrer'"
+          (click)="toggleRun($event)">
+      <i class="fas" [ngClass]="state.status === 'running' ? 'fa-pause' : 'fa-play'"></i>
+    </span>
+  </button>
+
+</div>
