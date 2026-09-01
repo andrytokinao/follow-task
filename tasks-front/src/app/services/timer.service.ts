@@ -6,8 +6,27 @@ import {
   TimerEndAnswer,
   TimerEndDialogComponent,
 } from '../common/timer-end-dialog/timer-end-dialog.component';
+import {PageTitleService} from './page-title.service';
 
 export type TimerStatus = 'idle' | 'running' | 'paused' | 'finished';
+
+/**
+ * `1500` → « 25:00 », `3725` → « 1:02:05 ».
+ *
+ * Partagé par la pastille et le titre de l'onglet, pour qu'ils affichent
+ * toujours le même temps sous la même forme.
+ */
+export function formatRemaining(totalSeconds: number): string {
+  const safe = Math.max(0, totalSeconds);
+  const hours = Math.floor(safe / 3600);
+  const minutes = Math.floor((safe % 3600) / 60);
+  const seconds = safe % 60;
+
+  const mm = hours > 0 ? String(minutes).padStart(2, '0') : String(minutes);
+  const ss = String(seconds).padStart(2, '0');
+
+  return hours > 0 ? `${hours}:${mm}:${ss}` : `${mm}:${ss}`;
+}
 
 export interface TimerState {
   status: TimerStatus;
@@ -68,6 +87,7 @@ export class TimerService implements OnDestroy {
   constructor(
     private readonly toastr: ToastrService,
     private readonly dialog: MatDialog,
+    private readonly pageTitle: PageTitleService,
   ) {
     // Les initialiseurs de champs ont déjà posé l'état par défaut ; on le
     // remplace par la session éventuellement retrouvée en stockage local.
@@ -291,8 +311,36 @@ export class TimerService implements OnDestroy {
   }
 
   private publish(): void {
-    this.stateSubject.next(this.snapshot());
+    const state = this.snapshot();
+
+    this.stateSubject.next(state);
     this.persist();
+    this.updateTitle(state);
+  }
+
+  /**
+   * Recopie le décompte en tête du titre de l'onglet.
+   *
+   * L'onglet reste lisible quand il est en arrière-plan : c'est là que le
+   * minuteur sert le plus, la pastille étant alors hors de vue. Au repos, pas
+   * de préfixe — un compteur figé dans l'onglet ne dirait rien.
+   */
+  private updateTitle(state: TimerState): void {
+    const time = formatRemaining(state.remainingSeconds);
+
+    switch (state.status) {
+      case 'running':
+        this.pageTitle.setPrefix(`⏳ ${time}`);
+        return;
+      case 'paused':
+        this.pageTitle.setPrefix(`⏸ ${time}`);
+        return;
+      case 'finished':
+        this.pageTitle.setPrefix(`⏰ ${time}`);
+        return;
+      default:
+        this.pageTitle.setPrefix(null);
+    }
   }
 
   // -------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 import {Component} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
-import {TimerService, TimerState} from '../../services/timer.service';
+import {formatRemaining, TimerService, TimerState} from '../../services/timer.service';
 
 /**
  * Pastille de minuteur, ancrée en bas à droite de l'espace de travail.
@@ -85,15 +85,7 @@ export class TimerWidgetComponent {
 
   /** `1500` → « 25:00 », `3725` → « 1:02:05 ». */
   format(totalSeconds: number): string {
-    const safe = Math.max(0, totalSeconds);
-    const hours = Math.floor(safe / 3600);
-    const minutes = Math.floor((safe % 3600) / 60);
-    const seconds = safe % 60;
-
-    const mm = hours > 0 ? String(minutes).padStart(2, '0') : String(minutes);
-    const ss = String(seconds).padStart(2, '0');
-
-    return hours > 0 ? `${hours}:${mm}:${ss}` : `${mm}:${ss}`;
+    return formatRemaining(totalSeconds);
   }
 
   /** Libellé de l'état, repris par le lecteur d'écran. */

@@ -24,6 +24,12 @@ export class PageTitleService {
    */
   private static readonly MAX_PART_LENGTH = 60;
 
+  /** Derniers segments fournis par la page, conservés pour pouvoir recomposer. */
+  private parts: string[] = [];
+
+  /** Segment de tête, hors du contrôle des pages — le minuteur, aujourd'hui. */
+  private prefix: string | null = null;
+
   constructor(private readonly title: Title) {
   }
 
@@ -35,18 +41,40 @@ export class PageTitleService {
    * se charge — produit quand même un titre lisible.
    */
   set(...parts: (string | null | undefined)[]): void {
-    const segments = parts
+    this.parts = parts
       .map(part => (part ?? '').toString().trim())
       .filter(part => part.length > 0)
       .map(part => this.truncate(part));
 
-    segments.push(PageTitleService.APP_NAME);
-    this.title.setTitle(segments.join(PageTitleService.SEPARATOR));
+    this.render();
   }
 
-  /** Revient au titre nu, sans contexte de page. */
+  /**
+   * Pose (ou retire, avec `null`) le segment placé **avant** tout le reste.
+   *
+   * Appelé à chaque seconde par le minuteur : on ne réécrit le titre que s'il
+   * a réellement changé, pour ne pas solliciter le navigateur pour rien.
+   */
+  setPrefix(prefix: string | null): void {
+    const next = prefix?.trim() || null;
+    if (next === this.prefix) {
+      return;
+    }
+    this.prefix = next;
+    this.render();
+  }
+
+  /** Revient au titre nu, sans contexte de page. Le préfixe, lui, subsiste. */
   reset(): void {
-    this.title.setTitle(PageTitleService.APP_NAME);
+    this.parts = [];
+    this.render();
+  }
+
+  private render(): void {
+    const segments = this.prefix ? [this.prefix, ...this.parts] : [...this.parts];
+
+    segments.push(PageTitleService.APP_NAME);
+    this.title.setTitle(segments.join(PageTitleService.SEPARATOR));
   }
 
   private truncate(value: string): string {
