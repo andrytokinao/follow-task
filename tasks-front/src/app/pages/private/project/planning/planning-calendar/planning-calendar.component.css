@@ -301,6 +301,11 @@
   background: var(--c-surface-muted);
   color: var(--c-text);
 }
+/* `visibility` et non `display` : la place reste réservée, donc rien ne bouge
+   quand le bouton apparaît. Le bouton sort aussi de l'ordre de tabulation. */
+.filter-reset.is-hidden {
+  visibility: hidden;
+}
 
 .member-filter-empty {
   font-size: var(--fs-sm);

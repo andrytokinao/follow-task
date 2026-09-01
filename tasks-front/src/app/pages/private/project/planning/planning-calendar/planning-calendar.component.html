@@ -124,10 +124,12 @@
           +{{ overflowUsers.length }}
         </button>
 
+        <!-- Toujours dans le flux, seulement rendu invisible : avec un *ngIf,
+             son apparition à la première sélection décalait toute la barre. -->
         <button
           type="button"
           class="filter-reset"
-          *ngIf="usersSelected.length > 0"
+          [class.is-hidden]="!usersSelected.length"
           (click)="clearSelectedUsers()"
           title="Tout désélectionner"
         >
