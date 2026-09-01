@@ -1,10 +1,15 @@
 package com.kinga.followtask.service;
 
+import com.kinga.followtask.config.CurrentUserProvider;
 import com.kinga.followtask.dto.Dossier;
 import com.kinga.followtask.dto.Fichier;
 import com.kinga.followtask.dto.Repertoire;
+import com.kinga.followtask.entity.Uploaded;
+import com.kinga.followtask.entity.UserApp;
+import com.kinga.followtask.repository.UploadedRepository;
 import com.kinga.utils.KingaUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,13 +19,23 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static com.kinga.utils.KingaUtils.dateTimeFormater;
 
 /**
  * Gestion des dossiers et des fichiers deposes dans l'arborescence d'une issue.
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DirectoryService {
+
+    private final UploadedRepository uploadedRepository;
+    private final CurrentUserProvider currentUserProvider;
 
     /**
      * Cree un sous dossier dans le dossier parent encode.
@@ -53,7 +68,76 @@ public class DirectoryService {
         try (InputStream in = file.getInputStream()) {
             Files.copy(in, fichier);
         }
-        return new Fichier(fichier.toString(), fichier.getFileName().toString());
+
+        Uploaded uploaded = tracer(fichier);
+        Fichier resultat = new Fichier(fichier.toString(), fichier.getFileName().toString());
+        appliquer(resultat, uploaded);
+        return resultat;
+    }
+
+    /**
+     * Enregistre qui a depose le fichier et quand. L'echec de la trace ne doit
+     * pas annuler un upload deja ecrit sur le disque.
+     */
+    private Uploaded tracer(Path fichier) {
+        try {
+            Uploaded uploaded = new Uploaded(fichier.getFileName().toString(), fichier.toString());
+            uploaded.setUserApp(currentUserProvider.getCurrentUser());
+            uploaded.setUploadDate(LocalDateTime.now());
+            return uploadedRepository.save(uploaded);
+        } catch (Exception e) {
+            log.warn("Trace de l'upload impossible pour {} : {}", fichier, e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Renseigne auteur et date d'upload sur une arborescence deja construite,
+     * a partir des lignes enregistrees sous la racine.
+     */
+    public void appliquerMetadonnees(Repertoire racine) {
+        if (racine == null || !StringUtils.hasText(racine.getAbsolutePath())) {
+            return;
+        }
+        String base = KingaUtils.decodeText(racine.getAbsolutePath());
+        Map<String, Uploaded> parChemin = new HashMap<>();
+        for (Uploaded uploaded : uploadedRepository.findByPathStartingWith(base)) {
+            // Le dernier enregistre gagne : un fichier remplace garde son auteur courant.
+            parChemin.put(uploaded.getPath(), uploaded);
+        }
+        if (parChemin.isEmpty()) {
+            return;
+        }
+        enrichir(racine, parChemin);
+    }
+
+    private void enrichir(Repertoire noeud, Map<String, Uploaded> parChemin) {
+        appliquer(noeud, parChemin.get(KingaUtils.decodeText(noeud.getAbsolutePath())));
+        if (noeud instanceof Dossier dossier) {
+            List<Repertoire> enfants = dossier.getRepertoires();
+            if (enfants != null) {
+                enfants.forEach(enfant -> enrichir(enfant, parChemin));
+            }
+        }
+    }
+
+    private void appliquer(Repertoire noeud, Uploaded uploaded) {
+        if (uploaded == null) {
+            return;
+        }
+        noeud.setUploadeur(nomAffiche(uploaded.getUserApp()));
+        if (uploaded.getUploadDate() != null) {
+            noeud.setDateUpload(dateTimeFormater.format(uploaded.getUploadDate()));
+        }
+    }
+
+    private String nomAffiche(UserApp user) {
+        if (user == null) {
+            return null;
+        }
+        String complet = ((user.getFirstName() == null ? "" : user.getFirstName()) + " "
+                + (user.getLastName() == null ? "" : user.getLastName())).trim();
+        return complet.isEmpty() ? user.getUsername() : complet;
     }
 
     private Path dossierExistant(String encodedPath) {

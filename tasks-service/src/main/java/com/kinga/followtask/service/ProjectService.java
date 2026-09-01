@@ -1,5 +1,6 @@
 package com.kinga.followtask.service;
 
+import com.kinga.followtask.config.CurrentUserProvider;
 import com.kinga.followtask.dto.Criteria;
 import com.kinga.followtask.dto.CrossingStateInput;
 import com.kinga.followtask.dto.Response;
@@ -27,6 +28,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -64,6 +66,7 @@ public class ProjectService {
     private final GlobalSettingsRepository globalSettingsRepository;
     private final UserSettingsRepository userSettingsRepository;
     private final WorkspaceSettingsRepository workspaceSettingsRepository;
+    private final CurrentUserProvider currentUserProvider;
     private IssueService issueService;
 
     public Status saveStatus(Status status) {
@@ -823,6 +826,12 @@ public class ProjectService {
         Files.write(filePath, file.getBytes());
 
         Uploaded uploaded = new Uploaded(fileName, filePath.toString());
+        uploaded.setUploadDate(LocalDateTime.now());
+        try {
+            uploaded.setUserApp(currentUserProvider.getCurrentUser());
+        } catch (Exception e) {
+            logger.warn("Auteur de l'upload non resolu pour {} : {}", filePath, e.getMessage());
+        }
         Document document = new Document();
         document.setTitre(doc.getTitre());
         document.setId(documentId);

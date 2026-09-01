@@ -16,6 +16,9 @@ public abstract class Repertoire {
     protected String type ;
     private String icone;
     protected String absolutePath;
+    /** Auteur de l'upload, renseigne seulement pour les fichiers connus en base. */
+    protected String uploadeur;
+    protected String dateUpload;
     public Repertoire(String absolutePath , String name){
         this.absolutePath = KingaUtils.encodeText(absolutePath);
         this.fileName = name;

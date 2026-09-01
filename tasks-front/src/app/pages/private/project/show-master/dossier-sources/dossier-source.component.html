@@ -100,7 +100,13 @@
         </div>
         <div class="ligne-fichier" *ngFor="let fichier of fichiers(courant)">
           <i [class]="getFileIconClass(fichier.fileName.toString())"></i>
-          <span>{{ fichier.fileName }}</span>
+          <span class="nom">{{ fichier.fileName }}</span>
+          <span class="meta" *ngIf="fichier.uploadeur">
+            <i class="fas fa-user"></i> {{ fichier.uploadeur }}
+          </span>
+          <span class="meta" *ngIf="fichier.dateUpload">
+            <i class="fas fa-clock"></i> {{ fichier.dateUpload | date:'dd/MM/yyyy HH:mm' }}
+          </span>
           <a [href]="downloadUrl(fichier)" class="telecharger"><i class="fa fa-download"></i></a>
         </div>
         <div class="vide" *ngIf="courant && sousDossiers(courant).length === 0 && fichiers(courant).length === 0">

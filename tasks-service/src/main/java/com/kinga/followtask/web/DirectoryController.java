@@ -32,7 +32,9 @@ public class DirectoryController {
     @GetMapping(path = "/api/load-directory")
     @ResponseBody
     public Repertoire loadDirectory(@RequestParam(required = true) Long issueId){
-        return issueService.loadDirectory(issueId);
+        Repertoire racine = issueService.loadDirectory(issueId);
+        directoryService.appliquerMetadonnees(racine);
+        return racine;
     }
     @GetMapping(path = "/api/sous-dossier/root")
     @ResponseBody

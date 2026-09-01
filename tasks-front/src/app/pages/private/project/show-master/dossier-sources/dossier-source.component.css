@@ -300,11 +300,23 @@
   background-color: #f0f0f0;
 }
 
-.ligne-fichier span {
+.ligne-fichier .nom {
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* Auteur et date d'upload : lisibles mais en retrait du nom du fichier. */
+.ligne-fichier .meta {
+  flex: 0 0 auto;
+  font-size: 12px;
+  color: #999;
+  white-space: nowrap;
+}
+
+.ligne-fichier .meta i {
+  margin-right: 3px;
 }
 
 .telecharger {

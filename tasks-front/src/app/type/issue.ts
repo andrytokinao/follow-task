@@ -140,6 +140,9 @@ export interface Repertoire {
   selected?:boolean;
   open? : boolean;
   paths?:string[]
+  /** Auteur et date d'upload, renseignes pour les fichiers connus en base. */
+  uploadeur?:string;
+  dateUpload?:string;
 }
 export interface Uploading {
   file?:File
