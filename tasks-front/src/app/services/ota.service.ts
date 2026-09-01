@@ -26,9 +26,12 @@ export class OtaService {
         .toPromise();
 
       if (version !== currentVersion) {
-        // Télécharge et installe le ZIP
+        // Téléchargement silencieux du ZIP.
         const bundle = await CapacitorUpdater.download({ url, version });
-        await CapacitorUpdater.set(bundle);
+        // next() et non set() : set() recharge la webview sur-le-champ et
+        // coupe l'utilisateur en pleine action. next() marque le bundle comme
+        // actif au prochain passage en arrière-plan, la bascule est invisible.
+        await CapacitorUpdater.next({ id: bundle.id });
       }
     } catch (err) {
       console.warn('[OTA] Vérification de mise à jour ignorée :', err);

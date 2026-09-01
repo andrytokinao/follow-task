@@ -3,6 +3,7 @@ import { RouterOutlet } from '@angular/router';
 import {routeTransition} from "../route-transition";
 import {environment} from "../environments/environment";
 import {OtaService} from "./services/ota.service";
+import {UpdateService} from "./services/update.service";
 import {interval} from "rxjs";
 
 @Component({
@@ -18,9 +19,14 @@ export class AppComponent implements OnInit{
   title = 'tasks-front';
   pageContent: string = "";
   content: string ="ontenu";
-  constructor(private otaService:OtaService) {
+  constructor(private otaService:OtaService,
+              private updateService:UpdateService) {
   }
   ngOnInit() {
+    // Cache applicatif (web / PWA) : téléchargement silencieux et bascule au
+    // prochain changement de page.
+    this.updateService.init();
+
     // 1. Vérification au démarrage de l'app
     this.otaService.checkAndUpdate(environment.appVersion);
 
