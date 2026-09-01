@@ -1,6 +1,11 @@
 .dossier-explorer {
   margin: 20px;
-  padding: 20px;
+  min-height: 70vh;
+  /* colonne + overflow:hidden : le bandeau colore respecte les coins arrondis
+     et le corps occupe toute la hauteur restante. */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   background-color: #fff;
@@ -11,15 +16,52 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
+  padding: 14px 20px;
+  background-color: #f4f5f7;
+  border-bottom: 1px solid #e4e6ea;
 }
 
 .explorer-entete h3 {
   font-size: 18px;
   margin: 0;
+  color: #3a4256;
+}
+
+.explorer-titre small {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  color: #888;
+}
+
+.explorer-outils {
+  display: flex;
+  gap: 4px;
+}
+
+.btn-icone {
+  width: 32px;
+  height: 32px;
+  border: 1px solid #dcdee3;
+  background-color: #fff;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #5a5a5a;
+  cursor: pointer;
+}
+
+.btn-icone:hover:enabled {
+  background-color: #eaebef;
+}
+
+.btn-icone:disabled {
+  opacity: .4;
+  cursor: default;
 }
 
 .explorer-erreur {
-  margin: 10px 0;
+  margin: 10px 20px 0;
   padding: 8px 12px;
   border-radius: 6px;
   background-color: #fdecea;
@@ -28,7 +70,7 @@
 }
 
 .explorer-chargement {
-  margin: 10px 0;
+  margin: 10px 20px 0;
   font-size: 13px;
   color: #777;
 }
@@ -36,13 +78,16 @@
 .explorer-corps {
   display: flex;
   gap: 20px;
-  margin-top: 15px;
+  padding: 15px 20px 20px;
+  /* min-height:0 : sans lui les enfants en overflow:auto refusent de se
+     comprimer et le conteneur deborde au lieu de faire defiler. */
+  flex: 1;
+  min-height: 0;
 }
 
 /* --- arbre --- */
 .explorer-arbre {
   width: 30%;
-  max-height: 60vh;
   overflow: auto;
   padding: 10px;
   border-radius: 8px;
@@ -69,6 +114,13 @@
   font-weight: bold;
 }
 
+/* Dossier survole pendant un glisser-deposer. */
+.arbre-titre.cible-depot,
+.ligne-dossier.cible-depot {
+  background-color: #f2f9ef;
+  outline: 2px dashed #6aa84f;
+}
+
 .arbre-titre i {
   color: #e8b339;
 }
@@ -81,8 +133,20 @@
 
 /* --- contenu --- */
 .explorer-contenu {
+  display: flex;
+  flex-direction: column;
   flex: 1;
   min-width: 0;
+  min-height: 0;
+  padding: 8px;
+  border: 2px dashed transparent;
+  border-radius: 8px;
+}
+
+/* Survol pendant un glisser : depot dans le dossier courant. */
+.explorer-contenu.survol {
+  border-color: #6aa84f;
+  background-color: #f2f9ef;
 }
 
 .fil-ariane {
@@ -102,13 +166,6 @@
 .fil-separateur {
   margin: 0 6px;
   color: #aaa;
-}
-
-.barre-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 10px;
 }
 
 .btn-plat {
@@ -144,25 +201,6 @@
   font-size: 13px;
 }
 
-.zone-depot {
-  padding: 18px;
-  margin-bottom: 12px;
-  border: 2px dashed #ccc;
-  border-radius: 8px;
-  text-align: center;
-  color: #888;
-  font-size: 13px;
-}
-
-.zone-depot p {
-  margin: 0 0 4px 0;
-}
-
-.zone-depot.survol {
-  border-color: #6aa84f;
-  background-color: #f2f9ef;
-}
-
 /* --- file d'attente --- */
 .liste-attente {
   margin-bottom: 12px;
@@ -183,6 +221,19 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.ligne-attente .destination {
+  flex: 0 0 auto;
+  max-width: 40%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #888;
+}
+
+.ligne-attente .destination i {
+  color: #e8b339;
 }
 
 .ligne-attente .retirer {
@@ -220,7 +271,8 @@
 
 /* --- listing --- */
 .liste-contenu {
-  max-height: 40vh;
+  flex: 1;
+  min-height: 0;
   overflow: auto;
 }
 
@@ -270,7 +322,11 @@
     flex-direction: column;
   }
 
+  /* En colonne l'arbre n'a plus de largeur contrainte : on borne sa hauteur
+     pour qu'il ne pousse pas la liste hors de l'ecran. */
   .explorer-arbre {
     width: 100%;
+    max-height: 30vh;
+    flex: 0 0 auto;
   }
 }

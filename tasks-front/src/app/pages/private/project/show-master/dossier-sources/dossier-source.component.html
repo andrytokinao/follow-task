@@ -1,6 +1,12 @@
 <ng-template #arbre let-noeud>
   <div class="arbre-noeud">
-    <div class="arbre-titre" [class.actif]="noeud.absolutePath === courant?.absolutePath" (click)="ouvrir(noeud)">
+    <div class="arbre-titre"
+         [class.actif]="noeud.absolutePath === courant?.absolutePath"
+         [class.cible-depot]="survolCible === noeud.absolutePath"
+         (click)="ouvrir(noeud)"
+         (dragover)="onDragOverDossier($event, noeud)"
+         (dragleave)="onDragLeaveDossier($event, noeud)"
+         (drop)="onDropDossier($event, noeud)">
       <i class="fas" [ngClass]="estOuvert(noeud) ? 'fa-folder-open' : 'fa-folder'"></i>
       <span>{{ noeud.fileName }}</span>
     </div>
@@ -14,12 +20,30 @@
 
 <div class="dossier-explorer">
   <div class="explorer-entete">
-    <h3><i class="fas fa-folder-tree"></i> Dossiers sources</h3>
-    <span>
-      <button type="button" class="btn-plat" (click)="rafraichir()" [disabled]="chargement">
-        <i class="fas fa-sync"></i> Rafraichir
+    <div class="explorer-titre">
+      <h3><i class="fas fa-folder-tree"></i> Dossiers sources</h3>
+      <small>Glissez-deposez un fichier ou un dossier sur le dossier voulu.</small>
+    </div>
+    <div class="explorer-outils">
+      <button type="button" class="btn-icone" [disabled]="!courant" title="Nouveau dossier"
+              (click)="creationDossier = !creationDossier">
+        <i class="fas fa-folder-plus"></i>
       </button>
-    </span>
+      <button type="button" class="btn-icone" [disabled]="!courant" title="Parcourir des fichiers"
+              (click)="fileInput.click()">
+        <i class="fas fa-file-upload"></i>
+      </button>
+      <button type="button" class="btn-icone" [disabled]="!courant" title="Parcourir un dossier"
+              (click)="dirInput.click()">
+        <i class="fas fa-folder-open"></i>
+      </button>
+      <button type="button" class="btn-icone" [disabled]="chargement" title="Rafraichir"
+              (click)="rafraichir()">
+        <i class="fas fa-sync"></i>
+      </button>
+      <input type="file" multiple hidden #fileInput (change)="onFilesSelected($event)">
+      <input type="file" multiple hidden webkitdirectory #dirInput (change)="onFilesSelected($event)">
+    </div>
   </div>
 
   <div class="explorer-erreur" *ngIf="erreur">{{ erreur }}</div>
@@ -36,26 +60,13 @@
       <ng-container *ngTemplateOutlet="arbre; context: {$implicit: racine}"></ng-container>
     </div>
 
-    <div class="explorer-contenu">
+    <div class="explorer-contenu" [class.survol]="surZone"
+         (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
       <div class="fil-ariane">
         <span *ngFor="let noeud of chemin; let i = index">
           <span class="fil-item" (click)="allerA(i)">{{ noeud.fileName }}</span>
           <span class="fil-separateur" *ngIf="i < chemin.length - 1">/</span>
         </span>
-      </div>
-
-      <div class="barre-actions">
-        <button type="button" class="btn-plat" [disabled]="!courant" (click)="creationDossier = !creationDossier">
-          <i class="fas fa-folder-plus"></i> Nouveau dossier
-        </button>
-        <button type="button" class="btn-plat" [disabled]="!courant" (click)="fileInput.click()">
-          <i class="fas fa-file-upload"></i> Ajouter des fichiers
-        </button>
-        <button type="button" class="btn-plat" [disabled]="!courant" (click)="dirInput.click()">
-          <i class="fas fa-folder-open"></i> Ajouter un dossier
-        </button>
-        <input type="file" multiple hidden #fileInput (change)="onFilesSelected($event)">
-        <input type="file" multiple hidden webkitdirectory #dirInput (change)="onFilesSelected($event)">
       </div>
 
       <div class="nouveau-dossier" *ngIf="creationDossier">
@@ -65,16 +76,11 @@
         <button type="button" class="btn-plat" (click)="creationDossier = false; nomNouveauDossier = ''">Annuler</button>
       </div>
 
-      <div class="zone-depot" [class.survol]="surZone"
-           (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
-        <p>Glissez-deposez des fichiers ou des dossiers ici</p>
-        <small>Destination : {{ courant?.fileName }}</small>
-      </div>
-
       <div class="liste-attente" *ngIf="enAttente.length > 0">
         <div class="ligne-attente" *ngFor="let item of enAttente; let i = index" [ngClass]="item.status">
           <i class="fas fa-arrow-up-from-bracket"></i>
           <span class="nom">{{ item.relativePath }}</span>
+          <span class="destination"><i class="fas fa-folder"></i> {{ item.destinationNom }}</span>
           <span class="etat">{{ item.progression }}%</span>
           <span class="retirer" (click)="retirer(i)"><i class="fas fa-times"></i></span>
         </div>
@@ -84,7 +90,12 @@
       </div>
 
       <div class="liste-contenu">
-        <div class="ligne-dossier" *ngFor="let dossier of sousDossiers(courant)" (click)="ouvrir(dossier)">
+        <div class="ligne-dossier" *ngFor="let dossier of sousDossiers(courant)"
+             [class.cible-depot]="survolCible === dossier.absolutePath"
+             (click)="ouvrir(dossier)"
+             (dragover)="onDragOverDossier($event, dossier)"
+             (dragleave)="onDragLeaveDossier($event, dossier)"
+             (drop)="onDropDossier($event, dossier)">
           <i class="fas fa-folder"></i> <span>{{ dossier.fileName }}</span>
         </div>
         <div class="ligne-fichier" *ngFor="let fichier of fichiers(courant)">

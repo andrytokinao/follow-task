@@ -5,10 +5,18 @@ import {HttpEventType} from "@angular/common/http";
 import {catchError, concatMap, from, of, tap} from "rxjs";
 import {environment} from "../../../../../../environments/environment";
 
-/** Fichier en attente d'envoi, avec le chemin relatif a recreer coté serveur. */
+/**
+ * Fichier en attente d'envoi. La destination est figee au moment du depot :
+ * deposer sur un dossier de l'arbre n'oblige pas a s'y deplacer d'abord, et
+ * deux depots successifs peuvent viser deux dossiers differents.
+ */
 interface FichierEnAttente {
   file: File;
   relativePath: string;
+  /** Chemin encode du dossier cible. */
+  destination: string;
+  /** Nom du dossier cible, pour l'affichage de la file d'attente. */
+  destinationNom: string;
   status: '' | 'pending' | 'uploading' | 'success' | 'error';
   progression: number;
 }
@@ -29,6 +37,8 @@ export class DossierSourceComponent implements OnInit {
   protected chargement = false;
   protected erreur: string;
   protected surZone = false;
+  /** Chemin encode du dossier actuellement survole pendant un glisser. */
+  protected survolCible: string = null;
   protected creationDossier = false;
   protected nomNouveauDossier = '';
 
@@ -148,22 +158,29 @@ export class DossierSourceComponent implements OnInit {
   protected onFilesSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.files) {
-      this.ajouterFileList(input.files);
+      this.ajouterFileList(input.files, this.courant);
     }
     input.value = '';
   }
 
-  private ajouterFileList(files: FileList) {
+  private ajouterFileList(files: FileList, cible: Repertoire) {
     for (let i = 0; i < files.length; i++) {
       const file = files.item(i)!;
       // webkitRelativePath est renseigne quand l'input porte l'attribut webkitdirectory
       const relatif = (file as any).webkitRelativePath;
-      this.ajouter(file, relatif && relatif.length > 0 ? relatif : file.name);
+      this.ajouter(file, relatif && relatif.length > 0 ? relatif : file.name, cible);
     }
   }
 
-  private ajouter(file: File, relativePath: string) {
-    this.enAttente.push({file, relativePath, status: 'pending', progression: 0});
+  private ajouter(file: File, relativePath: string, cible: Repertoire) {
+    this.enAttente.push({
+      file,
+      relativePath,
+      destination: cible.absolutePath,
+      destinationNom: cible.fileName?.toString(),
+      status: 'pending',
+      progression: 0
+    });
   }
 
   protected retirer(index: number) {
@@ -176,13 +193,45 @@ export class DossierSourceComponent implements OnInit {
   }
 
   protected onDragLeave(event: DragEvent) {
-    event.preventDefault();
+    // dragleave se declenche aussi en passant sur un enfant de la zone :
+    // sans ce test le surlignage clignoterait a chaque ligne survolee.
+    const zone = event.currentTarget as HTMLElement;
+    const vers = event.relatedTarget as Node;
+    if (vers && zone.contains(vers)) {
+      return;
+    }
     this.surZone = false;
   }
 
-  protected onDrop(event: DragEvent) {
+  /** Depot sur un dossier precis de l'arbre ou de la liste. */
+  protected onDragOverDossier(event: DragEvent, dossier: Repertoire) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.survolCible = dossier.absolutePath;
+  }
+
+  protected onDragLeaveDossier(event: DragEvent, dossier: Repertoire) {
+    event.stopPropagation();
+    if (this.survolCible === dossier.absolutePath) {
+      this.survolCible = null;
+    }
+  }
+
+  protected onDropDossier(event: DragEvent, dossier: Repertoire) {
+    // stopPropagation : sans lui, un depot sur un noeud enfant remonterait
+    // aussi jusqu'aux noeuds parents de l'arbre.
+    event.stopPropagation();
+    this.survolCible = null;
+    this.onDrop(event, dossier);
+  }
+
+  protected onDrop(event: DragEvent, cible?: Repertoire) {
     event.preventDefault();
     this.surZone = false;
+    const destination = cible || this.courant;
+    if (!destination) {
+      return;
+    }
     const items = event.dataTransfer?.items;
     if (items && items.length > 0 && typeof (items[0] as any).webkitGetAsEntry === 'function') {
       const entries: any[] = [];
@@ -193,12 +242,12 @@ export class DossierSourceComponent implements OnInit {
         }
       }
       if (entries.length > 0) {
-        entries.forEach(entry => this.parcourirEntry(entry, ''));
+        entries.forEach(entry => this.parcourirEntry(entry, '', destination));
         return;
       }
     }
     if (event.dataTransfer?.files) {
-      this.ajouterFileList(event.dataTransfer.files);
+      this.ajouterFileList(event.dataTransfer.files, destination);
     }
   }
 
@@ -206,10 +255,10 @@ export class DossierSourceComponent implements OnInit {
    * Parcourt recursivement une entree deposee : les callbacks de l'API
    * FileSystemEntry sortent de la zone Angular, d'ou le zone.run.
    */
-  private parcourirEntry(entry: any, prefixe: string) {
+  private parcourirEntry(entry: any, prefixe: string, cible: Repertoire) {
     if (entry.isFile) {
       entry.file((file: File) => {
-        this.zone.run(() => this.ajouter(file, prefixe + file.name));
+        this.zone.run(() => this.ajouter(file, prefixe + file.name, cible));
       });
       return;
     }
@@ -220,7 +269,7 @@ export class DossierSourceComponent implements OnInit {
         if (!resultats || resultats.length === 0) {
           return;
         }
-        this.zone.run(() => resultats.forEach(r => this.parcourirEntry(r, prefixe + entry.name + '/')));
+        this.zone.run(() => resultats.forEach(r => this.parcourirEntry(r, prefixe + entry.name + '/', cible)));
         lire();
       });
       lire();
@@ -232,18 +281,14 @@ export class DossierSourceComponent implements OnInit {
   }
 
   protected envoyer() {
-    if (!this.courant) {
-      return;
-    }
-    const cible = this.courant.absolutePath;
-    const files = this.enAttente.filter(f => f.status !== 'success');
+    const files = this.enAttente.filter(f => f.status !== 'success' && f.destination);
     if (files.length === 0) {
       return;
     }
     from(files).pipe(
       concatMap(item => {
         item.status = 'uploading';
-        return this.issueService.uploadDansDossier(item.file, cible, item.relativePath).pipe(
+        return this.issueService.uploadDansDossier(item.file, item.destination, item.relativePath).pipe(
           tap(event => {
             if (event.type === HttpEventType.UploadProgress) {
               item.progression = Math.round((event.loaded / (event.total || 1)) * 100);
