@@ -229,6 +229,7 @@
             *ngIf="projectGuard.hasCredential(['CAN_EDIT_FIELD']) | async"
             [issue]="parentIssue"
             (fieldAttached)="loadValues()"
+            (fieldDetached)="loadValues()"
             (valueSaved)="loadValues()"
           ></app-custom-field-menu>
         </div>

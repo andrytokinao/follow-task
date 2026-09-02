@@ -41,40 +41,45 @@
         <!-- Déjà sur ce type : rien à rattacher, juste une valeur à saisir. -->
         <ng-container *ngIf="assignedMatches.length">
           <p class="cfm-group">Sur ce type de tâche</p>
-          <button
-            type="button"
-            class="cfm-item"
-            *ngFor="let field of assignedMatches; trackBy: trackByFieldId"
-            (click)="pickAssigned(field)"
-          >
-            <i class="cfm-item-icon" [ngClass]="icon(field)"></i>
-            <span class="cfm-item-name">{{ field.name }}</span>
-          </button>
+          <ng-container *ngFor="let field of assignedMatches; trackBy: trackByFieldId">
+            <ng-container *ngTemplateOutlet="row; context: {field: field, used: true}"></ng-container>
+          </ng-container>
         </ng-container>
 
-        <!-- Existants mais pas encore rattachés : les choisir les rattache. -->
+        <!-- Existants mais pas encore rattachés : la case les rattache. -->
         <ng-container *ngIf="availableMatches.length">
           <p class="cfm-group">
             Autres champs du projet
-            <span class="cfm-group-hint">rattachés à ce type au clic</span>
+            <span class="cfm-group-hint">cochez pour les utiliser sur ce type</span>
           </p>
-          <button
-            type="button"
-            class="cfm-item"
-            *ngFor="let field of availableMatches; trackBy: trackByFieldId"
-            [disabled]="saving"
-            (click)="pickAvailable(field)"
-          >
-            <i class="cfm-item-icon" [ngClass]="icon(field)"></i>
-            <span class="cfm-item-name">{{ field.name }}</span>
-            <i class="fas fa-link cfm-item-tag" title="Sera ajouté à ce type de tâche"></i>
-          </button>
+          <ng-container *ngFor="let field of availableMatches; trackBy: trackByFieldId">
+            <ng-container *ngTemplateOutlet="row; context: {field: field, used: false}"></ng-container>
+          </ng-container>
         </ng-container>
 
         <p class="cfm-empty" *ngIf="!hasResults">Aucun champ ne correspond</p>
       </div>
 
-      <div class="cfm-foot" *ngIf="projectGuard.hasCredential(['CAN_CONFIG_CUSTOM_FIELD']) | async">
+      <!-- Même ligne dans les deux groupes : seul l'état de la case change. -->
+      <ng-template #row let-field="field" let-used="used">
+        <div class="cfm-item">
+          <button type="button" class="cfm-item-main" [disabled]="saving" (click)="pick(field)">
+            <i class="cfm-item-icon" [ngClass]="icon(field)"></i>
+            <span class="cfm-item-name">{{ field.name }}</span>
+          </button>
+          <label class="cfm-use" [title]="useHint(used)">
+            <input
+              type="checkbox"
+              [checked]="used"
+              [disabled]="saving || !canConfig"
+              (change)="toggleUse(field, $event)"
+            />
+            <span class="cfm-use-box"><i class="fas fa-check"></i></span>
+          </label>
+        </div>
+      </ng-template>
+
+      <div class="cfm-foot" *ngIf="canConfig">
         <button type="button" class="cfm-create" (click)="startCreate()">
           <i class="fas fa-plus"></i>
           <span>Créer un champ</span>
