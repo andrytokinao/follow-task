@@ -1,8 +1,21 @@
+<div class="cf" [class.cf--editing]="instance?.isEditing">
+  <span class="cf-label" [title]="customFieldValue.customField.name">
+    <app-icone-view class="cf-icon" [icon]="getIcone(customFieldValue.customField)"></app-icone-view>
+    <span class="cf-label-text">{{customFieldValue.customField.name}}</span>
+  </span>
 
-<div [class]="'fieldSS field-'+viewMode" >
-  <span [class]="'header header-'+viewMode" ><i> <app-icone-view [icon]="getIcone(customFieldValue.customField)"></app-icone-view> <span [class]="'label-'+viewMode">{{customFieldValue.customField.name}}</span>  </i></span>
-  <span [class]="'value value-'+viewMode" >: <ng-container #container></ng-container></span>
-  <span [class]="'edit-btn edit-btn-'+viewMode " (click)="toggleEdit()" *ngIf="!instance.isEditing && (projectCuard.hasCredential(['CAN_EDIT_FIELD']) | async )" ><i class="mat-icon fa fa-edit save"  ></i>Edit</span>
-  <span [class]="'edit-btn edit-btn-'+viewMode" (click)="saveIt()" *ngIf="instance.isEditing && (projectCuard.hasCredential(['CAN_EDIT_FIELD']) | async )" ><i class="edit-btn mat-icon fa fa-check save" ></i>Save</span>
+  <span class="cf-value">
+    <ng-container #container></ng-container>
+  </span>
+
+  <ng-container *ngIf="canEdit$ | async">
+    <button type="button" class="cf-action" title="Modifier"
+            *ngIf="!instance?.isEditing" (click)="toggleEdit()">
+      <i class="fa fa-edit"></i>
+    </button>
+    <button type="button" class="cf-action cf-action--save" title="Enregistrer"
+            *ngIf="instance?.isEditing" (click)="saveIt()">
+      <i class="fa fa-check"></i>
+    </button>
+  </ng-container>
 </div>
-

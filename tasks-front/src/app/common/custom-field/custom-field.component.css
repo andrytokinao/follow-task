@@ -1,160 +1,187 @@
-.field {
-  display: contents;
-  margin: 8px 0;
-  padding: 8px;
-  background-color: #ecf0f1;
-  border-radius: 6px;
+/* Palette alignée sur la fiche tâche (issue-details) */
+:host {
+  --cf-border: #E2E8F0;
+  --cf-surface: #F8FAFC;
+  --cf-primary: #2563EB;
+  --cf-text: #0F172A;
+  --cf-muted: #94A3B8;
+
+  display: block;
+  min-width: 0;
 }
 
-.header {
-  font-weight: bold;
-  color: #34495e;
+:host(.cf-host--chip) {
+  display: inline-flex;
+  vertical-align: middle;
+  max-width: 100%;
 }
 
-.value {
-  color: #2c3e50;
-  margin-right: auto;
+/* ---- Ligne : libellé à gauche, valeur à droite ---- */
+.cf {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  min-width: 0;
+  min-height: 22px;
+  font-size: 12px;
+  color: var(--cf-text);
 }
 
-.edit-btn {
-  padding: 6px 12px;
-  border: none;
-  border-radius: 4px;
-  transition: background-color 0.3s;
+.cf-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex: 0 1 auto;
+  min-width: 0;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--cf-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.edit-btn:hover {
-  background-color: rgba(41, 128, 185, 0.46);
+.cf-icon {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  font-size: 9px;
+  color: var(--cf-primary);
 }
 
-/* Field */
-.field-view {
+/* `app-icone-view` impose un padding de 10px en style inline : neutralisé
+   localement pour garder la ligne compacte, sans toucher aux autres écrans. */
+.cf-icon ::ng-deep span {
+  padding: 0 !important;
+  line-height: 1;
+}
+
+.cf-value {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin: 8px 0;
-  padding: 8px;
-  background-color: #ecf0f1;
-  border-radius: 6px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  max-width: 500px;
-}
-.field-whith-icone {
-
-}
-.field-whith-icone-ro {
-
-}
-.field-ro {
-  cursor:grab ;
-
-}
-.field-info {
-  max-width: 500px;
-  justify-content: space-between;
-
-}
-.field-info-edit {
-
+  justify-content: flex-end;
+  flex: 1 1 110px;
+  min-width: 0;
+  gap: 4px;
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.header-view {
-  min-width: 150px;
-  font-weight: bold;
-  color: #34495e;
-}
-.header-with-icone{
-
-}
-.header-with-icone-ro{
-
-}
-.header-ro{
-
-}
-.header-info{
-
-}
-.header-info-edit{
-
+/* ---- Action (crayon / validation) ---- */
+.cf-action {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--cf-muted);
+  font-size: 10px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity .15s ease, color .15s ease, background-color .15s ease;
 }
 
-.label-chip{
+.cf:hover .cf-action,
+.cf-action:focus-visible {
+  opacity: 1;
+}
+
+.cf-action:hover {
+  background-color: #EFF6FF;
+  color: var(--cf-primary);
+}
+
+.cf-action--save {
+  opacity: 1;
+  color: #10B981;
+}
+
+.cf-action--save:hover {
+  background-color: #ECFDF5;
+  color: #059669;
+}
+
+/* ---- Mode chip : pastille compacte pour les listes ---- */
+:host(.cf-host--chip) .cf {
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 4px;
+  height: 18px;
+  min-height: 0;
+  max-width: 100%;
+  padding: 0 6px;
+  border: 1px solid var(--cf-border);
+  border-radius: 4px;
+  background: var(--cf-surface);
+  font-size: 11px;
+}
+
+:host(.cf-host--chip) .cf-label-text {
   display: none;
 }
 
-.edit-btn-whith-icone{
-
-}
-.edit-btn-whith-icone-ro{
-   cursor: not-allowed;
-}
-.edit-btn-ro{
-  cursor:not-allowed ;
-}
-.edit-btn-info{
-
-}
-.edit-btn-info-edit{
-  cursor: pointer;
-
-}
-
-
-.field-chip{
-  display: inline-flex;
-  flex-direction: row;
-  border: none;
-  cursor: default;
-  height: 36px;
-  outline: none;
-  padding: 0;
-  font-size: 14px;
-  font-color: #333333;
-  font-family:"Open Sans", sans-serif;
+:host(.cf-host--chip) .cf-value {
+  flex: 0 1 auto;
+  justify-content: flex-start;
   white-space: nowrap;
-  align-items: center;
-  border-radius: 16px;
-  vertical-align: middle;
-  text-decoration: none;
-  justify-content: center;
-  border-bottom: #cccccc solid 0.1px;
-  margin: 8px;
-
-}
-.header-chip{
-  display: flex;
-  position: relative;
-  overflow: hidden;
-  background-color: #32C5D2;
-  font-size: 1.25rem;
-  flex-shrink: 0;
-  align-items: center;
-  user-select: none;
-  border-radius: 50%;
-  justify-content: center;
-  min-width: 36px;
-  color: #fff;
-  height: 36px;
-  font-size: 20px;
-  margin-right: -4px;
-
 }
 
-.svg-chip{
-  color: #999999;
-  cursor: pointer;
+:host(.cf-host--chip) .cf--editing {
   height: auto;
-  margin: 4px 4px 0 -8px;
-  fill: currentColor;
-  width: 1em;
-  height: 1em;
-  display: inline-block;
-  font-size: 24px;
-  transition: fill 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
-  user-select: none;
-  flex-shrink: 0;
+  min-height: 22px;
+  flex-wrap: wrap;
 }
-.svg-chip:hover{
-  color: #666666;
+
+/* ---- Mode lecture seule ---- */
+:host(.cf-host--ro) .cf-action,
+:host(.cf-host--view) .cf-action {
+  display: none;
+}
+
+/* ---- Champs de saisie injectés dynamiquement (sous-composants sans style) ---- */
+.cf-value ::ng-deep input[type="text"],
+.cf-value ::ng-deep input[type="number"],
+.cf-value ::ng-deep input[type="date"] {
+  width: 100%;
+  max-width: 180px;
+  height: 22px;
+  padding: 0 6px;
+  border: 1px solid var(--cf-border);
+  border-radius: 4px;
+  font: inherit;
+  font-size: 12px;
+  color: var(--cf-text);
+  background: #fff;
+  outline: none;
+}
+
+.cf-value ::ng-deep input:focus {
+  border-color: var(--cf-primary);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, .12);
+}
+
+.cf-value ::ng-deep .mat-mdc-form-field {
+  width: 100%;
+  max-width: 200px;
+  font-size: 12px;
+}
+
+.cf-value ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+  display: none;
+}
+
+.cf--editing .cf-value {
+  flex: 1 1 100%;
+  justify-content: flex-start;
+  text-align: left;
+  overflow: visible;
 }

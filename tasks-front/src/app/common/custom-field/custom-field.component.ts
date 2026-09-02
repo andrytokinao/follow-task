@@ -2,11 +2,13 @@ import {
   Component,
   ComponentFactoryResolver,
   EventEmitter,
+  HostBinding,
   Input,
   OnInit, Output,
   ViewChild,
   ViewContainerRef
 } from '@angular/core';
+import {Observable, shareReplay} from "rxjs";
 import {DisplayCustomfielFactoryService} from "../../services/display-customfiel-factory.service";
 import {CustomField, CustomFieldValue, DisplayCustomField, Icone, Issue} from "../../type/issue";
 import {CommonModule, NgIf} from "@angular/common";
@@ -28,13 +30,33 @@ import {IconeViewComponent} from "../icone-view/icone-view.component";
   styleUrl: './custom-field.component.css'
 })
 export class CustomFieldComponent implements OnInit{
+  /** Modes de présentation supportés ; toute autre valeur retombe sur `chip`. */
+  private static readonly VIEW_MODES = ['chip', 'info-edit', 'view', 'ro'];
+
   @Input() viewMode: string='chip';
   @Input() customFieldValue: CustomFieldValue;
   @ViewChild('container', { read: ViewContainerRef, static: true }) container: ViewContainerRef;
   @Output() saved = new EventEmitter<CustomFieldValue>();
   @Output() onSaved = new EventEmitter<CustomFieldValue[]>();
    instance :DisplayCustomField | undefined;
+
+  /** Les appelants passent tantôt `info-edit`, tantôt `field-info-edit`, tantôt rien. */
+  get mode(): string {
+    const raw = (this.viewMode || '').replace(/^field-/, '');
+    return CustomFieldComponent.VIEW_MODES.includes(raw) ? raw : 'chip';
+  }
+
+  @HostBinding('class')
+  get hostClass(): string {
+    return 'cf-host cf-host--' + this.mode;
+  }
+
+  // Mis en cache : `hasCredential` refait tout son travail à chaque abonnement,
+  // et le template s'y abonnait deux fois par champ.
+  canEdit$: Observable<boolean>;
+
   ngOnInit(): void {
+    this.canEdit$ = this.projectCuard.hasCredential(['CAN_EDIT_FIELD']).pipe(shareReplay(1));
 
     const componentType = this.factory.getComponent(this.customFieldValue.customField.type);
     const factory = this.resolver.resolveComponentFactory(componentType);
@@ -68,14 +90,14 @@ export class CustomFieldComponent implements OnInit{
     this.issueService.saveValues(this.customFieldValue).subscribe(
       value => {
         this.onSaved.emit(value);
+        // `saved` n'était jamais émis : les parents qui n'écoutent que lui
+        // (add-new-value) ne fermaient jamais leur éditeur.
+        this.saved.emit(this.customFieldValue);
         this.instance.isEditing = false;
       }, error => {
         console.error(error)
 
     })
- /*     this.customFieldValue = newData;
-      this.saved.emit(this.customFieldValue);
-      this.instance.isEditing = false;*/
   }
 
   saveIt() {
@@ -119,27 +141,7 @@ export class CustomFieldComponent implements OnInit{
   getIcone(customField: CustomField) {
     return CustomFieldComponent.getIcone(customField);
   }
-  isDisplayInList(){
-    return false;
-  }
-  isReadOnly(){
-    return false;
-  }
-  isFullShow() {
-      return true;
-  }
-  getClass(){
-    return this.viewMode;
-  }
-
   setViewMode(viewMode: string) {
     this.viewMode = viewMode;
   }
 }
-/*whith-icone;
-whith-icone-ro;
-ro;
-info;
-info-edit;
-view;
-chip;*/
