@@ -5,6 +5,7 @@ import {HttpClient} from "@angular/common/http";
 import CalendarColumnData = DayPilot.CalendarColumnData;
 import EventData = DayPilot.EventData;
 import {
+  CustomFieldValue,
   EventApp,
   EventSearchCriteria,
   EventTypeApp,
@@ -20,6 +21,7 @@ import {Apollo} from "apollo-angular";
 import {
   ALL_CUSTOM_FIELD,
   NEXT_EVENT,
+  PROJECT_DATE_VALUES,
   PROPOSE_NEXT_PERCENTEGE,
   SEARCH_EVENTS,
   supprimerTypename
@@ -298,6 +300,30 @@ export class EventsService {
   searchEventsAndSet(criteria: EventSearchCriteria) {
     this.searchEvents(criteria).subscribe(events => {
       this.setEvents(events);
+    });
+  }
+
+  /**
+   * Dates du projet portées par les champs personnalisés de type Date.
+   *
+   * Rien à voir avec `searchEvents` malgré les critères communs : on lit les
+   * `CustomFieldValue` telles quelles. Les convertir en événements de planning
+   * en enregistrerait un par valeur, simplement parce qu'on a ouvert une page.
+   */
+  projectDateValues(criteria: EventSearchCriteria) {
+    return new Observable<CustomFieldValue[]>(observer => {
+      this.apollo.query({
+        query: PROJECT_DATE_VALUES,
+        variables: {criteria},
+        fetchPolicy: "network-only"
+      }).subscribe((res: any) => {
+        observer.next(supprimerTypename(res.data.projectDateValues) ?? []);
+        observer.complete();
+      }, error => {
+        console.error(error);
+        observer.error(error);
+        observer.complete();
+      });
     });
   }
   searchEvents(criteria: EventSearchCriteria) {

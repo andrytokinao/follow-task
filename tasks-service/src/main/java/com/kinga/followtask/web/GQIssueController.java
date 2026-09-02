@@ -307,6 +307,10 @@ public class GQIssueController {
         return  eventService.searchEvents (criteria);
     }
     @QueryMapping
+    public List<CustomFieldValue> projectDateValues(@Argument EventSearchCriteriaDTO criteria) {
+        return eventService.projectDateValues(criteria);
+    }
+    @QueryMapping
     public PlanningEvent nextEvent(@Argument EventSearchCriteriaDTO criteria, @Argument Long projectId) {
         return eventService.nextEvent(criteria,projectId);
     }

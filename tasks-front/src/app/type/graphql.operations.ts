@@ -1984,6 +1984,7 @@ const LOAD_ISSUE_MASTER_BY_PROJECT = gql`
         numeric
         date
         text
+        string
         values
         customField {
           id
@@ -2114,6 +2115,7 @@ const SEARCH_ISSUES = gql`
         numeric
         date
         text
+        string
         values
         customField {
           id
@@ -2255,16 +2257,36 @@ const SEARCH_EVENTS  = gql`
         photo
       }
       completionPercentage
-      # Renseigné pour les événements générés depuis une valeur de champ Date :
-      # permet de savoir de quel champ vient la date sans analyser le titre.
-      dateValue {
+
+    }
+  }
+`
+
+/**
+ * Dates du projet portées par les champs personnalisés de type Date.
+ * On lit les valeurs elles-mêmes : `searchEvents` les convertirait en
+ * événements de planning et les enregistrerait au passage.
+ */
+const PROJECT_DATE_VALUES = gql`
+  query projectDateValues($criteria:EventSearchCriteriaInput){
+    projectDateValues(criteria:$criteria){
+      id
+      date
+      customField {
         id
-        customField {
+        name
+        type
+      }
+      issue {
+        id
+        summary
+        issueKey
+        issueType {
           id
           name
+          level
         }
       }
-
     }
   }
 `
@@ -3622,6 +3644,7 @@ export {
   SAVE_EVENT,
   ALL_EVENT_TYPE,
   SEARCH_EVENTS,
+  PROJECT_DATE_VALUES,
   DELETE_EVENT_TYPE,
   EVENT_BY_ID,
   GET_PROJECT_BY_USER,

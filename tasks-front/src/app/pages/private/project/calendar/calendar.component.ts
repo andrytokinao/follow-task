@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {DayPilot} from '@daypilot/daypilot-lite-angular';
 import {Subject, takeUntil} from 'rxjs';
-import {CustomField, EventApp, EventSearchCriteria, Issue, Project} from '../../../../type/issue';
+import {CustomField, CustomFieldValue, EventSearchCriteria, Issue, Project} from '../../../../type/issue';
 import {EventsService} from '../../../../services/events.service';
 import {IssueService} from '../../../../services/issue.service';
 
@@ -9,16 +9,16 @@ import {IssueService} from '../../../../services/issue.service';
 interface AgendaDay {
   key: string;
   date: Date;
-  events: EventApp[];
+  events: CustomFieldValue[];
 }
 
 /**
- * Calendrier du projet : toutes les dates de l'espace de travail sur une
- * période, soit mois par mois, soit entre deux dates choisies.
+ * Calendrier du projet : les dates de l'espace de travail sur une période,
+ * soit mois par mois, soit entre deux dates choisies.
  *
- * Aux événements de planning s'ajoutent les dates portées par les champs
- * personnalisés de type Date — le serveur sait les transformer en événements
- * dès qu'on lui passe `customFieldIds`. Un menu laisse cocher les champs à
+ * Ce que le calendrier montre, ce sont les valeurs de champ personnalisé de
+ * type Date (`DateCustomFieldValue`) rattachées au projet courant, lues telles
+ * quelles — pas des événements de planning. Un menu laisse cocher les champs à
  * afficher : les afficher tous d'office noierait le calendrier.
  */
 @Component({
@@ -54,7 +54,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
   selectedFieldIds: number[] = [];
 
   private project: Project | undefined;
-  private rawEvents: EventApp[] = [];
+  /** Valeurs brutes renvoyées par le serveur, avant mise en forme. */
+  private values: CustomFieldValue[] = [];
 
   configMonth: DayPilot.MonthConfig = {
     locale: CalendarComponent.LOCALE,
@@ -226,22 +227,28 @@ export class CalendarComponent implements OnInit, OnDestroy {
         this.monthStart.getFullYear(), this.monthStart.getMonth() + 1, 1)
     };
 
+    // Aucun champ coché : le serveur renverrait toutes les dates du projet, ce
+    // que le menu ne laisse justement pas demander.
+    if (!this.selectedFieldIds.length) {
+      this.values = [];
+      this.events = [];
+      this.agenda = [];
+      return;
+    }
+
     this.loading = true;
-    // `searchEvents` et non `searchEventsAndSet` : le flux partagé du service
-    // alimente le planning, y déverser le calendrier du projet ferait clignoter
-    // l'autre page.
-    this.eventService.searchEvents(criteria)
+    this.eventService.projectDateValues(criteria)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: events => {
+        next: values => {
           this.loading = false;
-          this.rawEvents = events ?? [];
-          this.events = this.rawEvents.map(event => this.toCalendarEvent(event));
-          this.agenda = this.buildAgenda(this.rawEvents);
+          this.values = values ?? [];
+          this.events = this.values.map(value => this.toCalendarEvent(value));
+          this.agenda = this.buildAgenda(this.values);
         },
         error: () => {
           this.loading = false;
-          this.rawEvents = [];
+          this.values = [];
           this.events = [];
           this.agenda = [];
         }
@@ -252,46 +259,40 @@ export class CalendarComponent implements OnInit, OnDestroy {
   // Présentation
   // -----------------------------------------------------------------------
 
-  isCustomFieldEvent(event: EventApp | any): boolean {
-    return !!event?.dateValue?.customField?.id;
+  fieldNameOf(value: CustomFieldValue | any): string {
+    return value?.customField?.name ?? '';
   }
 
-  fieldNameOf(event: EventApp | any): string {
-    return event?.dateValue?.customField?.name ?? '';
+  /** « CLE-12 · Échéance » : la clé situe la tâche, le champ dit quelle date
+   *  c'est. Le résumé complet est donné à côté dans l'agenda. */
+  eventLabel(value: CustomFieldValue | any): string {
+    return `${value?.issue?.issueKey ?? ''} · ${this.fieldNameOf(value)}`.trim();
   }
 
-  /** Le serveur nomme ces événements « CLE-1CF:Échéance » : lisible côté base,
-   *  pas côté calendrier. */
-  eventLabel(event: EventApp | any): string {
-    if (this.isCustomFieldEvent(event)) {
-      return `${event.issue?.issueKey ?? ''} · ${this.fieldNameOf(event)}`.trim();
-    }
-    return (event?.title ?? '').trim() || 'Sans titre';
+  eventColor(value: CustomFieldValue | any): string {
+    return this.fieldColor(value?.customField?.id);
   }
 
-  eventColor(event: EventApp | any): string {
-    if (this.isCustomFieldEvent(event)) {
-      return this.fieldColor(event.dateValue.customField.id);
-    }
-    return event?.customColor || event?.eventType?.defaultColor || '#64748b';
-  }
-
-  private toCalendarEvent(event: EventApp | any): DayPilot.EventData {
+  private toCalendarEvent(value: CustomFieldValue | any): DayPilot.EventData {
+    const start = CalendarComponent.startOfDay(new Date(value.date));
     return {
-      id: event.id,
-      text: this.eventLabel(event),
-      start: event.start,
-      end: event.end,
-      backColor: this.eventColor(event),
+      id: value.id,
+      text: this.eventLabel(value),
+      start: DayPilot.Date.fromYearMonthDay(
+        start.getFullYear(), start.getMonth() + 1, start.getDate()),
+      // Une date de champ n'a pas de durée : la journée entière, comme un jalon.
+      end: DayPilot.Date.fromYearMonthDay(
+        start.getFullYear(), start.getMonth() + 1, start.getDate()).addDays(1),
+      backColor: this.eventColor(value),
       fontColor: '#ffffff',
-      issue: event.issue
+      issue: value.issue
     } as any;
   }
 
-  private buildAgenda(events: EventApp[]): AgendaDay[] {
+  private buildAgenda(values: CustomFieldValue[]): AgendaDay[] {
     const byDay = new Map<string, AgendaDay>();
-    for (const event of events) {
-      const date = new Date(event.start as any);
+    for (const event of values) {
+      const date = new Date(event.date as any);
       if (isNaN(date.getTime())) {
         continue;
       }
@@ -303,23 +304,15 @@ export class CalendarComponent implements OnInit, OnDestroy {
     }
     const days = [...byDay.values()].sort((a, b) => a.date.getTime() - b.date.getTime());
     for (const day of days) {
-      day.events.sort((a, b) => String(a.start).localeCompare(String(b.start)));
+      // Plusieurs champs peuvent tomber le même jour : on range par nom de
+      // champ pour que l'ordre ne dépende pas de celui de la base.
+      day.events.sort((a, b) => this.fieldNameOf(a).localeCompare(this.fieldNameOf(b)));
     }
     return days;
   }
 
   dayLabel(day: AgendaDay): string {
     return day.date.toLocaleDateString('fr-FR', {weekday: 'long', day: 'numeric', month: 'long'});
-  }
-
-  timeLabel(event: EventApp | any): string {
-    if (event?.allDay) {
-      return 'Journée';
-    }
-    const date = new Date(event?.start);
-    return isNaN(date.getTime())
-      ? ''
-      : date.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'});
   }
 
   openIssue(issue: Issue | any): void {

@@ -68,18 +68,20 @@
       <button
         type="button"
         class="cal-row"
-        *ngFor="let event of day.events"
-        (click)="openIssue(event.issue)"
+        *ngFor="let value of day.events"
+        (click)="openIssue(value.issue)"
       >
-        <span class="cal-row-dot" [style.background]="eventColor(event)"></span>
-        <span class="cal-row-time">{{ timeLabel(event) }}</span>
-        <span class="cal-row-title">{{ eventLabel(event) }}</span>
-        <span class="cal-row-issue" *ngIf="event.issue?.summary">{{ event.issue.summary }}</span>
+        <span class="cal-row-dot" [style.background]="eventColor(value)"></span>
+        <span class="cal-row-field">{{ fieldNameOf(value) }}</span>
+        <span class="cal-row-title">{{ value.issue?.issueKey }}</span>
+        <span class="cal-row-issue" *ngIf="value.issue?.summary">{{ value.issue.summary }}</span>
       </button>
     </div>
 
     <p class="cal-empty" *ngIf="!agenda.length && !loading">
-      Aucune date sur cette période.
+      {{ selectedFieldIds.length
+          ? 'Aucune date sur cette période.'
+          : 'Choisissez un champ de type Date à afficher.' }}
     </p>
   </section>
 </div>

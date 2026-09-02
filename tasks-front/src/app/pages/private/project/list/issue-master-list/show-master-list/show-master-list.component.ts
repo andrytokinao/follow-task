@@ -143,6 +143,11 @@ export class ShowMasterListComponent implements OnInit, OnDestroy {
     this.issueService.loadingListSubtask$.subscribe(isLoading => {
       this.isLoading = isLoading.valueOf();
     });
+    // Même flux que les vues tableau et board : l'export porte donc exactement
+    // sur les lignes affichées, filtre compris.
+    this.issueService.issueMasterList$.subscribe(masters => {
+      this.issues = masters ?? [];
+    });
   }
 
   ngOnInit(): void {

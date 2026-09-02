@@ -3,6 +3,7 @@ package com.kinga.followtask.service;
 import com.kinga.followtask.dto.EventSearchCriteriaDTO;
 import com.kinga.followtask.entity.*;
 import com.kinga.followtask.entity.enumapp.ExecutionStatus;
+import com.kinga.followtask.entity.enumapp.Niveau;
 import com.kinga.followtask.repository.*;
 import com.kinga.followtask.repository.criteria.IssueSearchCriteria;
 import lombok.RequiredArgsConstructor;
@@ -88,6 +89,46 @@ public class EventService {
       }
       return events;
   }
+  /**
+   * Dates du projet portées par les champs personnalisés, lues telles quelles.
+   *
+   * À la différence de {@link #builddFromDateValue}, rien n'est converti ni
+   * enregistré : cette méthode ne fabrique pas d'événement de planning, elle
+   * retourne les {@code DateCustomFieldValue} du projet sur la période. Le
+   * calendrier de projet n'a besoin que de ça, et l'afficher ne doit rien
+   * écrire en base.
+   */
+  public List<CustomFieldValue> projectDateValues(EventSearchCriteriaDTO criteria) {
+    if (criteria == null || criteria.getProjectId() == null
+            || criteria.getStart() == null || criteria.getEnd() == null) {
+      return new ArrayList<>();
+    }
+    List<CustomFieldValue> values = valueDaoRepository.findProjectDateValues(
+            criteria.getProjectId(),
+            Date.from(criteria.getStart().toInstant(ZoneOffset.UTC)),
+            Date.from(criteria.getEnd().toInstant(ZoneOffset.UTC)));
+
+    // Filtres facultatifs appliqués après coup : la période et le projet ont
+    // déjà réduit l'ensemble à ce qu'un mois de projet peut contenir.
+    List<Long> customFieldIds = criteria.getCustomFieldIds();
+    if (!CollectionUtils.isEmpty(customFieldIds)) {
+      values = values.stream()
+              .filter(v -> v.getCustomField() != null
+                      && customFieldIds.contains(v.getCustomField().getId()))
+              .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    List<Niveau> levels = criteria.getIssueTypeLevels();
+    if (!CollectionUtils.isEmpty(levels)) {
+      values = values.stream()
+              .filter(v -> v.getIssue() != null
+                      && v.getIssue().getIssueType() != null
+                      && levels.contains(v.getIssue().getIssueType().getLevel()))
+              .collect(Collectors.toCollection(ArrayList::new));
+    }
+    return values;
+  }
+
   public List<PlanningEvent> builddFromDateValue(EventSearchCriteriaDTO eCriteria) {
     Long projectId = eCriteria.getProjectId();
     LocalDateTime start = eCriteria.getStart();
@@ -95,11 +136,6 @@ public class EventService {
     List<PlanningEvent> events = new ArrayList<>();
     IssueSearchCriteria iCriteria = new IssueSearchCriteria();
     iCriteria.setProjectId(projectId);
-    // Le calendrier de projet ne montre pour l'instant que les dates portées
-    // par les tâches parentes ; sans niveau demandé on garde tous les niveaux.
-    if (!CollectionUtils.isEmpty(eCriteria.getIssueTypeLevels())) {
-      iCriteria.setIssueTypeLevels(eCriteria.getIssueTypeLevels());
-    }
 
     List<Long> cfIds = eCriteria.getCustomFieldIds();
     for (Long cfId: eCriteria.getCustomFieldIds()) {

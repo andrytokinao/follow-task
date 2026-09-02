@@ -39,6 +39,7 @@ import {LabelFormComponent} from "../../../../common/label-form/label-form.compo
 import {TableMasterComponent} from "./issue-master-list/table-master/table-master.component";
 import {IssueBoaardComponent} from "./issue-boaard/issue-boaard.component";
 import {IconeViewComponent} from "../../../../common/icone-view/icone-view.component";
+import {ExportMenuComponent} from "../../../../common/export-menu/export-menu.component";
 
 @NgModule({
   declarations: [
@@ -87,7 +88,8 @@ import {IconeViewComponent} from "../../../../common/icone-view/icone-view.compo
     DayPilotModule,
     ProjectModule,
     MatDividerModule,
-    IconeViewComponent
+    IconeViewComponent,
+    ExportMenuComponent
 
   ]
 })

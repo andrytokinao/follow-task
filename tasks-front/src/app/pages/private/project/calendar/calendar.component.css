@@ -327,10 +327,14 @@
   border-radius: var(--radius-pill);
 }
 
-/* Largeur fixe : les heures s'alignent en colonne d'une ligne à l'autre. */
-.cal-row-time {
+/* Largeur fixe : les noms de champ s'alignent en colonne d'une ligne à
+   l'autre, on lit la journée d'un coup d'œil. */
+.cal-row-field {
   flex-shrink: 0;
-  width: 56px;
+  width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-size: 11px;
   font-weight: 600;
   color: var(--c-text-muted);

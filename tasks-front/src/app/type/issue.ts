@@ -112,7 +112,10 @@ export class Comment {
 export interface CustomField {
   id:number;
   name?:String;
-  type?:'String' | 'Date' | 'Number' | 'User' | 'Selection' | 'Checkbox';
+  // Les valeurs écrites par l'application sont 'CheckBox', 'Link' et 'Issue' :
+  // le type déclarait 'Checkbox' (b minuscule), qu'aucun code n'émet, ce qui
+  // rendait toute comparaison typée impossible.
+  type?:'String' | 'Date' | 'Number' | 'User' | 'Selection' | 'CheckBox' | 'Link' | 'Issue';
   options?:String[];
   configDisplay?:String[];
   issueTypes?:UsingCustomField[],

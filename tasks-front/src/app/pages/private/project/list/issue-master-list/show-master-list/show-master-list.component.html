@@ -18,7 +18,9 @@
       <input type="text" placeholder="Rechercher…" [(ngModel)]="searchTerm" />
     </div>
 
-    <button mat-button [matMenuTriggerFor]="filterMenu"
+    <!-- Bouton simple et non `mat-button` : la barre aligne ses propres
+         hauteurs, les styles MDC les écrasaient. -->
+    <button type="button" [matMenuTriggerFor]="filterMenu"
             class="filter-trigger"
             [class.active]="selectedFilter && selectedFilter.id !== noFilter.id">
       <i class="fas fa-filter"></i>
@@ -26,6 +28,12 @@
       <span class="filter-badge" *ngIf="selectedFilter && selectedFilter.id !== noFilter.id">1</span>
       <i class="fas fa-chevron-down"></i>
     </button>
+
+    <app-export-menu
+      [issues]="issues"
+      [fileName]="(project?.prefix || 'projets') + '-demandes'"
+      [sheetName]="'Demandes'"
+    ></app-export-menu>
 
     <mat-menu #filterMenu="matMenu" class="filter-mat-menu">
       <button mat-menu-item
@@ -78,6 +86,14 @@
           [class.active]="selectedFilter && selectedFilter.id !== noFilter.id">
     <i class="fas fa-filter"></i><span>Filtres</span>
   </button>
+
+  <!-- La topbar est masquée sous 640 px : l'export doit rester atteignable. -->
+  <app-export-menu
+    class="mobile-export"
+    [issues]="issues"
+    [fileName]="(project?.prefix || 'projets') + '-demandes'"
+    [label]="'Export'"
+  ></app-export-menu>
 
   <!-- Recherche expansible -->
   <div class="search-expand" [class.open]="searchOpen">

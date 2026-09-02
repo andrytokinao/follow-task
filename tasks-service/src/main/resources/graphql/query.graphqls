@@ -40,6 +40,10 @@ type Query {
     searchIssues(criteria:IssueSearchCriteriaInput):[Issue]
     allEventType:[EventType]
     searchEvents(criteria:EventSearchCriteriaInput):[Event]
+    # Dates du projet portées par les champs personnalisés, sans passer par un
+    # événement de planning. Réutilise EventSearchCriteriaInput : les critères
+    # utiles sont exactement les mêmes (projet, période, champs, niveau).
+    projectDateValues(criteria:EventSearchCriteriaInput):[CustomFieldValue]
     nextEvent(criteria:EventSearchCriteriaInput,projectId:Int):Event
     getByEventId(eventId:Int):Event
     getProjectByUser(userId:String):[Project]

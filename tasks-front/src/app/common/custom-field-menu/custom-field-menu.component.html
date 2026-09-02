@@ -15,7 +15,7 @@
 
 <!-- stopPropagation : le panneau de mat-menu se referme au moindre clic, ce qui
      interdirait de taper dans le formulaire de création. -->
-<mat-menu #menu="matMenu" class="cfm-menu">
+<mat-menu #menu="matMenu" panelClass="cfm-menu">
   <div class="cfm-panel" (click)="$event.stopPropagation()">
 
     <!-- ============================ Liste ============================ -->
