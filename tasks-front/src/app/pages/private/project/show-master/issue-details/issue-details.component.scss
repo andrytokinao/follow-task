@@ -520,13 +520,13 @@ $t:             all .15s cubic-bezier(.4,0,.2,1);
   gap: 8px;
   align-self: start;
 
-  @media (min-width: 961px) {
-    position: sticky;
-    top: 56px;
-    max-height: calc(100vh - 72px);
-    overflow-y: auto;
-    scrollbar-width: thin;
-  }
+  // La colonne était bornée à la hauteur de l'écran avec un défilement interne
+  // (`position:sticky` + `max-height:calc(100vh - 72px)` + `overflow-y:auto`).
+  // Dès que les trois cartes dépassaient cette hauteur — ce qui arrive vite
+  // avec quelques champs personnalisés — la fin de la liste tombait sous le
+  // pli, dans une zone de défilement que rien ne signalait : les champs
+  // paraissaient absents. Rien n'est plus collé ni borné ici : la colonne
+  // défile avec la page, au même titre que la colonne principale.
 
   @media (max-width: 960px) { order: -1; }
 }
