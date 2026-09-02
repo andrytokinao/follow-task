@@ -186,7 +186,11 @@ export class PrivateComponent implements  OnInit{
 
   ngOnInit(): void {
 
-    this.authService.getProfile(true).subscribe(profile => {
+    // Sans forceRefresh : le profil vient d'etre charge par la connexion (ou
+    // par le garde de route). Le rafraichissement force relancait une requete
+    // api/profile a chaque montage du shell prive, donc a chaque retour sur
+    // /working.
+    this.authService.getProfile().subscribe(profile => {
       this.profile = profile;
     });
     this.authService.connectedUser$.subscribe(user => {

@@ -61,7 +61,7 @@ type MessageApp {
   id: ID!
   externalMessageId: String
   canalExternalId:String
-  canall: Canal!
+  canall: Canall
   created: String!
   text: String!
   mediaType: String

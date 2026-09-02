@@ -66,13 +66,23 @@ export class AuthService {
 
   }
 
-  loadConnectedUserByUsername(username:String) {
-    this.connectedLoading = true;
-    this.userService.getUser(username).subscribe((res) => {
-      this.userSubject.next(res);
-      this.redirigerApresConnexion();
-
-      this.connectedLoading = false;
+  /**
+   * Sequence de fin de connexion : un seul chargement de profil, puis la
+   * redirection.
+   *
+   * L'ecran de connexion enchainait auparavant getProfile(true), loadProfile()
+   * et loadConnectedUserByUsername() : trois declencheurs pour le meme etat,
+   * soit jusqu'a six requetes concurrentes (visibles dans les logs serveur en
+   * autant de "Inding by login"), et une redirection en course avec un
+   * chargement de profil encore en vol.
+   */
+  finaliserConnexion(): void {
+    this.redirectionDemandee = false;
+    this.profileLoading = true;
+    this.chargerProfil().subscribe({
+      next: () => this.redirigerApresConnexion(),
+      // En echec, chargerProfil a deja renvoye vers /login.
+      error: () => {}
     });
   }
 
@@ -110,7 +120,16 @@ export class AuthService {
     return this.profile$;
   }
   loadProfile(){
-    this.http
+    this.chargerProfil().subscribe({ error: () => {} });
+  }
+
+  /**
+   * Requete de profil partagee par loadProfile() et finaliserConnexion().
+   * Ne declenche rien par elle-meme : c'est l'appelant qui s'abonne, et qui
+   * decide ce qu'il fait du resultat.
+   */
+  private chargerProfil(): Observable<any> {
+    return this.http
       .get<any>(`${environment.apiURL}api/profile`, { withCredentials: true })
       .pipe(
         tap((res) => {
@@ -129,8 +148,7 @@ export class AuthService {
           this.profileLoading = false;
           return throwError(() => err);
         })
-      )
-      .subscribe();
+      );
   }
   loadConnectedUser(): void {
     if (!this.profile?.username) return;

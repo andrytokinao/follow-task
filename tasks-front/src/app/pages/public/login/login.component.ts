@@ -80,12 +80,13 @@ export class LoginComponent implements OnInit{
   }
 
   private onLoginSuccess(username:String): void {
-    this.authService.getProfile(true).subscribe();
     this.loginMessage = 'Connexion réussie ! Redirection en cours...';
     this.loginErrorMessage = undefined;
     this.loginInProgress = false;
-    this.authService.loadProfile();
-    this.authService.loadConnectedUserByUsername(username);
+    // Un seul point d'entree : profil charge, puis redirection. La redirection
+    // ne part plus avant que les permissions soient connues, ce qui evitait
+    // aux gardes de /working de statuer sur un profil encore vide.
+    this.authService.finaliserConnexion();
   }
   // Bascule explicite entre les deux onglets. Chaque méthode ferme aussi
   // l'écran "mot de passe oublié", qui est un troisième état indépendant.

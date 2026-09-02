@@ -1,17 +1,17 @@
-import { CUSTOM_ELEMENTS_SCHEMA, NgModule, isDevMode } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { appRoutes, AppRoutingModule } from "./app.routing.module";
+import { CUSTOM_ELEMENTS_SCHEMA, ErrorHandler, NgModule, isDevMode } from '@angular/core';
+import { AppRoutingModule } from "./app.routing.module";
 import { AppComponent } from "./app.component";
 import { BrowserModule } from "@angular/platform-browser";
-import { BrowserAnimationsModule, provideAnimations } from '@angular/platform-browser/animations';
+import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { FormsModule } from '@angular/forms';
-import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
-import { provideRouter, TitleStrategy } from "@angular/router";
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { TitleStrategy } from "@angular/router";
 import { AppTitleStrategy } from "./services/app-title.strategy";
 
 import { CookieService } from "ngx-cookie-service";
 import { HttpInterceptorService } from "./services/http.service";
+import { ChunkErrorHandler } from "./services/chunk-error.handler";
 import { ToastrModule } from "ngx-toastr";
 import { MarkdownModule } from "ngx-markdown";
 import { QuillModule } from "ngx-quill";
@@ -19,7 +19,6 @@ import { NgbModule } from "@ng-bootstrap/ng-bootstrap";
 import { ServiceWorkerModule } from '@angular/service-worker';
 
 import { GraphQLModule } from "./type/graphql.module";
-import { ProjectModule } from "./pages/private/project/project.module";
 import {OverlayModule} from "@angular/cdk/overlay";
 
 @NgModule({
@@ -27,13 +26,10 @@ import {OverlayModule} from "@angular/cdk/overlay";
     AppComponent,
   ],
   imports: [
+    // BrowserModule reexporte CommonModule : l'importer en plus n'ajoutait rien.
     BrowserModule,
-    BrowserAnimationsModule,
-    CommonModule,
-    HttpClientModule,
     FormsModule,
     AppRoutingModule,
-    ProjectModule,
     NgbModule,
     GraphQLModule,
     OverlayModule,
@@ -77,6 +73,7 @@ import {OverlayModule} from "@angular/cdk/overlay";
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   providers: [
     CookieService,
+    provideHttpClient(withInterceptorsFromDi()),
     {
       provide: HTTP_INTERCEPTORS,
       useClass: HttpInterceptorService,
@@ -84,7 +81,9 @@ import {OverlayModule} from "@angular/cdk/overlay";
     },
     provideAnimations(),
     provideNativeDateAdapter(),
-    provideRouter(appRoutes),
+    // Un chargement de chunk paresseux qui echoue laissait un ecran blanc :
+    // le routeur abandonne la navigation et personne ne le signalait.
+    { provide: ErrorHandler, useClass: ChunkErrorHandler },
     // Déclaré après les imports : ce provider remplace le DefaultTitleStrategy
     // fourni par RouterModule.forRoot().
     { provide: TitleStrategy, useClass: AppTitleStrategy },

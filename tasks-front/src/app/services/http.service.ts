@@ -57,9 +57,14 @@ export class HttpInterceptorService implements HttpInterceptor {
             throw new Error('Utilisateur introuvable');
           }
 
+          // Aucune branche ne renvoie `of()` : un observable qui se termine
+          // sans emettre ne declenche ni `next` ni `error` chez l'appelant.
+          // Les gardes et resolveurs construits sur ces appels n'emettaient
+          // alors jamais, et le routeur restait bloque sur une navigation
+          // inachevee — ecran blanc, sans la moindre trace.
           if (error.status === 302) {
-            console.warn('[HTTP] Redirection détectée, ignorée.');
-            return of();
+            console.warn('[HTTP] Redirection détectée.');
+            return throwError(() => error);
           }
 
           if (error.status === 0) {
@@ -69,7 +74,7 @@ export class HttpInterceptorService implements HttpInterceptor {
 
           if (this.isLoginPage(error.error)) {
             this.handleSessionExpired();
-            return of();
+            return throwError(() => error);
           }
 
           if (error.status !== 200)
@@ -84,7 +89,7 @@ export class HttpInterceptorService implements HttpInterceptor {
               console.log('Le texte ne contient pas le champ username.');
             }
           }
-          return of();
+          return throwError(() => error);
         }
         return throwError(() => error);
       })

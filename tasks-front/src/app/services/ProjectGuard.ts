@@ -51,19 +51,30 @@ export class ProjectGuard implements CanActivate {
           observer.complete();
         });
       } else {
-        this.authService.getProfile().subscribe((profile) => {
-          this.profile = profile;
-          let permissions: string[] = this.profile.permissions;
-          let data:any = route.data;
-          this.checkAccessForProject(data.roles,permissions).subscribe(autorize => {
-            observer.next(autorize);
-            console.debug("canActivate -> getProfile -> checkCredencialForProject : autorize",autorize);
-            if (!autorize) {
-              this.router.navigate(["working/access-denied"]);
+        // `profile$` peut emettre null (session absente) : sans ce garde, la
+        // lecture de `permissions` levait une exception dans le callback et le
+        // routeur restait bloque sur une navigation jamais resolue.
+        this.authService.getProfile().subscribe({
+          next: (profile) => {
+            if (!profile?.permissions) {
+              return;
             }
+            this.profile = profile;
+            let permissions: string[] = profile.permissions;
+            let data:any = route.data;
+            this.checkAccessForProject(data.roles,permissions).subscribe(autorize => {
+              observer.next(autorize);
+              console.debug("canActivate -> getProfile -> checkCredencialForProject : autorize",autorize);
+              if (!autorize) {
+                this.router.navigate(["working/access-denied"]);
+              }
+              observer.complete();
+            });
+          },
+          error: () => {
+            observer.next(false);
             observer.complete();
-          });
-
+          }
         })
       }
     });
@@ -118,12 +129,18 @@ export class ProjectGuard implements CanActivate {
           observer.next(true);
           observer.complete();
         } else {
-          this.addPrefix([...toCheck]).subscribe(projectRole => {
-            projectRole.every((role: string) => {
-              authorized = permissions.includes(role);
-            })
-            observer.next(authorized);
-            observer.complete();
+          this.addPrefix([...toCheck]).subscribe({
+            next: projectRole => {
+              // `every` avec un callback sans return s'arretait au premier
+              // element : seul le premier role etait reellement teste.
+              authorized = projectRole.some((role: string) => permissions.includes(role));
+              observer.next(authorized);
+              observer.complete();
+            },
+            error: () => {
+              observer.next(false);
+              observer.complete();
+            }
           });
         }
       } else {
@@ -137,12 +154,16 @@ export class ProjectGuard implements CanActivate {
     return new Observable<boolean>(observer => {
       let authorized = false;
       if (toCheck) {
-          this.addPrefix([...toCheck]).subscribe(projectRole => {
-            projectRole.every((role: string) => {
-              authorized = permissions.includes(role);
-            })
-            observer.next(authorized);
-            observer.complete();
+          this.addPrefix([...toCheck]).subscribe({
+            next: projectRole => {
+              authorized = projectRole.some((role: string) => permissions.includes(role));
+              observer.next(authorized);
+              observer.complete();
+            },
+            error: () => {
+              observer.next(false);
+              observer.complete();
+            }
           });
       } else {
         console.error("non data");
@@ -197,23 +218,46 @@ export class ProjectGuard implements CanActivate {
   hasAutorityInProject(toVerifies: string[]) {
    // return this.hasAutorityAsync(this.addPrefix(toVerifies));
   }
+  /**
+   * Prefixe les roles demandes par ceux des groupes de l'utilisateur sur le
+   * projet courant.
+   *
+   * Le chargement des groupes n'est declenche qu'une fois. Auparavant, chaque
+   * emission vide de `groupeUsers$` relancait la requete : quand le projet ne
+   * renvoyait aucun groupe (droits absents, ou reponse en erreur avalee par
+   * l'intercepteur), la liste restait vide, le garde n'emettait jamais et le
+   * routeur attendait indefiniment — d'ou l'ecran blanc sur /working/:project,
+   * accompagne d'une boucle de requetes.
+   */
   private addPrefix(toVerifies: string[]) {
     return new Observable<string[]>(observer => {
-      const nouvelleListe: string[] = [];
-      this.userService.groupeUsers$.subscribe(groupes => {
-        if (groupes && groupes.length !=0) {
-          for (const groupe of this.groupeUsers) {
+      let chargementDemande = false;
+
+      const abonnement = this.userService.groupeUsers$.subscribe(groupes => {
+        if (groupes && groupes.length !== 0) {
+          const nouvelleListe: string[] = [];
+          for (const groupe of groupes) {
             for (const value of toVerifies) {
               nouvelleListe.push(`${groupe.prefix}_${value}`);
             }
           }
           observer.next(nouvelleListe);
           observer.complete();
-        } else {
-          this.userService.loadGroupeUserForProject(this.projectPrefix);
+          return;
         }
-      })
 
+        if (chargementDemande) {
+          // Les groupes ont ete charges et le projet n'en a aucun pour cet
+          // utilisateur : c'est une reponse, pas une attente. On tranche.
+          observer.next([]);
+          observer.complete();
+          return;
+        }
+        chargementDemande = true;
+        this.userService.loadGroupeUserForProject(this.projectPrefix);
+      });
+
+      return () => abonnement.unsubscribe();
     })
 
   }

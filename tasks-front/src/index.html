@@ -7,17 +7,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="paikady.ico">
 
-  <script src="assets/js/lottie-player.js"></script>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <!-- defer : ce script n'est utilise qu'apres le demarrage d'Angular, il n'a
+       pas a bloquer l'analyse du document. -->
+  <script src="assets/js/lottie-player.js" defer></script>
 
   <script>
     var global = window;
   </script>
 
-  <link href="styles.css" rel="stylesheet">
+  <!-- Feuille de style tierce chargee sans bloquer le rendu : sur un reseau
+       ou fonts.googleapis.com est inaccessible (intranet, coupure), un
+       <link rel="stylesheet"> classique retenait le premier rendu jusqu'au
+       delai d'expiration du navigateur. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"
+        media="print" onload="this.media='all'">
+  <noscript>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  </noscript>
+
+  <!-- styles.css est injecte par le build (avec son empreinte en production) :
+       le referencer a la main pointait vers un fichier inexistant des que
+       outputHashing etait actif, et doublait le telechargement sinon. -->
 
   <link rel="manifest" href="manifest.webmanifest">
 </head>

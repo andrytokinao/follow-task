@@ -55,31 +55,47 @@ export class AuthGuard implements CanActivate {
             this.router.navigate(["working/access-denied"]);
           }
         } else {
-          alert("non data");
+          // Route sans `data.roles` : l'ancien code affichait une alerte et
+          // n'emettait rien, ce qui laissait le routeur en attente et l'ecran
+          // vide. Une route protegee sans role declare n'est pas accessible.
+          console.error("AuthGuard : aucune donnee 'roles' sur la route", state.url);
+          observer.next(false);
+          observer.complete();
         }
       } else {
-        this.authService.getProfile().subscribe((profile) => {
-          this.profile = profile;
-          let permissions: string[] = this.profile.permissions;
-          let data: any = route.data;
-          if (data && data.roles) {
-            data.roles.push('CAN_ACCESS_ALL');
-            let authorized = false;
-            if (permissions.includes('CAN_ACCESS_ALL')) {
-              authorized = true;
-            } else {
-              authorized = data.roles.every((role: string) => permissions.includes(role));
+        this.authService.getProfile().subscribe({
+          next: (profile) => {
+            if (!profile?.permissions) {
+              return;
             }
-            if (authorized) {
-              observer.next(true);
-              observer.complete();
+            this.profile = profile;
+            let permissions: string[] = profile.permissions;
+            let data: any = route.data;
+            if (data && data.roles) {
+              data.roles.push('CAN_ACCESS_ALL');
+              let authorized = false;
+              if (permissions.includes('CAN_ACCESS_ALL')) {
+                authorized = true;
+              } else {
+                authorized = data.roles.every((role: string) => permissions.includes(role));
+              }
+              if (authorized) {
+                observer.next(true);
+                observer.complete();
+              } else {
+                observer.next(false);
+                observer.complete();
+                this.router.navigate(["working/access-denied"]);
+              }
             } else {
+              console.error("AuthGuard : aucune donnee 'roles' sur la route", state.url);
               observer.next(false);
               observer.complete();
-              this.router.navigate(["working/access-denied"]);
             }
-          } else {
-            console.error("non data");
+          },
+          error: () => {
+            observer.next(false);
+            observer.complete();
           }
         })
       }
