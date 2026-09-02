@@ -144,12 +144,28 @@
   color: var(--cfm-text-faint);
 }
 
+/* La ligne n'est plus un bouton : elle porte à la fois l'accès à la saisie et
+   la case « utiliser sur ce type », et un bouton ne peut pas en contenir un. */
 .cfm-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
   width: 100%;
-  padding: 7px 8px;
+  padding: 0 8px 0 0;
+  border-radius: var(--cfm-radius);
+  transition: background 0.12s ease;
+}
+.cfm-item:hover {
+  background: var(--cfm-surface-muted);
+}
+
+.cfm-item-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  padding: 7px 0 7px 8px;
   border: none;
   border-radius: var(--cfm-radius);
   background: transparent;
@@ -158,13 +174,57 @@
   color: var(--cfm-text);
   text-align: left;
   cursor: pointer;
-  transition: background 0.12s ease;
 }
-.cfm-item:hover:not(:disabled) {
-  background: var(--cfm-surface-muted);
-}
-.cfm-item:disabled {
+.cfm-item-main:disabled {
   opacity: 0.5;
+  cursor: default;
+}
+
+/* ---- Case « utiliser ce champ sur ce type » ---- */
+.cfm-use {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 4px;
+  cursor: pointer;
+}
+.cfm-use input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.cfm-use-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--cfm-border-strong);
+  border-radius: 3px;
+  background: var(--cfm-surface);
+  color: transparent;
+  font-size: 8px;
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+.cfm-use:hover .cfm-use-box {
+  border-color: var(--cfm-primary);
+}
+.cfm-use input:checked + .cfm-use-box {
+  border-color: var(--cfm-primary);
+  background: var(--cfm-primary);
+  color: #fff;
+}
+.cfm-use input:focus-visible + .cfm-use-box {
+  box-shadow: 0 0 0 2px var(--cfm-primary-bg);
+}
+.cfm-use input:disabled + .cfm-use-box {
+  opacity: 0.45;
+}
+.cfm-use:has(input:disabled) {
   cursor: default;
 }
 
@@ -182,12 +242,6 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.cfm-item-tag {
-  flex-shrink: 0;
-  color: var(--cfm-text-faint);
-  font-size: 9px;
 }
 
 .cfm-empty {

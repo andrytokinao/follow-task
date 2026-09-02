@@ -1,6 +1,7 @@
 package com.kinga.followtask.dto;
 
 import com.kinga.followtask.entity.CustomField;
+import com.kinga.followtask.entity.enumapp.Niveau;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -15,6 +16,11 @@ public class EventSearchCriteriaDTO {
     private Long projectId;
     private LocalDateTime start;
     private LocalDateTime end;
+    /**
+     * Restreint les dates issues des champs personnalisés au niveau de tâche
+     * demandé. Vide : tous les niveaux, comportement d'origine.
+     */
+    private List<Niveau> issueTypeLevels;
     public EventSearchCriteriaDTO(){
 
     }

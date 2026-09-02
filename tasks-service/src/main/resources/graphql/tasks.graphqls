@@ -627,6 +627,7 @@ input EventSearchCriteriaInput {
     start: String  # Date/heure de début, facultatif
     end: String  # Date/heure de fin, facultatif
     customFieldIds:[Int]
+    issueTypeLevels:[String] # PARENT / SUB_TASK : restreint les dates de champ personnalisé
 }
 input DomainActivityInput {
     id:Int

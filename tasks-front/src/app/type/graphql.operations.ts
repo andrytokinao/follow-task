@@ -2255,6 +2255,15 @@ const SEARCH_EVENTS  = gql`
         photo
       }
       completionPercentage
+      # Renseigné pour les événements générés depuis une valeur de champ Date :
+      # permet de savoir de quel champ vient la date sans analyser le titre.
+      dateValue {
+        id
+        customField {
+          id
+          name
+        }
+      }
 
     }
   }

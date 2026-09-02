@@ -313,6 +313,8 @@ export interface EventSearchCriteria {
   parrentIds?:number[]
   start?: string
   end?: string
+  /** PARENT / SUB_TASK : restreint les dates issues des champs personnalisés. */
+  issueTypeLevels?:String[]
 }
 export interface Uploaded{
   id:number;

@@ -95,6 +95,11 @@ public class EventService {
     List<PlanningEvent> events = new ArrayList<>();
     IssueSearchCriteria iCriteria = new IssueSearchCriteria();
     iCriteria.setProjectId(projectId);
+    // Le calendrier de projet ne montre pour l'instant que les dates portées
+    // par les tâches parentes ; sans niveau demandé on garde tous les niveaux.
+    if (!CollectionUtils.isEmpty(eCriteria.getIssueTypeLevels())) {
+      iCriteria.setIssueTypeLevels(eCriteria.getIssueTypeLevels());
+    }
 
     List<Long> cfIds = eCriteria.getCustomFieldIds();
     for (Long cfId: eCriteria.getCustomFieldIds()) {

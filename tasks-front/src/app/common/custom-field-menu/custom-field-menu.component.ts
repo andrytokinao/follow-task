@@ -2,7 +2,7 @@ import {Component, EventEmitter, Input, OnInit, Output, ViewChild} from '@angula
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {MatMenuModule, MatMenuTrigger} from '@angular/material/menu';
-import {CustomField, CustomFieldValue, Issue} from '../../type/issue';
+import {CustomField, CustomFieldValue, Issue, UsingCustomField} from '../../type/issue';
 import {IssueService} from '../../services/issue.service';
 import {ProjectGuard} from '../../services/ProjectGuard';
 import {CustomFieldComponent} from '../custom-field/custom-field.component';
@@ -44,6 +44,10 @@ export class CustomFieldMenuComponent implements OnInit {
    *  ce type. */
   @Output() fieldAttached = new EventEmitter<CustomField>();
 
+  /** Émis quand un champ vient d'être retiré du type : même besoin de
+   *  rechargement côté hôte, dans l'autre sens. */
+  @Output() fieldDetached = new EventEmitter<CustomField>();
+
   /** Émis après l'enregistrement d'une valeur. */
   @Output() valueSaved = new EventEmitter<CustomFieldValue[]>();
 
@@ -83,6 +87,11 @@ export class CustomFieldMenuComponent implements OnInit {
   /** Valeur en cours de saisie, une fois le champ choisi. */
   pendingValue: CustomFieldValue | any = null;
 
+  /** Rattacher un champ engage tout un type de tâche : réservé au même droit
+   *  que la création. Relu à chaque ouverture, le projet courant peut ne pas
+   *  être encore chargé au premier `ngOnInit`. */
+  canConfig = false;
+
   constructor(
     private issueService: IssueService,
     protected projectGuard: ProjectGuard
@@ -93,6 +102,15 @@ export class CustomFieldMenuComponent implements OnInit {
     this.issueService.allCustomField$.subscribe(fields => {
       this.projectFields = fields ?? [];
     });
+    this.refreshCredential();
+  }
+
+  // `hasCredential` renvoie un Observable froid qui refait tout son travail à
+  // chaque abonnement : l'appeler dans le template le relançait à chaque cycle
+  // de détection. On le lit une fois par ouverture du menu.
+  private refreshCredential(): void {
+    this.projectGuard.hasCredential(['CAN_CONFIG_CUSTOM_FIELD'])
+      .subscribe(allowed => this.canConfig = allowed);
   }
 
   // -----------------------------------------------------------------------
@@ -105,6 +123,7 @@ export class CustomFieldMenuComponent implements OnInit {
     this.error = '';
     this.pendingValue = null;
     this.resetDraft();
+    this.refreshCredential();
     this.loadAssignedFields();
   }
 
@@ -174,43 +193,108 @@ export class CustomFieldMenuComponent implements OnInit {
   // Choix d'un champ
   // -----------------------------------------------------------------------
 
-  /** Champ déjà sur le type : rien à rattacher, on passe à la saisie. */
-  pickAssigned(field: CustomField): void {
-    this.openValueStep(field);
+  /** Le champ est-il utilisé par le type de la tâche courante ? */
+  isUsed(field: CustomField): boolean {
+    return this.assignedFields.some(f => f.id === field.id);
   }
 
-  /** Champ du projet non rattaché : on l'attache d'abord au type courant. */
-  pickAvailable(field: CustomField): void {
+  /** Clic sur le nom : saisir une valeur. Un champ pas encore sur le type est
+   *  rattaché au passage, sinon le clic n'aurait nulle part où écrire. */
+  pick(field: CustomField): void {
+    if (this.isUsed(field)) {
+      this.openValueStep(field);
+      return;
+    }
     this.attachToIssueType(field, () => this.openValueStep(field));
   }
 
-  private attachToIssueType(field: CustomField, done: () => void): void {
+  /** La case pilote le rattachement du champ au type, sans ouvrir la saisie. */
+  toggleUse(field: CustomField, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const wanted = input.checked;
+    // La case reflète `assignedFields` ; on la remet dans son état d'origine et
+    // c'est la réponse du serveur qui la fera basculer, pas le clic.
+    input.checked = !wanted;
+    if (wanted) {
+      this.attachToIssueType(field);
+    } else {
+      this.detachFromIssueType(field);
+    }
+  }
+
+  useHint(used: boolean): string {
+    if (!this.canConfig) {
+      return "Vous n'avez pas le droit de modifier les champs de ce type de tâche.";
+    }
+    return used
+      ? "Utilisé par ce type de tâche — décocher le retire de toutes les tâches de ce type"
+      : "Utiliser ce champ pour ce type de tâche";
+  }
+
+  private attachToIssueType(field: CustomField, done?: () => void): void {
     const issueTypeId = this.issueTypeId;
     if (!issueTypeId) {
       this.error = "Cette tâche n'a pas de type : impossible d'y rattacher un champ.";
       return;
     }
     this.saving = true;
+    this.error = '';
     // `useCustomField` est idempotent côté serveur : le rattacher deux fois ne
     // crée pas de doublon.
     this.issueService.useCustomField({customField: {id: field.id}, issueType: {id: issueTypeId}} as any)
       .subscribe({
-        next: () => {
+        next: using => {
           this.saving = false;
-          if (!this.assignedFields.some(f => f.id === field.id)) {
-            this.assignedFields = [...this.assignedFields, field];
-          }
+          this.applyAssigned(using, field, true);
           // Le flux projet porte le rattachement : sans rechargement, l'écran
           // de configuration afficherait encore l'ancien état.
           this.issueService.loadAllCustomField();
           this.fieldAttached.emit(field);
-          done();
+          done?.();
         },
         error: () => {
           this.saving = false;
           this.error = "Le rattachement du champ a échoué.";
         }
       });
+  }
+
+  private detachFromIssueType(field: CustomField): void {
+    const issueTypeId = this.issueTypeId;
+    if (!issueTypeId) {
+      return;
+    }
+    this.saving = true;
+    this.error = '';
+    this.issueService.unUseCustomField({customField: {id: field.id}, issueType: {id: issueTypeId}} as any)
+      .subscribe({
+        next: using => {
+          this.saving = false;
+          this.applyAssigned(using, field, false);
+          this.issueService.loadAllCustomField();
+          this.fieldDetached.emit(field);
+        },
+        error: () => {
+          this.saving = false;
+          this.error = "Le retrait du champ a échoué.";
+        }
+      });
+  }
+
+  /**
+   * Les deux mutations renvoient la liste à jour du type. Elle fait foi ; on ne
+   * retombe sur une mise à jour locale que si la réponse arrive vide, ce qui
+   * effacerait à tort les autres champs du type.
+   */
+  private applyAssigned(using: UsingCustomField[] | undefined, field: CustomField, used: boolean): void {
+    const fromServer = (using ?? []).map(u => u.customField).filter(Boolean) as CustomField[];
+    if (fromServer.length) {
+      this.assignedFields = fromServer;
+      return;
+    }
+    this.assignedFields = used
+      ? [...this.assignedFields, field]
+      : this.assignedFields.filter(f => f.id !== field.id);
   }
 
   // -----------------------------------------------------------------------
@@ -282,8 +366,17 @@ export class CustomFieldMenuComponent implements OnInit {
       this.close();
       return;
     }
-    this.pendingValue = CustomFieldComponent.newValue(this.issue, field);
+    this.pendingValue = CustomFieldComponent.newValue(this.issue, this.enrich(field));
     this.step = 'value';
+  }
+
+  /**
+   * `customFieldsByIssueType` et les mutations ne renvoient que `id/name/type`.
+   * Une liste déroulante ouverte depuis cette liste-là s'afficherait donc vide :
+   * on reprend la version du flux projet, seule à porter `options`.
+   */
+  private enrich(field: CustomField): CustomField {
+    return this.projectFields.find(f => f.id === field.id) ?? field;
   }
 
   /** L'utilisateur vient de désigner le champ : ouvrir en lecture puis exiger
