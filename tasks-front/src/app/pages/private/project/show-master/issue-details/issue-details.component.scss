@@ -44,6 +44,13 @@ $t:             all .15s cubic-bezier(.4,0,.2,1);
   top: 0;
   z-index: 50;
 
+  // Sur mobile, le sous-menu de l'issue maitre est desormais colle en haut et
+  // porte deja le fil d'Ariane. Deux barres collantes superposees se
+  // recouvriraient : celle-ci se contente de defiler avec la page.
+  @media (max-width: 768px) {
+    position: static;
+  }
+
   .issue-breadcrumb {
     display: flex;
     align-items: center;

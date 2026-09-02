@@ -85,26 +85,38 @@
 }
 
 @media (max-width: 768px) {
+  /* Le sous-menu etait epingle en bas de l'ecran. Il revient en haut et s'y
+     colle au bord superieur : la barre principale du projet s'efface des le
+     premier geste de defilement et lui laisse la place. Le fil d'Ariane monte
+     avec lui, dans cette meme barre. */
   .top-bar {
-    position: fixed;
-    bottom: 0;
-    top: auto;
-    left: 0;
-    right: 0;
-    border-top: 0.5px solid #e0ddd6;
-    border-bottom: none;
+    position: sticky;
+    top: 0;
+    bottom: auto;
+    gap: 10px;
+    padding: 0 12px;
+    border-top: none;
+    border-bottom: 0.5px solid #e0ddd6;
     background: rgba(255, 255, 255, 0.92);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    z-index: 200;
+    z-index: 90;
   }
 
   .breadcrumb-slot {
     order: 1;
   }
 
+  /* Sept onglets sur un ecran etroit : ils defilent lateralement plutot que
+     de comprimer le fil d'Ariane. */
   .nav-menu {
     order: 2;
+    flex-shrink: 1;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .nav-menu::-webkit-scrollbar {
+    display: none;
   }
 
   .nav-menu li a .nav-label {
@@ -122,12 +134,11 @@
   }
 
   .nav-menu li a {
-    padding: 6px 10px;
+    padding: 6px 9px;
     border-radius: 8px;
   }
 
   .master-container {
     padding: 16px;
-    padding-bottom: 64px;
   }
 }

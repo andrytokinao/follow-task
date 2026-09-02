@@ -179,16 +179,24 @@
 /* ── Content ── */
 .project-content {
   background: var(--content-bg);
-  /* `overflow: auto` a été retiré : avec `min-height` (et non `height`), ce
-     bloc grandit avec son contenu et ne défile jamais lui-même — il devenait
-     malgré tout le scrollport de référence, ce qui neutralisait tout
-     `position: sticky` des pages enfants.
-     `clip` (et non `hidden`) sur le seul axe horizontal : il retient les
-     débordements en largeur SANS créer de conteneur de défilement, donc le
-     sticky continue de fonctionner. `hidden` forcerait l'axe vertical en
-     `auto` et casserait à nouveau le collage. */
+  /* Aucune propriété `overflow` ici, et c'est délibéré.
+     `auto` puis `hidden` avaient déjà été retirés : ce bloc grandit avec son
+     contenu (`min-height`, pas `height`), il ne défile donc jamais lui-même,
+     mais il devenait quand même le scrollport de référence et neutralisait
+     tout `position: sticky` des pages enfants.
+     `clip` posait le même problème sous une autre forme : il ne crée pas de
+     conteneur de défilement, mais il fait de ce bloc le cadre de rognage
+     auquel les enfants collants s'épinglent. Un sous-menu se figeait alors sur
+     le bord de CE bloc — soit ~48 px sous le haut de l'écran — au lieu du bord
+     de l'écran. Le symptôme passait inaperçu sur les pages dont le sous-menu
+     est déjà en tête (issue maître), et sautait aux yeux sur celles où il
+     arrive plus bas (barre de statuts de la liste).
+     Le débordement horizontal se traite à sa source : `min-width: 0` autorise
+     cette colonne de grille à se comprimer, ce qu'un élément de grille refuse
+     par défaut (`min-width: auto`). Contrairement à `overflow`, cela n'a aucun
+     effet sur le collage. */
   min-height: 100vh;
-  overflow-x: clip;
+  min-width: 0;
   grid-column: 2; grid-row: 1;
 }
 
@@ -237,6 +245,15 @@
     border-bottom: 1px solid var(--sidebar-border);
     grid-column: 1; grid-row: 1;
     position: sticky; top: 0; z-index: 100;
+    transition: transform var(--t);
+  }
+
+  /* Des que la page defile, la barre s'escamote et laisse le bord superieur
+     de l'ecran aux sous-menus des pages, qui s'y epinglent a 0. La ligne de
+     la grille garde sa hauteur : elle sort de l'ecran d'elle-meme avec le
+     defilement, seul le comportement collant maintenait la barre visible. */
+  .projet.topbar-cachee .topbar-mobile {
+    transform: translateY(-100%);
   }
   .hamburger {
     width: 32px; height: 32px;
@@ -295,9 +312,12 @@
     min-height: calc(100vh - 48px);
   }
 
-  /* ── Bottom sheet workspace ── */
+  /* ── Feuille des espaces de travail ──
+     Ancree en haut et non en bas : le declencheur est dans la barre
+     superieure, la liste descend donc de la ou on l'a ouverte au lieu de
+     surgir a l'oppose de l'ecran. */
   .bsheet-overlay {
-    display: flex; flex-direction: column; justify-content: flex-end;
+    display: flex; flex-direction: column; justify-content: flex-start;
     position: fixed; inset: 0;
     background: rgba(0,0,0,0.3); z-index: 400;
     opacity: 0; pointer-events: none; transition: opacity var(--t);
@@ -305,28 +325,34 @@
   .bsheet-overlay.visible { opacity: 1; pointer-events: all; }
 
   .bsheet {
+    display: flex; flex-direction: column;
     background: var(--sidebar-bg);
-    border-radius: 16px 16px 0 0;
-    padding: 0 0 24px;
-    transform: translateY(100%);
+    border-radius: 0 0 16px 16px;
+    padding: 8px 0 0;
+    transform: translateY(-100%);
     transition: transform var(--t);
     max-height: 70vh; overflow-y: auto;
   }
   .bsheet-overlay.visible .bsheet { transform: translateY(0); }
 
+  /* La poignee passe sous la liste : elle indique le bord par lequel la
+     feuille se referme, qui est desormais le bas. */
   .bsheet-handle {
+    order: 3;
     width: 36px; height: 4px;
     background: var(--sidebar-border); border-radius: 2px;
-    margin: 12px auto 14px;
+    margin: 10px auto 12px;
   }
   .bsheet-title {
+    order: 1;
     font-size: 10px; font-weight: 600;
     color: var(--text-muted); letter-spacing: 0.05em;
     text-transform: uppercase;
-    padding: 0 16px 10px;
+    padding: 4px 16px 10px;
     border-bottom: 1px solid var(--sidebar-border);
   }
   .bsheet-item {
+    order: 2;
     display: flex; align-items: center; gap: 10px;
     padding: 10px 16px; cursor: pointer;
     transition: background 0.15s;

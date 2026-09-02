@@ -23,7 +23,6 @@
   /* Empêche un enfant large (barre de statuts, tag, champ personnalisé) de
      pousser la largeur de la page. Seule la barre de statuts défile
      horizontalement, et elle le fait dans son propre cadre. */
-  max-width: 90%;
   min-width: 0;
 }
 
@@ -36,14 +35,13 @@
    ========================================================================= */
 .status-bar {
   position: sticky;
+  /* S'epingle au bord superieur de l'ecran, pas sous la barre du shell : celle
+     de mobile s'efface des le premier geste de defilement et lui laisse la
+     place. */
   top: 0;
-  /* Sous la barre mobile du shell (.topbar-mobile, z-index 100), au-dessus
-     des cartes. */
   z-index: 5;
   display: flex;
   gap: 6px;
-  margin: -12px -12px 12px;
-  padding: 10px 12px;
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(6px);
   border-bottom: 1px solid var(--c-border);
@@ -393,8 +391,7 @@
   /* La barre mobile du shell est elle-même sticky sur 48 px : sans ce
      décalage, la barre de statuts se glisserait dessous en défilant. */
   .status-bar {
-    top: 48px;
-    margin: -10px -8px 10px;
+    top: 0px;
     padding: 8px;
   }
   .chip-label {

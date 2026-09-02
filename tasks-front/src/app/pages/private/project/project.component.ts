@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, OnInit} from '@angular/core';
+import {AfterViewInit, Component, HostListener, OnInit} from '@angular/core';
 import {ActivatedRoute, NavigationEnd, Route, Router, RouterOutlet} from "@angular/router";
 import {IssueService} from "../../../services/issue.service";
 import {Breadcrumb, Issue, Project, User} from "../../../type/issue";
@@ -58,6 +58,33 @@ export class ProjectComponent implements OnInit{
 
   openBottomSheet() { this.bottomSheetOpen = true; }
   closeBottomSheet() { this.bottomSheetOpen = false; }
+
+  // ---------------------------------------------------------------------
+  // Barre superieure mobile : effacement au defilement
+  // ---------------------------------------------------------------------
+
+  /** Tolerance avant de considerer la page comme defilee : le rebond elastique
+   *  des navigateurs mobiles renvoie quelques pixels parasites en haut de
+   *  course. */
+  private static readonly TOLERANCE = 8;
+
+  /**
+   * La barre n'est visible qu'en haut de page. Les sous-menus des pages
+   * s'epinglent au bord superieur de l'ecran : les laisser cohabiter les ferait
+   * se recouvrir, puisqu'ils viseraient la meme hauteur. Des le premier geste
+   * de defilement la barre s'efface donc et rend le bord au sous-menu ; elle
+   * revient quand on est remonte tout en haut.
+   *
+   * Pas de « reapparition au defilement vers le haut » : elle recouvrirait le
+   * sous-menu deja epingle a 0.
+   */
+  topbarCachee = false;
+
+  @HostListener('window:scroll')
+  onDefilement(): void {
+    const y = window.scrollY || document.documentElement.scrollTop || 0;
+    this.topbarCachee = y > ProjectComponent.TOLERANCE;
+  }
   openBottomSheetFromDrawer() {
     this.closeDrawer();
     setTimeout(() => this.openBottomSheet(), 180);
