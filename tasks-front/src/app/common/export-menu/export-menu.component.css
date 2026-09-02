@@ -1,0 +1,250 @@
+/* Variables locales : le bouton se pose dans des barres d'outils qui n'ont pas
+   toutes le même thème.
+   Elles sont déclarées deux fois volontairement : `mat-menu` déplace son
+   panneau dans l'overlay du CDK, à la racine du document. Le panneau n'est donc
+   plus un descendant de l'hôte et n'hérite pas des variables déclarées sur
+   `:host` — un `var()` non résolu annule la déclaration (fond transparent,
+   coche blanche invisible). */
+:host,
+.exp-panel {
+  --exp-primary: #185fa5;
+  --exp-primary-bg: #e8f0fe;
+  --exp-text: #1f2937;
+  --exp-muted: #6b7280;
+  --exp-faint: #9ca3af;
+  --exp-border: #e0e0e0;
+  --exp-surface: #ffffff;
+  --exp-surface-muted: #f5f5f5;
+}
+
+:host {
+  display: inline-flex;
+}
+
+/* ---- Déclencheur, aligné sur les autres boutons de la barre ---- */
+.exp-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--exp-border);
+  border-radius: 8px;
+  background: var(--exp-surface-muted);
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--exp-text);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.exp-trigger:hover {
+  border-color: var(--exp-primary);
+  background: var(--exp-primary-bg);
+  color: var(--exp-primary);
+}
+.exp-trigger i {
+  font-size: 12px;
+  color: #1d6f42; /* vert Excel : repère immédiat dans une barre chargée */
+}
+.exp-trigger:hover i {
+  color: var(--exp-primary);
+}
+
+/* ---- Panneau ---- */
+.exp-panel {
+  width: 270px;
+  font-family: inherit;
+  font-size: 12px;
+  color: var(--exp-text);
+}
+
+.exp-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--exp-border);
+}
+.exp-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--exp-muted);
+}
+.exp-count {
+  min-width: 18px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--exp-primary-bg);
+  color: var(--exp-primary);
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.exp-list {
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 4px;
+}
+
+.exp-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 6px 8px 2px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--exp-faint);
+}
+.exp-group-action {
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--exp-primary);
+  cursor: pointer;
+}
+.exp-group-action:hover {
+  text-decoration: underline;
+}
+
+.exp-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.exp-item:hover {
+  background: var(--exp-surface-muted);
+}
+.exp-item input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.exp-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 3px;
+  background: var(--exp-surface);
+  color: transparent;
+  font-size: 8px;
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+.exp-item:hover .exp-box {
+  border-color: var(--exp-primary);
+}
+/* Couleurs littérales : un `var()` non résolu annulerait le fond et laisserait
+   une coche blanche sur blanc. */
+.exp-item input:checked + .exp-box {
+  border-color: #185fa5;
+  background: #185fa5;
+  color: #ffffff;
+}
+.exp-item input:focus-visible + .exp-box {
+  box-shadow: 0 0 0 2px var(--exp-primary-bg);
+}
+
+.exp-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.exp-empty {
+  margin: 0;
+  padding: 14px 8px;
+  text-align: center;
+  font-size: 11px;
+  color: var(--exp-faint);
+}
+
+.exp-foot {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  padding: 8px;
+  border-top: 1px solid #e0e0e0;
+  background: #fff;
+}
+.exp-hint {
+  font-size: 10px;
+  color: #9ca3af;
+  text-align: center;
+}
+.exp-error {
+  font-size: 10px;
+  color: #b42318;
+  text-align: center;
+}
+
+/* Options du classeur : séparées des colonnes, elles ne portent pas sur une
+   colonne mais sur le fichier produit. */
+.exp-options {
+  padding: 4px;
+  border-top: 1px solid #e0e0e0;
+}
+
+/* Couleurs littérales : ce bouton est le seul moyen de lancer l'export, il ne
+   doit dépendre d'aucune variable héritée (le panneau vit dans l'overlay). */
+.exp-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  height: 32px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 6px;
+  background: #185fa5;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.exp-btn:hover:not(:disabled) {
+  background: #124a80;
+}
+.exp-btn:disabled {
+  background: #cbd5e1;
+  color: #6b7280;
+  cursor: default;
+}
+
+/* Sans préfixe `:host` : celui-ci exige un descendant de l'hôte, or le panneau
+   est déplacé dans l'overlay du CDK. La règle ne s'appliquait donc pas et la
+   marge interne de Material laissait une bande blanche en haut et en bas.
+   La classe `exp-menu` (panelClass) borne la portée de ces règles globales. */
+::ng-deep .exp-menu.mat-mdc-menu-panel {
+  min-width: 270px;
+  max-width: 320px;
+}
+::ng-deep .exp-menu .mat-mdc-menu-content {
+  padding: 0;
+}

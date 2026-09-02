@@ -184,23 +184,65 @@ public final class ExcelUtils {
     public static void write(List<Map<String, Object>> datas,
                              Map<String, Integer> headers,
                              OutputStream outputStream) throws IOException {
+        write(Map.of("Data", new SheetData(headers, datas)), outputStream);
+    }
+
+    /**
+     * Contenu d'une feuille : le mapping en-tête -&gt; index de colonne, et les
+     * lignes. Regroupés parce qu'un classeur à plusieurs feuilles a un jeu de
+     * colonnes différent par feuille.
+     */
+    public record SheetData(Map<String, Integer> headers, List<Map<String, Object>> rows) {
+    }
+
+    /**
+     * Génère un classeur à plusieurs feuilles sur un flux de sortie.
+     *
+     * <p>L'ordre des feuilles est celui d'itération de la Map : passer une
+     * {@link LinkedHashMap} pour le maîtriser.</p>
+     *
+     * <p>Le flux n'est PAS fermé : c'est à l'appelant de le faire, typiquement
+     * parce qu'il appartient à une réponse HTTP gérée par le framework.</p>
+     */
+    public static void write(Map<String, SheetData> sheets, OutputStream outputStream) throws IOException {
         try (Workbook workbook = new XSSFWorkbook()) {
-            Sheet sheet = workbook.createSheet("Data");
             CellStyle headerStyle = createHeaderStyle(workbook);
 
-            List<Map.Entry<String, Integer>> sortedHeaders = new ArrayList<>(headers.entrySet());
-            sortedHeaders.sort(Comparator.comparingInt(Map.Entry::getValue));
+            for (Map.Entry<String, SheetData> entry : sheets.entrySet()) {
+                SheetData data = entry.getValue();
+                if (data == null) {
+                    continue;
+                }
+                Sheet sheet = workbook.createSheet(safeSheetName(entry.getKey()));
 
-            writeHeaderRow(sheet, sortedHeaders, headerStyle);
-            writeDataRows(sheet, sortedHeaders, datas);
+                List<Map.Entry<String, Integer>> sortedHeaders = new ArrayList<>(data.headers().entrySet());
+                sortedHeaders.sort(Comparator.comparingInt(Map.Entry::getValue));
 
-            for (Map.Entry<String, Integer> entry : sortedHeaders) {
-                sheet.autoSizeColumn(entry.getValue());
+                writeHeaderRow(sheet, sortedHeaders, headerStyle);
+                writeDataRows(sheet, sortedHeaders, data.rows() == null ? List.of() : data.rows());
+
+                // La ligne d'en-tête reste visible au défilement : un export de
+                // plusieurs centaines de lignes se lit sinon à l'aveugle.
+                sheet.createFreezePane(0, 1);
+                for (Map.Entry<String, Integer> header : sortedHeaders) {
+                    sheet.autoSizeColumn(header.getValue());
+                }
             }
 
             workbook.write(outputStream);
             outputStream.flush();
         }
+    }
+
+    /**
+     * Excel refuse les noms de feuille de plus de 31 caractères et les
+     * caractères {@code : \ / ? * [ ]} ; POI lève plutôt que de corriger.
+     */
+    private static String safeSheetName(String name) {
+        String cleaned = (name == null || name.isBlank() ? "Feuille" : name)
+                .replaceAll("[:\\\\/?*\\[\\]]", " ")
+                .trim();
+        return cleaned.length() > 31 ? cleaned.substring(0, 31) : cleaned;
     }
 
     private static void writeHeaderRow(Sheet sheet,

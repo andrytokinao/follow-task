@@ -43,6 +43,14 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+        <!-- Apache POI : lecture/ecriture des classeurs .xlsx (voir ExcelUtils).
+             La version est explicite, Spring Boot ne gere pas POI dans sa
+             nomenclature. poi-ooxml tire poi, xmlbeans et commons-compress. -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>5.2.5</version>
+        </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

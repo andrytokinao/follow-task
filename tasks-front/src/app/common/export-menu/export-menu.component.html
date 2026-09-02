@@ -1,0 +1,74 @@
+<button
+  type="button"
+  class="exp-trigger"
+  [matMenuTriggerFor]="menu"
+  (menuOpened)="onMenuOpened()"
+  [title]="label + ' au format Excel'"
+>
+  <i class="fas fa-file-excel"></i>
+  <span>{{ label }}</span>
+</button>
+
+<!-- panelClass et non class : c'est l'entrée qui pose la classe sur le panneau
+     de l'overlay, seul moyen d'y annuler la marge interne de Material.
+     stopPropagation : sans cela, cocher une colonne refermerait le panneau. -->
+<mat-menu #menu="matMenu" panelClass="exp-menu">
+  <div class="exp-panel" (click)="$event.stopPropagation()">
+
+    <div class="exp-head">
+      <span class="exp-title">Colonnes du rapport</span>
+      <span class="exp-count">{{ selectedCount }}</span>
+    </div>
+
+    <div class="exp-list">
+      <p class="exp-group">
+        Colonnes standard
+        <button type="button" class="exp-group-action" (click)="toggleAll(standard)">
+          {{ allSelected(standard) ? 'Tout décocher' : 'Tout cocher' }}
+        </button>
+      </p>
+
+      <label class="exp-item" *ngFor="let column of standard">
+        <input type="checkbox" [checked]="column.selected" (change)="toggle(column)"/>
+        <span class="exp-box"><i class="fas fa-check"></i></span>
+        <span class="exp-name">{{ column.label }}</span>
+      </label>
+
+      <ng-container *ngIf="customFields.length">
+        <p class="exp-group">
+          Champs personnalisés
+          <button type="button" class="exp-group-action" (click)="toggleAll(customFields)">
+            {{ allSelected(customFields) ? 'Tout décocher' : 'Tout cocher' }}
+          </button>
+        </p>
+
+        <label class="exp-item" *ngFor="let column of customFields">
+          <input type="checkbox" [checked]="column.selected" (change)="toggle(column)"/>
+          <span class="exp-box"><i class="fas fa-check"></i></span>
+          <span class="exp-name">{{ column.label }}</span>
+        </label>
+      </ng-container>
+
+      <p class="exp-empty" *ngIf="!customFields.length">
+        Aucun champ personnalisé sur ce projet
+      </p>
+    </div>
+
+    <div class="exp-options">
+      <label class="exp-item">
+        <input type="checkbox" [checked]="includeSubtasks" (change)="includeSubtasks = !includeSubtasks"/>
+        <span class="exp-box"><i class="fas fa-check"></i></span>
+        <span class="exp-name">Feuille « Sous-tâches » (avancement)</span>
+      </label>
+    </div>
+
+    <div class="exp-foot">
+      <button type="button" class="exp-btn" [disabled]="!canExport || exporting" (click)="exportXlsx()">
+        <i class="fas" [ngClass]="exporting ? 'fa-circle-notch fa-spin' : 'fa-file-export'"></i>
+        <span>{{ exporting ? 'Génération…' : 'Exporter ' + issues.length + ' ligne(s)' }}</span>
+      </button>
+      <span class="exp-hint" *ngIf="!error">{{ selectedCount }} colonne(s) — filtre en cours</span>
+      <span class="exp-error" *ngIf="error">{{ error }}</span>
+    </div>
+  </div>
+</mat-menu>
