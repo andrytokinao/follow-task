@@ -22,7 +22,9 @@ public class Uploaded {
     private Document document;
     /** Auteur de l'upload, resolu depuis la session au moment de l'envoi. */
     @ManyToOne
+    @JoinColumn(name = "user_app_id")
     private UserApp userApp;
+    @Column(name = "upload_date")
     private LocalDateTime uploadDate;
 
     public Uploaded(String fileName, String path) {
