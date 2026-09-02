@@ -90,21 +90,37 @@ export class AuthService {
    * Renvoie l'utilisateur la ou son expiration de session l'a interrompu, ou
    * a defaut sur l'espace de travail.
    */
+  /** Destination par defaut. Sans barre finale : '/working/' se decoupe en deux
+   *  segments dont un vide, que les routes enfants — toutes en chemin '' — ne
+   *  consomment pas. Le routeur n'a alors plus rien a activer sous
+   *  PrivateComponent et le <router-outlet> reste vide, alors que la meme
+   *  adresse rechargee a la main repart d'une analyse propre et s'affiche. */
+  private static readonly ACCUEIL = '/working';
+
   redirigerApresConnexion(): void {
     if (this.redirectionDemandee) {
       return;
     }
     this.redirectionDemandee = true;
     const cible = this.redirection.consommer();
-    this.router.navigateByUrl(cible || '/working/')
+    this.router.navigateByUrl(cible || AuthService.ACCUEIL)
       .then(ok => {
-        // La cible memorisee peut avoir disparu ou etre refusee par un garde :
-        // on ne laisse pas l'utilisateur sur la page de connexion.
-        if (!ok && cible) {
-          this.router.navigate(['/working']);
+        // Le repli ne doit pas dependre de `cible` : sans page memorisee la
+        // navigation visait deja l'accueil, et si elle echoue il ne reste rien
+        // a l'ecran. La condition `&& cible` laissait donc la page blanche
+        // precisement dans le cas d'une connexion ordinaire.
+        if (!ok) {
+          this.replierSurAccueil();
         }
       })
-      .catch(() => this.router.navigate(['/working']));
+      .catch(() => this.replierSurAccueil());
+  }
+
+  private replierSurAccueil(): void {
+    // Rearme le garde : la navigation precedente n'a pas abouti, celle-ci doit
+    // pouvoir partir.
+    this.redirectionDemandee = false;
+    this.router.navigate([AuthService.ACCUEIL]);
   }
   getProfile(forceRefresh = false): Observable<any> {
     if (this.profile && !forceRefresh) {

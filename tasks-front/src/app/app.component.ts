@@ -1,5 +1,5 @@
 import {Component, NgZone, OnDestroy, OnInit} from '@angular/core';
-import {NavigationEnd, Router} from '@angular/router';
+import {NavigationCancel, NavigationEnd, NavigationError, Router} from '@angular/router';
 import {filter, take} from 'rxjs/operators';
 import {routeTransition} from "../route-transition";
 import {environment} from "../environments/environment";
@@ -58,6 +58,20 @@ export class AppComponent implements OnInit, OnDestroy {
       filter(event => event instanceof NavigationEnd),
       take(1)
     ).subscribe(() => ChunkErrorHandler.marquerDemarrageReussi());
+
+    // Une navigation abandonnee ne laisse aucune trace : l'ecran se vide et
+    // rien n'est journalise. Ces deux evenements donnent l'url visee et la
+    // raison, seul moyen de distinguer un chunk manquant d'une route qui ne
+    // correspond a rien ou d'un garde qui refuse.
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationError || event instanceof NavigationCancel)
+    ).subscribe(event => {
+      if (event instanceof NavigationError) {
+        console.error('[ROUTER] navigation en echec vers', event.url, event.error);
+      } else {
+        console.warn('[ROUTER] navigation annulee vers', event.url, event.reason);
+      }
+    });
   }
 
   ngOnDestroy(): void {
