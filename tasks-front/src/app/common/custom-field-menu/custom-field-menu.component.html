@@ -1,0 +1,169 @@
+<!-- Déclencheur. Volontairement discret : il se pose dans l'en-tête d'une carte
+     ou d'une barre latérale déjà chargée. -->
+<button
+  type="button"
+  class="cfm-trigger"
+  [class.cfm-trigger--labelled]="showLabel"
+  [matMenuTriggerFor]="menu"
+  (menuOpened)="onMenuOpened()"
+  [title]="label"
+  [attr.aria-label]="label"
+>
+  <i class="fas fa-plus"></i>
+  <span *ngIf="showLabel">{{ label }}</span>
+</button>
+
+<!-- stopPropagation : le panneau de mat-menu se referme au moindre clic, ce qui
+     interdirait de taper dans le formulaire de création. -->
+<mat-menu #menu="matMenu" class="cfm-menu">
+  <div class="cfm-panel" (click)="$event.stopPropagation()">
+
+    <!-- ============================ Liste ============================ -->
+    <ng-container *ngIf="step === 'list'">
+      <div class="cfm-head">
+        <span class="cfm-title">Champs personnalisés</span>
+      </div>
+
+      <div class="cfm-search">
+        <i class="fas fa-magnifying-glass"></i>
+        <!-- Le menu Material intercepte les touches pour sa navigation : sans
+             stopPropagation, taper « d » sauterait sur une entrée de liste. -->
+        <input
+          type="text"
+          [(ngModel)]="search"
+          (keydown)="$event.stopPropagation()"
+          placeholder="Rechercher un champ"
+          autocomplete="off"
+        />
+      </div>
+
+      <div class="cfm-list">
+        <!-- Déjà sur ce type : rien à rattacher, juste une valeur à saisir. -->
+        <ng-container *ngIf="assignedMatches.length">
+          <p class="cfm-group">Sur ce type de tâche</p>
+          <button
+            type="button"
+            class="cfm-item"
+            *ngFor="let field of assignedMatches; trackBy: trackByFieldId"
+            (click)="pickAssigned(field)"
+          >
+            <i class="cfm-item-icon" [ngClass]="icon(field)"></i>
+            <span class="cfm-item-name">{{ field.name }}</span>
+          </button>
+        </ng-container>
+
+        <!-- Existants mais pas encore rattachés : les choisir les rattache. -->
+        <ng-container *ngIf="availableMatches.length">
+          <p class="cfm-group">
+            Autres champs du projet
+            <span class="cfm-group-hint">rattachés à ce type au clic</span>
+          </p>
+          <button
+            type="button"
+            class="cfm-item"
+            *ngFor="let field of availableMatches; trackBy: trackByFieldId"
+            [disabled]="saving"
+            (click)="pickAvailable(field)"
+          >
+            <i class="cfm-item-icon" [ngClass]="icon(field)"></i>
+            <span class="cfm-item-name">{{ field.name }}</span>
+            <i class="fas fa-link cfm-item-tag" title="Sera ajouté à ce type de tâche"></i>
+          </button>
+        </ng-container>
+
+        <p class="cfm-empty" *ngIf="!hasResults">Aucun champ ne correspond</p>
+      </div>
+
+      <div class="cfm-foot" *ngIf="projectGuard.hasCredential(['CAN_CONFIG_CUSTOM_FIELD']) | async">
+        <button type="button" class="cfm-create" (click)="startCreate()">
+          <i class="fas fa-plus"></i>
+          <span>Créer un champ</span>
+        </button>
+      </div>
+    </ng-container>
+
+    <!-- ========================== Création ========================== -->
+    <ng-container *ngIf="step === 'create'">
+      <div class="cfm-head">
+        <button type="button" class="cfm-back" (click)="backToList()" title="Retour">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+        <span class="cfm-title">Nouveau champ</span>
+      </div>
+
+      <div class="cfm-form" (keydown)="$event.stopPropagation()">
+        <label class="cfm-label" for="cfm-name">Nom</label>
+        <input
+          id="cfm-name"
+          type="text"
+          class="cfm-input"
+          [(ngModel)]="draftName"
+          placeholder="Ex. Budget estimé"
+          autocomplete="off"
+          (keydown.enter)="createField()"
+        />
+
+        <label class="cfm-label" for="cfm-type">Type</label>
+        <select id="cfm-type" class="cfm-input" [(ngModel)]="draftType">
+          <option *ngFor="let choice of typeChoices" [value]="choice.type">{{ choice.label }}</option>
+        </select>
+
+        <ng-container *ngIf="needsOptions">
+          <label class="cfm-label" for="cfm-options">Valeurs possibles</label>
+          <textarea
+            id="cfm-options"
+            class="cfm-input cfm-textarea"
+            [(ngModel)]="draftOptions"
+            rows="3"
+            placeholder="Une par ligne"
+          ></textarea>
+        </ng-container>
+
+        <p class="cfm-note">
+          <i class="fas fa-circle-info"></i>
+          Le champ sera ajouté à ce type de tâche, donc visible sur toutes les
+          tâches du même type.
+        </p>
+      </div>
+
+      <div class="cfm-foot cfm-foot--actions">
+        <button type="button" class="cfm-btn" (click)="backToList()">Annuler</button>
+        <button
+          type="button"
+          class="cfm-btn cfm-btn--primary"
+          [disabled]="!canCreate"
+          (click)="createField()"
+        >
+          {{ saving ? 'Création…' : 'Créer' }}
+        </button>
+      </div>
+    </ng-container>
+
+    <!-- ============================ Saisie ============================ -->
+    <ng-container *ngIf="step === 'value'">
+      <div class="cfm-head">
+        <button type="button" class="cfm-back" (click)="backToList()" title="Retour">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+        <span class="cfm-title">{{ pendingValue?.customField?.name }}</span>
+      </div>
+
+      <div class="cfm-value" (keydown)="$event.stopPropagation()">
+        <!-- `onSaved` et non `saved` : `saved` est déclaré par le composant mais
+             n'est jamais émis. -->
+        <app-custom-field
+          #editor
+          [customFieldValue]="pendingValue"
+          [viewMode]="'info-edit'"
+          (onSaved)="onValueSaved($event)"
+        ></app-custom-field>
+      </div>
+
+      <div class="cfm-foot cfm-foot--actions">
+        <button type="button" class="cfm-btn" (click)="close()">Fermer</button>
+      </div>
+    </ng-container>
+
+    <p class="cfm-error" *ngIf="error">{{ error }}</p>
+  </div>
+</mat-menu>

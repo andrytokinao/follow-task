@@ -340,10 +340,12 @@ export class IssueDetailsComponent implements OnInit, OnDestroy {
   // ── Business Logic ────────────────────────────
   protected readonly CustomFieldComponent = CustomFieldComponent;
 
-  saveCustomFieldValue(event: CustomFieldValue): void {
-    this.issueService.saveValues(event)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe();
+  // `app-custom-field` a déjà enregistré la valeur avant d'émettre : ce qui
+  // arrive ici est le résultat du serveur, pas une demande d'enregistrement.
+  // Le rejouer aurait écrit deux fois la même valeur.
+  savedCustomFieldValue(values: CustomFieldValue[]): void {
+    this.customFieldValues = values ?? this.customFieldValues;
+    this.loadValues();
   }
 
   getCustomFieldValue(customField: CustomField): CustomFieldValue {

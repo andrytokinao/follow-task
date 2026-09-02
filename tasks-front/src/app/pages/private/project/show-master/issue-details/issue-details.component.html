@@ -219,15 +219,23 @@
         </div>
       </div>
 
-      <div class="sidebar-card" *ngIf="values?.length > 0">
+      <!-- La carte n'est plus conditionnée à la présence de champs : sans elle,
+           le bouton d'ajout disparaissait justement quand il n'y avait encore
+           rien à afficher. -->
+      <div class="sidebar-card">
         <div class="sidebar-section-header">
           <span class="sidebar-section-title"><i class="fas fa-sliders-h"></i> Champs personnalisés</span>
-          <button class="btn-icon-xs" *ngIf="projectGuard.hasCredential(['CAN_EDIT_FIELD']) | async" title="Ajouter un champ">
-            <i class="fas fa-plus"></i>
-          </button>
+          <app-custom-field-menu
+            *ngIf="projectGuard.hasCredential(['CAN_EDIT_FIELD']) | async"
+            [issue]="parentIssue"
+            (fieldAttached)="loadValues()"
+            (valueSaved)="loadValues()"
+          ></app-custom-field-menu>
         </div>
         <div class="sidebar-field" *ngFor="let value of values">
-          <app-custom-field [customFieldValue]="value" (saved)="saveCustomFieldValue($event)" [viewMode]="viewModeField"></app-custom-field>
+          <!-- `onSaved` et non `saved` : ce dernier n'est jamais émis, la liste
+               n'était donc jamais rafraîchie après une saisie. -->
+          <app-custom-field [customFieldValue]="value" (onSaved)="savedCustomFieldValue($event)" [viewMode]="viewModeField"></app-custom-field>
         </div>
         <div class="sidebar-field" *ngIf="!values || values.length === 0">
           <span class="meta-text muted">Aucun champ personnalisé</span>

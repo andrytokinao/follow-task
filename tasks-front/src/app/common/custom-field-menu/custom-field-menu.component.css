@@ -1,0 +1,333 @@
+/* =========================================================================
+   Menu « champ personnalisé »
+   -------------------------------------------------------------------------
+   Les variables sont déclarées ici et non héritées : le composant est posé
+   dans des hôtes très différents (barre latérale de la tâche, liste, sous-
+   tâches) et doit s'y présenter de la même façon.
+   ========================================================================= */
+:host {
+  --cfm-primary: #1565c0;
+  --cfm-primary-bg: #e8f1fb;
+  --cfm-text: #111827;
+  --cfm-text-muted: #6b7280;
+  --cfm-text-faint: #9ca3af;
+  --cfm-border: #e5e7eb;
+  --cfm-border-strong: #d1d5db;
+  --cfm-surface: #ffffff;
+  --cfm-surface-muted: #f9fafb;
+  --cfm-danger: #b42318;
+  --cfm-radius: 6px;
+
+  display: inline-flex;
+  font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* ---- Déclencheur ---- */
+.cfm-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: var(--cfm-radius);
+  background: transparent;
+  color: var(--cfm-text-faint);
+  font-family: inherit;
+  font-size: 11px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.cfm-trigger:hover {
+  background: var(--cfm-primary-bg);
+  color: var(--cfm-primary);
+}
+.cfm-trigger--labelled {
+  width: auto;
+  height: 26px;
+  padding: 0 10px;
+  border: 1px solid var(--cfm-border-strong);
+  background: var(--cfm-surface);
+  color: var(--cfm-text);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* ---- Panneau ---- */
+.cfm-panel {
+  width: 276px;
+  padding: 0;
+  color: var(--cfm-text);
+  font-size: 12px;
+}
+
+.cfm-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--cfm-border);
+}
+
+.cfm-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--cfm-text-muted);
+}
+
+.cfm-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: var(--cfm-radius);
+  background: transparent;
+  color: var(--cfm-text-muted);
+  font-size: 10px;
+  cursor: pointer;
+}
+.cfm-back:hover {
+  background: var(--cfm-surface-muted);
+  color: var(--cfm-text);
+}
+
+/* ---- Recherche ---- */
+.cfm-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--cfm-border);
+  color: var(--cfm-text-faint);
+  font-size: 10px;
+}
+.cfm-search input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 12px;
+  color: var(--cfm-text);
+}
+
+/* ---- Listes ---- */
+.cfm-list {
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 4px;
+}
+
+.cfm-group {
+  margin: 6px 8px 2px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--cfm-text-faint);
+}
+/* L'avertissement tient sur la même ligne que l'intitulé : c'est là qu'on
+   décide de rattacher un champ à tout un type de tâche. */
+.cfm-group-hint {
+  margin-left: 6px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--cfm-text-faint);
+}
+
+.cfm-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 8px;
+  border: none;
+  border-radius: var(--cfm-radius);
+  background: transparent;
+  font-family: inherit;
+  font-size: 12px;
+  color: var(--cfm-text);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+.cfm-item:hover:not(:disabled) {
+  background: var(--cfm-surface-muted);
+}
+.cfm-item:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.cfm-item-icon {
+  width: 14px;
+  flex-shrink: 0;
+  color: var(--cfm-text-faint);
+  font-size: 11px;
+  text-align: center;
+}
+
+.cfm-item-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cfm-item-tag {
+  flex-shrink: 0;
+  color: var(--cfm-text-faint);
+  font-size: 9px;
+}
+
+.cfm-empty {
+  margin: 0;
+  padding: 18px 0;
+  text-align: center;
+  font-size: 11px;
+  color: var(--cfm-text-faint);
+}
+
+/* ---- Pied ---- */
+.cfm-foot {
+  padding: 8px;
+  border-top: 1px solid var(--cfm-border);
+}
+.cfm-foot--actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.cfm-create {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 8px;
+  border: none;
+  border-radius: var(--cfm-radius);
+  background: transparent;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cfm-primary);
+  text-align: left;
+  cursor: pointer;
+}
+.cfm-create:hover {
+  background: var(--cfm-primary-bg);
+}
+
+.cfm-btn {
+  height: 28px;
+  padding: 0 12px;
+  border: 1px solid var(--cfm-border-strong);
+  border-radius: var(--cfm-radius);
+  background: var(--cfm-surface);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--cfm-text);
+  cursor: pointer;
+}
+.cfm-btn:hover:not(:disabled) {
+  background: var(--cfm-surface-muted);
+}
+.cfm-btn--primary {
+  border-color: var(--cfm-primary);
+  background: var(--cfm-primary);
+  color: #fff;
+}
+.cfm-btn--primary:hover:not(:disabled) {
+  background: #0d47a1;
+}
+.cfm-btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+/* ---- Formulaire de création ---- */
+.cfm-form {
+  padding: 10px 12px;
+}
+
+.cfm-label {
+  display: block;
+  margin: 8px 0 4px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--cfm-text-muted);
+}
+.cfm-label:first-child {
+  margin-top: 0;
+}
+
+.cfm-input {
+  width: 100%;
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid var(--cfm-border-strong);
+  border-radius: var(--cfm-radius);
+  background: var(--cfm-surface);
+  font-family: inherit;
+  font-size: 12px;
+  color: var(--cfm-text);
+  outline: none;
+}
+.cfm-input:focus {
+  border-color: var(--cfm-primary);
+}
+.cfm-textarea {
+  height: auto;
+  padding: 6px 8px;
+  resize: vertical;
+}
+
+.cfm-note {
+  display: flex;
+  gap: 6px;
+  margin: 12px 0 0;
+  font-size: 10px;
+  line-height: 1.4;
+  color: var(--cfm-text-muted);
+}
+.cfm-note i {
+  margin-top: 1px;
+  color: var(--cfm-text-faint);
+}
+
+/* ---- Saisie de la valeur ---- */
+.cfm-value {
+  padding: 12px;
+}
+
+.cfm-error {
+  margin: 0;
+  padding: 8px 12px;
+  border-top: 1px solid var(--cfm-border);
+  font-size: 11px;
+  color: var(--cfm-danger);
+}
+
+/* Le panneau Material impose une largeur mini et des marges internes qui
+   décaleraient tout le contenu. */
+:host ::ng-deep .cfm-menu.mat-mdc-menu-panel {
+  min-width: 276px;
+  max-width: 320px;
+}
+:host ::ng-deep .cfm-menu .mat-mdc-menu-content {
+  padding: 0;
+}

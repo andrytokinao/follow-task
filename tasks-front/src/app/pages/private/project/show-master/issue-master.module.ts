@@ -24,6 +24,7 @@ import {MatIconModule} from "@angular/material/icon";
 import {MatSelectModule} from "@angular/material/select";
 import {MyCommonModule} from "../../../../common/common.module";
 import {CustomFieldComponent} from "../../../../common/custom-field/custom-field.component";
+import {CustomFieldMenuComponent} from "../../../../common/custom-field-menu/custom-field-menu.component";
 import {IssueMasterRoutingModule} from "./issue-master-routing.module";
 import {ShowMasterComponent} from "./show-master.component";
 import {SubtaskComponent} from "./subtask/subtask.component";
@@ -108,6 +109,7 @@ import {IconeViewComponent} from "../../../../common/icone-view/icone-view.compo
         MatHeaderRow,
         MatRow,
         CustomFieldComponent,
+        CustomFieldMenuComponent,
         MatCardModule,
         MatIconModule,
         MatButtonModule,
