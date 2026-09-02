@@ -1,56 +1,57 @@
-<div style="height: 40px;overflow-x: visible;overflow-y:visible " mat-icon-button [matMenuTriggerFor]="lebelMenu">
-  <span *ngIf="!issue.labels || issue.labels.length == 0"><span  class="btn fas fa-plus"> Etq </span> </span>
-  <span class="label-chip" *ngFor="let ils of issue.labels" [style]="getLabelStyle(ils.label)" >
+<div class="label-trigger" [matMenuTriggerFor]="lebelMenu">
+  <span class="label-add" *ngIf="!issue.labels || issue.labels.length == 0">
+    <i class="fas fa-plus"></i> Etq
+  </span>
+  <span class="label-chip" *ngFor="let ils of issue.labels"
+        [style]="getLabelStyle(ils.label)"
+        [title]="ils.label.name">
     {{ils.label.name}}
   </span>
 </div>
 
-<mat-menu #lebelMenu="matMenu" >
-  <div (click)="clickMenu($event)" *ngIf="authGuard.hasAutorityAsync(['CAN_CREATE_TASK']) | async">
-    <div class="issue-children-config" >
-      <h3>Etiquette </h3>
+<mat-menu #lebelMenu="matMenu" class="label-menu">
+  <div class="label-panel" (click)="clickMenu($event)" *ngIf="authGuard.hasAutorityAsync(['CAN_CREATE_TASK']) | async">
+    <h3 class="label-panel-title">Etiquette</h3>
 
-      <div *ngFor="let label of labels" >
-        <mat-checkbox (change)="checkLabel($event,label)"
-                      [checked]="checkedLabel(label)"
-                      *ngIf="!isEdit(label)"
-        >
-          <span [style]="getLabelStyle(label)" style = "border-radius: 20px;padding: 5px">
+    <div class="label-row" *ngFor="let label of labels">
+      <ng-container *ngIf="!isEdit(label)">
+        <mat-checkbox class="label-check"
+                      (change)="checkLabel($event,label)"
+                      [checked]="checkedLabel(label)">
+          <span class="label-chip" [style]="getLabelStyle(label)" [title]="label.name">
             {{ label.name }}
           </span>
-
         </mat-checkbox>
-        <span style="float:right" *ngIf="projectGuard.hasCredential(['PROJECT_MANAGER'])">
-                <i  class="fas fa-edit" (click)="editLabel(label)" *ngIf="!isEdit(label)"> </i>
-                <i class="fas fa-remove" (click)="editLabel(label)" *ngIf="false"> </i>
+        <i class="fas fa-edit label-action"
+           (click)="editLabel(label)"
+           *ngIf="projectGuard.hasCredential(['PROJECT_MANAGER'])"></i>
+      </ng-container>
 
-        </span>
-        <div style="padding-left: 20px" *ngIf="isEdit(label)" >
-          <form [formGroup]="myForm" (ngSubmit)="update();">
-            <mat-form-field>
-              <mat-label>Nom</mat-label>
-              <input matInput formControlName="name" [(ngModel)]="currentLabel.name" [style]="getLabelStyle(currentLabel)">
-              <ngx-colors ngx-colors-trigger
-                          [(ngModel)]="currentLabel.color"
-                          [ngModelOptions]="{standalone: true}" >
-              </ngx-colors>
-              <i style="float:right;cursor: pointer" class="fas fa-save" (click)="saveLabel(label)" *ngIf="isEdit(label)"> </i>
-            </mat-form-field>
-            <button mat-button type="submit" >Valider</button>
-          </form>
-        </div>
-      </div>
-      <p (click)="createLabel()"><i class="fas fa-plus"></i> Créer </p> </div>
-    <div style="padding-left: 20px" *ngIf="iscreateLabel" >
-      <form [formGroup]="myForm" (ngSubmit)="update();">
-        <mat-form-field>
+      <form class="label-edit" *ngIf="isEdit(label)" [formGroup]="myForm" (ngSubmit)="update()">
+        <mat-form-field class="label-field" subscriptSizing="dynamic">
           <mat-label>Nom</mat-label>
           <input matInput formControlName="name">
-          <ngx-colors ngx-colors-trigger [(ngModel)]="labColor" [ngModelOptions]="{standalone: true}"></ngx-colors>
+          <ngx-colors matSuffix ngx-colors-trigger
+                      [(ngModel)]="currentLabel.color"
+                      [ngModelOptions]="{standalone: true}">
+          </ngx-colors>
         </mat-form-field>
-        <button mat-button type="submit" >Valider</button>
+        <button class="label-btn" mat-button type="submit">Valider</button>
       </form>
     </div>
+
+    <p class="label-create" (click)="createLabel()"><i class="fas fa-plus"></i> Créer</p>
+
+    <form class="label-edit" *ngIf="iscreateLabel" [formGroup]="myForm" (ngSubmit)="update()">
+      <mat-form-field class="label-field" subscriptSizing="dynamic">
+        <mat-label>Nom</mat-label>
+        <input matInput formControlName="name">
+        <ngx-colors matSuffix ngx-colors-trigger
+                    [(ngModel)]="labColor"
+                    [ngModelOptions]="{standalone: true}">
+        </ngx-colors>
+      </mat-form-field>
+      <button class="label-btn" mat-button type="submit">Valider</button>
+    </form>
   </div>
 </mat-menu>
-

@@ -5,10 +5,7 @@ import {MyCommonModule} from "../common.module";
 import {Issue, IssueLabels, Label, Project} from "../../type/issue";
 import {IssueService} from "../../services/issue.service";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
-import _default from "chart.js/dist/plugins/plugin.legend";
-import labels = _default.defaults.labels;
 import {AuthGuard} from "../../services/SystemGuard";
-import {getStyle} from "highcharts";
 import {ProjectGuard} from "../../services/ProjectGuard";
 
 @Component({
@@ -50,7 +47,7 @@ export class LabelFormComponent implements OnInit,AfterViewInit{
   }
 
   checkedLabel(label: Label) {
-    return this.issue.labels.some(l => l.label?.id == label.id);
+    return this.issue?.labels?.some(l => l.label?.id == label.id) ?? false;
   }
 
   checkLabel(event: any, label: Label) {
@@ -93,6 +90,9 @@ export class LabelFormComponent implements OnInit,AfterViewInit{
   update() {
     if (this.myForm.valid) {
       this.currentLabel.name = this.myForm.value.name;
+      if (this.iscreateLabel) {
+        this.currentLabel.color = this.labColor;
+      }
       this.issueService.saveLabel(this.currentLabel);
       this.iscreateLabel = false;
       this.myForm.reset();
@@ -115,16 +115,50 @@ export class LabelFormComponent implements OnInit,AfterViewInit{
   }
   createLabel() {
     this.currentLabel = {};
+    this.labColor = undefined;
+    this.myForm.reset();
     this.iscreateLabel = !this.iscreateLabel;
   }
 
-  protected readonly getStyle = getStyle;
-
   getLabelStyle(label) {
-    if (!label.color) {
+    if (!label?.color) {
       return '';
     }
-    return 'background-color:'+label.color;
+    return 'background-color:' + label.color + ';color:' + this.contrastColor(label.color);
+  }
+
+  /** Texte foncé ou clair selon la luminance de la couleur de l'étiquette. */
+  private contrastColor(color: string): string {
+    const rgb = this.toRgb(color);
+    if (!rgb) {
+      return '#3c4257';
+    }
+    const [r, g, b] = rgb;
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    return luminance > 0.6 ? '#3c4257' : '#ffffff';
+  }
+
+  private toRgb(color: string): number[] {
+    let hex = color.trim();
+    const rgbMatch = hex.match(/^rgba?\(([^)]+)\)$/i);
+    if (rgbMatch) {
+      const parts = rgbMatch[1].split(',').map(p => parseFloat(p));
+      return parts.length >= 3 ? parts.slice(0, 3) : null;
+    }
+    if (hex.startsWith('#')) {
+      hex = hex.slice(1);
+      if (hex.length === 3) {
+        hex = hex.split('').map(c => c + c).join('');
+      }
+      if (hex.length === 6 || hex.length === 8) {
+        return [
+          parseInt(hex.slice(0, 2), 16),
+          parseInt(hex.slice(2, 4), 16),
+          parseInt(hex.slice(4, 6), 16),
+        ];
+      }
+    }
+    return null;
   }
 
   isEdit(label: Label) {
@@ -137,6 +171,7 @@ export class LabelFormComponent implements OnInit,AfterViewInit{
     this.currentLabel = label;
     this.newLabel = {};
     this.iscreateLabel = false ;
+    this.myForm.patchValue({name: label.name});
   }
 
   saveLabel(label: Label) {

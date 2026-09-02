@@ -1,61 +1,188 @@
-
-
-.label-chip{
-  display: inline-flex;
-  flex-direction: row;
-  border: none;
-  cursor: default;
-  height: 36px;
-  outline: none;
-  padding: 0;
-  font-size: 14px;
-  color: #0a3622;
-  font-family:"Open Sans", sans-serif;
-  white-space: nowrap;
-  align-items: center;
-  border-radius: 16px;
-  vertical-align: middle;
-  text-decoration: none;
-  justify-content: center;
-  padding: 10px;
-  background-color: #cccccc;
-  border-bottom: #cccccc solid 0.1px;
-  margin: 8px;
-
+:host {
+  display: block;
+  min-width: 0;
 }
-.header-chip{
+
+/* ---- Déclencheur : les étiquettes de la tâche ---- */
+.label-trigger {
   display: flex;
-  position: relative;
-  overflow: hidden;
-  background-color: #32C5D2;
-  font-size: 1.25rem;
-  flex-shrink: 0;
+  flex-wrap: wrap;
   align-items: center;
-  user-select: none;
-  border-radius: 50%;
-  justify-content: center;
-  min-width: 36px;
-  color: #fff;
-  height: 36px;
-  font-size: 20px;
-  margin-right: -4px;
-
-}
-
-.svg-chip{
-  color: #999999;
+  gap: 3px;
+  min-width: 0;
   cursor: pointer;
-  height: auto;
-  margin: 4px 4px 0 -8px;
-  fill: currentColor;
-  width: 1em;
-  height: 1em;
-  display: inline-block;
-  font-size: 24px;
-  transition: fill 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
-  user-select: none;
-  flex-shrink: 0;
 }
-.svg-chip:hover{
-  color: #666666;
+
+.label-chip {
+  display: inline-flex;
+  align-items: center;
+  max-width: 130px;
+  height: 18px;
+  padding: 0 6px;
+  border: none;
+  border-radius: 4px;
+  background-color: #e4e6eb;
+  color: #3c4257;
+  font-family: "Open Sans", sans-serif;
+  font-size: 11px;
+  line-height: 18px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  user-select: none;
+}
+
+.label-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 18px;
+  padding: 0 6px;
+  border: 1px dashed #c9ced6;
+  border-radius: 4px;
+  color: #8a94a6;
+  font-size: 10px;
+  line-height: 1;
+  transition: border-color 150ms ease, color 150ms ease;
+}
+
+.label-add .fa-plus {
+  font-size: 9px;
+}
+
+.label-trigger:hover .label-add {
+  border-color: #32C5D2;
+  color: #32C5D2;
+}
+
+/* ---- Menu de sélection ---- */
+.label-panel {
+  min-width: 190px;
+  max-width: 260px;
+  padding: 4px 8px 6px;
+}
+
+.label-panel-title {
+  margin: 0 0 4px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: #8a94a6;
+}
+
+.label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  min-height: 24px;
+  border-radius: 4px;
+  padding: 0 2px;
+}
+
+.label-row:hover {
+  background-color: #f4f5f7;
+}
+
+.label-check {
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+.label-action {
+  flex: 0 0 auto;
+  padding: 3px;
+  border-radius: 4px;
+  color: #b0b6c1;
+  font-size: 11px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 150ms ease, color 150ms ease;
+}
+
+.label-row:hover .label-action {
+  opacity: 1;
+}
+
+.label-action:hover {
+  color: #32C5D2;
+}
+
+.label-create {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 4px 0 0;
+  padding: 3px 2px;
+  border-top: 1px solid #ececf1;
+  padding-top: 6px;
+  color: #6b7280;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.label-create:hover {
+  color: #32C5D2;
+}
+
+.label-edit {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  padding: 2px 0;
+}
+
+.label-field {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 12px;
+}
+
+.label-btn {
+  flex: 0 0 auto;
+  min-width: 0;
+  padding: 0 8px;
+  font-size: 11px;
+  line-height: 24px;
+  border-radius: 4px;
+}
+
+/* Densité du menu Material (le panneau est projeté dans l'overlay) */
+::ng-deep .mat-mdc-menu-panel.label-menu {
+  border-radius: 6px;
+}
+
+::ng-deep .mat-mdc-menu-panel.label-menu .mat-mdc-menu-content {
+  padding: 0;
+}
+
+.label-check ::ng-deep .mdc-form-field {
+  width: 100%;
+}
+
+.label-check ::ng-deep .mdc-label {
+  min-width: 0;
+  overflow: hidden;
+  padding-left: 2px;
+}
+
+.label-check ::ng-deep .mdc-checkbox {
+  --mdc-checkbox-state-layer-size: 24px;
+  margin: 0;
+  flex: 0 0 auto;
+}
+
+.label-check ::ng-deep .mdc-checkbox .mdc-checkbox__background {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+}
+
+.label-check ::ng-deep .mat-mdc-checkbox-touch-target {
+  display: none;
 }
