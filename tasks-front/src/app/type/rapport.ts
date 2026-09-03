@@ -69,6 +69,11 @@ export interface SyntheseProjetDTO {
 export interface RapportProjetDTO {
   titre: string;
   description: string | null;
+  /**
+   * Espace de travail auquel la demande est rattachée (`Issue.project`).
+   * Le « projet » du rapport est l'issue racine, pas cette entité.
+   */
+  departement: string | null;
   /** Responsable désigné, ou null s'il n'y en a pas. */
   chefDeProjet: string | null;
   /** Personnes assignées à la demande racine — distinctes du chef de projet. */

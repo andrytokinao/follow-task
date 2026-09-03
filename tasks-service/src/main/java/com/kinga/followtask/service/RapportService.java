@@ -8,6 +8,7 @@ import com.kinga.followtask.dto.rapport.TempsParPersonneDTO;
 import com.kinga.followtask.entity.Issue;
 import com.kinga.followtask.entity.IssueMembership;
 import com.kinga.followtask.entity.PlanningEvent;
+import com.kinga.followtask.entity.Project;
 import com.kinga.followtask.entity.UserApp;
 import com.kinga.followtask.entity.enumapp.ExecutionStatus;
 import com.kinga.followtask.entity.enumapp.IssueRole;
@@ -101,6 +102,7 @@ public class RapportService {
                 // riche, la réinjecter telle quelle casserait le XHTML attendu
                 // par la conversion PDF.
                 KingaUtils.plainText(issueProjet.getDescription()),
+                resolveDepartement(issueProjet),
                 resolveChefDeProjet(issueProjet),
                 resolveResponsables(issueProjet),
                 issueProjet.getCreationDate(),
@@ -426,6 +428,26 @@ public class RapportService {
                 collecterEvents(enfant, cible);
             }
         }
+    }
+
+    /**
+     * Département de rattachement, c'est-à-dire l'espace de travail que
+     * {@code Issue.project} désigne dans ce modèle.
+     *
+     * <p>Attention au vocabulaire : le « projet » du rapport est l'issue racine,
+     * pas cette entité. Le repli sur le préfixe évite une case vide sur les
+     * espaces dont le nom n'a jamais été saisi, le préfixe étant lui obligatoire
+     * puisqu'il compose les clés de demande.</p>
+     */
+    private String resolveDepartement(Issue issueProjet) {
+        Project departement = issueProjet.getProject();
+        if (departement == null) {
+            return null;
+        }
+        if (StringUtils.hasText(departement.getName())) {
+            return departement.getName();
+        }
+        return StringUtils.hasText(departement.getPrefix()) ? departement.getPrefix() : null;
     }
 
     /**

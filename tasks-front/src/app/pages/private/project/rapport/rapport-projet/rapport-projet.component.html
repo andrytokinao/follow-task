@@ -6,6 +6,7 @@
     <div class="rapport__titre-zone">
       <h2 class="rapport__titre">{{ rapport?.titre || 'Rapport de projet' }}</h2>
       <span class="rapport__sous-titre" *ngIf="rapport">
+        <ng-container *ngIf="rapport.departement">{{ rapport.departement }} · </ng-container>
         <ng-container *ngIf="rapport.chefDeProjet">Chef de projet : {{ rapport.chefDeProjet }}</ng-container>
         <ng-container *ngIf="rapport.genereLe"> · édité le {{ rapport.genereLe | date:'dd/MM/yyyy à HH:mm' }}</ng-container>
       </span>
@@ -32,6 +33,10 @@
 
     <!-- Fiche d'identité -->
     <div class="fiche">
+      <div class="fiche__champ">
+        <span class="fiche__libelle">Département</span>
+        <span class="fiche__valeur">{{ rapport.departement || 'Non rattaché' }}</span>
+      </div>
       <div class="fiche__champ">
         <span class="fiche__libelle">Chef de projet</span>
         <span class="fiche__valeur">{{ rapport.chefDeProjet || 'Non renseigné' }}</span>

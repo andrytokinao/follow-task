@@ -415,6 +415,8 @@
     <div class="entete-titre" th:text="${rapport.titre} ?: 'Projet sans titre'">Titre du projet</div>
     <div class="entete-sous-titre">
         Rapport d'avancement
+        <span th:if="${rapport.departement}"
+              th:text="' - ' + ${rapport.departement}"></span>
         <span th:if="${rapport.chefDeProjet}"
               th:text="' - Chef de projet : ' + ${rapport.chefDeProjet}"></span>
         <span th:if="${rapport.genereLe != null}"
@@ -429,6 +431,10 @@
 <table class="identite">
     <tr>
         <td>
+            <span class="libelle-champ">Département</span>
+            <span class="valeur-champ" th:text="${rapport.departement} ?: 'Non rattaché'">-</span>
+        </td>
+        <td>
             <span class="libelle-champ">Chef de projet</span>
             <span class="valeur-champ" th:text="${rapport.chefDeProjet} ?: 'Non renseigné'">-</span>
         </td>
@@ -442,17 +448,17 @@
             <span class="valeur-champ"
                   th:text="${rapport.dateFin != null ? #temporals.format(rapport.dateFin, 'dd/MM/yyyy') : 'Non planifiée'}">-</span>
         </td>
+    </tr>
+    <tr>
         <td>
             <span class="libelle-champ">Statut</span>
             <span class="valeur-champ">
                 <span class="badge" th:text="${rapport.statut}">Statut</span>
             </span>
         </td>
-    </tr>
-    <tr>
-        <!-- Sur sa propre ligne : la liste des assignés peut être longue, et la
-             tronquer sur une colonne de quart de page la rendrait inutilisable. -->
-        <td colspan="4">
+        <!-- Sur les trois colonnes restantes : la liste des assignés peut être
+             longue, la tronquer sur un quart de page la rendrait inutilisable. -->
+        <td colspan="3">
             <span class="libelle-champ">Assigné à</span>
             <span class="valeur-champ"
                   th:text="${#lists.isEmpty(rapport.responsables) ? 'Personne' : #strings.listJoin(rapport.responsables, ', ')}">-</span>

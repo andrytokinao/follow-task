@@ -10,6 +10,10 @@ import java.util.List;
  * Structure unique produite par {@code RapportService}, consommée telle quelle
  * par les trois canaux : page Thymeleaf, PDF et JSON pour l'aperçu Angular.
  *
+ * @param departement      espace de travail auquel la demande est rattachée
+ *                         ({@code Issue.project}). Le mot « projet » désigne ici
+ *                         le département, et non le projet au sens gestion de
+ *                         projet — celui-ci est l'issue racine elle-même
  * @param chefDeProjet     responsable désigné du projet, ou {@code null} s'il
  *                         n'y en a pas : une absence doit rester une absence,
  *                         et non se confondre avec « personne n'est assigné »
@@ -27,6 +31,7 @@ import java.util.List;
  */
 public record RapportProjetDTO(String titre,
                                String description,
+                               String departement,
                                String chefDeProjet,
                                List<String> responsables,
                                LocalDateTime dateDebut,
