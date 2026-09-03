@@ -120,6 +120,20 @@ public class Issue {
      * - sinon (aucun événement passé ou en cours), null.
      */
     public Integer getCurrentCompletionPercent() {
+        PlanningEvent reference = resolveCurrentEvent();
+        return reference == null ? null : reference.getCompletionPercentage();
+    }
+
+    /**
+     * Événement de référence de l'issue : celui qui décrit le mieux son état
+     * actuel, selon la règle décrite sur {@link #getCurrentCompletionPercent()}
+     * (l'événement en cours, sinon le dernier terminé, sinon rien).
+     *
+     * <p>Volontairement sans préfixe {@code get} : ce n'est pas une propriété de
+     * l'entité, et un accesseur au sens JavaBean serait sérialisé, ramenant un
+     * cycle événement -> issue dans les réponses JSON.</p>
+     */
+    public PlanningEvent resolveCurrentEvent() {
         if (events == null || events.isEmpty()) {
             return null;
         }
@@ -131,13 +145,12 @@ public class Issue {
                 .max(Comparator.comparing(PlanningEvent::getStartTime));
 
         if (ongoing.isPresent()) {
-            return ongoing.get().getCompletionPercentage();
+            return ongoing.get();
         }
 
         return events.stream()
                 .filter(e -> e.getEndTime() != null && !e.getEndTime().isAfter(now))
                 .max(Comparator.comparing(PlanningEvent::getEndTime))
-                .map(PlanningEvent::getCompletionPercentage)
                 .orElse(null);
     }
 

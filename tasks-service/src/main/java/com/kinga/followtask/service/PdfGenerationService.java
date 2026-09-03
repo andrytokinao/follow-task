@@ -30,11 +30,18 @@ public class PdfGenerationService {
     private static final String VARIABLE = "rapport";
 
     private final TemplateEngine templateEngine;
+    private final GraphiqueService graphiqueService;
 
     /** HTML du rapport, tel que servi par l'endpoint de prévisualisation. */
     public String genererHtmlRapport(RapportProjetDTO rapport) {
         Context context = new Context(Locale.FRENCH);
         context.setVariable(VARIABLE, rapport);
+        // Le graphique et sa palette relèvent du rendu, pas de la donnée : ils
+        // sont ajoutés ici plutôt que dans le DTO, qui reste ainsi une réponse
+        // JSON légère pour Angular.
+        context.setVariable("graphiqueRepartition",
+                graphiqueService.donutRepartition(rapport.synthese().repartitionParPersonne()));
+        context.setVariable("couleurs", GraphiqueService.COULEURS);
         try {
             return templateEngine.process(TEMPLATE, context);
         } catch (RuntimeException e) {

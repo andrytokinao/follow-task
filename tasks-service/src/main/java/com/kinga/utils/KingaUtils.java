@@ -264,6 +264,31 @@ public class KingaUtils {
         return text.isEmpty() ? null : text;
     }
 
+    /**
+     * Durée PLANIFIÉE des événements : la somme de (fin - début) telle qu'elle a
+     * été prévue, sans tenir compte de l'heure actuelle.
+     *
+     * Le pendant de {@link #getOwnElapsedDuration(List)}, qui mesure ce qui
+     * s'est réellement écoulé. Comparer les deux donne l'écart entre le prévu et
+     * le réalisé ; un événement sans fin renseignée n'a pas de durée planifiée
+     * et n'est donc pas compté.
+     */
+    public static Duration getPlannedDuration(List<PlanningEvent> events) {
+        if (events == null || events.isEmpty()) {
+            return Duration.ZERO;
+        }
+        Duration total = Duration.ZERO;
+        for (PlanningEvent event : events) {
+            LocalDateTime start = event.getStartTime();
+            LocalDateTime end = event.getEndTime();
+            if (start == null || end == null || end.isBefore(start)) {
+                continue;
+            }
+            total = total.plus(Duration.between(start, end));
+        }
+        return total;
+    }
+
     public static Duration getOwnElapsedDuration(List<PlanningEvent> events ){
         if (events == null || events.isEmpty()) {
             return Duration.ZERO;

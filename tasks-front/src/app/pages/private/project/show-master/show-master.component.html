@@ -62,7 +62,9 @@
         <span class="nav-label">Planning</span>
       </a>
     </li>
-    <li>
+    <!-- Le rapport détaille les heures de chaque intervenant : réservé au
+         gestionnaire de projet et à l'administrateur. -->
+    <li *ngIf="peutVoirRapport$ | async">
       <a routerLink="rapport" routerLinkActive="active">
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
           <path d="M4 2h5l3 3v9H4z"/><path d="M9 2v3h3"/>

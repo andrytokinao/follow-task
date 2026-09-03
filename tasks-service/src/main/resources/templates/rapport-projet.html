@@ -11,6 +11,10 @@
   - la mise en page n'utilise ni flexbox, ni grid, ni dégradé : uniquement
     « display: block » et des tableaux, seules constructions rendues à
     l'identique par le moteur PDF.
+
+  Le camembert est une image PNG encodée en base64, peinte par GraphiqueService :
+  OpenHTMLtoPDF n'exécute aucun JavaScript, aucune bibliothèque de graphiques ne
+  peut donc fonctionner ici.
 -->
 <html xmlns:th="http://www.thymeleaf.org" lang="fr">
 <head>
@@ -19,7 +23,25 @@
     <style type="text/css">
         @page {
             size: A4;
-            margin: 14mm;
+            /* Marge basse plus large : elle accueille le pied de page. */
+            margin: 14mm 14mm 18mm 14mm;
+
+            @bottom-left {
+                content: element(piedDePage);
+            }
+            @bottom-right {
+                content: "Page " counter(page) " / " counter(pages);
+                font-family: Helvetica, Arial, sans-serif;
+                font-size: 8px;
+                color: #7b8794;
+            }
+        }
+
+        /* Élément courant : sorti du flux et répété au bas de chaque page. */
+        #piedDePage {
+            position: running(piedDePage);
+            font-size: 8px;
+            color: #7b8794;
         }
 
         body {
@@ -142,6 +164,92 @@
             margin: 0 0 10px 0;
         }
 
+        /* ---- Synthèse : tuiles de chiffres ---- */
+        table.tuiles {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 12px;
+        }
+
+        table.tuiles td {
+            width: 25%;
+            vertical-align: top;
+            padding: 8px;
+            border: 1px solid #e4e7eb;
+            text-align: center;
+        }
+
+        .tuile-valeur {
+            display: block;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .tuile-libelle {
+            display: block;
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #7b8794;
+        }
+
+        .tuile-ecart-positif {
+            color: #a61b1b;
+        }
+
+        .tuile-ecart-negatif {
+            color: #1c6b32;
+        }
+
+        /* Compteurs par statut : une ligne de badges chiffrés. */
+        .compteurs {
+            margin-bottom: 18px;
+        }
+
+        .compteur {
+            display: inline-block;
+            padding: 3px 9px;
+            margin-right: 6px;
+            border: 1px solid #cbd2d9;
+            font-size: 10px;
+            white-space: nowrap;
+        }
+
+        .compteur-nombre {
+            font-weight: bold;
+        }
+
+        /* ---- Répartition du temps : graphique + légende ---- */
+        table.repartition {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 18px;
+            page-break-inside: avoid;
+        }
+
+        table.repartition td.graphique {
+            width: 190px;
+            vertical-align: middle;
+            padding: 0 16px 0 0;
+        }
+
+        table.repartition td.legende {
+            vertical-align: middle;
+        }
+
+        img.donut {
+            width: 180px;
+            height: 180px;
+        }
+
+        .pastille {
+            display: inline-block;
+            width: 9px;
+            height: 9px;
+            margin-right: 6px;
+            border: 1px solid #ffffff;
+        }
+
         /* Une tâche ne doit pas être coupée en deux pages. */
         .tache {
             border: 1px solid #e4e7eb;
@@ -173,6 +281,28 @@
             white-space: nowrap;
         }
 
+        /* Ligne d'indicateurs sous la barre : planifié, réalisé, écart, reports. */
+        .indicateurs {
+            margin-top: 6px;
+            font-size: 10px;
+            color: #52606d;
+        }
+
+        .indicateur {
+            display: inline-block;
+            margin-right: 14px;
+            white-space: nowrap;
+        }
+
+        .indicateur-valeur {
+            font-weight: bold;
+            color: #1f2933;
+        }
+
+        .alerte {
+            color: #a61b1b;
+        }
+
         .badge {
             display: inline-block;
             padding: 2px 8px;
@@ -192,6 +322,15 @@
             margin-left: 6px;
         }
 
+        .badge-discret {
+            border-style: dashed;
+            background-color: #ffffff;
+            color: #7b8794;
+            font-weight: normal;
+            text-transform: none;
+            letter-spacing: 0;
+        }
+
         .statut-non-demarre {
             background-color: #f5f7fa;
             border-color: #cbd2d9;
@@ -208,6 +347,18 @@
             background-color: #fdeaea;
             border-color: #f0a6a6;
             color: #a61b1b;
+        }
+
+        .statut-bloque {
+            background-color: #fbe6f3;
+            border-color: #e3a4cd;
+            color: #8f1d63;
+        }
+
+        .statut-reporte {
+            background-color: #fdf3e0;
+            border-color: #ecc99a;
+            color: #8a5a12;
         }
 
         .statut-termine {
@@ -252,6 +403,13 @@
 </head>
 <body>
 
+<!-- Répété au bas de chaque page par la règle @page ci-dessus. -->
+<div id="piedDePage">
+    <span th:text="${rapport.titre}">Projet</span>
+    <span th:if="${rapport.genereLe != null}"
+          th:text="' - édité le ' + ${#temporals.format(rapport.genereLe, 'dd/MM/yyyy à HH:mm')}"></span>
+</div>
+
 <!-- En-tête du projet -->
 <div class="entete">
     <div class="entete-titre" th:text="${rapport.titre} ?: 'Projet sans titre'">Titre du projet</div>
@@ -259,6 +417,8 @@
         Rapport d'avancement
         <span th:if="${rapport.chefDeProjet}"
               th:text="' - Chef de projet : ' + ${rapport.chefDeProjet}"></span>
+        <span th:if="${rapport.genereLe != null}"
+              th:text="' - édité le ' + ${#temporals.format(rapport.genereLe, 'dd/MM/yyyy à HH:mm')}"></span>
     </div>
 </div>
 
@@ -270,7 +430,7 @@
     <tr>
         <td>
             <span class="libelle-champ">Chef de projet</span>
-            <span class="valeur-champ" th:text="${rapport.chefDeProjet} ?: '-'">-</span>
+            <span class="valeur-champ" th:text="${rapport.chefDeProjet} ?: 'Non renseigné'">-</span>
         </td>
         <td>
             <span class="libelle-champ">Date de début</span>
@@ -289,6 +449,15 @@
             </span>
         </td>
     </tr>
+    <tr>
+        <!-- Sur sa propre ligne : la liste des assignés peut être longue, et la
+             tronquer sur une colonne de quart de page la rendrait inutilisable. -->
+        <td colspan="4">
+            <span class="libelle-champ">Assigné à</span>
+            <span class="valeur-champ"
+                  th:text="${#lists.isEmpty(rapport.responsables) ? 'Personne' : #strings.listJoin(rapport.responsables, ', ')}">-</span>
+        </td>
+    </tr>
 </table>
 
 <!-- Avancement global -->
@@ -302,9 +471,112 @@
     </div>
 </div>
 
+<!-- Synthèse -->
+<div th:with="synthese=${rapport.synthese}">
+
+    <div class="section-titre">Synthèse</div>
+
+    <table class="tuiles">
+        <tr>
+            <td>
+                <span class="tuile-valeur"
+                      th:text="${#numbers.formatDecimal(synthese.totalHeures, 1, 'NONE', 2, 'COMMA')} + ' h'">0 h</span>
+                <span class="tuile-libelle">Heures réalisées</span>
+            </td>
+            <td>
+                <span class="tuile-valeur"
+                      th:text="${#numbers.formatDecimal(synthese.heuresPlanifiees, 1, 'NONE', 2, 'COMMA')} + ' h'">0 h</span>
+                <span class="tuile-libelle">Heures planifiées</span>
+            </td>
+            <td>
+                <!-- Un écart positif signifie que le projet consomme plus que
+                     prévu : c'est ce qui doit sauter aux yeux. -->
+                <span class="tuile-valeur"
+                      th:classappend="${synthese.ecartHeures > 0 ? 'tuile-ecart-positif' : (synthese.ecartHeures &lt; 0 ? 'tuile-ecart-negatif' : '')}"
+                      th:text="${(synthese.ecartHeures > 0 ? '+' : '')} + ${#numbers.formatDecimal(synthese.ecartHeures, 1, 'NONE', 2, 'COMMA')} + ' h'">0 h</span>
+                <span class="tuile-libelle">Écart réalisé / planifié</span>
+            </td>
+            <td>
+                <span class="tuile-valeur" th:text="${synthese.nombreIntervenants}">0</span>
+                <span class="tuile-libelle">Intervenants</span>
+            </td>
+        </tr>
+    </table>
+
+    <div class="compteurs">
+        <span class="compteur statut-termine">
+            <span class="compteur-nombre" th:text="${synthese.nombreTerminees}">0</span> terminées
+        </span>
+        <span class="compteur statut-en-cours">
+            <span class="compteur-nombre" th:text="${synthese.nombreEnCours}">0</span> en cours
+        </span>
+        <span class="compteur statut-en-retard" th:if="${synthese.nombreEnRetard > 0}">
+            <span class="compteur-nombre" th:text="${synthese.nombreEnRetard}">0</span> en retard
+        </span>
+        <span class="compteur statut-bloque" th:if="${synthese.nombreBloquees > 0}">
+            <span class="compteur-nombre" th:text="${synthese.nombreBloquees}">0</span> bloquées
+        </span>
+        <span class="compteur statut-reporte" th:if="${synthese.nombreReportees > 0}">
+            <span class="compteur-nombre" th:text="${synthese.nombreReportees}">0</span> reportées
+        </span>
+        <span class="compteur statut-non-demarre">
+            <span class="compteur-nombre" th:text="${synthese.nombreNonDemarrees}">0</span> non démarrées
+        </span>
+        <span class="compteur" th:if="${synthese.tachesSansPlanning > 0}">
+            <span class="compteur-nombre" th:text="${synthese.tachesSansPlanning}">0</span> sans planning
+        </span>
+        <span class="compteur" th:if="${synthese.tachesSansAssigne > 0}">
+            <span class="compteur-nombre" th:text="${synthese.tachesSansAssigne}">0</span> sans assigné
+        </span>
+    </div>
+
+    <!-- Répartition du temps par intervenant -->
+    <div class="section-titre">Répartition du temps par intervenant</div>
+
+    <div class="vide" th:if="${#lists.isEmpty(synthese.repartitionParPersonne)}">
+        Aucun temps n'a encore été enregistré sur ce projet.
+    </div>
+
+    <table class="repartition" th:unless="${#lists.isEmpty(synthese.repartitionParPersonne)}">
+        <tr>
+            <td class="graphique" th:if="${graphiqueRepartition != null}">
+                <img class="donut" th:src="${graphiqueRepartition}"
+                     alt="Répartition du temps par intervenant" />
+            </td>
+            <td class="legende">
+                <table class="temps">
+                    <tr>
+                        <th>Intervenant</th>
+                        <th class="nombre">Heures</th>
+                        <th class="nombre">Part</th>
+                    </tr>
+                    <tr th:each="part, iter : ${synthese.repartitionParPersonne}">
+                        <td>
+                            <span class="pastille"
+                                  th:style="'background-color: ' + ${couleurs[iter.index % couleurs.size()]}"></span>
+                            <span th:text="${part.nomPersonne}">Personne</span>
+                        </td>
+                        <td class="nombre"
+                            th:text="${#numbers.formatDecimal(part.heuresPassees, 1, 'NONE', 2, 'COMMA')} + ' h'">0 h</td>
+                        <td class="nombre" th:text="${part.pourcentageDuTemps} + ' %'">0 %</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Total</strong></td>
+                        <td class="nombre">
+                            <strong th:text="${#numbers.formatDecimal(synthese.totalHeures, 1, 'NONE', 2, 'COMMA')} + ' h'">0 h</strong>
+                        </td>
+                        <td class="nombre"><strong>100 %</strong></td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+
+</div>
+
 <!-- Tâches -->
 <div class="section-titre">
-    Tâches
+    Détail des tâches
     <span th:text="'(' + ${#lists.size(rapport.taches)} + ')'">(0)</span>
 </div>
 
@@ -321,6 +593,11 @@
                 <span class="badge"
                       th:classappend="${tache.statut.cssClass}"
                       th:text="${tache.statutLibelle}">Statut</span>
+                <!-- Statut du workflow, à titre de comparaison : un écart avec
+                     le statut dérivé signale une demande mal tenue à jour. -->
+                <span class="badge badge-discret"
+                      th:if="${tache.statutWorkflow}"
+                      th:text="${tache.statutWorkflow}">Workflow</span>
             </td>
             <td class="tache-chiffre" th:text="${tache.pourcentageExecution} + ' %'">0 %</td>
         </tr>
@@ -330,6 +607,30 @@
         <div class="barre-remplissage"
              th:classappend="${tache.pourcentageExecution &lt; 40 ? 'barre-rouge' : (tache.pourcentageExecution &lt; 75 ? 'barre-orange' : 'barre-verte')}"
              th:style="'width: ' + ${tache.pourcentageExecution} + '%'"></div>
+    </div>
+
+    <div class="indicateurs">
+        <span class="indicateur">
+            Réalisé
+            <span class="indicateur-valeur"
+                  th:text="${#numbers.formatDecimal(tache.totalHeuresPassees, 1, 'NONE', 2, 'COMMA')} + ' h'">0 h</span>
+        </span>
+        <span class="indicateur">
+            Planifié
+            <span class="indicateur-valeur"
+                  th:text="${#numbers.formatDecimal(tache.heuresPlanifiees, 1, 'NONE', 2, 'COMMA')} + ' h'">0 h</span>
+        </span>
+        <span class="indicateur" th:if="${tache.ecartHeures != 0}">
+            Écart
+            <span class="indicateur-valeur"
+                  th:classappend="${tache.ecartHeures > 0 ? 'alerte' : ''}"
+                  th:text="${(tache.ecartHeures > 0 ? '+' : '')} + ${#numbers.formatDecimal(tache.ecartHeures, 1, 'NONE', 2, 'COMMA')} + ' h'">0 h</span>
+        </span>
+        <span class="indicateur alerte" th:if="${tache.nombreReports > 0}">
+            Replanifiée
+            <span class="indicateur-valeur alerte"
+                  th:text="${tache.nombreReports} + ' fois'">1 fois</span>
+        </span>
     </div>
 
     <table class="temps" th:if="${not #lists.isEmpty(tache.tempsParPersonne)}">
@@ -358,7 +659,7 @@
     </table>
 
     <div class="vide" th:if="${#lists.isEmpty(tache.tempsParPersonne)}">
-        Aucun temps enregistré sur cette tâche.
+        Aucun temps enregistré et aucune personne assignée sur cette tâche.
     </div>
 
 </div>

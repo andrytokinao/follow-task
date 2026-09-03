@@ -2,7 +2,9 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {animate, style, transition, trigger} from "@angular/animations";
 import {ActivatedRoute, Router} from "@angular/router";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
-import {Subscription} from "rxjs";
+import {Observable, Subscription} from "rxjs";
+import {shareReplay} from "rxjs/operators";
+import {ProjectGuard} from "../../../../services/ProjectGuard";
 import {ConfigService} from "../../../../services/config.service";
 import {IssueService} from "../../../../services/issue.service";
 import {PageTitleService} from "../../../../services/page-title.service";
@@ -51,13 +53,29 @@ export class ShowMasterComponent implements OnInit, OnDestroy {
   /** Abonnement du titre, tenu à part pour être libéré (voir ngOnDestroy). */
   private titleSubscription?: Subscription;
 
+  /**
+   * Le rapport expose les heures de chaque intervenant : l'onglet n'est proposé
+   * qu'au gestionnaire de projet et à l'administrateur.
+   *
+   * `hasCredential` renvoie un Observable froid qui refait tout son travail à
+   * chaque abonnement — d'où le `shareReplay`, sans quoi le `| async` du gabarit
+   * relancerait la résolution des droits à chaque cycle de détection.
+   * Il accorde déjà l'accès aux porteurs de `CAN_ACCESS_ALL`, l'administrateur
+   * global est donc couvert.
+   */
+  protected readonly peutVoirRapport$: Observable<boolean>;
+
   constructor(private router: Router,
               private modalService: NgbModal,
               private configService:ConfigService,
               protected issueService:IssueService,
               private route: ActivatedRoute,
-              private pageTitle: PageTitleService
+              private pageTitle: PageTitleService,
+              private projectGuard: ProjectGuard
   ) {
+    this.peutVoirRapport$ = this.projectGuard
+      .hasCredential(['PROJECT_MANAGER', 'ADMIN'])
+      .pipe(shareReplay(1));
   }
   addSubtask() {
     if (this.newSubtask.trim()) {

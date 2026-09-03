@@ -3,7 +3,13 @@ import {ActivatedRoute} from '@angular/router';
 import {Subscription} from 'rxjs';
 import {RapportService} from '../../../../../services/rapport.service';
 import {IssueService} from '../../../../../services/issue.service';
-import {RapportProjetDTO, StatutTache, TacheRapportDTO} from '../../../../../type/rapport';
+import {
+  COULEURS_REPARTITION,
+  PartRepartition,
+  RapportProjetDTO,
+  StatutTache,
+  TacheRapportDTO
+} from '../../../../../type/rapport';
 
 /**
  * Aperçu du rapport d'avancement d'un projet.
@@ -27,6 +33,15 @@ export class RapportProjetComponent implements OnInit, OnDestroy {
   rapport?: RapportProjetDTO;
   chargement = false;
   erreur?: string;
+
+  /** Parts du camembert, prêtes à dessiner. */
+  parts: PartRepartition[] = [];
+
+  /**
+   * Rayon donnant une circonférence de 100 : les longueurs d'arc s'expriment
+   * alors directement en pourcentage, sans conversion à chaque segment.
+   */
+  readonly rayon = 100 / (2 * Math.PI);
 
   private issueCourante?: number;
   private abonnement?: Subscription;
@@ -87,6 +102,10 @@ export class RapportProjetComponent implements OnInit, OnDestroy {
         return 'statut-termine';
       case 'EN_RETARD':
         return 'statut-en-retard';
+      case 'BLOQUE':
+        return 'statut-bloque';
+      case 'REPORTE':
+        return 'statut-reporte';
       case 'EN_COURS':
         return 'statut-en-cours';
       default:
@@ -108,6 +127,7 @@ export class RapportProjetComponent implements OnInit, OnDestroy {
     this.rapportService.obtenirRapport(issueId).subscribe({
       next: rapport => {
         this.rapport = rapport;
+        this.parts = this.decouperCamembert(rapport);
         this.chargement = false;
       },
       error: erreur => {
@@ -115,8 +135,45 @@ export class RapportProjetComponent implements OnInit, OnDestroy {
         // (demande inconnue, sous-tâche sans rapport propre).
         this.erreur = erreur?.error?.error ?? "Le rapport n'a pas pu être chargé.";
         this.rapport = undefined;
+        this.parts = [];
         this.chargement = false;
       }
+    });
+  }
+
+  /**
+   * Segments du camembert.
+   *
+   * Dessiné en SVG plutôt qu'avec une bibliothèque de graphiques : un anneau à
+   * quelques parts ne justifie pas d'embarquer un moteur de rendu, et le SVG
+   * reste net à tout zoom. Le PDF, lui, reçoit la même image peinte côté
+   * serveur — les deux partagent la palette, pas le code.
+   *
+   * Les longueurs d'arc viennent des heures et non des pourcentages déjà
+   * arrondis : trois parts à 33 % laisseraient sinon un liseré vide.
+   */
+  private decouperCamembert(rapport: RapportProjetDTO): PartRepartition[] {
+    const repartition = rapport.synthese?.repartitionParPersonne ?? [];
+    const total = repartition.reduce((somme, part) => somme + part.heuresPassees, 0);
+    if (total <= 0) {
+      return [];
+    }
+
+    let cumul = 0;
+    return repartition.map((part, index) => {
+      const arc = (part.heuresPassees / total) * 100;
+      const segment: PartRepartition = {
+        nom: part.nomPersonne,
+        heures: part.heuresPassees,
+        pourcentage: part.pourcentageDuTemps,
+        couleur: COULEURS_REPARTITION[index % COULEURS_REPARTITION.length],
+        arc,
+        // 25 place le départ à midi, le tracé se poursuivant dans le sens
+        // horaire comme sur l'image du PDF.
+        decalage: 25 - cumul
+      };
+      cumul += arc;
+      return segment;
     });
   }
 }

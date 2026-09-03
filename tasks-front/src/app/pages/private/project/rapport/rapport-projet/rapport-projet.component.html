@@ -5,8 +5,9 @@
   <div class="rapport__barre">
     <div class="rapport__titre-zone">
       <h2 class="rapport__titre">{{ rapport?.titre || 'Rapport de projet' }}</h2>
-      <span class="rapport__sous-titre" *ngIf="rapport?.chefDeProjet">
-        Chef de projet : {{ rapport?.chefDeProjet }}
+      <span class="rapport__sous-titre" *ngIf="rapport">
+        <ng-container *ngIf="rapport.chefDeProjet">Chef de projet : {{ rapport.chefDeProjet }}</ng-container>
+        <ng-container *ngIf="rapport.genereLe"> · édité le {{ rapport.genereLe | date:'dd/MM/yyyy à HH:mm' }}</ng-container>
       </span>
     </div>
     <button type="button"
@@ -33,7 +34,7 @@
     <div class="fiche">
       <div class="fiche__champ">
         <span class="fiche__libelle">Chef de projet</span>
-        <span class="fiche__valeur">{{ rapport.chefDeProjet || '-' }}</span>
+        <span class="fiche__valeur">{{ rapport.chefDeProjet || 'Non renseigné' }}</span>
       </div>
       <div class="fiche__champ">
         <span class="fiche__libelle">Date de début</span>
@@ -47,21 +48,144 @@
         <span class="fiche__libelle">Statut</span>
         <span class="badge">{{ rapport.statut }}</span>
       </div>
+      <!-- Sur toute la largeur : la liste des assignés peut être longue, et la
+           tronquer dans une colonne la rendrait inutilisable. -->
+      <div class="fiche__champ fiche__champ--large">
+        <span class="fiche__libelle">Assigné à</span>
+        <span class="fiche__valeur">{{ rapport.responsables?.length ? rapport.responsables.join(', ') : 'Personne' }}</span>
+      </div>
     </div>
 
     <!-- Avancement global -->
     <div class="avancement">
       <span class="avancement__libelle">Avancement global</span>
       <span class="avancement__valeur">{{ rapport.avancementGlobal }} %</span>
-      <div class="barre">
+      <div class="barre"
+           role="progressbar"
+           [attr.aria-valuenow]="rapport.avancementGlobal"
+           aria-valuemin="0"
+           aria-valuemax="100">
         <div class="barre__remplissage"
              [ngClass]="classeBarre(rapport.avancementGlobal)"
              [style.width.%]="rapport.avancementGlobal"></div>
       </div>
     </div>
 
+    <!-- Synthèse -->
+    <ng-container *ngIf="rapport.synthese as synthese">
+
+      <h3 class="section">Synthèse</h3>
+
+      <div class="tuiles">
+        <div class="tuile">
+          <span class="tuile__valeur">{{ synthese.totalHeures | number:'1.0-2' }} h</span>
+          <span class="tuile__libelle">Heures réalisées</span>
+        </div>
+        <div class="tuile">
+          <span class="tuile__valeur">{{ synthese.heuresPlanifiees | number:'1.0-2' }} h</span>
+          <span class="tuile__libelle">Heures planifiées</span>
+        </div>
+        <div class="tuile">
+          <!-- Un écart positif signifie que le projet consomme plus que prévu :
+               c'est ce qui doit sauter aux yeux. -->
+          <span class="tuile__valeur"
+                [class.tuile__valeur--alerte]="synthese.ecartHeures > 0"
+                [class.tuile__valeur--favorable]="synthese.ecartHeures < 0">
+            {{ synthese.ecartHeures > 0 ? '+' : '' }}{{ synthese.ecartHeures | number:'1.0-2' }} h
+          </span>
+          <span class="tuile__libelle">Écart réalisé / planifié</span>
+        </div>
+        <div class="tuile">
+          <span class="tuile__valeur">{{ synthese.nombreIntervenants }}</span>
+          <span class="tuile__libelle">Intervenants</span>
+        </div>
+      </div>
+
+      <div class="compteurs">
+        <span class="compteur statut-termine">
+          <strong>{{ synthese.nombreTerminees }}</strong> terminées
+        </span>
+        <span class="compteur statut-en-cours">
+          <strong>{{ synthese.nombreEnCours }}</strong> en cours
+        </span>
+        <span class="compteur statut-en-retard" *ngIf="synthese.nombreEnRetard">
+          <strong>{{ synthese.nombreEnRetard }}</strong> en retard
+        </span>
+        <span class="compteur statut-bloque" *ngIf="synthese.nombreBloquees">
+          <strong>{{ synthese.nombreBloquees }}</strong> bloquées
+        </span>
+        <span class="compteur statut-reporte" *ngIf="synthese.nombreReportees">
+          <strong>{{ synthese.nombreReportees }}</strong> reportées
+        </span>
+        <span class="compteur statut-non-demarre">
+          <strong>{{ synthese.nombreNonDemarrees }}</strong> non démarrées
+        </span>
+        <span class="compteur" *ngIf="synthese.tachesSansPlanning">
+          <strong>{{ synthese.tachesSansPlanning }}</strong> sans planning
+        </span>
+        <span class="compteur" *ngIf="synthese.tachesSansAssigne">
+          <strong>{{ synthese.tachesSansAssigne }}</strong> sans assigné
+        </span>
+      </div>
+
+      <!-- Répartition du temps : camembert SVG + légende -->
+      <h3 class="section">Répartition du temps par intervenant</h3>
+
+      <p class="rapport__vide" *ngIf="!parts.length">
+        Aucun temps n'a encore été enregistré sur ce projet.
+      </p>
+
+      <div class="repartition" *ngIf="parts.length">
+
+        <div class="repartition__graphique">
+          <svg viewBox="0 0 42 42" class="donut" role="img"
+               aria-label="Répartition du temps par intervenant">
+            <circle class="donut__fond" cx="21" cy="21" [attr.r]="rayon"></circle>
+            <circle *ngFor="let part of parts"
+                    class="donut__part"
+                    cx="21" cy="21"
+                    [attr.r]="rayon"
+                    [attr.stroke]="part.couleur"
+                    [attr.stroke-dasharray]="part.arc + ' ' + (100 - part.arc)"
+                    [attr.stroke-dashoffset]="part.decalage">
+              <title>{{ part.nom }} — {{ part.heures | number:'1.0-2' }} h ({{ part.pourcentage }} %)</title>
+            </circle>
+          </svg>
+        </div>
+
+        <table class="temps repartition__legende">
+          <thead>
+          <tr>
+            <th>Intervenant</th>
+            <th class="nombre">Heures</th>
+            <th class="nombre">Part</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let part of parts">
+            <td>
+              <span class="pastille" [style.background-color]="part.couleur"></span>
+              {{ part.nom }}
+            </td>
+            <td class="nombre">{{ part.heures | number:'1.0-2' }} h</td>
+            <td class="nombre">{{ part.pourcentage }} %</td>
+          </tr>
+          </tbody>
+          <tfoot>
+          <tr>
+            <td>Total</td>
+            <td class="nombre">{{ synthese.totalHeures | number:'1.0-2' }} h</td>
+            <td class="nombre">100 %</td>
+          </tr>
+          </tfoot>
+        </table>
+
+      </div>
+
+    </ng-container>
+
     <!-- Tâches -->
-    <h3 class="section">Tâches <span class="section__compte">({{ rapport.taches.length }})</span></h3>
+    <h3 class="section">Détail des tâches <span class="section__compte">({{ rapport.taches.length }})</span></h3>
 
     <p class="rapport__vide" *ngIf="!rapport.taches.length">
       Aucune tâche n'est rattachée à ce projet.
@@ -72,13 +196,38 @@
       <div class="tache__entete">
         <span class="tache__nom">{{ tache.nom || 'Tâche sans titre' }}</span>
         <span class="badge" [ngClass]="classeStatut(tache.statut)">{{ tache.statutLibelle }}</span>
+        <!-- Statut du workflow, à titre de comparaison : un écart avec le
+             statut dérivé signale une demande mal tenue à jour. -->
+        <span class="badge badge--discret" *ngIf="tache.statutWorkflow">{{ tache.statutWorkflow }}</span>
         <span class="tache__pourcentage">{{ tache.pourcentageExecution }} %</span>
       </div>
 
-      <div class="barre barre--mince">
+      <div class="barre barre--mince"
+           role="progressbar"
+           [attr.aria-valuenow]="tache.pourcentageExecution"
+           aria-valuemin="0"
+           aria-valuemax="100">
         <div class="barre__remplissage"
              [ngClass]="classeBarre(tache.pourcentageExecution)"
              [style.width.%]="tache.pourcentageExecution"></div>
+      </div>
+
+      <div class="indicateurs">
+        <span class="indicateur">
+          Réalisé <strong>{{ tache.totalHeuresPassees | number:'1.0-2' }} h</strong>
+        </span>
+        <span class="indicateur">
+          Planifié <strong>{{ tache.heuresPlanifiees | number:'1.0-2' }} h</strong>
+        </span>
+        <span class="indicateur" *ngIf="tache.ecartHeures">
+          Écart
+          <strong [class.alerte]="tache.ecartHeures > 0">
+            {{ tache.ecartHeures > 0 ? '+' : '' }}{{ tache.ecartHeures | number:'1.0-2' }} h
+          </strong>
+        </span>
+        <span class="indicateur alerte" *ngIf="tache.nombreReports">
+          Replanifiée <strong>{{ tache.nombreReports }} fois</strong>
+        </span>
       </div>
 
       <table class="temps" *ngIf="tache.tempsParPersonne.length; else aucunTemps">
@@ -108,7 +257,7 @@
       </table>
 
       <ng-template #aucunTemps>
-        <p class="rapport__vide">Aucun temps enregistré sur cette tâche.</p>
+        <p class="rapport__vide">Aucun temps enregistré et aucune personne assignée sur cette tâche.</p>
       </ng-template>
 
     </div>

@@ -2,11 +2,15 @@ package com.kinga.followtask.service;
 
 import com.kinga.followtask.dto.rapport.RapportProjetDTO;
 import com.kinga.followtask.dto.rapport.StatutTache;
+import com.kinga.followtask.dto.rapport.SyntheseProjetDTO;
 import com.kinga.followtask.dto.rapport.TacheRapportDTO;
 import com.kinga.followtask.dto.rapport.TempsParPersonneDTO;
 import com.kinga.followtask.entity.Issue;
+import com.kinga.followtask.entity.IssueMembership;
 import com.kinga.followtask.entity.PlanningEvent;
 import com.kinga.followtask.entity.UserApp;
+import com.kinga.followtask.entity.enumapp.ExecutionStatus;
+import com.kinga.followtask.entity.enumapp.IssueRole;
 import com.kinga.followtask.repository.IssueRepository;
 import com.kinga.utils.KingaUtils;
 import lombok.RequiredArgsConstructor;
@@ -33,8 +37,9 @@ import java.util.Objects;
  * chiffres.
  *
  * Aucun calcul de durée ni d'avancement n'est réécrit ici : tout passe par
- * {@code Issue.getCurrentCompletionPercent()} et
- * {@code KingaUtils.getOwnElapsedDuration(...)}, seules sources de vérité.
+ * {@code Issue.getCurrentCompletionPercent()},
+ * {@code Issue.getElapsedDuration()} et les utilitaires de {@code KingaUtils},
+ * seules sources de vérité.
  */
 @Service
 @RequiredArgsConstructor
@@ -96,11 +101,14 @@ public class RapportService {
                 // riche, la réinjecter telle quelle casserait le XHTML attendu
                 // par la conversion PDF.
                 KingaUtils.plainText(issueProjet.getDescription()),
-                nomAffichable(issueProjet.getReporter()),
+                resolveChefDeProjet(issueProjet),
+                resolveResponsables(issueProjet),
                 issueProjet.getCreationDate(),
                 dateFin,
                 resolveStatutProjet(avancementGlobal, dateFin).getLibelle(),
                 avancementGlobal,
+                LocalDateTime.now(),
+                calculerSynthese(issueProjet, taches, tachesRapport),
                 tachesRapport);
     }
 
@@ -175,28 +183,80 @@ public class RapportService {
     TacheRapportDTO toTacheRapportDTO(Issue tache) {
         int pourcentage = pourcentageExecution(tache);
         StatutTache statut = resolveStatutTache(tache, pourcentage);
-        List<TempsParPersonneDTO> temps = calculerTempsParPersonne(tache);
+
+        double realisees = enHeures(KingaUtils.getOwnElapsedDuration(tache.getEvents()));
+        double planifiees = enHeures(KingaUtils.getPlannedDuration(tache.getEvents()));
 
         return new TacheRapportDTO(
                 tache.getSummary(),
                 statut,
                 statut.getLibelle(),
+                tache.getStatus() == null ? null : tache.getStatus().getDisplayName(),
                 pourcentage,
-                temps,
-                enHeures(KingaUtils.getOwnElapsedDuration(tache.getEvents())));
+                calculerTempsParPersonne(tache.getEvents(), tache.getAssignes()),
+                realisees,
+                planifiees,
+                arrondir(realisees - planifiees),
+                compterReports(tache.getEvents()));
     }
 
     /**
-     * Répartition du temps passé sur une tâche entre ses exécutants.
+     * Chiffres d'ensemble du projet.
+     *
+     * Les compteurs par statut sont relus sur les DTO déjà construits plutôt que
+     * recalculés sur les entités : la synthèse ne peut donc pas diverger du
+     * détail affiché juste en dessous.
+     */
+    SyntheseProjetDTO calculerSynthese(Issue issueProjet,
+                                       List<Issue> taches,
+                                       List<TacheRapportDTO> tachesRapport) {
+
+        List<PlanningEvent> tousLesEvents = new ArrayList<>();
+        collecterEvents(issueProjet, tousLesEvents);
+
+        // Le total vient de l'entité (récursif sur les sous-tâches), la
+        // répartition des mêmes événements par personne : les deux ne peuvent
+        // pas se contredire, une durée étant additive.
+        double totalHeures = enHeures(issueProjet.getElapsedDuration());
+        double planifiees = enHeures(KingaUtils.getPlannedDuration(tousLesEvents));
+
+        List<TempsParPersonneDTO> repartition = calculerTempsParPersonne(tousLesEvents, List.of())
+                .stream()
+                .filter(part -> part.heuresPassees() > 0)
+                .toList();
+
+        return new SyntheseProjetDTO(
+                totalHeures,
+                planifiees,
+                arrondir(totalHeures - planifiees),
+                repartition.size(),
+                tachesRapport.size(),
+                compter(tachesRapport, StatutTache.TERMINE),
+                compter(tachesRapport, StatutTache.EN_COURS),
+                compter(tachesRapport, StatutTache.EN_RETARD),
+                compter(tachesRapport, StatutTache.BLOQUE),
+                compter(tachesRapport, StatutTache.REPORTE),
+                compter(tachesRapport, StatutTache.NON_DEMARRE),
+                (int) taches.stream().filter(t -> CollectionUtils.isEmpty(t.getEvents())).count(),
+                (int) taches.stream().filter(t -> CollectionUtils.isEmpty(t.getAssignes())).count(),
+                repartition);
+    }
+
+    /**
+     * Répartition du temps passé entre les exécutants d'un lot d'événements.
      *
      * Les événements sont regroupés par personne puis confiés en bloc à
      * {@code KingaUtils.getOwnElapsedDuration(...)} : la distinction entre
      * événement terminé, en cours et pas encore démarré reste au même endroit
      * pour toute l'application.
+     *
+     * @param assignes personnes à faire figurer même sans événement. Une tâche
+     *                 assignée sur laquelle personne n'a travaillé est
+     *                 précisément ce qu'un rapport doit montrer ; sans cela elle
+     *                 disparaît du tableau.
      */
-    List<TempsParPersonneDTO> calculerTempsParPersonne(Issue tache) {
-        List<PlanningEvent> events = tache.getEvents();
-        if (CollectionUtils.isEmpty(events)) {
+    List<TempsParPersonneDTO> calculerTempsParPersonne(List<PlanningEvent> events, List<UserApp> assignes) {
+        if (CollectionUtils.isEmpty(events) && CollectionUtils.isEmpty(assignes)) {
             return List.of();
         }
 
@@ -205,13 +265,20 @@ public class RapportService {
         // equals() de Lombok parcourt des collections chargées à la demande).
         Map<String, List<PlanningEvent>> parExecutant = new LinkedHashMap<>();
         Map<String, String> nomParExecutant = new LinkedHashMap<>();
-        for (PlanningEvent event : events) {
-            UserApp executant = event.getUser();
-            String cle = executant == null || executant.getId() == null
-                    ? SANS_EXECUTANT
-                    : executant.getId();
-            parExecutant.computeIfAbsent(cle, k -> new ArrayList<>()).add(event);
-            nomParExecutant.putIfAbsent(cle, nomAffichable(executant));
+
+        if (events != null) {
+            for (PlanningEvent event : events) {
+                String cle = cle(event.getUser());
+                parExecutant.computeIfAbsent(cle, k -> new ArrayList<>()).add(event);
+                nomParExecutant.putIfAbsent(cle, nomAffichable(event.getUser()));
+            }
+        }
+        if (assignes != null) {
+            for (UserApp assigne : assignes) {
+                String cle = cle(assigne);
+                parExecutant.computeIfAbsent(cle, k -> new ArrayList<>());
+                nomParExecutant.putIfAbsent(cle, nomAffichable(assigne));
+            }
         }
 
         long minutesTotal = KingaUtils.getOwnElapsedDuration(events).toMinutes();
@@ -229,22 +296,34 @@ public class RapportService {
         }
 
         // Le plus gros contributeur en premier : c'est l'information que l'on
-        // cherche en ouvrant le tableau.
+        // cherche en ouvrant le tableau, et l'ordre des parts du graphique.
         repartition.sort(Comparator.comparingDouble(TempsParPersonneDTO::heuresPassees).reversed());
         return repartition;
     }
 
     /**
-     * Statut d'une tâche, déduit de son avancement.
+     * Statut d'une tâche.
      *
-     * L'échéance retenue est la fin planifiée la plus tardive de ses
-     * événements : le modèle ne porte pas d'autre date d'échéance. Une tâche
-     * entamée dont tous les événements auraient dû être terminés est en retard.
+     * L'avancement prime : une tâche à 100 % est terminée quoi qu'il arrive.
+     * Vient ensuite l'état d'exécution de l'événement de référence — bloqué ou
+     * reporté sont des situations que le seul pourcentage masque complètement.
+     * À défaut, l'échéance retenue est la fin planifiée la plus tardive des
+     * événements, le modèle n'en portant pas d'autre.
      */
     StatutTache resolveStatutTache(Issue tache, int pourcentage) {
         if (pourcentage >= 100) {
             return StatutTache.TERMINE;
         }
+
+        PlanningEvent reference = tache.resolveCurrentEvent();
+        ExecutionStatus etat = reference == null ? null : reference.getExecutionStatus();
+        if (etat == ExecutionStatus.BLOCKED) {
+            return StatutTache.BLOQUE;
+        }
+        if (etat == ExecutionStatus.POSTPONED) {
+            return StatutTache.REPORTE;
+        }
+
         if (pourcentage <= 0) {
             return StatutTache.NON_DEMARRE;
         }
@@ -272,6 +351,29 @@ public class RapportService {
     private int pourcentageExecution(Issue tache) {
         Integer pourcentage = tache.getCurrentCompletionPercent();
         return pourcentage == null ? 0 : borner(pourcentage);
+    }
+
+    /**
+     * Événements nés d'un report. Le test porte sur la clé étrangère, il ne
+     * déclenche donc pas le chargement de l'événement d'origine.
+     */
+    private int compterReports(List<PlanningEvent> events) {
+        if (CollectionUtils.isEmpty(events)) {
+            return 0;
+        }
+        return (int) events.stream()
+                .filter(e -> e.getPostponedFrom() != null)
+                .count();
+    }
+
+    private int compter(List<TacheRapportDTO> taches, StatutTache statut) {
+        return (int) taches.stream().filter(t -> t.statut() == statut).count();
+    }
+
+    private String cle(UserApp utilisateur) {
+        return utilisateur == null || utilisateur.getId() == null
+                ? SANS_EXECUTANT
+                : utilisateur.getId();
     }
 
     private StatutTache resolveStatutProjet(int avancementGlobal, LocalDateTime dateFin) {
@@ -326,15 +428,75 @@ public class RapportService {
         }
     }
 
+    /**
+     * Responsable du projet.
+     *
+     * <p>Le rôle {@code ADMIN} d'une demande est la seule notion de responsable
+     * que porte le modèle ; rien ne l'attribue aujourd'hui — toute assignation
+     * pose {@code ASSIGNEE} — mais la règle est écrite ici pour que le rapport
+     * en tienne compte dès que ce sera le cas.</p>
+     *
+     * <p>À défaut on retient le rapporteur, c'est-à-dire l'auteur de la demande,
+     * qui n'est renseigné qu'à la création : les demandes plus anciennes ou
+     * importées n'en ont pas. Dans ce cas la méthode renvoie {@code null} plutôt
+     * qu'un libellé de repli — « Non assigné » laissait croire à une erreur
+     * d'assignation alors que le champ n'a simplement jamais été rempli.</p>
+     */
+    private String resolveChefDeProjet(Issue issueProjet) {
+        String responsable = issueProjet.getActiveMemberships().stream()
+                .filter(m -> m.getRole() == IssueRole.ADMIN)
+                .map(IssueMembership::getUser)
+                .map(this::nomOuNull)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
+
+        return responsable != null ? responsable : nomOuNull(issueProjet.getReporter());
+    }
+
+    /**
+     * Personnes assignées à la demande racine.
+     *
+     * Elles ne sont pas le chef de projet : dans ce modèle, assigner quelqu'un
+     * ne le désigne pas responsable. Les deux informations sont donc portées
+     * séparément par le rapport.
+     */
+    private List<String> resolveResponsables(Issue issueProjet) {
+        List<String> noms = issueProjet.getAssignes().stream()
+                .map(this::nomOuNull)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+        if (!noms.isEmpty()) {
+            return noms;
+        }
+
+        // Demandes antérieures aux adhésions : seul le champ historique
+        // « assigne » est rempli, et lui seul dit encore qui s'en occupe.
+        String historique = nomOuNull(issueProjet.getAssigne());
+        return historique == null ? List.of() : List.of(historique);
+    }
+
+    /**
+     * Nom d'un exécutant. Un événement sans utilisateur en a bel et bien un
+     * d'inconnu, le libellé de repli a donc ici un sens — au contraire des
+     * champs d'identité du projet, qui utilisent {@link #nomOuNull(UserApp)}.
+     */
     private String nomAffichable(UserApp utilisateur) {
+        String nom = nomOuNull(utilisateur);
+        return nom == null ? SANS_EXECUTANT : nom;
+    }
+
+    /** Nom affichable, ou {@code null} si l'utilisateur est absent ou anonyme. */
+    private String nomOuNull(UserApp utilisateur) {
         if (utilisateur == null) {
-            return SANS_EXECUTANT;
+            return null;
         }
         String nom = (defaut(utilisateur.getLastName()) + " " + defaut(utilisateur.getFirstName())).trim();
         if (StringUtils.hasText(nom)) {
             return nom;
         }
-        return StringUtils.hasText(utilisateur.getUsername()) ? utilisateur.getUsername() : SANS_EXECUTANT;
+        return StringUtils.hasText(utilisateur.getUsername()) ? utilisateur.getUsername() : null;
     }
 
     private String defaut(String valeur) {
