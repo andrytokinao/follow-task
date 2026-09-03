@@ -10,6 +10,11 @@ import java.util.List;
  * Structure unique produite par {@code RapportService}, consommée telle quelle
  * par les trois canaux : page Thymeleaf, PDF et JSON pour l'aperçu Angular.
  *
+ * @param cle              clé de la demande racine (« PRJ-12 ») : c'est par elle
+ *                         qu'on la retrouve dans l'application, un titre ne
+ *                         suffit pas à l'identifier
+ * @param prefixeDepartement préfixe de l'espace de travail, nécessaire pour
+ *                         reconstruire l'adresse d'une demande
  * @param departement      espace de travail auquel la demande est rattachée
  *                         ({@code Issue.project}). Le mot « projet » désigne ici
  *                         le département, et non le projet au sens gestion de
@@ -30,8 +35,10 @@ import java.util.List;
  *                         intervenant
  */
 public record RapportProjetDTO(String titre,
+                               String cle,
                                String description,
                                String departement,
+                               String prefixeDepartement,
                                String chefDeProjet,
                                List<String> responsables,
                                LocalDateTime dateDebut,

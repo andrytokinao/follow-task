@@ -5,6 +5,10 @@ import java.util.List;
 /**
  * Une tâche (issue enfant) telle qu'elle apparaît dans le rapport du projet.
  *
+ * @param cle                  clé de la demande (« PRJ-34 ») : deux tâches
+ *                             peuvent porter le même intitulé, seule la clé les
+ *                             distingue et permet de les retrouver
+ *
  * @param statutLibelle        doublon volontaire de {@code statut.getLibelle()} :
  *                             le client Angular reçoit le libellé prêt à
  *                             afficher sans maintenir sa propre traduction
@@ -20,6 +24,7 @@ import java.util.List;
  *                             semaine sans que l'avancement ne le montre
  */
 public record TacheRapportDTO(String nom,
+                              String cle,
                               StatutTache statut,
                               String statutLibelle,
                               String statutWorkflow,

@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<!--
+  Feuille de style commune aux rapports (projet, multi-projets, par personne).
+
+  Elle vit dans un fragment et non dans chaque page pour une raison précise :
+  ces documents sortent souvent ensemble, et deux mises en page qui divergent
+  au fil des corrections se remarqueraient immédiatement à l'impression.
+
+  Contraintes héritées de la conversion PDF (OpenHTMLtoPDF) :
+  - ni flexbox, ni grid, ni dégradé : uniquement « display: block » et des
+    tableaux, seules constructions rendues à l'identique par le moteur ;
+  - le balisage qui l'utilise doit rester du XHTML strict, le convertisseur le
+    parsant comme du XML.
+-->
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <title>Styles des rapports</title>
+    <style type="text/css" th:fragment="styles">
+        @page {
+            size: A4;
+            /* Marge basse plus large : elle accueille le pied de page. */
+            margin: 14mm 14mm 18mm 14mm;
+
+            @bottom-left {
+                content: element(piedDePage);
+            }
+            @bottom-right {
+                content: "Page " counter(page) " / " counter(pages);
+                font-family: Helvetica, Arial, sans-serif;
+                font-size: 8px;
+                color: #7b8794;
+            }
+        }
+
+        /* Élément courant : sorti du flux et répété au bas de chaque page. */
+        #piedDePage {
+            position: running(piedDePage);
+            font-size: 8px;
+            color: #7b8794;
+        }
+
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            font-size: 11px;
+            line-height: 1.45;
+            color: #1f2933;
+            margin: 0;
+        }
+
+        .entete {
+            border-bottom: 2px solid #1f2933;
+            padding-bottom: 8px;
+            margin-bottom: 14px;
+        }
+
+        .entete-titre {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 0 0 4px 0;
+        }
+
+        .entete-sous-titre {
+            font-size: 10px;
+            color: #616e7c;
+            margin: 0;
+        }
+
+        .description {
+            margin: 10px 0 14px 0;
+            color: #3e4c59;
+        }
+
+        /* Fiche d'identité du projet : un tableau et non une grille, pour que
+           les colonnes tombent au même endroit à l'écran et dans le PDF. */
+        table.identite {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 16px;
+        }
+
+        table.identite td {
+            width: 25%;
+            vertical-align: top;
+            padding: 6px 8px;
+            border: 1px solid #e4e7eb;
+        }
+
+        .libelle-champ {
+            display: block;
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #7b8794;
+            margin-bottom: 2px;
+        }
+
+        .valeur-champ {
+            display: block;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .bloc-avancement {
+            border: 1px solid #e4e7eb;
+            padding: 10px 12px;
+            margin-bottom: 18px;
+        }
+
+        .bloc-titre {
+            font-size: 12px;
+            font-weight: bold;
+            margin: 0 0 6px 0;
+        }
+
+        /* Barre de progression : deux blocs imbriqués, largeur en pourcentage.
+           Aucun dégradé, la couleur est pleine et dépend du seuil atteint. */
+        .barre {
+            display: block;
+            width: 100%;
+            height: 14px;
+            background-color: #e4e7eb;
+            border: 1px solid #cbd2d9;
+        }
+
+        .barre-remplissage {
+            display: block;
+            height: 14px;
+        }
+
+        .barre-mince,
+        .barre-mince .barre-remplissage {
+            height: 10px;
+        }
+
+        .barre-rouge {
+            background-color: #d64545;
+        }
+
+        .barre-orange {
+            background-color: #f0932b;
+        }
+
+        .barre-verte {
+            background-color: #2f9e44;
+        }
+
+        .pourcentage {
+            display: block;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .section-titre {
+            font-size: 13px;
+            font-weight: bold;
+            border-bottom: 1px solid #cbd2d9;
+            padding-bottom: 4px;
+            margin: 0 0 10px 0;
+        }
+
+        /* ---- Synthèse : tuiles de chiffres ---- */
+        table.tuiles {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 12px;
+        }
+
+        table.tuiles td {
+            width: 25%;
+            vertical-align: top;
+            padding: 8px;
+            border: 1px solid #e4e7eb;
+            text-align: center;
+        }
+
+        .tuile-valeur {
+            display: block;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .tuile-libelle {
+            display: block;
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #7b8794;
+        }
+
+        .tuile-ecart-positif {
+            color: #a61b1b;
+        }
+
+        .tuile-ecart-negatif {
+            color: #1c6b32;
+        }
+
+        /* Compteurs par statut : une ligne de badges chiffrés. */
+        .compteurs {
+            margin-bottom: 18px;
+        }
+
+        .compteur {
+            display: inline-block;
+            padding: 3px 9px;
+            margin-right: 6px;
+            border: 1px solid #cbd2d9;
+            font-size: 10px;
+            white-space: nowrap;
+        }
+
+        .compteur-nombre {
+            font-weight: bold;
+        }
+
+        /* ---- Répartition du temps : graphique + légende ---- */
+        table.repartition {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 18px;
+            page-break-inside: avoid;
+        }
+
+        table.repartition td.graphique {
+            width: 190px;
+            vertical-align: middle;
+            padding: 0 16px 0 0;
+        }
+
+        table.repartition td.legende {
+            vertical-align: middle;
+        }
+
+        img.donut {
+            width: 180px;
+            height: 180px;
+        }
+
+        .pastille {
+            display: inline-block;
+            width: 9px;
+            height: 9px;
+            margin-right: 6px;
+            border: 1px solid #ffffff;
+        }
+
+        /* Une tâche ne doit pas être coupée en deux pages. */
+        .tache {
+            border: 1px solid #e4e7eb;
+            padding: 10px 12px;
+            margin-bottom: 10px;
+            page-break-inside: avoid;
+        }
+
+        table.tache-entete {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 6px;
+        }
+
+        table.tache-entete td {
+            vertical-align: middle;
+            padding: 0;
+        }
+
+        .tache-nom {
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .tache-chiffre {
+            text-align: right;
+            font-size: 12px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        /* Ligne d'indicateurs sous la barre : planifié, réalisé, écart, reports. */
+        .indicateurs {
+            margin-top: 6px;
+            font-size: 10px;
+            color: #52606d;
+        }
+
+        .indicateur {
+            display: inline-block;
+            margin-right: 14px;
+            white-space: nowrap;
+        }
+
+        .indicateur-valeur {
+            font-weight: bold;
+            color: #1f2933;
+        }
+
+        .alerte {
+            color: #a61b1b;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            font-size: 9px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: 1px solid #cbd2d9;
+            color: #3e4c59;
+            background-color: #f5f7fa;
+            /* Sans cela, « En cours » se coupe en deux lignes dans les cellules
+               étroites du PDF. */
+            white-space: nowrap;
+        }
+
+        .tache-nom + .badge {
+            margin-left: 6px;
+        }
+
+        .badge-discret {
+            border-style: dashed;
+            background-color: #ffffff;
+            color: #7b8794;
+            font-weight: normal;
+            text-transform: none;
+            letter-spacing: 0;
+        }
+
+        .statut-non-demarre {
+            background-color: #f5f7fa;
+            border-color: #cbd2d9;
+            color: #52606d;
+        }
+
+        .statut-en-cours {
+            background-color: #e3f0ff;
+            border-color: #9fc4f0;
+            color: #14539a;
+        }
+
+        .statut-en-retard {
+            background-color: #fdeaea;
+            border-color: #f0a6a6;
+            color: #a61b1b;
+        }
+
+        .statut-bloque {
+            background-color: #fbe6f3;
+            border-color: #e3a4cd;
+            color: #8f1d63;
+        }
+
+        .statut-reporte {
+            background-color: #fdf3e0;
+            border-color: #ecc99a;
+            color: #8a5a12;
+        }
+
+        .statut-termine {
+            background-color: #e6f5ea;
+            border-color: #9ed6ae;
+            color: #1c6b32;
+        }
+
+        table.temps {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+        }
+
+        table.temps th,
+        table.temps td {
+            border: 1px solid #e4e7eb;
+            padding: 4px 8px;
+            text-align: left;
+            font-size: 10px;
+        }
+
+        table.temps th {
+            background-color: #f5f7fa;
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #7b8794;
+        }
+
+        table.temps td.nombre,
+        table.temps th.nombre {
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .vide {
+            color: #7b8794;
+            font-style: italic;
+        }
+
+        /* Clé d'une demande : en chasse fixe, elle se relève sans ambiguïté sur
+           un document imprimé (0/O, 1/l). */
+        .cle {
+            font-family: "Courier New", monospace;
+            font-size: 10px;
+            font-weight: bold;
+            color: #52606d;
+        }
+
+        a.cle {
+            color: #1565c0;
+            text-decoration: none;
+        }
+
+        .entete-titre .cle {
+            font-size: 13px;
+        }
+
+        .cle + .tache-nom,
+        .entete-titre .cle {
+            margin-left: 6px;
+        }
+    </style>
+</head>
+</html>

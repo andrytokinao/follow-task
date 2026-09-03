@@ -113,6 +113,22 @@ export class RapportProjetComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Adresse de consultation de la demande racine, ou null si le rapport ne
+   * porte pas de quoi la construire. La forme de l'URL reste définie par
+   * `IssueService`, seul endroit qui connaisse les routes.
+   */
+  lienProjet(): string | null {
+    return this.issueService.buildIssueUrlFromKeys(
+      this.rapport?.prefixeDepartement, this.rapport?.cle);
+  }
+
+  /** Adresse d'une tâche, qui est une sous-demande de la racine. */
+  lienTache(tache: TacheRapportDTO): string | null {
+    return this.issueService.buildIssueUrlFromKeys(
+      this.rapport?.prefixeDepartement, tache.cle, this.rapport?.cle);
+  }
+
   /** Suivi par rang : deux tâches peuvent porter le même nom, qui ne fait donc
    *  pas une clé. */
   suiviTache(index: number, _tache: TacheRapportDTO): number {

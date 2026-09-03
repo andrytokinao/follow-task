@@ -1,0 +1,36 @@
+<!-- Déclencheur : ligne complète ou avatar seul selon l'espace disponible. -->
+<div class="user-row" *ngIf="variante === 'ligne'" [matMenuTriggerFor]="menuCompte">
+  <user-avatar [src]="urlPhoto" [alt]="nomComplet" class="user-row-avatar"/>
+  <div class="user-row-info">
+    <span class="user-row-name">{{ nomComplet }}</span>
+    <span class="user-row-hint">{{ ligneSecondaire }}</span>
+  </div>
+  <i class="fas fa-ellipsis-h user-row-more"></i>
+</div>
+
+<div class="user-avatar-trigger" *ngIf="variante === 'avatar'" [matMenuTriggerFor]="menuCompte"
+     [title]="nomComplet">
+  <user-avatar [src]="urlPhoto" [alt]="nomComplet" class="user-avatar-trigger-img"/>
+</div>
+
+<!-- Classe de panneau propre au composant : « user-menu-panel » est déjà employée
+     par le shell projet, et les styles de surcouche fuient hors encapsulation. -->
+<mat-menu #menuCompte="matMenu" xPosition="before" yPosition="below" class="app-user-menu-panel">
+  <div class="user-menu-header">
+    <user-avatar [src]="urlPhoto" [alt]="nomComplet" class="user-menu-avatar"/>
+    <div class="user-menu-identity">
+      <span class="user-menu-name">{{ nomComplet }}</span>
+      <span class="user-menu-email">{{ ligneSecondaire }}</span>
+    </div>
+  </div>
+  <div class="user-menu-divider"></div>
+  <button mat-menu-item (click)="ouvrirProfil()">
+    <i class="fas fa-user"></i> Mon profil
+  </button>
+  <div class="user-menu-divider"></div>
+  <button mat-menu-item class="user-menu-logout"
+          [disabled]="deconnexionEnCours" (click)="deconnexion()">
+    <i class="fas fa-sign-out-alt"></i>
+    <span>{{ deconnexionEnCours ? 'Déconnexion…' : 'Déconnexion' }}</span>
+  </button>
+</mat-menu>

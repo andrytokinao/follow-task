@@ -30,6 +30,7 @@ import {MatChipsModule} from "@angular/material/chips";
 import {MatListModule} from "@angular/material/list";
 import {MatProgressBarModule} from "@angular/material/progress-bar";
 import {TimerWidgetComponent} from "../../common/timer-widget/timer-widget.component";
+import {UserMenuComponent} from "../../common/user-menu/user-menu.component";
 
 
 @NgModule({
@@ -65,7 +66,8 @@ import {TimerWidgetComponent} from "../../common/timer-widget/timer-widget.compo
     MessageComponent,
     MatChipsModule,
     MatProgressBarModule,MatIconModule,
-    TimerWidgetComponent
+    TimerWidgetComponent,
+    UserMenuComponent
 
   ],
 

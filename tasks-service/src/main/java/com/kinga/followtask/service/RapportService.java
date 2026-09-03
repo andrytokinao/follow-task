@@ -1,10 +1,17 @@
 package com.kinga.followtask.service;
 
+import com.kinga.followtask.dto.rapport.RapportPersonneDTO;
+import com.kinga.followtask.dto.rapport.RapportPersonnesDTO;
 import com.kinga.followtask.dto.rapport.RapportProjetDTO;
+import com.kinga.followtask.dto.rapport.RapportProjetsDTO;
 import com.kinga.followtask.dto.rapport.StatutTache;
+import com.kinga.followtask.dto.rapport.SynthesePersonnesDTO;
 import com.kinga.followtask.dto.rapport.SyntheseProjetDTO;
+import com.kinga.followtask.dto.rapport.SyntheseProjetsDTO;
+import com.kinga.followtask.dto.rapport.TachePersonneDTO;
 import com.kinga.followtask.dto.rapport.TacheRapportDTO;
 import com.kinga.followtask.dto.rapport.TempsParPersonneDTO;
+import com.kinga.followtask.dto.rapport.TempsParProjetDTO;
 import com.kinga.followtask.entity.Issue;
 import com.kinga.followtask.entity.IssueMembership;
 import com.kinga.followtask.entity.PlanningEvent;
@@ -12,7 +19,10 @@ import com.kinga.followtask.entity.Project;
 import com.kinga.followtask.entity.UserApp;
 import com.kinga.followtask.entity.enumapp.ExecutionStatus;
 import com.kinga.followtask.entity.enumapp.IssueRole;
+import com.kinga.followtask.repository.EventRepository;
 import com.kinga.followtask.repository.IssueRepository;
+import com.kinga.followtask.repository.ProjectRepository;
+import com.kinga.followtask.repository.UserAppRepository;
 import com.kinga.utils.KingaUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,11 +33,16 @@ import org.springframework.util.StringUtils;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.function.ToIntFunction;
 
 /**
  * Construction du rapport d'avancement d'un projet.
@@ -49,7 +64,16 @@ public class RapportService {
     private static final String SANS_EXECUTANT = "Non assigné";
     private static final double MINUTES_PAR_HEURE = 60d;
 
+    /**
+     * Garde-fou de la remontée vers la demande racine : une boucle parent/enfant
+     * en base ferait tourner la recherche indéfiniment.
+     */
+    private static final int PROFONDEUR_MAX_RACINE = 50;
+
     private final IssueRepository issueRepository;
+    private final EventRepository eventRepository;
+    private final ProjectRepository projectRepository;
+    private final UserAppRepository userAppRepository;
 
     // ------------------------------------------------------------------
     // Point d'entrée
@@ -98,11 +122,13 @@ public class RapportService {
 
         return new RapportProjetDTO(
                 issueProjet.getSummary(),
+                issueProjet.getIssueKey(),
                 // Texte brut : la description est saisie en HTML par l'éditeur
                 // riche, la réinjecter telle quelle casserait le XHTML attendu
                 // par la conversion PDF.
                 KingaUtils.plainText(issueProjet.getDescription()),
                 resolveDepartement(issueProjet),
+                issueProjet.getProject() == null ? null : issueProjet.getProject().getPrefix(),
                 resolveChefDeProjet(issueProjet),
                 resolveResponsables(issueProjet),
                 issueProjet.getCreationDate(),
@@ -112,6 +138,147 @@ public class RapportService {
                 LocalDateTime.now(),
                 calculerSynthese(issueProjet, taches, tachesRapport),
                 tachesRapport);
+    }
+
+    /**
+     * Rapport consolidé de plusieurs projets.
+     *
+     * <p>Chaque projet est produit par {@link #genererRapport(Issue)} : un
+     * projet dit ici exactement ce qu'il dirait dans son rapport individuel. Ne
+     * s'y ajoute qu'une synthèse commune, recalculée sur les événements de
+     * l'ensemble plutôt qu'obtenue en additionnant les synthèses — sélectionner
+     * un projet et l'un de ses descendants compterait sinon deux fois les mêmes
+     * heures.</p>
+     *
+     * @param issueIds demandes racines à faire figurer, dans l'ordre voulu pour
+     *                 le document ; les doublons sont ignorés
+     * @throws IllegalArgumentException aucune demande fournie, ou l'une d'elles
+     *                                  n'est pas une racine
+     */
+    @Transactional(readOnly = true)
+    public RapportProjetsDTO genererRapportProjets(List<Long> issueIds) {
+        List<Long> identifiants = distincts(issueIds);
+        if (identifiants.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Aucun projet sélectionné : un rapport porte sur au moins une demande racine.");
+        }
+
+        List<Issue> racines = identifiants.stream().map(this::chargerIssueRacine).toList();
+        List<RapportProjetDTO> projets = racines.stream().map(this::genererRapport).toList();
+
+        // Dédoublonnage par identifiant d'événement : un projet et son
+        // descendant partagent leurs événements, les compter deux fois
+        // gonflerait le total du rapport sans que rien ne le signale.
+        Map<Long, PlanningEvent> events = new LinkedHashMap<>();
+        for (Issue racine : racines) {
+            List<PlanningEvent> collectes = new ArrayList<>();
+            collecterEvents(racine, collectes);
+            for (PlanningEvent event : collectes) {
+                events.putIfAbsent(event.getId(), event);
+            }
+        }
+        List<PlanningEvent> tousLesEvents = new ArrayList<>(events.values());
+
+        double totalHeures = enHeures(KingaUtils.getOwnElapsedDuration(tousLesEvents));
+        double planifiees = enHeures(KingaUtils.getPlannedDuration(tousLesEvents));
+
+        List<TempsParPersonneDTO> repartition = calculerTempsParPersonne(tousLesEvents, List.of())
+                .stream()
+                .filter(part -> part.heuresPassees() > 0)
+                .toList();
+
+        List<SyntheseProjetDTO> syntheses = projets.stream().map(RapportProjetDTO::synthese).toList();
+        SyntheseProjetsDTO synthese = new SyntheseProjetsDTO(
+                projets.size(),
+                moyenne(projets.stream().map(RapportProjetDTO::avancementGlobal).toList()),
+                totalHeures,
+                planifiees,
+                arrondir(totalHeures - planifiees),
+                repartition.size(),
+                somme(syntheses, SyntheseProjetDTO::nombreTaches),
+                somme(syntheses, SyntheseProjetDTO::nombreTerminees),
+                somme(syntheses, SyntheseProjetDTO::nombreEnCours),
+                somme(syntheses, SyntheseProjetDTO::nombreEnRetard),
+                somme(syntheses, SyntheseProjetDTO::nombreBloquees),
+                somme(syntheses, SyntheseProjetDTO::nombreReportees),
+                somme(syntheses, SyntheseProjetDTO::nombreNonDemarrees),
+                repartition);
+
+        // L'espace de travail n'intitule le rapport que s'il est le même pour
+        // tous les projets retenus : rien n'interdit d'en mélanger.
+        String departement = valeurCommune(projets.stream().map(RapportProjetDTO::departement).toList());
+        String prefixe = valeurCommune(projets.stream().map(RapportProjetDTO::prefixeDepartement).toList());
+
+        return new RapportProjetsDTO(departement, prefixe, LocalDateTime.now(), synthese, projets);
+    }
+
+    /**
+     * Rapport d'activité d'une ou plusieurs personnes sur un espace de travail.
+     *
+     * <p>Symétrique du rapport de projet, et bâti sur les mêmes sources : les
+     * heures viennent des événements de planning de la personne, l'avancement et
+     * le statut de la tâche entière — une tâche est menée à plusieurs, son
+     * avancement n'est pas divisible.</p>
+     *
+     * <p>Une personne sélectionnée figure toujours au rapport, même sans aucune
+     * heure : son absence d'activité est une information, la faire disparaître
+     * la ferait passer pour un oubli de sélection.</p>
+     *
+     * @param projectId espace de travail sur lequel l'activité est mesurée
+     * @param userIds   personnes retenues, dans l'ordre voulu pour le document
+     */
+    @Transactional(readOnly = true)
+    public RapportPersonnesDTO genererRapportPersonnes(Long projectId, List<String> userIds) {
+        Objects.requireNonNull(projectId, "projectId est obligatoire");
+        List<String> identifiants = distincts(userIds);
+        if (identifiants.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Aucune personne sélectionnée : un rapport porte sur au moins un intervenant.");
+        }
+
+        Project departement = projectRepository.findById(projectId)
+                .orElseThrow(() -> new IllegalStateException(
+                        "Aucun espace de travail d'identifiant " + projectId));
+
+        // Les événements sont ramenés par personne puis filtrés sur l'espace de
+        // travail de leur demande : PlanningEvent.project n'est pas toujours
+        // renseigné, celui de la demande l'est.
+        Map<String, List<PlanningEvent>> eventsParPersonne = new LinkedHashMap<>();
+        for (PlanningEvent event : eventRepository.findEventsByUserIdsAndIssues(
+                identifiants, null, null, null, null)) {
+            if (event.getIssue() == null || !appartientAu(projectId, event)) {
+                continue;
+            }
+            eventsParPersonne.computeIfAbsent(cle(event.getUser()), c -> new ArrayList<>()).add(event);
+        }
+
+        Map<String, List<Issue>> assigneesParPersonne = assigneesParPersonne(projectId, identifiants);
+
+        // Le nom d'une personne sans aucun événement ni aucune tâche ne peut
+        // venir que de la table des utilisateurs : sans cela, un intervenant
+        // sans activité sortirait du rapport sans nom.
+        Map<String, UserApp> personnes = new LinkedHashMap<>();
+        userAppRepository.findAllById(identifiants).forEach(u -> personnes.put(u.getId(), u));
+
+        double totalHeures = enHeures(KingaUtils.getOwnElapsedDuration(
+                eventsParPersonne.values().stream().flatMap(List::stream).toList()));
+
+        List<RapportPersonneDTO> rapports = new ArrayList<>();
+        for (String identifiant : identifiants) {
+            rapports.add(rapportPersonne(
+                    identifiant,
+                    personnes.get(identifiant),
+                    eventsParPersonne.getOrDefault(identifiant, List.of()),
+                    assigneesParPersonne.getOrDefault(identifiant, List.of()),
+                    totalHeures));
+        }
+
+        return new RapportPersonnesDTO(
+                resolveNomDepartement(departement),
+                departement.getPrefix(),
+                LocalDateTime.now(),
+                synthesePersonnes(rapports, eventsParPersonne, assigneesParPersonne),
+                rapports);
     }
 
     // ------------------------------------------------------------------
@@ -191,6 +358,7 @@ public class RapportService {
 
         return new TacheRapportDTO(
                 tache.getSummary(),
+                tache.getIssueKey(),
                 statut,
                 statut.getLibelle(),
                 tache.getStatus() == null ? null : tache.getStatus().getDisplayName(),
@@ -336,6 +504,235 @@ public class RapportService {
     }
 
     // ------------------------------------------------------------------
+    // Rapport par personne
+    // ------------------------------------------------------------------
+
+    /**
+     * Activité d'une personne : ses tâches, ses heures, sa répartition entre
+     * les projets.
+     *
+     * @param totalHeuresRapport temps cumulé de toutes les personnes du
+     *                           rapport, dont on déduit la part de celle-ci
+     */
+    private RapportPersonneDTO rapportPersonne(String identifiant,
+                                               UserApp personne,
+                                               List<PlanningEvent> sesEvents,
+                                               List<Issue> sesAssignations,
+                                               double totalHeuresRapport) {
+
+        // Une tâche entre au rapport soit parce que la personne y a travaillé,
+        // soit parce qu'elle lui est assignée : les deux cas se rejoignent ici.
+        Map<Long, Issue> taches = new LinkedHashMap<>();
+        Map<Long, List<PlanningEvent>> eventsParTache = new LinkedHashMap<>();
+        for (PlanningEvent event : sesEvents) {
+            Issue tache = event.getIssue();
+            taches.putIfAbsent(tache.getId(), tache);
+            eventsParTache.computeIfAbsent(tache.getId(), c -> new ArrayList<>()).add(event);
+        }
+        for (Issue assignation : sesAssignations) {
+            taches.putIfAbsent(assignation.getId(), assignation);
+        }
+
+        List<TachePersonneDTO> lignes = new ArrayList<>();
+        for (Issue tache : taches.values()) {
+            lignes.add(ligneTache(tache, eventsParTache.getOrDefault(tache.getId(), List.of()), identifiant));
+        }
+        // Le plus gros poste de travail en premier ; à temps égal, l'ordre des
+        // clés, seul critère stable entre deux éditions du rapport.
+        lignes.sort(Comparator.comparingDouble(TachePersonneDTO::heuresPassees).reversed()
+                .thenComparing(ligne -> ligne.cle() == null ? "" : ligne.cle()));
+
+        double heures = enHeures(KingaUtils.getOwnElapsedDuration(sesEvents));
+        double planifiees = enHeures(KingaUtils.getPlannedDuration(sesEvents));
+        List<TempsParProjetDTO> repartition = repartitionParProjet(taches.values(), eventsParTache, heures);
+
+        return new RapportPersonneDTO(
+                nomAffichable(personne),
+                personne == null ? identifiant : personne.getUsername(),
+                personne == null ? null : personne.getEmail(),
+                heures,
+                planifiees,
+                arrondir(heures - planifiees),
+                totalHeuresRapport <= 0 ? 0 : (int) Math.round(heures * 100d / totalHeuresRapport),
+                moyenne(lignes.stream().map(TachePersonneDTO::pourcentageExecution).toList()),
+                repartition.size(),
+                lignes.size(),
+                compterPersonne(lignes, StatutTache.TERMINE),
+                compterPersonne(lignes, StatutTache.EN_COURS),
+                compterPersonne(lignes, StatutTache.EN_RETARD),
+                compterPersonne(lignes, StatutTache.BLOQUE),
+                compterPersonne(lignes, StatutTache.REPORTE),
+                compterPersonne(lignes, StatutTache.NON_DEMARRE),
+                repartition,
+                lignes);
+    }
+
+    /**
+     * Une tâche vue depuis une personne : ses heures à elle, l'avancement de la
+     * tâche entière.
+     */
+    private TachePersonneDTO ligneTache(Issue tache, List<PlanningEvent> sesEvents, String identifiant) {
+        int pourcentage = pourcentageExecution(tache);
+        StatutTache statut = resolveStatutTache(tache, pourcentage);
+        Issue projet = racine(tache);
+
+        double realisees = enHeures(KingaUtils.getOwnElapsedDuration(sesEvents));
+        double planifiees = enHeures(KingaUtils.getPlannedDuration(sesEvents));
+
+        return new TachePersonneDTO(
+                tache.getIssueKey(),
+                tache.getSummary(),
+                projet.getIssueKey(),
+                projet.getSummary(),
+                statut,
+                statut.getLibelle(),
+                tache.getStatus() == null ? null : tache.getStatus().getDisplayName(),
+                pourcentage,
+                realisees,
+                planifiees,
+                arrondir(realisees - planifiees),
+                compterReports(sesEvents),
+                estAssignee(tache, identifiant));
+    }
+
+    /**
+     * Répartition des heures d'une personne entre les projets de ses tâches.
+     *
+     * Un projet sur lequel elle n'a encore aucune heure y figure à 0 h : la
+     * tâche lui est assignée, c'est une charge à venir et non une absence.
+     */
+    private List<TempsParProjetDTO> repartitionParProjet(Collection<Issue> taches,
+                                                         Map<Long, List<PlanningEvent>> eventsParTache,
+                                                         double totalPersonne) {
+        Map<Long, Issue> projets = new LinkedHashMap<>();
+        Map<Long, List<PlanningEvent>> eventsParProjet = new LinkedHashMap<>();
+        for (Issue tache : taches) {
+            Issue projet = racine(tache);
+            projets.putIfAbsent(projet.getId(), projet);
+            eventsParProjet.computeIfAbsent(projet.getId(), c -> new ArrayList<>())
+                    .addAll(eventsParTache.getOrDefault(tache.getId(), List.of()));
+        }
+
+        List<TempsParProjetDTO> repartition = new ArrayList<>();
+        for (Map.Entry<Long, Issue> entree : projets.entrySet()) {
+            double heures = enHeures(KingaUtils.getOwnElapsedDuration(
+                    eventsParProjet.getOrDefault(entree.getKey(), List.of())));
+            int part = totalPersonne <= 0 ? 0 : (int) Math.round(heures * 100d / totalPersonne);
+            repartition.add(new TempsParProjetDTO(
+                    entree.getValue().getIssueKey(), entree.getValue().getSummary(), heures, part));
+        }
+        repartition.sort(Comparator.comparingDouble(TempsParProjetDTO::heuresPassees).reversed());
+        return repartition;
+    }
+
+    /**
+     * Chiffres d'ensemble d'un rapport par personne.
+     *
+     * Les heures s'additionnent — un événement a un seul exécutant — mais pas
+     * les tâches : deux personnes sur la même tâche ne font qu'une tâche, les
+     * compteurs de statut sont donc établis sur l'ensemble dédoublonné.
+     */
+    private SynthesePersonnesDTO synthesePersonnes(List<RapportPersonneDTO> rapports,
+                                                   Map<String, List<PlanningEvent>> eventsParPersonne,
+                                                   Map<String, List<Issue>> assigneesParPersonne) {
+
+        Map<Long, Issue> taches = new LinkedHashMap<>();
+        eventsParPersonne.values().forEach(liste -> liste.forEach(
+                event -> taches.putIfAbsent(event.getIssue().getId(), event.getIssue())));
+        assigneesParPersonne.values().forEach(liste -> liste.forEach(
+                issue -> taches.putIfAbsent(issue.getId(), issue)));
+
+        Set<Long> projets = new LinkedHashSet<>();
+        Map<StatutTache, Integer> compteurs = new EnumMap<>(StatutTache.class);
+        for (Issue tache : taches.values()) {
+            projets.add(racine(tache).getId());
+            compteurs.merge(resolveStatutTache(tache, pourcentageExecution(tache)), 1, Integer::sum);
+        }
+
+        double totalHeures = arrondir(rapports.stream()
+                .mapToDouble(RapportPersonneDTO::heuresPassees).sum());
+        double planifiees = arrondir(rapports.stream()
+                .mapToDouble(RapportPersonneDTO::heuresPlanifiees).sum());
+
+        List<TempsParPersonneDTO> repartition = rapports.stream()
+                .filter(rapport -> rapport.heuresPassees() > 0)
+                .map(rapport -> new TempsParPersonneDTO(
+                        rapport.nomPersonne(), rapport.heuresPassees(), rapport.partDuTemps()))
+                .sorted(Comparator.comparingDouble(TempsParPersonneDTO::heuresPassees).reversed())
+                .toList();
+
+        return new SynthesePersonnesDTO(
+                rapports.size(),
+                totalHeures,
+                planifiees,
+                arrondir(totalHeures - planifiees),
+                projets.size(),
+                taches.size(),
+                compteurs.getOrDefault(StatutTache.TERMINE, 0),
+                compteurs.getOrDefault(StatutTache.EN_COURS, 0),
+                compteurs.getOrDefault(StatutTache.EN_RETARD, 0),
+                compteurs.getOrDefault(StatutTache.BLOQUE, 0),
+                compteurs.getOrDefault(StatutTache.REPORTE, 0),
+                compteurs.getOrDefault(StatutTache.NON_DEMARRE, 0),
+                repartition);
+    }
+
+    /** Tâches de l'espace de travail assignées à chacune des personnes visées. */
+    private Map<String, List<Issue>> assigneesParPersonne(Long projectId, List<String> identifiants) {
+        Map<String, List<Issue>> parPersonne = new LinkedHashMap<>();
+        for (Issue issue : issueRepository.findAssigneesDansProjet(projectId, identifiants)) {
+            // La requête retient toute adhésion ouverte ; seules celles qui
+            // valent assignation comptent ici, d'où le second filtre par
+            // getAssignes(), qui porte la règle des rôles.
+            for (UserApp assigne : issue.getAssignes()) {
+                String identifiant = cle(assigne);
+                if (identifiants.contains(identifiant)) {
+                    parPersonne.computeIfAbsent(identifiant, c -> new ArrayList<>()).add(issue);
+                }
+            }
+        }
+        return parPersonne;
+    }
+
+    private boolean estAssignee(Issue tache, String identifiant) {
+        return tache.getAssignes().stream()
+                .anyMatch(assigne -> assigne != null && identifiant.equals(assigne.getId()));
+    }
+
+    /**
+     * Espace de travail d'un événement, lu sur sa demande.
+     *
+     * {@code PlanningEvent.project} n'est pas toujours renseigné — il l'est
+     * selon le chemin de création de l'événement — alors que celui de la
+     * demande l'est : filtrer sur lui seul écarterait de vrais événements.
+     */
+    private boolean appartientAu(Long projectId, PlanningEvent event) {
+        Issue issue = event.getIssue();
+        if (issue != null && issue.getProject() != null) {
+            return projectId.equals(issue.getProject().getId());
+        }
+        return event.getProject() != null && projectId.equals(event.getProject().getId());
+    }
+
+    /**
+     * Demande racine dont dépend une tâche, c'est-à-dire son « projet ».
+     *
+     * La remontée est bornée : une boucle parent/enfant en base, qu'aucune
+     * contrainte n'interdit, ferait sinon tourner la recherche indéfiniment.
+     */
+    private Issue racine(Issue tache) {
+        Issue courante = tache;
+        for (int profondeur = 0; profondeur < PROFONDEUR_MAX_RACINE && courante.getParent() != null; profondeur++) {
+            courante = courante.getParent();
+        }
+        return courante;
+    }
+
+    private int compterPersonne(List<TachePersonneDTO> taches, StatutTache statut) {
+        return (int) taches.stream().filter(tache -> tache.statut() == statut).count();
+    }
+
+    // ------------------------------------------------------------------
     // Utilitaires internes
     // ------------------------------------------------------------------
 
@@ -440,7 +837,11 @@ public class RapportService {
      * puisqu'il compose les clés de demande.</p>
      */
     private String resolveDepartement(Issue issueProjet) {
-        Project departement = issueProjet.getProject();
+        return resolveNomDepartement(issueProjet.getProject());
+    }
+
+    /** Voir {@link #resolveDepartement(Issue)} : même règle, à partir de l'entité. */
+    private String resolveNomDepartement(Project departement) {
         if (departement == null) {
             return null;
         }
@@ -448,6 +849,35 @@ public class RapportService {
             return departement.getName();
         }
         return StringUtils.hasText(departement.getPrefix()) ? departement.getPrefix() : null;
+    }
+
+    /** Valeurs non nulles, sans doublon, dans l'ordre reçu. */
+    private <T> List<T> distincts(List<T> valeurs) {
+        if (CollectionUtils.isEmpty(valeurs)) {
+            return List.of();
+        }
+        return valeurs.stream().filter(Objects::nonNull).distinct().toList();
+    }
+
+    private int somme(List<SyntheseProjetDTO> syntheses, ToIntFunction<SyntheseProjetDTO> compteur) {
+        return syntheses.stream().mapToInt(compteur).sum();
+    }
+
+    /** Moyenne simple, arrondie ; 0 sur une liste vide. */
+    private int moyenne(List<Integer> valeurs) {
+        if (CollectionUtils.isEmpty(valeurs)) {
+            return 0;
+        }
+        return (int) Math.round(valeurs.stream().mapToInt(Integer::intValue).average().orElse(0d));
+    }
+
+    /**
+     * Valeur partagée par toutes les entrées, ou {@code null} si elles divergent
+     * — auquel cas aucune ne peut représenter l'ensemble.
+     */
+    private String valeurCommune(List<String> valeurs) {
+        List<String> distinctes = valeurs.stream().filter(Objects::nonNull).distinct().toList();
+        return distinctes.size() == 1 ? distinctes.get(0) : null;
     }
 
     /**

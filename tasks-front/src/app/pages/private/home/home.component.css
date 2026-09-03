@@ -425,11 +425,21 @@
   flex-direction: column;
   overflow: hidden;
 }
+/* Compte connecté, en tête du panneau : séparé du reste par un filet, pour se
+   lire comme une information de session et non comme un espace de travail de
+   plus dans la liste. */
+.pp-compte {
+  padding: 1rem 2rem;
+  border-bottom: 1px solid #E2E8F0;
+  background: #FFFFFF;
+  flex-shrink: 0;
+}
+
 .pp-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 2rem 2rem 0;
+  padding: 1.25rem 2rem 0;
 }
 .pp-title { font-size: 1.25rem; font-weight: 700; color: #0F172A; margin: 0; letter-spacing: -0.4px; }
 .pp-sub { color: #94A3B8; font-size: 0.78rem; margin: 2px 0 0; }

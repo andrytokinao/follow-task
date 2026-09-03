@@ -375,6 +375,30 @@
   min-width: 0;
 }
 
+/* Clé d'une demande : en chasse fixe, elle se relève sans ambiguïté (0/O, 1/l),
+   et se distingue du titre sans lui voler l'attention. */
+.cle {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--c-text-muted);
+  white-space: nowrap;
+}
+
+a.cle {
+  color: var(--c-primary);
+  text-decoration: none;
+}
+
+a.cle:hover {
+  text-decoration: underline;
+}
+
+.rapport__titre .cle {
+  font-size: 13px;
+  margin-left: 6px;
+}
+
 /* Le pourcentage est poussé à droite : c'est le repère que l'on balaye du
    regard en parcourant la liste. */
 .tache__pourcentage {

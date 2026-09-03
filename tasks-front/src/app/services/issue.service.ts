@@ -1434,11 +1434,21 @@ export class IssueService implements OnInit {
     if (!prefix) return null;
 
     const parent = issue.parent;
-    if (!parent) {
-      return `/working/${prefix}/issue/${issue.issueKey}/details`;
+    if (parent && !parent.issueKey) return null;
+    return this.buildIssueUrlFromKeys(prefix, issue.issueKey, parent?.issueKey);
+  }
+
+  // Même URL que buildIssueUrl, à partir des seules clés. Nécessaire aux vues
+  // qui ne manipulent pas d'entités Issue mais un DTO — le rapport de projet,
+  // par exemple. La forme des routes reste ainsi définie à un seul endroit.
+  buildIssueUrlFromKeys(prefix: String | null | undefined,
+                        issueKey: String | null | undefined,
+                        parentKey?: String | null): string | null {
+    if (!prefix || !issueKey) return null;
+    if (!parentKey) {
+      return `/working/${prefix}/issue/${issueKey}/details`;
     }
-    if (!parent.issueKey) return null;
-    return `/working/${prefix}/issue/${parent.issueKey}/subtask/${issue.issueKey}`;
+    return `/working/${prefix}/issue/${parentKey}/subtask/${issueKey}`;
   }
 
   // URL cliquable d'une issue : comme buildIssueUrl, mais renvoie null quand

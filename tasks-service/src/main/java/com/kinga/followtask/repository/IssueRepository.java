@@ -25,4 +25,20 @@ public interface IssueRepository extends JpaRepository<Issue,Long>, JpaSpecifica
     public List<Issue> findByIssueTypeProjectPrefix(String prefix);
     public List<Issue> findByIssueTypeIn(List<IssueType> issueTypes);
 
+    /**
+     * Demandes d'un espace de travail actuellement assignées à l'une des
+     * personnes données.
+     *
+     * L'assignation est lue sur les adhésions ouvertes ({@code unassignedAt}
+     * nul), qui sont la notion d'assignation du modèle ; le champ historique
+     * {@code assigne} n'est plus alimenté. Utilisée par le rapport par
+     * personne, où une tâche assignée mais jamais commencée doit figurer :
+     * c'est précisément ce qu'un rapport d'activité doit montrer.
+     */
+    @Query("SELECT DISTINCT i FROM Issue i JOIN i.memberships m " +
+            "WHERE i.project.id = :projectId " +
+            "AND m.unassignedAt IS NULL " +
+            "AND m.user.id IN :userIds")
+    List<Issue> findAssigneesDansProjet(@Param("projectId") Long projectId,
+                                        @Param("userIds") List<String> userIds);
 }

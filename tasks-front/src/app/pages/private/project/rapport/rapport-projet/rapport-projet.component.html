@@ -4,7 +4,11 @@
        bouton ne se déplace pas une fois les données arrivées. -->
   <div class="rapport__barre">
     <div class="rapport__titre-zone">
-      <h2 class="rapport__titre">{{ rapport?.titre || 'Rapport de projet' }}</h2>
+      <h2 class="rapport__titre">
+        {{ rapport?.titre || 'Rapport de projet' }}
+        <a class="cle" *ngIf="lienProjet() as lien" [routerLink]="lien">{{ rapport?.cle }}</a>
+        <span class="cle" *ngIf="rapport?.cle && !lienProjet()">{{ rapport?.cle }}</span>
+      </h2>
       <span class="rapport__sous-titre" *ngIf="rapport">
         <ng-container *ngIf="rapport.departement">{{ rapport.departement }} · </ng-container>
         <ng-container *ngIf="rapport.chefDeProjet">Chef de projet : {{ rapport.chefDeProjet }}</ng-container>
@@ -199,6 +203,8 @@
     <div class="tache" *ngFor="let tache of rapport.taches; trackBy: suiviTache">
 
       <div class="tache__entete">
+        <a class="cle" *ngIf="lienTache(tache) as lien" [routerLink]="lien">{{ tache.cle }}</a>
+        <span class="cle" *ngIf="tache.cle && !lienTache(tache)">{{ tache.cle }}</span>
         <span class="tache__nom">{{ tache.nom || 'Tâche sans titre' }}</span>
         <span class="badge" [ngClass]="classeStatut(tache.statut)">{{ tache.statutLibelle }}</span>
         <!-- Statut du workflow, à titre de comparaison : un écart avec le

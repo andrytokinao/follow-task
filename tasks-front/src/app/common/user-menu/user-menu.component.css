@@ -1,0 +1,168 @@
+/* =========================================================================
+   Zone de compte : qui est connecté, profil, déconnexion
+   -------------------------------------------------------------------------
+   Les valeurs sont posées ici plutôt qu'héritées : ce composant est monté aussi
+   bien dans le shell projet, qui définit ses propres variables de thème, que
+   sur l'accueil /working, qui n'en a aucune. Des variables non résolues y
+   auraient donné un texte invisible.
+   ========================================================================= */
+:host {
+  --um-border: #e5e7eb;
+  --um-text: #111827;
+  --um-text-muted: #6b7280;
+  --um-text-dim: #9ca3af;
+  --um-surface-hover: rgba(0, 0, 0, 0.04);
+
+  display: block;
+  font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* ---- Déclencheur : ligne ---- */
+.user-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--um-border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.user-row:hover {
+  background: var(--um-surface-hover);
+}
+
+.user-row-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1.5px solid var(--um-border);
+}
+
+.user-row-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  line-height: 1.3;
+  overflow: hidden;
+}
+
+.user-row-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--um-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-row-hint {
+  font-size: 11px;
+  color: var(--um-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-row-more {
+  font-size: 12px;
+  color: var(--um-text-dim);
+  flex-shrink: 0;
+}
+
+/* ---- Déclencheur : avatar seul ---- */
+.user-avatar-trigger {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  overflow: hidden;
+  cursor: pointer;
+  flex-shrink: 0;
+  border: 1.5px solid var(--um-border);
+}
+
+.user-avatar-trigger-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+/* ---- Contenu du panneau ----
+   Le panneau lui-même est rendu par Material dans un conteneur de surcouche,
+   hors de ce composant : ses règles passent par ::ng-deep, comme ailleurs dans
+   l'application. La classe est propre au composant pour ne pas redéfinir celle
+   du shell projet. */
+.user-menu-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px 10px;
+}
+
+.user-menu-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1.5px solid var(--um-border);
+}
+
+.user-menu-identity {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+  min-width: 0;
+}
+
+.user-menu-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--um-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-menu-email {
+  font-size: 11px;
+  color: var(--um-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-menu-divider {
+  height: 1px;
+  background: var(--um-border);
+  margin: 4px 0;
+}
+
+::ng-deep .app-user-menu-panel .mat-mdc-menu-panel {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 10px !important;
+  min-width: 230px !important;
+  padding: 6px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1) !important;
+}
+
+::ng-deep .app-user-menu-panel .mat-mdc-menu-item {
+  font-size: 13px !important;
+  height: 34px !important;
+  color: #111827 !important;
+  gap: 8px;
+}
+
+::ng-deep .app-user-menu-panel .mat-mdc-menu-item i {
+  font-size: 12px;
+  width: 14px;
+  color: #6b7280;
+}
+
+::ng-deep .app-user-menu-panel .user-menu-logout,
+::ng-deep .app-user-menu-panel .user-menu-logout i {
+  color: #c0392b !important;
+}

@@ -35,6 +35,8 @@ export interface TempsParPersonneDTO {
 
 export interface TacheRapportDTO {
   nom: string;
+  /** Clé de la demande (« PRJ-34 ») : deux tâches peuvent porter le même nom. */
+  cle: string | null;
   statut: StatutTache;
   /** Libellé prêt à afficher, calculé par le serveur. */
   statutLibelle: string;
@@ -68,7 +70,11 @@ export interface SyntheseProjetDTO {
 
 export interface RapportProjetDTO {
   titre: string;
+  /** Clé de la demande racine (« PRJ-12 »). */
+  cle: string | null;
   description: string | null;
+  /** Préfixe de l'espace de travail, nécessaire pour bâtir l'adresse d'une demande. */
+  prefixeDepartement: string | null;
   /**
    * Espace de travail auquel la demande est rattachée (`Issue.project`).
    * Le « projet » du rapport est l'issue racine, pas cette entité.

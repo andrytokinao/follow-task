@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<!--
+  Rapport d'avancement portant sur plusieurs projets.
+
+  Le document n'invente rien : une synthèse commune, puis le corps de rapport de
+  chaque projet, repris tel quel du fragment que sert aussi le rapport
+  individuel. Un projet dit donc ici exactement ce qu'il dirait seul.
+
+  Mêmes contraintes de mise en page que les autres rapports (XHTML strict, ni
+  flexbox ni grid) : elles viennent de la conversion PDF, pas d'un choix de
+  style. Voir « rapport-styles.html ».
+-->
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <title>Rapport multi-projets</title>
+    <style type="text/css" th:replace="~{rapport-styles :: styles}"></style>
+    <style type="text/css">
+        /* Chaque projet commence sur une page neuve : un rapport groupé se
+           découpe et se distribue projet par projet. */
+        .saut-page {
+            page-break-before: always;
+        }
+
+        table.sommaire {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 6px;
+        }
+
+        table.sommaire td,
+        table.sommaire th {
+            border-bottom: 1px solid #e4e7eb;
+            padding: 4px 6px;
+            text-align: left;
+            font-size: 10px;
+        }
+
+        table.sommaire th {
+            background-color: #f5f7fa;
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #7b8794;
+        }
+
+        table.sommaire td.nombre,
+        table.sommaire th.nombre {
+            text-align: right;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Répété au bas de chaque page par la règle @page de la feuille de style. -->
+<div id="piedDePage">
+    <span>Rapport multi-projets</span>
+    <span th:if="${rapport.departement}" th:text="' - ' + ${rapport.departement}"></span>
+    <span th:if="${rapport.genereLe != null}"
+          th:text="' - édité le ' + ${#temporals.format(rapport.genereLe, 'dd/MM/yyyy à HH:mm')}"></span>
+</div>
+
+<div class="entete">
+    <div class="entete-titre">
+        <span th:text="'Rapport de ' + ${#lists.size(rapport.projets)} + ' projet(s)'">Rapport de projets</span>
+    </div>
+    <div class="entete-sous-titre">
+        Rapport d'avancement consolidé
+        <span th:if="${rapport.departement}" th:text="' - ' + ${rapport.departement}"></span>
+        <span th:if="${rapport.genereLe != null}"
+              th:text="' - édité le ' + ${#temporals.format(rapport.genereLe, 'dd/MM/yyyy à HH:mm')}"></span>
+    </div>
+</div>
+
+<div th:with="synthese=${rapport.synthese}">
+
+    <div class="bloc-avancement">
+        <div class="bloc-titre">Avancement moyen des projets</div>
+        <span class="pourcentage" th:text="${synthese.avancementMoyen} + ' %'">0 %</span>
+        <div class="barre">
+            <div class="barre-remplissage"
+                 th:classappend="${synthese.avancementMoyen &lt; 40 ? 'barre-rouge' : (synthese.avancementMoyen &lt; 75 ? 'barre-orange' : 'barre-verte')}"
+                 th:style="'width: ' + ${synthese.avancementMoyen} + '%'"></div>
+        </div>
+    </div>
+
+    <div class="section-titre">Synthèse consolidée</div>
+
+    <table class="tuiles">
+        <tr>
+            <td>
+                <span class="tuile-valeur"
+                      th:text="${#numbers.formatDecimal(synthese.totalHeures, 1, 'NONE', 2, 'COMMA')} + ' h'">0 h</span>
+                <span class="tuile-libelle">Heures réalisées</span>
+            </td>
+            <td>
+                <span class="tuile-valeur"
+                      th:text="${#numbers.formatDecimal(synthese.heuresPlanifiees, 1, 'NONE', 2, 'COMMA')} + ' h'">0 h</span>
+                <span class="tuile-libelle">Heures planifiées</span>
+            </td>
+            <td>
+                <span class="tuile-valeur"
+                      th:classappend="${synthese.ecartHeures > 0 ? 'tuile-ecart-positif' : (synthese.ecartHeures &lt; 0 ? 'tuile-ecart-negatif' : '')}"
+                      th:text="${(synthese.ecartHeures > 0 ? '+' : '')} + ${#numbers.formatDecimal(synthese.ecartHeures, 1, 'NONE', 2, 'COMMA')} + ' h'">0 h</span>
+                <span class="tuile-libelle">Écart réalisé / planifié</span>
+            </td>
+            <td>
+                <span class="tuile-valeur" th:text="${synthese.nombreIntervenants}">0</span>
+                <span class="tuile-libelle">Intervenants</span>
+            </td>
+        </tr>
+    </table>
+
+    <div class="compteurs">
+        <span class="compteur">
+            <span class="compteur-nombre" th:text="${synthese.nombreTaches}">0</span> tâches
+        </span>
+        <span class="compteur statut-termine">
+            <span class="compteur-nombre" th:text="${synthese.nombreTerminees}">0</span> terminées
+        </span>
+        <span class="compteur statut-en-cours">
+            <span class="compteur-nombre" th:text="${synthese.nombreEnCours}">0</span> en cours
+        </span>
+        <span class="compteur statut-en-retard" th:if="${synthese.nombreEnRetard > 0}">
+            <span class="compteur-nombre" th:text="${synthese.nombreEnRetard}">0</span> en retard
+        </span>
+        <span class="compteur statut-bloque" th:if="${synthese.nombreBloquees > 0}">
+            <span class="compteur-nombre" th:text="${synthese.nombreBloquees}">0</span> bloquées
+        </span>
+        <span class="compteur statut-reporte" th:if="${synthese.nombreReportees > 0}">
+            <span class="compteur-nombre" th:text="${synthese.nombreReportees}">0</span> reportées
+        </span>
+        <span class="compteur statut-non-demarre">
+            <span class="compteur-nombre" th:text="${synthese.nombreNonDemarrees}">0</span> non démarrées
+        </span>
+    </div>
+
+    <!-- Sommaire : de quoi retrouver un projet dans les pages qui suivent, et
+         comparer d'un coup d'œil les avancements. -->
+    <div class="section-titre">Projets du rapport</div>
+
+    <table class="sommaire">
+        <tr>
+            <th>Projet</th>
+            <th>Statut</th>
+            <th class="nombre">Avancement</th>
+            <th class="nombre">Réalisé</th>
+            <th class="nombre">Planifié</th>
+            <th class="nombre">Tâches</th>
+        </tr>
+        <tr th:each="projet : ${rapport.projets}">
+            <td>
+                <span class="cle" th:if="${projet.cle}" th:text="${projet.cle}">PRJ-1</span>
+                <span th:text="${projet.titre} ?: 'Projet sans titre'">Titre</span>
+            </td>
+            <td><span class="badge" th:text="${projet.statut}">Statut</span></td>
+            <td class="nombre" th:text="${projet.avancementGlobal} + ' %'">0 %</td>
+            <td class="nombre"
+                th:text="${#numbers.formatDecimal(projet.synthese.totalHeures, 1, 'NONE', 2, 'COMMA')} + ' h'">0 h</td>
+            <td class="nombre"
+                th:text="${#numbers.formatDecimal(projet.synthese.heuresPlanifiees, 1, 'NONE', 2, 'COMMA')} + ' h'">0 h</td>
+            <td class="nombre" th:text="${projet.synthese.nombreTaches}">0</td>
+        </tr>
+    </table>
+
+    <!-- Répartition du temps, tous projets confondus -->
+    <div class="section-titre">Répartition du temps par intervenant</div>
+
+    <div class="vide" th:if="${#lists.isEmpty(synthese.repartitionParPersonne)}">
+        Aucun temps n'a encore été enregistré sur les projets retenus.
+    </div>
+
+    <table class="repartition" th:unless="${#lists.isEmpty(synthese.repartitionParPersonne)}">
+        <tr>
+            <td class="graphique" th:if="${graphiqueGlobal != null}">
+                <img class="donut" th:src="${graphiqueGlobal}"
+                     alt="Répartition du temps par intervenant" />
+            </td>
+            <td class="legende">
+                <table class="temps">
+                    <tr>
+                        <th>Intervenant</th>
+                        <th class="nombre">Heures</th>
+                        <th class="nombre">Part</th>
+                    </tr>
+                    <tr th:each="part, iter : ${synthese.repartitionParPersonne}">
+                        <td>
+                            <span class="pastille"
+                                  th:style="'background-color: ' + ${couleurs[iter.index % couleurs.size()]}"></span>
+                            <span th:text="${part.nomPersonne}">Personne</span>
+                        </td>
+                        <td class="nombre"
+                            th:text="${#numbers.formatDecimal(part.heuresPassees, 1, 'NONE', 2, 'COMMA')} + ' h'">0 h</td>
+                        <td class="nombre" th:text="${part.pourcentageDuTemps} + ' %'">0 %</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Total</strong></td>
+                        <td class="nombre">
+                            <strong th:text="${#numbers.formatDecimal(synthese.totalHeures, 1, 'NONE', 2, 'COMMA')} + ' h'">0 h</strong>
+                        </td>
+                        <td class="nombre"><strong>100 %</strong></td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+
+</div>
+
+<!-- Détail projet par projet : le corps est celui du rapport individuel. -->
+<div th:each="projet, iter : ${rapport.projets}" th:classappend="${iter.first} ? '' : 'saut-page'">
+    <div th:replace="~{rapport-projet-corps :: corps(${projet}, ${graphiques[iter.index]}, ${couleurs}, ${lienBase})}"></div>
+</div>
+
+</body>
+</html>
