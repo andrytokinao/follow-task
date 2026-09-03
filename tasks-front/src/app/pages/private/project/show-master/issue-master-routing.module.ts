@@ -12,6 +12,7 @@ import {IssueChatsComponent} from "./issue-chats/issue-chats.component";
 import {ExchangeDocumentsComponent} from "../exchange-documents/exchange-documents.component";
 import {DiscussionComponent} from "./discussion/discussion.component";
 import {Subtask2Component} from "./subtask-2/subtask-2.component";
+import {RapportProjetComponent} from "../rapport/rapport-projet/rapport-projet.component";
 
 
 
@@ -32,6 +33,9 @@ const masterRoute: Routes = [
           // /working/{prefix}/issue/{parentKey}/subtask/{subtaskKey}
           { path: 'subtask/:subtaskKey', component: Subtask2Component },
           { path: 'planning', component: PlanningComponent },
+          // Rapport d'avancement de la demande racine ouverte : l'identifiant
+          // vient de la demande courante, pas de l'URL.
+          { path: 'rapport', component: RapportProjetComponent },
           { path: 'uploaded', component: UploadedFilesComponent },
           { path: 'comments', component: CommentsComponent },
           { path: 'discussion', component: DiscussionComponent },

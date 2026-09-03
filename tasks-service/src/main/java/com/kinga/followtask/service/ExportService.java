@@ -9,6 +9,7 @@ import com.kinga.followtask.entity.IssueLabels;
 import com.kinga.followtask.entity.UserApp;
 import com.kinga.followtask.repository.IssueRepository;
 import com.kinga.utils.ExcelUtils;
+import com.kinga.utils.KingaUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -76,7 +77,7 @@ public class ExportService {
             new Column("updated", "Mise à jour", r -> r.issue().getUpdateDate()),
             new Column("reporter", "Rapporteur", r -> fullName(r.issue().getReporter())),
             new Column("children", "Sous-tâches", r -> countChildren(r.issue())),
-            new Column("description", "Description", r -> plainText(r.issue().getDescription())),
+            new Column("description", "Description", r -> KingaUtils.plainText(r.issue().getDescription())),
             // Heures d'exécution : agrégées sur la demande ET ses sous-tâches.
             new Column("hoursTotal", "Heures planifiées", r -> hours(minutes(r.summary(), Kind.TOTAL))),
             new Column("hoursSpent", "Heures réalisées", r -> hours(minutes(r.summary(), Kind.SPENT))),
@@ -353,25 +354,6 @@ public class ExportService {
 
     private static Integer countChildren(Issue issue) {
         return safe(issue.getChildren()).size();
-    }
-
-    /** Les descriptions sont saisies en HTML : illisibles telles quelles dans
-     *  une cellule. */
-    private static String plainText(String html) {
-        if (html == null || html.isBlank()) {
-            return null;
-        }
-        String text = html
-                .replaceAll("(?i)<br\\s*/?>", " ")
-                .replaceAll("(?i)</(p|div|li|h[1-6])>", " ")
-                .replaceAll("<[^>]*>", "")
-                .replace("&nbsp;", " ")
-                .replace("&amp;", "&")
-                .replace("&lt;", "<")
-                .replace("&gt;", ">")
-                .replaceAll("\\s+", " ")
-                .trim();
-        return text.isEmpty() ? null : text;
     }
 
     private static String uniqueHeader(Map<String, Integer> headers, String name) {

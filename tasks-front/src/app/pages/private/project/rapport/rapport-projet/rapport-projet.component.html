@@ -1,0 +1,118 @@
+<div class="rapport">
+
+  <!-- Barre d'actions : disponible même pendant le chargement, pour que le
+       bouton ne se déplace pas une fois les données arrivées. -->
+  <div class="rapport__barre">
+    <div class="rapport__titre-zone">
+      <h2 class="rapport__titre">{{ rapport?.titre || 'Rapport de projet' }}</h2>
+      <span class="rapport__sous-titre" *ngIf="rapport?.chefDeProjet">
+        Chef de projet : {{ rapport?.chefDeProjet }}
+      </span>
+    </div>
+    <button type="button"
+            class="rapport__action"
+            [disabled]="!rapport"
+            (click)="telechargerPdf()">
+      <mat-icon>picture_as_pdf</mat-icon>
+      <span>Télécharger PDF</span>
+    </button>
+  </div>
+
+  <div class="rapport__message" *ngIf="chargement">Chargement du rapport…</div>
+
+  <div class="rapport__message rapport__message--erreur" *ngIf="erreur">
+    {{ erreur }}
+    <button type="button" class="rapport__lien" (click)="recharger()">Réessayer</button>
+  </div>
+
+  <ng-container *ngIf="rapport && !chargement">
+
+    <p class="rapport__description" *ngIf="rapport.description">{{ rapport.description }}</p>
+
+    <!-- Fiche d'identité -->
+    <div class="fiche">
+      <div class="fiche__champ">
+        <span class="fiche__libelle">Chef de projet</span>
+        <span class="fiche__valeur">{{ rapport.chefDeProjet || '-' }}</span>
+      </div>
+      <div class="fiche__champ">
+        <span class="fiche__libelle">Date de début</span>
+        <span class="fiche__valeur">{{ (rapport.dateDebut | date:'dd/MM/yyyy') || '-' }}</span>
+      </div>
+      <div class="fiche__champ">
+        <span class="fiche__libelle">Date de fin</span>
+        <span class="fiche__valeur">{{ (rapport.dateFin | date:'dd/MM/yyyy') || 'Non planifiée' }}</span>
+      </div>
+      <div class="fiche__champ">
+        <span class="fiche__libelle">Statut</span>
+        <span class="badge">{{ rapport.statut }}</span>
+      </div>
+    </div>
+
+    <!-- Avancement global -->
+    <div class="avancement">
+      <span class="avancement__libelle">Avancement global</span>
+      <span class="avancement__valeur">{{ rapport.avancementGlobal }} %</span>
+      <div class="barre">
+        <div class="barre__remplissage"
+             [ngClass]="classeBarre(rapport.avancementGlobal)"
+             [style.width.%]="rapport.avancementGlobal"></div>
+      </div>
+    </div>
+
+    <!-- Tâches -->
+    <h3 class="section">Tâches <span class="section__compte">({{ rapport.taches.length }})</span></h3>
+
+    <p class="rapport__vide" *ngIf="!rapport.taches.length">
+      Aucune tâche n'est rattachée à ce projet.
+    </p>
+
+    <div class="tache" *ngFor="let tache of rapport.taches; trackBy: suiviTache">
+
+      <div class="tache__entete">
+        <span class="tache__nom">{{ tache.nom || 'Tâche sans titre' }}</span>
+        <span class="badge" [ngClass]="classeStatut(tache.statut)">{{ tache.statutLibelle }}</span>
+        <span class="tache__pourcentage">{{ tache.pourcentageExecution }} %</span>
+      </div>
+
+      <div class="barre barre--mince">
+        <div class="barre__remplissage"
+             [ngClass]="classeBarre(tache.pourcentageExecution)"
+             [style.width.%]="tache.pourcentageExecution"></div>
+      </div>
+
+      <table class="temps" *ngIf="tache.tempsParPersonne.length; else aucunTemps">
+        <thead>
+        <tr>
+          <th>Personne</th>
+          <th class="nombre">Heures passées</th>
+          <th class="nombre">Part du temps</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let ligne of tache.tempsParPersonne">
+          <td>{{ ligne.nomPersonne }}</td>
+          <td class="nombre">{{ ligne.heuresPassees | number:'1.0-2' }} h</td>
+          <td class="nombre">{{ ligne.pourcentageDuTemps }} %</td>
+        </tr>
+        </tbody>
+        <tfoot>
+        <tr>
+          <td>Total</td>
+          <td class="nombre">{{ tache.totalHeuresPassees | number:'1.0-2' }} h</td>
+          <!-- Une tâche dont les événements sont tous à venir a des lignes à
+               0 h : afficher 100 % en pied de colonne serait faux. -->
+          <td class="nombre">{{ tache.totalHeuresPassees > 0 ? '100 %' : '0 %' }}</td>
+        </tr>
+        </tfoot>
+      </table>
+
+      <ng-template #aucunTemps>
+        <p class="rapport__vide">Aucun temps enregistré sur cette tâche.</p>
+      </ng-template>
+
+    </div>
+
+  </ng-container>
+
+</div>

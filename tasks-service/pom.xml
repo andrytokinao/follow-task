@@ -51,6 +51,21 @@
             <artifactId>poi-ooxml</artifactId>
             <version>5.2.5</version>
         </dependency>
+        <!-- Thymeleaf : rendu serveur du rapport par projet (templates/rapport-projet.html).
+             Le meme template alimente la page HTML et le PDF, ce qui garantit que les
+             deux restent identiques sans avoir a maintenir deux mises en page. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+        <!-- OpenHTMLtoPDF : conversion du HTML rendu par Thymeleaf en PDF.
+             Le moteur attend du XHTML bien forme, d'ou les balises auto-fermantes
+             et le CSS sans flexbox ni degrade dans rapport-projet.html. -->
+        <dependency>
+            <groupId>com.openhtmltopdf</groupId>
+            <artifactId>openhtmltopdf-pdfbox</artifactId>
+            <version>1.0.10</version>
+        </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

@@ -20,6 +20,7 @@ import {MatSelectModule} from "@angular/material/select";
 import {MyCommonModule} from "../../../common/common.module";
 import {CalendarComponent} from "./calendar/calendar.component";
 import {RapportComponent} from "./rapport/rapport.component";
+import {RapportProjetComponent} from "./rapport/rapport-projet/rapport-projet.component";
 import {CdkTextareaAutosize} from "@angular/cdk/text-field";
 import {MatInputModule} from "@angular/material/input";
 import {
@@ -69,6 +70,7 @@ import {IssuePickerMenuComponent} from "../../../common/issue-picker/issue-picke
     BoardComponent,
     CalendarComponent,
     RapportComponent,
+    RapportProjetComponent,
     NewIssueComponent,
     ViewEditIssueComponent,
     DocumentComponent,
@@ -89,6 +91,9 @@ import {IssuePickerMenuComponent} from "../../../common/issue-picker/issue-picke
         ProjectComponent, ShowIssueOptionComponent,
         ShowIssueFullOptionComponent,
         ExchangeDocumentsComponent, DocumentComponent,
+        // Exporté pour l'onglet « Rapport » d'une demande racine, déclaré par
+        // IssueMasterModule qui importe ce module.
+        RapportProjetComponent,
     ],
   imports: [
     ProjectRoutingModule,

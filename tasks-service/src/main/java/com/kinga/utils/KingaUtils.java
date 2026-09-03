@@ -242,6 +242,28 @@ public class KingaUtils {
 
 
     }
+    /**
+     * Les descriptions sont saisies en HTML par l'éditeur riche : illisibles
+     * telles quelles dans une cellule de tableur ou un rapport, et impossibles
+     * à réinjecter sans risquer de casser la mise en page qui les accueille.
+     */
+    public static String plainText(String html) {
+        if (html == null || html.isBlank()) {
+            return null;
+        }
+        String text = html
+                .replaceAll("(?i)<br\\s*/?>", " ")
+                .replaceAll("(?i)</(p|div|li|h[1-6])>", " ")
+                .replaceAll("<[^>]*>", "")
+                .replace("&nbsp;", " ")
+                .replace("&amp;", "&")
+                .replace("&lt;", "<")
+                .replace("&gt;", ">")
+                .replaceAll("\\s+", " ")
+                .trim();
+        return text.isEmpty() ? null : text;
+    }
+
     public static Duration getOwnElapsedDuration(List<PlanningEvent> events ){
         if (events == null || events.isEmpty()) {
             return Duration.ZERO;
