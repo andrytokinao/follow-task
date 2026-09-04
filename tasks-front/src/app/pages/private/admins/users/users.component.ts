@@ -4,6 +4,7 @@ import {debounceTime, distinctUntilChanged, Subject, Subscription} from "rxjs";
 import {MemberGroupe, User} from "../../../../type/issue";
 import {UserService} from "../../../../services/user.service";
 import {EditUserComponent} from "../edit-user/edit-user.component";
+import {SetPasswordComponent} from "./set-password/set-password.component";
 
 @Component({
   standalone: false,
@@ -287,6 +288,18 @@ export class UsersComponent implements OnInit, OnDestroy {
 
   viewProfile(user: User) {
     this.openUser(user, "Consultation d'un utilisateur", true);
+  }
+
+  /**
+   * Definit un nouveau mot de passe pour ce compte.
+   *
+   * La liste n'est pas rechargee au retour : un mot de passe ne s'y affiche
+   * pas, rien n'y aurait change.
+   */
+  setPassword(user: User) {
+    const dialogRef = this.modalService.open(SetPasswordComponent,
+      {backdrop: "static", keyboard: false});
+    dialogRef.componentInstance.user = user;
   }
 
   private openUser(user: User, action: string, readOnly: boolean) {

@@ -20,11 +20,12 @@ import {MatInputModule} from "@angular/material/input";
 import {MatGridList, MatGridTile} from "@angular/material/grid-list";
 import {MatCheckbox} from "@angular/material/checkbox";
 import {EditUserComponent} from "./edit-user/edit-user.component";
+import {SetPasswordComponent} from "./users/set-password/set-password.component";
 
 
 
 @NgModule({
-  declarations: [AdminComponent,GroupsComponent,UsersComponent,AddMamberGroupeComponent,EditUserComponent],
+  declarations: [AdminComponent,GroupsComponent,UsersComponent,AddMamberGroupeComponent,EditUserComponent,SetPasswordComponent],
   imports: [
     AdminRoutingModule,
     MatTabsModule,

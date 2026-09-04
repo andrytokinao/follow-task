@@ -357,6 +357,53 @@ public class UserService {
         return map;
     }
 
+    /**
+     * Longueur minimale d'un mot de passe défini par un administrateur.
+     *
+     * <p>Le contrôle vit ici et non dans le formulaire : un écran peut être
+     * contourné, la règle doit tenir au niveau du service qui écrit en base.</p>
+     */
+    private static final int LONGUEUR_MIN_MOT_DE_PASSE = 6;
+
+    /**
+     * Définition du mot de passe d'un compte par un administrateur.
+     *
+     * <p>Distinct de {@link #changePassword(String, String, String)} : le mot de
+     * passe actuel n'est pas demandé, et pour cause — un administrateur ne le
+     * connaît pas. C'est précisément ce qui rend cette opération sensible, d'où
+     * son autorisation vérifiée par l'appelant ({@code AutController}) et sa
+     * trace dans le journal.</p>
+     *
+     * <p>La copie réversible du mot de passe ({@code pass}) est effacée plutôt
+     * que réécrite : rien ne la lit dans l'application, et laisser en base de
+     * quoi retrouver un mot de passe en clair n'a aucune contrepartie.</p>
+     *
+     * @param administrateur identifiant de l'auteur de l'opération, pour le
+     *                       journal — savoir qu'un mot de passe a changé ne sert
+     *                       à rien si l'on ne sait pas qui l'a changé
+     * @throws IllegalStateException    compte inconnu
+     * @throws IllegalArgumentException mot de passe trop court
+     */
+    public void definirMotDePasse(String id, String nouveauMotDePasse, String administrateur) {
+        UserApp user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException("Utilisateur introuvable"));
+
+        String motDePasse = nouveauMotDePasse == null ? "" : nouveauMotDePasse.trim();
+        if (motDePasse.length() < LONGUEUR_MIN_MOT_DE_PASSE) {
+            throw new IllegalArgumentException(
+                    "Le mot de passe doit compter au moins " + LONGUEUR_MIN_MOT_DE_PASSE + " caractères");
+        }
+
+        user.setPassword(encodePassword(motDePasse));
+        user.setPass(null);
+        // Un code de réinitialisation resté en attente permettrait encore de
+        // changer ce mot de passe par la voie « mot de passe oublié ».
+        user.setCode(null);
+        userRepository.save(user);
+
+        logger.info("Mot de passe du compte {} redéfini par {}", user.getUsername(), administrateur);
+    }
+
     public void changePassword(String id, String currentPassword, String newPassword) {
 
         UserApp user = userRepository.findById(id)

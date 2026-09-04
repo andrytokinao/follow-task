@@ -156,6 +156,18 @@ export class UserService {
       withCredentials: true
     });
   }
+  /**
+   * Définit le mot de passe d'un compte depuis l'administration.
+   *
+   * Distinct d'un changement de mot de passe : l'actuel n'est pas demandé, un
+   * administrateur ne le connaît pas. Le serveur vérifie lui-même les droits —
+   * l'écran d'administration ne fait que cacher le bouton.
+   */
+  definirMotDePasse(userId: string, motDePasse: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/users/${userId}/password`,
+      {newPassword: motDePasse}, {withCredentials: true});
+  }
+
   upload(file: File, userId:string): Observable<HttpEvent<any>> {
     const formData: FormData = new FormData();
     formData.append('file', file);
