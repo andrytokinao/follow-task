@@ -430,6 +430,7 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 6px;
+            margin-bottom: 18px;
         }
 
         table.sommaire td,
@@ -454,8 +455,74 @@
             white-space: nowrap;
         }
 
-        /* Titre de section du rapport composé : au-dessus des titres de
-           sections internes, il ouvre une partie entière du document. */
+        /* Filet de couleur en tête des tuiles d'une synthèse consolidée : il
+           rattache les chiffres à leur partie, sans peindre le tableau. */
+        table.tuiles-accent td {
+            border-top: 3px solid #1565c0;
+        }
+
+        table.tuiles-accent-vert td {
+            border-top: 3px solid #2f9e44;
+        }
+
+        .bloc-accent {
+            border-left: 3px solid #1565c0;
+            background-color: #f7fafd;
+        }
+
+        /* Un peu de couleur sur le tableau de synthèse : l'en-tête et une ligne
+           sur deux, rien de plus — le document reste imprimable en noir et
+           blanc sans rien perdre. */
+        table.sommaire th {
+            background-color: #eef4fb;
+            color: #14539a;
+            border-bottom: 2px solid #9fc4f0;
+        }
+
+        table.sommaire td.rang,
+        table.sommaire th.rang {
+            width: 34px;
+            text-align: left;
+            font-weight: bold;
+            color: #1565c0;
+            white-space: nowrap;
+        }
+
+        /* Avancement : la couleur reprend les seuils des barres de progression,
+           pour qu'un chiffre et une barre ne racontent jamais deux choses
+           différentes. */
+        .valeur-faible {
+            color: #a61b1b;
+            font-weight: bold;
+        }
+
+        .valeur-moyenne {
+            color: #8a5a12;
+            font-weight: bold;
+        }
+
+        .valeur-forte {
+            color: #1c6b32;
+            font-weight: bold;
+        }
+
+        /* Rang d'un projet et d'une tâche : « 2) » puis « 2.1 », « 2.2 ». De
+           quoi désigner une tâche à l'oral, ce que ne permet pas sa clé. */
+        .numero-projet {
+            color: #1565c0;
+            margin-right: 4px;
+        }
+
+        .numero-tache {
+            display: inline-block;
+            min-width: 26px;
+            font-weight: bold;
+            color: #1565c0;
+        }
+
+        /* ---- Titres de partie du rapport composé ----
+           Au-dessus des titres de section, ils ouvrent une partie entière du
+           document ; chaque partie a sa couleur, la même que son icône. */
         .partie {
             font-size: 15px;
             font-weight: bold;
@@ -464,6 +531,132 @@
             padding-bottom: 4px;
             margin-top: 4px;
             margin-bottom: 10px;
+        }
+
+        .partie-personnes {
+            color: #2f9e44;
+            border-bottom-color: #2f9e44;
+        }
+
+        .partie-equipes {
+            color: #7048e8;
+            border-bottom-color: #7048e8;
+        }
+
+        img.icone-partie {
+            width: 16px;
+            height: 16px;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+
+        /* ---- Page de couverture ----
+           Elle occupe la première page à elle seule : ce qu'on lit avant
+           d'ouvrir le document, et ce qui reste visible une fois posé. */
+        .couverture {
+            page-break-after: always;
+            padding-top: 40px;
+        }
+
+        table.couverture-marque {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 28px;
+        }
+
+        table.couverture-marque td {
+            vertical-align: middle;
+            padding: 0;
+        }
+
+        td.couverture-marque-icone {
+            width: 76px;
+        }
+
+        img.icone-xl {
+            width: 60px;
+            height: 60px;
+        }
+
+        img.icone {
+            width: 20px;
+            height: 20px;
+            vertical-align: middle;
+        }
+
+        .couverture-titre {
+            font-size: 26px;
+            font-weight: bold;
+            line-height: 1.2;
+            color: #1f2933;
+        }
+
+        .couverture-sous-titre {
+            font-size: 12px;
+            color: #616e7c;
+            margin-top: 4px;
+        }
+
+        .couverture-contenu {
+            border: 1px solid #e4e7eb;
+            border-top: 3px solid #1565c0;
+            padding: 14px 16px;
+            margin-bottom: 24px;
+        }
+
+        .couverture-contenu-titre {
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #7b8794;
+            margin-bottom: 8px;
+        }
+
+        table.contenu {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table.contenu td {
+            vertical-align: middle;
+            padding: 7px 0;
+            border-bottom: 1px solid #f0f2f4;
+        }
+
+        td.contenu-icone {
+            width: 30px;
+        }
+
+        .contenu-libelle {
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .contenu-detail {
+            display: block;
+            font-size: 10px;
+            font-weight: normal;
+            color: #7b8794;
+        }
+
+        .contenu-nombre {
+            width: 44px;
+            text-align: right;
+            font-size: 20px;
+            font-weight: bold;
+            color: #1565c0;
+        }
+
+        table.couverture-pied {
+            border-collapse: collapse;
+            font-size: 10px;
+            color: #7b8794;
+        }
+
+        table.couverture-pied td {
+            vertical-align: middle;
+            padding: 0 6px 0 0;
         }
     </style>
 </head>

@@ -255,6 +255,23 @@
   font-weight: 600;
 }
 
+/* Rang de la personne et de ses tâches : « 2) » puis « 2.1 », « 2.2 ». */
+.numero {
+  color: var(--c-primary);
+  font-weight: 700;
+  margin-right: 4px;
+}
+
+.taches th.rang {
+  width: 42px;
+}
+
+.taches td.rang {
+  font-weight: 700;
+  color: var(--c-primary);
+  white-space: nowrap;
+}
+
 .taches__nom {
   margin-left: 6px;
 }

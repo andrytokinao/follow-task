@@ -29,43 +29,97 @@
           th:text="' - édité le ' + ${#temporals.format(rapport.genereLe, 'dd/MM/yyyy à HH:mm')}"></span>
 </div>
 
-<!-- ============================ En-tête ============================ -->
-<div class="entete">
-    <div class="entete-titre">
-        <span th:text="${rapport.titre}">Rapport</span>
-    </div>
-    <div class="entete-sous-titre">
-        Rapport d'activité
-        <span th:if="${rapport.departement}" th:text="' - ' + ${rapport.departement}"></span>
-        <span th:if="${rapport.genereLe != null}"
-              th:text="' - édité le ' + ${#temporals.format(rapport.genereLe, 'dd/MM/yyyy à HH:mm')}"></span>
-    </div>
-</div>
+<!-- ========================== Couverture ==========================
+     Une page à elle seule : ce qu'on lit avant d'ouvrir, et ce qui reste
+     visible quand le document est posé sur un bureau. Elle annonce le contenu
+     parce qu'un rapport composé n'a pas deux fois la même structure — celui-ci
+     n'a que les parties demandées.
 
-<!-- Contenu du document : annoncé d'emblée, parce qu'un rapport composé n'a pas
-     deux fois la même structure — celui-ci n'a que les parties demandées. -->
-<div class="compteurs">
-    <span class="compteur" th:if="${rapport.projets != null}">
-        <span class="compteur-nombre" th:text="${#lists.size(rapport.projets.projets)}">0</span> projets
-    </span>
-    <span class="compteur" th:if="${rapport.personnes != null}">
-        <span class="compteur-nombre" th:text="${#lists.size(rapport.personnes.personnes)}">0</span> personnes
-    </span>
-    <span class="compteur" th:if="${not #lists.isEmpty(rapport.equipes)}">
-        <span class="compteur-nombre" th:text="${#lists.size(rapport.equipes)}">0</span> équipes
-    </span>
+     Les icônes sont des images peintes côté serveur : le convertisseur PDF
+     n'exécute aucun script et ne lit pas de police d'icônes. -->
+<div class="couverture">
+
+    <table class="couverture-marque">
+        <tr>
+            <td class="couverture-marque-icone">
+                <img class="icone-xl" th:if="${icones['document']}"
+                     th:src="${icones['document']}" alt="" />
+            </td>
+            <td>
+                <div class="couverture-titre" th:text="${rapport.titre}">Rapport</div>
+                <div class="couverture-sous-titre">
+                    Rapport d'activité
+                    <span th:if="${rapport.departement}" th:text="' - ' + ${rapport.departement}"></span>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <div class="couverture-contenu">
+        <div class="couverture-contenu-titre">Contenu du document</div>
+
+        <table class="contenu">
+            <tr th:if="${rapport.projets != null}">
+                <td class="contenu-icone">
+                    <img class="icone" th:if="${icones['projets']}" th:src="${icones['projets']}" alt="" />
+                </td>
+                <td class="contenu-libelle">
+                    Projets
+                    <span class="contenu-detail">avancement, tâches et temps passé</span>
+                </td>
+                <td class="contenu-nombre" th:text="${#lists.size(rapport.projets.projets)}">0</td>
+            </tr>
+            <tr th:if="${rapport.personnes != null}">
+                <td class="contenu-icone">
+                    <img class="icone" th:if="${icones['personnes']}" th:src="${icones['personnes']}" alt="" />
+                </td>
+                <td class="contenu-libelle">
+                    Activité par personne
+                    <span class="contenu-detail">heures, projets et tâches de chaque intervenant</span>
+                </td>
+                <td class="contenu-nombre" th:text="${#lists.size(rapport.personnes.personnes)}">0</td>
+            </tr>
+            <tr th:if="${not #lists.isEmpty(rapport.equipes)}">
+                <td class="contenu-icone">
+                    <img class="icone" th:if="${icones['equipes']}" th:src="${icones['equipes']}" alt="" />
+                </td>
+                <td class="contenu-libelle">
+                    Équipes
+                    <span class="contenu-detail">une synthèse et le détail des membres, par équipe</span>
+                </td>
+                <td class="contenu-nombre" th:text="${#lists.size(rapport.equipes)}">0</td>
+            </tr>
+        </table>
+    </div>
+
+    <table class="couverture-pied">
+        <tr>
+            <td class="contenu-icone">
+                <img class="icone" th:if="${icones['horloge']}" th:src="${icones['horloge']}" alt="" />
+            </td>
+            <td th:if="${rapport.genereLe != null}"
+                th:text="'Édité le ' + ${#temporals.format(rapport.genereLe, 'dd/MM/yyyy à HH:mm')}">
+                Édité le
+            </td>
+        </tr>
+    </table>
+
 </div>
 
 <!-- ============================ Projets ============================ -->
 <div th:if="${rapport.projets != null}">
 
-    <div class="partie">Projets</div>
+    <div class="partie partie-projets">
+        <img class="icone-partie" th:if="${icones['projets']}" th:src="${icones['projets']}" alt="" />
+        <span>Projets</span>
+    </div>
 
     <div th:replace="~{rapport-projets :: synthese(${rapport.projets}, ${graphiqueProjets}, ${couleurs})}"></div>
 
-    <!-- Détail projet par projet : le corps est celui du rapport individuel. -->
-    <div class="saut-page" th:each="section : ${sectionsProjet}">
-        <div th:replace="~{rapport-projet-corps :: corps(${section.projet}, ${section.graphique}, ${couleurs}, ${lienBase})}"></div>
+    <!-- Détail projet par projet : le corps est celui du rapport individuel.
+         Le rang repris ici est celui du sommaire, à la page précédente. -->
+    <div class="saut-page" th:each="section, iter : ${sectionsProjet}">
+        <div th:replace="~{rapport-projet-corps :: corps(${section.projet}, ${section.graphique}, ${couleurs}, ${lienBase}, ${iter.count})}"></div>
     </div>
 
 </div>
@@ -73,12 +127,15 @@
 <!-- =========================== Personnes =========================== -->
 <div th:if="${rapport.personnes != null}" th:classappend="${rapport.projets != null} ? 'saut-page' : ''">
 
-    <div class="partie">Activité par personne</div>
+    <div class="partie partie-personnes">
+        <img class="icone-partie" th:if="${icones['personnes']}" th:src="${icones['personnes']}" alt="" />
+        <span>Activité par personne</span>
+    </div>
 
     <div th:replace="~{rapport-personne-corps :: synthese(${rapport.personnes.synthese}, ${graphiquePersonnes}, ${couleurs})}"></div>
 
-    <div class="saut-page" th:each="section : ${sectionsPersonne}">
-        <div th:replace="~{rapport-personne-corps :: corps(${section.personne}, ${section.graphique}, ${couleurs}, ${lienBase}, ${rapport.prefixeDepartement})}"></div>
+    <div class="saut-page" th:each="section, iter : ${sectionsPersonne}">
+        <div th:replace="~{rapport-personne-corps :: corps(${section.personne}, ${section.graphique}, ${couleurs}, ${lienBase}, ${rapport.prefixeDepartement}, ${iter.count})}"></div>
     </div>
 
 </div>
@@ -89,7 +146,10 @@
      deux : la section d'une équipe doit se lire seule. -->
 <div class="saut-page" th:each="equipe : ${sectionsEquipe}">
 
-    <div class="partie" th:text="'Équipe - ' + ${equipe.equipe.nomEquipe}">Équipe</div>
+    <div class="partie partie-equipes">
+        <img class="icone-partie" th:if="${icones['equipes']}" th:src="${icones['equipes']}" alt="" />
+        <span th:text="'Équipe - ' + ${equipe.equipe.nomEquipe}">Équipe</span>
+    </div>
 
     <div class="vide" th:if="${#lists.isEmpty(equipe.personnes)}">
         Cette équipe n'a aucun membre : rien à rapporter.
@@ -98,8 +158,8 @@
     <div th:unless="${#lists.isEmpty(equipe.personnes)}">
         <div th:replace="~{rapport-personne-corps :: synthese(${equipe.equipe.synthese}, ${equipe.graphique}, ${couleurs})}"></div>
 
-        <div class="saut-page" th:each="section : ${equipe.personnes}">
-            <div th:replace="~{rapport-personne-corps :: corps(${section.personne}, ${section.graphique}, ${couleurs}, ${lienBase}, ${rapport.prefixeDepartement})}"></div>
+        <div class="saut-page" th:each="section, iter : ${equipe.personnes}">
+            <div th:replace="~{rapport-personne-corps :: corps(${section.personne}, ${section.graphique}, ${couleurs}, ${lienBase}, ${rapport.prefixeDepartement}, ${iter.count})}"></div>
         </div>
     </div>
 

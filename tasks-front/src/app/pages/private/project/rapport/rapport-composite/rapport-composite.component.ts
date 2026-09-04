@@ -64,6 +64,18 @@ export class RapportCompositeComponent implements OnChanges {
     return pourcentage < 75 ? 'barre-orange' : 'barre-verte';
   }
 
+  /**
+   * Couleur d'un pourcentage dans le sommaire : mêmes seuils que les barres de
+   * progression, pour qu'un chiffre et une barre ne racontent jamais deux
+   * choses différentes.
+   */
+  classeValeur(pourcentage: number): string {
+    if (pourcentage < 40) {
+      return 'valeur-faible';
+    }
+    return pourcentage < 75 ? 'valeur-moyenne' : 'valeur-forte';
+  }
+
   /** Suivi par rang : deux projets peuvent porter le même nom, qui ne fait pas une clé. */
   suiviProjet(index: number, _projet: RapportProjetDTO): number {
     return index;

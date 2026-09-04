@@ -1,0 +1,467 @@
+/* =========================================================================
+   Rapport composé — aperçu natif
+   -------------------------------------------------------------------------
+   Ce composant n'habille que ce qui lui est propre : les titres de partie, les
+   synthèses et le sommaire. Le détail d'un projet ou d'une personne est rendu
+   par son propre composant, avec ses propres styles — c'est ce qui garantit
+   qu'un projet se lit ici comme dans son rapport individuel.
+   ========================================================================= */
+:host {
+  --c-primary: #1565c0;
+  --c-text: #111827;
+  --c-text-muted: #6b7280;
+  --c-text-faint: #9ca3af;
+  --c-border: #e5e7eb;
+  --c-border-soft: #f1f2f4;
+  --c-surface: #ffffff;
+  --c-surface-muted: #f9fafb;
+  --c-error: #c62828;
+
+  display: block;
+  font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: var(--c-text);
+}
+
+.document {
+  min-width: 0;
+}
+
+.document__vide {
+  margin: 0 0 14px 0;
+  font-size: 12px;
+  font-style: italic;
+  color: var(--c-text-muted);
+}
+
+/* ---- Couverture ----
+   Ce que porte la première page du PDF : le contenu du document annoncé
+   d'emblée. Sobre, avec une couleur par partie — la même que dans son titre et
+   sur son icône, pour qu'une partie se reconnaisse d'un bout à l'autre. */
+.couverture {
+  display: block;
+  border: 1px solid var(--c-border);
+  border-top: 3px solid var(--c-primary);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 24px;
+}
+
+.couverture__titre {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--c-text-faint);
+  margin-bottom: 8px;
+}
+
+.couverture__ligne {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--c-border-soft);
+}
+
+.couverture__ligne:last-child {
+  border-bottom: none;
+}
+
+.couverture__icone {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 13px;
+  background: var(--c-primary);
+}
+
+.couverture__icone--personnes {
+  background: #2f9e44;
+}
+
+.couverture__icone--equipes {
+  background: #7048e8;
+}
+
+.couverture__libelle {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.couverture__detail {
+  display: block;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--c-text-faint);
+}
+
+.couverture__nombre {
+  flex: 0 0 auto;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--c-primary);
+}
+
+/* ---- Parties du document ---- */
+.partie {
+  display: block;
+  margin-bottom: 28px;
+}
+
+.partie__titre {
+  margin: 0 0 12px 0;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--c-primary);
+  color: var(--c-primary);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+/* Chaque partie a sa couleur, la même que sur la couverture. */
+.partie__titre--personnes {
+  color: #2f9e44;
+  border-bottom-color: #2f9e44;
+}
+
+.partie__titre--equipes {
+  color: #7048e8;
+  border-bottom-color: #7048e8;
+}
+
+.partie__icone {
+  margin-right: 6px;
+  font-size: 14px;
+}
+
+.partie__compte {
+  color: var(--c-text-faint);
+  font-weight: 400;
+}
+
+.section {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Un projet ou une personne : encadré, pour que l'œil retrouve où commence et
+   où finit chaque élément d'une longue suite. */
+.bloc {
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  background: var(--c-surface);
+}
+
+/* ---- Avancement ---- */
+.avancement {
+  border: 1px solid var(--c-border);
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 14px;
+}
+
+.avancement--accent {
+  border-left: 3px solid var(--c-primary);
+  background: #f7fafd;
+}
+
+.avancement__libelle {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--c-text-faint);
+}
+
+.avancement__valeur {
+  display: block;
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.barre {
+  height: 10px;
+  border-radius: 5px;
+  background: var(--c-border-soft);
+  overflow: hidden;
+}
+
+.barre__remplissage {
+  height: 100%;
+  border-radius: inherit;
+  transition: width 200ms ease-out;
+}
+
+.barre-rouge {
+  background: #d64545;
+}
+
+.barre-orange {
+  background: #f0932b;
+}
+
+.barre-verte {
+  background: #2f9e44;
+}
+
+/* ---- Tuiles de chiffres ---- */
+.tuiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1px;
+  background: var(--c-border);
+  border: 1px solid var(--c-border);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.tuile {
+  background: var(--c-surface);
+  padding: 10px;
+  text-align: center;
+}
+
+.tuile__valeur {
+  display: block;
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.tuile__valeur--alerte {
+  color: var(--c-error);
+}
+
+.tuile__valeur--favorable {
+  color: #1c6b32;
+}
+
+.tuile__libelle {
+  display: block;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--c-text-faint);
+}
+
+/* ---- Compteurs par statut ---- */
+.compteurs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+
+.compteur {
+  padding: 3px 10px;
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  background: var(--c-surface-muted);
+  color: #52606d;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+/* ---- Répartition ---- */
+.repartition {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.repartition__graphique {
+  flex: 0 0 auto;
+}
+
+.repartition__legende {
+  flex: 1 1 260px;
+  min-width: 0;
+  margin-top: 0;
+}
+
+.donut {
+  width: 160px;
+  height: 160px;
+  display: block;
+}
+
+.donut__fond {
+  fill: transparent;
+  stroke: var(--c-border-soft);
+  stroke-width: 5.5;
+}
+
+.donut__part {
+  fill: transparent;
+  stroke-width: 5.5;
+}
+
+.pastille {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  margin-right: 7px;
+  vertical-align: baseline;
+}
+
+/* ---- Tableaux ---- */
+.temps,
+.sommaire {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 18px 0;
+}
+
+.temps th,
+.temps td,
+.sommaire th,
+.sommaire td {
+  border-bottom: 1px solid var(--c-border-soft);
+  padding: 5px 8px;
+  text-align: left;
+  font-size: 12px;
+}
+
+.temps th,
+.sommaire th {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--c-text-faint);
+  font-weight: 600;
+}
+
+/* Un peu de couleur sur le sommaire : l'en-tête et le rang, rien de plus — le
+   tableau reste lisible imprimé en noir et blanc. */
+.sommaire th {
+  background: #eef4fb;
+  color: #14539a;
+  border-bottom: 2px solid #9fc4f0;
+}
+
+.sommaire th.rang {
+  width: 38px;
+}
+
+.sommaire td.rang {
+  font-weight: 700;
+  color: var(--c-primary);
+  white-space: nowrap;
+}
+
+/* Avancement : mêmes seuils que les barres de progression. */
+.valeur-faible {
+  color: #a61b1b;
+  font-weight: 700;
+}
+
+.valeur-moyenne {
+  color: #8a5a12;
+  font-weight: 700;
+}
+
+.valeur-forte {
+  color: #1c6b32;
+  font-weight: 700;
+}
+
+/* Filet de couleur en tête des tuiles : il rattache les chiffres à leur
+   partie, sans peindre le tableau. */
+.tuiles--projets .tuile {
+  border-top: 3px solid var(--c-primary);
+}
+
+.tuiles--personnes .tuile {
+  border-top: 3px solid #2f9e44;
+}
+
+.nombre {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.temps tfoot td {
+  border-bottom: none;
+  border-top: 1px solid var(--c-border);
+  font-weight: 600;
+}
+
+.sommaire tbody tr:hover {
+  background: var(--c-surface-muted);
+}
+
+.sommaire__nom {
+  margin-left: 6px;
+}
+
+/* ---- Clés et badges ---- */
+.cle {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--c-text-muted);
+  white-space: nowrap;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid var(--c-border);
+  background: var(--c-surface-muted);
+  color: #52606d;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.statut-non-demarre {
+  background: #f5f7fa;
+  border-color: #cbd2d9;
+  color: #52606d;
+}
+
+.statut-en-cours {
+  background: #e3f0ff;
+  border-color: #9fc4f0;
+  color: #14539a;
+}
+
+.statut-en-retard {
+  background: #fdeaea;
+  border-color: #f0a6a6;
+  color: #a61b1b;
+}
+
+.statut-bloque {
+  background: #fbe6f3;
+  border-color: #e3a4cd;
+  color: #8f1d63;
+}
+
+.statut-reporte {
+  background: #fdf3e0;
+  border-color: #ecc99a;
+  color: #8a5a12;
+}
+
+.statut-termine {
+  background: #e6f5ea;
+  border-color: #9ed6ae;
+  color: #1c6b32;
+}

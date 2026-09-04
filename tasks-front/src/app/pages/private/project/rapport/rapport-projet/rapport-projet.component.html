@@ -36,9 +36,10 @@
     <!-- Sans barre d'actions, le titre du projet reste nécessaire : le
          document hôte empile plusieurs projets, ils doivent se distinguer. -->
     <h3 class="rapport__titre rapport__titre--integre" *ngIf="!barreActions">
+      <span class="numero" *ngIf="numero != null">{{ numero }})</span>
+      {{ rapport.titre || 'Projet sans titre' }}
       <a class="cle" *ngIf="lienProjet() as lien" [routerLink]="lien">{{ rapport.cle }}</a>
       <span class="cle" *ngIf="rapport.cle && !lienProjet()">{{ rapport.cle }}</span>
-      {{ rapport.titre || 'Projet sans titre' }}
     </h3>
 
     <p class="rapport__description" *ngIf="rapport.description">{{ rapport.description }}</p>
@@ -208,9 +209,10 @@
       Aucune tâche n'est rattachée à ce projet.
     </p>
 
-    <div class="tache" *ngFor="let tache of rapport.taches; trackBy: suiviTache">
+    <div class="tache" *ngFor="let tache of rapport.taches; let i = index; trackBy: suiviTache">
 
       <div class="tache__entete">
+        <span class="numero numero--tache">{{ numeroTache(i) }}</span>
         <a class="cle" *ngIf="lienTache(tache) as lien" [routerLink]="lien">{{ tache.cle }}</a>
         <span class="cle" *ngIf="tache.cle && !lienTache(tache)">{{ tache.cle }}</span>
         <span class="tache__nom">{{ tache.nom || 'Tâche sans titre' }}</span>

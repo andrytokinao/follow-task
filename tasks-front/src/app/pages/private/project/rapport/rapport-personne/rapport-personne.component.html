@@ -2,6 +2,7 @@
 
   <div class="personne__entete">
     <h3 class="personne__nom">
+      <span class="numero" *ngIf="numero != null">{{ numero }})</span>
       {{ personne.nomPersonne }}
       <span class="cle" *ngIf="personne.username">{{ personne.username }}</span>
     </h3>
@@ -137,6 +138,7 @@
   <table class="taches" *ngIf="personne.taches.length">
     <thead>
     <tr>
+      <th class="rang">N°</th>
       <th>Tâche</th>
       <th>Projet</th>
       <th>Statut</th>
@@ -146,7 +148,8 @@
     </tr>
     </thead>
     <tbody>
-    <tr *ngFor="let tache of personne.taches; trackBy: suiviTache">
+    <tr *ngFor="let tache of personne.taches; let i = index; trackBy: suiviTache">
+      <td class="rang">{{ numeroTache(i) }}</td>
       <td>
         <a class="cle" *ngIf="lienTache(tache) as lien" [routerLink]="lien">{{ tache.cle }}</a>
         <span class="cle" *ngIf="tache.cle && !lienTache(tache)">{{ tache.cle }}</span>

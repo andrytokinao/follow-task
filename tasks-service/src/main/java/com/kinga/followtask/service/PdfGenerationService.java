@@ -7,19 +7,23 @@ import com.kinga.followtask.dto.rapport.RapportPersonnesDTO;
 import com.kinga.followtask.dto.rapport.RapportProjetDTO;
 import com.kinga.followtask.dto.rapport.RapportProjetsDTO;
 import com.kinga.followtask.exception.AppException;
+import com.kinga.followtask.service.IconeRapportService.Icone;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * Rendu du rapport de projet en HTML puis en PDF.
@@ -59,8 +63,22 @@ public class PdfGenerationService {
                                 List<SectionPersonne> personnes) {
     }
 
+    /**
+     * Couleurs des parties du rapport composé.
+     *
+     * <p>Elles habillent à la fois l'icône, peinte côté serveur, et les filets
+     * du template : une même partie doit se reconnaître à sa couleur d'un bout à
+     * l'autre du document. Les valeurs viennent de la palette des graphiques,
+     * pour que rien n'y jure.</p>
+     */
+    public static final String COULEUR_PROJETS = "#1565c0";
+    public static final String COULEUR_PERSONNES = "#2f9e44";
+    public static final String COULEUR_EQUIPES = "#7048e8";
+    private static final String COULEUR_DISCRETE = "#7b8794";
+
     private final TemplateEngine templateEngine;
     private final GraphiqueService graphiqueService;
+    private final IconeRapportService iconeRapportService;
 
     /**
      * Adresse publique de l'application, si elle est connue. Vide par défaut :
@@ -70,9 +88,11 @@ public class PdfGenerationService {
 
     public PdfGenerationService(TemplateEngine templateEngine,
                                 GraphiqueService graphiqueService,
+                                IconeRapportService iconeRapportService,
                                 @Value("${app.base-url:}") String baseUrl) {
         this.templateEngine = templateEngine;
         this.graphiqueService = graphiqueService;
+        this.iconeRapportService = iconeRapportService;
         this.baseUrl = baseUrl;
     }
 
@@ -141,12 +161,38 @@ public class PdfGenerationService {
     }
 
     /**
-     * Racine des liens dans un PDF : celle de l'application si elle est connue,
-     * {@code null} sinon — un lien relatif ne mène nulle part une fois le
-     * fichier sorti de l'application.
+     * Racine des liens dans un PDF.
+     *
+     * <p>Un lien relatif ne mène nulle part une fois le fichier sorti de
+     * l'application : il faut une adresse absolue. On prend celle qui est
+     * configurée, à défaut celle par laquelle le client vient de joindre le
+     * serveur — c'est nécessairement une adresse qui fonctionne pour lui, et
+     * elle vaut mieux qu'un document sans aucun lien.</p>
+     *
+     * <p>{@code app.base-url} reste l'autorité : derrière un proxy inverse qui
+     * ne repasse pas les en-têtes {@code X-Forwarded-*}, l'adresse vue du
+     * serveur n'est pas celle du navigateur, et seule la configuration dit
+     * juste.</p>
      */
     private String lienBasePdf() {
-        return StringUtils.hasText(baseUrl) ? racineNormalisee() : null;
+        if (StringUtils.hasText(baseUrl)) {
+            return racineNormalisee();
+        }
+        return racineDeLaRequete();
+    }
+
+    /**
+     * Adresse publique déduite de la requête en cours, ou {@code null} si le
+     * rapport n'est pas produit pour une requête HTTP (test, traitement
+     * différé) — auquel cas aucun lien ne peut être bâti.
+     */
+    private String racineDeLaRequete() {
+        try {
+            return sansBarreFinale(ServletUriComponentsBuilder.fromCurrentContextPath()
+                    .build().toUriString());
+        } catch (IllegalStateException e) {
+            return null;
+        }
     }
 
     /**
@@ -211,12 +257,38 @@ public class PdfGenerationService {
                 .map(this::sectionEquipe)
                 .toList());
 
+        context.setVariable("icones", icones());
+
         try {
             return templateEngine.process(TEMPLATE_COMPOSITE, context);
         } catch (RuntimeException e) {
             log.error("Rendu Thymeleaf du rapport composé « {} » impossible", rapport.titre(), e);
             throw new AppException("Le rapport n'a pas pu être mis en page : " + e.getMessage(),
                     HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Icônes de la couverture, prêtes à poser dans un attribut {@code src}.
+     *
+     * <p>Une carte plutôt que cinq variables : le template en pose autant qu'il
+     * a de parties, et une icône absente — l'encodage a échoué — laisse
+     * simplement le libellé seul.</p>
+     */
+    private Map<String, String> icones() {
+        Map<String, String> icones = new LinkedHashMap<>();
+        ajouter(icones, "document", Icone.DOCUMENT, COULEUR_PROJETS);
+        ajouter(icones, "projets", Icone.PROJET, COULEUR_PROJETS);
+        ajouter(icones, "personnes", Icone.PERSONNE, COULEUR_PERSONNES);
+        ajouter(icones, "equipes", Icone.EQUIPE, COULEUR_EQUIPES);
+        ajouter(icones, "horloge", Icone.HORLOGE, COULEUR_DISCRETE);
+        return icones;
+    }
+
+    private void ajouter(Map<String, String> icones, String cle, Icone icone, String couleur) {
+        String image = iconeRapportService.pastille(icone, couleur);
+        if (image != null) {
+            icones.put(cle, image);
         }
     }
 
@@ -243,10 +315,14 @@ public class PdfGenerationService {
 
     /** Racine sans barre finale : le template ajoute la sienne. */
     private String racineNormalisee() {
-        if (!StringUtils.hasText(baseUrl)) {
-            return "";
+        return StringUtils.hasText(baseUrl) ? sansBarreFinale(baseUrl) : "";
+    }
+
+    private String sansBarreFinale(String adresse) {
+        if (!StringUtils.hasText(adresse)) {
+            return null;
         }
-        String racine = baseUrl.trim();
+        String racine = adresse.trim();
         return racine.endsWith("/") ? racine.substring(0, racine.length() - 1) : racine;
     }
 }

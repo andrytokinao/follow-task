@@ -1,0 +1,327 @@
+<div class="document" *ngIf="rapport">
+
+  <p class="document__vide" *ngIf="vide">
+    Ce rapport ne contient rien : sélectionnez au moins un projet, une personne
+    ou une équipe.
+  </p>
+
+  <!-- ====================== Couverture ======================
+       Ce que porte la première page du PDF : le contenu du document, annoncé
+       d'emblée parce qu'un rapport composé n'a pas deux fois la même structure.
+       Les icônes viennent ici de la police de l'application ; le PDF, qui ne
+       sait pas la lire, reçoit les mêmes dessins peints côté serveur. -->
+  <section class="couverture" *ngIf="!vide">
+
+    <div class="couverture__titre">Contenu du document</div>
+
+    <div class="couverture__ligne" *ngIf="rapport.projets as projets">
+      <span class="couverture__icone couverture__icone--projets"><i class="fas fa-folder-open"></i></span>
+      <span class="couverture__libelle">
+        Projets
+        <span class="couverture__detail">avancement, tâches et temps passé</span>
+      </span>
+      <span class="couverture__nombre">{{ projets.projets.length }}</span>
+    </div>
+
+    <div class="couverture__ligne" *ngIf="rapport.personnes as personnes">
+      <span class="couverture__icone couverture__icone--personnes"><i class="fas fa-user"></i></span>
+      <span class="couverture__libelle">
+        Activité par personne
+        <span class="couverture__detail">heures, projets et tâches de chaque intervenant</span>
+      </span>
+      <span class="couverture__nombre">{{ personnes.personnes.length }}</span>
+    </div>
+
+    <div class="couverture__ligne" *ngIf="equipes.length">
+      <span class="couverture__icone couverture__icone--equipes"><i class="fas fa-users"></i></span>
+      <span class="couverture__libelle">
+        Équipes
+        <span class="couverture__detail">une synthèse et le détail des membres, par équipe</span>
+      </span>
+      <span class="couverture__nombre">{{ equipes.length }}</span>
+    </div>
+
+  </section>
+
+  <!-- ======================= Partie projets ======================= -->
+  <section class="partie" *ngIf="rapport.projets as projets">
+
+    <h2 class="partie__titre">
+      <i class="fas fa-folder-open partie__icone"></i>
+      Projets <span class="partie__compte">({{ projets.projets.length }})</span>
+    </h2>
+
+    <div class="avancement avancement--accent">
+      <span class="avancement__libelle">Avancement moyen des projets</span>
+      <span class="avancement__valeur">{{ projets.synthese.avancementMoyen }} %</span>
+      <div class="barre"
+           role="progressbar"
+           [attr.aria-valuenow]="projets.synthese.avancementMoyen"
+           aria-valuemin="0"
+           aria-valuemax="100">
+        <div class="barre__remplissage"
+             [ngClass]="classeBarre(projets.synthese.avancementMoyen)"
+             [style.width.%]="projets.synthese.avancementMoyen"></div>
+      </div>
+    </div>
+
+    <div class="tuiles tuiles--projets">
+      <div class="tuile">
+        <span class="tuile__valeur">{{ projets.synthese.totalHeures | number:'1.0-2' }} h</span>
+        <span class="tuile__libelle">Heures réalisées</span>
+      </div>
+      <div class="tuile">
+        <span class="tuile__valeur">{{ projets.synthese.heuresPlanifiees | number:'1.0-2' }} h</span>
+        <span class="tuile__libelle">Heures planifiées</span>
+      </div>
+      <div class="tuile">
+        <span class="tuile__valeur"
+              [class.tuile__valeur--alerte]="projets.synthese.ecartHeures > 0"
+              [class.tuile__valeur--favorable]="projets.synthese.ecartHeures < 0">
+          {{ projets.synthese.ecartHeures > 0 ? '+' : '' }}{{ projets.synthese.ecartHeures | number:'1.0-2' }} h
+        </span>
+        <span class="tuile__libelle">Écart réalisé / planifié</span>
+      </div>
+      <div class="tuile">
+        <span class="tuile__valeur">{{ projets.synthese.nombreIntervenants }}</span>
+        <span class="tuile__libelle">Intervenants</span>
+      </div>
+    </div>
+
+    <div class="compteurs">
+      <span class="compteur"><strong>{{ projets.synthese.nombreTaches }}</strong> tâches</span>
+      <span class="compteur statut-termine"><strong>{{ projets.synthese.nombreTerminees }}</strong> terminées</span>
+      <span class="compteur statut-en-cours"><strong>{{ projets.synthese.nombreEnCours }}</strong> en cours</span>
+      <span class="compteur statut-en-retard" *ngIf="projets.synthese.nombreEnRetard">
+        <strong>{{ projets.synthese.nombreEnRetard }}</strong> en retard
+      </span>
+      <span class="compteur statut-bloque" *ngIf="projets.synthese.nombreBloquees">
+        <strong>{{ projets.synthese.nombreBloquees }}</strong> bloquées
+      </span>
+      <span class="compteur statut-reporte" *ngIf="projets.synthese.nombreReportees">
+        <strong>{{ projets.synthese.nombreReportees }}</strong> reportées
+      </span>
+      <span class="compteur statut-non-demarre">
+        <strong>{{ projets.synthese.nombreNonDemarrees }}</strong> non démarrées
+      </span>
+    </div>
+
+    <!-- Sommaire : comparer les projets d'un coup d'œil, avant d'entrer dans
+         le détail de chacun. -->
+    <h3 class="section">Sommaire</h3>
+
+    <table class="sommaire">
+      <thead>
+      <tr>
+        <th class="rang">N°</th>
+        <th>Projet</th>
+        <th>Statut</th>
+        <th class="nombre">Avanc.</th>
+        <th class="nombre">Réalisé</th>
+        <th class="nombre">Planifié</th>
+        <th class="nombre">Tâches</th>
+      </tr>
+      </thead>
+      <tbody>
+      <!-- Le rang est celui des sections qui suivent : on lit « 2) » ici et on
+           retrouve « 2) » en tête du projet, plus bas. -->
+      <tr *ngFor="let projet of projets.projets; let i = index; trackBy: suiviProjet">
+        <td class="rang">{{ i + 1 }})</td>
+        <td>
+          <span class="cle" *ngIf="projet.cle">{{ projet.cle }}</span>
+          <span class="sommaire__nom">{{ projet.titre || 'Projet sans titre' }}</span>
+        </td>
+        <td><span class="badge">{{ projet.statut }}</span></td>
+        <td class="nombre" [ngClass]="classeValeur(projet.avancementGlobal)">{{ projet.avancementGlobal }} %</td>
+        <td class="nombre">{{ projet.synthese.totalHeures | number:'1.0-2' }} h</td>
+        <td class="nombre">{{ projet.synthese.heuresPlanifiees | number:'1.0-2' }} h</td>
+        <td class="nombre">{{ projet.synthese.nombreTaches }}</td>
+      </tr>
+      </tbody>
+    </table>
+
+    <h3 class="section">Répartition du temps par intervenant</h3>
+
+    <ng-container *ngTemplateOutlet="anneau; context: {parts: partsProjets,
+                                                      total: projets.synthese.totalHeures,
+                                                      colonne: 'Intervenant',
+                                                      message: 'Aucun temps n\'a encore été enregistré sur les projets retenus.'}">
+    </ng-container>
+
+    <!-- Détail projet par projet : chacun est rendu par le composant du
+         rapport individuel, sa barre d'actions en moins. -->
+    <div class="bloc" *ngFor="let projet of projets.projets; let i = index; trackBy: suiviProjet">
+      <app-rapport-projet [donnees]="projet"
+                          [numero]="i + 1"
+                          [barreActions]="false"></app-rapport-projet>
+    </div>
+
+  </section>
+
+  <!-- ====================== Partie personnes ====================== -->
+  <section class="partie" *ngIf="rapport.personnes as personnes">
+
+    <h2 class="partie__titre partie__titre--personnes">
+      <i class="fas fa-user partie__icone"></i>
+      Activité par personne <span class="partie__compte">({{ personnes.personnes.length }})</span>
+    </h2>
+
+    <ng-container *ngTemplateOutlet="synthesePersonnes; context: {synthese: personnes.synthese,
+                                                                 parts: partsPersonnes}">
+    </ng-container>
+
+    <div class="bloc" *ngFor="let personne of personnes.personnes; let i = index">
+      <app-rapport-personne [personne]="personne"
+                            [numero]="i + 1"
+                            [prefixe]="rapport.prefixeDepartement"></app-rapport-personne>
+    </div>
+
+  </section>
+
+  <!-- ======================= Parties équipes ======================= -->
+  <!-- Une partie par équipe : chacune porte sa propre synthèse. Une personne
+       membre de deux équipes retenues figure dans les deux — la section d'une
+       équipe doit se lire seule. -->
+  <section class="partie" *ngFor="let vue of equipes; trackBy: suiviEquipe">
+
+    <h2 class="partie__titre partie__titre--equipes">
+      <i class="fas fa-users partie__icone"></i>
+      Équipe — {{ vue.equipe.nomEquipe }}
+      <span class="partie__compte">({{ vue.equipe.personnes.length }})</span>
+    </h2>
+
+    <p class="document__vide" *ngIf="!vue.equipe.personnes.length">
+      Cette équipe n'a aucun membre : rien à rapporter.
+    </p>
+
+    <ng-container *ngIf="vue.equipe.personnes.length">
+      <ng-container *ngTemplateOutlet="synthesePersonnes; context: {synthese: vue.equipe.synthese,
+                                                                   parts: vue.parts}">
+      </ng-container>
+
+      <div class="bloc" *ngFor="let personne of vue.equipe.personnes; let i = index">
+        <app-rapport-personne [personne]="personne"
+                              [numero]="i + 1"
+                              [prefixe]="rapport.prefixeDepartement"></app-rapport-personne>
+      </div>
+    </ng-container>
+
+  </section>
+
+</div>
+
+<!-- ==========================================================================
+     Synthèse d'un ensemble de personnes.
+
+     Un seul gabarit pour la partie « par personne » et pour chaque équipe :
+     les deux disent la même chose, les écrire deux fois les ferait diverger.
+     ========================================================================== -->
+<ng-template #synthesePersonnes let-synthese="synthese" let-parts="parts">
+
+  <div class="tuiles tuiles--personnes">
+    <div class="tuile">
+      <span class="tuile__valeur">{{ synthese.totalHeures | number:'1.0-2' }} h</span>
+      <span class="tuile__libelle">Heures réalisées</span>
+    </div>
+    <div class="tuile">
+      <span class="tuile__valeur">{{ synthese.heuresPlanifiees | number:'1.0-2' }} h</span>
+      <span class="tuile__libelle">Heures planifiées</span>
+    </div>
+    <div class="tuile">
+      <span class="tuile__valeur"
+            [class.tuile__valeur--alerte]="synthese.ecartHeures > 0"
+            [class.tuile__valeur--favorable]="synthese.ecartHeures < 0">
+        {{ synthese.ecartHeures > 0 ? '+' : '' }}{{ synthese.ecartHeures | number:'1.0-2' }} h
+      </span>
+      <span class="tuile__libelle">Écart réalisé / planifié</span>
+    </div>
+    <div class="tuile">
+      <span class="tuile__valeur">{{ synthese.nombrePersonnes }}</span>
+      <span class="tuile__libelle">Intervenants</span>
+    </div>
+  </div>
+
+  <!-- Les tâches sont dédoublonnées : deux personnes sur la même tâche ne font
+       qu'une tâche, les compteurs ne sont pas la somme des compteurs
+       individuels. -->
+  <div class="compteurs">
+    <span class="compteur"><strong>{{ synthese.nombreTaches }}</strong> tâches</span>
+    <span class="compteur"><strong>{{ synthese.nombreProjets }}</strong> projets</span>
+    <span class="compteur statut-termine"><strong>{{ synthese.nombreTerminees }}</strong> terminées</span>
+    <span class="compteur statut-en-cours"><strong>{{ synthese.nombreEnCours }}</strong> en cours</span>
+    <span class="compteur statut-en-retard" *ngIf="synthese.nombreEnRetard">
+      <strong>{{ synthese.nombreEnRetard }}</strong> en retard
+    </span>
+    <span class="compteur statut-bloque" *ngIf="synthese.nombreBloquees">
+      <strong>{{ synthese.nombreBloquees }}</strong> bloquées
+    </span>
+    <span class="compteur statut-reporte" *ngIf="synthese.nombreReportees">
+      <strong>{{ synthese.nombreReportees }}</strong> reportées
+    </span>
+    <span class="compteur statut-non-demarre">
+      <strong>{{ synthese.nombreNonDemarrees }}</strong> non démarrées
+    </span>
+  </div>
+
+  <h3 class="section">Répartition du temps par intervenant</h3>
+
+  <ng-container *ngTemplateOutlet="anneau; context: {parts: parts,
+                                                     total: synthese.totalHeures,
+                                                     colonne: 'Intervenant',
+                                                     message: 'Aucun temps n\'a encore été enregistré par les personnes retenues.'}">
+  </ng-container>
+
+</ng-template>
+
+<!-- Anneau de répartition et sa légende, quelle que soit la nature des parts. -->
+<ng-template #anneau let-parts="parts" let-total="total" let-colonne="colonne" let-message="message">
+
+  <p class="document__vide" *ngIf="!parts.length">{{ message }}</p>
+
+  <div class="repartition" *ngIf="parts.length">
+
+    <div class="repartition__graphique">
+      <svg viewBox="0 0 42 42" class="donut" role="img" [attr.aria-label]="'Répartition du temps'">
+        <circle class="donut__fond" cx="21" cy="21" [attr.r]="rayon"></circle>
+        <circle *ngFor="let part of parts"
+                class="donut__part"
+                cx="21" cy="21"
+                [attr.r]="rayon"
+                [attr.stroke]="part.couleur"
+                [attr.stroke-dasharray]="part.arc + ' ' + (100 - part.arc)"
+                [attr.stroke-dashoffset]="part.decalage">
+          <title>{{ part.nom }} — {{ part.heures | number:'1.0-2' }} h ({{ part.pourcentage }} %)</title>
+        </circle>
+      </svg>
+    </div>
+
+    <table class="temps repartition__legende">
+      <thead>
+      <tr>
+        <th>{{ colonne }}</th>
+        <th class="nombre">Heures</th>
+        <th class="nombre">Part</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let part of parts">
+        <td>
+          <span class="pastille" [style.background-color]="part.couleur"></span>
+          {{ part.nom }}
+        </td>
+        <td class="nombre">{{ part.heures | number:'1.0-2' }} h</td>
+        <td class="nombre">{{ part.pourcentage }} %</td>
+      </tr>
+      </tbody>
+      <tfoot>
+      <tr>
+        <td>Total</td>
+        <td class="nombre">{{ total | number:'1.0-2' }} h</td>
+        <td class="nombre">100 %</td>
+      </tr>
+      </tfoot>
+    </table>
+
+  </div>
+
+</ng-template>

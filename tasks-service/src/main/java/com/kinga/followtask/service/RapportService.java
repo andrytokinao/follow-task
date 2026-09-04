@@ -773,8 +773,15 @@ public class RapportService {
             taches.putIfAbsent(assignation.getId(), assignation);
         }
 
+        // Seules les tâches sont détaillées : une demande racine est un projet,
+        // il figure au rapport comme projet — dans la répartition du temps —
+        // et non comme une ligne de travail. Ses heures et son temps restent
+        // donc comptés, ils sont simplement portés par le bon objet.
         List<TachePersonneDTO> lignes = new ArrayList<>();
         for (Issue tache : taches.values()) {
+            if (!estTache(tache)) {
+                continue;
+            }
             lignes.add(ligneTache(tache, eventsParTache.getOrDefault(tache.getId(), List.of()), identifiant));
         }
         // Le plus gros poste de travail en premier ; à temps égal, l'ordre des
@@ -882,10 +889,19 @@ public class RapportService {
         assigneesParPersonne.values().forEach(liste -> liste.forEach(
                 issue -> taches.putIfAbsent(issue.getId(), issue)));
 
+        // Les projets sont relevés sur toutes les demandes retenues, y compris
+        // les racines : une racine sur laquelle quelqu'un a travaillé est bien
+        // un projet du rapport. Les compteurs de tâches, eux, ne portent que
+        // sur les tâches — voir estTache().
         Set<Long> projets = new LinkedHashSet<>();
         Map<StatutTache, Integer> compteurs = new EnumMap<>(StatutTache.class);
+        int nombreTaches = 0;
         for (Issue tache : taches.values()) {
             projets.add(racine(tache).getId());
+            if (!estTache(tache)) {
+                continue;
+            }
+            nombreTaches++;
             compteurs.merge(resolveStatutTache(tache, pourcentageExecution(tache)), 1, Integer::sum);
         }
 
@@ -907,7 +923,7 @@ public class RapportService {
                 planifiees,
                 arrondir(totalHeures - planifiees),
                 projets.size(),
-                taches.size(),
+                nombreTaches,
                 compteurs.getOrDefault(StatutTache.TERMINE, 0),
                 compteurs.getOrDefault(StatutTache.EN_COURS, 0),
                 compteurs.getOrDefault(StatutTache.EN_RETARD, 0),
@@ -932,6 +948,24 @@ public class RapportService {
             }
         }
         return parPersonne;
+    }
+
+    /**
+     * Une demande est-elle une tâche, par opposition à un projet ?
+     *
+     * <p>Le critère est le lien de parenté : une demande sans parent est une
+     * racine, c'est-à-dire ce sur quoi porte un rapport de projet, pas une
+     * ligne de travail. C'est déjà la définition retenue par le rapport de
+     * projet, dont les tâches sont les enfants de la racine — les deux rapports
+     * appellent donc « tâche » la même chose.</p>
+     *
+     * <p>Le niveau du type de demande ({@code IssueType.level}) dit en principe
+     * la même chose, mais il relève de la configuration : un type mal réglé
+     * ferait entrer un projet dans la liste des tâches, là où le lien de
+     * parenté est une donnée de structure, toujours juste.</p>
+     */
+    private boolean estTache(Issue issue) {
+        return issue != null && issue.getParent() != null;
     }
 
     private boolean estAssignee(Issue tache, String identifiant) {

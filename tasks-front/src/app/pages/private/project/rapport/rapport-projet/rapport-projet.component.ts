@@ -43,6 +43,14 @@ export class RapportProjetComponent implements OnInit, OnChanges, OnDestroy {
   /** Barre d'actions propre : masquée quand le document hôte porte la sienne. */
   @Input() barreActions = true;
 
+  /**
+   * Rang du projet dans le document (« 1 », « 2 »…), ou absent s'il est seul :
+   * un rapport à un projet n'a rien à numéroter. Il préfixe le rang des tâches,
+   * qui se lisent alors « 1.1 », « 1.2 » — de quoi désigner une tâche à l'oral
+   * sans citer sa clé.
+   */
+  @Input() numero?: number | null;
+
   rapport?: RapportProjetDTO;
   chargement = false;
   erreur?: string;
@@ -158,6 +166,11 @@ export class RapportProjetComponent implements OnInit, OnChanges, OnDestroy {
    *  pas une clé. */
   suiviTache(index: number, _tache: TacheRapportDTO): number {
     return index;
+  }
+
+  /** Rang d'une tâche : « 1.1 » dans un document numéroté, « 1 » sinon. */
+  numeroTache(index: number): string {
+    return this.numero != null ? `${this.numero}.${index + 1}` : `${index + 1}`;
   }
 
   private charger(issueId: number): void {

@@ -35,7 +35,9 @@
           th:text="' - édité le ' + ${#temporals.format(rapport.genereLe, 'dd/MM/yyyy à HH:mm')}"></span>
 </div>
 
-<div th:replace="~{rapport-projet-corps :: corps(${rapport}, ${graphiqueRepartition}, ${couleurs}, ${lienBase})}"></div>
+<!-- Sans numéro : le document ne porte qu'un projet, il n'y a rien à ordonner.
+     Ses tâches restent numérotées « 1 », « 2 »… -->
+<div th:replace="~{rapport-projet-corps :: corps(${rapport}, ${graphiqueRepartition}, ${couleurs}, ${lienBase}, null)}"></div>
 
 </body>
 </html>

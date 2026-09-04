@@ -37,6 +37,12 @@ export class RapportPersonneComponent implements OnChanges {
    */
   @Input() prefixe?: string | null;
 
+  /**
+   * Rang de la personne dans sa partie (« 1 », « 2 »…). Il préfixe le rang de
+   * ses tâches, qui se lisent « 1.1 », « 1.2 ».
+   */
+  @Input() numero?: number | null;
+
   parts: PartRepartition[] = [];
 
   /** Rayon donnant une circonférence de 100 : les arcs s'expriment en pourcentage. */
@@ -90,5 +96,10 @@ export class RapportPersonneComponent implements OnChanges {
   /** Suivi par rang : deux tâches peuvent porter le même nom, qui ne fait pas une clé. */
   suiviTache(index: number, _tache: TachePersonneDTO): number {
     return index;
+  }
+
+  /** Rang d'une tâche : « 1.1 » dans un document numéroté, « 1 » sinon. */
+  numeroTache(index: number): string {
+    return this.numero != null ? `${this.numero}.${index + 1}` : `${index + 1}`;
   }
 }

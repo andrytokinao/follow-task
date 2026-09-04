@@ -51,6 +51,20 @@
   line-height: 1.3;
 }
 
+/* Rang d'un projet et d'une tâche : « 2) » puis « 2.1 », « 2.2 ». De quoi
+   désigner une tâche à l'oral, ce que ne permet pas sa clé. */
+.numero {
+  color: var(--c-primary);
+  font-weight: 700;
+  margin-right: 4px;
+}
+
+.numero--tache {
+  display: inline-block;
+  min-width: 26px;
+  font-size: 12px;
+}
+
 /* Titre d'un projet intégré à un document composé : il ouvre une section parmi
    d'autres, il ne doit donc pas se lire comme le titre de la page. */
 .rapport__titre--integre {

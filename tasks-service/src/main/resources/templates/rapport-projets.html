@@ -46,7 +46,7 @@
      se contrediraient. -->
 <div th:fragment="synthese(rapport, graphiqueGlobal, couleurs)" th:with="synthese=${rapport.synthese}">
 
-    <div class="bloc-avancement">
+    <div class="bloc-avancement bloc-accent">
         <div class="bloc-titre">Avancement moyen des projets</div>
         <span class="pourcentage" th:text="${synthese.avancementMoyen} + ' %'">0 %</span>
         <div class="barre">
@@ -58,7 +58,7 @@
 
     <div class="section-titre">Synthèse consolidée</div>
 
-    <table class="tuiles">
+    <table class="tuiles tuiles-accent">
         <tr>
             <td>
                 <span class="tuile-valeur"
@@ -113,6 +113,7 @@
 
     <table class="sommaire">
         <tr>
+            <th class="rang">N°</th>
             <th>Projet</th>
             <th>Statut</th>
             <th class="nombre">Avancement</th>
@@ -120,13 +121,18 @@
             <th class="nombre">Planifié</th>
             <th class="nombre">Tâches</th>
         </tr>
-        <tr th:each="projet : ${rapport.projets}">
+        <!-- Le rang est celui des sections qui suivent : on lit « 2) » ici et on
+             retrouve « 2) » en tête du projet, page suivante. -->
+        <tr th:each="projet, iter : ${rapport.projets}">
+            <td class="rang" th:text="${iter.count} + ')'">1)</td>
             <td>
                 <span class="cle" th:if="${projet.cle}" th:text="${projet.cle}">PRJ-1</span>
                 <span th:text="${projet.titre} ?: 'Projet sans titre'">Titre</span>
             </td>
             <td><span class="badge" th:text="${projet.statut}">Statut</span></td>
-            <td class="nombre" th:text="${projet.avancementGlobal} + ' %'">0 %</td>
+            <td class="nombre"
+                th:classappend="${projet.avancementGlobal &lt; 40 ? 'valeur-faible' : (projet.avancementGlobal &lt; 75 ? 'valeur-moyenne' : 'valeur-forte')}"
+                th:text="${projet.avancementGlobal} + ' %'">0 %</td>
             <td class="nombre"
                 th:text="${#numbers.formatDecimal(projet.synthese.totalHeures, 1, 'NONE', 2, 'COMMA')} + ' h'">0 h</td>
             <td class="nombre"
@@ -181,7 +187,7 @@
 
 <!-- Détail projet par projet : le corps est celui du rapport individuel. -->
 <div th:each="projet, iter : ${rapport.projets}" th:classappend="${iter.first} ? '' : 'saut-page'">
-    <div th:replace="~{rapport-projet-corps :: corps(${projet}, ${graphiques[iter.index]}, ${couleurs}, ${lienBase})}"></div>
+    <div th:replace="~{rapport-projet-corps :: corps(${projet}, ${graphiques[iter.index]}, ${couleurs}, ${lienBase}, ${iter.count})}"></div>
 </div>
 
 </body>

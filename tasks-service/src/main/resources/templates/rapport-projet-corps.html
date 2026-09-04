@@ -18,7 +18,13 @@
 </head>
 <body>
 
-<div th:fragment="corps(rapport, graphiqueRepartition, couleurs, lienBase)">
+<!--
+  @param numero rang du projet dans le document (« 1 », « 2 »…), ou null s'il
+                est seul : un rapport à un projet n'a rien à numéroter. Il
+                préfixe aussi le numéro des tâches, qui se lisent alors « 1.1 »,
+                « 1.2 » — de quoi désigner une tâche à l'oral sans citer sa clé.
+-->
+<div th:fragment="corps(rapport, graphiqueRepartition, couleurs, lienBase, numero)">
 <!-- En-tête du projet.
 
      Les clés ne deviennent des liens que si « lienBase » est défini : vide pour
@@ -30,6 +36,7 @@
                           ? ${lienBase + '/working/' + rapport.prefixeDepartement + '/issue/' + rapport.cle + '/details'}
                           : null">
     <div class="entete-titre">
+        <span class="numero-projet" th:if="${numero != null}" th:text="${numero} + ')'">1)</span>
         <span th:text="${rapport.titre} ?: 'Projet sans titre'">Titre du projet</span>
         <a class="cle" th:if="${rapport.cle != null and lienProjet != null}"
            th:href="${lienProjet}" th:text="${rapport.cle}">PRJ-1</a>
@@ -213,7 +220,7 @@
     Aucune tâche n'est rattachée à ce projet.
 </div>
 
-<div class="tache" th:each="tache : ${rapport.taches}"
+<div class="tache" th:each="tache, iterTache : ${rapport.taches}"
      th:with="lienTache=${lienBase != null and rapport.prefixeDepartement != null and rapport.cle != null and tache.cle != null}
                          ? ${lienBase + '/working/' + rapport.prefixeDepartement + '/issue/' + rapport.cle + '/subtask/' + tache.cle}
                          : null">
@@ -221,6 +228,8 @@
     <table class="tache-entete">
         <tr>
             <td>
+                <span class="numero-tache"
+                      th:text="${(numero != null ? numero + '.' : '') + iterTache.count}">1.1</span>
                 <a class="cle" th:if="${tache.cle != null and lienTache != null}"
                    th:href="${lienTache}" th:text="${tache.cle}">PRJ-2</a>
                 <span class="cle" th:if="${tache.cle != null and lienTache == null}"

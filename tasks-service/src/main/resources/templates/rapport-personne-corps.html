@@ -28,7 +28,7 @@
 <!-- ================= Synthèse d'un ensemble de personnes ================= -->
 <div th:fragment="synthese(synthese, graphiqueGlobal, couleurs)">
 
-    <table class="tuiles">
+    <table class="tuiles tuiles-accent-vert">
         <tr>
             <td>
                 <span class="tuile-valeur"
@@ -127,10 +127,15 @@
 </div>
 
 <!-- ===================== Détail d'une personne ===================== -->
-<div th:fragment="corps(personne, graphiqueRepartition, couleurs, lienBase, prefixe)">
+<!--
+  @param numero rang de la personne dans sa partie (« 1 », « 2 »…), ou null.
+                Il préfixe le rang de ses tâches, qui se lisent « 1.1 », « 1.2 ».
+-->
+<div th:fragment="corps(personne, graphiqueRepartition, couleurs, lienBase, prefixe, numero)">
 
     <div class="entete">
         <div class="entete-titre">
+            <span class="numero-projet" th:if="${numero != null}" th:text="${numero} + ')'">1)</span>
             <span th:text="${personne.nomPersonne}">Nom de la personne</span>
             <span class="cle" th:if="${personne.username}" th:text="${personne.username}">login</span>
         </div>
@@ -257,6 +262,7 @@
 
     <table class="sommaire" th:unless="${#lists.isEmpty(personne.taches)}">
         <tr>
+            <th class="rang">N°</th>
             <th>Tâche</th>
             <th>Projet</th>
             <th>Statut</th>
@@ -267,13 +273,15 @@
         <!-- Le lien mène à la tâche dans son projet ; une racine n'a pas de
              parent, son adresse est celle d'une demande et non d'une
              sous-demande. -->
-        <tr th:each="tache : ${personne.taches}"
+        <tr th:each="tache, iterTache : ${personne.taches}"
             th:with="lienTache=${(lienBase != null and prefixe != null and tache.cle != null)
                                  ? (lienBase + '/working/' + prefixe + '/issue/'
                                     + ((tache.cleProjet == null or tache.cleProjet == tache.cle)
                                        ? (tache.cle + '/details')
                                        : (tache.cleProjet + '/subtask/' + tache.cle)))
                                  : null}">
+            <td class="rang"
+                th:text="${(numero != null ? numero + '.' : '') + iterTache.count}">1.1</td>
             <td>
                 <a class="cle" th:if="${tache.cle != null and lienTache != null}"
                    th:href="${lienTache}" th:text="${tache.cle}">PRJ-2</a>
