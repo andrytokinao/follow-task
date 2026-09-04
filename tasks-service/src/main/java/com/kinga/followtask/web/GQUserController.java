@@ -4,6 +4,8 @@ package com.kinga.followtask.web;
 import com.kinga.followtask.config.PermissionSystem;
 import com.kinga.followtask.config.PermissionTask;
 import com.kinga.followtask.dto.Response;
+import com.kinga.followtask.dto.UserPageDTO;
+import com.kinga.followtask.dto.UserSearchDTO;
 import com.kinga.followtask.entity.GroupeUser;
 import com.kinga.followtask.entity.MemberGroupe;
 import com.kinga.followtask.entity.UserApp;
@@ -50,6 +52,10 @@ public class GQUserController {
     @QueryMapping
     public List<UserApp> allUsers(){
        return userService.findAll();
+    }
+    @QueryMapping
+    public UserPageDTO searchUsers(@Argument UserSearchDTO criteria){
+       return userService.rechercherUtilisateurs(criteria);
     }
     @GetMapping(value = {
             "/",

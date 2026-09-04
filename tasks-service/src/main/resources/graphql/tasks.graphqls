@@ -179,6 +179,24 @@ type UserApp{
     code:Int
 }
 
+# Recherche paginee d'utilisateurs, pour l'administration des comptes.
+input UserSearchInput {
+    text:String      # nom, prenom, identifiant, e-mail, CIN ou contact
+    page:Int         # a partir de zero
+    size:Int
+    sortBy:String    # name | username | cin
+    sortAsc:Boolean
+}
+type UserPage {
+    content:[UserApp]
+    page:Int
+    size:Int
+    # Total avant pagination : sans lui, impossible d'afficher « 21-40 sur 137 »
+    # ni de savoir combien de pages proposer.
+    totalElements:Int
+    totalPages:Int
+}
+
 type CustomFieldValue {
     id:Int,
     customField:CustomField

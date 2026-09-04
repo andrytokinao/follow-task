@@ -3,6 +3,8 @@ package com.kinga.followtask.service;
 
 import com.kinga.followtask.config.ConfigSystem;
 import com.kinga.followtask.dto.UserDetailsDeto;
+import com.kinga.followtask.dto.UserPageDTO;
+import com.kinga.followtask.dto.UserSearchDTO;
 import com.kinga.followtask.entity.UserApp;
 import com.kinga.followtask.repository.UserRepository;
 import com.kinga.utils.KingaUtils;
@@ -11,6 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +45,56 @@ public class UserService {
 
    private final ConfigSystem  configSystem;
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+
+    /** Taille de page par defaut, et plafond : une page de 500 lignes serait un
+     *  chargement complet deguise. */
+    private static final int TAILLE_DEFAUT = 20;
+    private static final int TAILLE_MAX = 200;
+
+    /**
+     * Recherche paginee d'utilisateurs.
+     *
+     * Le tri est traduit en colonnes reelles : `name` couvre nom PUIS prenom,
+     * l'ordre dans lequel la liste les affiche. Un champ inconnu retombe sur ce
+     * tri par defaut plutot que de lever — le client ne doit pas pouvoir casser
+     * la page en envoyant une valeur inattendue.
+     */
+    public UserPageDTO rechercherUtilisateurs(UserSearchDTO criteres) {
+        UserSearchDTO criteria = criteres == null ? new UserSearchDTO() : criteres;
+
+        int page = Math.max(0, criteria.getPage() == null ? 0 : criteria.getPage());
+        int taille = criteria.getSize() == null ? TAILLE_DEFAUT : criteria.getSize();
+        taille = Math.min(TAILLE_MAX, Math.max(1, taille));
+
+        boolean ascendant = !Boolean.FALSE.equals(criteria.getSortAsc());
+        Sort tri = trier(criteria.getSortBy(), ascendant);
+
+        String texte = criteria.getText() == null ? null : criteria.getText().trim().toLowerCase();
+        // `null` et non `%%` : la requete court-circuite alors toutes les
+        // comparaisons au lieu de les evaluer sur chaque ligne.
+        String terme = (texte == null || texte.isEmpty()) ? null : "%" + texte + "%";
+
+        Page<UserApp> resultat =
+                userRepository.rechercher(terme, PageRequest.of(page, taille, tri));
+
+        return new UserPageDTO(
+                resultat.getContent(),
+                resultat.getNumber(),
+                resultat.getSize(),
+                resultat.getTotalElements(),
+                resultat.getTotalPages());
+    }
+
+    private Sort trier(String champ, boolean ascendant) {
+        Sort.Direction sens = ascendant ? Sort.Direction.ASC : Sort.Direction.DESC;
+        if ("username".equalsIgnoreCase(champ)) {
+            return Sort.by(sens, "username");
+        }
+        if ("cin".equalsIgnoreCase(champ)) {
+            return Sort.by(sens, "cin");
+        }
+        return Sort.by(sens, "lastName").and(Sort.by(sens, "firstName"));
+    }
 
 
     public <S extends UserApp> List<S> saveAllAndFlush(Iterable<S> entities) {

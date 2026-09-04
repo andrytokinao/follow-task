@@ -2,7 +2,10 @@ import { Injectable } from '@angular/core';
 import {HttpClient, HttpEvent, HttpHeaders, HttpRequest} from '@angular/common/http';
 import {BehaviorSubject, map, Observable, throwError} from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
-import {ConfigEntry, GroupeUser, Issue, MemberGroupe, Permission, Status, User} from "../type/issue";
+import {
+  ConfigEntry, GroupeUser, Issue, MemberGroupe, Permission, Status, User,
+  UserPage, UserSearchCriteria
+} from "../type/issue";
 import {
   ADD_USER_IN_GROUPE,
   ALL_GROUPES,
@@ -12,7 +15,7 @@ import {
   LOAD_GROUPE_MEMBER,
   SAVE_CONFIG,
   LOAD_PERMISSION_TASK,
-  SAVE_USER, supprimerTypename, DELETE_MEMBER
+  SAVE_USER, SEARCH_USERS, supprimerTypename, DELETE_MEMBER
 } from "../type/graphql.operations";
 import {Apollo} from "apollo-angular";
 import {environment} from "../../environments/environment";
@@ -68,6 +71,34 @@ export class UserService {
           console.error("allUsers ==> ", error);
           this.usersLoadingSubject.next(false);
         })
+  }
+
+  /**
+   * Recherche paginée d'utilisateurs.
+   *
+   * Contrairement à `allUsers`, rien n'est mis dans `users$` : la page
+   * d'administration est le seul consommateur d'un résultat paginé, et y
+   * déverser une page partielle ferait croire aux autres écrans que
+   * l'application ne compte que vingt comptes.
+   */
+  searchUsers(criteria: UserSearchCriteria): Observable<UserPage> {
+    return this.apollo.query({
+      query: SEARCH_USERS,
+      variables: {criteria},
+      fetchPolicy: "network-only"
+    }).pipe(
+      map((res: any) => {
+        const page = res?.data?.searchUsers;
+        if (!page) {
+          throw new Error('Recherche indisponible');
+        }
+        return supprimerTypename(page) as UserPage;
+      }),
+      catchError(error => {
+        console.error("searchUsers ==> ", error);
+        return throwError(() => error);
+      })
+    );
   }
 
   allGroupes(): Observable<GroupeUser[]> {
