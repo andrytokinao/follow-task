@@ -2,7 +2,7 @@
 
   <!-- Barre d'actions : disponible même pendant le chargement, pour que le
        bouton ne se déplace pas une fois les données arrivées. -->
-  <div class="rapport__barre">
+  <div class="rapport__barre" *ngIf="barreActions">
     <div class="rapport__titre-zone">
       <h2 class="rapport__titre">
         {{ rapport?.titre || 'Rapport de projet' }}
@@ -32,6 +32,14 @@
   </div>
 
   <ng-container *ngIf="rapport && !chargement">
+
+    <!-- Sans barre d'actions, le titre du projet reste nécessaire : le
+         document hôte empile plusieurs projets, ils doivent se distinguer. -->
+    <h3 class="rapport__titre rapport__titre--integre" *ngIf="!barreActions">
+      <a class="cle" *ngIf="lienProjet() as lien" [routerLink]="lien">{{ rapport.cle }}</a>
+      <span class="cle" *ngIf="rapport.cle && !lienProjet()">{{ rapport.cle }}</span>
+      {{ rapport.titre || 'Projet sans titre' }}
+    </h3>
 
     <p class="rapport__description" *ngIf="rapport.description">{{ rapport.description }}</p>
 

@@ -397,6 +397,38 @@ const ALL_USERS = gql`
     }
   }
 `;
+/** Recherche paginée d'utilisateurs : filtre et tri sont appliqués en base. */
+export const SEARCH_USERS = gql`
+  query searchUsers($criteria: UserSearchInput) {
+    searchUsers(criteria: $criteria) {
+      page
+      size
+      totalElements
+      totalPages
+      content {
+        id
+        username
+        firstName
+        lastName
+        contact
+        email
+        address
+        cin
+        code
+        photo
+        groupes {
+          id
+          roles
+          groupe {
+            id
+            name
+          }
+        }
+      }
+    }
+  }
+`;
+
 const ALL_GROUPES = gql`
   query allGroupes {
     allGroupes {

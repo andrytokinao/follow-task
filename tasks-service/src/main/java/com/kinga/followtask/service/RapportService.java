@@ -1,5 +1,12 @@
 package com.kinga.followtask.service;
 
+import com.kinga.followtask.dto.rapport.DemandeRapportDTO;
+import com.kinga.followtask.dto.rapport.OptionEquipeDTO;
+import com.kinga.followtask.dto.rapport.OptionPersonneDTO;
+import com.kinga.followtask.dto.rapport.OptionProjetDTO;
+import com.kinga.followtask.dto.rapport.OptionsRapportDTO;
+import com.kinga.followtask.dto.rapport.RapportCompositeDTO;
+import com.kinga.followtask.dto.rapport.RapportEquipeDTO;
 import com.kinga.followtask.dto.rapport.RapportPersonneDTO;
 import com.kinga.followtask.dto.rapport.RapportPersonnesDTO;
 import com.kinga.followtask.dto.rapport.RapportProjetDTO;
@@ -12,14 +19,17 @@ import com.kinga.followtask.dto.rapport.TachePersonneDTO;
 import com.kinga.followtask.dto.rapport.TacheRapportDTO;
 import com.kinga.followtask.dto.rapport.TempsParPersonneDTO;
 import com.kinga.followtask.dto.rapport.TempsParProjetDTO;
+import com.kinga.followtask.entity.GroupeUser;
 import com.kinga.followtask.entity.Issue;
 import com.kinga.followtask.entity.IssueMembership;
+import com.kinga.followtask.entity.MemberGroupe;
 import com.kinga.followtask.entity.PlanningEvent;
 import com.kinga.followtask.entity.Project;
 import com.kinga.followtask.entity.UserApp;
 import com.kinga.followtask.entity.enumapp.ExecutionStatus;
 import com.kinga.followtask.entity.enumapp.IssueRole;
 import com.kinga.followtask.repository.EventRepository;
+import com.kinga.followtask.repository.GroupeUserRepository;
 import com.kinga.followtask.repository.IssueRepository;
 import com.kinga.followtask.repository.ProjectRepository;
 import com.kinga.followtask.repository.UserAppRepository;
@@ -70,10 +80,14 @@ public class RapportService {
      */
     private static final int PROFONDEUR_MAX_RACINE = 50;
 
+    /** Suffixe des groupes rattachés à un espace de travail, posé à leur création. */
+    private static final String SUFFIXE_GROUPE_PROJET = "_GROUPE";
+
     private final IssueRepository issueRepository;
     private final EventRepository eventRepository;
     private final ProjectRepository projectRepository;
     private final UserAppRepository userAppRepository;
+    private final GroupeUserRepository groupeUserRepository;
 
     // ------------------------------------------------------------------
     // Point d'entrée
@@ -279,6 +293,232 @@ public class RapportService {
                 LocalDateTime.now(),
                 synthesePersonnes(rapports, eventsParPersonne, assigneesParPersonne),
                 rapports);
+    }
+
+    /**
+     * Rapport d'activité d'une équipe, c'est-à-dire d'un groupe d'utilisateurs.
+     *
+     * <p>Aucun calcul propre : la sélection des personnes est faite par
+     * l'appartenance au groupe, puis {@link #genererRapportPersonnes} produit le
+     * rapport. Une équipe dit donc exactement ce que diraient ses membres
+     * retenus un à un.</p>
+     *
+     * <p>Une équipe sans membre donne une section vide et non une erreur : la
+     * composition d'un groupe est une donnée de configuration, l'utilisateur
+     * qui édite le rapport n'est pas en faute et doit voir que le groupe est
+     * vide.</p>
+     */
+    @Transactional(readOnly = true)
+    public RapportEquipeDTO genererRapportEquipe(Long projectId, Long equipeId) {
+        Objects.requireNonNull(projectId, "projectId est obligatoire");
+        GroupeUser equipe = groupeUserRepository.findById(equipeId)
+                .orElseThrow(() -> new IllegalStateException(
+                        "Aucune équipe d'identifiant " + equipeId));
+
+        List<String> membres = membres(equipe);
+        if (membres.isEmpty()) {
+            return new RapportEquipeDTO(equipe.getId(), nomEquipe(equipe), syntheseVide(), List.of());
+        }
+
+        RapportPersonnesDTO rapport = genererRapportPersonnes(projectId, membres);
+        return new RapportEquipeDTO(equipe.getId(), nomEquipe(equipe),
+                rapport.synthese(), rapport.personnes());
+    }
+
+    /**
+     * Rapport composé : un seul document réunissant les sections demandées.
+     *
+     * <p>Le rapport n'a pas de type, il a un contenu : chaque section est
+     * produite par la méthode qui la produirait seule, et n'existe que si
+     * quelque chose a été sélectionné pour elle. Rien n'est donc recalculé ici,
+     * et un projet dit dans un rapport composé ce qu'il dit dans son rapport
+     * individuel.</p>
+     *
+     * @throws IllegalArgumentException sélection vide, ou personnes et équipes
+     *                                  demandées sans espace de travail : leur
+     *                                  activité se mesure sur un espace de
+     *                                  travail, pas dans l'absolu
+     */
+    @Transactional(readOnly = true)
+    public RapportCompositeDTO genererRapportComposite(DemandeRapportDTO demande) {
+        Objects.requireNonNull(demande, "demande est obligatoire");
+
+        List<Long> projetIds = distincts(demande.projetIds());
+        List<String> personneIds = distincts(demande.personneIds());
+        List<Long> equipeIds = distincts(demande.equipeIds());
+
+        if (projetIds.isEmpty() && personneIds.isEmpty() && equipeIds.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Rapport vide : sélectionnez au moins un projet, une personne ou une équipe.");
+        }
+        if (demande.projectId() == null && !(personneIds.isEmpty() && equipeIds.isEmpty())) {
+            throw new IllegalArgumentException(
+                    "Espace de travail manquant : l'activité d'une personne ou d'une équipe "
+                            + "se mesure sur un espace de travail.");
+        }
+
+        RapportProjetsDTO projets = projetIds.isEmpty() ? null : genererRapportProjets(projetIds);
+        RapportPersonnesDTO personnes = personneIds.isEmpty()
+                ? null
+                : genererRapportPersonnes(demande.projectId(), personneIds);
+        List<RapportEquipeDTO> equipes = equipeIds.stream()
+                .map(equipeId -> genererRapportEquipe(demande.projectId(), equipeId))
+                .toList();
+
+        Project departement = demande.projectId() == null
+                ? null
+                : projectRepository.findById(demande.projectId())
+                .orElseThrow(() -> new IllegalStateException(
+                        "Aucun espace de travail d'identifiant " + demande.projectId()));
+
+        // L'espace de travail du rapport est celui sur lequel il a été demandé.
+        // À défaut — sélection de projets seuls, qui peuvent venir d'ailleurs —
+        // on retombe sur celui que les projets partagent, s'ils en partagent un.
+        String nomDepartement = departement != null
+                ? resolveNomDepartement(departement)
+                : (projets == null ? null : projets.departement());
+        String prefixe = departement != null
+                ? departement.getPrefix()
+                : (projets == null ? null : projets.prefixeDepartement());
+
+        return new RapportCompositeDTO(
+                StringUtils.hasText(demande.titre())
+                        ? demande.titre().trim()
+                        : titreParDefaut(projets, personnes, equipes),
+                nomDepartement,
+                prefixe,
+                LocalDateTime.now(),
+                projets,
+                personnes,
+                equipes);
+    }
+
+    /**
+     * Ce que l'espace de travail offre à la sélection : ses projets, ses
+     * membres, ses équipes.
+     *
+     * <p>Volontairement léger : de quoi choisir, pas de quoi rendre un rapport.
+     * Calculer l'avancement de chaque projet pour peupler une liste de cases à
+     * cocher coûterait le prix d'un rapport complet par ligne.</p>
+     */
+    @Transactional(readOnly = true)
+    public OptionsRapportDTO optionsRapport(Long projectId) {
+        Objects.requireNonNull(projectId, "projectId est obligatoire");
+        Project departement = projectRepository.findById(projectId)
+                .orElseThrow(() -> new IllegalStateException(
+                        "Aucun espace de travail d'identifiant " + projectId));
+
+        List<OptionProjetDTO> projets = issueRepository.findRacinesDuProjet(projectId).stream()
+                .map(issue -> new OptionProjetDTO(
+                        issue.getId(),
+                        issue.getIssueKey(),
+                        issue.getSummary(),
+                        issue.getStatus() == null ? null : issue.getStatus().getDisplayName(),
+                        CollectionUtils.isEmpty(issue.getChildren()) ? 0 : issue.getChildren().size(),
+                        issue.getCreationDate()))
+                .toList();
+
+        // Une même personne peut appartenir à plusieurs groupes de l'espace de
+        // travail : elle ne doit apparaître qu'une fois dans la liste des
+        // intervenants, alors que chaque groupe reste une équipe distincte.
+        Map<String, OptionPersonneDTO> personnes = new LinkedHashMap<>();
+        List<OptionEquipeDTO> equipes = new ArrayList<>();
+        for (GroupeUser groupe : equipesDe(departement)) {
+            List<String> membres = membres(groupe);
+            for (MemberGroupe membre : nonNull(groupe.getMembers())) {
+                UserApp utilisateur = membre == null ? null : membre.getUser();
+                if (utilisateur == null || utilisateur.getId() == null) {
+                    continue;
+                }
+                personnes.putIfAbsent(utilisateur.getId(), new OptionPersonneDTO(
+                        utilisateur.getId(),
+                        nomAffichable(utilisateur),
+                        utilisateur.getUsername(),
+                        utilisateur.getEmail()));
+            }
+            equipes.add(new OptionEquipeDTO(groupe.getId(), nomEquipe(groupe), membres));
+        }
+
+        return new OptionsRapportDTO(
+                resolveNomDepartement(departement),
+                departement.getPrefix(),
+                projets,
+                List.copyOf(personnes.values()),
+                equipes);
+    }
+
+    /**
+     * Équipes d'un espace de travail.
+     *
+     * Lecture seule, contrairement à {@code ProjectService.getGroupeUserForProject}
+     * qui crée le groupe par défaut s'il manque : proposer des options ne doit
+     * rien écrire, et un espace sans groupe n'a simplement aucune équipe à
+     * offrir.
+     */
+    private List<GroupeUser> equipesDe(Project departement) {
+        if (!StringUtils.hasText(departement.getPrefix())) {
+            return List.of();
+        }
+        return groupeUserRepository.findByPrefix(departement.getPrefix() + SUFFIXE_GROUPE_PROJET);
+    }
+
+    /** Liste vide plutôt que {@code null} : une collection non chargée n'est pas une erreur. */
+    private <T> List<T> nonNull(List<T> valeurs) {
+        return valeurs == null ? List.of() : valeurs;
+    }
+
+    /** Identifiants des membres d'une équipe, sans doublon et dans l'ordre du groupe. */
+    private List<String> membres(GroupeUser equipe) {
+        if (CollectionUtils.isEmpty(equipe.getMembers())) {
+            return List.of();
+        }
+        return equipe.getMembers().stream()
+                .filter(Objects::nonNull)
+                .map(MemberGroupe::getUser)
+                .filter(Objects::nonNull)
+                .map(UserApp::getId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+    }
+
+    private String nomEquipe(GroupeUser equipe) {
+        if (StringUtils.hasText(equipe.getName())) {
+            return equipe.getName();
+        }
+        return StringUtils.hasText(equipe.getPrefix())
+                ? equipe.getPrefix()
+                : "Équipe " + equipe.getId();
+    }
+
+    /** Synthèse d'une section sans aucune personne : tout est à zéro, rien n'est nul. */
+    private SynthesePersonnesDTO syntheseVide() {
+        return new SynthesePersonnesDTO(0, 0d, 0d, 0d, 0, 0, 0, 0, 0, 0, 0, 0, List.of());
+    }
+
+    /**
+     * Intitulé composé à partir du contenu, quand l'utilisateur n'en a pas
+     * saisi : un document sans titre se retrouve mal dans un dossier de
+     * téléchargements.
+     */
+    private String titreParDefaut(RapportProjetsDTO projets,
+                                  RapportPersonnesDTO personnes,
+                                  List<RapportEquipeDTO> equipes) {
+        List<String> parties = new ArrayList<>();
+        if (projets != null) {
+            parties.add(accord(projets.projets().size(), "projet", "projets"));
+        }
+        if (personnes != null) {
+            parties.add(accord(personnes.personnes().size(), "personne", "personnes"));
+        }
+        if (!equipes.isEmpty()) {
+            parties.add(accord(equipes.size(), "équipe", "équipes"));
+        }
+        return "Rapport - " + String.join(", ", parties);
+    }
+
+    private String accord(int nombre, String singulier, String pluriel) {
+        return nombre + " " + (nombre > 1 ? pluriel : singulier);
     }
 
     // ------------------------------------------------------------------

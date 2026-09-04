@@ -1,6 +1,7 @@
 package com.kinga.followtask.service;
 
 import com.kinga.followtask.dto.rapport.TempsParPersonneDTO;
+import com.kinga.followtask.dto.rapport.TempsParProjetDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -63,7 +64,32 @@ public class GraphiqueService {
         if (CollectionUtils.isEmpty(parts)) {
             return null;
         }
-        double total = parts.stream().mapToDouble(TempsParPersonneDTO::heuresPassees).sum();
+        return donut(parts.stream().map(TempsParPersonneDTO::heuresPassees).toList());
+    }
+
+    /**
+     * Même anneau, vu depuis l'autre bout : la répartition des heures d'une
+     * personne entre les projets, pour le rapport par personne.
+     *
+     * <p>Le dessin ne connaît que des parts, jamais ce qu'elles représentent :
+     * les deux répartitions partagent donc le tracé et la palette, et une part
+     * garde la même couleur que sa ligne de légende dans les deux cas.</p>
+     */
+    public String donutRepartitionProjets(List<TempsParProjetDTO> parts) {
+        if (CollectionUtils.isEmpty(parts)) {
+            return null;
+        }
+        return donut(parts.stream().map(TempsParProjetDTO::heuresPassees).toList());
+    }
+
+    /**
+     * Tracé de l'anneau, à partir des seules valeurs des parts.
+     *
+     * @return {@code null} s'il n'y a rien à représenter — le template affiche
+     *         alors le tableau des chiffres seul, plutôt qu'un disque vide.
+     */
+    private String donut(List<Double> valeurs) {
+        double total = valeurs.stream().mapToDouble(Double::doubleValue).sum();
         if (total <= 0) {
             return null;
         }
@@ -80,15 +106,15 @@ public class GraphiqueService {
             // Les parts sont dessinées dans le sens horaire à partir de midi :
             // en Java2D les angles croissent dans le sens trigonométrique, d'où
             // un départ à 90° et des étendues négatives.
-            Arc2D.Double[] arcs = new Arc2D.Double[parts.size()];
+            Arc2D.Double[] arcs = new Arc2D.Double[valeurs.size()];
             double angleCourant = 90d;
-            for (int i = 0; i < parts.size(); i++) {
-                double etendue = (i == parts.size() - 1)
+            for (int i = 0; i < valeurs.size(); i++) {
+                double etendue = (i == valeurs.size() - 1)
                         // La dernière part absorbe l'arrondi et ferme le cercle
                         // exactement : sans cela, un liseré de fond resterait
                         // visible à la jonction.
                         ? -(angleCourant + 270d)
-                        : -(parts.get(i).heuresPassees() / total) * 360d;
+                        : -(valeurs.get(i) / total) * 360d;
                 arcs[i] = new Arc2D.Double(marge, marge, diametre, diametre,
                         angleCourant, etendue, Arc2D.PIE);
                 angleCourant += etendue;

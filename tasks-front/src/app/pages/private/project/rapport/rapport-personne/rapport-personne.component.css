@@ -1,0 +1,354 @@
+/* =========================================================================
+   Rapport d'activité d'une personne — aperçu natif
+   -------------------------------------------------------------------------
+   Mêmes repères visuels que l'aperçu d'un projet (seuils des barres, couleurs
+   de badge, tuiles de chiffres) : les deux se lisent côte à côte dans un même
+   rapport composé, ils ne peuvent pas se présenter différemment.
+   ========================================================================= */
+:host {
+  --c-primary: #1565c0;
+  --c-text: #111827;
+  --c-text-muted: #6b7280;
+  --c-text-faint: #9ca3af;
+  --c-border: #e5e7eb;
+  --c-border-soft: #f1f2f4;
+  --c-surface: #ffffff;
+  --c-surface-muted: #f9fafb;
+  --c-error: #c62828;
+
+  display: block;
+  font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: var(--c-text);
+}
+
+.personne {
+  min-width: 0;
+}
+
+/* ---- En-tête ---- */
+.personne__entete {
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--c-border);
+}
+
+.personne__nom {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.personne__nom .cle {
+  margin-left: 6px;
+}
+
+.personne__sous-titre {
+  display: block;
+  font-size: 12px;
+  color: var(--c-text-muted);
+}
+
+/* ---- Tuiles de chiffres ---- */
+.tuiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1px;
+  background: var(--c-border);
+  border: 1px solid var(--c-border);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.tuile {
+  background: var(--c-surface);
+  padding: 10px;
+  text-align: center;
+}
+
+.tuile__valeur {
+  display: block;
+  font-size: 19px;
+  font-weight: 700;
+}
+
+/* Un écart positif signifie qu'elle a consommé plus que prévu : c'est ce qui
+   doit sauter aux yeux. */
+.tuile__valeur--alerte {
+  color: var(--c-error);
+}
+
+.tuile__valeur--favorable {
+  color: #1c6b32;
+}
+
+.tuile__libelle {
+  display: block;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--c-text-faint);
+}
+
+/* ---- Avancement ---- */
+.avancement {
+  border: 1px solid var(--c-border);
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 14px;
+}
+
+.avancement__libelle {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--c-text-faint);
+}
+
+.avancement__valeur {
+  display: block;
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+/* Mêmes seuils que le template serveur : rouge < 40, orange < 75, vert au-delà. */
+.barre {
+  height: 10px;
+  border-radius: 5px;
+  background: var(--c-border-soft);
+  overflow: hidden;
+}
+
+.barre__remplissage {
+  height: 100%;
+  border-radius: inherit;
+  transition: width 200ms ease-out;
+}
+
+.barre-rouge {
+  background: #d64545;
+}
+
+.barre-orange {
+  background: #f0932b;
+}
+
+.barre-verte {
+  background: #2f9e44;
+}
+
+/* ---- Compteurs par statut ---- */
+.compteurs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+
+.compteur {
+  padding: 3px 10px;
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  background: var(--c-surface-muted);
+  color: #52606d;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+/* ---- Répartition : camembert + légende ---- */
+.section {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.section__compte {
+  color: var(--c-text-faint);
+  font-weight: 400;
+}
+
+.repartition {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.repartition__graphique {
+  flex: 0 0 auto;
+}
+
+.repartition__legende {
+  flex: 1 1 260px;
+  min-width: 0;
+  margin-top: 0;
+}
+
+/* Anneau dessiné en SVG : le rayon donne une circonférence de 100, les
+   longueurs d'arc s'expriment donc directement en pourcentage. */
+.donut {
+  width: 150px;
+  height: 150px;
+  display: block;
+}
+
+.donut__fond {
+  fill: transparent;
+  stroke: var(--c-border-soft);
+  stroke-width: 5.5;
+}
+
+.donut__part {
+  fill: transparent;
+  stroke-width: 5.5;
+}
+
+.pastille {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  margin-right: 7px;
+  vertical-align: baseline;
+}
+
+/* ---- Tableaux ---- */
+.temps,
+.taches {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.temps th,
+.temps td,
+.taches th,
+.taches td {
+  border-bottom: 1px solid var(--c-border-soft);
+  padding: 5px 8px;
+  text-align: left;
+  font-size: 12px;
+  vertical-align: top;
+}
+
+.temps th,
+.taches th {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--c-text-faint);
+  font-weight: 600;
+}
+
+.nombre {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.temps tfoot td {
+  border-bottom: none;
+  border-top: 1px solid var(--c-border);
+  font-weight: 600;
+}
+
+.taches__nom {
+  margin-left: 6px;
+}
+
+.taches__projet {
+  margin-left: 6px;
+  color: var(--c-text-muted);
+}
+
+.taches tbody tr:hover {
+  background: var(--c-surface-muted);
+}
+
+/* ---- Clés, badges, vides ---- */
+.cle {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--c-text-muted);
+  white-space: nowrap;
+}
+
+a.cle {
+  color: var(--c-primary);
+  text-decoration: none;
+}
+
+a.cle:hover {
+  text-decoration: underline;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid var(--c-border);
+  background: var(--c-surface-muted);
+  color: #52606d;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.badge--discret {
+  background: var(--c-surface);
+  border-style: dashed;
+  color: var(--c-text-faint);
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+  margin-left: 6px;
+}
+
+.statut-non-demarre {
+  background: #f5f7fa;
+  border-color: #cbd2d9;
+  color: #52606d;
+}
+
+.statut-en-cours {
+  background: #e3f0ff;
+  border-color: #9fc4f0;
+  color: #14539a;
+}
+
+.statut-en-retard {
+  background: #fdeaea;
+  border-color: #f0a6a6;
+  color: #a61b1b;
+}
+
+.statut-bloque {
+  background: #fbe6f3;
+  border-color: #e3a4cd;
+  color: #8f1d63;
+}
+
+.statut-reporte {
+  background: #fdf3e0;
+  border-color: #ecc99a;
+  color: #8a5a12;
+}
+
+.statut-termine {
+  background: #e6f5ea;
+  border-color: #9ed6ae;
+  color: #1c6b32;
+}
+
+.vide {
+  margin: 0 0 14px 0;
+  font-size: 12px;
+  font-style: italic;
+  color: var(--c-text-muted);
+}

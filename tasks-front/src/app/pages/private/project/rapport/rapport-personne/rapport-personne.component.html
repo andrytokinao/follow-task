@@ -1,0 +1,170 @@
+<div class="personne" *ngIf="personne">
+
+  <div class="personne__entete">
+    <h3 class="personne__nom">
+      {{ personne.nomPersonne }}
+      <span class="cle" *ngIf="personne.username">{{ personne.username }}</span>
+    </h3>
+    <span class="personne__sous-titre">
+      <ng-container *ngIf="personne.email">{{ personne.email }} · </ng-container>
+      {{ personne.heuresPassees | number:'1.0-2' }} h au total
+      <ng-container *ngIf="personne.partDuTemps"> · {{ personne.partDuTemps }} % du rapport</ng-container>
+    </span>
+  </div>
+
+  <!-- Chiffres de la personne -->
+  <div class="tuiles">
+    <div class="tuile">
+      <span class="tuile__valeur">{{ personne.heuresPassees | number:'1.0-2' }} h</span>
+      <span class="tuile__libelle">Heures réalisées</span>
+    </div>
+    <div class="tuile">
+      <span class="tuile__valeur">{{ personne.heuresPlanifiees | number:'1.0-2' }} h</span>
+      <span class="tuile__libelle">Heures planifiées</span>
+    </div>
+    <div class="tuile">
+      <span class="tuile__valeur"
+            [class.tuile__valeur--alerte]="personne.ecartHeures > 0"
+            [class.tuile__valeur--favorable]="personne.ecartHeures < 0">
+        {{ personne.ecartHeures > 0 ? '+' : '' }}{{ personne.ecartHeures | number:'1.0-2' }} h
+      </span>
+      <span class="tuile__libelle">Écart réalisé / planifié</span>
+    </div>
+    <div class="tuile">
+      <span class="tuile__valeur">{{ personne.nombreProjets }}</span>
+      <span class="tuile__libelle">Projets</span>
+    </div>
+  </div>
+
+  <!-- Moyenne des avancements de ses tâches : un indicateur d'ensemble, pas une
+       performance — une tâche est menée à plusieurs. -->
+  <div class="avancement">
+    <span class="avancement__libelle">Avancement moyen de ses tâches</span>
+    <span class="avancement__valeur">{{ personne.avancementMoyen }} %</span>
+    <div class="barre"
+         role="progressbar"
+         [attr.aria-valuenow]="personne.avancementMoyen"
+         aria-valuemin="0"
+         aria-valuemax="100">
+      <div class="barre__remplissage"
+           [ngClass]="classeBarre(personne.avancementMoyen)"
+           [style.width.%]="personne.avancementMoyen"></div>
+    </div>
+  </div>
+
+  <div class="compteurs">
+    <span class="compteur"><strong>{{ personne.nombreTaches }}</strong> tâches</span>
+    <span class="compteur statut-termine"><strong>{{ personne.nombreTerminees }}</strong> terminées</span>
+    <span class="compteur statut-en-cours"><strong>{{ personne.nombreEnCours }}</strong> en cours</span>
+    <span class="compteur statut-en-retard" *ngIf="personne.nombreEnRetard">
+      <strong>{{ personne.nombreEnRetard }}</strong> en retard
+    </span>
+    <span class="compteur statut-bloque" *ngIf="personne.nombreBloquees">
+      <strong>{{ personne.nombreBloquees }}</strong> bloquées
+    </span>
+    <span class="compteur statut-reporte" *ngIf="personne.nombreReportees">
+      <strong>{{ personne.nombreReportees }}</strong> reportées
+    </span>
+    <span class="compteur statut-non-demarre">
+      <strong>{{ personne.nombreNonDemarrees }}</strong> non démarrées
+    </span>
+  </div>
+
+  <!-- Répartition de son temps entre les projets -->
+  <h4 class="section">Répartition de son temps par projet</h4>
+
+  <p class="vide" *ngIf="!parts.length">
+    Aucun temps enregistré : cette personne n'a que des tâches à venir, ou aucune.
+  </p>
+
+  <div class="repartition" *ngIf="parts.length">
+
+    <div class="repartition__graphique">
+      <svg viewBox="0 0 42 42" class="donut" role="img"
+           aria-label="Répartition du temps par projet">
+        <circle class="donut__fond" cx="21" cy="21" [attr.r]="rayon"></circle>
+        <circle *ngFor="let part of parts"
+                class="donut__part"
+                cx="21" cy="21"
+                [attr.r]="rayon"
+                [attr.stroke]="part.couleur"
+                [attr.stroke-dasharray]="part.arc + ' ' + (100 - part.arc)"
+                [attr.stroke-dashoffset]="part.decalage">
+          <title>{{ part.nom }} — {{ part.heures | number:'1.0-2' }} h ({{ part.pourcentage }} %)</title>
+        </circle>
+      </svg>
+    </div>
+
+    <table class="temps repartition__legende">
+      <thead>
+      <tr>
+        <th>Projet</th>
+        <th class="nombre">Heures</th>
+        <th class="nombre">Part</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let part of parts">
+        <td>
+          <span class="pastille" [style.background-color]="part.couleur"></span>
+          {{ part.nom }}
+        </td>
+        <td class="nombre">{{ part.heures | number:'1.0-2' }} h</td>
+        <td class="nombre">{{ part.pourcentage }} %</td>
+      </tr>
+      </tbody>
+      <tfoot>
+      <tr>
+        <td>Total</td>
+        <td class="nombre">{{ personne.heuresPassees | number:'1.0-2' }} h</td>
+        <td class="nombre">100 %</td>
+      </tr>
+      </tfoot>
+    </table>
+
+  </div>
+
+  <!-- Détail de ses tâches -->
+  <h4 class="section">
+    Détail de ses tâches <span class="section__compte">({{ personne.taches.length }})</span>
+  </h4>
+
+  <p class="vide" *ngIf="!personne.taches.length">
+    Aucune tâche : cette personne n'a ni temps enregistré, ni tâche assignée sur
+    cet espace de travail.
+  </p>
+
+  <table class="taches" *ngIf="personne.taches.length">
+    <thead>
+    <tr>
+      <th>Tâche</th>
+      <th>Projet</th>
+      <th>Statut</th>
+      <th class="nombre">Avanc.</th>
+      <th class="nombre">Ses heures</th>
+      <th class="nombre">Planifié</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let tache of personne.taches; trackBy: suiviTache">
+      <td>
+        <a class="cle" *ngIf="lienTache(tache) as lien" [routerLink]="lien">{{ tache.cle }}</a>
+        <span class="cle" *ngIf="tache.cle && !lienTache(tache)">{{ tache.cle }}</span>
+        <span class="taches__nom">{{ tache.nom || 'Tâche sans titre' }}</span>
+        <!-- Une tâche sur laquelle elle a passé du temps sans y être assignée
+             n'est pas la même information qu'une tâche qui lui revient. -->
+        <span class="badge badge--discret" *ngIf="!tache.assignee">non assignée</span>
+      </td>
+      <td>
+        <span class="cle" *ngIf="tache.cleProjet">{{ tache.cleProjet }}</span>
+        <span class="taches__projet">{{ tache.titreProjet }}</span>
+      </td>
+      <td><span class="badge" [ngClass]="classeStatut(tache.statut)">{{ tache.statutLibelle }}</span></td>
+      <td class="nombre">{{ tache.pourcentageExecution }} %</td>
+      <td class="nombre">{{ tache.heuresPassees | number:'1.0-2' }} h</td>
+      <td class="nombre">{{ tache.heuresPlanifiees | number:'1.0-2' }} h</td>
+    </tr>
+    </tbody>
+  </table>
+
+</div>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<!--
+  Rapport composé : un seul document réunissant les sections demandées à la
+  création — projets, personnes, équipes.
+
+  Le document n'invente rien. Chaque partie reprend le fragment du rapport
+  correspondant : la partie « projets » est le rapport multi-projets, la partie
+  « personnes » le rapport par personne, une équipe le rapport de ses membres.
+  Un projet dit donc ici exactement ce qu'il dit dans son rapport individuel, et
+  deux documents édités le même jour ne peuvent pas se contredire.
+
+  Mêmes contraintes de mise en page que les autres rapports (XHTML strict, ni
+  flexbox ni grid) : elles viennent de la conversion PDF, pas d'un choix de
+  style. Voir « rapport-styles.html ».
+-->
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <title th:text="${rapport.titre}">Rapport</title>
+    <style type="text/css" th:replace="~{rapport-styles :: styles}"></style>
+</head>
+<body>
+
+<!-- Répété au bas de chaque page par la règle @page de la feuille de style. -->
+<div id="piedDePage">
+    <span th:text="${rapport.titre}">Rapport</span>
+    <span th:if="${rapport.departement}" th:text="' - ' + ${rapport.departement}"></span>
+    <span th:if="${rapport.genereLe != null}"
+          th:text="' - édité le ' + ${#temporals.format(rapport.genereLe, 'dd/MM/yyyy à HH:mm')}"></span>
+</div>
+
+<!-- ============================ En-tête ============================ -->
+<div class="entete">
+    <div class="entete-titre">
+        <span th:text="${rapport.titre}">Rapport</span>
+    </div>
+    <div class="entete-sous-titre">
+        Rapport d'activité
+        <span th:if="${rapport.departement}" th:text="' - ' + ${rapport.departement}"></span>
+        <span th:if="${rapport.genereLe != null}"
+              th:text="' - édité le ' + ${#temporals.format(rapport.genereLe, 'dd/MM/yyyy à HH:mm')}"></span>
+    </div>
+</div>
+
+<!-- Contenu du document : annoncé d'emblée, parce qu'un rapport composé n'a pas
+     deux fois la même structure — celui-ci n'a que les parties demandées. -->
+<div class="compteurs">
+    <span class="compteur" th:if="${rapport.projets != null}">
+        <span class="compteur-nombre" th:text="${#lists.size(rapport.projets.projets)}">0</span> projets
+    </span>
+    <span class="compteur" th:if="${rapport.personnes != null}">
+        <span class="compteur-nombre" th:text="${#lists.size(rapport.personnes.personnes)}">0</span> personnes
+    </span>
+    <span class="compteur" th:if="${not #lists.isEmpty(rapport.equipes)}">
+        <span class="compteur-nombre" th:text="${#lists.size(rapport.equipes)}">0</span> équipes
+    </span>
+</div>
+
+<!-- ============================ Projets ============================ -->
+<div th:if="${rapport.projets != null}">
+
+    <div class="partie">Projets</div>
+
+    <div th:replace="~{rapport-projets :: synthese(${rapport.projets}, ${graphiqueProjets}, ${couleurs})}"></div>
+
+    <!-- Détail projet par projet : le corps est celui du rapport individuel. -->
+    <div class="saut-page" th:each="section : ${sectionsProjet}">
+        <div th:replace="~{rapport-projet-corps :: corps(${section.projet}, ${section.graphique}, ${couleurs}, ${lienBase})}"></div>
+    </div>
+
+</div>
+
+<!-- =========================== Personnes =========================== -->
+<div th:if="${rapport.personnes != null}" th:classappend="${rapport.projets != null} ? 'saut-page' : ''">
+
+    <div class="partie">Activité par personne</div>
+
+    <div th:replace="~{rapport-personne-corps :: synthese(${rapport.personnes.synthese}, ${graphiquePersonnes}, ${couleurs})}"></div>
+
+    <div class="saut-page" th:each="section : ${sectionsPersonne}">
+        <div th:replace="~{rapport-personne-corps :: corps(${section.personne}, ${section.graphique}, ${couleurs}, ${lienBase}, ${rapport.prefixeDepartement})}"></div>
+    </div>
+
+</div>
+
+<!-- ============================ Équipes ============================ -->
+<!-- Une équipe par partie : chacune porte sa propre synthèse, puis le détail de
+     ses membres. Une personne membre de deux équipes retenues figure dans les
+     deux : la section d'une équipe doit se lire seule. -->
+<div class="saut-page" th:each="equipe : ${sectionsEquipe}">
+
+    <div class="partie" th:text="'Équipe - ' + ${equipe.equipe.nomEquipe}">Équipe</div>
+
+    <div class="vide" th:if="${#lists.isEmpty(equipe.personnes)}">
+        Cette équipe n'a aucun membre : rien à rapporter.
+    </div>
+
+    <div th:unless="${#lists.isEmpty(equipe.personnes)}">
+        <div th:replace="~{rapport-personne-corps :: synthese(${equipe.equipe.synthese}, ${equipe.graphique}, ${couleurs})}"></div>
+
+        <div class="saut-page" th:each="section : ${equipe.personnes}">
+            <div th:replace="~{rapport-personne-corps :: corps(${section.personne}, ${section.graphique}, ${couleurs}, ${lienBase}, ${rapport.prefixeDepartement})}"></div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

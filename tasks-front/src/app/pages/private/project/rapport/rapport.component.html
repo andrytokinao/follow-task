@@ -1,2 +1,211 @@
-<p>rapport works!</p>
-<app-maintenance></app-maintenance>,
+<div class="page">
+
+  <!-- ══════════════════ Panneau de création ══════════════════ -->
+  <aside class="panneau">
+
+    <header class="panneau__entete">
+      <h2 class="panneau__titre">Nouveau rapport</h2>
+      <p class="panneau__aide">
+        Choisissez ce qui doit figurer dans le document : des projets, l'activité
+        de personnes, celle d'équipes — ou tout à la fois.
+      </p>
+    </header>
+
+    <p class="message" *ngIf="chargementOptions">Chargement de l'espace de travail…</p>
+
+    <p class="message message--erreur" *ngIf="erreurOptions">{{ erreurOptions }}</p>
+
+    <ng-container *ngIf="options && !chargementOptions">
+
+      <!-- ---- Intitulé ---- -->
+      <label class="champ">
+        <span class="champ__libelle">Titre du rapport</span>
+        <input class="champ__saisie"
+               type="text"
+               [(ngModel)]="titre"
+               placeholder="Rapport d'activité de septembre"/>
+        <span class="champ__aide">Facultatif : composé à partir du contenu si laissé vide.</span>
+      </label>
+
+      <!-- ---- Projets ---- -->
+      <section class="bloc">
+        <div class="bloc__entete">
+          <h3 class="bloc__titre">
+            Projets
+            <span class="bloc__compte" *ngIf="projetsRetenus.size">{{ projetsRetenus.size }} retenu(s)</span>
+          </h3>
+          <div class="bloc__actions">
+            <button type="button" class="lien" (click)="toutSelectionnerProjets()">Tout</button>
+            <button type="button" class="lien" (click)="aucunProjet()">Aucun</button>
+          </div>
+        </div>
+
+        <input class="champ__saisie champ__saisie--recherche"
+               type="search"
+               [(ngModel)]="rechercheProjet"
+               placeholder="Rechercher un projet…"/>
+
+        <p class="vide" *ngIf="!options.projets.length">
+          Cet espace de travail n'a aucune demande racine : rien à rapporter pour l'instant.
+        </p>
+
+        <ul class="liste" *ngIf="options.projets.length">
+          <li class="liste__ligne"
+              *ngFor="let projet of projetsAffiches()"
+              [class.liste__ligne--retenue]="projetsRetenus.has(projet.id)"
+              (click)="basculerProjet(projet)">
+            <input type="checkbox"
+                   class="liste__case"
+                   [checked]="projetsRetenus.has(projet.id)"
+                   (click)="$event.stopPropagation()"
+                   (change)="basculerProjet(projet)"/>
+            <span class="liste__principal">
+              <span class="cle" *ngIf="projet.cle">{{ projet.cle }}</span>
+              <span class="liste__nom">{{ projet.titre || 'Projet sans titre' }}</span>
+            </span>
+            <!-- Un projet sans tâche donne un rapport vide : autant le savoir
+                 avant de le retenir. -->
+            <span class="liste__annexe">{{ projet.nombreTaches }} tâche(s)</span>
+          </li>
+        </ul>
+      </section>
+
+      <!-- ---- Personnes ---- -->
+      <section class="bloc">
+        <div class="bloc__entete">
+          <h3 class="bloc__titre">
+            <label class="bascule">
+              <input type="checkbox"
+                     [checked]="inclurePersonnes"
+                     (change)="basculerOptionPersonnes()"/>
+              <span>Ajouter un rapport par personne</span>
+            </label>
+          </h3>
+          <div class="bloc__actions" *ngIf="inclurePersonnes">
+            <button type="button" class="lien" (click)="toutSelectionnerPersonnes()">Tout</button>
+            <button type="button" class="lien" (click)="aucunePersonne()">Aucun</button>
+          </div>
+        </div>
+
+        <ng-container *ngIf="inclurePersonnes">
+          <input class="champ__saisie champ__saisie--recherche"
+                 type="search"
+                 [(ngModel)]="recherchePersonne"
+                 placeholder="Rechercher une personne…"/>
+
+          <p class="vide" *ngIf="!options.personnes.length">
+            Aucun membre n'est rattaché à cet espace de travail.
+          </p>
+
+          <ul class="liste" *ngIf="options.personnes.length">
+            <li class="liste__ligne"
+                *ngFor="let personne of personnesAffichees()"
+                [class.liste__ligne--retenue]="personnesRetenues.has(personne.id)"
+                (click)="basculerPersonne(personne)">
+              <input type="checkbox"
+                     class="liste__case"
+                     [checked]="personnesRetenues.has(personne.id)"
+                     (click)="$event.stopPropagation()"
+                     (change)="basculerPersonne(personne)"/>
+              <span class="liste__principal">
+                <span class="liste__nom">{{ personne.nom }}</span>
+                <span class="liste__annexe" *ngIf="personne.username">{{ personne.username }}</span>
+              </span>
+            </li>
+          </ul>
+        </ng-container>
+      </section>
+
+      <!-- ---- Équipes ---- -->
+      <section class="bloc">
+        <div class="bloc__entete">
+          <h3 class="bloc__titre">
+            Équipes
+            <span class="bloc__compte" *ngIf="equipesRetenues.size">{{ equipesRetenues.size }} retenue(s)</span>
+          </h3>
+        </div>
+
+        <p class="vide" *ngIf="!options.equipes.length">
+          Aucune équipe n'est définie sur cet espace de travail.
+        </p>
+
+        <ul class="liste" *ngIf="options.equipes.length">
+          <li class="liste__ligne"
+              *ngFor="let equipe of options.equipes"
+              [class.liste__ligne--retenue]="equipesRetenues.has(equipe.id)"
+              (click)="basculerEquipe(equipe)">
+            <input type="checkbox"
+                   class="liste__case"
+                   [checked]="equipesRetenues.has(equipe.id)"
+                   (click)="$event.stopPropagation()"
+                   (change)="basculerEquipe(equipe)"/>
+            <span class="liste__principal">
+              <span class="liste__nom">{{ equipe.nom }}</span>
+              <span class="liste__annexe">{{ equipe.membreIds.length }} membre(s)</span>
+            </span>
+            <!-- Retenir l'équipe donne une section avec sa propre synthèse ;
+                 ajouter ses membres les fait figurer un à un. Deux besoins
+                 différents, deux gestes. -->
+            <button type="button"
+                    class="lien"
+                    *ngIf="equipe.membreIds.length"
+                    (click)="$event.stopPropagation(); ajouterMembres(equipe)">
+              + membres
+            </button>
+          </li>
+        </ul>
+      </section>
+
+      <!-- ---- Actions ---- -->
+      <div class="panneau__actions">
+        <button type="button"
+                class="bouton bouton--principal"
+                [disabled]="selectionVide || generation"
+                (click)="generer()">
+          <mat-icon>play_arrow</mat-icon>
+          <span>{{ generation ? 'Génération…' : 'Générer le rapport' }}</span>
+        </button>
+        <button type="button"
+                class="bouton"
+                [disabled]="selectionVide || telechargement"
+                (click)="telechargerPdf()">
+          <mat-icon>picture_as_pdf</mat-icon>
+          <span>{{ telechargement ? 'Préparation…' : 'PDF' }}</span>
+        </button>
+      </div>
+
+      <p class="panneau__note" *ngIf="selectionVide">
+        Sélectionnez au moins un projet, une personne ou une équipe.
+      </p>
+
+    </ng-container>
+
+  </aside>
+
+  <!-- ══════════════════ Aperçu ══════════════════ -->
+  <main class="apercu">
+
+    <p class="message message--erreur" *ngIf="erreur">{{ erreur }}</p>
+
+    <div class="apercu__vide" *ngIf="!rapport && !generation && !erreur">
+      <i class="fas fa-file-lines"></i>
+      <p>Composez votre rapport à gauche, puis générez-le pour l'afficher ici.</p>
+    </div>
+
+    <p class="message" *ngIf="generation">Génération du rapport…</p>
+
+    <ng-container *ngIf="rapport && !generation">
+      <header class="apercu__entete">
+        <h1 class="apercu__titre">{{ rapport.titre }}</h1>
+        <span class="apercu__sous-titre">
+          <ng-container *ngIf="rapport.departement">{{ rapport.departement }} · </ng-container>
+          <ng-container *ngIf="rapport.genereLe">édité le {{ rapport.genereLe | date:'dd/MM/yyyy à HH:mm' }}</ng-container>
+        </span>
+      </header>
+
+      <app-rapport-composite [rapport]="rapport"></app-rapport-composite>
+    </ng-container>
+
+  </main>
+
+</div>

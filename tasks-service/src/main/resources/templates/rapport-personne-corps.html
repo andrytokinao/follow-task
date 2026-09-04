@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<!--
+  Corps du rapport d'une personne, et synthèse d'un ensemble de personnes.
+
+  Pendant de « rapport-projet-corps.html », vu de l'autre bout : on ne demande
+  plus « où en est ce projet » mais « qu'a fait cette personne, et sur quoi ».
+  Les heures affichées sont les siennes ; l'avancement et le statut sont ceux de
+  la tâche entière, qui est menée à plusieurs.
+
+  Deux fragments y vivent :
+  - « synthese » : les chiffres d'un ensemble de personnes (section « par
+    personne » du rapport composé, et section d'une équipe — les deux disent la
+    même chose, ils ne peuvent donc pas diverger) ;
+  - « corps »    : le détail d'une personne.
+
+  Mêmes contraintes de mise en page que les autres rapports (XHTML strict, ni
+  flexbox ni grid) : elles viennent de la conversion PDF. Voir
+  « rapport-styles.html ».
+-->
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <title>Corps du rapport par personne</title>
+    <style type="text/css" th:replace="~{rapport-styles :: styles}"></style>
+</head>
+<body>
+
+<!-- ================= Synthèse d'un ensemble de personnes ================= -->
+<div th:fragment="synthese(synthese, graphiqueGlobal, couleurs)">
+
+    <table class="tuiles">
+        <tr>
+            <td>
+                <span class="tuile-valeur"
+                      th:text="${#numbers.formatDecimal(synthese.totalHeures, 1, 'NONE', 2, 'COMMA')} + ' h'">0 h</span>
+                <span class="tuile-libelle">Heures réalisées</span>
+            </td>
+            <td>
+                <span class="tuile-valeur"
+                      th:text="${#numbers.formatDecimal(synthese.heuresPlanifiees, 1, 'NONE', 2, 'COMMA')} + ' h'">0 h</span>
+                <span class="tuile-libelle">Heures planifiées</span>
+            </td>
+            <td>
+                <span class="tuile-valeur"
+                      th:classappend="${synthese.ecartHeures > 0 ? 'tuile-ecart-positif' : (synthese.ecartHeures &lt; 0 ? 'tuile-ecart-negatif' : '')}"
+                      th:text="${(synthese.ecartHeures > 0 ? '+' : '')} + ${#numbers.formatDecimal(synthese.ecartHeures, 1, 'NONE', 2, 'COMMA')} + ' h'">0 h</span>
+                <span class="tuile-libelle">Écart réalisé / planifié</span>
+            </td>
+            <td>
+                <span class="tuile-valeur" th:text="${synthese.nombrePersonnes}">0</span>
+                <span class="tuile-libelle">Intervenants</span>
+            </td>
+        </tr>
+    </table>
+
+    <!-- Les tâches sont dédoublonnées : deux personnes sur la même tâche ne
+         font qu'une tâche, les compteurs ne peuvent donc pas être la somme des
+         compteurs individuels. -->
+    <div class="compteurs">
+        <span class="compteur">
+            <span class="compteur-nombre" th:text="${synthese.nombreTaches}">0</span> tâches
+        </span>
+        <span class="compteur">
+            <span class="compteur-nombre" th:text="${synthese.nombreProjets}">0</span> projets
+        </span>
+        <span class="compteur statut-termine">
+            <span class="compteur-nombre" th:text="${synthese.nombreTerminees}">0</span> terminées
+        </span>
+        <span class="compteur statut-en-cours">
+            <span class="compteur-nombre" th:text="${synthese.nombreEnCours}">0</span> en cours
+        </span>
+        <span class="compteur statut-en-retard" th:if="${synthese.nombreEnRetard > 0}">
+            <span class="compteur-nombre" th:text="${synthese.nombreEnRetard}">0</span> en retard
+        </span>
+        <span class="compteur statut-bloque" th:if="${synthese.nombreBloquees > 0}">
+            <span class="compteur-nombre" th:text="${synthese.nombreBloquees}">0</span> bloquées
+        </span>
+        <span class="compteur statut-reporte" th:if="${synthese.nombreReportees > 0}">
+            <span class="compteur-nombre" th:text="${synthese.nombreReportees}">0</span> reportées
+        </span>
+        <span class="compteur statut-non-demarre">
+            <span class="compteur-nombre" th:text="${synthese.nombreNonDemarrees}">0</span> non démarrées
+        </span>
+    </div>
+
+    <div class="section-titre">Répartition du temps par intervenant</div>
+
+    <div class="vide" th:if="${#lists.isEmpty(synthese.repartitionParPersonne)}">
+        Aucun temps n'a encore été enregistré par les personnes retenues.
+    </div>
+
+    <table class="repartition" th:unless="${#lists.isEmpty(synthese.repartitionParPersonne)}">
+        <tr>
+            <td class="graphique" th:if="${graphiqueGlobal != null}">
+                <img class="donut" th:src="${graphiqueGlobal}"
+                     alt="Répartition du temps par intervenant" />
+            </td>
+            <td class="legende">
+                <table class="temps">
+                    <tr>
+                        <th>Intervenant</th>
+                        <th class="nombre">Heures</th>
+                        <th class="nombre">Part</th>
+                    </tr>
+                    <tr th:each="part, iter : ${synthese.repartitionParPersonne}">
+                        <td>
+                            <span class="pastille"
+                                  th:style="'background-color: ' + ${couleurs[iter.index % couleurs.size()]}"></span>
+                            <span th:text="${part.nomPersonne}">Personne</span>
+                        </td>
+                        <td class="nombre"
+                            th:text="${#numbers.formatDecimal(part.heuresPassees, 1, 'NONE', 2, 'COMMA')} + ' h'">0 h</td>
+                        <td class="nombre" th:text="${part.pourcentageDuTemps} + ' %'">0 %</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Total</strong></td>
+                        <td class="nombre">
+                            <strong th:text="${#numbers.formatDecimal(synthese.totalHeures, 1, 'NONE', 2, 'COMMA')} + ' h'">0 h</strong>
+                        </td>
+                        <td class="nombre"><strong>100 %</strong></td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+
+</div>
+
+<!-- ===================== Détail d'une personne ===================== -->
+<div th:fragment="corps(personne, graphiqueRepartition, couleurs, lienBase, prefixe)">
+
+    <div class="entete">
+        <div class="entete-titre">
+            <span th:text="${personne.nomPersonne}">Nom de la personne</span>
+            <span class="cle" th:if="${personne.username}" th:text="${personne.username}">login</span>
+        </div>
+        <div class="entete-sous-titre">
+            Rapport d'activité
+            <span th:if="${personne.email}" th:text="' - ' + ${personne.email}"></span>
+            <span th:text="' - ' + ${#numbers.formatDecimal(personne.heuresPassees, 1, 'NONE', 2, 'COMMA')} + ' h au total'"></span>
+        </div>
+    </div>
+
+    <table class="identite">
+        <tr>
+            <td>
+                <span class="libelle-champ">Heures réalisées</span>
+                <span class="valeur-champ"
+                      th:text="${#numbers.formatDecimal(personne.heuresPassees, 1, 'NONE', 2, 'COMMA')} + ' h'">0 h</span>
+            </td>
+            <td>
+                <span class="libelle-champ">Heures planifiées</span>
+                <span class="valeur-champ"
+                      th:text="${#numbers.formatDecimal(personne.heuresPlanifiees, 1, 'NONE', 2, 'COMMA')} + ' h'">0 h</span>
+            </td>
+            <td>
+                <span class="libelle-champ">Part du temps du rapport</span>
+                <span class="valeur-champ" th:text="${personne.partDuTemps} + ' %'">0 %</span>
+            </td>
+            <td>
+                <span class="libelle-champ">Projets</span>
+                <span class="valeur-champ" th:text="${personne.nombreProjets}">0</span>
+            </td>
+        </tr>
+    </table>
+
+    <!-- Moyenne des avancements de ses tâches : un indicateur d'ensemble, pas
+         une performance — une tâche est menée à plusieurs. -->
+    <div class="bloc-avancement">
+        <div class="bloc-titre">Avancement moyen de ses tâches</div>
+        <span class="pourcentage" th:text="${personne.avancementMoyen} + ' %'">0 %</span>
+        <div class="barre">
+            <div class="barre-remplissage"
+                 th:classappend="${personne.avancementMoyen &lt; 40 ? 'barre-rouge' : (personne.avancementMoyen &lt; 75 ? 'barre-orange' : 'barre-verte')}"
+                 th:style="'width: ' + ${personne.avancementMoyen} + '%'"></div>
+        </div>
+    </div>
+
+    <div class="compteurs">
+        <span class="compteur">
+            <span class="compteur-nombre" th:text="${personne.nombreTaches}">0</span> tâches
+        </span>
+        <span class="compteur statut-termine">
+            <span class="compteur-nombre" th:text="${personne.nombreTerminees}">0</span> terminées
+        </span>
+        <span class="compteur statut-en-cours">
+            <span class="compteur-nombre" th:text="${personne.nombreEnCours}">0</span> en cours
+        </span>
+        <span class="compteur statut-en-retard" th:if="${personne.nombreEnRetard > 0}">
+            <span class="compteur-nombre" th:text="${personne.nombreEnRetard}">0</span> en retard
+        </span>
+        <span class="compteur statut-bloque" th:if="${personne.nombreBloquees > 0}">
+            <span class="compteur-nombre" th:text="${personne.nombreBloquees}">0</span> bloquées
+        </span>
+        <span class="compteur statut-reporte" th:if="${personne.nombreReportees > 0}">
+            <span class="compteur-nombre" th:text="${personne.nombreReportees}">0</span> reportées
+        </span>
+        <span class="compteur statut-non-demarre">
+            <span class="compteur-nombre" th:text="${personne.nombreNonDemarrees}">0</span> non démarrées
+        </span>
+    </div>
+
+    <!-- Répartition de son temps entre les projets : le pendant, vu depuis la
+         personne, de la répartition par intervenant d'un rapport de projet. -->
+    <div class="section-titre">Répartition de son temps par projet</div>
+
+    <div class="vide" th:if="${#lists.isEmpty(personne.repartitionParProjet)}">
+        Aucun projet : cette personne n'a ni temps enregistré, ni tâche assignée.
+    </div>
+
+    <table class="repartition" th:unless="${#lists.isEmpty(personne.repartitionParProjet)}">
+        <tr>
+            <td class="graphique" th:if="${graphiqueRepartition != null}">
+                <img class="donut" th:src="${graphiqueRepartition}"
+                     alt="Répartition du temps par projet" />
+            </td>
+            <td class="legende">
+                <table class="temps">
+                    <tr>
+                        <th>Projet</th>
+                        <th class="nombre">Heures</th>
+                        <th class="nombre">Part</th>
+                    </tr>
+                    <tr th:each="part, iter : ${personne.repartitionParProjet}">
+                        <td>
+                            <span class="pastille"
+                                  th:style="'background-color: ' + ${couleurs[iter.index % couleurs.size()]}"></span>
+                            <span class="cle" th:if="${part.cleProjet}" th:text="${part.cleProjet}">PRJ-1</span>
+                            <span th:text="${part.titreProjet} ?: 'Projet sans titre'">Projet</span>
+                        </td>
+                        <td class="nombre"
+                            th:text="${#numbers.formatDecimal(part.heuresPassees, 1, 'NONE', 2, 'COMMA')} + ' h'">0 h</td>
+                        <td class="nombre" th:text="${part.pourcentageDuTemps} + ' %'">0 %</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Total</strong></td>
+                        <td class="nombre">
+                            <strong th:text="${#numbers.formatDecimal(personne.heuresPassees, 1, 'NONE', 2, 'COMMA')} + ' h'">0 h</strong>
+                        </td>
+                        <td class="nombre"><strong>100 %</strong></td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+
+    <!-- Détail de ses tâches -->
+    <div class="section-titre">
+        Détail de ses tâches
+        <span th:text="'(' + ${#lists.size(personne.taches)} + ')'">(0)</span>
+    </div>
+
+    <div class="vide" th:if="${#lists.isEmpty(personne.taches)}">
+        Aucune tâche : cette personne n'a ni temps enregistré, ni tâche assignée
+        sur cet espace de travail.
+    </div>
+
+    <table class="sommaire" th:unless="${#lists.isEmpty(personne.taches)}">
+        <tr>
+            <th>Tâche</th>
+            <th>Projet</th>
+            <th>Statut</th>
+            <th class="nombre">Avancement</th>
+            <th class="nombre">Ses heures</th>
+            <th class="nombre">Planifié</th>
+        </tr>
+        <!-- Le lien mène à la tâche dans son projet ; une racine n'a pas de
+             parent, son adresse est celle d'une demande et non d'une
+             sous-demande. -->
+        <tr th:each="tache : ${personne.taches}"
+            th:with="lienTache=${(lienBase != null and prefixe != null and tache.cle != null)
+                                 ? (lienBase + '/working/' + prefixe + '/issue/'
+                                    + ((tache.cleProjet == null or tache.cleProjet == tache.cle)
+                                       ? (tache.cle + '/details')
+                                       : (tache.cleProjet + '/subtask/' + tache.cle)))
+                                 : null}">
+            <td>
+                <a class="cle" th:if="${tache.cle != null and lienTache != null}"
+                   th:href="${lienTache}" th:text="${tache.cle}">PRJ-2</a>
+                <span class="cle" th:if="${tache.cle != null and lienTache == null}"
+                      th:text="${tache.cle}">PRJ-2</span>
+                <span th:text="${tache.nom} ?: 'Tâche sans titre'">Nom de la tâche</span>
+                <!-- Une tâche sur laquelle elle a passé du temps sans y être
+                     assignée n'est pas la même information qu'une tâche qui lui
+                     revient : la distinction est portée ici. -->
+                <span class="badge badge-discret" th:unless="${tache.assignee}">non assignée</span>
+            </td>
+            <td>
+                <span class="cle" th:if="${tache.cleProjet}" th:text="${tache.cleProjet}">PRJ-1</span>
+                <span th:text="${tache.titreProjet} ?: '-'">Projet</span>
+            </td>
+            <td>
+                <span class="badge"
+                      th:classappend="${tache.statut.cssClass}"
+                      th:text="${tache.statutLibelle}">Statut</span>
+            </td>
+            <td class="nombre" th:text="${tache.pourcentageExecution} + ' %'">0 %</td>
+            <td class="nombre"
+                th:text="${#numbers.formatDecimal(tache.heuresPassees, 1, 'NONE', 2, 'COMMA')} + ' h'">0 h</td>
+            <td class="nombre"
+                th:text="${#numbers.formatDecimal(tache.heuresPlanifiees, 1, 'NONE', 2, 'COMMA')} + ' h'">0 h</td>
+        </tr>
+    </table>
+
+</div>
+
+</body>
+</html>

@@ -21,6 +21,8 @@ import {MyCommonModule} from "../../../common/common.module";
 import {CalendarComponent} from "./calendar/calendar.component";
 import {RapportComponent} from "./rapport/rapport.component";
 import {RapportProjetComponent} from "./rapport/rapport-projet/rapport-projet.component";
+import {RapportPersonneComponent} from "./rapport/rapport-personne/rapport-personne.component";
+import {RapportCompositeComponent} from "./rapport/rapport-composite/rapport-composite.component";
 import {CdkTextareaAutosize} from "@angular/cdk/text-field";
 import {MatInputModule} from "@angular/material/input";
 import {
@@ -71,6 +73,8 @@ import {IssuePickerMenuComponent} from "../../../common/issue-picker/issue-picke
     CalendarComponent,
     RapportComponent,
     RapportProjetComponent,
+    RapportPersonneComponent,
+    RapportCompositeComponent,
     NewIssueComponent,
     ViewEditIssueComponent,
     DocumentComponent,

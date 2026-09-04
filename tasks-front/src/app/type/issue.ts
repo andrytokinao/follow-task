@@ -541,6 +541,26 @@ export interface UserPlanningStat {
   remainingMinutes: number;
 }
 
+/** Critères de la recherche paginée d'utilisateurs. */
+export interface UserSearchCriteria {
+  text?: string;
+  /** À partir de zéro. */
+  page?: number;
+  size?: number;
+  /** `name`, `username` ou `cin`. */
+  sortBy?: string;
+  sortAsc?: boolean;
+}
+
+/** Une page de résultats renvoyée par `searchUsers`. */
+export interface UserPage {
+  content: User[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+}
+
 export interface IssuePlanningSummary {
   issue: Issue;
   totalMinutes?: number;

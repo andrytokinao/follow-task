@@ -41,4 +41,21 @@ public interface IssueRepository extends JpaRepository<Issue,Long>, JpaSpecifica
             "AND m.user.id IN :userIds")
     List<Issue> findAssigneesDansProjet(@Param("projectId") Long projectId,
                                         @Param("userIds") List<String> userIds);
+
+    /**
+     * Demandes racines d'un espace de travail, c'est-à-dire les « projets » au
+     * sens du rapport.
+     *
+     * <p>Une racine est ici une demande sans parent. C'est plus strict que la
+     * règle de {@code RapportService.chargerIssueRacine}, qui accepte aussi une
+     * demande intermédiaire portant des enfants : on propose au choix ce qu'un
+     * utilisateur appelle un projet, pas tout ce dont un rapport pourrait être
+     * tiré.</p>
+     *
+     * <p>Les plus récentes d'abord : c'est sur celles-là que porte un rapport
+     * dans l'immense majorité des cas.</p>
+     */
+    @Query("SELECT i FROM Issue i WHERE i.project.id = :projectId AND i.parent IS NULL " +
+            "ORDER BY i.creationDate DESC NULLS LAST, i.id DESC")
+    List<Issue> findRacinesDuProjet(@Param("projectId") Long projectId);
 }

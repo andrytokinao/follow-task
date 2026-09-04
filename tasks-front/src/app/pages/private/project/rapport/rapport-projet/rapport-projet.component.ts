@@ -1,10 +1,10 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {Subscription} from 'rxjs';
 import {RapportService} from '../../../../../services/rapport.service';
 import {IssueService} from '../../../../../services/issue.service';
 import {
-  COULEURS_REPARTITION,
+  decouperRepartition,
   PartRepartition,
   RapportProjetDTO,
   StatutTache,
@@ -25,10 +25,23 @@ import {
   templateUrl: './rapport-projet.component.html',
   styleUrl: './rapport-projet.component.css'
 })
-export class RapportProjetComponent implements OnInit, OnDestroy {
+export class RapportProjetComponent implements OnInit, OnChanges, OnDestroy {
 
   /** Demande racine du rapport. À défaut, elle est déduite de la route. */
   @Input() issueId?: number;
+
+  /**
+   * Rapport déjà construit, à afficher tel quel.
+   *
+   * Le rapport composé de l'espace de travail obtient ses projets en un seul
+   * appel : les recharger un par un depuis ce composant rejouerait le calcul
+   * complet de chaque projet, et un projet pourrait afficher des chiffres
+   * arrêtés à un autre instant que la synthèse au-dessus de lui.
+   */
+  @Input() donnees?: RapportProjetDTO;
+
+  /** Barre d'actions propre : masquée quand le document hôte porte la sienne. */
+  @Input() barreActions = true;
 
   rapport?: RapportProjetDTO;
   chargement = false;
@@ -52,6 +65,11 @@ export class RapportProjetComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    if (this.donnees) {
+      this.afficher(this.donnees);
+      return;
+    }
+
     if (this.issueId != null) {
       this.charger(this.issueId);
       return;
@@ -70,6 +88,13 @@ export class RapportProjetComponent implements OnInit, OnDestroy {
         this.charger(issue.id);
       }
     });
+  }
+
+  /** Le document hôte peut remplacer le rapport affiché sans détruire la vue. */
+  ngOnChanges(changements: SimpleChanges): void {
+    if (changements['donnees'] && !changements['donnees'].firstChange && this.donnees) {
+      this.afficher(this.donnees);
+    }
   }
 
   ngOnDestroy(): void {
@@ -142,8 +167,7 @@ export class RapportProjetComponent implements OnInit, OnDestroy {
 
     this.rapportService.obtenirRapport(issueId).subscribe({
       next: rapport => {
-        this.rapport = rapport;
-        this.parts = this.decouperCamembert(rapport);
+        this.afficher(rapport);
         this.chargement = false;
       },
       error: erreur => {
@@ -157,6 +181,13 @@ export class RapportProjetComponent implements OnInit, OnDestroy {
     });
   }
 
+  /** Affiche un rapport déjà construit, d'où qu'il vienne. */
+  private afficher(rapport: RapportProjetDTO): void {
+    this.rapport = rapport;
+    this.parts = this.decouperCamembert(rapport);
+    this.erreur = undefined;
+  }
+
   /**
    * Segments du camembert.
    *
@@ -164,32 +195,12 @@ export class RapportProjetComponent implements OnInit, OnDestroy {
    * quelques parts ne justifie pas d'embarquer un moteur de rendu, et le SVG
    * reste net à tout zoom. Le PDF, lui, reçoit la même image peinte côté
    * serveur — les deux partagent la palette, pas le code.
-   *
-   * Les longueurs d'arc viennent des heures et non des pourcentages déjà
-   * arrondis : trois parts à 33 % laisseraient sinon un liseré vide.
    */
   private decouperCamembert(rapport: RapportProjetDTO): PartRepartition[] {
-    const repartition = rapport.synthese?.repartitionParPersonne ?? [];
-    const total = repartition.reduce((somme, part) => somme + part.heuresPassees, 0);
-    if (total <= 0) {
-      return [];
-    }
-
-    let cumul = 0;
-    return repartition.map((part, index) => {
-      const arc = (part.heuresPassees / total) * 100;
-      const segment: PartRepartition = {
-        nom: part.nomPersonne,
-        heures: part.heuresPassees,
-        pourcentage: part.pourcentageDuTemps,
-        couleur: COULEURS_REPARTITION[index % COULEURS_REPARTITION.length],
-        arc,
-        // 25 place le départ à midi, le tracé se poursuivant dans le sens
-        // horaire comme sur l'image du PDF.
-        decalage: 25 - cumul
-      };
-      cumul += arc;
-      return segment;
-    });
+    return decouperRepartition((rapport.synthese?.repartitionParPersonne ?? []).map(part => ({
+      nom: part.nomPersonne,
+      heures: part.heuresPassees,
+      pourcentage: part.pourcentageDuTemps
+    })));
   }
 }

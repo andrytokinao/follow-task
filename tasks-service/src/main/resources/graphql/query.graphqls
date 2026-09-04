@@ -1,6 +1,9 @@
 type Query {
     getUser(username: String!): UserApp,
     allUsers : [UserApp],
+    # Recherche paginee : la page d'administration chargeait tous les comptes
+    # pour n'en afficher qu'une vingtaine.
+    searchUsers(criteria:UserSearchInput):UserPage
     allIssue :[Issue]
     findIssueById(id:Int) :[Issue]
     findIssueByUserId(id:String):[Issue]
