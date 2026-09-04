@@ -92,7 +92,9 @@
       <span class="controle btn" (click)="viewProfile(user)" title="Consulter">
         <i class="fa far fa-eye"></i> <span class="btn-label">Consulter</span>
       </span>
-      <span class="controle btn" (click)="setPassword(user)"
+      <!-- Réservé à l'administrateur du système : le serveur refuse la route
+           aux autres, l'écran ne propose donc pas une action vouée à échouer. -->
+      <span class="controle btn" *ngIf="adminSysteme" (click)="setPassword(user)"
             title="Définir un nouveau mot de passe">
         <i class="fa fa-key"></i> <span class="btn-label">Mot de passe</span>
       </span>

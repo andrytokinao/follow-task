@@ -5,6 +5,7 @@ import {MemberGroupe, User} from "../../../../type/issue";
 import {UserService} from "../../../../services/user.service";
 import {EditUserComponent} from "../edit-user/edit-user.component";
 import {SetPasswordComponent} from "./set-password/set-password.component";
+import {AuthService} from "../../../../services/auth.service";
 
 @Component({
   standalone: false,
@@ -40,7 +41,17 @@ export class UsersComponent implements OnInit, OnDestroy {
   private saisie$ = new Subject<string>();
   private subscriptions: Subscription[] = [];
 
-  constructor(private modalService: NgbModal, private userService: UserService) {
+  /**
+   * Definir le mot de passe d'un tiers est reserve a l'administrateur du
+   * systeme : le droit de gerer des comptes ne suffit pas, prendre la main sur
+   * l'un d'eux n'est pas le gerer. Le serveur applique la meme regle — cet
+   * affichage n'est qu'une commodite, il ne protege rien.
+   */
+  adminSysteme = false;
+
+  constructor(private modalService: NgbModal,
+              private userService: UserService,
+              private authService: AuthService) {
   }
 
   ngOnInit(): void {
@@ -53,6 +64,12 @@ export class UsersComponent implements OnInit, OnDestroy {
           this.page = 0;
           this.charger();
         })
+    );
+    this.subscriptions.push(
+      this.authService.profile$.subscribe(profile => {
+        const permissions: string[] = profile?.permissions ?? [];
+        this.adminSysteme = permissions.includes('SYSTEM_ADMIN');
+      })
     );
     this.charger();
   }

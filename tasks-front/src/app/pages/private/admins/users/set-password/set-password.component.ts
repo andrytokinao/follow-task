@@ -93,7 +93,7 @@ export class SetPasswordComponent {
         // Un 403 n'en porte pas, d'où le repli explicite sur les droits.
         this.erreur = erreur?.error?.error
           ?? (erreur?.status === 403
-            ? "Vous n'avez pas le droit de définir le mot de passe d'un autre compte."
+            ? "Seul un administrateur du système peut définir le mot de passe d'un autre compte."
             : "Le mot de passe n'a pas pu être enregistré.");
         this.enregistrement = false;
       }

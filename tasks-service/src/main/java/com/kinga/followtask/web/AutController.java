@@ -107,11 +107,14 @@ public class    AutController {
      * seulement dans l'écran d'administration : une page peut être contournée,
      * pas une route.</p>
      *
-     * <p>Les droits retenus sont ceux de l'administration des comptes, dont
-     * dépend déjà la page « Gestion des utilisateurs ».</p>
+     * <p>Réservée aux administrateurs du système, et à eux seuls. Le droit
+     * {@code CAN_MANAGE_USERS} ne suffit pas : les rôles {@code PROJECT_ADMIN}
+     * et {@code ACCOUNT_ADMIN} le portent aussi, et gérer des comptes n'est pas
+     * prendre la main dessus. {@code SYSTEM_ADMIN} n'est accordé que par
+     * {@code AuthorizationService.addUserToAdminSystem}.</p>
      */
     @PostMapping("api/users/{id}/password")
-    @PreAuthorize("hasAnyAuthority('CAN_ACCESS_ALL', 'CAN_MANAGE_SECURITY', 'CAN_MANAGE_USERS')")
+    @PreAuthorize("hasAuthority('SYSTEM_ADMIN')")
     public ResponseEntity<?> setPassword(
             @PathVariable String id,
             @RequestBody SetPasswordRequest request
