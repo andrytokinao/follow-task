@@ -442,6 +442,10 @@ export interface CanalMember {
 
 export interface Canall {
   id?:Number
+  /** Identifiant chez le fournisseur externe : seule clé commune avec
+   *  `MessageDto.canalExternalId`, donc le seul moyen de rattacher un message
+   *  à son canal. */
+  externalId?:string
   messageApp?:MessageApp[]
   members?:CanalMember[]
   typeCanal:'PROJECT' | 'ISSUE' | 'DEFAULT',

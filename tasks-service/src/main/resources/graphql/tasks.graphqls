@@ -72,7 +72,8 @@ type  Issue {
     memberships:[IssueMembership]
     activeMemberships:[IssueMembership]
     assignes:[UserApp]
-
+    canalLinks: [IssueCanalLink]
+    messageLinks: [IssueMessageLink]
 }
 
 type IssueMembership {
@@ -818,6 +819,10 @@ input CanalMemberInput {
 
 type Canall {
     id: ID
+    # Identifiant chez le fournisseur externe. C'est la seule clé commune avec
+    # `MessageDto.canalExternalId` : sans elle, impossible de regrouper les
+    # messages liés à une issue sous le canal dont ils proviennent.
+    externalId: String
     messageApp: [MessageApp]
     members: [CanalMember]
     typeCanal: TypeCanal!

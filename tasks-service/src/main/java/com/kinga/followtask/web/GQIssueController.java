@@ -291,6 +291,10 @@ public class GQIssueController {
         return issueService.getIssue(issueKey,projectId);
     }
     @QueryMapping
+    public Issue findIssueById(@Argument Long id){
+        return issueService.findIssueById(id);
+    }
+    @QueryMapping
     public List<Issue> loadSubtask(@Argument Long parentId){
         return issueService.loadSubtask(parentId);
     }

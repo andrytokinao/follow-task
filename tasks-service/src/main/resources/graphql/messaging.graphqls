@@ -50,9 +50,9 @@ type MessageDto {
   senderExternalId: String
   senderDisplayName: String
   senderAvatarUrl: String
-  createdAt: String!
-  fromMe: Boolean!
-  hasAttachment: Boolean!
+  created: String!
+  fromMe: Boolean
+  hasAttachment: Boolean
   attachments: [Attachment]
   messageLinks: [IssueMessageLink]
 }
@@ -68,7 +68,7 @@ type MessageApp {
   sender: UserApp
   fallbackSenderName: String
   processed: Boolean!
-  messageLinks: [IssueMessageLink!]
+  messageLinks: [IssueMessageLink]
   userReades: [ID!]
 }
 
@@ -154,8 +154,4 @@ type IssueCanalLink {
   canall: Canall
   linkedAt: String
   linkedBy: UserApp
-}
-extend type Issue {
-  canalLinks: [IssueCanalLink]
-  messageLinks: [IssueMessageLink]
 }

@@ -5,7 +5,7 @@ type Query {
     # pour n'en afficher qu'une vingtaine.
     searchUsers(criteria:UserSearchInput):UserPage
     allIssue :[Issue]
-    findIssueById(id:Int) :[Issue]
+    findIssueById(id:Int) :Issue
     findIssueByUserId(id:String):[Issue]
     findAllStatus:[Status]
     allComment(issueId:Int):[Comment]

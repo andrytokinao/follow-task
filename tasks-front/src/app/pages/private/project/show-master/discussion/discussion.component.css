@@ -1,0 +1,464 @@
+/* =========================================================================
+   Discussion d'une demande — canaux à gauche, messages à droite
+   ========================================================================= */
+:host {
+  --c-primary: #1565c0;
+  --c-primary-bg: #e8f1fb;
+  --c-text: #111827;
+  --c-text-muted: #6b7280;
+  --c-text-faint: #9ca3af;
+  --c-border: #e5e7eb;
+  --c-border-strong: #d1d5db;
+  --c-surface: #ffffff;
+  --c-surface-muted: #f9fafb;
+  --c-fil: #f4f6f8;
+  --c-danger: #b42318;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-pill: 999px;
+
+  display: block;
+  font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 12px;
+  color: var(--c-text);
+}
+
+.disc-page {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+/* ---- En-tête ---- */
+.disc-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.disc-head h1 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.disc-sous-titre {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--c-text-muted);
+}
+
+.disc-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid var(--c-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--c-surface);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--c-text);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.disc-btn:hover:not(:disabled) {
+  background: var(--c-surface-muted);
+}
+.disc-btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.disc-btn--discret {
+  height: 26px;
+  font-size: 10px;
+}
+
+.disc-erreur {
+  margin: 0;
+  padding: 8px 12px;
+  border: 1px solid #f3c6c2;
+  border-radius: var(--radius-sm);
+  background: #fdecea;
+  font-size: 11px;
+  color: var(--c-danger);
+}
+
+/* =========================================================================
+   Deux volets
+   -------------------------------------------------------------------------
+   Hauteur bornée et défilement interne à chaque volet : la liste des canaux
+   doit rester visible pendant qu'on parcourt un fil, c'est tout l'intérêt de
+   la disposition côte à côte.
+   ========================================================================= */
+.disc-corps {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 12px;
+  align-items: stretch;
+  height: clamp(420px, calc(100vh - 260px), 760px);
+}
+
+/* ---- Colonne des canaux ---- */
+.disc-canaux {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-md);
+  background: var(--c-surface);
+  overflow: hidden;
+}
+
+.disc-recherche {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--c-border);
+  color: var(--c-text-faint);
+  font-size: 11px;
+}
+.disc-recherche input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 12px;
+  color: var(--c-text);
+}
+.disc-recherche .fa-xmark {
+  cursor: pointer;
+}
+.disc-recherche .fa-xmark:hover {
+  color: var(--c-danger);
+}
+
+.disc-liste {
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  overflow-y: auto;
+}
+
+.disc-canal {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+.disc-canal:hover {
+  background: var(--c-surface-muted);
+}
+.disc-canal.actif {
+  background: var(--c-primary-bg);
+}
+
+.disc-canal-icone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+}
+
+.disc-canal-corps {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
+}
+
+.disc-canal-nom {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.disc-canal-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  color: var(--c-text-faint);
+  text-transform: capitalize;
+}
+
+/* Canal connu par ses seuls messages : distingué du canal réellement lié. */
+.disc-canal-indirect {
+  font-style: normal;
+  padding: 0 5px;
+  border-radius: var(--radius-pill);
+  background: #fef3c7;
+  color: #92400e;
+  text-transform: none;
+}
+
+.disc-canal-compte {
+  flex-shrink: 0;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: var(--radius-pill);
+  background: var(--c-border);
+  color: var(--c-text-muted);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+}
+.disc-canal.actif .disc-canal-compte {
+  background: var(--c-primary);
+  color: #fff;
+}
+
+.disc-liste-vide {
+  padding: 24px 8px;
+  text-align: center;
+  font-size: 11px;
+  color: var(--c-text-faint);
+}
+
+/* ---- Volet des messages ---- */
+.disc-messages {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-md);
+  background: var(--c-surface);
+  overflow: hidden;
+}
+
+.disc-messages-tete {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--c-border);
+  background: var(--c-surface-muted);
+}
+
+.disc-messages-titre {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+.disc-messages-titre strong {
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.disc-messages-titre small {
+  font-size: 10px;
+  color: var(--c-text-muted);
+}
+
+.disc-fil {
+  flex: 1;
+  min-height: 0;
+  padding: 14px;
+  overflow-y: auto;
+  background: var(--c-fil);
+}
+
+/* ---- Séparateur de jour ---- */
+.disc-jour {
+  display: flex;
+  justify-content: center;
+  margin: 12px 0;
+}
+.disc-jour span {
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  background: rgba(17, 24, 39, 0.06);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--c-text-muted);
+  text-transform: capitalize;
+}
+.disc-jour:first-child {
+  margin-top: 0;
+}
+
+/* ---- Bulles ---- */
+.disc-bulle-ligne {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+/* Les messages émis sont alignés à droite, comme dans toute messagerie :
+   l'alignement porte l'information « qui parle » sans la répéter. */
+.disc-bulle-ligne.sortant {
+  flex-direction: row-reverse;
+}
+
+.disc-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-pill);
+  background: #e0e7ff;
+  color: #4338ca;
+  font-size: 9px;
+  font-weight: 700;
+  overflow: hidden;
+}
+.disc-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.disc-bulle {
+  max-width: min(560px, 78%);
+  padding: 7px 10px;
+  border: 1px solid var(--c-border);
+  border-radius: 10px 10px 10px 2px;
+  background: var(--c-surface);
+  box-shadow: 0 1px 1px rgba(16, 24, 40, 0.04);
+}
+.disc-bulle-ligne.sortant .disc-bulle {
+  border-radius: 10px 10px 2px 10px;
+  border-color: #bfdbfe;
+  background: #eff6ff;
+}
+
+.disc-bulle-tete {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 2px;
+}
+
+.disc-auteur {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--c-primary);
+}
+.disc-bulle-ligne.sortant .disc-auteur {
+  color: #1d4ed8;
+}
+
+.disc-heure {
+  font-size: 10px;
+  color: var(--c-text-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.disc-texte {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  /* Conserve les retours à la ligne saisis, sans laisser un mot très long
+     élargir la bulle. */
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.disc-vide-texte {
+  margin: 0;
+  font-size: 11px;
+  color: var(--c-text-faint);
+}
+
+.disc-pj {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.disc-pj-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-sm);
+  background: var(--c-surface-muted);
+  font-size: 11px;
+  color: var(--c-text);
+  text-decoration: none;
+}
+.disc-pj-item:hover {
+  border-color: var(--c-primary);
+  color: var(--c-primary);
+}
+.disc-pj-item i {
+  color: var(--c-text-faint);
+}
+
+/* ---- États ---- */
+.disc-etat {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--c-text-muted);
+}
+.disc-etat i {
+  font-size: 22px;
+  color: var(--c-text-faint);
+}
+.disc-etat p {
+  margin: 0;
+  font-size: 12px;
+}
+.disc-etat-aide {
+  max-width: 340px;
+  color: var(--c-text-faint);
+}
+
+/* =========================================================================
+   Responsive
+   ========================================================================= */
+@media (max-width: 860px) {
+  /* Les deux volets s'empilent : la liste des canaux devient un bandeau
+     défilant horizontalement, le fil garde toute la largeur. */
+  .disc-corps {
+    grid-template-columns: minmax(0, 1fr);
+    height: auto;
+  }
+
+  .disc-canaux {
+    max-height: 210px;
+  }
+
+  .disc-fil {
+    max-height: 60vh;
+  }
+
+  .disc-bulle {
+    max-width: 88%;
+  }
+}

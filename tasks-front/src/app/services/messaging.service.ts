@@ -20,7 +20,8 @@ import {
   LINK_ISSUE_TO_CANAL,
   UNLINK_ISSUE_FROM_CANAL, LIST_MESSAGES_ENTITY,
   LINK_ISSUES_TO_MESSAGES,
-  LINK_ISSUES_TO_CANAL
+  LINK_ISSUES_TO_CANAL,
+  ISSUE_DISCUSSION
 } from '../type/graphql.operations';
 
 import {
@@ -52,6 +53,23 @@ export class MessagingService {
       variables: { type },
       fetchPolicy: 'cache-and-network',
     }).valueChanges.pipe(map(r => r.data.listCanaux));
+  }
+
+  /**
+   * Canaux et messages rattachés à une issue maître.
+   *
+   * `findIssueById` renvoie une liste : le schéma le veut ainsi, on n'en prend
+   * que le premier élément.
+   */
+  issueDiscussion(issueId: number): Observable<Issue | null> {
+    return this.apollo.query<{ findIssueById: Issue }>({
+      query: ISSUE_DISCUSSION,
+      variables: {id: issueId},
+      fetchPolicy: 'network-only',
+    }).pipe(map(r => {
+      const issues = r?.data?.findIssueById ?? {};
+      return issues;
+    }));
   }
 
   getCanal(type: TypeCanal, externalId: string): Observable<CanalDto> {

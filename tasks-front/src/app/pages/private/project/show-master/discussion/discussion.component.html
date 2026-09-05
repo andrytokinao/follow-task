@@ -1,1 +1,145 @@
-<app-exchange-documents [typeDocument]="'EXCHANGE_DOCUMENT'" [issue]="issue"></app-exchange-documents>
+<div class="disc-page">
+
+  <header class="disc-head">
+    <div>
+      <h1>Discussion</h1>
+      <p class="disc-sous-titre">
+        Canaux et messages rattachés à cette demande
+        <span *ngIf="canaux.length">— {{ canaux.length }} canal(aux), {{ totalMessages }} message(s)</span>
+      </p>
+    </div>
+    <button type="button" class="disc-btn" (click)="charger()" [disabled]="chargement">
+      <i class="fas" [ngClass]="chargement ? 'fa-circle-notch fa-spin' : 'fa-rotate-right'"></i>
+      <span>Actualiser</span>
+    </button>
+  </header>
+
+  <p class="disc-erreur" *ngIf="erreur">{{ erreur }}</p>
+
+  <div class="disc-corps">
+
+    <!-- ======================= Colonne des canaux ======================= -->
+    <aside class="disc-canaux">
+      <div class="disc-recherche">
+        <i class="fas fa-magnifying-glass"></i>
+        <input type="text" [(ngModel)]="recherche" placeholder="Filtrer les canaux"/>
+        <i class="fas fa-xmark" *ngIf="recherche" (click)="recherche = ''" title="Effacer"></i>
+      </div>
+
+      <ul class="disc-liste">
+        <li *ngFor="let canal of canauxFiltres; trackBy: trackByCanal"
+            class="disc-canal"
+            [class.actif]="canal.externalId === canalRetenu?.externalId"
+            (click)="selectionner(canal)">
+          <span class="disc-canal-icone" [style.background]="couleur(canal.type) + '1f'"
+                [style.color]="couleur(canal.type)">
+            <i [ngClass]="icone(canal.type)"></i>
+          </span>
+
+          <span class="disc-canal-corps">
+            <span class="disc-canal-nom" [title]="canal.pseudo">{{ canal.pseudo }}</span>
+            <span class="disc-canal-meta">
+              <span *ngIf="canal.type">{{ canal.type }}</span>
+              <!-- Un canal déduit de ses seuls messages n'est pas rattaché à la
+                   demande : le dire évite de croire la liaison faite. -->
+              <em class="disc-canal-indirect" *ngIf="!canal.lien" title="Canal non rattaché à la demande">
+                via messages
+              </em>
+            </span>
+          </span>
+
+          <span class="disc-canal-compte" *ngIf="canal.messages.length">{{ canal.messages.length }}</span>
+        </li>
+
+        <li class="disc-liste-vide" *ngIf="!canauxFiltres.length && !chargement">
+          <span *ngIf="recherche">Aucun canal ne correspond</span>
+          <span *ngIf="!recherche">Aucun canal rattaché</span>
+        </li>
+      </ul>
+    </aside>
+
+    <!-- ======================= Volet des messages ======================= -->
+    <section class="disc-messages">
+
+      <div class="disc-etat" *ngIf="chargement">
+        <i class="fas fa-circle-notch fa-spin"></i> Chargement de la discussion…
+      </div>
+
+      <div class="disc-etat" *ngIf="vide">
+        <i class="fas fa-comments"></i>
+        <p>Aucun canal ni message n'est rattaché à cette demande.</p>
+        <p class="disc-etat-aide">
+          Depuis la messagerie, liez un canal ou un message à cette demande pour
+          le retrouver ici.
+        </p>
+      </div>
+
+      <ng-container *ngIf="canalRetenu && !chargement">
+        <header class="disc-messages-tete">
+          <span class="disc-canal-icone" [style.background]="couleur(canalRetenu.type) + '1f'"
+                [style.color]="couleur(canalRetenu.type)">
+            <i [ngClass]="icone(canalRetenu.type)"></i>
+          </span>
+          <span class="disc-messages-titre">
+            <strong>{{ canalRetenu.pseudo }}</strong>
+            <small>{{ canalRetenu.messages.length }} message(s) rattaché(s)</small>
+          </span>
+          <button type="button" class="disc-btn disc-btn--discret" (click)="ouvrirCanal(canalRetenu)">
+            <i class="fas fa-arrow-up-right-from-square"></i>
+            <span>Ouvrir le canal</span>
+          </button>
+        </header>
+
+        <div class="disc-fil">
+          <ng-container *ngFor="let journee of journees; trackBy: trackByJournee">
+            <div class="disc-jour"><span>{{ journee.libelle }}</span></div>
+
+            <article class="disc-bulle-ligne"
+                     *ngFor="let lien of journee.messages; trackBy: trackByLien"
+                     [class.sortant]="message(lien)?.fromMe">
+              <span class="disc-avatar" *ngIf="!message(lien)?.fromMe">
+                <img *ngIf="message(lien)?.senderAvatarUrl"
+                     [src]="message(lien)?.senderAvatarUrl" [alt]="auteur(lien)"/>
+                <span *ngIf="!message(lien)?.senderAvatarUrl">{{ initiales(auteur(lien)) }}</span>
+              </span>
+
+              <div class="disc-bulle">
+                <div class="disc-bulle-tete">
+                  <span class="disc-auteur">{{ auteur(lien) }}</span>
+                  <span class="disc-heure">{{ heure(lien) }}</span>
+                </div>
+
+                <p class="disc-texte" *ngIf="message(lien)?.text">{{ message(lien)?.text }}</p>
+
+                <div class="disc-pj" *ngIf="estPieceJointe(lien)">
+                  <a class="disc-pj-item"
+                     *ngFor="let piece of message(lien)?.attachments"
+                     [href]="piece.downloadUrl || '#'"
+                     target="_blank" rel="noopener">
+                    <i class="fas fa-paperclip"></i>
+                    <span>{{ piece.fileName || 'Pièce jointe' }}</span>
+                  </a>
+                </div>
+
+                <p class="disc-vide-texte" *ngIf="!message(lien)?.text && !estPieceJointe(lien)">
+                  <em>Message sans contenu textuel</em>
+                </p>
+              </div>
+            </article>
+          </ng-container>
+
+          <!-- Canal rattaché sans aucun message lié : le dire plutôt que de
+               laisser un volet vide sans explication. -->
+          <div class="disc-etat" *ngIf="!journees.length">
+            <i class="fas fa-inbox"></i>
+            <p>Ce canal est rattaché à la demande, mais aucun de ses messages ne l'est.</p>
+            <p class="disc-etat-aide">
+              Ouvrez le canal pour y rattacher les messages qui concernent cette
+              demande.
+            </p>
+          </div>
+        </div>
+      </ng-container>
+    </section>
+  </div>
+</div>

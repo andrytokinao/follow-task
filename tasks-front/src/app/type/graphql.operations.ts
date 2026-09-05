@@ -397,6 +397,66 @@ const ALL_USERS = gql`
     }
   }
 `;
+/**
+ * Canaux et messages rattachés à une issue maître.
+ *
+ * Une seule requête pour les deux liaisons : elles s'affichent côte à côte et
+ * les charger séparément ferait apparaître la colonne des canaux avant les
+ * messages qui les peuplent.
+ */
+export const ISSUE_DISCUSSION = gql`
+  query issueDiscussion($id: Int) {
+    findIssueById(id: $id) {
+      id
+      issueKey
+      summary
+      canalLinks {
+        id
+        linkedAt
+        canall {
+          id
+          externalId
+          pseudo
+          typeCanal
+        }
+        linkedBy {
+          id
+          firstName
+          lastName
+          photo
+        }
+      }
+      messageLinks {
+        id
+        linkedAt
+        message {
+          externalMessageId
+          canalExternalId
+          text
+          mediaType
+          senderDisplayName
+          senderAvatarUrl
+          created
+          fromMe
+          hasAttachment
+          attachments {
+            fileName
+            mimeType
+            mediaType
+            downloadUrl
+          }
+        }
+        linkedBy {
+          id
+          firstName
+          lastName
+          photo
+        }
+      }
+    }
+  }
+`;
+
 /** Recherche paginée d'utilisateurs : filtre et tri sont appliqués en base. */
 export const SEARCH_USERS = gql`
   query searchUsers($criteria: UserSearchInput) {
@@ -3193,7 +3253,7 @@ export const LIST_CANAUX = gql`
         externalMessageId
         text
         mediaType
-        createdAt
+        created
         fromMe
         senderDisplayName
       }
@@ -3257,7 +3317,7 @@ export const LIST_MESSAGES = gql`
       senderExternalId
       senderDisplayName
       senderAvatarUrl
-      createdAt
+      created
       fromMe
       hasAttachment
       messageLinks {
@@ -3347,7 +3407,7 @@ export const GET_MESSAGE = gql`
       senderExternalId
       senderDisplayName
       senderAvatarUrl
-      createdAt
+      created
       fromMe
       hasAttachment
       attachments {
@@ -3382,7 +3442,7 @@ export const SEND_EXTERNAL_MESSAGE = gql`
       externalMessageId
       text
       mediaType
-      createdAt
+      created
       fromMe
     }
   }

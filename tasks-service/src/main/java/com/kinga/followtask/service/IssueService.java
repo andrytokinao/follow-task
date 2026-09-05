@@ -856,4 +856,8 @@ public class IssueService {
         long minutes = totalMinutes % 60;
         return String.format("%02d:%02d", hours, minutes);
     }
+
+    public Issue findIssueById(Long id) {
+        return issueRepository.findById(id).orElse(null);
+    }
 }

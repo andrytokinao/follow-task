@@ -13,7 +13,7 @@ export interface IssueMessageDto {
   senderId: number | null;
   senderDisplayName: string;
   fromMe: boolean;
-  createdAt: string;
+  created: string;
 }
 
 export interface IssueCanalMessagesDto {
