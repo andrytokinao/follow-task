@@ -432,6 +432,12 @@ export const ISSUE_DISCUSSION = gql`
         message {
           externalMessageId
           canalExternalId
+          canall {
+            id
+            externalId
+            pseudo
+            typeCanal
+          }
           text
           mediaType
           senderDisplayName

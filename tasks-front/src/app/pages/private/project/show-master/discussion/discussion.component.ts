@@ -85,7 +85,6 @@ export class DiscussionComponent implements OnInit, OnDestroy {
   // -----------------------------------------------------------------------
 
   charger(issueId?: number): void {
-    alert(issueId);
     const id = issueId ?? this.issue?.id;
     if (id == null) {
       return;
@@ -130,21 +129,28 @@ export class DiscussionComponent implements OnInit, OnDestroy {
 
     for (const lien of liensMessages) {
       const message = (lien as any)?.message as MessageDto | undefined;
-      const externalId = String(message?.canalExternalId ?? '');
+      const canalDuMessage = message?.canall;
+      const externalId = String(message?.canalExternalId || canalDuMessage?.externalId || '');
       if (!externalId) {
         continue;
       }
       let canal = index.get(externalId);
       if (!canal) {
         // Canal connu par ses seuls messages : on le crée pour ne pas perdre
-        // les messages, sans prétendre qu'il est rattaché à l'issue.
+        // les messages, sans prétendre qu'il est rattaché à l'issue. Son nom
+        // vient du canal porté par le message ; l'identifiant externe n'est
+        // qu'un dernier recours, illisible pour l'utilisateur.
         canal = {
           externalId,
-          pseudo: String(message?.senderDisplayName || externalId),
-          type: '',
+          pseudo: String(canalDuMessage?.pseudo || message?.senderDisplayName || externalId),
+          type: String(canalDuMessage?.typeCanal ?? ''),
           messages: []
         };
         index.set(externalId, canal);
+      } else if (canalDuMessage?.pseudo && canal.pseudo === externalId) {
+        // Un canal d'abord vu sans nom se nomme dès qu'un message le porte.
+        canal.pseudo = String(canalDuMessage.pseudo);
+        canal.type = canal.type || String(canalDuMessage.typeCanal ?? '');
       }
       canal.messages.push(lien);
     }

@@ -45,6 +45,7 @@ type Attachment {
 type MessageDto {
   externalMessageId: String!
   canalExternalId: String!
+  canall: Canall
   text: String
   mediaType: MediaType
   senderExternalId: String

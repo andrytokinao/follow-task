@@ -69,6 +69,7 @@ export interface AttachmentDto {
 export interface MessageDto {
   externalMessageId: string;
   canalExternalId: string;
+  canall?: Canall | null;
   text: string | null;
   mediaType: MediaType;
   senderExternalId: string | null;

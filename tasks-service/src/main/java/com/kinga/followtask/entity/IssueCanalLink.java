@@ -31,4 +31,13 @@ public class IssueCanalLink {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "linked_by")
     private UserApp linkedBy;
+
+    /**
+     * Le schéma GraphQL expose ce lien sous le nom `canall`, l'entité l'appelle
+     * `canal` : sans cet accesseur, le champ se résout à null et le canal
+     * n'a plus ni pseudo ni type à afficher.
+     */
+    public Canall getCanall() {
+        return canal;
+    }
 }
