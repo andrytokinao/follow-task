@@ -1494,7 +1494,19 @@ export class IssueService implements OnInit {
   // courant. Conservée telle quelle : appelée depuis le fil d'ariane, le
   // planning et les listes, qui n'ont pas la contrainte "même projet".
   browsIssueMaster(issue: Issue) {
-    this.router.navigate(["working/" + this.projectSubject.value.prefix + "/issue/" + issue.issueKey + "/details"])
+    const currentUrl = this.router.url;
+    const [path, query] = currentUrl.split('?');
+    const segments = path.split('/');
+    const issueIdx = segments.indexOf('issue');
+
+    if (issueIdx !== -1 && segments.length > issueIdx + 1) {
+      segments[issueIdx + 1] = issue.issueKey.toString();
+      this.router.navigateByUrl(segments.join('/') + (query ? '?' + query : ''));
+    } else {
+      this.router.navigate([
+        "working/" + this.projectSubject.value.prefix + "/issue/" + issue.issueKey + "/details"
+      ]);
+    }
   }
 
   allIssueType(projectId: Number) {
