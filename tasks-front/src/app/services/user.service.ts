@@ -144,6 +144,7 @@ export class UserService {
   saveUser(user:User) {
     var userApp:any = {...user};
     delete  userApp.permissions;
+    delete userApp.groupes;
     return this.apollo.mutate(
       {
         mutation : SAVE_USER,
