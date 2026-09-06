@@ -140,9 +140,23 @@ export class ProjectComponent implements OnInit{
   selectProject(project: Project) {
     this.workSpace = project.prefix.toString();
     this.project = project;
-    this.router.navigate(["/working/"+project.prefix+"/projects/master"])
-  }
 
+    const currentUrl = this.router.url;
+    const [path, query] = currentUrl.split('?');
+    const segments = path.split('/').filter(s => s.length > 0); // enlève les "" dus au split
+
+    const workingIdx = segments.indexOf('working');
+
+    // segments après "working/{prefix}/"
+    const rest = workingIdx !== -1 ? segments.slice(workingIdx + 2) : [];
+
+    if (workingIdx !== -1 && rest.length === 1) {
+      segments[workingIdx + 1] = project.prefix.toString();
+      this.router.navigateByUrl('/' + segments.join('/') + (query ? '?' + query : ''));
+    } else {
+      this.router.navigate(["/working/" + project.prefix + "/projects/master"]);
+    }
+  }
 
   triggerAnimation() {
     this.issueService.nextIsLoadingWorkspace( !this.isworkspace);
