@@ -165,7 +165,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   selectProject(project: Project): void {
     this.isLoading = true;
     this.loadingMessage = `Ouverture de « ${project.name} »`;
-    this.router.navigate(['/working/' + project.prefix + '/list/master']);
+    this.router.navigate(['/working/' + project.prefix + '/projects/master']);
   }
 
   createProject(): void {

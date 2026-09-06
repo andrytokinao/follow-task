@@ -140,7 +140,7 @@ export class ProjectComponent implements OnInit{
   selectProject(project: Project) {
     this.workSpace = project.prefix.toString();
     this.project = project;
-    this.router.navigate(["/working/"+project.prefix+"/list/master"])
+    this.router.navigate(["/working/"+project.prefix+"/projects/master"])
   }
 
 

@@ -36,8 +36,8 @@ const projectRoute: Routes = [
         path: '',
         children: [
           {
-            path: 'list',
-            data:{order:1, title:'Liste'},
+            path: 'projects',
+            data:{order:1, title:'Projets'},
             loadChildren: () => import('./list/list.module').then(m => m.ListModule),
             //  canMatch: [userAdmin]
           },
