@@ -276,6 +276,12 @@
         <div class="tab-content">
           <p class="panel-title">Changer le mot de passe</p>
 
+          <div class="save-status" *ngIf="passwordChangeStatus">
+            <span [class]="passwordChangeStatus === 'success' ? 'status-badge success' : 'status-badge error'">
+              {{ passwordChangeStatus === 'success' ? '✓ Mot de passe mis à jour' : '✗ Erreur lors du changement de mot de passe' }}
+            </span>
+          </div>
+
           <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
 
             <mat-form-field appearance="outline" class="field full" *ngIf="!isCreate">

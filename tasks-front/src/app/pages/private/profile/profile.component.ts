@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { MemberGroupe, User } from '../../../type/issue';
 import { UserService } from '../../../services/user.service';
@@ -35,7 +35,7 @@ type AddContactStep = 'search' | 'verify' | 'success';
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css'
 })
-export class ProfileComponent implements OnInit {
+export class ProfileComponent implements OnInit, OnDestroy {
 
   constructor(private userService: UserService, private fb: FormBuilder) {}
 
@@ -59,6 +59,12 @@ export class ProfileComponent implements OnInit {
 
   userForm!: FormGroup;
   passwordForm!: FormGroup;
+
+  // Statut dédié au changement de mot de passe, séparé de `savingStatus`
+  // (utilisé par le formulaire utilisateur) pour ne pas mélanger les deux
+  // messages si l'utilisateur bascule entre les onglets.
+  passwordChangeStatus: string = '';
+  private passwordStatusTimer: ReturnType<typeof setTimeout> | null = null;
 
   // ---------------------------------------------------------------------
   // Contacts (données fictives pour l'affichage)
@@ -112,6 +118,11 @@ export class ProfileComponent implements OnInit {
       newPassword:     ['', [Validators.required, Validators.minLength(8)]],
       confirmPassword: ['', Validators.required],
     }, { validators: passwordMatchValidator });
+  }
+
+  ngOnDestroy(): void {
+    if (this.cooldownTimer) clearInterval(this.cooldownTimer);
+    if (this.passwordStatusTimer) clearTimeout(this.passwordStatusTimer);
   }
 
   get passwordStrength(): number {
@@ -178,9 +189,36 @@ export class ProfileComponent implements OnInit {
     if (this.passwordForm.invalid) return;
     const { currentPassword, newPassword } = this.passwordForm.value;
     this.userService.changePassword(this.user.id, currentPassword, newPassword).subscribe(
-      () => { this.passwordForm.reset(); this.savingStatus = 'success'; },
-      (err) => { console.error(err); }
+      () => {
+        this.resetPasswordForm();
+        this.passwordChangeStatus = 'success';
+        this.scheduleClearPasswordStatus();
+      },
+      (err) => {
+        console.error(err);
+        this.passwordChangeStatus = 'error';
+        this.scheduleClearPasswordStatus();
+      }
     );
+  }
+
+  // reset() vide les valeurs et remet chaque contrôle à pristine/untouched,
+  // mais on le force explicitement control par control pour être sûr
+  // qu'aucun champ ne reste marqué "touched" (donc affiché en rouge par
+  // Material) après le changement de mot de passe.
+  private resetPasswordForm(): void {
+    this.passwordForm.reset();
+    Object.values(this.passwordForm.controls).forEach(control => {
+      control.markAsUntouched();
+      control.markAsPristine();
+    });
+    this.passwordForm.markAsUntouched();
+    this.passwordForm.markAsPristine();
+  }
+
+  private scheduleClearPasswordStatus(): void {
+    if (this.passwordStatusTimer) clearTimeout(this.passwordStatusTimer);
+    this.passwordStatusTimer = setTimeout(() => (this.passwordChangeStatus = ''), 4000);
   }
 
   selectPhoto($event: Event) {
