@@ -16,6 +16,8 @@ import {MessagesService} from "../../services/messages.service";
 import {MatMenuTrigger} from "@angular/material/menu";
 import {ALL_EVENT_TYPE} from "../../type/graphql.operations";
 import {IssutypeForm2Component} from "../issutype-form2/issutype-form2.component";
+import {ProjectGuard} from "../../services/ProjectGuard";
+import {Observable, shareReplay} from "rxjs";
 
 @Component({
   standalone:false,
@@ -46,9 +48,27 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
   protected errorMessage: string;
   @ViewChild('newIssueTypeTrigger') newIssueTypeTrigger!: MatMenuTrigger;
   @ViewChild('issutypeForm') issutypeForm!: IssutypeForm2Component;
+
+  /**
+   * Creer un type de demande releve de la configuration du projet : seuls le
+   * gestionnaire de projet et l'administrateur y ont acces, les autres membres
+   * se contentent de choisir parmi les types existants.
+   *
+   * `hasCredential` renvoie un Observable froid qui refait tout son travail a
+   * chaque abonnement — d'ou le `shareReplay`, sans quoi le `| async` du gabarit
+   * relancerait la resolution des droits a chaque cycle de detection. Les
+   * porteurs de `CAN_ACCESS_ALL` (administrateur global) restent couverts.
+   */
+  protected readonly peutCreerType$: Observable<boolean>;
+
   constructor(public issueService: IssueService,
-    protected messageService :MessagesService
-  ) {}
+    protected messageService :MessagesService,
+    private projectGuard: ProjectGuard
+  ) {
+    this.peutCreerType$ = this.projectGuard
+      .hasCredential(['PROJECT_MANAGER', 'ADMIN'])
+      .pipe(shareReplay(1));
+  }
 
   ngOnInit(): void {
     this.issueService.issueTypeParent$.subscribe(issueTypes => {
@@ -270,7 +290,8 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
   }
 
   onIssueTypeSaved(issueType:IssueType) {
-    this.newIssueTypeTrigger.closeMenu();
+    // Le declencheur vit sous un *ngIf de droits : il peut ne pas exister.
+    this.newIssueTypeTrigger?.closeMenu();
     this.menuTrigger.closeMenu();
     this.pushIssueType(issueType);
     this.issueType = issueType;

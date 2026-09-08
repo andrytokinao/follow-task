@@ -18,7 +18,7 @@
 
 <mat-menu #master_list="matMenu" yPosition="below" xPosition="after" class="master-breadcrumb">
   <div class="dropdown-header">Issues maîtres</div>
-  <ng-container *ngIf="projectGuard.hasCredential(['PROJECT_MANAGER']) | async">
+  <ng-container *ngIf="peutCreerProjet$ | async">
     <div class="dropdown-create-wrapper" (click)="$event.stopPropagation()">
       <button class="btn-create-menu" (click)="createIssueMaster()">
         <svg viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">

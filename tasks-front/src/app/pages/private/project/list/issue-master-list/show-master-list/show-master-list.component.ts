@@ -18,6 +18,7 @@ import {ProjectGuard} from "../../../../../../services/ProjectGuard";
 import {MessagesService} from "../../../../../../services/messages.service";
 import {MatMenuTrigger} from "@angular/material/menu";
 import {NewIssueFormComponent} from "../../../../../../common/new-issue-form/new-issue-form.component";
+import {Observable, shareReplay} from "rxjs";
 
 @Component({
   selector: 'app-show-master-list',
@@ -71,6 +72,18 @@ export class ShowMasterListComponent implements OnInit, OnDestroy {
   noFilter:CustomFilter  ={};
   isLoading: boolean = false;
 
+  /**
+   * Creer un projet (issue maitre) n'est ouvert qu'au gestionnaire de projet et
+   * a l'administrateur ; les autres membres travaillent sur les projets
+   * existants.
+   *
+   * `hasCredential` renvoie un Observable froid qui refait tout son travail a
+   * chaque abonnement — d'ou le `shareReplay`, sans quoi le `| async` du gabarit
+   * relancerait la resolution des droits a chaque cycle de detection. Les
+   * porteurs de `CAN_ACCESS_ALL` (administrateur global) restent couverts.
+   */
+  protected readonly peutCreerProjet$: Observable<boolean>;
+
   constructor(
     private modalService: NgbModal,
     protected issueService: IssueService,
@@ -82,7 +95,9 @@ export class ShowMasterListComponent implements OnInit, OnDestroy {
     protected projectGuard: ProjectGuard,
     private messageService:MessagesService
 ) {
-
+    this.peutCreerProjet$ = this.projectGuard
+      .hasCredential(['PROJECT_MANAGER', 'ADMIN'])
+      .pipe(shareReplay(1));
   }
 
   @ViewChild('createMasterTrigger') createMasterTrigger!: MatMenuTrigger;

@@ -9,6 +9,8 @@ import {AuthService} from "../../services/auth.service";
 import {rotateRoomToBottom} from "../../../../projects/router-animations/src/lib/router-animations";
 import {MessagesService} from "../../services/messages.service";
 import {UserService} from "../../services/user.service";
+import {ProjectGuard} from "../../services/ProjectGuard";
+import {Observable, shareReplay} from "rxjs";
 
 @Component({
   selector: 'smart-footer',
@@ -37,13 +39,25 @@ export class SmartFooterComponent {
   protected unrededNofication = 0;
   connectedUser: User | undefined;
 
+  /**
+   * L'entree du pied de page ouvre le meme formulaire d'issue maitre que la
+   * barre de la liste des projets : elle suit donc la meme regle, gestionnaire
+   * de projet et administrateur uniquement. Sans cela, le bouton offrait a tous
+   * un chemin de contournement vers la creation de projet.
+   */
+  protected readonly peutCreerProjet$: Observable<boolean>;
+
   constructor(
     protected actionService:ActionService,
     private authService: AuthService,
     private messageService:MessagesService,
-    protected  userService:UserService
+    protected  userService:UserService,
+    private projectGuard: ProjectGuard
 
   ) {
+    this.peutCreerProjet$ = this.projectGuard
+      .hasCredential(['PROJECT_MANAGER', 'ADMIN'])
+      .pipe(shareReplay(1));
     this.actionService.notification$.subscribe(nots => {
       this.notifications = nots;
     });

@@ -121,14 +121,17 @@
     <span class="type-dot-sm" [style.background]="getIssueTypeColor(type)"></span>
     <span>{{ type.name }}</span>
   </button>
-  <mat-divider></mat-divider>
-  <button mat-menu-item
-          [matMenuTriggerFor]="newTypeMenu"
-          #newIssueTypeTrigger="matMenuTrigger"
-          (menuOpened)="onMenuIssuetypeOpened()" class="new-type-btn">
-    <mat-icon>add</mat-icon>
-    <span>Nouveau type</span>
-  </button>
+  <!-- Creation d'un type : reservee au gestionnaire de projet et a l'admin. -->
+  <ng-container *ngIf="peutCreerType$ | async">
+    <mat-divider></mat-divider>
+    <button mat-menu-item
+            [matMenuTriggerFor]="newTypeMenu"
+            #newIssueTypeTrigger="matMenuTrigger"
+            (menuOpened)="onMenuIssuetypeOpened()" class="new-type-btn">
+      <mat-icon>add</mat-icon>
+      <span>Nouveau type</span>
+    </button>
+  </ng-container>
 </mat-menu>
 
 <!-- ── Sous-menu nouveau type ── -->

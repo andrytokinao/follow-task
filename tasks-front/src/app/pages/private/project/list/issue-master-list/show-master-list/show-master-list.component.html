@@ -6,7 +6,7 @@
   <button class="btn-new" [matMenuTriggerFor]="newMasterMenu"
           #createMasterTrigger="matMenuTrigger"
           (menuOpened)="onMenuOpened()"
-          *ngIf="projectGuard.hasCredential(['PROJECT_MANAGER']) | async">
+          *ngIf="peutCreerProjet$ | async">
     <i class="fas fa-plus"></i> Nouveau projet
   </button>
 
