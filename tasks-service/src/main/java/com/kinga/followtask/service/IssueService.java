@@ -103,6 +103,13 @@ public class IssueService {
     private  CurrentUserProvider currentUserProvider;
     @Autowired
     private IssueMembershipService issueMembershipService;
+    @Autowired
+    private IssueMembershipRepository issueMembershipRepository;
+    @Autowired
+    private IssueCanalLinkRepository issueCanalLinkRepository;
+    @Autowired
+    private IssueMessageLinkRepository issueMessageLinkRepository;
+
     public Issue saveIssue(Issue issue) throws IOException {
 
 
@@ -616,6 +623,15 @@ public class IssueService {
         });
         issue.getLabels().forEach( l -> {
             issueLabelsRepository.delete(l);
+        });
+        issue.getMemberships().forEach(a-> {
+            issueMembershipRepository.delete(a);
+        } );
+        issue.getCanalLinks().forEach(cl->{
+            issueCanalLinkRepository.delete(cl);
+        });
+        issue.getMessageLinks().forEach(lm->{
+            issueMessageLinkRepository.delete(lm);
         });
         issueRepository.delete(issue);
 
