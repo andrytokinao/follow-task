@@ -40,6 +40,12 @@ export class LoginComponent implements OnInit{
   loginInProgress = false;
   loginMessage?: string;
   loginErrorMessage?: string;
+
+  // Visibilité des champs mot de passe (un état indépendant par champ)
+  showLoginPassword = false;
+  showNewPassword = false;
+  showConfirmPassword = false;
+
   constructor(private router: Router,
               private loginService: AuthService,
               private localStorage: LocalStorageService,
@@ -99,6 +105,20 @@ export class LoginComponent implements OnInit{
     this.signupMode = true;
     this.forgotPasword = false;
   }
+
+  // Bascule d'affichage d'un champ mot de passe donné (texte clair <-> masqué)
+  toggleLoginPassword(): void {
+    this.showLoginPassword = !this.showLoginPassword;
+  }
+
+  toggleNewPassword(): void {
+    this.showNewPassword = !this.showNewPassword;
+  }
+
+  toggleConfirmPassword(): void {
+    this.showConfirmPassword = !this.showConfirmPassword;
+  }
+
   eventGateway = inject(EventGateway);
   private isValidContact():ValidatorFn{
     return (group: AbstractControl): Nullable<ValidationErrors> => {
@@ -191,8 +211,8 @@ export class LoginComponent implements OnInit{
     user.password = this.form.value.password;
     this.userService.saveUser(user).subscribe(user => {
       this.toast.success("Resister successful","Successful");
-       this.showSignIn() ;
-      }, error =>  {
+      this.showSignIn() ;
+    }, error =>  {
       this.toast.error("Sign up error :"+error.message,"Sign up error");
     })
 

@@ -298,6 +298,37 @@
   color: var(--c-text-faint);
 }
 
+/* Bouton œil : même famille visuelle que l'icône de gauche (taille, couleur
+   au repos), mais cliquable et sans affecter la hauteur du champ. */
+.password-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  margin-left: 4px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--c-text-faint);
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.password-toggle i {
+  width: auto;
+  font-size: 13px;
+  color: inherit;
+}
+.password-toggle:hover {
+  color: var(--c-text-muted);
+  background: var(--c-surface-muted);
+}
+.field-control:focus-within .password-toggle {
+  color: var(--c-text-muted);
+}
+
 .field-error {
   display: block;
   min-height: 14px;

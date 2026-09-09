@@ -124,12 +124,20 @@
             <span class="field-control">
               <i class="fas fa-lock"></i>
               <input
-                type="password"
+                [type]="showLoginPassword ? 'text' : 'password'"
                 autocomplete="current-password"
                 placeholder="••••••••"
                 [(ngModel)]="password"
                 [ngModelOptions]="{ standalone: true }"
               />
+              <button
+                type="button"
+                class="password-toggle"
+                (click)="toggleLoginPassword()"
+                [attr.aria-label]="showLoginPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
+              >
+                <i class="fas" [class.fa-eye]="!showLoginPassword" [class.fa-eye-slash]="showLoginPassword"></i>
+              </button>
             </span>
           </label>
 
@@ -253,13 +261,21 @@
                 <i class="fas fa-lock"></i>
                 <input
                   id="newPasword"
-                  type="password"
+                  [type]="showNewPassword ? 'text' : 'password'"
                   name="password"
                   formControlName="password"
                   placeholder="••••••••"
                   autocomplete="new-password"
                   [(ngModel)]="newPassword"
                 />
+                <button
+                  type="button"
+                  class="password-toggle"
+                  (click)="toggleNewPassword()"
+                  [attr.aria-label]="showNewPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
+                >
+                  <i class="fas" [class.fa-eye]="!showNewPassword" [class.fa-eye-slash]="showNewPassword"></i>
+                </button>
               </span>
               <span class="field-error">
                 <span *ngIf="form.controls.password.touched && form.controls.password.errors?.['required']">
@@ -274,13 +290,21 @@
                 <i class="fas fa-lock"></i>
                 <input
                   id="confirmPasword"
-                  type="password"
+                  [type]="showConfirmPassword ? 'text' : 'password'"
                   name="password"
                   formControlName="confirmPassword"
                   placeholder="••••••••"
                   autocomplete="new-password"
                   [(ngModel)]="confirmPassword"
                 />
+                <button
+                  type="button"
+                  class="password-toggle"
+                  (click)="toggleConfirmPassword()"
+                  [attr.aria-label]="showConfirmPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
+                >
+                  <i class="fas" [class.fa-eye]="!showConfirmPassword" [class.fa-eye-slash]="showConfirmPassword"></i>
+                </button>
               </span>
               <span class="field-error">
                 <span *ngIf="
