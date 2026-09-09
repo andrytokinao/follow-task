@@ -25,7 +25,9 @@ public class IssueCanalLink {
     private Canall canal;
 
     private LocalDateTime since;
+    @Column(name = "linked_at")
     private LocalDateTime linkedAt;
+    @Column(name = "ended_at")
     private LocalDateTime endedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
