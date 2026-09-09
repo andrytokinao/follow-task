@@ -4,6 +4,7 @@ import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -13,6 +14,7 @@ import java.util.Set;
 @Entity
 @DiscriminatorValue("DOCUMENT")
 @Data
+@NoArgsConstructor
 public class ActionDocument extends ActionItem {
     @ManyToOne
     private Document document;

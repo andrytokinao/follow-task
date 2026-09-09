@@ -4,6 +4,7 @@ import jakarta.persistence.Convert;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
+import lombok.NoArgsConstructor;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -11,6 +12,7 @@ import java.util.*;
 
 @Entity
 @DiscriminatorValue("PROFILE")
+@NoArgsConstructor
 public class ActionProfile extends ActionItem {
     @ManyToOne
     private UserApp profile;

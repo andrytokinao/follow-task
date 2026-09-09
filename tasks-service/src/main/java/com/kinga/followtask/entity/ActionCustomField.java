@@ -4,6 +4,7 @@ import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.HashSet;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.Set;
 @Entity
 @DiscriminatorValue("CUSTOM_FIELD")
 @Data
+@NoArgsConstructor
 public class ActionCustomField extends ActionItem {
     @ManyToOne
     private CustomFieldValue customFieldValue;

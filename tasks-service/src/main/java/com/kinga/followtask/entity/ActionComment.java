@@ -3,6 +3,7 @@ package com.kinga.followtask.entity;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
+import lombok.NoArgsConstructor;
 
 import java.util.HashSet;
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.Set;
 
 @Entity
 @DiscriminatorValue("COMMENT")
+@NoArgsConstructor
 public class ActionComment extends ActionItem {
     @ManyToOne
     private Document document;

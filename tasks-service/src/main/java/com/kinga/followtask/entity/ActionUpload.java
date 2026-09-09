@@ -2,12 +2,14 @@ package com.kinga.followtask.entity;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 import java.util.Set;
 
 @Entity
 @DiscriminatorValue("UPLOAD")
+@NoArgsConstructor
 public class ActionUpload extends ActionItem {
     @Override
     public String buildMDetails() {

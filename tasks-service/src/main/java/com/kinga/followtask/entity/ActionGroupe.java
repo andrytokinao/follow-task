@@ -22,7 +22,8 @@ public class ActionGroupe {
     @ManyToOne
     private Issue issue;
     private Date created;
-
+    @OneToMany(mappedBy = "action")
+    private List<Notification> notifications;
     public String buildMessage(String userIdToNotify) {
         StringBuilder message = new StringBuilder();
         this.getActions().forEach(action -> {

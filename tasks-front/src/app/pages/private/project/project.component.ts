@@ -140,6 +140,8 @@ export class ProjectComponent implements OnInit{
   selectProject(project: Project) {
     this.workSpace = project.prefix.toString();
     this.project = project;
+    if (true)
+      this.router.navigate(["/working/" + project.prefix + "/projects/master"]);
 
     const currentUrl = this.router.url;
     const [path, query] = currentUrl.split('?');

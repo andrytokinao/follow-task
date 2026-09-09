@@ -109,6 +109,11 @@ public class IssueService {
     private IssueCanalLinkRepository issueCanalLinkRepository;
     @Autowired
     private IssueMessageLinkRepository issueMessageLinkRepository;
+    @Autowired
+    private IssueDocumentUsageRepository issueDocumentUsageRepository;
+    @Autowired
+    private DocumentReadStatusRepository documentReadStatusRepository;
+
 
     public Issue saveIssue(Issue issue) throws IOException {
 
@@ -598,6 +603,21 @@ public class IssueService {
         document.getUploadeds().forEach(up -> {
             uploadedRepository.deleteById(up.getId());
         });
+        document.getDocumentMembers().forEach(dm->{
+            documentMemberRepository.delete(dm);
+        });
+        document.getIssueUsages().forEach(du->{
+            issueDocumentUsageRepository.delete(du);
+        });
+        document.getReadStatuses().forEach(drs->{
+            documentReadStatusRepository.delete(drs);
+        });
+        document.getResponses().forEach(res->{
+            deleteDocument(res);
+        });
+        document.getActions().forEach(ad->{
+            actionService.deleteAction(ad);
+        });
         documentRepository.delete(document);
     }
     public void deleteIssue(Long issueId) {
@@ -632,6 +652,12 @@ public class IssueService {
         });
         issue.getMessageLinks().forEach(lm->{
             issueMessageLinkRepository.delete(lm);
+        });
+        issue.getActionGroupes().forEach(ag->{
+            actionService.deleteActionGroupe(ag);
+        });
+        issue.getEvents().forEach(e->{
+            eventRepository.delete(e);
         });
         issueRepository.delete(issue);
 

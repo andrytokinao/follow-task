@@ -245,4 +245,17 @@ public class ActionService {
         }
         return fichier;
     }
+    public void deleteAction(ActionItem action){
+        this.actionItemRepository.delete(action);
+    }
+
+    public void deleteActionGroupe(ActionGroupe ag) {
+        ag.getActions().forEach(actionItem -> {
+            deleteAction(actionItem);
+        });
+        ag.getNotifications().forEach(n->{
+            notificationRepository.delete(n);
+        });
+        actionGroupeRepository.delete(ag);
+    }
 }

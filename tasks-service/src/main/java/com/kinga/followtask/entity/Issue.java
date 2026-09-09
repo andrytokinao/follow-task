@@ -71,6 +71,9 @@ public class Issue {
     private List<IssueMessageLink> messageLinks;
     @OneToMany(mappedBy = "issue")
     private List<IssueDocumentUsage> documentUsages;
+    @OneToMany (mappedBy = "issue")
+    private List<ActionGroupe> actionGroupes;
+
     public String getEncodedPath(){
         return KingaUtils.encodeText(this.getDirectory());
     }

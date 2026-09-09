@@ -3,12 +3,14 @@ package com.kinga.followtask.entity;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
+import lombok.NoArgsConstructor;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @DiscriminatorValue("EVENT")
+@NoArgsConstructor
 public class ActionEventApp extends ActionItem {
     @ManyToOne
     private PlanningEvent event;

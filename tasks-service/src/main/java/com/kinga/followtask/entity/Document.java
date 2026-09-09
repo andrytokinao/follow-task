@@ -50,6 +50,8 @@ public class Document {
     private List<DocumentReadStatus> readStatuses;
     @OneToMany(mappedBy = "document")
     private List<IssueDocumentUsage> issueUsages;
+    @OneToMany(mappedBy = "document")
+    private List<ActionDocument> actions;
     public String buildMessage(){
         switch (this.typeDocument) {
             case RESPONSE_DOCUMENT -> {
