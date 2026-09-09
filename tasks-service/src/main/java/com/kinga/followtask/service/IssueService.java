@@ -659,6 +659,9 @@ public class IssueService {
         issue.getEvents().forEach(e->{
             eventRepository.delete(e);
         });
+        issue.getDocumentUsages().forEach(du->{
+            issueDocumentUsageRepository.delete(du);
+        });
         issueRepository.delete(issue);
 
     }
