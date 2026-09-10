@@ -97,6 +97,7 @@
       <div class="liste-contenu">
         <div class="ligne-entete" *ngIf="elementsCourants.length > 0">
           <input type="checkbox" class="case" [checked]="toutSelectionne" (change)="basculerTout()"
+                 [disabled]="elementsSupprimables.length === 0"
                  title="Tout selectionner">
           <span class="nom">Nom</span>
           <span class="meta" *ngIf="selection.size > 0">{{ selection.size }} selectionne(s)</span>
@@ -109,9 +110,10 @@
              (dragleave)="onDragLeaveDossier($event, dossier)"
              (drop)="onDropDossier($event, dossier)">
           <input type="checkbox" class="case" [checked]="estSelectionne(dossier)"
+                 [disabled]="!peutSupprimer(dossier)"
                  (click)="basculerSelection(dossier, $event)">
           <i class="fas fa-folder"></i> <span class="nom">{{ dossier.fileName }}</span>
-          <span class="meta action" title="Supprimer"
+          <span class="meta action" title="Supprimer" *ngIf="peutSupprimer(dossier)"
                 (click)="$event.stopPropagation(); supprimer([dossier])">
             <i class="fas fa-trash"></i>
           </span>
@@ -119,6 +121,7 @@
         <div class="ligne-fichier" *ngFor="let fichier of fichiers(courant)"
              [class.selectionne]="estSelectionne(fichier)">
           <input type="checkbox" class="case" [checked]="estSelectionne(fichier)"
+                 [disabled]="!peutSupprimer(fichier)"
                  (click)="basculerSelection(fichier, $event)">
           <i [class]="getFileIconClass(fichier.fileName.toString())"></i>
           <span class="nom">{{ fichier.fileName }}</span>
@@ -128,7 +131,8 @@
           <span class="meta" *ngIf="fichier.dateUpload">
             <i class="fas fa-clock"></i> {{ fichier.dateUpload | date:'dd/MM/yyyy HH:mm' }}
           </span>
-          <span class="meta action" title="Supprimer" (click)="supprimer([fichier])">
+          <span class="meta action" title="Supprimer" *ngIf="peutSupprimer(fichier)"
+                (click)="supprimer([fichier])">
             <i class="fas fa-trash"></i>
           </span>
           <a [href]="downloadUrl(fichier)" class="telecharger"><i class="fa fa-download"></i></a>

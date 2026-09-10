@@ -145,6 +145,8 @@ export interface Repertoire {
   paths?:string[]
   /** Auteur et date d'upload, renseignes pour les fichiers connus en base. */
   uploadeur?:string;
+  /** Identifiant de connexion de l'auteur, pour reconnaitre le proprietaire. */
+  uploadeurUsername?:string;
   dateUpload?:string;
 }
 export interface Uploading {

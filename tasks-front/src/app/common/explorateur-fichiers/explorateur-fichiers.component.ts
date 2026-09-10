@@ -1,9 +1,11 @@
-import {Component, Input, NgZone, OnChanges, SimpleChanges} from '@angular/core';
+import {Component, Input, NgZone, OnChanges, OnDestroy, SimpleChanges} from '@angular/core';
 import {Repertoire} from "../../type/issue";
 import {IssueService} from "../../services/issue.service";
 import {ConfirmationDialogService} from "../../services/confirmation-dialog.service";
+import {AuthService} from "../../services/auth.service";
+import {ProjectGuard} from "../../services/ProjectGuard";
 import {HttpEventType} from "@angular/common/http";
-import {catchError, concatMap, forkJoin, from, of, tap} from "rxjs";
+import {catchError, concatMap, forkJoin, from, of, Subscription, tap} from "rxjs";
 import {environment} from "../../../environments/environment";
 
 /**
@@ -33,7 +35,7 @@ interface FichierEnAttente {
   templateUrl: './explorateur-fichiers.component.html',
   styleUrl: './explorateur-fichiers.component.css'
 })
-export class ExplorateurFichiersComponent implements OnChanges {
+export class ExplorateurFichiersComponent implements OnChanges, OnDestroy {
   /** Issue dont on explore le repertoire (master ou sous-tache). */
   @Input() issueId: number;
   @Input() titre = 'Dossiers sources';
@@ -56,10 +58,29 @@ export class ExplorateurFichiersComponent implements OnChanges {
   protected creationDossier = false;
   protected nomNouveauDossier = '';
 
+  /** Identifiant de connexion de l'utilisateur courant. */
+  private usernameConnecte: string;
+  /** Administrateur ou gestionnaire du projet : peut tout supprimer. */
+  private gestionnaire = false;
+  private abonnements = new Subscription();
+
   constructor(protected issueService: IssueService,
               private confirmation: ConfirmationDialogService,
+              private authService: AuthService,
+              private projectGuard: ProjectGuard,
               private zone: NgZone
   ) {
+    this.abonnements.add(
+      this.authService.getProfile().subscribe(profile => this.usernameConnecte = profile?.username)
+    );
+    this.abonnements.add(
+      this.projectGuard.hasCredential(['PROJECT_MANAGER', 'ADMIN'])
+        .subscribe(autorise => this.gestionnaire = autorise)
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.abonnements.unsubscribe();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -190,18 +211,21 @@ export class ExplorateurFichiersComponent implements OnChanges {
   protected basculerSelection(item: Repertoire, event: Event) {
     // stopPropagation : cocher une ligne de dossier ne doit pas l'ouvrir.
     event.stopPropagation();
+    if (!this.peutSupprimer(item)) {
+      return;
+    }
     if (!this.selection.delete(item.absolutePath)) {
       this.selection.add(item.absolutePath);
     }
   }
 
   protected get toutSelectionne(): boolean {
-    const items = this.elementsCourants;
+    const items = this.elementsSupprimables;
     return items.length > 0 && items.every(i => this.selection.has(i.absolutePath));
   }
 
   protected basculerTout() {
-    const items = this.elementsCourants;
+    const items = this.elementsSupprimables;
     const tout = this.toutSelectionne;
     this.selection.clear();
     if (!tout) {
@@ -211,12 +235,43 @@ export class ExplorateurFichiersComponent implements OnChanges {
 
   // -------------------------------------------------------------- suppression
 
+  /**
+   * La suppression est reservee au proprietaire du fichier, a l'administrateur
+   * du projet et au gestionnaire de projet.
+   *
+   * Un dossier n'a pas de proprietaire et peut contenir les fichiers d'autres
+   * intervenants : seuls administrateur et gestionnaire peuvent le supprimer.
+   * Meme regle pour un fichier sans auteur connu (depose avant le suivi des
+   * uploads) : sans proprietaire identifiable, on ne peut l'attribuer a personne.
+   */
+  protected peutSupprimer(item: Repertoire): boolean {
+    if (this.gestionnaire) {
+      return true;
+    }
+    if (item.type === 'directory') {
+      return false;
+    }
+    return !!item.uploadeurUsername && item.uploadeurUsername === this.usernameConnecte;
+  }
+
+  /** Elements du dossier courant que l'utilisateur a le droit de supprimer. */
+  protected get elementsSupprimables(): Repertoire[] {
+    return this.elementsCourants.filter(i => this.peutSupprimer(i));
+  }
+
+  protected get selectionSupprimable(): Repertoire[] {
+    return this.elementsSupprimables.filter(i => this.estSelectionne(i));
+  }
+
   protected supprimerSelection() {
-    this.supprimer(this.elementsCourants.filter(i => this.estSelectionne(i)));
+    this.supprimer(this.selectionSupprimable);
   }
 
   /** Supprime fichiers et dossiers apres confirmation, puis recharge. */
   protected supprimer(cibles: Repertoire[]) {
+    // Filtre de securite : les boutons sont deja masques, mais une cible peut
+    // arriver d'ailleurs (selection faite avant le chargement des droits).
+    cibles = cibles.filter(c => this.peutSupprimer(c));
     if (cibles.length === 0) {
       return;
     }
