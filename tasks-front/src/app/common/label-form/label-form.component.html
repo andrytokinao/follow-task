@@ -24,7 +24,7 @@
         </mat-checkbox>
         <i class="fas fa-edit label-action"
            (click)="editLabel(label)"
-           *ngIf="projectGuard.hasCredential(['PROJECT_MANAGER'])"></i>
+           *ngIf="gestionnaire"></i>
       </ng-container>
 
       <form class="label-edit" *ngIf="isEdit(label)" [formGroup]="myForm" (ngSubmit)="update()">
@@ -40,9 +40,9 @@
       </form>
     </div>
 
-    <p class="label-create" (click)="createLabel()"><i class="fas fa-plus"></i> Créer</p>
+    <p class="label-create" *ngIf="gestionnaire" (click)="createLabel()"><i class="fas fa-plus"></i> Créer</p>
 
-    <form class="label-edit" *ngIf="iscreateLabel" [formGroup]="myForm" (ngSubmit)="update()">
+    <form class="label-edit" *ngIf="iscreateLabel && gestionnaire" [formGroup]="myForm" (ngSubmit)="update()">
       <mat-form-field class="label-field" subscriptSizing="dynamic">
         <mat-label>Nom</mat-label>
         <input matInput formControlName="name">

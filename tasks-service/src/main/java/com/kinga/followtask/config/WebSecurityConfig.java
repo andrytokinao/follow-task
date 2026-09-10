@@ -37,6 +37,13 @@ import java.util.Map;
 public class WebSecurityConfig {
     private static final Logger logger = LoggerFactory.getLogger(WebSecurityConfig.class);
 
+    /**
+     * URL de soumission du formulaire de connexion, alignee sur le prefixe "/api"
+     * du reste des endpoints. La page de connexion generee reste, elle, sur
+     * "/login" : le front s'en sert pour detecter une session expiree.
+     */
+    static final String LOGIN_PROCESSING_URL = "/api/login";
+
     @Autowired
     private CustomUserDetailsService userDetailsService;
     @Bean
@@ -54,6 +61,12 @@ public class WebSecurityConfig {
                         // au singulier ne correspondait à aucune route : la vérification de
                         // version retombait sur "/api/**" et exigeait donc une session.
                         .requestMatchers(new AntPathRequestMatcher("/api/updates/**")).permitAll()
+                        // L'authentification est passee sous "/api/login" : sans regle
+                        // explicite, elle tomberait dans le "/api/**" authentifie ci-dessous
+                        // et il faudrait etre connecte pour pouvoir se connecter. Le
+                        // permitAll() de formLogin() n'y suffit pas : il est ajoute en fin
+                        // de liste, donc apres la regle qui l'emporte.
+                        .requestMatchers(new AntPathRequestMatcher(LOGIN_PROCESSING_URL)).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/upload")).authenticated()
                         .requestMatchers(new AntPathRequestMatcher("/api/messaging/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/update/**")).permitAll()
@@ -69,6 +82,7 @@ public class WebSecurityConfig {
                         .requestMatchers(new AntPathRequestMatcher("/**", HttpMethod.OPTIONS.name())).permitAll()
                         .anyRequest().permitAll())
                 .formLogin(form -> form
+                        .loginProcessingUrl(LOGIN_PROCESSING_URL)
                         .permitAll()
                         .failureHandler(failureHandler())
                         .successHandler(successHandler())

@@ -44,7 +44,7 @@ export class AuthService {
     body.append('password', password);
 
     return new Observable(observer => {
-      this.http.post<any>(`${environment.apiURL}login`, body, {
+      this.http.post<any>(`${environment.apiURL}api/login`, body, {
         observe: 'response',
         withCredentials: true
       }).subscribe({

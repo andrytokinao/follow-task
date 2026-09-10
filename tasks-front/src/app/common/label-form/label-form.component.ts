@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {AsyncPipe, NgForOf, NgIf} from "@angular/common";
 import {MatMenu, MatMenuItem, MatMenuTrigger} from "@angular/material/menu";
 import {MyCommonModule} from "../common.module";
@@ -7,6 +7,7 @@ import {IssueService} from "../../services/issue.service";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {AuthGuard} from "../../services/SystemGuard";
 import {ProjectGuard} from "../../services/ProjectGuard";
+import {Subscription} from "rxjs";
 
 @Component({
   standalone: false,
@@ -14,7 +15,7 @@ import {ProjectGuard} from "../../services/ProjectGuard";
   templateUrl: './label-form.component.html',
   styleUrl: './label-form.component.css'
 })
-export class LabelFormComponent implements OnInit,AfterViewInit{
+export class LabelFormComponent implements OnInit,AfterViewInit,OnDestroy{
   project:Project;
   labels:Label[] = [];
   @Input() issue:Issue;
@@ -23,6 +24,15 @@ export class LabelFormComponent implements OnInit,AfterViewInit{
 
   newLabel: Label ={};
   private toClose: boolean;
+
+  /**
+   * Creer ou renommer une etiquette releve de la configuration du projet :
+   * seuls le gestionnaire de projet et l'administrateur y ont acces. Les autres
+   * membres se contentent de poser sur la demande les etiquettes existantes.
+   */
+  protected gestionnaire = false;
+  private abonnements = new Subscription();
+
   constructor(private issueService:IssueService,
               private fb:FormBuilder,
               protected authGuard:AuthGuard,
@@ -31,8 +41,16 @@ export class LabelFormComponent implements OnInit,AfterViewInit{
     this.myForm = this.fb.group({
       name: ['', Validators.required],
     });
+    this.abonnements.add(
+      this.projectGuard.hasCredential(['PROJECT_MANAGER', 'ADMIN'])
+        .subscribe(autorise => this.gestionnaire = autorise)
+    );
   }
   myForm: FormGroup;
+
+  ngOnDestroy(): void {
+    this.abonnements.unsubscribe();
+  }
 
   ngOnInit(): void {
     this.issueService.project$.subscribe(project => {
@@ -88,6 +106,11 @@ export class LabelFormComponent implements OnInit,AfterViewInit{
   }
 
   update() {
+    // Filtre de securite : le formulaire est deja masque, mais la soumission
+    // peut survenir avant le chargement des droits.
+    if (!this.gestionnaire) {
+      return;
+    }
     if (this.myForm.valid) {
       this.currentLabel.name = this.myForm.value.name;
       if (this.iscreateLabel) {
@@ -114,6 +137,9 @@ export class LabelFormComponent implements OnInit,AfterViewInit{
     })
   }
   createLabel() {
+    if (!this.gestionnaire) {
+      return;
+    }
     this.currentLabel = {};
     this.labColor = undefined;
     this.myForm.reset();
@@ -168,6 +194,9 @@ export class LabelFormComponent implements OnInit,AfterViewInit{
   }
 
   editLabel(label: Label) {
+    if (!this.gestionnaire) {
+      return;
+    }
     this.currentLabel = label;
     this.newLabel = {};
     this.iscreateLabel = false ;
@@ -175,6 +204,9 @@ export class LabelFormComponent implements OnInit,AfterViewInit{
   }
 
   saveLabel(label: Label) {
+    if (!this.gestionnaire) {
+      return;
+    }
     this.issueService.saveLabel(label);
   }
 
