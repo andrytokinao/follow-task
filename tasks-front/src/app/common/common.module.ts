@@ -57,6 +57,7 @@ import {IssutypeForm2Component} from "./issutype-form2/issutype-form2.component"
 import {DossiersComponent} from "./dossiers/dossiers.component";
 import {TreeDossierItemComponent} from "./tree-dossier-item/tree-dossier-item.component";
 import {ExplorateurFichiersComponent} from "./explorateur-fichiers/explorateur-fichiers.component";
+import {AvatarComponent} from "./avatar/avatar.component";
 
 @NgModule({
   declarations: [
@@ -131,7 +132,8 @@ import {ExplorateurFichiersComponent} from "./explorateur-fichiers/explorateur-f
     NgxColorsModule,
     NgbCarousel,
     NgbSlide,
-    IssutypeForm2Component
+    IssutypeForm2Component,
+    AvatarComponent
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA

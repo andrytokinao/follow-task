@@ -1,15 +1,14 @@
 <span class="assigne" style="cursor: pointer">
-  <span [matMenuTriggerFor]="menu2" mat-icon-button class="assigne-trigger">
+  <span [matMenuTriggerFor]="menu2" mat-icon-button class="assigne-trigger" [title]="assigneesTitle">
     <span class="avatar-stack" *ngIf="assignees.length > 0">
-      <img *ngFor="let user of visibleAssignees"
-           [src]="userService.getUrlPhoto(user)"
-           [title]="displayName(user)"
-           [alt]="displayName(user)"
-           class="image"/>
-      <span class="avatar-more" *ngIf="hiddenCount > 0" [title]="assignees.length + ' assignés'">+{{ hiddenCount }}</span>
+      <app-avatar *ngFor="let user of visibleAssignees"
+                  [url]="photoUrl(user)"
+                  [displayName]="displayName(user)"
+                  [title]="displayName(user)"></app-avatar>
+      <span class="avatar-more" *ngIf="hiddenCount > 0" [title]="assigneesTitle">+{{ hiddenCount }}</span>
     </span>
-    <img *ngIf="assignees.length == 0" src="/assets/nonAssigner.jpg" alt="non assigner" class="image"/>
-    <b class="assigne-label">{{ assigneesLabel }}</b>
+    <span *ngIf="assignees.length == 0" class="avatar-vide" title="Non assigné">?</span>
+    <b class="assigne-label" *ngIf="maxLabelWidth > 0" [style.max-width.px]="maxLabelWidth">{{ assigneesLabel }}</b>
   </span>
 
   <mat-menu #menu2="matMenu" class="assigne-menu">
@@ -26,8 +25,8 @@
                 [disabled]="saving"
                 [ngClass]="{'active': isActive(user)}">
           <mat-checkbox [checked]="isActive(user)"></mat-checkbox>
-          <img [src]="userService.getUrlPhoto(user)" [alt]="displayName(user)" width="30px" class="image"/>
-          <span>{{ user.firstName }} {{ user.lastName }}</span>
+          <app-avatar [url]="photoUrl(user)" [displayName]="displayName(user)"></app-avatar>
+          <span class="assigne-nom" [title]="displayName(user)">{{ displayName(user) }}</span>
         </button>
         <div class="assigne-empty" *ngIf="filteredUsers.length == 0"> Aucun membre trouvé </div>
       </div>

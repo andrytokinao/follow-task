@@ -29,6 +29,8 @@ export class AssignFieldComponent implements OnInit, OnChanges {
   @Input() issue: Issue;
   /** nombre d'avatars affiches avant le compteur "+N" */
   @Input() maxAvatars: number = 3;
+  /** largeur maximale du libelle, en pixels ; 0 masque le libelle (avatars seuls) */
+  @Input() maxLabelWidth: number = 140;
   @Output() save = new EventEmitter<Issue>();
 
   constructor(
@@ -94,6 +96,14 @@ export class AssignFieldComponent implements OnInit, OnChanges {
     return this.displayName(users[0]) + ' +' + (users.length - 1);
   }
 
+  /** Liste complete des assignes : le libelle etant tronque, le survol la restitue. */
+  get assigneesTitle(): string {
+    const users = this.assignees;
+    return users.length == 0
+      ? 'Non assigné'
+      : users.map(user => this.displayName(user)).join(', ');
+  }
+
   get filteredUsers(): User[] {
     const term = (this.searchTerm || '').toLowerCase().trim();
     if (!term) {
@@ -111,6 +121,15 @@ export class AssignFieldComponent implements OnInit, OnChanges {
     }
     const name = ((user.firstName || '') + ' ' + (user.lastName || '')).trim();
     return name || (user.username || '');
+  }
+
+  /**
+   * URL de la photo, ou null quand l'utilisateur n'en a pas : `getUrlPhoto`
+   * renvoie sinon la meme silhouette pour tout le monde. Avec null, app-avatar
+   * genere des initiales sur une couleur derivee du nom, donc distinctes.
+   */
+  photoUrl(user: User): string | null {
+    return user && user.photo ? this.userService.getUrlPhoto(user) : null;
   }
 
   isActive(user: User): boolean {
