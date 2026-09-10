@@ -278,7 +278,8 @@
 
         <!-- Pièces jointes -->
         <div class="tab-panel" *ngIf="activeTab === 'attachments'">
-          <app-dossiers [root]="selectedTask.encodedPath"></app-dossiers>
+          <app-explorateur-fichiers [issueId]="selectedTask?.id" [compact]="true" titre="Pièces jointes">
+          </app-explorateur-fichiers>
 
         </div>
 

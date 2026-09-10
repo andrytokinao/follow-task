@@ -1,0 +1,192 @@
+$font:    'Inter', 'DM Sans', system-ui, sans-serif;
+$mono:    'JetBrains Mono', 'Fira Code', monospace;
+
+$c-bg:        #f7f8fa;
+$c-surface:   #ffffff;
+$c-border:    #e8eaed;
+$c-text:      #111827;
+$c-muted:     #6b7280;
+$c-subtle:    #9ca3af;
+$c-accent:    #4f46e5;
+$c-accent-lt: #eef2ff;
+
+:host {
+  display: block;
+  height: 100%;
+  min-height: 0;
+  font-family: $font;
+}
+
+.mk-wrap {
+  height: 100%;
+  box-sizing: border-box;
+  padding: 12px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mk-board {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  height: 100%;
+  min-width: min-content;
+}
+
+.mk-column {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 220px;
+  width: 220px;
+  height: 100%;
+  border: 1px solid $c-border;
+  border-radius: 9px;
+  background: $c-bg;
+  transition: background .15s ease, border-color .15s ease;
+
+  &--drag-over {
+    border-color: $c-accent;
+    background: $c-accent-lt;
+  }
+}
+
+.mk-column__head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 8px 10px;
+  border-bottom: 1px solid $c-border;
+  flex-shrink: 0;
+}
+
+.mk-column__icon {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  font-size: 11px;
+  color: $c-muted;
+}
+
+.mk-column__title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+  color: $c-muted;
+}
+
+.mk-column__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 5px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: rgba(17, 24, 39, .08);
+  font-size: 9.5px;
+  font-weight: 700;
+  color: $c-muted;
+}
+
+.mk-column__body {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  flex: 1;
+  min-height: 0;
+  padding: 7px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.mk-column__empty {
+  margin: 0;
+  padding: 12px 0;
+  text-align: center;
+  font-size: 10.5px;
+  color: $c-subtle;
+}
+
+.mk-card {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 8px 9px;
+  border: 1px solid $c-border;
+  border-radius: 7px;
+  background: $c-surface;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, .05);
+  cursor: pointer;
+  transition: box-shadow .15s ease, opacity .15s ease, border-color .15s ease;
+
+  &:hover { box-shadow: 0 4px 12px rgba(16, 24, 40, .1); }
+  &:active { cursor: grabbing; }
+
+  &--dragging { opacity: .5; }
+
+  &--active {
+    border-color: $c-accent;
+    background: $c-accent-lt;
+  }
+}
+
+.mk-card__top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mk-card__type {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  font-size: 11px;
+  color: $c-muted;
+}
+
+// `app-icone-view` porte un padding de 10px en dur, inexploitable a cette
+// echelle : on le neutralise pour les icones affichees dans le board.
+.mk-column__icon, .mk-card__type {
+  ::ng-deep > span { padding: 0 !important; }
+}
+
+.mk-card__key {
+  font-family: $mono;
+  font-size: 10px;
+  font-weight: 700;
+  color: $c-accent;
+}
+
+.mk-card__title {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: $c-text;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.mk-card__bottom {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.mk-card__avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid $c-border;
+}

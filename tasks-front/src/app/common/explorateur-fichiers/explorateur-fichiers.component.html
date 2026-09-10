@@ -1,0 +1,142 @@
+<ng-template #arbre let-noeud>
+  <div class="arbre-noeud">
+    <div class="arbre-titre"
+         [class.actif]="noeud.absolutePath === courant?.absolutePath"
+         [class.cible-depot]="survolCible === noeud.absolutePath"
+         (click)="ouvrir(noeud)"
+         (dragover)="onDragOverDossier($event, noeud)"
+         (dragleave)="onDragLeaveDossier($event, noeud)"
+         (drop)="onDropDossier($event, noeud)">
+      <i class="fas" [ngClass]="estOuvert(noeud) ? 'fa-folder-open' : 'fa-folder'"></i>
+      <span>{{ noeud.fileName }}</span>
+    </div>
+    <div class="arbre-enfants" *ngIf="estOuvert(noeud)">
+      <ng-container *ngFor="let enfant of sousDossiers(noeud)">
+        <ng-container *ngTemplateOutlet="arbre; context: {$implicit: enfant}"></ng-container>
+      </ng-container>
+    </div>
+  </div>
+</ng-template>
+
+<div class="dossier-explorer" [class.compact]="compact">
+  <div class="explorer-entete">
+    <div class="explorer-titre">
+      <h3><i class="fas fa-folder-tree"></i> {{ titre }}</h3>
+      <small>{{ sousTitre }}</small>
+    </div>
+    <div class="explorer-outils">
+      <button type="button" class="btn-icone" [disabled]="!courant" title="Nouveau dossier"
+              (click)="creationDossier = !creationDossier">
+        <i class="fas fa-folder-plus"></i>
+      </button>
+      <button type="button" class="btn-icone" [disabled]="!courant" title="Parcourir des fichiers"
+              (click)="fileInput.click()">
+        <i class="fas fa-file-upload"></i>
+      </button>
+      <button type="button" class="btn-icone" [disabled]="!courant" title="Parcourir un dossier"
+              (click)="dirInput.click()">
+        <i class="fas fa-folder-open"></i>
+      </button>
+      <button type="button" class="btn-icone danger" [disabled]="selection.size === 0"
+              title="Supprimer la selection" (click)="supprimerSelection()">
+        <i class="fas fa-trash"></i>
+        <span class="compteur" *ngIf="selection.size > 0">{{ selection.size }}</span>
+      </button>
+      <button type="button" class="btn-icone" [disabled]="chargement" title="Rafraichir"
+              (click)="rafraichir()">
+        <i class="fas fa-sync"></i>
+      </button>
+      <input type="file" multiple hidden #fileInput (change)="onFilesSelected($event)">
+      <input type="file" multiple hidden webkitdirectory #dirInput (change)="onFilesSelected($event)">
+    </div>
+  </div>
+
+  <div class="explorer-erreur" *ngIf="erreur">{{ erreur }}</div>
+  <div class="explorer-chargement" *ngIf="chargement">Chargement de l'arborescence...</div>
+  <div class="explorer-chargement" *ngIf="!chargement && !issueId">
+    Aucune issue selectionnee : l'arborescence ne peut pas etre chargee.
+  </div>
+  <div class="explorer-chargement" *ngIf="!chargement && issueId && !racine">
+    Aucune arborescence chargee.
+  </div>
+
+  <div class="explorer-corps">
+    <div class="explorer-arbre" *ngIf="racine">
+      <ng-container *ngTemplateOutlet="arbre; context: {$implicit: racine}"></ng-container>
+    </div>
+
+    <div class="explorer-contenu" [class.survol]="surZone"
+         (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
+      <div class="fil-ariane">
+        <span *ngFor="let noeud of chemin; let i = index">
+          <span class="fil-item" (click)="allerA(i)">{{ noeud.fileName }}</span>
+          <span class="fil-separateur" *ngIf="i < chemin.length - 1">/</span>
+        </span>
+      </div>
+
+      <div class="nouveau-dossier" *ngIf="creationDossier">
+        <input type="text" placeholder="Nom du dossier" [(ngModel)]="nomNouveauDossier"
+               [ngModelOptions]="{standalone: true}" (keyup.enter)="creerDossier()">
+        <button type="button" class="btn-plat" (click)="creerDossier()">Creer</button>
+        <button type="button" class="btn-plat" (click)="creationDossier = false; nomNouveauDossier = ''">Annuler</button>
+      </div>
+
+      <div class="liste-attente" *ngIf="enAttente.length > 0">
+        <div class="ligne-attente" *ngFor="let item of enAttente; let i = index" [ngClass]="item.status">
+          <i class="fas fa-arrow-up-from-bracket"></i>
+          <span class="nom">{{ item.relativePath }}</span>
+          <span class="destination"><i class="fas fa-folder"></i> {{ item.destinationNom }}</span>
+          <span class="etat">{{ item.progression }}%</span>
+          <span class="retirer" (click)="retirer(i)"><i class="fas fa-times"></i></span>
+        </div>
+        <button type="button" class="btn-envoyer" (click)="envoyer()" [disabled]="!aEnvoyer">
+          Uploader ({{ enAttente.length }})
+        </button>
+      </div>
+
+      <div class="liste-contenu">
+        <div class="ligne-entete" *ngIf="elementsCourants.length > 0">
+          <input type="checkbox" class="case" [checked]="toutSelectionne" (change)="basculerTout()"
+                 title="Tout selectionner">
+          <span class="nom">Nom</span>
+          <span class="meta" *ngIf="selection.size > 0">{{ selection.size }} selectionne(s)</span>
+        </div>
+        <div class="ligne-dossier" *ngFor="let dossier of sousDossiers(courant)"
+             [class.cible-depot]="survolCible === dossier.absolutePath"
+             [class.selectionne]="estSelectionne(dossier)"
+             (click)="ouvrir(dossier)"
+             (dragover)="onDragOverDossier($event, dossier)"
+             (dragleave)="onDragLeaveDossier($event, dossier)"
+             (drop)="onDropDossier($event, dossier)">
+          <input type="checkbox" class="case" [checked]="estSelectionne(dossier)"
+                 (click)="basculerSelection(dossier, $event)">
+          <i class="fas fa-folder"></i> <span class="nom">{{ dossier.fileName }}</span>
+          <span class="meta action" title="Supprimer"
+                (click)="$event.stopPropagation(); supprimer([dossier])">
+            <i class="fas fa-trash"></i>
+          </span>
+        </div>
+        <div class="ligne-fichier" *ngFor="let fichier of fichiers(courant)"
+             [class.selectionne]="estSelectionne(fichier)">
+          <input type="checkbox" class="case" [checked]="estSelectionne(fichier)"
+                 (click)="basculerSelection(fichier, $event)">
+          <i [class]="getFileIconClass(fichier.fileName.toString())"></i>
+          <span class="nom">{{ fichier.fileName }}</span>
+          <span class="meta" *ngIf="fichier.uploadeur">
+            <i class="fas fa-user"></i> {{ fichier.uploadeur }}
+          </span>
+          <span class="meta" *ngIf="fichier.dateUpload">
+            <i class="fas fa-clock"></i> {{ fichier.dateUpload | date:'dd/MM/yyyy HH:mm' }}
+          </span>
+          <span class="meta action" title="Supprimer" (click)="supprimer([fichier])">
+            <i class="fas fa-trash"></i>
+          </span>
+          <a [href]="downloadUrl(fichier)" class="telecharger"><i class="fa fa-download"></i></a>
+        </div>
+        <div class="vide" *ngIf="courant && elementsCourants.length === 0">
+          Ce dossier est vide.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

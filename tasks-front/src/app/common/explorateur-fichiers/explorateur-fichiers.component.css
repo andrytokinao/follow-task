@@ -12,6 +12,22 @@
   font-family: sans-serif;
 }
 
+/* Integre dans un onglet : ni marge ni hauteur imposee. */
+.dossier-explorer.compact {
+  margin: 0;
+  min-height: 0;
+  box-shadow: none;
+  border: 1px solid #e4e6ea;
+}
+
+.dossier-explorer.compact .explorer-arbre {
+  max-height: 45vh;
+}
+
+.dossier-explorer.compact .liste-contenu {
+  max-height: 45vh;
+}
+
 .explorer-entete {
   display: flex;
   align-items: center;
@@ -41,6 +57,7 @@
 }
 
 .btn-icone {
+  position: relative;
   width: 32px;
   height: 32px;
   border: 1px solid #dcdee3;
@@ -58,6 +75,29 @@
 .btn-icone:disabled {
   opacity: .4;
   cursor: default;
+}
+
+.btn-icone.danger:enabled {
+  color: #b3261e;
+  border-color: #f3c6c2;
+}
+
+.btn-icone.danger:hover:enabled {
+  background-color: #fdecea;
+}
+
+/* Nombre d'elements coches, en pastille sur le bouton de suppression. */
+.btn-icone .compteur {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background-color: #b3261e;
+  color: #fff;
+  font-size: 10px;
+  line-height: 16px;
 }
 
 .explorer-erreur {
@@ -276,6 +316,7 @@
   overflow: auto;
 }
 
+.ligne-entete,
 .ligne-dossier,
 .ligne-fichier {
   display: flex;
@@ -285,6 +326,22 @@
   border-radius: 6px;
   font-size: 13px;
   color: #5a5a5a;
+}
+
+.ligne-entete {
+  padding: 4px 8px;
+  font-size: 12px;
+  color: #999;
+  border-bottom: 1px solid #eee;
+}
+
+.ligne-entete .nom {
+  flex: 1;
+}
+
+.case {
+  flex: 0 0 auto;
+  cursor: pointer;
 }
 
 .ligne-dossier {
@@ -300,6 +357,12 @@
   background-color: #f0f0f0;
 }
 
+.ligne-dossier.selectionne,
+.ligne-fichier.selectionne {
+  background-color: #eaf1fb;
+}
+
+.ligne-dossier .nom,
 .ligne-fichier .nom {
   flex: 1;
   overflow: hidden;
@@ -308,6 +371,7 @@
 }
 
 /* Auteur et date d'upload : lisibles mais en retrait du nom du fichier. */
+.ligne-dossier .meta,
 .ligne-fichier .meta {
   flex: 0 0 auto;
   font-size: 12px;
@@ -315,8 +379,19 @@
   white-space: nowrap;
 }
 
+/* color:inherit : sans lui l'icone corbeille d'un dossier heriterait du jaune. */
+.ligne-dossier .meta i,
 .ligne-fichier .meta i {
   margin-right: 3px;
+  color: inherit;
+}
+
+.meta.action {
+  cursor: pointer;
+}
+
+.meta.action:hover {
+  color: #b3261e;
 }
 
 .telecharger {

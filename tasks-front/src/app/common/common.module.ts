@@ -56,6 +56,7 @@ import {SkeletonComponent} from "./skeleton/skeleton.component";
 import {IssutypeForm2Component} from "./issutype-form2/issutype-form2.component";
 import {DossiersComponent} from "./dossiers/dossiers.component";
 import {TreeDossierItemComponent} from "./tree-dossier-item/tree-dossier-item.component";
+import {ExplorateurFichiersComponent} from "./explorateur-fichiers/explorateur-fichiers.component";
 
 @NgModule({
   declarations: [
@@ -94,7 +95,8 @@ import {TreeDossierItemComponent} from "./tree-dossier-item/tree-dossier-item.co
     LoadingOverlayComponent,
     SkeletonComponent,
     DossiersComponent,
-    TreeDossierItemComponent
+    TreeDossierItemComponent,
+    ExplorateurFichiersComponent
   ],
   imports: [
     CommonModule,
@@ -168,7 +170,8 @@ import {TreeDossierItemComponent} from "./tree-dossier-item/tree-dossier-item.co
         LoadingOverlayComponent,
         SkeletonComponent,
         DossiersComponent,
-      TreeDossierItemComponent
+      TreeDossierItemComponent,
+      ExplorateurFichiersComponent
     ],
   providers:[
     NgbActiveModal

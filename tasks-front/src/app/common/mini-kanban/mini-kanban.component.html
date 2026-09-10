@@ -1,0 +1,55 @@
+<div class="mk-wrap">
+  <div class="mk-board">
+
+    <section
+      class="mk-column"
+      *ngFor="let status of statuses; trackBy: trackByStatus"
+      [class.mk-column--drag-over]="dragOverStatusId === status.id"
+      (dragover)="onDragOver($event, status)"
+      (dragleave)="onDragLeave(status)"
+      (drop)="onDrop($event, status)"
+    >
+      <header class="mk-column__head">
+        <span class="mk-column__icon">
+          <app-icone-view [icon]="status.icone"></app-icone-view>
+        </span>
+        <span class="mk-column__title" [title]="status.displayName">{{ status.displayName }}</span>
+        <span class="mk-column__count">{{ issuesFor(status).length }}</span>
+      </header>
+
+      <div class="mk-column__body">
+        <article
+          class="mk-card"
+          *ngFor="let issue of issuesFor(status); trackBy: trackByIssue"
+          [draggable]="enableDragDrop"
+          (dragstart)="onDragStart($event, issue)"
+          (dragend)="onDragEnd()"
+          (click)="selectIssue(issue)"
+          [class.mk-card--dragging]="isDragging(issue)"
+          [class.mk-card--active]="selectedIssueId != null && issue.id === selectedIssueId"
+        >
+          <div class="mk-card__top">
+            <span class="mk-card__type" *ngIf="issue.issueType?.icone">
+              <app-icone-view [icon]="issue.issueType.icone"></app-icone-view>
+            </span>
+            <span class="mk-card__key">{{ issue.issueKey }}</span>
+          </div>
+
+          <p class="mk-card__title" [title]="issue.summary">{{ issue.summary }}</p>
+
+          <div class="mk-card__bottom">
+            <img
+              class="mk-card__avatar"
+              [src]="issue.assigne ? getUrlPhoto(issue.assigne) : '/assets/nonAssigner.jpg'"
+              [alt]="issue.assigne ? 'Assigné' : 'Non assigné'"
+              [title]="issue.assigne ? (issue.assigne.firstName + ' ' + issue.assigne.lastName) : 'Non assigné'"
+            />
+          </div>
+        </article>
+
+        <p class="mk-column__empty" *ngIf="!issuesFor(status).length">{{ emptyLabel }}</p>
+      </div>
+    </section>
+
+  </div>
+</div>
