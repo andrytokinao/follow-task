@@ -2220,4 +2220,23 @@ export class IssueService implements OnInit {
       );
     });
   }
+
+  deleteReperoire(absolutePath: string) {
+    return new Observable<ResponseApp>((observer) => {
+      this.apollo
+        .mutate({
+            mutation: operation.DELETE_REPERTOIRE,
+            variables: {absolutePath},
+            fetchPolicy: "network-only"
+          }
+        ).subscribe((res: any) => {
+        observer.next(res.data.deleteReperoire);
+        observer.complete();
+      }, error => {
+        this.interceptorService.showErrorOnce("Error survenue lors de de la suppression du fichier ");
+        observer.error(error);
+        observer.complete();
+      });
+    })
+  }
 }

@@ -351,4 +351,12 @@ export class DossierSourceComponent implements OnInit {
         return 'fas fa-file';
     }
   }
+
+  protected deleteReperoire(fichier: Repertoire) {
+    this.issueService.deleteReperoire(fichier.absolutePath)
+      .subscribe(response=>{
+
+
+    })
+  }
 }

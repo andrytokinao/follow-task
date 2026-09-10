@@ -123,7 +123,13 @@ export let DELETE_ISSUE = gql`
     }
   }
 `;
-
+export let DELETE_REPERTOIRE = gql`
+  mutation deleteReperoire($absolutePath:String){
+    deleteReperoire(absolutePath:$absolutePath){
+       message
+    }
+  }
+`
 export let GET_SETTINGS = gql`
     query getSettings($userId:String) {
       getSettings(userId:$userId) {

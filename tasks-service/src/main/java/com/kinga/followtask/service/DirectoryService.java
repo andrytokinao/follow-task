@@ -4,6 +4,7 @@ import com.kinga.followtask.config.CurrentUserProvider;
 import com.kinga.followtask.dto.Dossier;
 import com.kinga.followtask.dto.Fichier;
 import com.kinga.followtask.dto.Repertoire;
+import com.kinga.followtask.dto.Response;
 import com.kinga.followtask.entity.Uploaded;
 import com.kinga.followtask.entity.UserApp;
 import com.kinga.followtask.repository.UploadedRepository;
@@ -16,13 +17,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static com.kinga.utils.KingaUtils.dateTimeFormater;
 
@@ -183,5 +184,51 @@ public class DirectoryService {
             candidat = String.format("%s-%02d%s", base, numero++, extension);
         }
         return candidat;
+    }
+
+    public Response deleteReperoire(String absolutePath) {
+        try {
+            Path path = Path.of(KingaUtils.decodeText(absolutePath));
+
+            if (!Files.exists(path)) {
+                return Response.builder()
+                        .message("Chemin introuvable")
+                        .code("404")
+                        .status("ERROR")
+                        .build();
+            }
+
+            if (Files.isDirectory(path)) {
+                deleteDirectoryRecursively(path);
+            } else {
+                Files.delete(path);
+            }
+
+            return Response.builder()
+                    .message("Suppression effectuée avec succès")
+                    .code("200")
+                    .status("SUCCESS")
+                    .build();
+
+        } catch (IOException e) {
+            return Response.builder()
+                    .message("Erreur lors de la suppression : " + e.getMessage())
+                    .code("500")
+                    .status("ERROR")
+                    .build();
+        }
+    }
+
+    private void deleteDirectoryRecursively(Path path) throws IOException {
+        try (Stream<Path> walk = Files.walk(path)) {
+            walk.sorted(Comparator.reverseOrder())
+                    .forEach(p -> {
+                        try {
+                            Files.delete(p);
+                        } catch (IOException e) {
+                            throw new RuntimeException("Échec suppression : " + p, e);
+                        }
+                    });
+        }
     }
 }

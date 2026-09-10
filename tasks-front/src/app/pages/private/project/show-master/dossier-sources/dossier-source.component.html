@@ -107,6 +107,9 @@
           <span class="meta" *ngIf="fichier.dateUpload">
             <i class="fas fa-clock"></i> {{ fichier.dateUpload | date:'dd/MM/yyyy HH:mm' }}
           </span>
+          <span class="meta" style="cursor: pointer" (click)="deleteReperoire(fichier)">
+            <i class="fas fa-trash"></i>
+          </span>
           <a [href]="downloadUrl(fichier)" class="telecharger"><i class="fa fa-download"></i></a>
         </div>
         <div class="vide" *ngIf="courant && sousDossiers(courant).length === 0 && fichiers(courant).length === 0">

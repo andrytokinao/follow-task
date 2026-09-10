@@ -49,6 +49,7 @@ type Mutation {
     saveAction(action:ActionItemInput):ActionItem
     attachDocumentToIssue(issueId:Int,documentId:Int, usages: [String]) :IssuePlanningSummary
 
+    deleteReperoire(absolutePath:String):Response
 
 
 }

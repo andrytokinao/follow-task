@@ -36,6 +36,7 @@ public class GQIssueController {
     final AuthorizationService authorizationService;
     final EventService eventService;
     final ConfigService configService;
+    final DirectoryService directoryService;
     @Autowired
     private ActionService actionService;
     private final DocumentService documentService;
@@ -437,4 +438,9 @@ public class GQIssueController {
     public List<UserHoursData> loadUserHours(@Argument Long issueId) {
         return this.issueService.loadUserHours(issueId);
     }
+    @MutationMapping
+    public Response deleteReperoire(@Argument String absolutePath){
+        return this.directoryService.deleteReperoire(absolutePath);
+    }
+
 }
