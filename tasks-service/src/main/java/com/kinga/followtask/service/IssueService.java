@@ -601,7 +601,7 @@ public class IssueService {
     }
     public void deleteDocument(Document document) {
         document.getUploadeds().forEach(up -> {
-            uploadedRepository.deleteById(up.getId());
+            deleteUploaded(up);
         });
         document.getDocumentMembers().forEach(dm->{
             documentMemberRepository.delete(dm);
@@ -620,6 +620,32 @@ public class IssueService {
         });
         documentRepository.delete(document);
     }
+
+    private void deleteUploaded(Uploaded up) {
+        String path = KingaUtils.decodeText(up.getEncodedPath());
+
+        if (path == null || path.isBlank()) {
+            log.warn("Chemin vide ou invalide pour l'upload id={}", up.getId());
+            return;
+        }
+
+        File file = new File(path);
+        try {
+            if (file.exists()) {
+                if (file.delete()) {
+                    log.info("Fichier supprimé : {}", path);
+                } else {
+                    log.warn("Échec de la suppression du fichier : {}", path);
+                }
+            } else {
+                log.warn("Fichier introuvable : {}", path);
+            }
+        } catch (SecurityException e) {
+            log.error("Erreur de sécurité lors de la suppression du fichier : {}", path, e);
+        }
+        uploadedRepository.delete(up);
+    }
+
     public void deleteIssue(Long issueId) {
         Issue issue = issueRepository.findById(issueId).orElse(null);
         if (issue == null) {
