@@ -688,8 +688,34 @@ public class IssueService {
         issue.getDocumentUsages().forEach(du->{
             issueDocumentUsageRepository.delete(du);
         });
+        deleteRepetoitre(KingaUtils.decodeText(issue.getEncodedPath()));
         issueRepository.delete(issue);
 
+    }
+    private void deleteRepetoitre(String path) {
+        if (path == null || path.isBlank()) {
+            log.warn("Chemin de répertoire vide ou invalide");
+            return;
+        }
+
+        File dir = new File(path);
+
+        if (!dir.exists()) {
+            log.warn("Répertoire introuvable : {}", path);
+            return;
+        }
+
+        if (!dir.isDirectory()) {
+            log.warn("Le chemin fourni n'est pas un répertoire : {}", path);
+            return;
+        }
+
+        try {
+            FileUtils.deleteDirectory(dir);
+            log.info("Répertoire supprimé : {}", path);
+        } catch (IOException e) {
+            log.error("Erreur lors de la suppression du répertoire : {}", path, e);
+        }
     }
     public void sendDocument(Document doc) {
         doc = documentRepository.getOne(doc.getId());
