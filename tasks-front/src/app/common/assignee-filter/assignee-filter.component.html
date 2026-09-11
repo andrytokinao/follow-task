@@ -1,4 +1,12 @@
 <div class="af" *ngIf="assignees.length > 0 || unassigned > 0">
+  <!-- Toujours affiché, en tête : le faire apparaître à la première sélection
+       décalait toute la rangée -->
+  <button type="button" class="af-all"
+          [class.af-all--active]="!hasSelection"
+          [attr.aria-pressed]="!hasSelection"
+          title="Toutes les tâches"
+          (click)="clear()">Tous</button>
+
   <button type="button" class="af-item"
           *ngFor="let entry of assignees; trackBy: trackByAssignee"
           [class.af-item--selected]="isSelected(entry.user.id)"
@@ -19,6 +27,4 @@
     <span class="af-vide">?</span>
     <span class="af-count">{{ unassigned }}</span>
   </button>
-
-  <button type="button" class="af-clear" *ngIf="hasSelection" (click)="clear()">Tous</button>
 </div>

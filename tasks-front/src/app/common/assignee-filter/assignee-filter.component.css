@@ -88,21 +88,35 @@
   background: var(--af-accent);
 }
 
-.af-clear {
+/* "Tous" : même graisse et même bordure dans les deux états, seules les
+   couleurs changent — sa largeur ne varie pas, la rangée ne bouge pas. */
+.af-all {
   flex-shrink: 0;
   height: 22px;
-  padding: 0 8px;
+  margin-right: 2px;
+  padding: 0 9px;
   border: 1px solid #e5e7eb;
   border-radius: 999px;
   background: #fff;
   color: #6b7280;
   font-family: inherit;
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  transition: color .12s ease, border-color .12s ease;
+  transition: background .12s ease, color .12s ease, border-color .12s ease;
 }
-.af-clear:hover {
+.af-all:hover {
   color: var(--af-accent);
   border-color: var(--af-accent);
+}
+.af-all--active,
+.af-all--active:hover {
+  background: var(--af-accent);
+  border-color: var(--af-accent);
+  color: #fff;
+  cursor: default;
+}
+.af-all:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 1.5px #fff, 0 0 0 3px var(--af-accent);
 }
