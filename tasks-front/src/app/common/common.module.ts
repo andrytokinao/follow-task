@@ -58,6 +58,9 @@ import {DossiersComponent} from "./dossiers/dossiers.component";
 import {TreeDossierItemComponent} from "./tree-dossier-item/tree-dossier-item.component";
 import {ExplorateurFichiersComponent} from "./explorateur-fichiers/explorateur-fichiers.component";
 import {AvatarComponent} from "./avatar/avatar.component";
+import {AssigneeFilterComponent} from "./assignee-filter/assignee-filter.component";
+import {StatusTabsComponent} from "./status-tabs/status-tabs.component";
+import {IssueBoardComponent} from "./issue-board/issue-board.component";
 
 @NgModule({
   declarations: [
@@ -97,7 +100,10 @@ import {AvatarComponent} from "./avatar/avatar.component";
     SkeletonComponent,
     DossiersComponent,
     TreeDossierItemComponent,
-    ExplorateurFichiersComponent
+    ExplorateurFichiersComponent,
+    AssigneeFilterComponent,
+    StatusTabsComponent,
+    IssueBoardComponent
   ],
   imports: [
     CommonModule,
@@ -133,7 +139,8 @@ import {AvatarComponent} from "./avatar/avatar.component";
     NgbCarousel,
     NgbSlide,
     IssutypeForm2Component,
-    AvatarComponent
+    AvatarComponent,
+    IconeViewComponent
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA
@@ -173,7 +180,10 @@ import {AvatarComponent} from "./avatar/avatar.component";
         SkeletonComponent,
         DossiersComponent,
       TreeDossierItemComponent,
-      ExplorateurFichiersComponent
+      ExplorateurFichiersComponent,
+      AssigneeFilterComponent,
+      StatusTabsComponent,
+      IssueBoardComponent
     ],
   providers:[
     NgbActiveModal

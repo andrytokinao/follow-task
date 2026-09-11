@@ -1,7 +1,8 @@
 import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
 import {UserService} from "../../services/user.service";
 import {FormControl} from "@angular/forms";
-import {Issue, IssueMembership, User} from "../../type/issue";
+import {Issue, User} from "../../type/issue";
+import {issueAssignees, userDisplayName} from "../../type/issue-grouping.util";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {IssueService} from "../../services/issue.service";
 import {ActivatedRoute} from "@angular/router";
@@ -59,22 +60,8 @@ export class AssignFieldComponent implements OnInit, OnChanges {
     }
   }
 
-  /**
-   * Assignes courants : issus des memberships actifs, avec repli sur l'ancien
-   * champ assigne pour les issues creees avant la gestion multi-assignes.
-   */
   get assignees(): User[] {
-    if (this.issue == null) {
-      return [];
-    }
-    const memberships: IssueMembership[] = this.issue.activeMemberships || [];
-    const users = memberships
-      .filter(membership => membership.user != null && membership.role != 'OBSERVER')
-      .map(membership => <User>membership.user);
-    if (users.length == 0 && this.issue.assigne != null && this.issue.assigne.id) {
-      return [this.issue.assigne];
-    }
-    return users;
+    return issueAssignees(this.issue);
   }
 
   get visibleAssignees(): User[] {
@@ -116,11 +103,7 @@ export class AssignFieldComponent implements OnInit, OnChanges {
   }
 
   displayName(user: User): string {
-    if (user == null) {
-      return '';
-    }
-    const name = ((user.firstName || '') + ' ' + (user.lastName || '')).trim();
-    return name || (user.username || '');
+    return userDisplayName(user);
   }
 
   /**

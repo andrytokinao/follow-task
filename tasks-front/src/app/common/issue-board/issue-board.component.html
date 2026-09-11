@@ -1,0 +1,45 @@
+<div class="ib-wrap">
+  <div class="ib">
+
+    <section class="ib-col"
+             *ngFor="let status of columns; trackBy: trackByStatus"
+             [class.ib-col--over]="dragOverStatusId === status.id"
+             (dragover)="onDragOver($event, status)"
+             (dragleave)="onDragLeave(status)"
+             (drop)="onDrop($event, status)">
+      <header class="ib-col__head">
+        <app-icone-view class="ib-col__icon" *ngIf="status.icone" [icon]="status.icone"></app-icone-view>
+        <span class="ib-col__title" [title]="status.displayName">{{ status.displayName }}</span>
+        <span class="ib-col__count">{{ issuesFor(status).length }}</span>
+      </header>
+
+      <div class="ib-col__body">
+        <article class="ib-card"
+                 *ngFor="let issue of issuesFor(status); trackBy: trackByIssue"
+                 draggable="true"
+                 (dragstart)="onDragStart($event, issue)"
+                 (dragend)="onDragEnd()"
+                 [class.ib-card--dragging]="draggedIssue === issue"
+                 (click)="issueClick.emit(issue)">
+          <div class="ib-card__top">
+            <app-icone-view class="ib-card__type" *ngIf="issue.issueType?.icone" [icon]="issue.issueType.icone"></app-icone-view>
+            <span class="ib-card__key">{{ issue.issueKey }}</span>
+          </div>
+
+          <p class="ib-card__title" [title]="issue.summary">{{ issue.summary }}</p>
+
+          <div class="ib-card__bottom">
+            <!-- stopPropagation : ouvrir le menu d'assignation ne doit pas
+                 ouvrir la tâche -->
+            <span class="ib-card__assign" (click)="$event.stopPropagation()">
+              <app-assign-field [issue]="issue" [maxLabelWidth]="0" (save)="issueUpdated.emit(issue)"></app-assign-field>
+            </span>
+          </div>
+        </article>
+
+        <p class="ib-col__empty" *ngIf="!issuesFor(status).length">{{ emptyLabel }}</p>
+      </div>
+    </section>
+
+  </div>
+</div>

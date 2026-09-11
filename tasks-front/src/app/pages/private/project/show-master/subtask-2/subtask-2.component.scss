@@ -209,6 +209,53 @@ $mobile: 768px;
   white-space: nowrap;
 }
 
+// ─── Filtres ─────────────────────────────────────────────────────
+// Assignés : dans l'en-tête, calés à droite contre les actions. Largeur du
+// contenu (flex 0 1 auto) poussée par margin-left:auto — et non
+// justify-content:flex-end dans la zone défilante, qui rendrait inaccessibles
+// les avatars débordant à gauche. min-width:0 : s'ils ne tiennent pas, le
+// filtre rétrécit et défile. Les composants communs exposent leur couleur
+// d'accent : on les aligne sur celle de l'écran.
+.sw-list__assignees {
+  --af-accent: #{$c-accent};
+  --af-size: 24px;
+  flex: 0 1 auto;
+  min-width: 0;
+  margin-left: auto;
+  padding-right: 8px;
+  border-right: 1px solid $c-border;
+}
+
+.sw-list__title { flex-shrink: 0; white-space: nowrap; }
+.sw-list__actions { flex-shrink: 0; }
+
+// Statuts : une rangée fine, en liste compacte seulement.
+.sw-filters {
+  padding: 6px 14px;
+  border-bottom: 1px solid $c-border;
+  flex-shrink: 0;
+  min-width: 0;
+
+  app-status-tabs { --st-accent: #{$c-accent}; }
+}
+
+// ─── Board ───────────────────────────────────────────────────────
+// show-master n'impose aucune hauteur : sans hauteur explicite, le board
+// prendrait celle de sa colonne la plus remplie — quelques centimètres avec
+// deux tâches. On le cale sur la fenêtre, avec un plancher pour les écrans
+// bas. --sw-board-offset = barres de navigation + en-tête de la liste.
+app-issue-board {
+  --ib-accent: #{$c-accent};
+  --ib-accent-bg: #{$c-accent-lt};
+  --sw-board-offset: 240px;
+  flex: none;
+  height: max(var(--ib-min-height), calc(100dvh - var(--sw-board-offset)));
+}
+
+// Si un conteneur parent venait à contraindre la hauteur, le plancher du
+// board ne doit pas être rogné par l'overflow:hidden de .sw.
+.sw-list--full { overflow-y: auto; }
+
 // ─── Skeleton ────────────────────────────────────────────────────
 .sw-list__skeleton {
   padding: 10px 14px;
@@ -344,6 +391,7 @@ $mobile: 768px;
 
   &__icon { opacity: .25; }
   &__text { font-size: 12.5px; color: $c-muted; }
+  &--filtered { padding: 32px 20px; }
 }
 
 // ─── Divider ─────────────────────────────────────────────────────

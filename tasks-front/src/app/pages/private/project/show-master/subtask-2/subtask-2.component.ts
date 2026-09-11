@@ -16,9 +16,14 @@ import {
   EventApp,
   EventSearchCriteria,
   Issue,
+  Status,
   UsingCustomField
 } from '../../../../../type/issue';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { ToastrService } from 'ngx-toastr';
+import { filterByAssignees } from '../../../../../type/issue-grouping.util';
+import { IssueStatusDrop } from '../../../../../common/issue-board/issue-board.component';
 import { MatMenuTrigger } from '@angular/material/menu';
 import { NewIssueFormComponent } from '../../../../../common/new-issue-form/new-issue-form.component';
 import { EventsService } from '../../../../../services/events.service';
@@ -76,6 +81,18 @@ export class Subtask2Component implements OnInit, AfterViewInit {
   currentCustomFieldValue: CustomFieldValue | null = null;
   usingCustomFields: UsingCustomField[] = [];
 
+  // ── Filtres & regroupement ───────────────────────────────────────
+  /** statuts des workflows des sous-tâches, dans l'ordre du workflow */
+  statuses: Status[] = [];
+  /** identifiants des assignés retenus ; vide = tout le monde */
+  assigneeFilter: string[] = [];
+  /** statut retenu dans la liste compacte ; null = tous */
+  statusFilter: number | null = null;
+  /** sous-tâches passées au filtre d'assignés : alimente le board et les compteurs de statut */
+  assigneeFilteredTasks: Issue[] = [];
+  /** puis au filtre de statut : lignes de la liste compacte */
+  visibleTasks: Issue[] = [];
+
   // ── UI state ─────────────────────────────────────────────────────
   showDetail    = false;
   isMobile      = false;
@@ -117,7 +134,8 @@ export class Subtask2Component implements OnInit, AfterViewInit {
     private userService: UserService,
     private route: ActivatedRoute,
     private authService: AuthService,
-    private eventService: EventsService
+    private eventService: EventsService,
+    private toastr: ToastrService
   ) {}
 
   ngOnInit(): void {
@@ -130,6 +148,10 @@ export class Subtask2Component implements OnInit, AfterViewInit {
       this.selectedIssueSubject.next(undefined);
       this.showDetail = false;
       this.subtasks = [];
+      this.statuses = [];
+      this.assigneeFilter = [];
+      this.statusFilter = null;
+      this.applyFilters();
       this.events = [];
       this.groupedEvents = [];
       if (this.parentIssue?.id) this.loadSubtask();
@@ -142,10 +164,14 @@ export class Subtask2Component implements OnInit, AfterViewInit {
   checkMobile(): void {
     const wasMobile = this.isMobile;
     this.isMobile = window.innerWidth < 768;
+    // Plus de sélection automatique en repassant sur desktop : sans tâche
+    // ouverte, c'est le board qui s'affiche.
     if (!wasMobile && this.isMobile) this.showDetail = false;
-    if (wasMobile && !this.isMobile && this.subtasks?.length > 0 && !this.selectedTask) {
-      this.selectTask(this.subtasks[0]);
-    }
+  }
+
+  /** Board pleine largeur tant qu'aucune tâche n'est ouverte ; liste compacte à côté du détail sinon. */
+  get showBoard(): boolean {
+    return !this.selectedTask && !this.isMobile;
   }
 
   // ── List collapse ─────────────────────────────────────────────────
@@ -228,13 +254,85 @@ export class Subtask2Component implements OnInit, AfterViewInit {
     this.issueService.loadSubtask(this.parentIssue.id).subscribe(
       issues => {
         this.subtasks = issues || [];
-        if (!this.isMobile && this.subtasks.length > 0 && !this.selectedTask) {
-          this.selectTask(this.subtasks[0]);
-        }
+        this.applyFilters();
+        this.loadStatuses();
         this.loadingSubtask = false;
       },
-      () => { this.subtasks = []; this.loadingSubtask = false; }
+      () => { this.subtasks = []; this.applyFilters(); this.loadingSubtask = false; }
     );
+  }
+
+  /**
+   * LOAD_SUBTASK ne charge pas le workflow des types : on le récupère par
+   * type, comme le fait app-status-field. En pratique les sous-tâches d'une
+   * même demande partagent un ou deux types, donc une ou deux requêtes.
+   */
+  private loadStatuses(): void {
+    const parentId = this.parentIssue?.id;
+    const typeIds = Array.from(new Set(
+      this.subtasks.map(task => task.issueType?.id).filter(id => id != null)
+    ));
+    if (typeIds.length == 0) { this.statuses = []; return; }
+    forkJoin(typeIds.map(id =>
+      this.issueService.getIssueTypeById(id).pipe(catchError(() => of(null)))
+    )).subscribe(types => {
+      // réponse arrivée après un changement de demande parente
+      if (this.parentIssue?.id !== parentId) return;
+      this.statuses = types.flatMap(type => type?.curentWorkFlow?.statuses || []);
+    });
+  }
+
+  // ── Filtres ──────────────────────────────────────────────────────
+  onAssigneeFilterChange(ids: string[]): void {
+    this.assigneeFilter = ids;
+    this.applyFilters();
+  }
+
+  onStatusFilterChange(statusId: number | null): void {
+    this.statusFilter = statusId;
+    this.applyFilters();
+  }
+
+  clearFilters(): void {
+    this.assigneeFilter = [];
+    this.statusFilter = null;
+    this.applyFilters();
+  }
+
+  /**
+   * À appeler après une modification sur place d'une sous-tâche (statut,
+   * assignés) : le board et les compteurs ne se recalculent que sur un
+   * changement de référence de la liste.
+   */
+  refreshTasks(): void {
+    this.subtasks = [...this.subtasks];
+    this.applyFilters();
+  }
+
+  onTaskStatusUpdated(task: Issue, updated: Issue): void {
+    if (updated?.status) task.status = updated.status;
+    this.refreshTasks();
+  }
+
+  /** Déplacement optimiste : la carte change de colonne tout de suite et revient si l'action échoue. */
+  onStatusDrop({ issue, status }: IssueStatusDrop): void {
+    const previous = issue.status;
+    issue.status = status;
+    this.refreshTasks();
+    this.issueService.createActionStatus(issue, status).subscribe({
+      error: () => {
+        issue.status = previous;
+        this.refreshTasks();
+        this.toastr.error('Impossible de changer le statut');
+      }
+    });
+  }
+
+  private applyFilters(): void {
+    this.assigneeFilteredTasks = filterByAssignees(this.subtasks, this.assigneeFilter);
+    this.visibleTasks = this.statusFilter == null
+      ? this.assigneeFilteredTasks
+      : this.assigneeFilteredTasks.filter(task => task.status?.id === this.statusFilter);
   }
 
   loadValues(): void {

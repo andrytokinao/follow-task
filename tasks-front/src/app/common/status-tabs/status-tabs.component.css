@@ -1,0 +1,80 @@
+:host {
+  --st-accent: #1565c0;
+  display: block;
+  min-width: 0;
+}
+
+/* Défilement horizontal plutôt que retour à la ligne : la hauteur reste
+   fixe au-dessus de la liste, quel que soit le nombre de statuts. */
+.st {
+  display: flex;
+  gap: 6px;
+  padding: 1px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.st::-webkit-scrollbar {
+  display: none;
+}
+
+.st-tab {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 180px;
+  height: 26px;
+  padding: 0 4px 0 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  background: #fff;
+  color: #6b7280;
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background .12s ease, border-color .12s ease, color .12s ease, opacity .12s ease;
+}
+.st-tab:hover {
+  border-color: var(--st-accent);
+  color: #111827;
+}
+.st-tab--active,
+.st-tab--active:hover {
+  background: var(--st-accent);
+  border-color: var(--st-accent);
+  color: #fff;
+}
+.st-tab--empty:not(.st-tab--active) {
+  opacity: .55;
+}
+
+.st-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  font-size: 11px;
+}
+
+.st-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.st-count {
+  flex-shrink: 0;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  box-sizing: border-box;
+  border-radius: 999px;
+  background: rgba(17, 24, 39, .08);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+}
+.st-tab--active .st-count {
+  background: rgba(255, 255, 255, .25);
+}

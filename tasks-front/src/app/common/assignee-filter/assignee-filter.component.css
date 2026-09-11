@@ -1,0 +1,108 @@
+:host {
+  --af-accent: #1565c0;
+  --af-size: 28px;
+  display: block;
+  min-width: 0;
+}
+
+/* Le padding laisse juste la place à l'anneau de sélection et au badge :
+   sans lui, overflow-x les rognerait. Il reste minimal pour que le filtre
+   tienne dans une barre d'en-tête. */
+.af {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 5px 4px 3px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.af::-webkit-scrollbar {
+  display: none;
+}
+
+.af-item {
+  position: relative;
+  flex-shrink: 0;
+  display: inline-flex;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+  box-shadow: 0 0 0 1.5px transparent;
+  transition: box-shadow .12s ease, opacity .12s ease;
+}
+.af-item app-avatar {
+  --avatar-size: var(--af-size);
+  display: block;
+}
+.af-item--selected {
+  box-shadow: 0 0 0 1.5px #fff, 0 0 0 3px var(--af-accent);
+}
+/* Dès qu'une sélection existe, les autres s'effacent : on voit d'un coup
+   d'œil qui est retenu. */
+.af-item--dimmed {
+  opacity: .4;
+}
+.af-item:hover,
+.af-item--dimmed:hover {
+  opacity: 1;
+}
+.af-item:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 1.5px #fff, 0 0 0 3px var(--af-accent);
+}
+
+.af-vide {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--af-size);
+  height: var(--af-size);
+  border-radius: 50%;
+  background: #adb5bd;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.af-count {
+  position: absolute;
+  right: -4px;
+  bottom: -3px;
+  min-width: 14px;
+  height: 14px;
+  padding: 0 3px;
+  box-sizing: border-box;
+  border: 1.5px solid #fff;
+  border-radius: 999px;
+  background: #4b5563;
+  color: #fff;
+  font-size: 8.5px;
+  font-weight: 700;
+  line-height: 11px;
+  text-align: center;
+  pointer-events: none;
+}
+.af-item--selected .af-count {
+  background: var(--af-accent);
+}
+
+.af-clear {
+  flex-shrink: 0;
+  height: 22px;
+  padding: 0 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  background: #fff;
+  color: #6b7280;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color .12s ease, border-color .12s ease;
+}
+.af-clear:hover {
+  color: var(--af-accent);
+  border-color: var(--af-accent);
+}

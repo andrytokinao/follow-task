@@ -1,0 +1,21 @@
+<div class="st" role="tablist">
+  <button type="button" role="tab" class="st-tab"
+          [class.st-tab--active]="selectedId == null"
+          [attr.aria-selected]="selectedId == null"
+          (click)="select(null)">
+    <span class="st-label">Toutes</span>
+    <span class="st-count">{{ total }}</span>
+  </button>
+
+  <button type="button" role="tab" class="st-tab"
+          *ngFor="let tab of tabs; trackBy: trackByTab"
+          [class.st-tab--active]="selectedId === tab.status.id"
+          [class.st-tab--empty]="tab.count == 0"
+          [attr.aria-selected]="selectedId === tab.status.id"
+          [title]="tab.status.displayName"
+          (click)="toggle(tab.status.id)">
+    <app-icone-view class="st-icon" *ngIf="tab.status.icone" [icon]="tab.status.icone"></app-icone-view>
+    <span class="st-label">{{ tab.status.displayName }}</span>
+    <span class="st-count">{{ tab.count }}</span>
+  </button>
+</div>

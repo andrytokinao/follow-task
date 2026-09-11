@@ -33,6 +33,15 @@
           Tâches
           <span class="sw-list__count">{{ subtasks?.length || 0 }}</span>
         </div>
+
+        <!-- Filtre par assigné dans l'en-tête : pas de rangée supplémentaire -->
+        <app-assignee-filter class="sw-list__assignees"
+                             *ngIf="!loadingSubtask && subtasks?.length > 0"
+                             [issues]="subtasks"
+                             [selectedIds]="assigneeFilter"
+                             (selectedIdsChange)="onAssigneeFilterChange($event)">
+        </app-assignee-filter>
+
         <div class="sw-list__actions">
           <button class="btn-icon"
                   [matMenuTriggerFor]="createSubtask"
@@ -62,6 +71,15 @@
         <span class="parent-name">{{ parentIssue.summary }}</span>
       </div>
 
+      <!-- Statuts : liste compacte seulement, le board les montrant déjà en colonnes -->
+      <div class="sw-filters" *ngIf="!loadingSubtask && subtasks?.length > 0 && !showBoard">
+        <app-status-tabs [statuses]="statuses"
+                         [issues]="assigneeFilteredTasks"
+                         [selectedId]="statusFilter"
+                         (selectedIdChange)="onStatusFilterChange($event)">
+        </app-status-tabs>
+      </div>
+
       <div class="sw-list__skeleton" *ngIf="loadingSubtask">
         <div class="sk-row" *ngFor="let i of [1,2,3]">
           <div class="sk sk--key"></div>
@@ -70,9 +88,18 @@
         </div>
       </div>
 
-      <div class="sw-list__scroll" *ngIf="!loadingSubtask">
+      <!-- Aucune tâche ouverte (desktop) : board par statut -->
+      <app-issue-board *ngIf="!loadingSubtask && showBoard && subtasks?.length > 0"
+                       [statuses]="statuses"
+                       [issues]="assigneeFilteredTasks"
+                       (issueClick)="selectTask($event)"
+                       (statusDrop)="onStatusDrop($event)"
+                       (issueUpdated)="refreshTasks()">
+      </app-issue-board>
+
+      <div class="sw-list__scroll" *ngIf="!loadingSubtask && !(showBoard && subtasks?.length > 0)">
         <ng-container *ngIf="subtasks?.length > 0; else emptyState">
-          <div *ngFor="let task of subtasks"
+          <div *ngFor="let task of visibleTasks"
                class="task-row"
                [class.task-row--active]="task === selectedTask"
                (click)="selectTask(task)"
@@ -82,13 +109,18 @@
               <div class="task-row__key">{{ task.issueKey }}</div>
               <div class="task-row__sum">{{ task.summary }}</div>
               <div class="task-row__meta">
-                <app-assign-field [issue]="task"></app-assign-field>
-                <app-status-field [issue]="task"></app-status-field>
+                <app-assign-field [issue]="task" (save)="refreshTasks()"></app-assign-field>
+                <app-status-field [issue]="task" (onUpdateIssue)="onTaskStatusUpdated(task, $event)"></app-status-field>
               </div>
             </div>
             <svg class="task-row__chevron" *ngIf="isMobile" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polyline points="9 18 15 12 9 6"/>
             </svg>
+          </div>
+
+          <div class="list-empty list-empty--filtered" *ngIf="visibleTasks.length == 0">
+            <p class="list-empty__text">Aucune tâche pour ce filtre</p>
+            <button class="link-btn" (click)="clearFilters()">Réinitialiser les filtres</button>
           </div>
         </ng-container>
 
@@ -173,8 +205,8 @@
 
     <!-- Status bar mobile -->
     <div class="mobile-status-bar" *ngIf="isMobile && selectedTask">
-      <app-status-field [issue]="selectedTask"></app-status-field>
-      <app-assign-field [issue]="selectedTask"></app-assign-field>
+      <app-status-field [issue]="selectedTask" (onUpdateIssue)="onTaskStatusUpdated(selectedTask, $event)"></app-status-field>
+      <app-assign-field [issue]="selectedTask" (save)="refreshTasks()"></app-assign-field>
     </div>
 
     <!-- Corps -->

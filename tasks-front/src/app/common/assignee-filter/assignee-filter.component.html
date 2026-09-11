@@ -1,0 +1,24 @@
+<div class="af" *ngIf="assignees.length > 0 || unassigned > 0">
+  <button type="button" class="af-item"
+          *ngFor="let entry of assignees; trackBy: trackByAssignee"
+          [class.af-item--selected]="isSelected(entry.user.id)"
+          [class.af-item--dimmed]="hasSelection && !isSelected(entry.user.id)"
+          [attr.aria-pressed]="isSelected(entry.user.id)"
+          [title]="displayName(entry.user) + ' · ' + entry.count + ' tâche(s)'"
+          (click)="toggle(entry.user.id)">
+    <app-avatar [url]="photoUrl(entry.user)" [displayName]="displayName(entry.user)"></app-avatar>
+    <span class="af-count">{{ entry.count }}</span>
+  </button>
+
+  <button type="button" class="af-item" *ngIf="unassigned > 0"
+          [class.af-item--selected]="isSelected(UNASSIGNED_ID)"
+          [class.af-item--dimmed]="hasSelection && !isSelected(UNASSIGNED_ID)"
+          [attr.aria-pressed]="isSelected(UNASSIGNED_ID)"
+          [title]="'Non assigné · ' + unassigned + ' tâche(s)'"
+          (click)="toggle(UNASSIGNED_ID)">
+    <span class="af-vide">?</span>
+    <span class="af-count">{{ unassigned }}</span>
+  </button>
+
+  <button type="button" class="af-clear" *ngIf="hasSelection" (click)="clear()">Tous</button>
+</div>

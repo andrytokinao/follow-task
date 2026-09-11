@@ -58,6 +58,9 @@ export class StatusFieldComponent implements OnInit , AfterViewInit{
     this.issueService.createActionStatus(this.issue,status).subscribe( res => {
       this.issueService.getIssueById(this.issue.id).subscribe(issue=> {
         this.issue = issue;
+        // Le parent garde sa propre reference de l'issue : sans cet evenement,
+        // ses compteurs et regroupements par statut restaient perimes.
+        this.onUpdateIssue.emit(issue);
       })
     } );
   }
