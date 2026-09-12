@@ -47,9 +47,24 @@ public class ActionItemInput {
     public void setStatus(Status status) {
         if (status == null)
             return;
+        this.status = simplifyStatus(status);
+    }
+    public void setOldStatusValue(Status oldStatusValue) {
+        if (oldStatusValue == null)
+            return;
+        this.oldStatusValue = simplifyStatus(oldStatusValue);
+    }
+    /**
+     * Copie sans les relations du statut. Ce DTO est diffuse par websocket
+     * (ActionService.sendAction) : l'entite geree porte acctionPossible, dont
+     * chaque CrossingStatus.from renvoie au statut, et Jackson bouclait
+     * jusqu'au StackOverflowError des qu'un statut avait des transitions.
+     */
+    private Status simplifyStatus(Status status) {
         Status s = new Status();
         s.setId(status.getId());
         s.setDisplayName(status.getDisplayName());
+        s.setColor(status.getColor());
         if (status.getIcone() != null) {
             Icone icone = new Icone();
             icone.setId(status.getIcone().getId());
@@ -57,7 +72,7 @@ public class ActionItemInput {
             icone.setValue(status.getIcone().getValue());
             s.setIcone(icone);
         }
-        this.status = status;
+        return s;
     }
     public void setAssigne(UserApp assigne) {
         if (assigne == null)
