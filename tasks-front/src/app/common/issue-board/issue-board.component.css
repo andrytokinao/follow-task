@@ -214,8 +214,35 @@
 
 .ib-card__bottom {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
+  gap: 8px;
   min-width: 0;
+}
+
+/* Demande : titre appuyé et liseré, comme dans le tableau des demandes. */
+.ib-card--master {
+  border-color: #c9dcf2;
+  border-left: 4px solid var(--ib-accent);
+  background: #eaf2fc;
+}
+.ib-card--master .ib-card__title {
+  font-weight: 650;
+}
+
+.ib-card__subtasks {
+  margin-right: auto;
+  font-size: 11px;
+  color: #6b7280;
+}
+
+/* Sous-tâche : la demande parente en rappel, discrète. */
+.ib-card__parent {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 10.5px;
+  color: #9ca3af;
 }
 
 .ib-card__assign {

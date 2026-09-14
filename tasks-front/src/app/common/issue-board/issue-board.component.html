@@ -20,15 +20,24 @@
                  (dragstart)="onDragStart($event, issue)"
                  (dragend)="onDragEnd()"
                  [class.ib-card--dragging]="draggedIssue === issue"
+                 [class.ib-card--master]="isMasterCard(issue)"
                  (click)="issueClick.emit(issue)">
           <div class="ib-card__top">
             <app-icone-view class="ib-card__type" *ngIf="issue.issueType?.icone" [icon]="issue.issueType.icone"></app-icone-view>
             <span class="ib-card__key">{{ issue.issueKey }}</span>
           </div>
 
+          <span class="ib-card__parent" *ngIf="isSubtaskCard(issue) && issue.parent" [title]="issue.parent.summary">
+            {{ issue.parent.issueKey }} · {{ issue.parent.summary }}
+          </span>
+
           <p class="ib-card__title" [title]="issue.summary">{{ issue.summary }}</p>
 
           <div class="ib-card__bottom">
+            <span class="ib-card__subtasks" *ngIf="isMasterCard(issue) && issue.children?.length"
+                  [title]="issue.children.length + ' sous-tâche(s)'">
+              <i class="fas fa-list-check"></i> {{ issue.children.length }}
+            </span>
             <!-- stopPropagation : ouvrir le menu d'assignation ne doit pas
                  ouvrir la tâche -->
             <span class="ib-card__assign" (click)="$event.stopPropagation()">

@@ -62,6 +62,7 @@ import {AvatarComponent} from "../../../common/avatar/avatar.component";
 import {MessageThreadComponent} from "../../../common/message-thread/message-thread.component";
 import {MessagingPageComponent} from "./messaging-page/messaging-page.component";
 import {IssuePickerMenuComponent} from "../../../common/issue-picker/issue-picker-menu.component";
+import {TaskListComponent} from "./tasks/task-list.component";
 
 @NgModule({
   declarations: [
@@ -87,7 +88,8 @@ import {IssuePickerMenuComponent} from "../../../common/issue-picker/issue-picke
     ExchangeDocumentsComponent,
     ProjectHomeComponent,
     DocumentExchangeComponent,
-    MessagingPageComponent
+    MessagingPageComponent,
+    TaskListComponent
   ],
     exports: [
         StatusComponent,

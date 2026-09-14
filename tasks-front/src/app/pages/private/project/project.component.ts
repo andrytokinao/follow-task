@@ -94,6 +94,7 @@ export class ProjectComponent implements OnInit{
 
   private routeNames: Record<string, string> = {
     'list': 'Liste',
+    'tasks': 'Tâches',
     'calendar': 'Calendrier',
     'planning': 'Planning',
     'config': 'Config',

@@ -26,6 +26,22 @@ export class IssueBoardComponent implements OnChanges {
   @Input() statuses: Status[] = [];
   @Input() issues: Issue[] = [];
   @Input() emptyLabel = 'Aucune tâche';
+  /** `master` : titre appuyé et nombre de sous-tâches ; `subtask` : rappel de
+   *  la demande parente ; `auto` : l'un ou l'autre selon la tâche, pour un
+   *  board qui mêle les deux. `default` garde la carte d'origine. */
+  @Input() variant: 'default' | 'master' | 'subtask' | 'auto' = 'default';
+
+  isMasterCard(issue: Issue): boolean {
+    if (this.variant !== 'auto') {
+      return this.variant === 'master';
+    }
+    const level = issue?.issueType?.level;
+    return level ? level === 'PARENT' : !issue?.parent;
+  }
+
+  isSubtaskCard(issue: Issue): boolean {
+    return this.variant === 'subtask' || (this.variant === 'auto' && !this.isMasterCard(issue));
+  }
   @Output() issueClick = new EventEmitter<Issue>();
   @Output() statusDrop = new EventEmitter<IssueStatusDrop>();
   /** une carte a été modifiée sur place (assignation) */

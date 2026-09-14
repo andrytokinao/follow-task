@@ -24,6 +24,7 @@ import {MessagesComponent} from "./messages/messages.component";
 import {ProjectHomeComponent} from "./home/home.component";
 import {DocumentExchangeComponent} from "./document-exchange/document-exchange.component";
 import {MessagingPageComponent} from "./messaging-page/messaging-page.component";
+import {TaskListComponent} from "./tasks/task-list.component";
 
 
 
@@ -42,6 +43,8 @@ const projectRoute: Routes = [
             //  canMatch: [userAdmin]
           },
           { path: 'home', component: ProjectHomeComponent, data:{title:'Accueil'}},
+          // Toutes les tâches du projet, demandes et sous-tâches.
+          { path: 'tasks', component: TaskListComponent, resolve: { breadcrumb: ProjectBreadcrumbResolverService }, data:{order:1, title:'Tâches'} },
 
           { path: 'gantt-chart', component: GanttChartComponent, resolve: { breadcrumb: ProjectBreadcrumbResolverService ,data:{order:2}  }, data:{title:'Gantt'}},
           { path: 'board', component: BoardComponent, resolve: { breadcrumb: ProjectBreadcrumbResolverService  } ,data:{order:3, title:'Tableau'} },

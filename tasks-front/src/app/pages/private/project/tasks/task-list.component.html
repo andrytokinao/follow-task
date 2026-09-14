@@ -1,0 +1,154 @@
+<div class="tasks-page" [class.tasks-page--board]="view === 'board'">
+
+  <!-- ============================== Barre haute ============================== -->
+  <header class="tl-topbar">
+
+    <!-- Par défaut tout est affiché ; on peut se restreindre à un niveau. -->
+    <div class="tl-levels" role="group" aria-label="Niveau de tâche">
+      <button type="button" class="tl-level" [class.active]="levelFilter === 'all'" (click)="setLevelFilter('all')">
+        <span>Tout</span>
+      </button>
+      <button type="button" class="tl-level" [class.active]="levelFilter === 'master'" (click)="setLevelFilter('master')">
+        <i class="fas fa-folder"></i><span>Demandes</span>
+      </button>
+      <button type="button" class="tl-level" [class.active]="levelFilter === 'subtask'" (click)="setLevelFilter('subtask')">
+        <i class="fas fa-list-check"></i><span>Sous-tâches</span>
+      </button>
+    </div>
+
+    <span class="tl-count" *ngIf="!loading">{{ visibleIssues.length }}</span>
+
+    <div class="tl-right">
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" placeholder="Rechercher…"
+               [ngModel]="searchTerm" (ngModelChange)="onSearchChange($event)"/>
+        <button type="button" class="search-clear" *ngIf="searchTerm" (click)="onSearchChange('')" title="Effacer">
+          <i class="fas fa-xmark"></i>
+        </button>
+      </div>
+
+      <button type="button" class="filter-trigger" [class.active]="isMineOnly" (click)="toggleMine()"
+              title="Seulement les tâches qui me sont assignées">
+        <i class="fas fa-user"></i> Mes tâches
+      </button>
+
+      <button type="button" class="filter-trigger" [class.active]="selectedStatusKeys.length > 0"
+              [matMenuTriggerFor]="statusMenu">
+        <i class="fas fa-filter"></i>
+        <span class="filter-label">{{ statusLabel }}</span>
+        <i class="fas fa-chevron-down"></i>
+      </button>
+
+      <div class="view-toggle">
+        <button type="button" [class.active]="view === 'table'" (click)="setView('table')" title="Tableau">
+          <i class="fas fa-table"></i>
+        </button>
+        <button type="button" [class.active]="view === 'board'" (click)="setView('board')" title="Board">
+          <i class="fas fa-columns"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Assignés : les avatars comptent les tâches restant après recherche et statut. -->
+  <div class="tl-subbar">
+    <app-assignee-filter [issues]="forAssigneeFilter"
+                         [selectedIds]="selectedAssigneeIds"
+                         (selectedIdsChange)="onAssigneesChange($event)">
+    </app-assignee-filter>
+    <button type="button" class="link-btn" *ngIf="hasActiveFilter" (click)="resetFilters()">
+      Réinitialiser les filtres
+    </button>
+  </div>
+
+  <app-loading [isLoading]="loading"></app-loading>
+
+  <!-- ================================ Tableau ================================ -->
+  <div class="tl-table-wrap" *ngIf="!loading && view === 'table' && visibleIssues.length">
+    <table class="tl-table">
+      <thead>
+      <tr>
+        <th class="col-key">Clé</th>
+        <th class="col-title">Tâche</th>
+        <th class="col-status">Statut</th>
+        <th class="col-assign">Assignés</th>
+        <th class="col-sub">Sous-tâches</th>
+        <th class="col-date">Créée le</th>
+      </tr>
+      </thead>
+      <tbody>
+      <!-- Demande : ligne en gras avec liseré. Sous-tâche : décalée sous sa
+           demande, ou seule avec sa demande en rappel si celle-ci est filtrée. -->
+      <tr *ngFor="let row of rows; trackBy: trackByRow"
+          [class.tl-row--master]="row.master"
+          [class.tl-row--nested]="row.nested"
+          (click)="openIssue(row.issue)">
+        <td class="col-key">
+          <span class="tl-key">
+            <i class="fas fa-turn-up fa-rotate-90 tl-branch" *ngIf="row.nested"></i>
+            <app-icone-view class="tl-type" *ngIf="row.issue.issueType?.icone" [icon]="row.issue.issueType.icone"></app-icone-view>
+            {{ row.issue.issueKey }}
+          </span>
+        </td>
+        <td class="col-title">
+          <span class="tl-parent" *ngIf="!row.master && !row.nested && row.issue.parent" [title]="row.issue.parent.summary">
+            <i class="fas fa-folder"></i>{{ row.issue.parent.issueKey }} · {{ row.issue.parent.summary }}
+          </span>
+          <span class="tl-summary" [title]="row.issue.summary">{{ row.issue.summary }}</span>
+        </td>
+        <td class="col-status" (click)="$event.stopPropagation()">
+          <app-status-field [issue]="row.issue" (onUpdateIssue)="onStatusUpdated(row.issue, $event)"></app-status-field>
+        </td>
+        <td class="col-assign" (click)="$event.stopPropagation()">
+          <app-assign-field [issue]="row.issue" (save)="onAssigned()"></app-assign-field>
+        </td>
+        <td class="col-sub">
+          <span class="tl-badge" *ngIf="row.master" [class.tl-badge--empty]="!subtaskCount(row.issue)">{{ subtaskCount(row.issue) }}</span>
+        </td>
+        <td class="col-date">{{ row.issue.creationDate | date:'dd/MM/yyyy' }}</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ================================= Board ================================= -->
+  <div class="tl-board" *ngIf="!loading && view === 'board' && visibleIssues.length">
+    <app-issue-board [statuses]="boardStatuses"
+                     [issues]="boardIssues"
+                     variant="auto"
+                     (issueClick)="openIssue($event)"
+                     (statusDrop)="onStatusDrop($event)"
+                     (issueUpdated)="onBoardIssueUpdated($event)">
+    </app-issue-board>
+  </div>
+
+  <!-- ================================= Vide ================================== -->
+  <div class="tl-empty" *ngIf="!loading && !visibleIssues.length">
+    <i class="fas fa-clipboard-check"></i>
+    <p>{{ hasActiveFilter ? 'Aucune tâche pour ces filtres.' : 'Aucune tâche dans ce projet.' }}</p>
+    <button type="button" class="link-btn" *ngIf="hasActiveFilter" (click)="resetFilters()">
+      Réinitialiser les filtres
+    </button>
+  </div>
+</div>
+
+<!-- ============================== Menu statuts ============================== -->
+<mat-menu #statusMenu="matMenu" class="tl-status-menu">
+  <!-- stopPropagation : le menu reste ouvert pendant qu'on coche. -->
+  <div class="tl-menu" (click)="$event.stopPropagation()">
+    <div class="tl-menu-head">
+      <span>Statuts</span>
+      <button type="button" class="link-btn" *ngIf="selectedStatusKeys.length" (click)="clearStatuses()">Tous</button>
+    </div>
+    <div class="tl-menu-row" *ngFor="let option of statusOptions; trackBy: trackByKey"
+         [class.selected]="isStatusSelected(option.key)">
+      <mat-checkbox [checked]="isStatusSelected(option.key)" (change)="toggleStatus(option.key)">
+        <span class="tl-dot" [style.background]="option.status.color || '#9ca3af'"></span>
+        <span class="tl-menu-name">{{ option.status.displayName }}</span>
+      </mat-checkbox>
+      <span class="tl-menu-count">{{ option.count }}</span>
+    </div>
+    <p class="tl-menu-empty" *ngIf="!statusOptions.length">Aucun statut.</p>
+  </div>
+</mat-menu>
