@@ -28,10 +28,17 @@ const masterRoute: Routes = [
         children: [
           { path: 'details', component: IssueDetailsComponent },
           { path: 'sources-files', component: DossierSourceComponent },
-          { path: 'subtask', component: Subtask2Component },
           // Lien direct vers une sous-issue précise :
           // /working/{prefix}/issue/{parentKey}/subtask/{subtaskKey}
-          { path: 'subtask/:subtaskKey', component: Subtask2Component },
+          // Enfants sans composant : passer d'une sous-tâche à l'autre ne
+          // change que le paramètre, Subtask2Component n'est pas recréé.
+          {
+            path: 'subtask', component: Subtask2Component,
+            children: [
+              { path: '', children: [] },
+              { path: ':subtaskKey', children: [] }
+            ]
+          },
           { path: 'planning', component: PlanningComponent },
           // Rapport d'avancement de la demande racine ouverte : l'identifiant
           // vient de la demande courante, pas de l'URL.

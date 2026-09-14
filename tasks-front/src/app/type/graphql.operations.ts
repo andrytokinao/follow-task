@@ -2390,6 +2390,32 @@ const PROJECT_DATE_VALUES = gql`
           name
           level
         }
+        # Pour l'infobulle du calendrier : situer la date sans ouvrir la tâche.
+        project {
+          id
+          name
+        }
+        parent {
+          id
+          issueKey
+          summary
+        }
+        status {
+          id
+          displayName
+        }
+        assigne {
+          id
+          username
+          firstName
+          lastName
+        }
+        assignes {
+          id
+          username
+          firstName
+          lastName
+        }
       }
     }
   }

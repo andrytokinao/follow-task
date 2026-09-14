@@ -17,6 +17,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -103,10 +104,14 @@ public class EventService {
             || criteria.getStart() == null || criteria.getEnd() == null) {
       return new ArrayList<>();
     }
+    // Fuseau du serveur, et non UTC : les dates de champ personnalisé sont
+    // enregistrées à minuit heure locale. Les convertir depuis UTC décalait la
+    // fenêtre du décalage horaire (3 h à Madagascar), si bien que les valeurs
+    // du premier jour de la période n'étaient jamais remontées.
     List<CustomFieldValue> values = valueDaoRepository.findProjectDateValues(
             criteria.getProjectId(),
-            Date.from(criteria.getStart().toInstant(ZoneOffset.UTC)),
-            Date.from(criteria.getEnd().toInstant(ZoneOffset.UTC)));
+            Date.from(criteria.getStart().atZone(ZoneId.systemDefault()).toInstant()),
+            Date.from(criteria.getEnd().atZone(ZoneId.systemDefault()).toInstant()));
 
     // Filtres facultatifs appliqués après coup : la période et le projet ont
     // déjà réduit l'ensemble à ce qu'un mois de projet peut contenir.

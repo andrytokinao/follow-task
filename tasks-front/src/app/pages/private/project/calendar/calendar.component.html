@@ -53,8 +53,17 @@
     </div>
   </header>
 
+  <!-- Un calendrier vide a deux causes très différentes : aucun champ coché, ou
+       un appel qui a échoué. Les taire laisse croire qu'il n'y a pas de date. -->
+  <p class="cal-empty" *ngIf="errorMessage">
+    <i class="fas fa-triangle-exclamation"></i> {{ errorMessage }}
+  </p>
+
   <!-- ================================ Mois ================================ -->
   <section class="cal-month" *ngIf="mode === 'month'">
+    <p class="cal-empty" *ngIf="!selectedFieldIds.length">
+      Choisissez un champ de type Date à afficher.
+    </p>
     <daypilot-month [config]="configMonth" [events]="events" #month></daypilot-month>
   </section>
 
@@ -69,6 +78,7 @@
         type="button"
         class="cal-row"
         *ngFor="let value of day.events"
+        [title]="eventTooltip(value)"
         (click)="openIssue(value.issue)"
       >
         <span class="cal-row-dot" [style.background]="eventColor(value)"></span>
@@ -118,7 +128,7 @@
 
     <p class="cal-menu-note">
       <i class="fas fa-circle-info"></i>
-      Seules les dates portées par les tâches parentes sont affichées.
+      Les dates des tâches parentes comme des sous-tâches sont affichées.
     </p>
   </div>
 </mat-menu>

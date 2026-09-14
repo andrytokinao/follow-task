@@ -2,10 +2,11 @@ import {
   AfterViewInit,
   Component,
   HostListener,
+  OnDestroy,
   OnInit,
   ViewChild
 } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ConfigService } from '../../../../../services/config.service';
 import { IssueService } from '../../../../../services/issue.service';
@@ -19,8 +20,8 @@ import {
   Status,
   UsingCustomField
 } from '../../../../../type/issue';
-import { BehaviorSubject, forkJoin, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { BehaviorSubject, forkJoin, of, Subscription } from 'rxjs';
+import { catchError, filter } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 import { filterByAssignees } from '../../../../../type/issue-grouping.util';
 import { IssueStatusDrop } from '../../../../../common/issue-board/issue-board.component';
@@ -58,7 +59,7 @@ type TabKey = 'comments' | 'attachments' | 'planning' | 'history';
     ])
   ]
 })
-export class Subtask2Component implements OnInit, AfterViewInit {
+export class Subtask2Component implements OnInit, AfterViewInit, OnDestroy {
 
   planningPositions: ConnectedPosition[] = [
     { originX: 'end',   originY: 'top',    overlayX: 'start', overlayY: 'top' },
@@ -122,6 +123,7 @@ export class Subtask2Component implements OnInit, AfterViewInit {
 
   private project: any;
   private profile: any;
+  private routerSubscription?: Subscription;
 
   private readonly RING_R    = 12;
   private readonly RING_CIRC = 2 * Math.PI * this.RING_R;
@@ -156,9 +158,17 @@ export class Subtask2Component implements OnInit, AfterViewInit {
       this.groupedEvents = [];
       if (this.parentIssue?.id) this.loadSubtask();
     });
+    // La tâche ouverte suit l'URL : lien partagé, bouton retour du navigateur…
+    this.routerSubscription = this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe(() => this.syncSelectionWithUrl());
   }
 
   ngAfterViewInit(): void {}
+
+  ngOnDestroy(): void {
+    this.routerSubscription?.unsubscribe();
+  }
 
   @HostListener('window:resize')
   checkMobile(): void {
@@ -181,7 +191,64 @@ export class Subtask2Component implements OnInit, AfterViewInit {
   }
 
   // ── Task selection ───────────────────────────────────────────────
+  // L'URL fait foi : sélectionner ou fermer une tâche ne fait que naviguer,
+  // syncSelectionWithUrl applique ensuite l'état.
   selectTask(task: Issue): void {
+    if (!task?.issueKey) { this.openTask(task); return; }
+    this.router.navigate([task.issueKey.toString()], { relativeTo: this.route });
+  }
+
+  closeDetail(): void {
+    this.router.navigate(['./'], { relativeTo: this.route });
+  }
+
+  backToList(): void {
+    this.closeDetail();
+  }
+
+  /** Clé de la sous-tâche présente dans l'URL (…/subtask/:subtaskKey), sinon null. */
+  private get urlSubtaskKey(): string | null {
+    return this.route.snapshot.firstChild?.paramMap.get('subtaskKey') ?? null;
+  }
+
+  /**
+   * La demande parente est chargée par IssueResolverService sans être attendue
+   * par le routeur : juste après une navigation, la liste peut encore être
+   * celle de la demande précédente.
+   */
+  private get subtasksMatchUrlParent(): boolean {
+    const urlParentKey = this.route.snapshot.pathFromRoot
+      .map(r => r.paramMap.get('parrentIssue'))
+      .filter(key => !!key)
+      .pop();
+    return !!this.parentIssue?.id
+      && (!urlParentKey || this.parentIssue.issueKey?.toString() === urlParentKey);
+  }
+
+  /** Aligne la tâche ouverte sur l'URL, une fois les sous-tâches chargées. */
+  private syncSelectionWithUrl(): void {
+    if (this.loadingSubtask) return;
+    const key = this.urlSubtaskKey;
+    if (!key) {
+      if (this.selectedTask) this.clearSelection();
+      return;
+    }
+    if (!this.subtasksMatchUrlParent) return;
+    const task = this.subtasks.find(t => t.issueKey?.toString() === key);
+    if (!task) {
+      this.toastr.warning(`La tâche ${key} est introuvable dans cette demande`);
+      this.router.navigate(['./'], { relativeTo: this.route, replaceUrl: true });
+      return;
+    }
+    if (this.selectedTask?.id === task.id) {
+      // liste rechargée : on garde l'onglet et les données, seule la référence change
+      this.selectedTask = task;
+      return;
+    }
+    this.openTask(task);
+  }
+
+  private openTask(task: Issue): void {
     this.cancelEditSummary();
     this.cancelEditDescription();
     this.selectedTask = task;
@@ -192,7 +259,7 @@ export class Subtask2Component implements OnInit, AfterViewInit {
     if (this.isMobile) this.showDetail = true;
   }
 
-  closeDetail(): void {
+  private clearSelection(): void {
     this.selectedTask = null;
     this.selectedIssueSubject.next(undefined);
     this.cancelEditSummary();
@@ -200,12 +267,13 @@ export class Subtask2Component implements OnInit, AfterViewInit {
     this.showDetail = false;
   }
 
-  backToList(): void {
-    this.showDetail = false;
-    this.selectedTask = null;
-    this.selectedIssueSubject.next(undefined);
-    this.cancelEditSummary();
-    this.cancelEditDescription();
+  /** L'URL courante est déjà …/subtask/{clé} : c'est le lien à partager. */
+  copyTaskLink(): void {
+    if (!navigator.clipboard) { this.toastr.error('Impossible de copier le lien'); return; }
+    navigator.clipboard.writeText(window.location.href).then(
+      () => this.toastr.success('Lien de la tâche copié'),
+      () => this.toastr.error('Impossible de copier le lien')
+    );
   }
 
   // ── Inline edit — Summary ────────────────────────────────────────
@@ -257,6 +325,7 @@ export class Subtask2Component implements OnInit, AfterViewInit {
         this.applyFilters();
         this.loadStatuses();
         this.loadingSubtask = false;
+        this.syncSelectionWithUrl();
       },
       () => { this.subtasks = []; this.applyFilters(); this.loadingSubtask = false; }
     );

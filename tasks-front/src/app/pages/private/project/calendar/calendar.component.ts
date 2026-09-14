@@ -18,8 +18,9 @@ interface AgendaDay {
  *
  * Ce que le calendrier montre, ce sont les valeurs de champ personnalisé de
  * type Date (`DateCustomFieldValue`) rattachées au projet courant, lues telles
- * quelles — pas des événements de planning. Un menu laisse cocher les champs à
- * afficher : les afficher tous d'office noierait le calendrier.
+ * quelles — pas des événements de planning. Tant que l'utilisateur n'a rien
+ * choisi, tous les champs Date du projet sont affichés ; le menu permet ensuite
+ * de restreindre à certains champs.
  */
 @Component({
   standalone: false,
@@ -32,13 +33,13 @@ export class CalendarComponent implements OnInit, OnDestroy {
   private static readonly LOCALE = 'fr-fr';
   /** La sélection de champs est une préférence d'affichage, propre au projet. */
   private static readonly FIELDS_KEY = 'calendrier-champs-dates';
-  /** Pour l'instant le calendrier ne remonte que les dates des tâches parentes. */
-  private static readonly LEVELS = ['PARENT'];
 
   private destroy$ = new Subject<void>();
 
   mode: 'month' | 'range' = 'month';
   loading = false;
+  /** Un appel en échec doit se voir : sinon il ressemble à une période vide. */
+  errorMessage = '';
 
   /** Mois affiché en mode Mois (toujours le 1er du mois). */
   monthStart: Date = CalendarComponent.startOfMonth(new Date());
@@ -52,6 +53,9 @@ export class CalendarComponent implements OnInit, OnDestroy {
   /** Champs personnalisés de type Date du projet. */
   dateFields: CustomField[] = [];
   selectedFieldIds: number[] = [];
+  /** Aucun choix enregistré pour ce projet : on affiche tous les champs Date.
+   *  Sans ce défaut, le calendrier s'ouvrait vide et semblait ne rien trouver. */
+  private useDefaultSelection = true;
 
   private project: Project | undefined;
   /** Valeurs brutes renvoyées par le serveur, avant mise en forme. */
@@ -87,13 +91,30 @@ export class CalendarComponent implements OnInit, OnDestroy {
     this.issueService.allCustomField$
       .pipe(takeUntil(this.destroy$))
       .subscribe(fields => {
-        this.dateFields = (fields ?? []).filter(field => field.type === 'Date');
+        // Le flux démarre à vide et ne se remplit qu'au retour du serveur.
+        // Élaguer sur cette première valeur effacerait la sélection restaurée
+        // juste avant : les cases se décochaient toutes seules et le
+        // calendrier restait vide jusqu'à ce qu'on les recoche.
+        if (!fields?.length) {
+          return;
+        }
+        this.dateFields = fields.filter(field => field.type === 'Date');
         // Un champ supprimé entre deux visites ne doit pas rester dans la
         // sélection, sinon le serveur cherche des valeurs d'un champ disparu.
         const known = new Set(this.dateFields.map(f => f.id));
         const kept = this.selectedFieldIds.filter(id => known.has(id));
+        // Plus aucun champ retenu (ou aucun choix fait) : retour au défaut,
+        // plutôt qu'un calendrier vide.
+        if (this.useDefaultSelection || !kept.length) {
+          this.useDefaultSelection = true;
+          this.selectedFieldIds = this.dateFields.map(f => f.id);
+          this.load();
+          return;
+        }
         if (kept.length !== this.selectedFieldIds.length) {
           this.selectedFieldIds = kept;
+          this.storeSelection();
+          this.load();
         }
       });
   }
@@ -191,15 +212,23 @@ export class CalendarComponent implements OnInit, OnDestroy {
   }
 
   private restoreSelection(): void {
+    let stored: number[] = [];
     try {
-      const stored = localStorage.getItem(this.storageKey);
-      this.selectedFieldIds = stored ? JSON.parse(stored) : [];
+      const parsed = JSON.parse(localStorage.getItem(this.storageKey) ?? '[]');
+      stored = Array.isArray(parsed) ? parsed : [];
     } catch {
-      this.selectedFieldIds = [];
+      stored = [];
     }
+    // Une sélection vide enregistrée ne sert à rien : elle laisserait le
+    // calendrier vide à chaque visite. On retombe alors sur le défaut.
+    this.useDefaultSelection = !stored.length;
+    this.selectedFieldIds = this.useDefaultSelection
+      ? this.dateFields.map(f => f.id)
+      : stored;
   }
 
   private storeSelection(): void {
+    this.useDefaultSelection = false;
     localStorage.setItem(this.storageKey, JSON.stringify(this.selectedFieldIds));
   }
 
@@ -211,12 +240,14 @@ export class CalendarComponent implements OnInit, OnDestroy {
     if (!this.project) {
       return;
     }
+    // Aucun filtre de niveau : une date portée par une sous-tâche est une date
+    // du projet au même titre que celle d'une tâche parente. Restreindre aux
+    // parentes vidait le calendrier des projets qui datent leurs sous-tâches.
     const criteria: EventSearchCriteria = {
       projectId: this.project.id,
       start: CalendarComponent.toApiDate(this.periodStart),
       end: CalendarComponent.toApiDate(this.periodEnd),
-      customFieldIds: this.selectedFieldIds,
-      issueTypeLevels: CalendarComponent.LEVELS
+      customFieldIds: this.selectedFieldIds
     };
 
     // Avant l'appel : la grille doit suivre la flèche tout de suite, pas au
@@ -233,16 +264,21 @@ export class CalendarComponent implements OnInit, OnDestroy {
       this.values = [];
       this.events = [];
       this.agenda = [];
+      this.errorMessage = '';
       return;
     }
 
     this.loading = true;
+    this.errorMessage = '';
     this.eventService.projectDateValues(criteria)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: values => {
           this.loading = false;
-          this.values = values ?? [];
+          // Une valeur sans date exploitable est écartée ici : plus loin, elle
+          // ferait échouer la construction de la grille et le mois entier
+          // resterait vide.
+          this.values = (values ?? []).filter(value => CalendarComponent.isValidDate(value?.date));
           this.events = this.values.map(value => this.toCalendarEvent(value));
           this.agenda = this.buildAgenda(this.values);
         },
@@ -251,6 +287,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
           this.values = [];
           this.events = [];
           this.agenda = [];
+          this.errorMessage = 'Les dates n\'ont pas pu être chargées.';
         }
       });
   }
@@ -269,12 +306,44 @@ export class CalendarComponent implements OnInit, OnDestroy {
     return `${value?.issue?.issueKey ?? ''} · ${this.fieldNameOf(value)}`.trim();
   }
 
+  /** Infobulle au survol : la case du mois n'a la place que pour la clé, on
+   *  donne ici de quoi reconnaître la tâche sans l'ouvrir. */
+  eventTooltip(value: CustomFieldValue | any): string {
+    const issue = value?.issue;
+    const date = CalendarComponent.parseServerDate(value?.date);
+    const lines = [
+      [issue?.issueKey, issue?.summary].filter(Boolean).join(' — '),
+      `${this.fieldNameOf(value)}${date ? ' : ' + date.toLocaleDateString('fr-FR') : ''}`
+    ];
+    if (issue?.project?.name) {
+      lines.push(`Projet : ${issue.project.name}`);
+    }
+    if (issue?.parent?.issueKey) {
+      lines.push(`Tâche parente : ${[issue.parent.issueKey, issue.parent.summary].filter(Boolean).join(' — ')}`);
+    }
+    if (issue?.status?.displayName) {
+      lines.push(`Statut : ${issue.status.displayName}`);
+    }
+    const assignees = this.assigneesOf(issue);
+    lines.push(`Assigné : ${assignees.length ? assignees.join(', ') : 'personne'}`);
+    return lines.filter(Boolean).join('\n');
+  }
+
+  /** Les assignés actifs font foi ; `assigne` seul reste pour les tâches
+   *  créées avant la gestion des membres. */
+  private assigneesOf(issue: Issue | any): string[] {
+    const users: any[] = issue?.assignes?.length ? issue.assignes : (issue?.assigne ? [issue.assigne] : []);
+    return users
+      .map(user => [user?.firstName, user?.lastName].filter(Boolean).join(' ') || user?.username)
+      .filter(Boolean);
+  }
+
   eventColor(value: CustomFieldValue | any): string {
     return this.fieldColor(value?.customField?.id);
   }
 
   private toCalendarEvent(value: CustomFieldValue | any): DayPilot.EventData {
-    const start = CalendarComponent.startOfDay(new Date(value.date));
+    const start = CalendarComponent.parseServerDate(value.date)!;
     return {
       id: value.id,
       text: this.eventLabel(value),
@@ -285,6 +354,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
         start.getFullYear(), start.getMonth() + 1, start.getDate()).addDays(1),
       backColor: this.eventColor(value),
       fontColor: '#ffffff',
+      toolTip: this.eventTooltip(value),
       issue: value.issue
     } as any;
   }
@@ -292,10 +362,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
   private buildAgenda(values: CustomFieldValue[]): AgendaDay[] {
     const byDay = new Map<string, AgendaDay>();
     for (const event of values) {
-      const date = new Date(event.date as any);
-      if (isNaN(date.getTime())) {
-        continue;
-      }
+      const date = CalendarComponent.parseServerDate(event.date)!;
       const key = CalendarComponent.toInputDate(date);
       if (!byDay.has(key)) {
         byDay.set(key, {key, date: CalendarComponent.startOfDay(date), events: []});
@@ -332,6 +399,25 @@ export class CalendarComponent implements OnInit, OnDestroy {
   // -----------------------------------------------------------------------
   // Dates
   // -----------------------------------------------------------------------
+
+  /** Le serveur renvoie la date en texte : rien ne garantit qu'elle se lise. */
+  private static isValidDate(value: any): boolean {
+    return CalendarComponent.parseServerDate(value) !== null;
+  }
+
+  /** Le serveur envoie `yyyy-MM-dd HH:mm:ss.S` (un `Timestamp` Java). Chrome le
+   *  lit, Safari et d'autres non : on extrait la date à la main, en heure
+   *  locale, et on ne garde que le jour. */
+  private static parseServerDate(value: any): Date | null {
+    if (value == null) {
+      return null;
+    }
+    const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(value));
+    const date = match
+      ? new Date(+match[1], +match[2] - 1, +match[3])
+      : new Date(value);
+    return isNaN(date.getTime()) ? null : CalendarComponent.startOfDay(date);
+  }
 
   private static startOfDay(date: Date): Date {
     return new Date(date.getFullYear(), date.getMonth(), date.getDate());
