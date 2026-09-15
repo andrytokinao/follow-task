@@ -1,5 +1,6 @@
 package com.kinga.followtask.service;
 
+import com.kinga.followtask.config.ObserverIdsColumn;
 import com.kinga.followtask.entity.Issue;
 import com.kinga.followtask.entity.IssueMembership;
 import com.kinga.followtask.entity.UserApp;
@@ -33,6 +34,7 @@ public class IssueMembershipService {
     private final IssueRepository issueRepository;
     private final UserAppRepository userAppRepository;
     private final ActionService actionService;
+    private final ObserverIdsColumn observerIdsColumn;
 
     public List<IssueMembership> getMemberships(Long issueId) {
         return membershipRepository.findByIssueIdAndUnassignedAtIsNull(issueId);
@@ -78,7 +80,10 @@ public class IssueMembershipService {
                 continue;
             }
             assignes.add(user);
-            issue.addObserverIds(userId);
+            // observerIds ne doit jamais limiter le nombre d'assignes
+            if (observerIdsColumn.canAdd(issue.getObserverIds(), userId)) {
+                issue.addObserverIds(userId);
+            }
             if (alreadyAssigned.contains(userId)) {
                 continue;
             }

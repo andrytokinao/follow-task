@@ -31,6 +31,7 @@ public class Issue {
     @ManyToMany
     private List<UserApp> observers;
     @Convert(converter = StringSetConverter.class)
+    @Column(columnDefinition = "LONGTEXT")
     private Set<String> observerIds = new HashSet<>();
     @ManyToOne
     private Status status;
