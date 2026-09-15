@@ -61,7 +61,12 @@
       <div class="card subtasks-card">
         <div class="card-section-header">
           <span class="section-title"><i class="fas fa-sitemap"></i> Sous-tâches</span>
-          <button class="btn-add-field"><i class="fas fa-plus"></i> Créer</button>
+          <button class="btn-add-field"
+                  [matMenuTriggerFor]="createSubtask"
+                  #createSubtaskTrigger="matMenuTrigger"
+                  (menuOpened)="onCreateSubtaskOpened()">
+            <i class="fas fa-plus"></i> Créer
+          </button>
         </div>
         <div class="subtasks-list" *ngIf="subtasks?.length > 0">
           <div class="subtask-item"
@@ -274,3 +279,8 @@
 
   </div>
 </div>
+
+<!-- Même formulaire que la liste des sous-tâches (sous-tâche 2). -->
+<mat-menu #createSubtask="matMenu">
+  <app-new-issue-form [parentIssue]="parentIssue" [isMaster]="false" #newIssueForm (saved)="closeCreateSubtaskMenu()"></app-new-issue-form>
+</mat-menu>

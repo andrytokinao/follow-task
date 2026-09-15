@@ -18,6 +18,8 @@ import { CustomFieldComponent } from '../../../../../common/custom-field/custom-
 import { ProjectGuard } from '../../../../../services/ProjectGuard';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { MatMenuTrigger } from '@angular/material/menu';
+import { NewIssueFormComponent } from '../../../../../common/new-issue-form/new-issue-form.component';
 
 // Chart.js — install via: npm install chart.js
 import {
@@ -105,6 +107,9 @@ export class IssueDetailsComponent implements OnInit, OnDestroy {
   private filesCanvas?: HTMLCanvasElement;
 
   private destroyed = false;
+
+  @ViewChild('createSubtaskTrigger') createSubtaskTrigger?: MatMenuTrigger;
+  @ViewChild('newIssueForm') newIssueForm?: NewIssueFormComponent;
 
   // Les canvas sont sous *ngIf : on redessine dès qu'ils entrent/sortent du DOM.
   @ViewChild('subtaskChartCanvas')
@@ -237,18 +242,11 @@ export class IssueDetailsComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Load subtasks — adapt endpoint to your IssueService API.
-   * Falls back to empty array if method doesn't exist.
+   * Même source que la liste des sous-tâches (sous-tâche 2). L'ancien appel à
+   * `getSubtasks`, absent du service, laissait la liste toujours vide.
    */
   loadSubtasks(): void {
-    const svc = this.issueService as any;
-    if (typeof svc.getSubtasks !== 'function') {
-      this.subtasks = [];
-      this.buildSubtaskStatusData();
-      this.renderSubtaskChart();
-      return;
-    }
-    svc.getSubtasks(this.parentIssue.id)
+    this.issueService.loadSubtask(this.parentIssue.id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (subtasks: Issue[]) => {
@@ -262,6 +260,16 @@ export class IssueDetailsComponent implements OnInit, OnDestroy {
           this.renderSubtaskChart();
         },
       });
+  }
+
+  onCreateSubtaskOpened(): void {
+    this.newIssueForm?.setIsMaster(false);
+    this.newIssueForm?.onOpen();
+  }
+
+  closeCreateSubtaskMenu(): void {
+    this.createSubtaskTrigger?.closeMenu();
+    this.loadSubtasks();
   }
 
   /** Load file attachments count */
