@@ -123,6 +123,17 @@ task-authorization:
         - "USER"
         - "CAN_VIEW_TASKS"
         - "CAN_COMMENT_ON_TASKS"
+# Role task-authorization accorde par une adhesion a une issue (IssueMembership).
+# Le role vaut pour l'issue et toutes ses sous-issues.
+issue-authorization:
+  master:
+    ADMIN: "PROJECT_MANAGER"
+    ASSIGNEE: "PROJECT_MANAGER"
+    OBSERVER: "OBSERVER"
+  child:
+    ADMIN: "PROJECT_MANAGER"
+    ASSIGNEE: "TEAM_MEMBER_ASSIGN"
+    OBSERVER: "OBSERVER"
 configuration-system:
   - profileDirectories : "${user.home}/.taskManager/profile"
   - defaultTaskDirectories : "${user.home}/task_manager/"

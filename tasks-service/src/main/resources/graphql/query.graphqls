@@ -75,4 +75,5 @@ type Query {
     getAtachedDocumentIssue(documentId:ID):[IssueDocumentUsage]
     loadUserHours(issueId:ID!):[UserHoursData]
     issueMemberships(issueId:Int):[IssueMembership]
+    issueAccessibilities(projectPrefix:String, issueKey:String):[String]
 }

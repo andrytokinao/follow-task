@@ -42,6 +42,7 @@ public class GQIssueController {
     private final DocumentService documentService;
     private final PlanningEventProgressService progressService;
     private final IssueMembershipService issueMembershipService;
+    private final IssueAccessService issueAccessService;
     private final CurrentUserProvider currentUserProvider;
 
 
@@ -238,6 +239,10 @@ public class GQIssueController {
      public List<IssueMembership> issueMemberships(@Argument Long issueId) {
         return issueMembershipService.getMemberships(issueId);
      }
+    @QueryMapping
+    public java.util.Set<String> issueAccessibilities(@Argument String projectPrefix, @Argument String issueKey) {
+        return issueAccessService.issueAccessibilities(projectPrefix, issueKey, currentUserProvider.getCurrentUser());
+    }
     @QueryMapping
      public CustomField getCustomField(@Argument Long id) {
         return issueService.getCustomField(id);

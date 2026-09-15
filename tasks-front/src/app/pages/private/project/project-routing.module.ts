@@ -1,25 +1,16 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
-import {SimpleListeComponent} from "./list/subtask-list/issue-liste/simple-liste.component";
 import {ProjectComponent} from "./project.component";
 import {GanttChartComponent} from "./gantt-chart/gantt-chart.component";
 import {BoardComponent} from "./board/board.component";
 import {CalendarComponent} from "./calendar/calendar.component";
 import {RapportComponent} from "./rapport/rapport.component";
-import {ConfigProjectComponent} from "./config-project/config-project.component";
 import {ShowMasterComponent} from "./show-master/show-master.component";
 import {IssueResolverService} from "../../../services/resolvers/issue-resolver.service";
-import {IssueMasterListComponent} from "./list/issue-master-list/simple-liste/issue-master-list.component";
-import {ListComponent} from "./list/list.component";
-import {AdminComponent} from "../admins/admin.component";
-import {AuthGuard} from "../../../services/SystemGuard";
+
 import {DocumentComponent} from "./document/document.component";
 import {ProjectBreadcrumbResolverService} from "./project-breadcrumb-resolver.service";
-import {PlanningComponent} from "./planning/planning.component";
-import {PlanningModule} from "./planning/planning.module";
 import {ProjectGuard} from "../../../services/ProjectGuard";
-import _default from "chart.js/dist/core/core.interaction";
-import dataset = _default.modes.dataset;
 import {MessagesComponent} from "./messages/messages.component";
 import {ProjectHomeComponent} from "./home/home.component";
 import {DocumentExchangeComponent} from "./document-exchange/document-exchange.component";

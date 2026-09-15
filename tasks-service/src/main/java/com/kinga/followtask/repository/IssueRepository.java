@@ -21,6 +21,7 @@ public interface IssueRepository extends JpaRepository<Issue,Long>, JpaSpecifica
 
     public List<Issue> findByIssueTypeIdIn(List<Long> issueT);
     public Issue findByIssueKey(String issueKey);
+    Optional<Issue> findFirstByIssueKeyAndProjectPrefix(String issueKey, String prefix);
     public List<Issue> findByParentId(Long parentId);
     public List<Issue> findByIssueTypeProjectPrefix(String prefix);
     public List<Issue> findByIssueTypeIn(List<IssueType> issueTypes);

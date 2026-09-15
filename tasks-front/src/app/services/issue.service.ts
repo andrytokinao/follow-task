@@ -72,6 +72,7 @@ import _default from "chart.js/dist/plugins/plugin.tooltip";
 import numbers = _default.defaults.animations.numbers;
 import {J} from "@angular/cdk/keycodes";
 import {ProjectGuard} from "./ProjectGuard";
+import {MasterGuard} from "./MasterGuard";
 import {NewDocumentComponent} from "../pages/private/project/modal/new-document/new-document.component";
 import {ImageModalContentComponent} from "../common/image-modal-content/image-modal-content.component";
 import {MessagesService} from "./messages.service";
@@ -156,6 +157,7 @@ export class IssueService implements OnInit {
               private modalService: NgbModal,
               private authService: AuthService,
               protected projectGuard: ProjectGuard,
+              private masterGuard: MasterGuard,
               private interceptorService:HttpInterceptorService
 
   ) {
@@ -843,6 +845,7 @@ export class IssueService implements OnInit {
         mutation: operation.ASSIGNE_TO_USER,
         variables: {issue,executor}
       }).subscribe((res: any) => {
+        this.masterGuard.invalidate();
         observer.next(supprimerTypename(res.data.assigneToUser));
         observer.complete();
       }, error => {
@@ -865,6 +868,7 @@ export class IssueService implements OnInit {
         mutation: operation.ASSIGN_USERS,
         variables: {issueId, userIds, executor}
       }).subscribe((res: any) => {
+        this.masterGuard.invalidate();
         observer.next(supprimerTypename(res.data.assignUsers));
         observer.complete();
       }, error => {

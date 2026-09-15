@@ -1797,6 +1797,12 @@ const ASSIGN_USERS = gql`
     }
 `;
 
+const ISSUE_ACCESSIBILITIES = gql`
+    query issueAccessibilities($projectPrefix:String, $issueKey:String) {
+      issueAccessibilities(projectPrefix: $projectPrefix, issueKey: $issueKey)
+    }
+`;
+
 const ISSUE_MEMBERSHIPS = gql`
     query issueMemberships($issueId:Int) {
       issueMemberships(issueId: $issueId){
@@ -3755,6 +3761,7 @@ export {
   ASSIGNE_TO_USER,
   ASSIGN_USERS,
   ISSUE_MEMBERSHIPS,
+  ISSUE_ACCESSIBILITIES,
   GET_CUSTOM_FIELD,
   GET_CONFIG_PROJECT,
   SAVE_CONFIG_PROJECT,
