@@ -20,6 +20,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { MatMenuTrigger } from '@angular/material/menu';
 import { NewIssueFormComponent } from '../../../../../common/new-issue-form/new-issue-form.component';
+import { buildFileTree, FILE_CATEGORY_DISPLAY, FolderNode } from '../../../../../type/file-tree';
 
 // Chart.js — install via: npm install chart.js
 import {
@@ -51,6 +52,19 @@ export interface SubtaskStatusData {
   label: string;
   count: number;
   color: string;
+}
+
+export interface FileTypeStat {
+  label: string;
+  count: number;
+  color: string;
+  icon: string;
+}
+
+/** Un répertoire de premier niveau et le nombre de fichiers qu'il contient, sous-dossiers compris. */
+export interface FolderFileStat {
+  name: string;
+  count: number;
 }
 
 // ─────────────────────────────────────────────────
@@ -88,10 +102,12 @@ export class IssueDetailsComponent implements OnInit, OnDestroy {
   // ── Statistics ────────────────────────────────
   subtaskStatusData: SubtaskStatusData[] = [];
   userHoursData: UserHoursData[] = [];
-  uploadedFiles: any[] = [];
   totalFiles = 0;
-  imageFiles = 0;
-  docFiles = 0;
+  filesByType: FileTypeStat[] = [];
+  folderStats: FolderFileStat[] = [];
+  /** Fichiers posés directement à la racine, hors de tout répertoire. */
+  rootFiles = 0;
+  loadingFiles = false;
 
   /** true tant que la requête des heures est en cours (évite le flash "aucune donnée") */
   loadingUserHours = false;
@@ -204,10 +220,10 @@ export class IssueDetailsComponent implements OnInit, OnDestroy {
     this.subtasks = [];
     this.subtaskStatusData = [];
     this.userHoursData = [];
-    this.uploadedFiles = [];
     this.totalFiles = 0;
-    this.imageFiles = 0;
-    this.docFiles = 0;
+    this.filesByType = [];
+    this.folderStats = [];
+    this.rootFiles = 0;
     this.userHoursError = false;
     this.renderSubtaskChart();
     this.renderHoursChart();
@@ -272,35 +288,42 @@ export class IssueDetailsComponent implements OnInit, OnDestroy {
     this.loadSubtasks();
   }
 
-  /** Load file attachments count */
+  /**
+   * Pièces jointes : même arborescence que le menu Dossier. L'ancien appel à
+   * `getFiles`, absent du service, laissait le compteur à zéro.
+   */
   loadFiles(): void {
-    const svc = this.issueService as any;
-    if (typeof svc.getFiles !== 'function') {
-      this.applyFiles([]);
-      return;
-    }
-    svc.getFiles(this.parentIssue.id)
+    this.loadingFiles = true;
+    this.issueService.loadDirectory(this.parentIssue.id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (files: any[]) => this.applyFiles(files),
-        error: () => this.applyFiles([]),
+        next: racine => {
+          this.loadingFiles = false;
+          this.applyFileTree(buildFileTree(racine));
+        },
+        // Pas encore de dossier pour cette issue : zéro fichier, pas une erreur.
+        error: () => {
+          this.loadingFiles = false;
+          this.applyFileTree(buildFileTree(null));
+        },
       });
   }
 
-  private applyFiles(files: any[]): void {
-    const list = files ?? [];
-    this.uploadedFiles = list.map(f => {
-      const name = f?.name || f?.filename || '';
-      return { ...f, name, isImage: this.isImageFile(name) };
-    });
-    this.totalFiles = this.uploadedFiles.length;
-    this.imageFiles = this.uploadedFiles.filter(f => f.isImage).length;
-    this.docFiles = this.totalFiles - this.imageFiles;
+  private applyFileTree(tree: FolderNode): void {
+    this.totalFiles = tree.fileCount();
+    this.filesByType = Array.from(tree.countByCategory().entries())
+      .map(([category, count]) => ({ ...FILE_CATEGORY_DISPLAY[category], count }))
+      .sort((a, b) => b.count - a.count);
+    this.folderStats = tree.folders
+      .map(folder => ({ name: folder.name, count: folder.fileCount() }))
+      .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+    this.rootFiles = this.totalFiles - this.folderStats.reduce((sum, f) => sum + f.count, 0);
     this.renderFilesChart();
   }
 
-  private isImageFile(name: string): boolean {
-    return /\.(png|jpg|jpeg|gif|webp|svg|bmp)$/i.test(name);
+  /** Le graphique des pièces jointes mène au menu Dossier de cette issue. */
+  openDossier(): void {
+    this.router.navigate(['../sources-files'], { relativeTo: this.route });
   }
 
   /** Load per-user work hours */
@@ -542,30 +565,32 @@ export class IssueDetailsComponent implements OnInit, OnDestroy {
     this.filesChart = null;
     if (!this.filesCanvas || this.totalFiles === 0) return;
 
+    const data = this.filesByType;
     this.filesChart = new Chart(this.filesCanvas, {
-      type: 'line',
+      type: 'doughnut',
       data: {
-        labels: ['', 'Images', 'Docs', 'Total'],
+        labels: data.map(d => d.label),
         datasets: [{
-          data: [0, this.imageFiles, this.docFiles, this.totalFiles],
-          borderColor: '#2563EB',
-          backgroundColor: 'rgba(37,99,235,.1)',
-          fill: true,
-          tension: 0.4,
-          pointBackgroundColor: '#2563EB',
-          pointRadius: 4,
-          pointHoverRadius: 6,
-          borderWidth: 2,
+          data: data.map(d => d.count),
+          backgroundColor: data.map(d => d.color),
+          borderWidth: 3,
+          borderColor: '#fff',
+          hoverBorderColor: '#fff',
+          hoverOffset: 6,
         }],
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        cutout: '68%',
         animation: { duration: 300 },
-        plugins: { legend: { display: false }, tooltip: { enabled: true } },
-        scales: {
-          x: { display: false },
-          y: { display: false, beginAtZero: true },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => ` ${ctx.label}: ${ctx.parsed} fichier(s)`,
+            },
+          },
         },
       },
     });

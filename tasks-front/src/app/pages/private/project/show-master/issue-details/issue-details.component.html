@@ -165,21 +165,41 @@
               </ng-template>
             </ng-container>
           </div>
-          <div class="stat-card kpi-card">
+          <!-- Toute la carte est cliquable : elle mène au menu Dossier de l'issue. -->
+          <div class="stat-card chart-card files-card"
+               role="link"
+               tabindex="0"
+               title="Ouvrir le dossier"
+               (click)="openDossier()"
+               (keydown.enter)="openDossier()">
             <div class="stat-card-header">
               <span class="stat-label"><i class="fas fa-paperclip"></i> Fichiers joints</span>
+              <span class="stat-total">{{ totalFiles }} fichier(s)</span>
             </div>
-            <div class="kpi-display">
-              <span class="kpi-number">{{ totalFiles }}</span>
-              <span class="kpi-unit">fichiers</span>
+
+            <div class="empty-state-inline" *ngIf="loadingFiles">
+              <i class="fas fa-spinner fa-spin"></i><span>Chargement…</span>
             </div>
-            <div class="kpi-visual" *ngIf="totalFiles > 0">
-              <canvas #filesProgressCanvas id="filesProgressChart"></canvas>
-            </div>
-            <div class="kpi-sub">
-              <span class="kpi-detail"><i class="fas fa-image"></i> {{ imageFiles }} images</span>
-              <span class="kpi-detail"><i class="fas fa-file-pdf"></i> {{ docFiles }} docs</span>
-            </div>
+
+            <ng-container *ngIf="!loadingFiles">
+              <ng-container *ngIf="totalFiles > 0; else noFiles">
+                <div class="chart-wrapper chart-sm">
+                  <canvas #filesProgressCanvas id="filesProgressChart"></canvas>
+                </div>
+                <div class="chart-legend">
+                  <div class="legend-item" *ngFor="let item of filesByType">
+                    <span class="legend-dot" [style.background]="item.color"></span>
+                    <span class="legend-label">{{ item.label }}</span>
+                    <span class="legend-count">{{ item.count }}</span>
+                  </div>
+                </div>
+              </ng-container>
+              <ng-template #noFiles>
+                <div class="empty-state-inline">
+                  <i class="fas fa-folder-open"></i><span>Aucun fichier joint</span>
+                </div>
+              </ng-template>
+            </ng-container>
           </div>
         </div>
       </div>
@@ -259,23 +279,31 @@
           <span class="sidebar-section-title"><i class="fas fa-paperclip"></i> Fichiers joints</span>
           <div class="files-kpi-row">
             <span class="files-count-badge">{{ totalFiles }}</span>
-            <button class="btn-icon-xs" [matMenuTriggerFor]="filesMenu" title="Voir les fichiers">
+            <button class="btn-icon-xs" [matMenuTriggerFor]="filesMenu" title="Fichiers par répertoire">
               <i class="fas fa-chevron-down"></i>
             </button>
           </div>
         </div>
         <div class="files-summary-row">
-          <span class="file-type-chip"><i class="fas fa-image"></i> {{ imageFiles }}</span>
-          <span class="file-type-chip"><i class="fas fa-file-pdf"></i> {{ docFiles }}</span>
+          <span class="file-type-chip" *ngFor="let item of filesByType" [title]="item.label">
+            <i class="fas" [ngClass]="item.icon" [style.color]="item.color"></i> {{ item.count }}
+          </span>
+          <span class="meta-text muted" *ngIf="!filesByType.length">Aucun fichier joint</span>
         </div>
+        <!-- Nombre de fichiers de chaque répertoire, sous-dossiers compris ; un clic ouvre le Dossier. -->
         <mat-menu #filesMenu="matMenu" class="files-menu">
           <div class="files-menu-list">
-            <div class="files-menu-item" *ngFor="let file of uploadedFiles" mat-menu-item>
-              <i class="fas" [ngClass]="file.isImage ? 'fa-image' : 'fa-file-alt'"></i>
-              <span class="file-name">{{ file.name }}</span>
-              <span class="file-size">{{ file.size }}</span>
+            <div class="files-menu-item" *ngFor="let folder of folderStats" mat-menu-item (click)="openDossier()">
+              <i class="fas fa-folder"></i>
+              <span class="file-name">{{ folder.name }}</span>
+              <span class="file-size">{{ folder.count }}</span>
             </div>
-            <div class="files-menu-empty" *ngIf="!uploadedFiles || uploadedFiles.length === 0">
+            <div class="files-menu-item" *ngIf="rootFiles > 0" mat-menu-item (click)="openDossier()">
+              <i class="fas fa-file"></i>
+              <span class="file-name">À la racine</span>
+              <span class="file-size">{{ rootFiles }}</span>
+            </div>
+            <div class="files-menu-empty" *ngIf="totalFiles === 0">
               <span>Aucun fichier joint</span>
             </div>
           </div>
