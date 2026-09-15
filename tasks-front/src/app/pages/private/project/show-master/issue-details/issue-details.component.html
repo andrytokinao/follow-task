@@ -61,17 +61,23 @@
       <div class="card subtasks-card">
         <div class="card-section-header">
           <span class="section-title"><i class="fas fa-sitemap"></i> Sous-tâches</span>
-          <button class="btn-add-field"
-                  [matMenuTriggerFor]="createSubtask"
-                  #createSubtaskTrigger="matMenuTrigger"
-                  (menuOpened)="onCreateSubtaskOpened()">
-            <i class="fas fa-plus"></i> Créer
-          </button>
+          <div class="section-actions">
+            <!-- Liste des sous-tâches : route sœur de « details ». -->
+            <a class="btn-add-field" routerLink="../subtask" title="Voir la liste des sous-tâches">
+              <i class="fas fa-list"></i> Liste
+            </a>
+            <button class="btn-add-field"
+                    [matMenuTriggerFor]="createSubtask"
+                    #createSubtaskTrigger="matMenuTrigger"
+                    (menuOpened)="onCreateSubtaskOpened()">
+              <i class="fas fa-plus"></i> Créer
+            </button>
+          </div>
         </div>
         <div class="subtasks-list" *ngIf="subtasks?.length > 0">
           <div class="subtask-item"
                *ngFor="let sub of subtasks"
-               (click)="router.navigate(['/issues', sub.id])"
+               [routerLink]="['../subtask', sub.issueKey]"
                [ngClass]="'status-' + sub?.status?.displayName?.toLowerCase()?.replace(' ', '-')">
             <div class="subtask-left">
               <span class="subtask-type-icon"><i class="fas fa-circle-dot"></i></span>
