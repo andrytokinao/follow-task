@@ -124,6 +124,29 @@ public class AuthorizationService {
         return accessibilites;
     }
 
+    /**
+     * Vrai si l'un des roles systeme de l'utilisateur porte l'accessibilite
+     * (ex. CAN_ACCESS_ALL).
+     */
+    public boolean hasSystemAccessibility(UserApp userApp, String accessibility) {
+        if (userApp == null) {
+            return false;
+        }
+        for (MemberGroupe memberGroupe : memberGroupeRepository.findByUserIdAndGroupeType(userApp.getId(), GroupeUser.SYSTEM_GROUPE)) {
+            if (memberGroupe.getRoles() == null) {
+                continue;
+            }
+            for (String r : memberGroupe.getRoles()) {
+                Optional<RoleApp> role = getRoleSystemByName(r);
+                if (role.isPresent() && role.get().getAccessibilities() != null
+                        && role.get().getAccessibilities().contains(accessibility)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public List<RoleApp> allRoleSystems() {
         return permissionSystem.getRoles();
     }

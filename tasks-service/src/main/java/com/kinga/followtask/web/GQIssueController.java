@@ -221,18 +221,22 @@ public class GQIssueController {
      }
      @MutationMapping
      public Issue assigneToUser(@Argument Issue issue , @Argument String executor) {
+        issueAccessService.checkCanAssign(issue.getId(), currentUserProvider.getCurrentUser());
         return issueService.assigneToUser(issue,executor);
      }
      @MutationMapping
      public Issue assignUsers(@Argument Long issueId, @Argument List<String> userIds, @Argument String executor) {
+        issueAccessService.checkCanAssign(issueId, currentUserProvider.getCurrentUser());
         return issueMembershipService.assignUsers(issueId, userIds, executor);
      }
      @MutationMapping
      public Issue addAssignee(@Argument Long issueId, @Argument String userId, @Argument String executor) {
+        issueAccessService.checkCanAssign(issueId, currentUserProvider.getCurrentUser());
         return issueMembershipService.addAssignee(issueId, userId, executor);
      }
      @MutationMapping
      public Issue removeAssignee(@Argument Long issueId, @Argument String userId, @Argument String executor) {
+        issueAccessService.checkCanAssign(issueId, currentUserProvider.getCurrentUser());
         return issueMembershipService.removeAssignee(issueId, userId, executor);
      }
      @QueryMapping

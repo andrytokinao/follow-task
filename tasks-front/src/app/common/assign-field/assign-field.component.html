@@ -1,5 +1,5 @@
 <span class="assigne" style="cursor: pointer">
-  <span [matMenuTriggerFor]="menu2" mat-icon-button class="assigne-trigger" [title]="assigneesTitle">
+  <span [matMenuTriggerFor]="menu2" (menuOpened)="loadCanAssign()" mat-icon-button class="assigne-trigger" [title]="assigneesTitle">
     <span class="avatar-stack" *ngIf="assignees.length > 0">
       <app-avatar *ngFor="let user of visibleAssignees"
                   [url]="photoUrl(user)"
@@ -12,7 +12,7 @@
   </span>
 
   <mat-menu #menu2="matMenu" class="assigne-menu">
-    <div *ngIf="projectGuard.hasCredential(['CAN_ASSIGN_TASK']) | async"
+    <div *ngIf="canAssign"
          (click)="stopPropagation($event)" class="assigne-panel">
       <div class="assigne-panel-header">
         <h4> Assigner à </h4>

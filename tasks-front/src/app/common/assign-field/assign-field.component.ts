@@ -10,6 +10,7 @@ import {ToastrService} from "ngx-toastr";
 import {AuthGuard} from "../../services/SystemGuard";
 import {AuthService} from "../../services/auth.service";
 import {ProjectGuard} from "../../services/ProjectGuard";
+import {MasterGuard} from "../../services/MasterGuard";
 
 @Component({
   standalone: false,
@@ -27,6 +28,8 @@ export class AssignFieldComponent implements OnInit, OnChanges {
   selectedIds: string[] = [];
   searchTerm: string = '';
   saving: boolean = false;
+  /** Droit d'assigner sur cette issue ; null tant que le menu n'a pas ete ouvert. */
+  canAssign: boolean | null = null;
   @Input() issue: Issue;
   /** nombre d'avatars affiches avant le compteur "+N" */
   @Input() maxAvatars: number = 3;
@@ -42,7 +45,8 @@ export class AssignFieldComponent implements OnInit, OnChanges {
     private toastr: ToastrService,
     protected authGuard: AuthGuard,
     private authService: AuthService,
-    protected projectGuard: ProjectGuard
+    protected projectGuard: ProjectGuard,
+    private masterGuard: MasterGuard
   ) {
 
   }
@@ -56,8 +60,26 @@ export class AssignFieldComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['issue']) {
+      this.canAssign = null;
       this.syncSelection();
     }
+  }
+
+  /**
+   * Evalue le droit d'assigner a l'ouverture du menu seulement : dans une
+   * liste, une verification par ligne multiplierait les requetes.
+   * Workspace (CAN_ASSIGN_TASK) ou assigne d'une issue parente.
+   */
+  loadCanAssign() {
+    if (this.canAssign !== null || this.issue == null) {
+      return;
+    }
+    const projectPrefix = (this.issue.project?.prefix as string)
+      ?? this.route.snapshot.pathFromRoot
+        .map(snapshot => snapshot.paramMap.get('project'))
+        .find(prefix => !!prefix);
+    this.masterGuard.hasIssueCredential(['CAN_ASSIGN_TASK'], projectPrefix, this.issue.issueKey as string)
+      .subscribe(canAssign => this.canAssign = canAssign);
   }
 
   get assignees(): User[] {
@@ -170,6 +192,8 @@ export class AssignFieldComponent implements OnInit, OnChanges {
         this.issue.assigne = issue.assigne;
         this.issue.activeMemberships = issue.activeMemberships;
         this.issue.observerIds = issue.observerIds;
+        // Le droit d'assigner peut changer avec les assignations.
+        this.canAssign = null;
         this.syncSelection();
         this.saving = false;
         this.save.emit(this.issue);

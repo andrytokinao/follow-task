@@ -18,8 +18,9 @@ import {ISSUE_ACCESSIBILITIES} from "../type/graphql.operations";
  *     sans requete supplementaire ;
  *  3. sinon, les accessibilites que le serveur calcule sur cette issue a
  *     partir des assignations sur l'issue et ses ancetres (voir
- *     `issue-authorization` dans application.yml). Etre assigne a une issue
- *     master donne ainsi les droits de PROJECT_MANAGER sur celle-ci.
+ *     `issue-authorization` dans application.yml). L'assigne d'une issue y
+ *     travaille sans pouvoir la reassigner, et gere toutes ses sous-taches
+ *     (creation, assignation...).
  *
  * Il suffit donc de `canActivate: [MasterGuard]` : `[ProjectGuard, MasterGuard]`
  * exigerait les deux (ET), et bloquerait un simple assigne.

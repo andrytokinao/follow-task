@@ -126,17 +126,62 @@ task-authorization:
         - "USER"
         - "CAN_VIEW_TASKS"
         - "CAN_COMMENT_ON_TASKS"
-# Role task-authorization accorde par une adhesion a une issue (IssueMembership).
-# Le role vaut pour l'issue et toutes ses sous-issues.
+# Roles accordes par une adhesion a une issue (IssueMembership), en plus du role
+# d'espace de travail. Un nom est cherche dans `roles` ci-dessous puis dans
+# task-authorization.
+#  - self        : sur l'issue ou l'adhesion est posee. L'assigne y travaille mais
+#                  ne peut pas la reassigner : cela reste au PROJECT_MANAGER de
+#                  l'espace de travail (pour une issue master) ou a celui qui
+#                  gere l'issue parente.
+#  - descendants : sur toutes ses sous-taches. L'assigne les gere : creation,
+#                  assignation a d'autres personnes, champs, echeances...
+#  master s'applique a une adhesion sur une demande racine, child a une sous-tache.
 issue-authorization:
+  roles:
+    - name: "ISSUE_ASSIGNEE"
+      description: "Assigné de l'issue : y travaille, sans pouvoir la réassigner"
+      accessibilities:
+        - "ISSUE_ASSIGNEE"
+        - "USER"
+        - "CAN_EDIT_TASK"
+        - "CAN_COMMENT_TASK"
+        - "CAN_CLOSE_TASK"
+        - "CAN_TRACK_TIME"
+        - "CAN_ATTACH_FILES_RESULT"
+    - name: "SUBTASK_MANAGER"
+      description: "Gère les sous-tâches de l'issue qui lui est assignée"
+      accessibilities:
+        - "SUBTASK_MANAGER"
+        - "USER"
+        - "VIEW_ALL_TASK"
+        - "CAN_CREATE_TASK"
+        - "CAN_ASSIGN_TASK"
+        - "CAN_EDIT_TASK"
+        - "CAN_EDIT_FIELD"
+        - "CAN_SET_PRIORITY"
+        - "CAN_SET_DEADLINE"
+        - "CAN_COMMENT_TASK"
+        - "CAN_CLOSE_TASK"
+        - "CAN_TRACK_TIME"
+        - "CAN_ATTACH_FILES_RESULT"
   master:
-    ADMIN: "PROJECT_MANAGER"
-    ASSIGNEE: "PROJECT_MANAGER"
-    OBSERVER: "OBSERVER"
+    self:
+      ADMIN: "ISSUE_ASSIGNEE"
+      ASSIGNEE: "ISSUE_ASSIGNEE"
+      OBSERVER: "OBSERVER"
+    descendants:
+      ADMIN: "SUBTASK_MANAGER"
+      ASSIGNEE: "SUBTASK_MANAGER"
+      OBSERVER: "OBSERVER"
   child:
-    ADMIN: "PROJECT_MANAGER"
-    ASSIGNEE: "TEAM_MEMBER_ASSIGN"
-    OBSERVER: "OBSERVER"
+    self:
+      ADMIN: "ISSUE_ASSIGNEE"
+      ASSIGNEE: "ISSUE_ASSIGNEE"
+      OBSERVER: "OBSERVER"
+    descendants:
+      ADMIN: "SUBTASK_MANAGER"
+      ASSIGNEE: "SUBTASK_MANAGER"
+      OBSERVER: "OBSERVER"
 configuration-system:
   - profileDirectories : "${user.home}/.taskManager/profile"
   - defaultTaskDirectories : "${user.home}/task_manager/"
