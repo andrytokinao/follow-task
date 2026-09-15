@@ -6,6 +6,7 @@ import com.kinga.followtask.repository.EventTypeRepository;
 import com.kinga.followtask.repository.GroupeUserRepository;
 import com.kinga.followtask.repository.IssueTypeRepository;
 import com.kinga.followtask.service.ProjectService;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -43,6 +44,11 @@ public class Initializer implements CommandLineRunner {
              }
          }
          projectService.initDomaineActivity();
+         try {
+             projectService.initDefaultSubtaskTypes();
+         } catch (Exception e) {
+             LoggerFactory.getLogger(Initializer.class).error("Rattrapage des sous-types par defaut impossible", e);
+         }
        //  projectService.initCollorStatus();
     }
 }

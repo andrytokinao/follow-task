@@ -194,7 +194,8 @@ export class IssueType2Component implements OnInit, OnDestroy {
     if (issueType.id == null) {
       return;
     }
-    const childCount = (issueType.children || []).length;
+    // le sous-type par defaut « Tâche » est supprime avec son parent cote serveur
+    const childCount = (issueType.children || []).filter(child => child.name !== 'Tâche').length;
     const warning = childCount
       ? ` Ce type possède ${childCount} sous-type(s) qu'il faudra détacher au préalable.`
       : '';

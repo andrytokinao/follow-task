@@ -40,6 +40,8 @@ public class ProjectService {
     private static final String PRINCIPALE = "Projet";
     private static final String PROJECT = "PROJECT";
     private static final String TASK = "TASK";
+    private static final String DEFAULT_SUBTASK_NAME = "Tâche";
+    private static final String DEFAULT_SUBTASK_SUFFIX = "-T";
     @Autowired
     public StatusRepository statusRepository;
     final ProjectRepository projectRepository;
@@ -344,7 +346,9 @@ public class ProjectService {
 
 
     // Etape 2 : Creation type
+    @Transactional
     public IssueType saveIssueType(IssueType issueType) {
+        boolean creation = issueType.getId() == null;
         ConfigEntry configEntry = configRepository.getByActiveIs(true);
         String installation = configEntry.getInstalationState();
         if (issueType.getIcone() != null)
@@ -362,7 +366,59 @@ public class ProjectService {
         }
 
         configRepository.save(configEntry);
-        return issueTypeRepository.save(issueType);
+        issueType = issueTypeRepository.save(issueType);
+        if (creation && issueType.getLevel() == Niveau.PARENT) {
+            createDefaultSubtaskType(issueType);
+        }
+        return issueType;
+    }
+
+    /**
+     * Cree le sous-type par defaut d'un type principal, pour qu'une sous-tache
+     * puisse toujours etre creee sans devoir configurer un type au prealable.
+     */
+    private IssueType createDefaultSubtaskType(IssueType parent) {
+        IssueType soutache = new IssueType();
+        soutache.setName(DEFAULT_SUBTASK_NAME);
+        soutache.setPrefix(defaultSubtaskPrefix(parent));
+        soutache.setLevel(SUB_TASK);
+        soutache.setColor(parent.getColor());
+        soutache.setIcone(iconeRepository.save(new Icone("\uf0ae", "fas fa-tasks", "class")));
+        soutache.setCurentWorkFlow(parent.getCurentWorkFlow() != null ? parent.getCurentWorkFlow() : getDefaultWorkFlow());
+        soutache.setProject(parent.getProject());
+        soutache.setParent(parent);
+        return issueTypeRepository.save(soutache);
+    }
+
+    /**
+     * Prefixe derive de celui du parent (BUG -> BUG-T). Les cles etant calculees
+     * par type, un prefixe partage entre deux types produirait des cles en double.
+     */
+    private String defaultSubtaskPrefix(IssueType parent) {
+        String base = (StringUtils.hasText(parent.getPrefix()) ? parent.getPrefix() : TASK) + DEFAULT_SUBTASK_SUFFIX;
+        Set<String> prefixes = issueTypeRepository.findByProjectId(parent.getProject().getId()).stream()
+                .map(IssueType::getPrefix)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        String prefix = base;
+        int i = 2;
+        while (prefixes.contains(prefix)) {
+            prefix = base + i++;
+        }
+        return prefix;
+    }
+
+    /** Rattrapage : ajoute le sous-type par defaut aux types principaux qui n'en ont aucun. */
+    @Transactional
+    public void initDefaultSubtaskTypes() {
+        for (Project project : projectRepository.findAll()) {
+            for (IssueType parent : issueTypeRepository.findByProjectIdAndLevel(project.getId(), Niveau.PARENT)) {
+                if (CollectionUtils.isEmpty(issueTypeRepository.findByParentId(parent.getId()))) {
+                    IssueType soutache = createDefaultSubtaskType(parent);
+                    logger.info("Sous-type " + soutache.getPrefix() + " cree pour le type " + parent.getName());
+                }
+            }
+        }
     }
 
     // Etape 3 : Creation / chois  workFlow et affectation de type ==> Affecter a des status
@@ -718,23 +774,42 @@ public class ProjectService {
                     + " tache(s) : il ne peut pas etre supprime.");
         }
 
+        // Le sous-type par defaut suit son parent tant qu'il n'a jamais servi ;
+        // les autres sous-types doivent toujours etre supprimes ou detaches a la main.
         List<IssueType> children = issueTypeRepository.findByParentId(issueTypeId);
-        if (!CollectionUtils.isEmpty(children)) {
-            throw new RuntimeException("Ce type possede " + children.size()
+        List<IssueType> defaultChildren = children.stream()
+                .filter(this::isUnusedDefaultSubtaskType)
+                .collect(Collectors.toList());
+        int blocking = children.size() - defaultChildren.size();
+        if (blocking > 0) {
+            throw new RuntimeException("Ce type possede " + blocking
                     + " sous-type(s) : supprimez ou detachez-les d'abord.");
         }
 
-        List<UsingCustomField> usings = usingCustomFieldRepository.findByIssueTypeId(issueTypeId);
-        if (!CollectionUtils.isEmpty(usings)) {
-            usingCustomFieldRepository.deleteAll(usings);
+        for (IssueType child : defaultChildren) {
+            deleteTypeAndCustomFieldUsings(child);
         }
-        issueTypeRepository.delete(issueType);
+        deleteTypeAndCustomFieldUsings(issueType);
 
         Response response = new Response();
         response.setStatus("success");
         response.setCode("OK");
         response.setMessage("Type " + issueType.getName() + " supprime");
         return response;
+    }
+
+    private boolean isUnusedDefaultSubtaskType(IssueType child) {
+        return DEFAULT_SUBTASK_NAME.equals(child.getName())
+                && CollectionUtils.isEmpty(issueRepository.findByIssueTypeIdIn(List.of(child.getId())))
+                && CollectionUtils.isEmpty(issueTypeRepository.findByParentId(child.getId()));
+    }
+
+    private void deleteTypeAndCustomFieldUsings(IssueType issueType) {
+        List<UsingCustomField> usings = usingCustomFieldRepository.findByIssueTypeId(issueType.getId());
+        if (!CollectionUtils.isEmpty(usings)) {
+            usingCustomFieldRepository.deleteAll(usings);
+        }
+        issueTypeRepository.delete(issueType);
     }
 
     public List<IssueType> listIssueTypeMaster(Long projectId) {
