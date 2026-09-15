@@ -325,8 +325,8 @@ public class ProjectService {
         if (project == null) {
             throw new RuntimeException("Project #" + project + " not found");
         }
-        getOrCreateGroupe(prefix + "_GROUPE", "Groupe user for project " + project.getName(), GroupeUser.PROJECT_GROUPE);
-        return groupeUserRepository.findByPrefix(project.getPrefix() + "_GROUPE");
+        getOrCreateGroupe(GroupeUser.projectGroupePrefix(prefix), "Groupe user for project " + project.getName(), GroupeUser.PROJECT_GROUPE);
+        return groupeUserRepository.findByPrefix(GroupeUser.projectGroupePrefix(project.getPrefix()));
     }
 
     public GroupeUser getOrCreateGroupe(String prefix, String name, String type) {

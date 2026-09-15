@@ -1,4 +1,5 @@
-import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
+import {ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild} from '@angular/core';
+import {MatMenuTrigger} from "@angular/material/menu";
 import {UserService} from "../../services/user.service";
 import {FormControl} from "@angular/forms";
 import {Issue, User} from "../../type/issue";
@@ -28,8 +29,15 @@ export class AssignFieldComponent implements OnInit, OnChanges {
   selectedIds: string[] = [];
   searchTerm: string = '';
   saving: boolean = false;
-  /** Droit d'assigner sur cette issue ; null tant que le menu n'a pas ete ouvert. */
+  /**
+   * Droit d'assigner sur cette issue. null : sous-tache dont le droit depend
+   * des assignations, verifie au premier clic seulement (une requete par ligne
+   * d'une liste serait trop couteuse).
+   */
   canAssign: boolean | null = null;
+  private checkingCanAssign = false;
+  private recheckOnClose = false;
+  @ViewChild('menuTrigger') menuTrigger: MatMenuTrigger;
   @Input() issue: Issue;
   /** nombre d'avatars affiches avant le compteur "+N" */
   @Input() maxAvatars: number = 3;
@@ -46,7 +54,8 @@ export class AssignFieldComponent implements OnInit, OnChanges {
     protected authGuard: AuthGuard,
     private authService: AuthService,
     protected projectGuard: ProjectGuard,
-    private masterGuard: MasterGuard
+    private masterGuard: MasterGuard,
+    private changeDetector: ChangeDetectorRef
   ) {
 
   }
@@ -60,26 +69,65 @@ export class AssignFieldComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['issue']) {
-      this.canAssign = null;
+      this.evaluateCanAssign();
       this.syncSelection();
     }
   }
 
   /**
-   * Evalue le droit d'assigner a l'ouverture du menu seulement : dans une
-   * liste, une verification par ligne multiplierait les requetes.
-   * Workspace (CAN_ASSIGN_TASK) ou assigne d'une issue parente.
+   * Decision immediate, sans requete : droit de l'espace de travail lu dans le
+   * profil. Une issue master ne se (re)assigne que par l'espace de travail ;
+   * pour une sous-tache sans ce droit, on reste indecis jusqu'au clic.
    */
-  loadCanAssign() {
-    if (this.canAssign !== null || this.issue == null) {
+  private evaluateCanAssign() {
+    this.canAssign = null;
+    if (this.issue == null) {
       return;
     }
-    const projectPrefix = (this.issue.project?.prefix as string)
+    const workspace = this.masterGuard.hasProjectCredential(['CAN_ASSIGN_TASK'], this.projectPrefix());
+    if (workspace) {
+      this.canAssign = true;
+    } else if (workspace === false && this.issue.parent === null) {
+      this.canAssign = false;
+    }
+  }
+
+  /**
+   * Premier clic sur une sous-tache : on demande au serveur si une assignation
+   * sur une issue parente donne le droit, et le menu ne s'ouvre que dans ce cas.
+   */
+  onTriggerClick() {
+    if (this.canAssign !== null || this.checkingCanAssign || this.issue == null) {
+      return;
+    }
+    this.checkingCanAssign = true;
+    this.masterGuard.hasIssueCredential(['CAN_ASSIGN_TASK'], this.projectPrefix(), this.issue.issueKey as string)
+      .subscribe(canAssign => {
+        this.checkingCanAssign = false;
+        this.canAssign = canAssign;
+        if (canAssign) {
+          // Differe : le declencheur doit d'abord recevoir le menu, et son
+          // propre gestionnaire de clic ne doit pas le refermer aussitot.
+          setTimeout(() => {
+            this.changeDetector.detectChanges();
+            this.menuTrigger?.openMenu();
+          });
+        }
+      });
+  }
+
+  onMenuClosed() {
+    if (this.recheckOnClose) {
+      this.recheckOnClose = false;
+      this.evaluateCanAssign();
+    }
+  }
+
+  private projectPrefix(): string | undefined {
+    return (this.issue?.project?.prefix as string)
       ?? this.route.snapshot.pathFromRoot
         .map(snapshot => snapshot.paramMap.get('project'))
         .find(prefix => !!prefix);
-    this.masterGuard.hasIssueCredential(['CAN_ASSIGN_TASK'], projectPrefix, this.issue.issueKey as string)
-      .subscribe(canAssign => this.canAssign = canAssign);
   }
 
   get assignees(): User[] {
@@ -192,8 +240,9 @@ export class AssignFieldComponent implements OnInit, OnChanges {
         this.issue.assigne = issue.assigne;
         this.issue.activeMemberships = issue.activeMemberships;
         this.issue.observerIds = issue.observerIds;
-        // Le droit d'assigner peut changer avec les assignations.
-        this.canAssign = null;
+        // Le droit d'assigner peut changer avec les assignations : reevalue a
+        // la fermeture, retirer le menu pendant qu'il est ouvert le casserait.
+        this.recheckOnClose = true;
         this.syncSelection();
         this.saving = false;
         this.save.emit(this.issue);

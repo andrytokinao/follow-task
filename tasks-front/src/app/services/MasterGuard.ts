@@ -2,9 +2,8 @@ import {ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot} from "
 import {Injectable} from "@angular/core";
 import {Apollo} from "apollo-angular";
 import {Observable, of, throwError} from "rxjs";
-import {catchError, filter, map, shareReplay, switchMap, take, tap, timeout} from "rxjs/operators";
+import {catchError, filter, map, shareReplay, switchMap, take, tap} from "rxjs/operators";
 import {AuthService} from "./auth.service";
-import {ProjectGuard} from "./ProjectGuard";
 import {ISSUE_ACCESSIBILITIES} from "../type/graphql.operations";
 
 
@@ -13,9 +12,10 @@ import {ISSUE_ACCESSIBILITIES} from "../type/graphql.operations";
  *
  * L'acces est hierarchise, du plus large au plus fin :
  *  1. `CAN_ACCESS_ALL` (administrateur systeme) ;
- *  2. les roles de l'espace de travail, via {@link ProjectGuard} : un
- *     PROJECT_MANAGER ou ADMIN du projet l'est aussi sur chacune de ses issues,
- *     sans requete supplementaire ;
+ *  2. les roles de l'espace de travail : les memes permissions que verifie
+ *     {@link ProjectGuard} (`PRJ_GROUPE_ROLE`), lues directement dans le
+ *     profil, sans attendre le chargement des groupes du projet. Un
+ *     PROJECT_MANAGER ou ADMIN du projet l'est aussi sur chacune de ses issues ;
  *  3. sinon, les accessibilites que le serveur calcule sur cette issue a
  *     partir des assignations sur l'issue et ses ancetres (voir
  *     `issue-authorization` dans application.yml). L'assigne d'une issue y
@@ -33,13 +33,14 @@ import {ISSUE_ACCESSIBILITIES} from "../type/graphql.operations";
 })
 export class MasterGuard implements CanActivate {
   private accessibilitiesCache = new Map<string, Observable<string[]>>();
+  private profile: any | null = null;
 
   constructor(
     private authService: AuthService,
     private router: Router,
-    private apollo: Apollo,
-    private projectGuard: ProjectGuard
+    private apollo: Apollo
   ) {
+    this.authService.profile$.subscribe(profile => this.profile = profile);
   }
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
@@ -69,15 +70,11 @@ export class MasterGuard implements CanActivate {
       filter((profile: any) => !!profile?.permissions),
       take(1),
       switchMap((profile: any) => {
-        if (profile.permissions.includes('CAN_ACCESS_ALL')) {
+        if (this.checkProjectCredential(roles, projectPrefix, profile.permissions)) {
           return of(true);
         }
-        return this.hasProjectCredential(roles, projectPrefix).pipe(
-          switchMap(projectAutorize => projectAutorize
-            ? of(true)
-            : this.issueAccessibilities(projectPrefix, issueKey).pipe(
-              map(accessibilities => roles.some(role => accessibilities.includes(role)))
-            ))
+        return this.issueAccessibilities(projectPrefix, issueKey).pipe(
+          map(accessibilities => roles.some(role => accessibilities.includes(role)))
         );
       }),
       catchError(() => of(false))
@@ -85,17 +82,23 @@ export class MasterGuard implements CanActivate {
   }
 
   /**
-   * Niveau espace de travail. Un echec ou une attente trop longue (groupes du
-   * projet jamais charges) ne refuse pas l'acces : on retombe sur le niveau issue.
+   * Niveau systeme + espace de travail, synchrone.
+   * @return null tant que le profil n'est pas charge
    */
-  private hasProjectCredential(roles: string[], projectPrefix: string): Observable<boolean> {
-    // ProjectGuard ne connait le projet que s'il a lui-meme garde une route.
-    this.projectGuard.projectPrefix = projectPrefix;
-    return this.projectGuard.hasCredential([...roles]).pipe(
-      take(1),
-      timeout(5000),
-      catchError(() => of(false))
-    );
+  hasProjectCredential(roles: string[], projectPrefix: string | null | undefined): boolean | null {
+    const permissions: string[] | undefined = this.profile?.permissions;
+    if (!permissions) {
+      return null;
+    }
+    return this.checkProjectCredential(roles, projectPrefix, permissions);
+  }
+
+  private checkProjectCredential(roles: string[], projectPrefix: string | null | undefined, permissions: string[]): boolean {
+    if (permissions.includes('CAN_ACCESS_ALL')) {
+      return true;
+    }
+    // Meme convention que le serveur (GroupeUser.projectGroupePrefix).
+    return !!projectPrefix && roles.some(role => permissions.includes(`${projectPrefix}_GROUPE_${role}`));
   }
 
   issueAccessibilities(projectPrefix: string, issueKey: string): Observable<string[]> {

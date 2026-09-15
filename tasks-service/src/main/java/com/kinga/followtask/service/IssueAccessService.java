@@ -102,8 +102,9 @@ public class IssueAccessService {
             return accessibilities;
         }
 
+        String groupePrefix = GroupeUser.projectGroupePrefix(projectPrefix);
         for (MemberGroupe memberGroupe : memberGroupeRepository.findByUserIdAndGroupeType(user.getId(), GroupeUser.PROJECT_GROUPE)) {
-            if (!projectPrefix.equals(memberGroupe.getGroupe().getPrefix()) || memberGroupe.getRoles() == null) {
+            if (!groupePrefix.equals(memberGroupe.getGroupe().getPrefix()) || memberGroupe.getRoles() == null) {
                 continue;
             }
             memberGroupe.getRoles().forEach(role -> addRoleAccessibilities(role, accessibilities));

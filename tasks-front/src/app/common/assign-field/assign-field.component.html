@@ -1,5 +1,8 @@
-<span class="assigne" style="cursor: pointer">
-  <span [matMenuTriggerFor]="menu2" (menuOpened)="loadCanAssign()" mat-icon-button class="assigne-trigger" [title]="assigneesTitle">
+<span class="assigne" [class.assigne-lecture]="canAssign === false">
+  <!-- Sans droit, pas de menu : le declencheur ne fait rien. -->
+  <span #menuTrigger="matMenuTrigger" [matMenuTriggerFor]="canAssign ? menu2 : null"
+        (click)="onTriggerClick()" (menuClosed)="onMenuClosed()"
+        class="assigne-trigger" [title]="assigneesTitle">
     <span class="avatar-stack" *ngIf="assignees.length > 0">
       <app-avatar *ngFor="let user of visibleAssignees"
                   [url]="photoUrl(user)"
@@ -12,21 +15,25 @@
   </span>
 
   <mat-menu #menu2="matMenu" class="assigne-menu">
-    <div *ngIf="canAssign"
-         (click)="stopPropagation($event)" class="assigne-panel">
+    <div class="assigne-panel" (click)="stopPropagation($event)">
       <div class="assigne-panel-header">
         <h4> Assigner à </h4>
         <input type="text" class="assigne-search" placeholder="Rechercher un membre..."
-               [(ngModel)]="searchTerm" (click)="stopPropagation($event)"/>
+               [(ngModel)]="searchTerm"/>
       </div>
 
-      <div class="assigne-list">
-        <button mat-menu-item *ngFor="let user of filteredUsers" (click)="toggleUser(user, $event)"
+      <!-- Boutons simples plutot que mat-menu-item : ce dernier enveloppe son
+           contenu dans un span non flex, qui empilait avatar et nom. -->
+      <div class="assigne-list" role="listbox" aria-multiselectable="true">
+        <button type="button" class="assigne-option" role="option"
+                *ngFor="let user of filteredUsers"
+                [class.active]="isActive(user)"
+                [attr.aria-selected]="isActive(user)"
                 [disabled]="saving"
-                [ngClass]="{'active': isActive(user)}">
-          <mat-checkbox [checked]="isActive(user)"></mat-checkbox>
+                (click)="toggleUser(user, $event)">
           <app-avatar [url]="photoUrl(user)" [displayName]="displayName(user)"></app-avatar>
           <span class="assigne-nom" [title]="displayName(user)">{{ displayName(user) }}</span>
+          <i class="fas fa-check assigne-check" *ngIf="isActive(user)" aria-hidden="true"></i>
         </button>
         <div class="assigne-empty" *ngIf="filteredUsers.length == 0"> Aucun membre trouvé </div>
       </div>

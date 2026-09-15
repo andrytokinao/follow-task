@@ -14,6 +14,11 @@ import java.util.List;
 public class GroupeUser {
     public static String SYSTEM_GROUPE= "SYSTEM_GROUPE";
     public static String PROJECT_GROUPE = "PROJECT_GROUPE";
+
+    /** Prefixe du groupe d'un projet, repris dans les permissions : {@code PRJ_GROUPE_CAN_...}. */
+    public static String projectGroupePrefix(String projectPrefix) {
+        return projectPrefix + "_GROUPE";
+    }
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
