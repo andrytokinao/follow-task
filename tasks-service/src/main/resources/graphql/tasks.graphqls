@@ -662,6 +662,7 @@ type RoleApp{
     name:String
     description:String
     accessibilities:[String]
+    includes:[String]
 }
 input DocumentInput{
     id:Int

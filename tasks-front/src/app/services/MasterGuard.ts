@@ -2,19 +2,27 @@ import {ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot} from "
 import {Injectable} from "@angular/core";
 import {Apollo} from "apollo-angular";
 import {Observable, of, throwError} from "rxjs";
-import {catchError, filter, map, shareReplay, switchMap, take, tap} from "rxjs/operators";
+import {catchError, filter, map, shareReplay, switchMap, take, tap, timeout} from "rxjs/operators";
 import {AuthService} from "./auth.service";
+import {ProjectGuard} from "./ProjectGuard";
 import {ISSUE_ACCESSIBILITIES} from "../type/graphql.operations";
 
 
 /**
  * Garde d'une issue (master ou sous-issue), pendant de {@link ProjectGuard}.
  *
- * Les roles attendus (`data.roles` de la route) sont compares aux
- * accessibilites que le serveur calcule pour l'utilisateur sur cette issue :
- * droits du projet + roles herites de ses assignations sur l'issue et ses
- * ancetres (voir `issue-authorization` dans application.yml). Etre assigne a
- * une issue master donne ainsi les droits de PROJECT_MANAGER sur celle-ci.
+ * L'acces est hierarchise, du plus large au plus fin :
+ *  1. `CAN_ACCESS_ALL` (administrateur systeme) ;
+ *  2. les roles de l'espace de travail, via {@link ProjectGuard} : un
+ *     PROJECT_MANAGER ou ADMIN du projet l'est aussi sur chacune de ses issues,
+ *     sans requete supplementaire ;
+ *  3. sinon, les accessibilites que le serveur calcule sur cette issue a
+ *     partir des assignations sur l'issue et ses ancetres (voir
+ *     `issue-authorization` dans application.yml). Etre assigne a une issue
+ *     master donne ainsi les droits de PROJECT_MANAGER sur celle-ci.
+ *
+ * Il suffit donc de `canActivate: [MasterGuard]` : `[ProjectGuard, MasterGuard]`
+ * exigerait les deux (ET), et bloquerait un simple assigne.
  *
  * Le resultat est mis en cache par issue ; appeler `invalidate()` apres une
  * (des)assignation.
@@ -28,7 +36,8 @@ export class MasterGuard implements CanActivate {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private apollo: Apollo
+    private apollo: Apollo,
+    private projectGuard: ProjectGuard
   ) {
   }
 
@@ -62,10 +71,28 @@ export class MasterGuard implements CanActivate {
         if (profile.permissions.includes('CAN_ACCESS_ALL')) {
           return of(true);
         }
-        return this.issueAccessibilities(projectPrefix, issueKey).pipe(
-          map(accessibilities => roles.some(role => accessibilities.includes(role)))
+        return this.hasProjectCredential(roles, projectPrefix).pipe(
+          switchMap(projectAutorize => projectAutorize
+            ? of(true)
+            : this.issueAccessibilities(projectPrefix, issueKey).pipe(
+              map(accessibilities => roles.some(role => accessibilities.includes(role)))
+            ))
         );
       }),
+      catchError(() => of(false))
+    );
+  }
+
+  /**
+   * Niveau espace de travail. Un echec ou une attente trop longue (groupes du
+   * projet jamais charges) ne refuse pas l'acces : on retombe sur le niveau issue.
+   */
+  private hasProjectCredential(roles: string[], projectPrefix: string): Observable<boolean> {
+    // ProjectGuard ne connait le projet que s'il a lui-meme garde une route.
+    this.projectGuard.projectPrefix = projectPrefix;
+    return this.projectGuard.hasCredential([...roles]).pipe(
+      take(1),
+      timeout(5000),
       catchError(() => of(false))
     );
   }

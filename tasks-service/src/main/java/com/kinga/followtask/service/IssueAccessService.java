@@ -1,7 +1,6 @@
 package com.kinga.followtask.service;
 
 import com.kinga.followtask.config.PermissionIssue;
-import com.kinga.followtask.config.RoleApp;
 import com.kinga.followtask.entity.GroupeUser;
 import com.kinga.followtask.entity.Issue;
 import com.kinga.followtask.entity.MemberGroupe;
@@ -13,7 +12,6 @@ import com.kinga.followtask.repository.MemberGroupeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -100,10 +98,6 @@ public class IssueAccessService {
     }
 
     private void addRoleAccessibilities(String roleName, Set<String> accessibilities) {
-        Optional<RoleApp> role = authorizationService.getRoleTaskByName(roleName);
-        if (role.isEmpty() || CollectionUtils.isEmpty(role.get().getAccessibilities())) {
-            return;
-        }
-        accessibilities.addAll(role.get().getAccessibilities());
+        accessibilities.addAll(authorizationService.resolveTaskAccessibilities(roleName));
     }
 }

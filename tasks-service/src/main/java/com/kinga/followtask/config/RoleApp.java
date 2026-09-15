@@ -12,5 +12,7 @@ public class RoleApp {
     private String name;
     private String description;
     private List<String> accessibilities;
+    /** Roles dont celui-ci herite toutes les accessibilites (hierarchie). */
+    private List<String> includes;
 
 }

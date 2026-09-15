@@ -114,11 +114,7 @@ public class AuthorizationService {
             for (MemberGroupe memberGroupe : projectGroupe) {
                 String prefix = memberGroupe.getGroupe().getPrefix();
                 for (String r : memberGroupe.getRoles ()){
-                    Optional<RoleApp> role = getRoleTaskByName(r);
-                    if (!role.isPresent() || CollectionUtils.isEmpty(role.get().getAccessibilities())) {
-                        continue;
-                    }
-                    for (String acc : role.get().getAccessibilities()) {
+                    for (String acc : resolveTaskAccessibilities(r)) {
                         accessibilites.add(prefix+"_"+acc);
                     }
                 }
@@ -146,6 +142,33 @@ public class AuthorizationService {
         return allRoleTask().stream()
                 .filter(role -> role.getName().equals(roleName))
                 .findFirst();
+    }
+
+    /**
+     * Accessibilites d'un role de task-authorization, y compris celles des
+     * roles qu'il inclut (ADMIN inclut PROJECT_MANAGER, etc.).
+     */
+    public Set<String> resolveTaskAccessibilities(String roleName) {
+        Set<String> accessibilities = new HashSet<>();
+        collectTaskAccessibilities(roleName, accessibilities, new HashSet<>());
+        return accessibilities;
+    }
+
+    private void collectTaskAccessibilities(String roleName, Set<String> accessibilities, Set<String> visited) {
+        // `visited` protege d'un cycle d'inclusion mal configure.
+        if (roleName == null || !visited.add(roleName)) {
+            return;
+        }
+        Optional<RoleApp> role = getRoleTaskByName(roleName);
+        if (role.isEmpty()) {
+            return;
+        }
+        if (!CollectionUtils.isEmpty(role.get().getAccessibilities())) {
+            accessibilities.addAll(role.get().getAccessibilities());
+        }
+        if (!CollectionUtils.isEmpty(role.get().getIncludes())) {
+            role.get().getIncludes().forEach(included -> collectTaskAccessibilities(included, accessibilities, visited));
+        }
     }
 
     public List<MemberGroupe> loadGroupeMember(String userId) {

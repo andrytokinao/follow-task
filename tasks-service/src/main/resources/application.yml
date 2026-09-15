@@ -51,6 +51,9 @@ task-authorization:
   roles:
     - name: "ADMIN"
       description: "Administrateur"
+      # Un admin de l'espace de travail a aussi tous les droits d'un gestionnaire.
+      includes:
+        - "PROJECT_MANAGER"
       accessibilities:
         - "USER"
         - "CAN_EDIT_ALL"
