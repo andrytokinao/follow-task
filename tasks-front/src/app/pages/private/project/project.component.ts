@@ -232,7 +232,7 @@ export class ProjectComponent implements OnInit{
     });
   }
   isLoggingOut = false;
-  unreadTotal: number = 55;
+  unreadTotal: number = 0;
 
   logout() {
     if (this.isLoggingOut) return; // éviter clic multiple
