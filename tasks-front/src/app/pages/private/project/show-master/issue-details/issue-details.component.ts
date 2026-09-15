@@ -98,6 +98,12 @@ export class IssueDetailsComponent implements OnInit, OnDestroy {
 
   editDescription = false;
   editSummary = false;
+  /**
+   * Droit lu une seule fois : appeler `hasCredential(...) | async` dans le
+   * template créait un nouvel Observable à chaque détection de changement,
+   * d'où une boucle de rendus qui faisait clignoter la page.
+   */
+  canEditField = false;
 
   // ── Statistics ────────────────────────────────
   subtaskStatusData: SubtaskStatusData[] = [];
@@ -128,20 +134,26 @@ export class IssueDetailsComponent implements OnInit, OnDestroy {
   @ViewChild('newIssueForm') newIssueForm?: NewIssueFormComponent;
 
   // Les canvas sont sous *ngIf : on redessine dès qu'ils entrent/sortent du DOM.
+  // Angular rappelle ces setters à chaque ajout/retrait de vue dans le template,
+  // même si le canvas n'a pas changé : on ne redessine que s'il a vraiment changé,
+  // sinon le graphe est recréé (et réanimé) en boucle.
   @ViewChild('subtaskChartCanvas')
   set subtaskChartCanvasRef(ref: ElementRef<HTMLCanvasElement> | undefined) {
+    if (this.subtaskCanvas === ref?.nativeElement) return;
     this.subtaskCanvas = ref?.nativeElement;
     this.scheduleRender(() => this.renderSubtaskChart());
   }
 
   @ViewChild('userHoursCanvas')
   set userHoursCanvasRef(ref: ElementRef<HTMLCanvasElement> | undefined) {
+    if (this.hoursCanvas === ref?.nativeElement) return;
     this.hoursCanvas = ref?.nativeElement;
     this.scheduleRender(() => this.renderHoursChart());
   }
 
   @ViewChild('filesProgressCanvas')
   set filesProgressCanvasRef(ref: ElementRef<HTMLCanvasElement> | undefined) {
+    if (this.filesCanvas === ref?.nativeElement) return;
     this.filesCanvas = ref?.nativeElement;
     this.scheduleRender(() => this.renderFilesChart());
   }
@@ -188,6 +200,10 @@ export class IssueDetailsComponent implements OnInit, OnDestroy {
     this.authService.getProfile()
       .pipe(takeUntil(this.destroy$))
       .subscribe(res => this.profile = res);
+
+    this.projectGuard.hasCredential(['CAN_EDIT_FIELD'])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(hasRole => this.canEditField = hasRole);
 
     this.issueService.issueMaster$
       .pipe(takeUntil(this.destroy$))

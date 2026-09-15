@@ -24,7 +24,7 @@
         <div class="summary-wrapper">
           <h1 class="issue-title" *ngIf="!editSummary" (click)="editIssueSummary()">
             {{ parentIssue?.summary }}
-            <i class="fas fa-pencil-alt edit-hint" *ngIf="projectGuard.hasCredential(['CAN_EDIT_FIELD']) | async"></i>
+            <i class="fas fa-pencil-alt edit-hint" *ngIf="canEditField"></i>
           </h1>
           <div class="summary-edit" *ngIf="editSummary">
             <mat-form-field class="full-width" appearance="outline">
@@ -43,7 +43,7 @@
         <div class="card-section-header">
           <span class="section-title"><i class="fas fa-align-left"></i> Description</span>
           <button class="btn-edit-inline"
-                  *ngIf="(projectGuard.hasCredential(['CAN_EDIT_FIELD']) | async) && !editDescription"
+                  *ngIf="canEditField && !editDescription"
                   (click)="editIssueDescription()">
             <i class="fas fa-pencil-alt"></i> Modifier
           </button>
@@ -257,7 +257,7 @@
         <div class="sidebar-section-header">
           <span class="sidebar-section-title"><i class="fas fa-sliders-h"></i> Champs personnalisés</span>
           <app-custom-field-menu
-            *ngIf="projectGuard.hasCredential(['CAN_EDIT_FIELD']) | async"
+            *ngIf="canEditField"
             [issue]="parentIssue"
             (fieldAttached)="loadValues()"
             (fieldDetached)="loadValues()"
