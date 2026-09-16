@@ -54,6 +54,17 @@ public class ActionStatus extends ActionItem {
         return "Changement de statut";
     }
 
+    /**
+     * Seule l'atteinte d'un statut de fin de traitement prévient. Les passages
+     * intermédiaires — « Ouvert » vers « En cours », puis « En attente » —
+     * noyaient les évènements qui demandent vraiment une action. L'action reste
+     * enregistrée : on filtre la notification, pas l'historique.
+     */
+    @Override
+    public boolean doitNotifier(RegleNotification regle) {
+        return regle != null && regle.estStatutFinal(this.status);
+    }
+
     @Override
     public Set<String> generateUserToNotify() {
         return issue.getObserverIds();

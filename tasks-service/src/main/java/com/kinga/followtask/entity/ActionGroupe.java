@@ -46,6 +46,18 @@ public class ActionGroupe {
         }
         return this.actions.get(0).buildTitle();
     }
+
+    /**
+     * Le groupe notifie dès qu'une de ses actions le mérite. Un groupe qui
+     * changerait le statut et réassignerait d'un même geste doit prévenir pour
+     * l'affectation, même si le statut visé ne le justifie pas à lui seul.
+     */
+    public boolean doitNotifier(RegleNotification regle) {
+        if (CollectionUtils.isEmpty(this.actions)) {
+            return false;
+        }
+        return this.actions.stream().anyMatch(action -> action.doitNotifier(regle));
+    }
     public Set<String> userToNotifies(){
         Set<String> list = new HashSet<>();
         if (CollectionUtils.isEmpty(this.actions)) {

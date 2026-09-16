@@ -1,5 +1,6 @@
 package com.kinga.followtask.service;
 
+import com.kinga.followtask.config.StatutsFinaux;
 import com.kinga.followtask.dto.OutputNotification;
 import com.kinga.followtask.dto.Response;
 import com.kinga.followtask.entity.ActionGroupe;
@@ -52,6 +53,7 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final SimpMessagingTemplate simpMessagingTemplate;
+    private final StatutsFinaux statutsFinaux;
 
     // -----------------------------------------------------------------
     // Création
@@ -67,6 +69,9 @@ public class NotificationService {
      */
     public List<Notification> generateAndSend(ActionGroupe actionGroupe, Set<String> specificUsers) {
         List<Notification> creees = new ArrayList<>();
+        if (!doitNotifier(actionGroupe)) {
+            return creees;
+        }
         Set<String> tous = actionGroupe.userToNotifies();
 
         // Un destinataire direct — le nouvel assigné — est notifié qu'il
@@ -111,6 +116,24 @@ public class NotificationService {
             }
         }
         return creees;
+    }
+
+    /**
+     * La décision appartient à l'action elle-même : chaque type sait s'il a
+     * une raison de se taire. Ce service ne fournit que le réglage et la trace.
+     *
+     * L'action est enregistrée dans tous les cas. On filtre la notification,
+     * pas l'historique de la tâche, qui doit rester complet.
+     */
+    private boolean doitNotifier(ActionGroupe actionGroupe) {
+        if (actionGroupe.doitNotifier(statutsFinaux)) {
+            return true;
+        }
+        logger.info("Action « {} » sur la tâche {} : hors des évènements notifiés, "
+                        + "action enregistrée sans notification",
+                actionGroupe.buildTitle(),
+                actionGroupe.getIssue() == null ? "?" : actionGroupe.getIssue().getIssueKey());
+        return false;
     }
 
     /**

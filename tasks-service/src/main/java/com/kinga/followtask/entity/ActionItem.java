@@ -59,6 +59,19 @@ public abstract class ActionItem {
         return "Activité";
     }
 
+    /**
+     * Cet évènement mérite-t-il une notification ?
+     *
+     * Par défaut oui : une affectation, un commentaire ou un document
+     * s'adressent nommément à quelqu'un. Seul le changement de statut a une
+     * raison de se taire, et c'est {@link ActionStatus} qui la porte — pas un
+     * test de type ailleurs, qu'il faudrait retrouver et compléter à chaque
+     * nouveau type d'action.
+     */
+    public boolean doitNotifier(RegleNotification regle) {
+        return true;
+    }
+
     // -----------------------------------------------------------------
     // Fragments de phrase partagés par tous les types d'action
     // -----------------------------------------------------------------
