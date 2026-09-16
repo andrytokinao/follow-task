@@ -8,6 +8,7 @@ import {
 import {BehaviorSubject, filter, forkJoin} from "rxjs";
 import {EventsService} from "../../../../../services/events.service";
 import {EventApp, EventSearchCriteria} from "../../../../../type/issue";
+import {EventMenuComponent} from "../../../../../common/event-menu/event-menu.component";
 
 @Component({
   standalone:false,
@@ -21,6 +22,8 @@ import {EventApp, EventSearchCriteria} from "../../../../../type/issue";
     <daypilot-calendar [config]="config" #calendar></daypilot-calendar>
       </div>
     </div>
+    <!-- Formulaire d'événement en menu, à côté du clic. -->
+    <app-event-menu (saved)="loadEvents()"></app-event-menu>
   `,
   styleUrl: './planning-resources.component.css'
 
@@ -46,22 +49,20 @@ export class PlanningResourcesComponent implements AfterViewInit {
   @ViewChild("navigator") nav!: DayPilotNavigatorComponent;
   @ViewChild("calendar")
   calendar!: DayPilotCalendarComponent;
+  @ViewChild(EventMenuComponent) eventMenu!: EventMenuComponent;
   eventCriteria:EventSearchCriteria={};
   config: DayPilot.CalendarConfig = {
     viewType: "Resources",
     headerHeight: 100,
     onEventResize: (args) => this.resizeEvent(args),
     onEventMove:(args) => this.mouveEventAtResources(args),
-    onEventClick:(args)=> this.eventService.editDialogAndSet(args.e.data,this.eventCriteria),
+    onEventClick:(args)=> this.eventMenu.ouvrirEdition(args.e.data.id, args.originalEvent as MouseEvent),
     onTimeRangeSelected: this.onTimeRangeSelected.bind(this),
     contextMenu: new DayPilot.Menu({
       items: [
         {
           text: "Edit...",
-          onClick: async args => {
-              this.eventService.editDialogAndSet(args.source.data,this.eventCriteria);
-            ;
-          }
+          onClick: args => this.eventMenu.ouvrirEdition(args.source.data.id, args.originalEvent as MouseEvent)
         },
         {
           text: "Delete",
@@ -162,7 +163,6 @@ export class PlanningResourcesComponent implements AfterViewInit {
 
   }
   onTimeRangeSelected(args: any) {
-    console.debug(args);
     const newEvent: EventApp = {
       title: "",
       eventType: undefined,
@@ -179,9 +179,8 @@ export class PlanningResourcesComponent implements AfterViewInit {
       reminderTime: "",
       user: this.eventService.getUserByResource(args.resource)
     };
-    this.eventService.newEvent(newEvent).subscribe(res => {
-      this.loadEvents();
-    });
+    args.control?.clearSelection?.();
+    this.eventMenu.ouvrirCreation(newEvent);
   }
   refreshView(){
 

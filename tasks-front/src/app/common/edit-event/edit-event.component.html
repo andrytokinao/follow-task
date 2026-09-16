@@ -1,4 +1,6 @@
-<div class="event-panel" (click)="clickMenu($event)">
+<!-- appContenuMenu : ce formulaire vit souvent dans un mat-menu. Sans elle,
+     choisir une tâche dans un sélecteur refermait tout le formulaire. -->
+<div class="event-panel" appContenuMenu>
 
   <!-- ── Header ─────────────────────────────────────────────── -->
   <div class="modal-header">
@@ -7,7 +9,7 @@
         <rect x="2" y="3" width="12" height="11" rx="1.5"/>
         <path d="M5 2v2M11 2v2M2 7h12"/>
       </svg>
-      Planifier une exécution
+      {{ estCreation ? 'Planifier une exécution' : 'Modifier l’exécution' }}
     </h4>
     <button type="button" class="btn-close" aria-label="Fermer" (click)="dismiss('close')">×</button>
   </div>
@@ -73,7 +75,14 @@
         </div>
       </div>
 
-      <ng-container >
+      <!-- L'avancement ne concerne que les sous-tâches : sans sous-tâche la
+           section disparaît, et choisir une sous-tâche recalcule la
+           proposition pour elle. -->
+      <div class="completion-hint" *ngIf="!avancementApplicable && !byIssue">
+        Choisissez une sous-tâche pour saisir l’avancement.
+      </div>
+
+      <ng-container *ngIf="avancementApplicable">
 
         <div class="section-label" style="margin-top:10px"><span>Avancement</span></div>
 
@@ -181,7 +190,7 @@
           <svg *ngIf="!loading" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M2 6l3 3 5-5"/>
           </svg>
-          {{ loading ? 'Enregistrement…' : 'Enregistrer' }}
+          {{ loading ? 'Enregistrement…' : (estCreation ? 'Créer' : 'Enregistrer') }}
         </button>
       </div>
 

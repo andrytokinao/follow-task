@@ -20,8 +20,7 @@ import {CustomFilter, IssueSearchCriteriaInput} from "../../../../../type/issue-
 import {AuthGuard} from "../../../../../services/SystemGuard";
 import {ProjectGuard} from "../../../../../services/ProjectGuard";
 import {Format} from "@angular-devkit/build-angular/src/builders/extract-i18n/schema";
-import {EditEventComponent} from "../../../../../common/edit-event/edit-event.component";
-import {MatMenuTrigger} from "@angular/material/menu";
+import {EventMenuComponent} from "../../../../../common/event-menu/event-menu.component";
 import {LayoutService} from "../../../../../services/layout.service";
 
 @Component({
@@ -38,11 +37,8 @@ export class PlanningCalendarComponent implements AfterViewInit, OnDestroy {
   @ViewChild("calendar")
   calendar!: DayPilotCalendarComponent;
   @Input() eventCriteria:EventSearchCriteria={};
-  @ViewChild('addPlanningTrigger') addPlanningTrigger: MatMenuTrigger;
-
-  menuX: number = 0;
-  menuY: number = 0;
-  selectedEvent: any = null;
+  /** Création et modification s'affichent en menu, à côté du clic. */
+  @ViewChild(EventMenuComponent) eventMenu!: EventMenuComponent;
 
   events: DayPilot.EventData[] = [];
   parentSelectedId :number = undefined;
@@ -64,17 +60,7 @@ export class PlanningCalendarComponent implements AfterViewInit, OnDestroy {
 
       {
         text: "Edit...",
-        onClick: args =>  {
-          const mouseEvent = args.originalEvent as MouseEvent;
-          this.menuX = mouseEvent.clientX;
-          this.menuY = mouseEvent.clientY;
-          this.selectedEvent = args.source.data;
-          this.eventService.selectEventData(this.selectedEvent);
-
-          setTimeout(() => {
-            this.addPlanningTrigger.openMenu();
-          }, 0);
-        }
+        onClick: args => this.eventMenu.ouvrirEdition(args.source.data.id, args.originalEvent as MouseEvent)
       },
       {
         text: "-"
@@ -270,17 +256,7 @@ export class PlanningCalendarComponent implements AfterViewInit, OnDestroy {
 
           {
             text: "Edit...",
-            onClick: args =>  {
-              const mouseEvent = args.originalEvent as MouseEvent;
-              this.menuX = mouseEvent.clientX;
-              this.menuY = mouseEvent.clientY;
-              this.selectedEvent = args.source.data;
-              this.eventService.selectEventData(this.selectedEvent);
-
-              setTimeout(() => {
-                this.addPlanningTrigger.openMenu();
-              }, 0);
-            }
+            onClick: args => this.eventMenu.ouvrirEdition(args.source.data.id, args.originalEvent as MouseEvent)
           },
           {
             text: "Delete",
@@ -490,12 +466,12 @@ export class PlanningCalendarComponent implements AfterViewInit, OnDestroy {
     };
     if (this.parentSelected) {
       newEvent.issue = this.parentSelected;
-      this.issueService.loadSubtaskAndSet(this.parentSelectedId);
     }
-    this.eventService.newEvent(newEvent).subscribe(res => {
-      this.eventCriteria.userIds = [this.user.id];
-      this.eventService.searchEventsAndSet(this.eventCriteria);
-    });
+    // Menu à côté de la plage sélectionnée ; le rechargement passe par
+    // (saved), qui respecte les filtres en cours au lieu de les réduire à
+    // l'utilisateur connecté comme le faisait l'ancienne popup.
+    this.eventMenu.ouvrirCreation(newEvent);
+    args.control?.clearSelection?.();
   }
   newEventForResources(args: any) {
     const newEvent: any = {
@@ -517,13 +493,15 @@ export class PlanningCalendarComponent implements AfterViewInit, OnDestroy {
     if (this.parentSelected) {
       newEvent.issue = this.parentSelected;
     }
-    this.eventService.newEventForResources(newEvent,args.resource).subscribe(res => {
-      this.eventCriteria.userIds = [this.user.id];
-      this.eventService.searchEventsAndSet(this.eventCriteria);
+    args.control?.clearSelection?.();
+    // La colonne cliquée désigne la personne : l'événement est pour elle.
+    this.userService.getUser(args.resource).subscribe(user => {
+      newEvent.user = user;
+      this.eventMenu.ouvrirCreation(newEvent);
     });
   }
   async onEventClick(args: any,criteria:EventSearchCriteria) {
-    this.eventService.editDialogAndSet(args,criteria);
+    this.eventMenu.ouvrirEdition(args?.e?.data?.id ?? args?.id, args?.originalEvent);
   }
 
   isSelectedUser(id: String) {
@@ -813,8 +791,8 @@ export class PlanningCalendarComponent implements AfterViewInit, OnDestroy {
     this.loadEvents();
   }
 
-  closeEventForm() {
-    this.addPlanningTrigger.closeMenu();
+  /** Après enregistrement dans le menu : le menu s'est déjà refermé. */
+  onEvenementEnregistre() {
     this.loadEvents();
   }
 

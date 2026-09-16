@@ -28,6 +28,8 @@ import {BreadcrumbComponent} from "./navigation/breadcrumb.component";
 import {RouterLink, RouterLinkActive} from "@angular/router";
 import {StatusFieldComponent} from "./status-field/status-field.component";
 import {EditEventComponent} from "./edit-event/edit-event.component";
+import {EventMenuComponent} from "./event-menu/event-menu.component";
+import {ContenuMenuDirective} from "./contenu-menu/contenu-menu.directive";
 import {NewEventComponent} from "./new-event/new-event.component";
 import {IssueFilterFieldComponent} from "./issue-filter-field/issue-filter-field.component";
 import {MatCheckbox} from "@angular/material/checkbox";
@@ -79,6 +81,8 @@ import {IssueBoardComponent} from "./issue-board/issue-board.component";
     BreadcrumbComponent,
     StatusFieldComponent,
     EditEventComponent,
+    EventMenuComponent,
+    ContenuMenuDirective,
     NewEventComponent,
     IssueFilterFieldComponent,
     EditorComponent,
@@ -160,6 +164,8 @@ import {IssueBoardComponent} from "./issue-board/issue-board.component";
         BreadcrumbComponent,
         StatusFieldComponent,
         EditEventComponent,
+        EventMenuComponent,
+        ContenuMenuDirective,
         NewEventComponent,
         QuillEditorComponent,
         EditorComponent,

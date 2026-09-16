@@ -13,6 +13,7 @@ import {ConfirmationDialogService} from "../../../../../../services/confirmation
 import {AuthService} from "../../../../../../services/auth.service";
 import {EventsService} from "../../../../../../services/events.service";
 import {firstValueFrom} from "rxjs";
+import {EventMenuComponent} from "../../../../../../common/event-menu/event-menu.component";
 
 @Component({
   selector: 'app-issue-master-list',
@@ -21,6 +22,8 @@ import {firstValueFrom} from "rxjs";
   styleUrl: './issue-master-list.component.css'
 })
 export class IssueMasterListComponent {
+  @ViewChild(EventMenuComponent) eventMenu!: EventMenuComponent;
+
   constructor(
     private modalService: NgbModal,
     protected issueService: IssueService,
@@ -250,7 +253,10 @@ export class IssueMasterListComponent {
       .catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
   }
 
-  async addPlanning(master: Issue) {
+  /** Le formulaire s'ouvre en menu sous le bouton cliqué, pas en popup. */
+  async addPlanning(master: Issue, clic?: MouseEvent) {
+    // Relevé avant l'attente : l'évènement ne doit pas être lu après coup.
+    const position = clic ? {x: clic.clientX, y: clic.clientY} : undefined;
     const profile = await firstValueFrom(this.authService.profile$);
 
     if (!profile) {
@@ -258,8 +264,6 @@ export class IssueMasterListComponent {
       return;
     }
 
-    this.eventService.newEventForIssue(master, profile).subscribe(event => {
-      console.log('created event', event);
-    });
+    this.eventMenu.ouvrirCreation(this.eventService.evenementPourIssue(master, profile), position);
   }
 }

@@ -7,3 +7,6 @@
   </div>
   <daypilot-calendar [config]="configWeek" [events]="events"></daypilot-calendar>
 </div>
+<!-- Formulaire d'événement en menu, à côté du clic. Le panneau passe au-dessus
+     de cette modale : .cdk-overlay-container est à z-index 2000. -->
+<app-event-menu (saved)="loadEvents()"></app-event-menu>

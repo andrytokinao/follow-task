@@ -47,6 +47,16 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
   @Output() saved    = new EventEmitter<EventApp>();
   @Output() onClose  = new EventEmitter<boolean>();
   @Input() isNext: boolean = false;
+  /**
+   * Suivre l'événement « sélectionné » diffusé par EventsService. Utile quand
+   * le formulaire est piloté à distance ; à couper quand l'hôte appelle
+   * loadEvent lui-même, sinon chaque sélection faite ailleurs rechargerait ce
+   * formulaire — et un BehaviorSubject rejoue la dernière dès l'initialisation.
+   */
+  @Input() suivreSelection: boolean = true;
+
+  /** Jeton de la dernière demande : une réponse tardive ne doit pas écraser la suivante. */
+  private demande = 0;
 
   percentageProposal: PercentageProposal | undefined;
   completionPercentage: number = 0;
@@ -78,11 +88,28 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
   selectedEventType?: EventTypeApp;
 
   private destroy$ = new Subject<void>();
-  private _toClose = false;
 
   get f() { return this.editEventForm.controls; }
   get endBeforeStart(): boolean { return this.editEventForm.hasError('endBeforeStart'); }
   get descriptionLength(): number { return (this.event?.description || '').length; }
+
+  /**
+   * Le même formulaire sert à créer et à modifier : seule l'absence
+   * d'identifiant les distingue. Le serveur crée ou met à jour selon ce même
+   * critère, il n'y a donc rien d'autre à brancher.
+   */
+  get estCreation(): boolean { return !this.event?.id; }
+
+  /**
+   * L'avancement n'a de sens que pour une sous-tâche : c'est elle qui
+   * s'exécute par sessions successives. Une demande agrège ses sous-tâches ;
+   * lui saisir un pourcentage à la main contredirait ce calcul.
+   */
+  get avancementApplicable(): boolean { return !!this.selectedSubtask; }
+
+  /** Utilisateur imposé par l'appelant — la ressource cliquée dans le planning. */
+  private utilisateurImpose?: User;
+  private utilisateurConnecte?: User;
 
   /** Titre suggéré dynamiquement selon la tâche et le moment de la journée */
   get titlePlaceholder(): string {
@@ -113,12 +140,11 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     this.eventService.selectedEventData$.pipe(takeUntil(this.destroy$)).subscribe(data => {
-      if (data && data.id) this.loadEvent(data.id);
+      if (this.suivreSelection && data && data.id) this.loadEvent(data.id);
     });
   }
 
   ngAfterViewInit(): void {
-    this._toClose = false;
   }
 
   ngOnDestroy(): void {
@@ -180,12 +206,22 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
   // ─── Event loading ─────────────────────────────────────────────────────────
 
   loadEvent(id: number | string): void {
+    const demande = ++this.demande;
+    this.submitted = false;
     this.loadingEvent = true;
     this.eventService.getByEventById(id)
       .pipe(takeUntil(this.destroy$), finalize(() => this.loadingEvent = false))
       .subscribe({
         next: (event) => {
+          // Le même formulaire peut avoir été rouvert entre-temps (autre
+          // événement, ou création) : on ignore la réponse devenue obsolète.
+          if (demande !== this.demande) return;
           this.event = event;
+          // Modifier l'événement d'un collègue ne doit pas se l'approprier :
+          // onSubmit renvoie this.user, qui valait jusqu'ici l'utilisateur
+          // connecté quel que soit le propriétaire.
+          this.utilisateurImpose = event.user?.id ? event.user : undefined;
+          this.user = this.utilisateurImpose ?? this.utilisateurConnecte;
           this.setDescription(event);
           this._patchForm(event);
           this._resolveIssueSelection(event);
@@ -193,6 +229,51 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
         },
         error: (err) => { console.error(err); }
       });
+  }
+
+  /**
+   * Ouvre le formulaire en création, pré-rempli par l'appelant : la plage
+   * sélectionnée dans DayPilot, la tâche en cours, la ressource cliquée.
+   *
+   * Ce formulaire remplace NewEventComponent pour la création, qui n'avait ni
+   * dates éditables, ni suggestion de titre, ni avancement — et dont le menu
+   * de sous-tâches n'était relié à aucun déclencheur.
+   */
+  prepareCreation(event: Partial<EventApp>): void {
+    // Une même instance sert d'une ouverture à l'autre : on repart d'un état
+    // vierge, sans les erreurs, la proposition ni la sélection précédentes.
+    ++this.demande;
+    this.submitted = false;
+    this.loadingEvent = false;
+    this.editEventForm.reset();
+    this._effacerAvancement();
+    this.utilisateurImpose = undefined;
+    this.user = this.utilisateurConnecte;
+    if (!this.byIssue) {
+      this.selectedMaster = undefined;
+      this.selectedSubtask = undefined;
+      this.subtasksList = [];
+    }
+    this.event = {
+      ...event,
+      id: undefined,
+      // DayPilot transmet des DayPilot.Date : on les ramène à leur forme texte
+      // locale (« 2026-09-16T10:00:00 ») avant de remplir les champs date.
+      start: this._versTexte(event.start),
+      end: this._versTexte(event.end),
+    } as EventApp;
+    if (event.user?.id) {
+      this.utilisateurImpose = event.user;
+      this.user = event.user;
+    }
+    this.setDescription(this.event);
+    this._patchForm(this.event);
+    this._resolveIssueSelection(this.event);
+    this._resolveEventType(this.event);
+    this.suggestTitle();
+    if (this.selectedSubtask?.id != null) {
+      this.loadPropositionPercentage(this.selectedSubtask.id as number);
+    }
   }
 
   loadNextEvent(issue: Issue): void {
@@ -215,10 +296,14 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private _resolveEventType(event: EventApp): void {
-    if (event.eventType && this.eventTypes.length) {
-      this.selectedEventType = this.eventTypes.find(t => t.id === event.eventType!.id)
-        ?? this.eventTypes[0];
+    if (!this.eventTypes.length) {
+      return;
     }
+    // En création il n'y a pas encore de type, et ce formulaire n'offre pas de
+    // sélecteur : sans valeur par défaut, onSubmit refusait en silence.
+    this.selectedEventType = event?.eventType
+      ? this.eventTypes.find(t => t.id === event.eventType!.id) ?? this.eventTypes[0]
+      : this.selectedEventType ?? this.eventTypes[0];
   }
 
   // ─── Issue selection ───────────────────────────────────────────────────────
@@ -231,18 +316,39 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private _resolveIssueSelection(event: EventApp): void {
     if (!event.issue) {
-      this.selectedMaster  = undefined;
-      this.selectedSubtask = undefined;
+      // En mode « par tâche », la sélection vient des @Input : l'effacer ici
+      // vidait les sélecteurs masqués sans que rien ne puisse les remplir.
+      if (!this.byIssue) {
+        this.selectedMaster  = undefined;
+        this.selectedSubtask = undefined;
+      }
       return;
     }
-    if (event.issue.parent == null) {
-      this.selectedMaster  = event.issue;
-      this.selectedSubtask = undefined;
-    } else {
+    if (event.issue.parent != null) {
       this.selectedMaster  = event.issue.parent;
       this.selectedSubtask = event.issue;
       this._loadSubtasks(event.issue.parent.id);
+      return;
     }
+    if (this._estSousTache(event.issue)) {
+      // Issue transmise sans son parent — loadNextEvent ne garde que id, titre
+      // et type. La classer comme demande effaçait la sous-tâche, et avec elle
+      // l'avancement.
+      this.selectedSubtask = { ...this.selectedSubtask, ...event.issue };
+      return;
+    }
+    this.selectedMaster  = event.issue;
+    this.selectedSubtask = undefined;
+    this._loadSubtasks(event.issue.id);
+  }
+
+  /** Sans parent chargé, on se fie à la sélection déjà connue puis au type. */
+  private _estSousTache(issue: Issue): boolean {
+    if (this.selectedSubtask?.id != null && this.selectedSubtask.id === issue.id) {
+      return true;
+    }
+    const niveau = issue.issueType?.level;
+    return niveau != null && niveau !== 'PARENT';
   }
 
   selectMaster(issue: Issue): void {
@@ -251,13 +357,21 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
     this.subtasksList    = [];
     this._loadSubtasks(issue.id);
     this.suggestTitle();
-    this.loadPropositionPercentage(issue.id as number);
+    // Pas de proposition pour une demande : l'avancement ne concerne que les
+    // sous-tâches, et une valeur calculée ici resterait affichée à tort.
+    this._effacerAvancement();
   }
 
+  /** Choisir une sous-tâche recalcule la proposition pour cette sous-tâche. */
   selectSubtask(issue: Issue): void {
     this.selectedSubtask = issue;
     this.suggestTitle();
     this.loadPropositionPercentage(issue.id as number);
+  }
+
+  private _effacerAvancement(): void {
+    this.percentageProposal   = undefined;
+    this.completionPercentage = 0;
   }
 
   private _loadSubtasks(masterId: number): void {
@@ -277,9 +391,9 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
       .subscribe({
         next: (types) => {
           this.eventTypes = types;
-          if (this.event?.eventType) {
-            this.selectedEventType = types.find(t => t.id === this.event.eventType!.id);
-          }
+          // Les types peuvent arriver après prepareCreation : on résout ici
+          // aussi, sinon la valeur par défaut ne serait jamais posée.
+          this._resolveEventType(this.event);
         },
         error: (err) => { console.error(err); }
       });
@@ -335,8 +449,10 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
       user:                 this.user,
       description:          this._description,
       eventType:            { id: this.selectedEventType.id, name: this.selectedEventType.name },
-      project:              { id: this.project.id },
-      completionPercentage: this.completionPercentage,
+      project:              this.project ? { id: this.project.id } : this.event?.project,
+      // Rien n'est enregistré sans sous-tâche : un 0 serait lu comme « aucun
+      // avancement », alors que la question ne se pose simplement pas.
+      completionPercentage: this.avancementApplicable ? this.completionPercentage : undefined,
     };
 
     if (this.selectedSubtask) {
@@ -364,12 +480,11 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
     this.activeModal.dismiss(reason);
   }
 
-  clickMenu(event: MouseEvent): void {
-    if (!this._toClose) {
-      event.stopPropagation();
-    } else {
-      this._toClose = false;
+  private _versTexte(value: unknown): any {
+    if (value == null || typeof value === 'string' || value instanceof Date) {
+      return value;
     }
+    return String(value);
   }
 
   private _toDatetimeLocal(value: string | Date | null | undefined): string {
@@ -383,7 +498,12 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
   private _loadConnectedUser(): void {
     this.authService.connectedUser$
       .pipe(takeUntil(this.destroy$))
-      .subscribe(user => { this.user = user; });
+      .subscribe(user => {
+        this.utilisateurConnecte = user;
+        // Dans la vue ressources, l'événement appartient à la personne dont on
+        // a cliqué la colonne, pas à celle qui le saisit.
+        this.user = this.utilisateurImpose ?? user;
+      });
   }
 
   private setDescription(event: EventApp): void {

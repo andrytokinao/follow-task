@@ -109,7 +109,7 @@
             <i class="fas fa-arrow-up-right-from-square"></i>
             <span>Détails</span>
           </button>
-          <button type="button" class="card-btn" (click)="addPlanning(master)">
+          <button type="button" class="card-btn" (click)="addPlanning(master, $event)">
             <i class="fas fa-calendar-plus"></i>
             <span>Planning</span>
           </button>
@@ -128,3 +128,6 @@
 
   </div>
 </div>
+
+<!-- Planification : formulaire en menu, à côté du bouton cliqué. -->
+<app-event-menu></app-event-menu>

@@ -29,8 +29,6 @@ import {
 import _default from "chart.js/dist/plugins/plugin.legend";
 import {NewIssueComponent} from "../pages/private//project/modal/new-issue/new-issue.component";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
-import {EditEventComponent} from "../common/edit-event/edit-event.component";
-import {NewEventComponent} from "../common/new-event/new-event.component";
 import {UserService} from "./user.service";
 import {query} from "@angular/animations";
 import {IssueService} from "./issue.service";
@@ -190,101 +188,30 @@ export class EventsService {
 
     dp.events.update(modal.result);
   }
-  editDialogAndSet(data:any, criteria:EventSearchCriteria){
-    this.editDialog(data).subscribe(res => {
-      this.searchEventsAndSet(criteria);
-    })
-  }
-  editDialog(data:any){
-    return new Observable<any>(observer => {
-      const modalRef = this.modalService.open(EditEventComponent, {
-        size: 'lg',
-        backdrop: 'static',
-        keyboard: false,
-        centered:true,
-      });
-      modalRef.componentInstance.loadEvent(data.id);
-      modalRef.result.then(
-        (result) => {
-          if (result) {
-            observer.next(result);
-            observer.complete();
-          }
-        },
-        (reason) => {
-          console.log('Modal fermé :', reason);
-          observer.closed
-        }
-      );
-    })
+  /*
+   * Création et modification d'événement : il n'y a plus de popup ici. Les
+   * écrans les ouvrent en menu à côté du clic, via <app-event-menu>
+   * (ouvrirCreation / ouvrirEdition). Garder une variante modale dans le
+   * service laisserait chaque nouvel écran la réemprunter par facilité.
+   */
 
-  }
-  newEvent(newEvent: EventApp){
-    if (this.selectedMaster) {
-      this.issueService
-    }
-    return new Observable<EventApp>(observer=>{
-      const modalRef = this.modalService.open(NewEventComponent, {
-        size: 'lg',
-        keyboard: false
-      });
-      modalRef.componentInstance.event = newEvent;
-      modalRef.result.then( (result:any) => {
-        observer.next(result.event);
-        observer.complete();
-      },(cancel:any)=>{
-        observer.closed;
-      })
-    })
-  }
-  newEventForResources(newEvent:EventApp, username:String) {
-    return new Observable<EventApp>(observer=>{
-      this.userService.getUser(username).subscribe(user => {
-          newEvent.user = user;
-          this.newEvent(newEvent).subscribe( eventApp => {
-            observer.next(eventApp);
-            observer.complete();
-            },
-            err => {
-               observer.error(err);
-               observer.complete();
-            }
-          )
-      });
-    });
-  }
-  newEventForIssue(issue:Issue, user:User){
-    const newEvent: any = {
+  /**
+   * Pré-remplissage d'une planification depuis une demande. Créneau par
+   * défaut : l'heure qui vient — l'ancien formulaire cherchait un créneau
+   * libre, mais sa recherche n'aboutissait pas et retombait toujours là.
+   */
+  evenementPourIssue(issue: Issue, user: User): Partial<EventApp> {
+    const debut = new Date();
+    const fin = new Date(debut.getTime() + 60 * 60 * 1000);
+    return {
       title: "",
-      eventType: undefined,
       allDay: false,
-      customColor: "",
-      customStyle: "",
       description: "",
-      id: undefined,
-      issue: undefined,
-      location: "",
-      reminderOffset: 0,
-      reminderTime: "",
+      start: debut.toISOString(),
+      end: fin.toISOString(),
+      issue: issue,
       user: user
-    };
-
-    return new Observable<EventApp>(observer=>{
-      const modalRef = this.modalService.open(NewEventComponent, {
-        size: 'lg',
-        keyboard: false
-      });
-      modalRef.componentInstance.event = newEvent;
-      modalRef.componentInstance.user = user;
-      modalRef.componentInstance.getAvailableTime();
-      modalRef.result.then( (result:any) => {
-        observer.next(result.event);
-        observer.complete();
-      },(cancel:any)=>{
-        observer.closed;
-      })
-    })
-
+    } as Partial<EventApp>;
   }
 
   allEventType(){

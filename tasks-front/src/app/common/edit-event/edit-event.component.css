@@ -102,6 +102,17 @@
   background: #e5e7eb;
 }
 
+/* Remplace la section Avancement tant qu'aucune sous-tâche n'est choisie :
+   sans elle, la disparition de la section passerait pour un oubli. */
+.completion-hint {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border: 0.5px dashed #d1d5db;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
 /* ═══════════════════════════════════════════
    DEUX COLONNES (dates, tâches)
 ═══════════════════════════════════════════ */

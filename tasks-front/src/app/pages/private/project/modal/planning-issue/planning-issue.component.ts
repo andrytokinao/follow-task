@@ -6,6 +6,7 @@ import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {IssueService} from "../../../../../services/issue.service";
 import {UserService} from "../../../../../services/user.service";
 import {AuthService} from "../../../../../services/auth.service";
+import {EventMenuComponent} from "../../../../../common/event-menu/event-menu.component";
 import Date = DayPilot.Date;
 
 @Component({
@@ -18,6 +19,7 @@ export class PlanningIssueComponent implements OnInit{
   issue:Issue;
   events: DayPilot.EventData[] = [];
   @ViewChild("navigator") nav!: DayPilotNavigatorComponent;
+  @ViewChild(EventMenuComponent) eventMenu!: EventMenuComponent;
 
   constructor(
     public activeModal: NgbActiveModal,
@@ -30,10 +32,7 @@ export class PlanningIssueComponent implements OnInit{
     items: [
       {
         text: "Edit...",
-        onClick: async args => {
-          this.editDialog(args.source.data);
-          ;
-        }
+        onClick: args => this.eventMenu.ouvrirEdition(args.source.data.id, args.originalEvent as MouseEvent)
       },
       {
         text: "Delete",
@@ -138,11 +137,8 @@ export class PlanningIssueComponent implements OnInit{
       user: this.user
     };
     this.issueService.setSubtask([this.issue]);
-    this.eventService.newEvent(newEvent).subscribe(res => {
-      this.eventCriteria.issueIds = [this.issue.id];
-      console.debug(res);
-      this.loadEvents();
-    });
+    args.control?.clearSelection?.();
+    this.eventMenu.ouvrirCreation(newEvent);
   }
   viewEvent(args:any){
     this.eventService.viewEvent(args.e.data.id).subscribe(result => {
@@ -167,9 +163,7 @@ export class PlanningIssueComponent implements OnInit{
   }
 
   private editEvent(args:any) {
-    this.eventService.editDialog(args.e.data).subscribe( res => {
-      this.loadEvents();
-    })
+    this.eventMenu.ouvrirEdition(args.e.data.id, args.originalEvent as MouseEvent);
   }
   loadEvents() {
     if (this.nav) {
@@ -197,11 +191,6 @@ export class PlanningIssueComponent implements OnInit{
     this.loadEvents();
   }
 
-  private editDialog(data) {
-    this.eventService.editDialog(data).subscribe(event => {
-      this.loadEvents();
-    })
-  };
   private loadSubTask(){
 
   }

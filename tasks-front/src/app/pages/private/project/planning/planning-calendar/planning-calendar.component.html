@@ -249,26 +249,6 @@
   </div>
 </mat-menu>
 
-<!-- Trigger invisible positionné dynamiquement (édition d'un événement
-     depuis le menu contextuel DayPilot). -->
-<div
-  #addPlanningTrigger="matMenuTrigger"
-  [matMenuTriggerFor]="addPlanning"
-  [style.position]="'fixed'"
-  [style.left.px]="menuX"
-  [style.top.px]="menuY"
-  style="width:0;height:0;visibility:hidden;">
-</div>
-
-<mat-menu #addPlanning="matMenu">
-  <div (click)="$event.stopPropagation()">
-    <app-edit-event
-      [event]="selectedEvent"
-      #editEventForm
-      [byIssue]="false"
-      (saved)="closeEventForm()"
-      [selectedMaster]="parentSelected"
-      (onClose)="closeEventForm()"
-    ></app-edit-event>
-  </div>
-</mat-menu>
+<!-- Création (sélection d'une plage) et modification (menu contextuel) : le
+     formulaire s'ouvre en menu à côté du clic, jamais en popup. -->
+<app-event-menu (saved)="onEvenementEnregistre()"></app-event-menu>
