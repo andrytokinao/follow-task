@@ -27,12 +27,16 @@ import java.util.Set;
  * La liste est un réglage : chaque installation nomme ses statuts comme elle
  * l'entend. Elle se règle dans application.properties :
  *
- * <pre>notification.statuts-finaux=Corrigé,Résolu,Terminé,Livré</pre>
+ * <pre>notification.statuts-finaux=Corrige,Resolu,Termine,Livre</pre>
  *
  * La comparaison porte sur le libellé et non sur l'identifiant : un même
  * statut existe autant de fois qu'il y a de workflows, avec un identifiant
  * différent à chaque fois. Accents et casse sont ignorés, pour qu'un réglage
  * saisi « corrige » reconnaisse « Corrigé ».
+ *
+ * Le réglage s'écrit sans accents : application.properties est lu en
+ * ISO-8859-1, et un « Corrigé » enregistré en UTF-8 y devient « CorrigÃ© »,
+ * qui ne reconnaît plus rien.
  */
 @Component
 public class StatutsFinaux implements RegleNotification {
