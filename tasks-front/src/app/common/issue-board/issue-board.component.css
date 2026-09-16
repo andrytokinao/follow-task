@@ -200,6 +200,36 @@
   color: var(--ib-accent);
 }
 
+/* Carte annoncée par une notification, pas encore ouverte : mêmes couleurs
+   ambrées que les listes. Placée après --master pour primer sur son fond. */
+.ib-card.ib-card--unread {
+  border-color: #f3e2bd;
+  background: #fff8e8;
+  box-shadow: inset 3px 0 0 #F59E0B, 0 1px 2px rgba(16, 24, 40, .05);
+}
+.ib-card--unread .ib-card__title {
+  font-weight: 650;
+  color: #713f12;
+}
+
+/* Compteur poussé à droite de la clé. */
+.ib-card__notif {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: auto;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: #F59E0B;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.6;
+}
+.ib-card__notif i {
+  font-size: 9px;
+}
+
 .ib-card__title {
   margin: 0;
   font-size: 12.5px;

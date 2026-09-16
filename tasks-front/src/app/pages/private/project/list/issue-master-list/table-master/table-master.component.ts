@@ -63,20 +63,20 @@ export class TableMasterComponent implements OnInit{
   }
 
   /**
-   * Le chevron rouge mène à la liste des tâches filtrée sur la demande : c'est
-   * là que se trouve la sous-tâche qui vient d'être assignée, alors que cette
-   * page-ci ne montre que les demandes.
+   * Le chevron mène aux sous-tâches de la demande : chacune y porte sa propre
+   * pastille, ce qui dit laquelle a bougé. Ouvrir la demande éteint ses
+   * notifications à elle ; ouvrir une sous-tâche éteint les siennes.
+   *
+   * Pas de filtre à ouvrir ici : cette vue montre toutes les sous-tâches, là
+   * où la liste des tâches masquait par défaut celles des autres et les
+   * statuts clos — parfois justement la ligne annoncée.
    */
   voirLesTaches(issue: Issue, event: Event) {
     event.stopPropagation();
     if (!this.project) {
       return;
     }
-    // Filtres ouverts en grand : les valeurs par defaut de la liste (mes
-    // taches, statuts non clos) pourraient masquer justement la ligne qu'on
-    // vient d'annoncer, et le chevron menerait a une page vide.
-    this.router.navigate(['/working', this.project.prefix, 'tasks'],
-      {queryParams: {q: issue.issueKey, statut: 'tous', assigne: 'tous', vue: 'table'}});
+    this.router.navigate(['/working', this.project.prefix, 'issue', issue.issueKey, 'subtask']);
   }
 
   ngOnInit(): void {

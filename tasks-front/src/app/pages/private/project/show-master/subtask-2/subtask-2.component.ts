@@ -17,6 +17,7 @@ import {
   EventApp,
   EventSearchCriteria,
   Issue,
+  NotificationApp,
   Status,
   UsingCustomField
 } from '../../../../../type/issue';
@@ -31,6 +32,7 @@ import { EventsService } from '../../../../../services/events.service';
 import { EditEventComponent } from '../../../../../common/edit-event/edit-event.component';
 import { ConnectedPosition } from '@angular/cdk/overlay';
 import { trigger, transition, style, animate } from '@angular/animations';
+import { NotificationService } from '../../../../../services/notification.service';
 
 interface DotColors { ring: string; track: string; text: string; }
 
@@ -124,6 +126,12 @@ export class Subtask2Component implements OnInit, AfterViewInit, OnDestroy {
   private project: any;
   private profile: any;
   private routerSubscription?: Subscription;
+  private notificationSubscription?: Subscription;
+
+  /** Non lues par tâche, tenues par l'unique liste de NotificationService. */
+  private nonLuesParTache = new Map<number, NotificationApp[]>();
+  /** Référence stable, pour ne pas relancer *ngFor à chaque détection. */
+  private static readonly AUCUNE: NotificationApp[] = [];
 
   private readonly RING_R    = 12;
   private readonly RING_CIRC = 2 * Math.PI * this.RING_R;
@@ -137,7 +145,8 @@ export class Subtask2Component implements OnInit, AfterViewInit, OnDestroy {
     private route: ActivatedRoute,
     private authService: AuthService,
     private eventService: EventsService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit(): void {
@@ -162,12 +171,40 @@ export class Subtask2Component implements OnInit, AfterViewInit, OnDestroy {
     this.routerSubscription = this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe(() => this.syncSelectionWithUrl());
+    this.notificationSubscription = this.notificationService.unreadDetailsByIssue$
+      .subscribe(details => {
+        this.nonLuesParTache = details;
+        // Évènement arrivé sur la sous-tâche qu'on a sous les yeux : il est vu.
+        if (this.selectedTask && this.nonLues(this.selectedTask) > 0) {
+          this.notificationService.markIssueRead(this.selectedTask.id);
+        }
+      });
   }
 
   ngAfterViewInit(): void {}
 
   ngOnDestroy(): void {
     this.routerSubscription?.unsubscribe();
+    this.notificationSubscription?.unsubscribe();
+  }
+
+  // ── Notifications ────────────────────────────────────────────────
+  /**
+   * Nouveautés non ouvertes sur une sous-tâche. Sur cette page on voit la
+   * demande et toutes ses sous-tâches : la pastille dit laquelle a bougé,
+   * plutôt que de laisser chercher d'où vient celle de la demande.
+   */
+  nonLues(task: Issue): number {
+    return this.detailsNonLues(task).length;
+  }
+
+  resumeNonLues(task: Issue): string {
+    return this.notificationService.resumeTexte(this.detailsNonLues(task), 'Nouveautés sur cette tâche :');
+  }
+
+  private detailsNonLues(task: Issue): NotificationApp[] {
+    if (task?.id == null) return Subtask2Component.AUCUNE;
+    return this.nonLuesParTache.get(Number(task.id)) ?? Subtask2Component.AUCUNE;
   }
 
   @HostListener('window:resize')
@@ -253,6 +290,9 @@ export class Subtask2Component implements OnInit, AfterViewInit, OnDestroy {
     this.cancelEditDescription();
     this.selectedTask = task;
     this.selectedIssueSubject.next(task);
+    // Sous-tâche à l'écran : ses notifications sont lues, la pastille de la
+    // ligne et celle de la demande s'éteignent ensemble.
+    this.notificationService.markIssueRead(task?.id);
     this.activeTab = 'comments';
     this.loadValues();
     this.loadEvents();

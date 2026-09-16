@@ -21,17 +21,21 @@
                  (dragend)="onDragEnd()"
                  [class.ib-card--dragging]="draggedIssue === issue"
                  [class.ib-card--master]="isMasterCard(issue)"
+                 [class.ib-card--unread]="nonLues(issue) > 0"
                  (click)="issueClick.emit(issue)">
           <div class="ib-card__top">
             <app-icone-view class="ib-card__type" *ngIf="issue.issueType?.icone" [icon]="issue.issueType.icone"></app-icone-view>
             <span class="ib-card__key">{{ issue.issueKey }}</span>
+            <span class="ib-card__notif" *ngIf="nonLues(issue) > 0" [title]="resumeNonLues(issue)">
+              <i class="fas fa-bell"></i>{{ nonLues(issue) }}
+            </span>
           </div>
 
           <span class="ib-card__parent" *ngIf="isSubtaskCard(issue) && issue.parent" [title]="issue.parent.summary">
             {{ issue.parent.issueKey }} · {{ issue.parent.summary }}
           </span>
 
-          <p class="ib-card__title" [title]="issue.summary">{{ issue.summary }}</p>
+          <p class="ib-card__title" [title]="nonLues(issue) > 0 ? resumeNonLues(issue) : issue.summary">{{ issue.summary }}</p>
 
           <div class="ib-card__bottom">
             <span class="ib-card__subtasks" *ngIf="isMasterCard(issue) && issue.children?.length"

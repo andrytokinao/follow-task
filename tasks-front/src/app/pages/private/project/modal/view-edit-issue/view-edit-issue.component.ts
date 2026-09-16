@@ -19,6 +19,7 @@ import {concatMap, Observable} from "rxjs";
 
 import {error} from "@angular/compiler-cli/src/transformers/util";
 import {AuthService} from "../../../../../services/auth.service";
+import {NotificationService} from "../../../../../services/notification.service";
 @Component({
   standalone:false,
   selector: 'app-view-edit-issue',
@@ -79,7 +80,8 @@ export class ViewEditIssueComponent implements OnInit{
     public activeModal: NgbActiveModal,
     public issueService:IssueService,
     public userService:UserService,
-    private authService:AuthService
+    private authService:AuthService,
+    private notificationService:NotificationService
   ) {}
   editDescription(){
     this.editingDescription =!this.editingDescription;
@@ -232,6 +234,8 @@ export class ViewEditIssueComponent implements OnInit{
     customField.name = "Test ";
     customField.type = "Date";
     this.customFieldValue. customField = customField;
+    // Ouvrir la fenêtre, c'est voir la tâche : sa pastille s'éteint.
+    this.notificationService.markIssueRead(this.issue?.id);
     this.loadComments();
     this.loadValues();
     this.customFieldsByIssueType();

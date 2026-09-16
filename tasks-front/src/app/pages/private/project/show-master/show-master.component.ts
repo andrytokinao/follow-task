@@ -9,6 +9,7 @@ import {ConfigService} from "../../../../services/config.service";
 import {IssueService} from "../../../../services/issue.service";
 import {PageTitleService} from "../../../../services/page-title.service";
 import {CustomField, Issue, Project} from "../../../../type/issue";
+import {NotificationService} from "../../../../services/notification.service";
 
 @Component({
   standalone:false,
@@ -71,7 +72,8 @@ export class ShowMasterComponent implements OnInit, OnDestroy {
               protected issueService:IssueService,
               private route: ActivatedRoute,
               private pageTitle: PageTitleService,
-              private projectGuard: ProjectGuard
+              private projectGuard: ProjectGuard,
+              private notificationService: NotificationService
   ) {
     this.peutVoirRapport$ = this.projectGuard
       .hasCredential(['PROJECT_MANAGER', 'ADMIN'])
@@ -102,6 +104,11 @@ export class ShowMasterComponent implements OnInit, OnDestroy {
     // survivrait à la navigation écraserait celui de la page suivante.
     this.titleSubscription = this.issueService.issueMaster$.subscribe(issue => {
       this.pageTitle.set(issue?.issueKey?.toString(), issue?.summary?.toString());
+      // La demande est à l'écran : ses propres notifications sont lues, quel
+      // que soit le chemin qui y a mené (liste, lien, cloche, calendrier).
+      // Celles de ses sous-tâches restent allumées : elles sont signalées sur
+      // chaque sous-tâche et s'éteignent quand on ouvre celle-ci.
+      this.notificationService.markIssueRead(issue?.id);
     });
   }
 

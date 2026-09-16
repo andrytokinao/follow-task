@@ -1,6 +1,8 @@
-import {Component, EventEmitter, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
-import {Issue, Status} from "../../type/issue";
+import {Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges} from '@angular/core';
+import {Subscription} from "rxjs";
+import {Issue, NotificationApp, Status} from "../../type/issue";
 import {groupByStatus, resolveStatuses} from "../../type/issue-grouping.util";
+import {NotificationService} from "../../services/notification.service";
 
 export interface IssueStatusDrop {
   issue: Issue;
@@ -21,7 +23,44 @@ export interface IssueStatusDrop {
   templateUrl: './issue-board.component.html',
   styleUrl: './issue-board.component.css'
 })
-export class IssueBoardComponent implements OnChanges {
+export class IssueBoardComponent implements OnInit, OnChanges, OnDestroy {
+
+  /**
+   * Nouveautés non ouvertes, lues dans l'unique liste de NotificationService.
+   * Le board ne marque rien comme lu : c'est l'écran qui ouvre la tâche qui
+   * le fait. Il se contente de montrer quelle carte a bougé.
+   */
+  private nonLuesParTache = new Map<number, NotificationApp[]>();
+  private static readonly AUCUNE: NotificationApp[] = [];
+  private notificationSubscription?: Subscription;
+
+  constructor(private notificationService: NotificationService) {
+  }
+
+  ngOnInit(): void {
+    this.notificationSubscription = this.notificationService.unreadDetailsByIssue$
+      .subscribe(details => this.nonLuesParTache = details);
+  }
+
+  ngOnDestroy(): void {
+    this.notificationSubscription?.unsubscribe();
+  }
+
+  nonLues(issue: Issue): number {
+    return this.detailsNonLues(issue).length;
+  }
+
+  resumeNonLues(issue: Issue): string {
+    return this.notificationService.resumeTexte(this.detailsNonLues(issue), 'Nouveautés :');
+  }
+
+  private detailsNonLues(issue: Issue): NotificationApp[] {
+    if (issue?.id == null) {
+      return IssueBoardComponent.AUCUNE;
+    }
+    return this.nonLuesParTache.get(Number(issue.id)) ?? IssueBoardComponent.AUCUNE;
+  }
+
   /** statuts du workflow, dans l'ordre des colonnes */
   @Input() statuses: Status[] = [];
   @Input() issues: Issue[] = [];

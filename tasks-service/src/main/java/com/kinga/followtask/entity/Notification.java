@@ -44,12 +44,24 @@ public class Notification {
             this.readUserIds = new ArrayList<>();
         return readUserIds;
     }
+    /**
+     * Route du front vers la tâche. Une sous-tâche s'ouvre dans la page de sa
+     * demande (…/issue/{demande}/subtask/{clé}) : c'est là qu'elle est
+     * affichée et marquée lue. La traiter comme une demande l'ouvrait seule,
+     * hors de son contexte.
+     */
     public List<String> getIssueLinks(){
         Issue issue = getIssue();
-        if (issue == null || issue.getProject() == null || issue.getIssueKey() == null)
+        if (issue == null || issue.getIssueKey() == null)
             return new ArrayList<>();
-        return Arrays.asList("/working",issue.getProject().getPrefix(),"issue",issue.getIssueKey(),"details");
-
+        Issue parent = issue.getParent();
+        Project projet = issue.getProject() != null ? issue.getProject()
+                : parent == null ? null : parent.getProject();
+        if (projet == null)
+            return new ArrayList<>();
+        if (parent != null && parent.getIssueKey() != null)
+            return Arrays.asList("/working", projet.getPrefix(), "issue", parent.getIssueKey(), "subtask", issue.getIssueKey());
+        return Arrays.asList("/working", projet.getPrefix(), "issue", issue.getIssueKey(), "details");
     }
 
     /**

@@ -53,12 +53,11 @@
           <!-- L'info-bulle native s'efface quand la ligne porte des nouveautés :
                les deux s'afficheraient sinon l'une sur l'autre. -->
           <span class="issue-summary" [title]="nonLues(issue) > 0 ? '' : issue.summary">{{ issue.summary }}</span>
-          <!-- Le chevron mène à la liste des tâches, où la nouveauté est
-               visible ligne par ligne ; c'est là, et là seulement, que
-               l'ouvrir éteindra la pastille. -->
+          <!-- Le chevron mène aux sous-tâches de la demande, où chaque
+               nouveauté est signalée sur sa ligne ; l'ouvrir l'éteint. -->
           <button type="button" class="issue-notif" *ngIf="nonLues(issue) > 0"
                   (click)="voirLesTaches(issue, $event)"
-                  [title]="nonLues(issue) + ' nouveauté(s) — voir les tâches'">
+                  [title]="nonLues(issue) + ' nouveauté(s) — voir les sous-tâches'">
             <i class="fas fa-bell"></i>{{ nonLues(issue) }}
             <i class="fas fa-chevron-right"></i>
           </button>

@@ -136,6 +136,7 @@ $mobile: 768px;
   &--progress  { background: $c-accent; }
   &--done      { background: $c-success; }
   &--review    { background: $c-warning; }
+  &--unread    { box-shadow: 0 0 0 2px #F59E0B; }
 }
 
 // ─── List header ────────────────────────────────────────────────
@@ -323,6 +324,43 @@ app-issue-board {
 
     .task-row__key { color: $c-accent; }
   }
+
+  // Sous-tâche annoncée par une notification, pas encore ouverte : mêmes
+  // couleurs ambrées que la liste des tâches, pour qu'on la reconnaisse d'un
+  // écran à l'autre.
+  &--unread {
+    background: #fff8e8;
+    box-shadow: inset 3px 0 0 #F59E0B;
+
+    &:hover { background: #fdf0d5; }
+    .task-row__sum { font-weight: 650; color: #713f12; }
+  }
+}
+
+.task-row__title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+
+  .task-row__sum { min-width: 0; }
+}
+
+// Compteur en bout de titre : la couleur seule ne dit pas combien.
+.task-row__notif {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: #F59E0B;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.6;
+
+  i { font-size: 9px; }
 }
 
 .task-row__status {

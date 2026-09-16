@@ -35,6 +35,9 @@ export class NotificationService {
 
   private connectedUser: User | undefined;
 
+  /** Vrai une fois la liste du compte courant reçue du serveur. */
+  private chargee = false;
+
   // ---------------------------------------------------------------------
   // Vues dérivées
   // ---------------------------------------------------------------------
@@ -162,6 +165,7 @@ export class NotificationService {
         // Les notifications sont nominatives : garder celles du précédent
         // compte afficherait des pastilles qui ne concernent plus personne.
         this.notificationsSubject.next([]);
+        this.chargee = false;
         if (user?.id) {
           this.reload();
         }
@@ -184,7 +188,10 @@ export class NotificationService {
       return;
     }
     this.getNotificationsByUserId(userId).subscribe({
-      next: notifications => this.notificationsSubject.next(this.trier(notifications ?? [])),
+      next: notifications => {
+        this.chargee = true;
+        this.notificationsSubject.next(this.trier(notifications ?? []));
+      },
       error: err => console.error('Rechargement des notifications impossible', err)
     });
   }
@@ -237,14 +244,28 @@ export class NotificationService {
     });
   }
 
-  /** Tâche ouverte : c'est le geste qui éteint les marques la concernant. */
+  /**
+   * Tâche affichée : c'est le geste qui éteint les marques la concernant.
+   *
+   * Appelé par les écrans qui montrent la tâche (demande, sous-tâche, fenêtre
+   * d'édition) et non par les listes qui y mènent : une tâche ouverte par un
+   * lien direct, le calendrier ou le fil d'ariane doit s'éteindre aussi.
+   * Ces écrans rappellent la méthode à chaque rafraîchissement de la tâche ;
+   * quand rien n'est à marquer, on ne dérange pas le serveur.
+   */
   markIssueRead(issueId: number | undefined): void {
     const userId = this.connectedUser?.id;
     if (!userId || issueId == null) {
       return;
     }
     const cible = Number(issueId);
-    this.appliquerLocalement(n => this.enNombre(this.issueDe(n)?.id) === cible, true);
+    const marquees = this.appliquerLocalement(
+      n => !this.estLue(n) && this.enNombre(this.issueDe(n)?.id) === cible, true);
+    // Liste pas encore chargée (lien ouvert au démarrage) : on ne sait pas
+    // s'il y a quelque chose à lire, le serveur tranchera.
+    if (marquees === 0 && this.chargee) {
+      return;
+    }
     this.muter(operation.READ_NOTIFICATIONS_BY_ISSUE, {userId, issueId: cible});
   }
 
@@ -287,15 +308,24 @@ export class NotificationService {
    * s'éteindre au clic, pas un aller-retour plus tard. En cas d'échec, le
    * prochain rechargement rétablit l'état réel.
    */
-  private appliquerLocalement(concerne: (n: NotificationApp) => boolean, lue: boolean): void {
+  private appliquerLocalement(concerne: (n: NotificationApp) => boolean, lue: boolean): number {
     const userId = this.connectedUser?.id;
     if (!userId) {
-      return;
+      return 0;
     }
-    this.notificationsSubject.next(
-      this.notificationsSubject.getValue()
-        .map(n => (concerne(n) ? this.marquer(n, userId, lue) : n))
-    );
+    let touchees = 0;
+    const liste = this.notificationsSubject.getValue()
+      .map(n => {
+        if (!concerne(n)) {
+          return n;
+        }
+        touchees++;
+        return this.marquer(n, userId, lue);
+      });
+    if (touchees > 0) {
+      this.notificationsSubject.next(liste);
+    }
+    return touchees;
   }
 
   private marquer(notification: NotificationApp, userId: String, lue: boolean): NotificationApp {

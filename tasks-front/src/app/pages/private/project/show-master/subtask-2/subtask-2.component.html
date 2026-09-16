@@ -15,8 +15,9 @@
              [class.rail-dot--progress]="getStatusKey(task) === 'progress'"
              [class.rail-dot--done]="getStatusKey(task) === 'done'"
              [class.rail-dot--review]="getStatusKey(task) === 'review'"
+             [class.rail-dot--unread]="nonLues(task) > 0"
              (click)="selectTask(task)"
-             [attr.title]="task.issueKey + ' · ' + task.summary">
+             [attr.title]="nonLues(task) > 0 ? task.issueKey + ' · ' + task.summary + '\n' + resumeNonLues(task) : task.issueKey + ' · ' + task.summary">
         </div>
       </div>
     </div>
@@ -102,12 +103,19 @@
           <div *ngFor="let task of visibleTasks"
                class="task-row"
                [class.task-row--active]="task === selectedTask"
+               [class.task-row--unread]="nonLues(task) > 0"
+               [attr.title]="resumeNonLues(task) || null"
                (click)="selectTask(task)"
                [@taskRowIn]>
             <div class="task-row__status" [ngClass]="'task-row__status--' + getStatusKey(task)"></div>
             <div class="task-row__body">
               <div class="task-row__key">{{ task.issueKey }}</div>
-              <div class="task-row__sum">{{ task.summary }}</div>
+              <div class="task-row__title">
+                <div class="task-row__sum">{{ task.summary }}</div>
+                <span class="task-row__notif" *ngIf="nonLues(task) > 0">
+                  <i class="fas fa-bell"></i>{{ nonLues(task) }}
+                </span>
+              </div>
               <div class="task-row__meta">
                 <app-assign-field [issue]="task" (save)="refreshTasks()"></app-assign-field>
                 <app-status-field [issue]="task" (onUpdateIssue)="onTaskStatusUpdated(task, $event)"></app-status-field>
