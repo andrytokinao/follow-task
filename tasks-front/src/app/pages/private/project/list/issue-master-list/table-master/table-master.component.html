@@ -16,7 +16,6 @@
         <th class="col-type">Type</th>
         <th class="col-key">Clé</th>
         <th class="col-summary">Titre</th>
-        <th class="col-team">Équipes</th>
         <th class="col-tags">Tags</th>
         <th class="col-assignee">Assigné</th>
         <th class="col-status">Statut</th>
@@ -44,10 +43,6 @@
 
         <td data-label="Titre">
           <span class="issue-summary" [title]="issue.summary">{{ issue.summary }}</span>
-        </td>
-
-        <td data-label="Équipes">
-          <app-team-avatars [teamsIds]="issue.observerIds"></app-team-avatars>
         </td>
 
         <td data-label="Tags">
