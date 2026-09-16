@@ -33,6 +33,7 @@ import { EditEventComponent } from '../../../../../common/edit-event/edit-event.
 import { ConnectedPosition } from '@angular/cdk/overlay';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { NotificationService } from '../../../../../services/notification.service';
+import { ConfirmationDialogService } from '../../../../../services/confirmation-dialog.service';
 
 interface DotColors { ring: string; track: string; text: string; }
 
@@ -146,7 +147,8 @@ export class Subtask2Component implements OnInit, AfterViewInit, OnDestroy {
     private authService: AuthService,
     private eventService: EventsService,
     private toastr: ToastrService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private confirmationDialogService: ConfirmationDialogService
   ) {}
 
   ngOnInit(): void {
@@ -305,6 +307,48 @@ export class Subtask2Component implements OnInit, AfterViewInit, OnDestroy {
     this.cancelEditSummary();
     this.cancelEditDescription();
     this.showDetail = false;
+  }
+
+  // ── Suppression ──────────────────────────────────────────────────
+  deleting = false;
+
+  /**
+   * Supprime la sous-tâche après confirmation. Le serveur emporte avec elle
+   * commentaires, fichiers, planning et historique : d'où la confirmation.
+   *
+   * La ligne ne quitte la liste qu'une fois la suppression acceptée : en cas
+   * de refus, la tâche reste affichée telle quelle, avec un message.
+   */
+  deleteTask(task: Issue | null): void {
+    if (!task?.id || this.deleting) return;
+    this.confirmationDialogService
+      .confirm(
+        `Suppression de "${task.issueKey} · ${task.summary}"`,
+        'Commentaires, pièces jointes, planning et historique de cette tâche seront perdus. Voulez-vous la supprimer ?',
+        'Supprimer',
+        'Annuler'
+      )
+      .then(confirmed => {
+        if (!confirmed) return;
+        this.deleting = true;
+        this.issueService.removeIssue(task.id).subscribe({
+          next: () => {
+            this.deleting = false;
+            if (this.selectedTask?.id === task.id) this.closeDetail();
+            this.subtasks = this.subtasks.filter(t => t.id !== task.id);
+            this.applyFilters();
+            // Ses notifications ont été supprimées avec elle : sans
+            // rechargement, sa pastille resterait sur la demande.
+            this.notificationService.reload();
+            this.toastr.success(`Tâche ${task.issueKey} supprimée`);
+          },
+          error: () => {
+            this.deleting = false;
+            this.toastr.error(`Impossible de supprimer la tâche ${task.issueKey}`);
+          }
+        });
+      })
+      .catch(() => undefined);
   }
 
   /** L'URL courante est déjà …/subtask/{clé} : c'est le lien à partager. */

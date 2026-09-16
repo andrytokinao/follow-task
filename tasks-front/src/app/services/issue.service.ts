@@ -1933,17 +1933,37 @@ export class IssueService implements OnInit {
   }
 
   deleteIssue(issueId: Number) {
-    this.apollo.mutate({
-      mutation: operation.DELETE_ISSUE,
-      variables: {issueId},
-      fetchPolicy: 'network-only'
-    }).subscribe((res: any) => {
-        this.refreshIssueListMasters();
-      }, error => {
-        console.error(error);
-        this.refreshIssueListMasters();
+    this.removeIssue(issueId).subscribe({
+      error: () => {
       }
-    )
+    });
+  }
+
+  /**
+   * Suppression dont l'appelant veut connaître l'issue : une sous-tâche
+   * supprimée doit quitter la liste affichée, ou y rester avec un message si
+   * le serveur refuse. deleteIssue, qui n'en rend rien, suffit aux listes de
+   * demandes rechargées de toute façon.
+   */
+  removeIssue(issueId: Number): Observable<void> {
+    return new Observable<void>(observer => {
+      this.apollo.mutate({
+        mutation: operation.DELETE_ISSUE,
+        variables: {issueId},
+        fetchPolicy: 'network-only'
+      }).subscribe({
+        next: () => {
+          this.refreshIssueListMasters();
+          observer.next();
+          observer.complete();
+        },
+        error: error => {
+          console.error(error);
+          this.refreshIssueListMasters();
+          observer.error(error);
+        }
+      });
+    });
   }
 
   newDocument(typeDocument: String, issue: Issue) {

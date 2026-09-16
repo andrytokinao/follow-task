@@ -244,7 +244,9 @@ export class IssueMasterListComponent {
 
   public deleteIssue(master) {
     this.confirmationDialogService.confirm('Suppression de "'+master.summary+'"', 'Tous les dossier et information seront perdue  !!! Voulez vous supprimer cette demande ? ')
-      .then((confirmed) => this.issueService.deleteIssue(master.id))
+      // « Annuler » ferme la fenêtre avec false, sans la rejeter : sans ce
+      // test, refuser supprimait quand même la demande.
+      .then((confirmed) => confirmed && this.issueService.deleteIssue(master.id))
       .catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
   }
 

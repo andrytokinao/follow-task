@@ -110,7 +110,9 @@ export class TableMasterComponent implements OnInit{
         'Suppression de "' + issue.summary + '"',
         'Tous les dossiers et informations seront perdus !!! Voulez-vous supprimer cette demande ?'
       )
-      .then(() => this.essueService.deleteIssue(issue.id))
+      // « Annuler » ferme la fenêtre avec false, sans la rejeter : sans ce
+      // test, refuser supprimait quand même la demande.
+      .then(confirmed => confirmed && this.essueService.deleteIssue(issue.id))
       .catch(() => undefined);
   }
 }
