@@ -265,6 +265,21 @@ $shadow-form:    0 4px 32px rgba(0,0,0,.09), 0 1px 4px rgba(0,0,0,.05);
 }
 
 // ─────────────────────────────────────────────
+// M'assigner
+// ─────────────────────────────────────────────
+.assign-me {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 2px 0 4px;
+  font-size: 13px;
+  cursor: pointer;
+  user-select: none;
+
+  input { width: 15px; height: 15px; margin: 0; cursor: pointer; }
+}
+
+// ─────────────────────────────────────────────
 // Error banner
 // ─────────────────────────────────────────────
 .error-banner {

@@ -1,6 +1,9 @@
-<span class="assigne" [class.assigne-lecture]="canAssign === false">
-  <!-- Sans droit, pas de menu : le declencheur ne fait rien. -->
-  <span #menuTrigger="matMenuTrigger" [matMenuTriggerFor]="canAssign ? menu2 : null"
+<span class="assigne" [class.assigne-lecture]="canAssign === false && !estCreateur">
+  <!-- Sans droit, pas de menu, sauf pour le createur de la tache : il garde
+       le menu reduit « M'assigner ». Tant que le droit n'est pas connu (null),
+       onTriggerClick le verifie puis ouvre le bon menu. -->
+  <span #menuTrigger="matMenuTrigger"
+        [matMenuTriggerFor]="canAssign ? menu2 : (canAssign === false && estCreateur ? menuMoi : null)"
         (click)="onTriggerClick()" (menuClosed)="onMenuClosed()"
         class="assigne-trigger" [title]="assigneesTitle">
     <span class="avatar-stack" *ngIf="assignees.length > 0">
@@ -21,6 +24,12 @@
         <input type="text" class="assigne-search" placeholder="Rechercher un membre..."
                [(ngModel)]="searchTerm"/>
       </div>
+
+      <!-- Raccourci : se prendre la tache sans la chercher dans la liste. -->
+      <button type="button" class="assigne-moi" *ngIf="!suisAssigne"
+              [disabled]="saving" (click)="assignerMoi($event)">
+        <i class="fas fa-user-check" aria-hidden="true"></i> M'assigner
+      </button>
 
       <!-- Boutons simples plutot que mat-menu-item : ce dernier enveloppe son
            contenu dans un span non flex, qui empilait avatar et nom. -->
@@ -43,6 +52,23 @@
         <button type="button" class="assigne-clear" (click)="clearAssignment($event)"
                 [disabled]="saving || assignees.length == 0"> Tout retirer
         </button>
+      </div>
+    </div>
+  </mat-menu>
+
+  <!-- Menu reduit du createur sans droit d'assigner : il ne peut assigner
+       que lui-meme. -->
+  <mat-menu #menuMoi="matMenu" class="assigne-menu">
+    <div class="assigne-panel" (click)="stopPropagation($event)">
+      <div class="assigne-panel-header">
+        <h4> Assignation </h4>
+      </div>
+      <button type="button" class="assigne-moi" *ngIf="!suisAssigne"
+              [disabled]="saving" (click)="assignerMoi($event)">
+        <i class="fas fa-user-check" aria-hidden="true"></i> M'assigner
+      </button>
+      <div class="assigne-empty" *ngIf="suisAssigne">
+        <i class="fas fa-check assigne-check" aria-hidden="true"></i> Vous êtes assigné à cette tâche
       </div>
     </div>
   </mat-menu>

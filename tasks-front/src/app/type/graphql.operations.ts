@@ -1797,6 +1797,37 @@ const ASSIGN_USERS = gql`
     }
 `;
 
+/** Même réponse qu'ASSIGN_USERS : le champ d'assignation la recopie telle quelle. */
+const ASSIGN_ME = gql`
+    mutation assignMe($issueId:Int) {
+      assignMe(issueId: $issueId){
+        id
+        issueKey
+        summary
+        observerIds
+        assigne {
+          id
+          username
+          lastName
+          firstName
+          photo
+        }
+        activeMemberships {
+          id
+          role
+          assignedAt
+          user {
+            id
+            username
+            lastName
+            firstName
+            photo
+          }
+        }
+      }
+    }
+`;
+
 const ISSUE_ACCESSIBILITIES = gql`
     query issueAccessibilities($projectPrefix:String, $issueKey:String) {
       issueAccessibilities(projectPrefix: $projectPrefix, issueKey: $issueKey)
@@ -3810,6 +3841,7 @@ export {
   CUSTOM_FIELD_BY_ISSUE_TYPE,
   ASSIGNE_TO_USER,
   ASSIGN_USERS,
+  ASSIGN_ME,
   ISSUE_MEMBERSHIPS,
   ISSUE_ACCESSIBILITIES,
   GET_CUSTOM_FIELD,

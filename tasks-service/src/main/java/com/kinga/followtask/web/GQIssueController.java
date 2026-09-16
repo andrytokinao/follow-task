@@ -15,6 +15,7 @@ import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -230,6 +231,21 @@ public class GQIssueController {
      public Issue assignUsers(@Argument Long issueId, @Argument List<String> userIds, @Argument String executor) {
         issueAccessService.checkCanAssign(issueId, currentUserProvider.getCurrentUser());
         return issueMembershipService.assignUsers(issueId, userIds, executor);
+     }
+     /**
+      * « M'assigner » : l'utilisateur connecté s'ajoute aux assignés, sans
+      * toucher aux autres. Libre pour le créateur de la tâche. L'identité vient
+      * de la session et non d'un argument, pour qu'on ne puisse pas assigner
+      * quelqu'un d'autre par ce chemin.
+      */
+     @MutationMapping
+     public Issue assignMe(@Argument Long issueId) {
+        UserApp moi = currentUserProvider.getCurrentUser();
+        if (moi == null || moi.getId() == null) {
+            throw new AccessDeniedException("Utilisateur non connecté");
+        }
+        issueAccessService.checkCanAssignSelf(issueId, moi);
+        return issueMembershipService.addAssignee(issueId, moi.getId(), moi.getId());
      }
      @MutationMapping
      public Issue addAssignee(@Argument Long issueId, @Argument String userId, @Argument String executor) {

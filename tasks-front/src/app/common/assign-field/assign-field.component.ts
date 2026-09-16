@@ -1,4 +1,5 @@
-import {ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild} from '@angular/core';
+import {Subscription} from "rxjs";
 import {MatMenuTrigger} from "@angular/material/menu";
 import {UserService} from "../../services/user.service";
 import {FormControl} from "@angular/forms";
@@ -19,7 +20,10 @@ import {MasterGuard} from "../../services/MasterGuard";
   templateUrl: './assign-field.component.html',
   styleUrl: './assign-field.component.css'
 })
-export class AssignFieldComponent implements OnInit, OnChanges {
+export class AssignFieldComponent implements OnInit, OnChanges, OnDestroy {
+  /** Utilisateur connecté : sert à reconnaître le créateur de la tâche. */
+  private me: User | undefined;
+  private meSubscription?: Subscription;
   roUser: boolean;
   userControl: FormControl;
   isEditing: any;
@@ -64,7 +68,60 @@ export class AssignFieldComponent implements OnInit, OnChanges {
     this.userService.allMembers$.subscribe((users: any) => {
       this.users = users || [];
     });
+    this.meSubscription = this.authService.connectedUser$.subscribe(user => this.me = user);
     this.syncSelection();
+  }
+
+  ngOnDestroy() {
+    this.meSubscription?.unsubscribe();
+  }
+
+  /**
+   * La tâche a été créée par l'utilisateur connecté. Il peut alors toujours
+   * se l'assigner, sans aucun rôle : le menu réduit « M'assigner » s'ouvre
+   * même là où le menu complet est refusé.
+   */
+  get estCreateur(): boolean {
+    const moi = this.me?.id;
+    const createur = this.issue?.reporter?.id;
+    return !!moi && !!createur && String(moi).toLowerCase() === String(createur).toLowerCase();
+  }
+
+  get suisAssigne(): boolean {
+    const moi = this.me?.id;
+    return !!moi && this.selectedIds.some(id => String(id).toLowerCase() === String(moi).toLowerCase());
+  }
+
+  /**
+   * L'utilisateur connecté s'ajoute aux assignés, les autres restent. Passe
+   * par une mutation dédiée : le serveur l'autorise sans rôle au créateur,
+   * alors que assignUsers exige le droit d'assigner.
+   */
+  assignerMoi(event?: Event) {
+    if (event) {
+      event.stopPropagation();
+    }
+    const moi = this.me?.id;
+    if (this.issue == null || !moi || this.saving || this.suisAssigne) {
+      return;
+    }
+    const previous = this.selectedIds;
+    this.selectedIds = [...this.selectedIds, moi];
+    this.saving = true;
+    this.issueService.assignMe(this.issue).subscribe({
+      next: (issue: Issue) => {
+        this.appliquerReponse(issue);
+        // Menu réduit : il n'a plus rien à proposer, on le referme.
+        if (!this.canAssign) {
+          this.menuTrigger?.closeMenu();
+        }
+      },
+      error: () => {
+        this.selectedIds = previous;
+        this.saving = false;
+        this.toastr.error("Impossible de vous assigner cette tâche");
+      }
+    });
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -105,7 +162,8 @@ export class AssignFieldComponent implements OnInit, OnChanges {
       .subscribe(canAssign => {
         this.checkingCanAssign = false;
         this.canAssign = canAssign;
-        if (canAssign) {
+        // Sans le droit, le créateur a encore le menu réduit « M'assigner ».
+        if (canAssign || this.estCreateur) {
           // Differe : le declencheur doit d'abord recevoir le menu, et son
           // propre gestionnaire de clic ne doit pas le refermer aussitot.
           setTimeout(() => {
@@ -235,24 +293,26 @@ export class AssignFieldComponent implements OnInit, OnChanges {
     this.selectedIds = userIds;
     this.saving = true;
     this.issueService.assignUsers(this.issue, users).subscribe({
-      next: (issue: Issue) => {
-        // mise a jour sur place : l'issue est partagee avec la vue parente
-        this.issue.assigne = issue.assigne;
-        this.issue.activeMemberships = issue.activeMemberships;
-        this.issue.observerIds = issue.observerIds;
-        // Le droit d'assigner peut changer avec les assignations : reevalue a
-        // la fermeture, retirer le menu pendant qu'il est ouvert le casserait.
-        this.recheckOnClose = true;
-        this.syncSelection();
-        this.saving = false;
-        this.save.emit(this.issue);
-      },
+      next: (issue: Issue) => this.appliquerReponse(issue),
       error: () => {
         this.selectedIds = previous;
         this.saving = false;
         this.toastr.error("Impossible de modifier l'assignation");
       }
     });
+  }
+
+  private appliquerReponse(issue: Issue) {
+    // mise a jour sur place : l'issue est partagee avec la vue parente
+    this.issue.assigne = issue.assigne;
+    this.issue.activeMemberships = issue.activeMemberships;
+    this.issue.observerIds = issue.observerIds;
+    // Le droit d'assigner peut changer avec les assignations : reevalue a
+    // la fermeture, retirer le menu pendant qu'il est ouvert le casserait.
+    this.recheckOnClose = true;
+    this.syncSelection();
+    this.saving = false;
+    this.save.emit(this.issue);
   }
 
   private syncSelection() {

@@ -76,6 +76,14 @@
       </div>
     </div>
 
+    <!-- Ouvert a tous : le createur peut toujours se prendre la tache. -->
+    <label class="assign-me">
+      <input type="checkbox" name="assignerMoi"
+             [(ngModel)]="assignerMoi"
+             [ngModelOptions]="{standalone: true}" />
+      <span>M'assigner cette {{ isSubtask() ? 'tâche' : 'demande' }}</span>
+    </label>
+
     <!-- Erreur globale -->
     <div *ngIf="errorMessage" class="error-banner">
       <mat-icon>error_outline</mat-icon>

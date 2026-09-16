@@ -878,6 +878,26 @@ export class IssueService implements OnInit {
     });
   }
 
+  /**
+   * L'utilisateur connecté s'ajoute aux assignés, sans toucher aux autres.
+   * Le serveur l'accepte sans rôle quand il est le créateur de la tâche.
+   */
+  assignMe(is: Issue) {
+    return new Observable<Issue>((observer) => {
+      this.apollo.mutate({
+        mutation: operation.ASSIGN_ME,
+        variables: {issueId: is.id}
+      }).subscribe((res: any) => {
+        this.masterGuard.invalidate();
+        observer.next(supprimerTypename(res.data.assignMe));
+        observer.complete();
+      }, error => {
+        observer.error(error);
+        observer.complete();
+      })
+    });
+  }
+
   getIssueMemberships(issueId: number) {
     return new Observable<IssueMembership[]>((observer) => {
       this.apollo.query({

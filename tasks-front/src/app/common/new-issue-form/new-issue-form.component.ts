@@ -17,7 +17,8 @@ import {MatMenuTrigger} from "@angular/material/menu";
 import {ALL_EVENT_TYPE} from "../../type/graphql.operations";
 import {IssutypeForm2Component} from "../issutype-form2/issutype-form2.component";
 import {ProjectGuard} from "../../services/ProjectGuard";
-import {Observable, shareReplay} from "rxjs";
+import {catchError, map, Observable, of, shareReplay, switchMap} from "rxjs";
+import {ToastrService} from "ngx-toastr";
 
 @Component({
   standalone:false,
@@ -61,9 +62,16 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
    */
   protected readonly peutCreerType$: Observable<boolean>;
 
+  /**
+   * S'assigner la tâche dès sa création. Aucun droit requis : le créateur
+   * peut toujours se l'assigner (voir IssueAccessService.checkCanAssignSelf).
+   */
+  assignerMoi = false;
+
   constructor(public issueService: IssueService,
     protected messageService :MessagesService,
-    private projectGuard: ProjectGuard
+    private projectGuard: ProjectGuard,
+    private toastr: ToastrService
   ) {
     this.peutCreerType$ = this.projectGuard
       .hasCredential(['PROJECT_MANAGER', 'ADMIN'])
@@ -132,7 +140,20 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
       issue.parent = { id: this.parentIssue.id };
     }
 
-    this.issueService.saveIssue(issue).subscribe({
+    // L'assignation passe avant `saved` : le parent recharge sa liste à ce
+    // signal, et la tâche doit y arriver déjà assignée. Son échec ne défait
+    // pas la création : la tâche existe, on le signale seulement.
+    this.issueService.saveIssue(issue).pipe(
+      switchMap(cree => !this.assignerMoi || !cree?.id
+        ? of(cree)
+        : this.issueService.assignMe(cree).pipe(
+          map(() => cree),
+          catchError(() => {
+            this.toastr.warning(`Tâche ${cree.issueKey} créée, mais l'assignation a échoué`);
+            return of(cree);
+          })
+        ))
+    ).subscribe({
       next: (res) => {
         this.saving = false;
         this.messageService.showRight('');

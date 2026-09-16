@@ -27,6 +27,7 @@ type Mutation {
     unUseCustomField(usingCustomField:UsingCustomFieldInput):[UsingCustomField],
     assigneToUser(issue:IssueInput,executor:String):Issue
     assignUsers(issueId:Int,userIds:[String],executor:String):Issue
+    assignMe(issueId:Int):Issue
     addAssignee(issueId:Int,userId:String,executor:String):Issue
     removeAssignee(issueId:Int,userId:String,executor:String):Issue
     saveOrUpdateConfig(configProject:ConfigProjectInput):ConfigProject

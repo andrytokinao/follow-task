@@ -95,6 +95,31 @@ public class IssueAccessService {
         }
     }
 
+    /**
+     * S'assigner soi-même une tâche : libre pour son créateur, sans aucun
+     * rôle. Qui crée une tâche est le premier à pouvoir la prendre en charge,
+     * et l'obliger à attendre un gestionnaire pour cela n'aurait pas de sens.
+     *
+     * Ce passe-droit ne vaut que pour soi : assigner quelqu'un d'autre reste
+     * soumis à {@link #checkCanAssign}. Les autres utilisateurs retombent
+     * d'ailleurs sur cette règle ordinaire.
+     */
+    @Transactional(readOnly = true)
+    public void checkCanAssignSelf(Long issueId, UserApp user) {
+        Issue issue = issueRepository.findById(issueId)
+                .orElseThrow(() -> new IllegalArgumentException("Issue introuvable : " + issueId));
+        if (isReporter(issue, user)) {
+            return;
+        }
+        checkCanAssign(issueId, user);
+    }
+
+    private boolean isReporter(Issue issue, UserApp user) {
+        return user != null && user.getId() != null
+                && issue.getReporter() != null
+                && user.getId().equalsIgnoreCase(issue.getReporter().getId());
+    }
+
     private Set<String> issueAccessibilities(Issue issue, UserApp user) {
         Set<String> accessibilities = new HashSet<>();
         String projectPrefix = projectPrefixOf(issue);
