@@ -361,6 +361,50 @@
   background: #dce9f8;
 }
 
+/* ── Tâche annoncée par une notification, pas encore ouverte ──
+   Le fond ambré et le liseré gauche font ressortir la ligne sans casser la
+   lecture du tableau. Le liseré prime sur celui de la demande : quand les deux
+   s'appliquent, c'est la nouveauté qu'il faut voir en premier. */
+.tl-row--unread td {
+  background: #fff8e8;
+  border-bottom-color: #f3e2bd;
+}
+.tl-row--unread td:first-child {
+  box-shadow: inset 4px 0 0 #F59E0B;
+}
+.tl-table tbody tr.tl-row--unread:hover td {
+  background: #fdf0d5;
+}
+/* Le titre passe en ligne pour laisser le compteur se poser à côté : en bloc,
+   il repoussait la pastille sous le titre et la ligne doublait de hauteur. */
+.tl-row--unread .tl-summary {
+  display: inline-block;
+  max-width: 480px;
+  vertical-align: middle;
+  font-weight: 650;
+  color: #713f12;
+}
+
+/* Compteur en bout de titre : dit combien d'évènements attendent, la couleur
+   seule ne pouvant pas le porter. */
+.tl-notif {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 8px;
+  padding: 1px 7px;
+  border-radius: 10px;
+  background: #F59E0B;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.6;
+  vertical-align: middle;
+}
+.tl-notif i {
+  font-size: 9px;
+}
+
 /* Sous-tâche rangée sous sa demande : décalée, avec un repère de branche. */
 .tl-row--nested .col-key {
   padding-left: 28px;

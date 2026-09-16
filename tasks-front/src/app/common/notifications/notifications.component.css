@@ -10,10 +10,42 @@
   margin: auto;
 }
 
-/* Carte de notification */
-.notification-card {
+/* En-tête du panneau : le titre situe, le bouton permet de solder la liste
+   sans ouvrir chaque tâche une à une. */
+.notification-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.notification-title {
+  font-weight: 700;
+  font-size: 13px;
+  color: #1f2937;
+}
+.notification-mark-all {
+  border: none;
+  background: none;
+  padding: 0;
+  font-size: 11px;
+  color: #2563eb;
+  cursor: pointer;
+}
+.notification-mark-all:hover {
+  text-decoration: underline;
+}
+.notification-empty {
+  margin: 0;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* Carte de notification */
+.notification-card {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
   padding: 15px;
   background-color: white;
   border-radius: 8px;
@@ -25,6 +57,59 @@
 .notification-card.read {
   background-color: #e0e0e0;
   opacity: 0.7;
+}
+
+/* Non ouverte : même ambre que les lignes de liste, pour que la marque se
+   reconnaisse d'un écran à l'autre. Elle prime sur l'état « vu » : un coup
+   d'œil à la cloche n'efface pas ce qui reste à traiter. */
+.notification-card.unread,
+.notification-card.read.unread {
+  background-color: #fff8e8;
+  opacity: 1;
+  box-shadow: inset 3px 0 0 #F59E0B, 0 4px 8px rgba(0, 0, 0, 0.08);
+}
+.unread-dot {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #F59E0B;
+}
+
+.message-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+.notification-kind {
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #2563eb;
+}
+.notification-date {
+  font-size: 10px;
+  color: #9ca3af;
+  white-space: nowrap;
+}
+.notification-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 6px;
+  font-size: 11px;
+  color: #2563eb;
+  text-decoration: none;
+}
+.notification-link:hover {
+  text-decoration: underline;
+}
+.notification-link i {
+  font-size: 9px;
 }
 
 /* Info utilisateur (photo et nom) */
@@ -44,6 +129,8 @@
 .message-info {
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-width: 0;
 }
 
 .user-name {

@@ -22,8 +22,10 @@ public class ActionService {
     private final ActionGroupeRepository actionGroupeRepository;
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final NotificationRepository notificationRepository;
+    private final NotificationService notificationService;
     private final UploadedRepository uploadedRepository;
     private final IssueRepository issueRepository;
+    private final UserRepository userRepository;
     private final StatusRepository statusRepository;
     private final ProjectService projectService;
     private final GroupeUserRepository groupeUserRepository;
@@ -32,64 +34,14 @@ public class ActionService {
     );
 
     private static int currentIndex = 0;
+
+    /**
+     * La rédaction, l'enregistrement et la distribution sont désormais tenus
+     * par NotificationService : c'est lui qui garantit que rien ne part sur le
+     * websocket avant le commit.
+     */
     public void generateAndSendNotification(ActionGroupe actionGroupe, Set<String> specificUsers) {
-        Set<String> globalsUsers = actionGroupe.userToNotifies();
-
-        if (!CollectionUtils.isEmpty(specificUsers)) {
-            for (String userId : specificUsers) {
-                generateSpecificNotification(actionGroupe, userId);
-                globalsUsers.remove(userId);
-            }
-
-        }
-        if (globalsUsers != null && !globalsUsers.isEmpty()) {
-            generateGlobalNotification(actionGroupe, globalsUsers);
-        }
-    }
-
-    public Notification generateGlobalNotification(ActionGroupe actionGroupe, Set<String> userIds) {
-        Set<String> toNotofy = actionGroupe.userToNotifies();
-        if (toNotofy.isEmpty()) {
-            return null;
-        }
-        Notification notification = new Notification();
-        String message = actionGroupe.buildMessage(null);
-        notification.setMessage(message);
-        notification.setAction(actionGroupe);
-        notification.setTitre("Test Notification");
-        notification.setUserIds(userIds);
-        if (actionGroupe.getIssue() != null) {
-            notification.setProject(actionGroupe.getIssue().getProject());
-        }
-        notification = notificationRepository.save(notification);
-        Map<String,Object> map = new HashMap<>();
-        OutputNotification notif = new OutputNotification(notification);
-        map.put(ChatService.NEW_NOTIFICATION,notif);
-        for (String toNotifyItem : notification.getUserIds()) {
-            simpMessagingTemplate.convertAndSend("/topic/datas/" + toNotifyItem, map);
-        }
-        return notificationRepository.save(notification);
-    }
-    public Notification generateSpecificNotification(ActionGroupe actionGroupe, String userIds) {
-        Set<String> toNotofy = actionGroupe.userToNotifies();
-        if (toNotofy.isEmpty()) {
-            return null;
-        }
-        Notification notification = new Notification();
-        String message = actionGroupe.buildMessage(userIds);
-        notification.setMessage(message);
-        notification.setAction(actionGroupe);
-        notification.setTitre("Test Notification");
-        notification.setUserIds(new HashSet<>(Arrays.asList(userIds)));
-        notification.setProject(actionGroupe.getIssue().getProject());
-        notification = notificationRepository.save(notification);
-        Map<String,Object> map = new HashMap<>();
-        OutputNotification notif = new OutputNotification(notification);
-        map.put(ChatService.NEW_NOTIFICATION,notif);
-        for (String toNotifyItem : notification.getUserIds()) {
-            simpMessagingTemplate.convertAndSend("/topic/datas/" + toNotifyItem, map);
-        }
-        return notificationRepository.save(notification);
+        notificationService.generateAndSend(actionGroupe, specificUsers);
     }
 
 
@@ -122,9 +74,10 @@ public class ActionService {
         ActionGroupe actionGroupe = new ActionGroupe();
         actionGroupe.setIssue(issue);
         actionGroupe.setCreated(new Date());
-        UserApp user = new UserApp();
-        user.setId(userId);
-        actionGroupe.setUser(user);
+        // Un UserApp reduit a son identifiant suffisait pour la cle etrangere,
+        // mais le message de notification y lit aussi le nom de l'auteur : sans
+        // relecture, la phrase commencait par « Quelqu'un ».
+        actionGroupe.setUser(chargerUtilisateur(userId));
         actionGroupe = actionGroupeRepository.save(actionGroupe);
         ActionAssigne actonItem= new ActionAssigne();
         actonItem.setAssigne(assigne);
@@ -136,18 +89,92 @@ public class ActionService {
         actionGroupe.setActions(actionItemList);
         generateAndSendNotification(actionGroupe, actionGroupe.userSpecificToNotifies());
     }
+
+    /**
+     * L'action demandee laisserait-elle l'issue dans l'etat ou elle est deja ?
+     *
+     * Seuls les deux types qui modifient l'issue sont concernes. Un type
+     * inconnu n'est jamais considere comme sans effet : mieux vaut un
+     * enregistrement de trop qu'une action perdue en silence.
+     */
+    private boolean sansEffet(ActionItem actionItem, Issue issue) {
+        switch (actionItem.getActionType()) {
+            case STATUS -> {
+                return memeStatut(issue.getStatus(), ((ActionStatus) actionItem).getStatus());
+            }
+            case ASSIGN -> {
+                return memeUtilisateur(issue.getAssigne(), ((ActionAssigne) actionItem).getAssigne());
+            }
+            default -> {
+                return false;
+            }
+        }
+    }
+
+    private boolean memeStatut(Status actuel, Status demande) {
+        if (actuel == null || demande == null) {
+            // Poser un statut la ou il n'y en avait pas est un vrai changement ;
+            // deux absences ne sont rien a enregistrer.
+            return actuel == null && demande == null;
+        }
+        return Objects.equals(actuel.getId(), demande.getId());
+    }
+
+    private boolean memeUtilisateur(UserApp actuel, UserApp demande) {
+        if (actuel == null || demande == null) {
+            return actuel == null && demande == null;
+        }
+        return actuel.getId() != null && actuel.getId().equalsIgnoreCase(demande.getId());
+    }
+
+    private UserApp chargerUtilisateur(String userId) {
+        if (userId == null) {
+            return null;
+        }
+        UserApp charge = userRepository.findById(userId).orElse(null);
+        if (charge != null) {
+            return charge;
+        }
+        UserApp stub = new UserApp();
+        stub.setId(userId);
+        return stub;
+    }
+
     public ActionItem saveAction(ActionItemInput action) {
         ActionItem actionItem = ActionItem.fromInput(action);
+        if (actionItem == null) {
+            return null;
+        }
         ActionGroupe actionGroupe = actionItem.getActionGroupe();
         actionItem.setActionGroupe(actionGroupe);
         Issue issue = actionGroupe.getIssue();
         issue = issueRepository.getById(issue.getId());
         issue.setProject(issue.getProject());
         actionGroupe.setIssue(issue);
+
+        // Rien n'a bouge : on n'enregistre rien. Reposer le statut courant
+        // — « En cours » vers « En cours », au clic sur la valeur deja active
+        // ou au depot d'une carte dans sa propre colonne — creait un groupe
+        // d'actions, une ligne d'historique et une notification annoncant un
+        // changement qui n'a pas eu lieu. Le controle est ici, et pas
+        // seulement dans l'interface, parce que l'issue relue en base est la
+        // seule reference fiable : la copie du client peut etre perimee.
+        if (sansEffet(actionItem, issue)) {
+            return null;
+        }
+
+        // L'entree ne porte que les identifiants ; le message de notification
+        // a besoin des noms de l'auteur et de l'assigne.
+        if (actionGroupe.getUser() != null) {
+            actionGroupe.setUser(chargerUtilisateur(actionGroupe.getUser().getId()));
+        }
         actionGroupe = actionGroupeRepository.save(actionGroupe);
         switch (actionItem.getActionType()) {
             case ASSIGN ->{
                 ActionAssigne actionAssigne = (ActionAssigne) actionItem;
+                if (actionAssigne.getAssigne() != null) {
+                    actionAssigne.setAssigne(chargerUtilisateur(actionAssigne.getAssigne().getId()));
+                }
                 UserApp assignee = actionAssigne.getAssigne();
                 UserApp oldAssignee = issue.getAssigne();
                 if (oldAssignee != null) {

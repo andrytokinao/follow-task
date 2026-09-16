@@ -3185,8 +3185,22 @@ export let GET_NOTIFICATIONS_BY_USER_ID = gql`
           issue {
             id
             issueKey
+            summary
           }
         }
+        # La tache est aussi remontee a plat : c'est par elle que le front
+        # rattache la notification a une ligne de liste, et le parent sert a
+        # faire remonter la pastille sur la demande.
+        issue {
+          id
+          issueKey
+          summary
+          parent {
+            id
+            issueKey
+          }
+        }
+        created
         seenUserIds
         readUserIds
         userIds
@@ -3201,6 +3215,42 @@ export let SEEN_NOTIFICATION = gql`
     code
     status
     message
+    }
+  }
+`;
+export let READ_NOTIFICATIONS_BY_ISSUE = gql`
+  mutation readNotificationsByIssue($userId:String,$issueId:Int) {
+    readNotificationsByIssue(userId:$userId,issueId:$issueId) {
+      code
+      status
+      message
+    }
+  }
+`;
+export let READ_NOTIFICATIONS_BY_MASTER = gql`
+  mutation readNotificationsByMaster($userId:String,$masterId:Int) {
+    readNotificationsByMaster(userId:$userId,masterId:$masterId) {
+      code
+      status
+      message
+    }
+  }
+`;
+export let READ_NOTIFICATIONS_BY_PROJECT = gql`
+  mutation readNotificationsByProject($userId:String,$projectId:Int) {
+    readNotificationsByProject(userId:$userId,projectId:$projectId) {
+      code
+      status
+      message
+    }
+  }
+`;
+export let READ_ALL_NOTIFICATIONS = gql`
+  mutation readAllNotifications($userId:String) {
+    readAllNotifications(userId:$userId) {
+      code
+      status
+      message
     }
   }
 `;

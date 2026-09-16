@@ -3,12 +3,13 @@ import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 import {combineLatest, filter, Subject, switchMap, take, takeUntil} from 'rxjs';
 import {debounceTime} from 'rxjs/operators';
 import {ToastrService} from 'ngx-toastr';
-import {Issue, Project, Status, User} from '../../../../type/issue';
+import {Issue, NotificationApp, Project, Status, User} from '../../../../type/issue';
 import {IssueService} from '../../../../services/issue.service';
 import {AuthService} from '../../../../services/auth.service';
 import {ProjectGuard} from '../../../../services/ProjectGuard';
 import {filterByAssignees} from '../../../../type/issue-grouping.util';
 import {IssueStatusDrop} from '../../../../common/issue-board/issue-board.component';
+import {NotificationService} from '../../../../services/notification.service';
 
 type TaskView = 'table' | 'board';
 /** Filtre de niveau : tout, les demandes seules, ou les sous-tâches seules. */
@@ -89,8 +90,55 @@ export class TaskListComponent implements OnInit, OnDestroy {
     private issueService: IssueService,
     private authService: AuthService,
     private projectGuard: ProjectGuard,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private notificationService: NotificationService
   ) {
+  }
+
+  // -----------------------------------------------------------------------
+  // Notifications
+  // -----------------------------------------------------------------------
+
+  /**
+   * Les notifications non lues par tâche, tenues par l'unique observable de
+   * notifications. On garde les messages et pas seulement leur nombre : c'est
+   * eux qu'on montre au survol.
+   */
+  private nonLuesParTache = new Map<number, NotificationApp[]>();
+
+  /** Réference stable, pour ne pas relancer *ngFor à chaque détection. */
+  private static readonly AUCUNE: NotificationApp[] = [];
+
+  /**
+   * Combien de nouveautés non ouvertes portent sur cette tâche. Une demande
+   * hérite du compte de ses sous-tâches : c'est le service qui fait remonter,
+   * pour qu'une demande repliée signale quand même ce qui bouge dessous.
+   */
+  nonLues(issue: Issue): number {
+    return this.detailsNonLues(issue).length;
+  }
+
+  /**
+   * Le détail de ces nouveautés. Renvoie le tableau tel qu'il est rangé dans
+   * la carte : la référence ne change qu'à un vrai changement d'état, sinon
+   * chaque cycle de détection reconstruirait les infobulles.
+   */
+  detailsNonLues(issue: Issue): NotificationApp[] {
+    const id = issue?.id;
+    if (id == null) {
+      return TaskListComponent.AUCUNE;
+    }
+    return this.nonLuesParTache.get(Number(id)) ?? TaskListComponent.AUCUNE;
+  }
+
+  /**
+   * Même contenu en texte simple, posé sur la ligne entière : le survol
+   * n'importe où dans la ligne dit ce qui a changé, sans obliger à viser la
+   * pastille.
+   */
+  resumeNonLues(issue: Issue): string {
+    return this.notificationService.resumeTexte(this.detailsNonLues(issue),
+      'Nouveautés sur cette tâche :');
   }
 
   get hasActiveFilter(): boolean {
@@ -121,6 +169,10 @@ export class TaskListComponent implements OnInit, OnDestroy {
     this.urlSync$
       .pipe(debounceTime(250), takeUntil(this.destroy$))
       .subscribe(() => this.writeUrl());
+
+    this.notificationService.unreadDetailsByIssue$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(details => this.nonLuesParTache = details);
 
     // L'utilisateur connecté est nécessaire avant de lire l'URL : le filtre
     // par défaut, c'est « assigné à moi ».
@@ -417,7 +469,14 @@ export class TaskListComponent implements OnInit, OnDestroy {
   }
 
   /** Demande : …/issue/{clé}/details ; sous-tâche : …/issue/{parent}/subtask/{clé}. */
+  /**
+   * Ouvrir la tâche vaut lecture : c'est le seul geste qui prouve que
+   * l'utilisateur a vu ce qu'on lui signalait. La marque s'éteint alors
+   * partout — ligne, menu Tâches, menu Projets, sélecteur de projet —
+   * puisque tous lisent la même liste.
+   */
   openIssue(issue: Issue): void {
+    this.notificationService.markIssueRead(issue?.id);
     this.issueService.openIssue(issue);
   }
 

@@ -29,6 +29,11 @@
         <i class="fas fa-bell"> </i> <!-- Icône de notification -->
         <span class="badge" *ngIf="unrededNofication != 0"> {{unrededNofication}}</span>
         Notification
+        <!-- Canal temps réel coupé : les notifications arrivent encore, mais
+             seulement au rechargement. Le dire évite d'interpréter le silence
+             comme « rien de neuf ». -->
+        <i class="fas fa-plug-circle-xmark offline-mark" *ngIf="!tempsReelActif"
+           title="Temps réel indisponible — reconnexion en cours"></i>
       </div>
     </div>
     <div class = "footer-item" (click)="setShowNotif('new-issue')"

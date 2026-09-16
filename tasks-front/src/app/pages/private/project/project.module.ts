@@ -35,6 +35,7 @@ import {
   MatTable
 } from "@angular/material/table";
 import {MatPaginatorModule} from "@angular/material/paginator";
+import {MatTooltipModule} from "@angular/material/tooltip";
 import {CustomFieldComponent} from "../../../common/custom-field/custom-field.component";
 import {ShowMasterComponent} from "./show-master/show-master.component";
 import {IssueMasterListComponent} from "./list/issue-master-list/simple-liste/issue-master-list.component";
@@ -111,6 +112,7 @@ import {TaskListComponent} from "./tasks/task-list.component";
     FormsModule,
     MatMenuModule,
     MatMenuModule,
+    MatTooltipModule,
     MatIconModule,
     MatSelectModule,
     CommonModule,

@@ -197,8 +197,11 @@ export class PrivateComponent implements  OnInit{
       this.connectedUser = user;
       if (this.connectedUser && this.connectedUser.id) {
         this.issueService.getProjectByUser(this.connectedUser.id);
+        // Les notifications se chargent seules : NotificationService suit
+        // l'utilisateur connecte et recharge a chaque (re)connexion du
+        // websocket. Les demander ici de plus ajoutait une requete identique
+        // a chaque montage du shell prive.
         this.messageService.connectWs(this.connectedUser.id);
-        this.actionService.loadNotifications(this.connectedUser.id);
       } else {
         this.messageService.disconnectWs();
       }

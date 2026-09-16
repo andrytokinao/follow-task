@@ -1,7 +1,7 @@
 import {AfterViewInit, Component, HostListener, OnInit} from '@angular/core';
 import {ActivatedRoute, NavigationEnd, Route, Router, RouterOutlet} from "@angular/router";
 import {IssueService} from "../../../services/issue.service";
-import {Breadcrumb, Issue, Project, User} from "../../../type/issue";
+import {Breadcrumb, Issue, NotificationApp, Project, User} from "../../../type/issue";
 import {AuthGuard} from "../../../services/SystemGuard";
 import {NewIssueComponent} from "./modal/new-issue/new-issue.component";
 import {stripTypename} from "@apollo/client/utilities";
@@ -26,6 +26,7 @@ import {filter} from "rxjs";
 import {ProfileComponent} from "../profile/profile.component";
 import {AuthService} from "../../../services/auth.service";
 import {LayoutService} from "../../../services/layout.service";
+import {NotificationService} from "../../../services/notification.service";
 
 @Component({
   selector: 'app-project',
@@ -122,8 +123,68 @@ export class ProjectComponent implements OnInit{
     private breadcrumb:ProjectBreadcrumbResolverService,
     private messagesService:MessagesService,
     protected authService: AuthService,
-    protected layout: LayoutService
+    protected layout: LayoutService,
+    private notificationService: NotificationService
   ) {
+  }
+
+  // ---------------------------------------------------------------------
+  // Pastilles de notification
+  // ---------------------------------------------------------------------
+
+  /** Non lues par projet, alimentees par l'unique observable du front. */
+  private nonLuesParProjet = new Map<number, NotificationApp[]>();
+  private static readonly AUCUNE: NotificationApp[] = [];
+
+  /**
+   * Nombre de notifications non lues du projet ouvert. La meme valeur marque
+   * le menu Projets et le menu Taches : les deux menent aux memes taches, et
+   * l'utilisateur peut arriver par l'un ou par l'autre.
+   */
+  get nonLuesDuProjet(): number {
+    return this.nonLuesPourProjet(this.project);
+  }
+
+  /** Pour le selecteur de workspace : quel autre projet reclame une visite. */
+  nonLuesPourProjet(project: Project | undefined): number {
+    return this.detailsPourProjet(project).length;
+  }
+
+  private detailsPourProjet(project: Project | undefined): NotificationApp[] {
+    const id = project?.id;
+    if (id == null) {
+      return ProjectComponent.AUCUNE;
+    }
+    return this.nonLuesParProjet.get(Number(id)) ?? ProjectComponent.AUCUNE;
+  }
+
+  /**
+   * Ce que la pastille du menu annonce, en clair. Sans cela le menu Taches
+   * portait un nombre sans objet : impossible de savoir, sans ouvrir la liste,
+   * s'il s'agissait d'une affectation ou d'un passage de « En attente » a
+   * « En cours ».
+   */
+  resumeDuProjet(project?: Project): string {
+    return this.notificationService.resumeTexte(
+      this.detailsPourProjet(project ?? this.project), 'Nouveautes sur vos taches :');
+  }
+
+  /**
+   * Le chevron rouge du menu Projets mene a la liste des taches : c'est la que
+   * se trouve ce qui vient d'etre assigne. Cliquer dessus ne marque rien comme
+   * lu — c'est l'ouverture de la tache qui le fera, sinon la pastille
+   * s'eteindrait avant meme d'avoir montre ce qu'elle annoncait.
+   */
+  allerAuxTaches() {
+    this.closeDrawer();
+    if (!this.project) {
+      return;
+    }
+    // Filtres ouverts en grand : les valeurs par defaut de la liste (mes
+    // taches, statuts non clos) pourraient masquer la ligne qu'on annonce, et
+    // le chevron menerait a une page vide.
+    this.router.navigate(['/working', this.project.prefix, 'tasks'],
+      {queryParams: {statut: 'tous', assigne: 'tous', vue: 'table'}});
   }
 
 
@@ -188,6 +249,9 @@ export class ProjectComponent implements OnInit{
 
     this.issueService.loadedWorkspace$.subscribe(value => {
       this.isworkspace = value.valueOf();
+    });
+    this.notificationService.unreadDetailsByProject$.subscribe(details => {
+      this.nonLuesParProjet = details;
     });
     this.authService.connectedUser$.subscribe(user => {
       this.connectedUser = user;

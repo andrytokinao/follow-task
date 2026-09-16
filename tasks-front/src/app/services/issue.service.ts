@@ -2120,6 +2120,12 @@ export class IssueService implements OnInit {
     }
   }
   processAction(action:ActionItem) {
+    // Le serveur renvoie vide quand l'action n'avait pas lieu d'etre — reposer
+    // le statut deja en place, par exemple. Il n'y a alors rien a repercuter :
+    // l'etat affiche est deja le bon.
+    if (!action) {
+      return;
+    }
     switch (action.actionType) {
       case "ASSIGN":{
         let assign:ActionAssigne  = action as ActionAssigne;

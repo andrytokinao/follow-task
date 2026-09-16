@@ -1,8 +1,14 @@
 import {Component, Input} from '@angular/core';
 import {NotificationApp, User} from "../../type/issue";
 import {UserService} from "../../services/user.service";
-import {AuthService} from "../../services/auth.service";
+import {NotificationService} from "../../services/notification.service";
 
+/**
+ * Panneau de la cloche. Il n'a pas d'état propre : il affiche la liste que lui
+ * passe le pied de page, et tout marquage repasse par NotificationService.
+ * C'est ce qui garantit qu'ouvrir une tâche depuis ici éteint aussi la
+ * pastille des menus.
+ */
 @Component({
   selector: 'app-notifications',
   standalone:false,
@@ -11,24 +17,48 @@ import {AuthService} from "../../services/auth.service";
 })
 export class NotificationsComponent {
   @Input() notifications:NotificationApp[] = [];
-  private connectedId : String;
-  constructor(private userService:UserService, private authService:AuthService) {
-    this.authService.connectedUser$.subscribe(u => {
-      if (u && u.id) {
-        this.connectedId = u.id;
-      }
-    })
+
+  constructor(private userService:UserService,
+              private notificationService:NotificationService) {
   }
+
   urlPhoto(user:User) {
     return this.userService.getUrlPhoto(user);
   }
 
+  /** Non lue : la tâche concernée n'a pas encore été ouverte. */
+  estNonLue(notification: NotificationApp): boolean {
+    return !this.notificationService.estLue(notification);
+  }
+
+  /** Conservé : les gabarits existants appellent encore isRedead. */
   isRedead(notification: NotificationApp) {
-    if (!notification.seenUserIds || notification.seenUserIds.length == 0 )
+    return this.notificationService.estVue(notification) ? 'redead' : '';
+  }
+
+  titre(notification: NotificationApp): String {
+    return notification?.titre || 'Activité';
+  }
+
+  /** « PRJ-12 · Corriger la connexion », ou la clé seule si le titre manque. */
+  tache(notification: NotificationApp): String {
+    const issue: any = notification?.issue ?? notification?.action?.issue;
+    if (!issue) {
       return '';
-    if (notification.seenUserIds.includes(this.connectedId)) {
-      return 'redead';
     }
-    return '';
+    return issue.summary ? `${issue.issueKey} · ${issue.summary}` : issue.issueKey ?? '';
+  }
+
+  /**
+   * Suivre le lien vaut lecture : la notification a rempli son office, et la
+   * marque doit s'éteindre ici comme dans les menus.
+   */
+  ouvrir(notification: NotificationApp) {
+    const issue: any = notification?.issue ?? notification?.action?.issue;
+    this.notificationService.markIssueRead(issue?.id);
+  }
+
+  toutMarquerLu() {
+    this.notificationService.markAllRead();
   }
 }

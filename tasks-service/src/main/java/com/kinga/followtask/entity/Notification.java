@@ -45,9 +45,64 @@ public class Notification {
         return readUserIds;
     }
     public List<String> getIssueLinks(){
-        if (action.getIssue() == null || action.getIssue().getProject() == null)
+        Issue issue = getIssue();
+        if (issue == null || issue.getProject() == null || issue.getIssueKey() == null)
             return new ArrayList<>();
-        return Arrays.asList("/working",action.getIssue().getProject().getPrefix(),"issue",action.getIssue().getIssueKey(),"details");
+        return Arrays.asList("/working",issue.getProject().getPrefix(),"issue",issue.getIssueKey(),"details");
 
+    }
+
+    /**
+     * La tâche concernée, portée par le groupe d'actions. Le front s'en sert
+     * pour rattacher la notification à une ligne de liste et à un projet ;
+     * l'exposer ici évite de faire descendre le client dans action.issue.
+     */
+    public Issue getIssue() {
+        return action == null ? null : action.getIssue();
+    }
+
+    /**
+     * Date de l'action, en ISO-8601. Rendue en texte parce que la même valeur
+     * part par GraphQL et par le websocket : deux sérialiseurs différents qui
+     * doivent livrer au front exactement la même chaîne.
+     */
+    public String getCreated() {
+        Date date = action == null ? null : action.getCreated();
+        return date == null ? null : date.toInstant().toString();
+    }
+
+    public boolean isSeenBy(String userId) {
+        return userId != null && getSeenUserIds().stream().anyMatch(userId::equalsIgnoreCase);
+    }
+
+    /**
+     * « Lu » au sens fort : l'utilisateur a ouvert la tâche concernée. C'est
+     * cet état qui pilote les pastilles des menus, alors que « vu » ne
+     * concerne que le compteur de la cloche.
+     */
+    public boolean isReadBy(String userId) {
+        return userId != null && getReadUserIds().stream().anyMatch(userId::equalsIgnoreCase);
+    }
+
+    /** Idempotent : marquer deux fois ne duplique pas l'identifiant. */
+    public boolean markSeen(String userId) {
+        if (userId == null || isSeenBy(userId)) {
+            return false;
+        }
+        getSeenUserIds().add(userId);
+        return true;
+    }
+
+    /** Ouvrir la tâche vaut aussi pour le compteur de la cloche. */
+    public boolean markRead(String userId) {
+        if (userId == null) {
+            return false;
+        }
+        boolean change = markSeen(userId);
+        if (!isReadBy(userId)) {
+            getReadUserIds().add(userId);
+            change = true;
+        }
+        return change;
     }
 }

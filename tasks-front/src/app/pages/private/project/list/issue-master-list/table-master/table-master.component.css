@@ -152,6 +152,51 @@
   white-space: nowrap;
 }
 
+/* ── Demande annoncée par une notification non lue ──
+   Même code visuel que la liste des tâches (ambre + liseré gauche), pour que
+   la marque se reconnaisse d'un écran à l'autre. */
+.issue-row--unread td {
+  background: #fff8e8;
+  border-bottom-color: #f3e2bd;
+}
+.issue-table tbody tr.issue-row--unread:hover td {
+  background: #fdf0d5;
+}
+.issue-row--unread td:first-child {
+  box-shadow: inset 4px 0 0 #F59E0B;
+}
+/* En ligne, pour que la pastille se pose à côté du titre plutôt qu'en dessous. */
+.issue-row--unread .issue-summary {
+  display: inline-block;
+  max-width: 260px;
+  vertical-align: middle;
+  font-weight: 650;
+  color: #713f12;
+}
+
+.issue-notif {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border: none;
+  border-radius: 10px;
+  background: #F59E0B;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.6;
+  vertical-align: middle;
+  cursor: pointer;
+}
+.issue-notif:hover {
+  background: #d97706;
+}
+.issue-notif i {
+  font-size: 9px;
+}
+
 .issue-type-badge {
   display: inline-flex;
   align-items: center;

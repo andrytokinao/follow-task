@@ -22,18 +22,31 @@ public class ActionAssigne extends ActionItem {
     protected UserApp oldAssigne;
     @Override
     public String buildMDetails() {
-        if (this.issue != null  && this.assigne != null ) {
-            this.details.put("assigne", "Assigne to "+ assigne.toString() );
-            return "Assigne to " + assigne.toString();
-        }
-        return "";
+        return buildMDetails(null);
     }
+
+    /**
+     * Deux formulations, selon qu'on écrit au nouvel assigné ou aux autres
+     * observateurs : « Andry vous a assigné la sous-tâche PRJ-12 · ... » ou
+     * « Andry a assigné la sous-tâche PRJ-12 · ... à Rakoto ». Le destinataire
+     * doit comprendre en une ligne si c'est à lui d'agir.
+     */
+    @Override
     public String buildMDetails(String notify) {
-        if (this.issue != null  && this.assigne != null &&  !StringUtils.isEmpty(notify) ) {
-            this.details.put("assigne", "Assigne to "+ assigne.getId() );
-            return "Assigne "+issue.getIssueKey()+" to " + (assigne.getId().equalsIgnoreCase(notify)? " You" : assigne.getUsername());
+        if (this.issue == null || this.assigne == null) {
+            return "";
         }
-        return "";
+        this.details.put("assigne", assigne.getId());
+        boolean pourMoi = !StringUtils.isEmpty(notify) && assigne.getId().equalsIgnoreCase(notify);
+        if (pourMoi) {
+            return auteur() + " vous a assigné " + natureTache() + " " + tache();
+        }
+        return auteur() + " a assigné " + natureTache() + " " + tache() + " à " + nomDe(assigne);
+    }
+
+    @Override
+    public String buildTitle() {
+        return "Nouvelle affectation";
     }
     @Override
     public Set<String> generateUserToNotify() {

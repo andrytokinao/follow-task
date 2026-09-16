@@ -1,16 +1,40 @@
 <!-- notification.component.html -->
 <div class="notification-container">
-  <div *ngFor="let notification of notifications" class="notification-card" [class.read]="isRedead(notification)">
 
-    <div class="user-info">
-      <img [src]="urlPhoto(notification.action.user)" alt="User photo" class="user-photo">
-      <div class="message-info">
-        <p class="user-name">{{notification.action.user.username }}</p>
-        <p class="message">{{ notification.message }}</p>
+  <div class="notification-header" *ngIf="notifications?.length">
+    <span class="notification-title">Notifications</span>
+    <button type="button" class="notification-mark-all" (click)="toutMarquerLu()">
+      Tout marquer comme lu
+    </button>
+  </div>
+
+  <p class="notification-empty" *ngIf="!notifications?.length">
+    Rien de nouveau pour le moment.
+  </p>
+
+  <!-- Titre, puis phrase, puis la tâche : le lecteur sait d'abord de quoi il
+       s'agit, ensuite qui a fait quoi, enfin où aller. -->
+  <div *ngFor="let notification of notifications" class="notification-card"
+       [class.read]="isRedead(notification)"
+       [class.unread]="estNonLue(notification)">
+
+    <img [src]="urlPhoto(notification.action?.user)" alt="" class="user-photo">
+
+    <div class="message-info">
+      <div class="message-top">
+        <span class="notification-kind">{{ titre(notification) }}</span>
+        <span class="notification-date" *ngIf="notification.created">
+          {{ notification.created | date:'dd/MM/yyyy HH:mm' }}
+        </span>
       </div>
-      <div>
-      <a [routerLink]="notification.issueLinks"> {{notification.project?.prefix}} / {{notification.action.issue.issueKey}}</a>
+      <p class="message">{{ notification.message }}</p>
+      <a class="notification-link" *ngIf="notification.issueLinks?.length"
+         [routerLink]="notification.issueLinks" (click)="ouvrir(notification)">
+        <i class="fas fa-arrow-right"></i>
+        {{ notification.project?.prefix }} / {{ tache(notification) }}
+      </a>
     </div>
-    </div>
+
+    <span class="unread-dot" *ngIf="estNonLue(notification)" title="Pas encore ouverte"></span>
   </div>
 </div>

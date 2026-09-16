@@ -46,6 +46,10 @@ type Mutation {
     forwardDocument(document:DocumentInput):Document
     deleteDocumentById(documentId:Int) :ResponseApp
     seenNotification(userId:String):ResponseApp
+    readNotificationsByIssue(userId:String,issueId:Int):ResponseApp
+    readNotificationsByMaster(userId:String,masterId:Int):ResponseApp
+    readNotificationsByProject(userId:String,projectId:Int):ResponseApp
+    readAllNotifications(userId:String):ResponseApp
     saveAction(action:ActionItemInput):ActionItem
     attachDocumentToIssue(issueId:Int,documentId:Int, usages: [String]) :IssuePlanningSummary
 

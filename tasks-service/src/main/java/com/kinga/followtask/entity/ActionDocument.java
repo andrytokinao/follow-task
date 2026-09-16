@@ -19,9 +19,24 @@ public class ActionDocument extends ActionItem {
     @ManyToOne
     private Document document;
 
+    /**
+     * Rattachée à une tâche, la pièce jointe se lit mieux avec la tâche : sans
+     * elle le destinataire ne sait pas où retrouver le document.
+     */
     @Override
     public String buildMDetails() {
-        return this.document.buildMessage();
+        if (this.document == null) {
+            return "";
+        }
+        String titre = document.getTitre() == null ? "" : document.getTitre().trim();
+        String base = auteur() + " a ajouté le document" + (titre.isEmpty() ? "" : " « " + titre + " »");
+        String tache = tache();
+        return tache.isEmpty() ? base : base + " sur " + natureTache() + " " + tache;
+    }
+
+    @Override
+    public String buildTitle() {
+        return "Nouveau document";
     }
 
     @Override

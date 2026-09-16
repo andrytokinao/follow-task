@@ -534,6 +534,11 @@ export interface NotificationApp{
   readUserIds:String[]
   action:ActionGroupe
   issueLinks:String[]
+  /** Tache concernee, a plat : sert a rattacher la notification a une ligne. */
+  issue?:Issue
+  /** Date de l'action, ISO-8601. En `string` et non `String` : le pipe `date`
+   *  n'accepte pas l'objet englobant. */
+  created?:string
 }
 export interface ResponseApp {
   code:String

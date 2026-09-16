@@ -23,7 +23,15 @@
       </tr>
       </thead>
       <tbody>
-      <tr *ngFor="let issue of issues; trackBy: trackByIssue">
+      <!-- Une demande dont une sous-tâche vient de bouger ressort ici : c'est
+           la seule page où l'on voit les demandes, et ce qui se passe dessous
+           y serait sinon invisible. -->
+      <tr *ngFor="let issue of issues; trackBy: trackByIssue"
+          [class.issue-row--unread]="nonLues(issue) > 0"
+          [matTooltip]="resumeNonLues(issue)"
+          matTooltipClass="notif-tooltip"
+          matTooltipPosition="above"
+          [matTooltipShowDelay]="200">
         <td data-label="Type">
           <span class="issue-type-badge"
                 [style.background]="issue.issueType?.color ? issue.issueType.color + '1f' : '#f3f4f6'"
@@ -42,7 +50,18 @@
         </td>
 
         <td data-label="Titre">
-          <span class="issue-summary" [title]="issue.summary">{{ issue.summary }}</span>
+          <!-- L'info-bulle native s'efface quand la ligne porte des nouveautés :
+               les deux s'afficheraient sinon l'une sur l'autre. -->
+          <span class="issue-summary" [title]="nonLues(issue) > 0 ? '' : issue.summary">{{ issue.summary }}</span>
+          <!-- Le chevron mène à la liste des tâches, où la nouveauté est
+               visible ligne par ligne ; c'est là, et là seulement, que
+               l'ouvrir éteindra la pastille. -->
+          <button type="button" class="issue-notif" *ngIf="nonLues(issue) > 0"
+                  (click)="voirLesTaches(issue, $event)"
+                  [title]="nonLues(issue) + ' nouveauté(s) — voir les tâches'">
+            <i class="fas fa-bell"></i>{{ nonLues(issue) }}
+            <i class="fas fa-chevron-right"></i>
+          </button>
         </td>
 
         <td data-label="Tags">

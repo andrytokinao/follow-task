@@ -865,6 +865,11 @@ type Notification {
     readUserIds:[String]
     action: ActionGroupe
     issueLinks:[String]
+    # Tache concernee, remontee du groupe d'actions : le front rattache la
+    # notification a une ligne de liste sans descendre dans action.issue.
+    issue: Issue
+    # Date de l'action, en ISO-8601.
+    created: String
 }
 type ActionItem {
     id: ID

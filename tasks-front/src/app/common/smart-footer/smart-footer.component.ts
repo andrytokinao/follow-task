@@ -78,7 +78,17 @@ export class SmartFooterComponent {
     this.messageService.showSmartRight$.subscribe(show =>{
       this.showNotif = show;
     })
+    this.messageService.wsConnected$.subscribe(connecte => {
+      this.tempsReelActif = connecte;
+    })
   }
+
+  /**
+   * Etat du canal temps reel. Quand il tombe, les notifications continuent
+   * d'arriver au rechargement mais plus en direct : mieux vaut le dire que
+   * laisser croire a un silence.
+   */
+  protected tempsReelActif = false;
   chanelItems: Canall[] = [];
 
   maxItems = 3;

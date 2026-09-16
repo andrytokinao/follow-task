@@ -39,6 +39,8 @@ public class GQIssueController {
     final DirectoryService directoryService;
     @Autowired
     private ActionService actionService;
+    @Autowired
+    private NotificationService notificationService;
     private final DocumentService documentService;
     private final PlanningEventProgressService progressService;
     private final IssueMembershipService issueMembershipService;
@@ -425,6 +427,31 @@ public class GQIssueController {
     @MutationMapping
     public Response seenNotification(@Argument String userId) {
         return issueService.seenNotification(userId);
+    }
+
+    /**
+     * Ouvrir une tâche vaut lecture de ce qui la concerne : c'est ce geste,
+     * et non l'ouverture de la cloche, qui éteint les pastilles des menus.
+     */
+    @MutationMapping
+    public Response readNotificationsByIssue(@Argument String userId, @Argument Long issueId) {
+        return notificationService.readIssue(userId, issueId);
+    }
+
+    /** Ouvrir une demande vaut lecture de ses sous-tâches. */
+    @MutationMapping
+    public Response readNotificationsByMaster(@Argument String userId, @Argument Long masterId) {
+        return notificationService.readIssueTree(userId, masterId);
+    }
+
+    @MutationMapping
+    public Response readNotificationsByProject(@Argument String userId, @Argument Long projectId) {
+        return notificationService.readProject(userId, projectId);
+    }
+
+    @MutationMapping
+    public Response readAllNotifications(@Argument String userId) {
+        return notificationService.readAll(userId);
     }
     @MutationMapping
     public ActionItem saveAction(@Argument ActionItemInput action) {

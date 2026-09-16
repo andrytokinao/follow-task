@@ -60,3 +60,11 @@ pointer-events: none;
   transition: transform 0.3s ease, opacity 0.3s ease;
   cursor: pointer;
 }
+
+/* Marque de mode degrade : discrete, elle ne doit pas rivaliser avec le
+   compteur rouge des notifications, seulement expliquer un silence. */
+.offline-mark {
+  margin-left: 6px;
+  font-size: 11px;
+  color: #9ca3af;
+}

@@ -28,6 +28,7 @@ import * as SockJS from 'sockjs-client';
 import {Client, Message, Stomp, StompConfig, StompHeaders} from '@stomp/stompjs';
 import {ActionService} from "./action.service";
 import {DocumentService} from "./document.service";
+import {NotificationService} from "./notification.service";
 
 
 @Injectable({
@@ -48,6 +49,11 @@ export class MessagesService {
   canals:Canall[] = [];
   users:User[] = [];
   private client: Client;
+  private connectedUserId: String | undefined;
+  private surveillanceOngletPosee = false;
+  /** Etat du canal temps reel, pour signaler un mode degrade a l'ecran. */
+  private wsConnectedSubject = new BehaviorSubject<boolean>(false);
+  wsConnected$ = this.wsConnectedSubject.asObservable();
 
   connectedUser
   private showSmartSubject = new BehaviorSubject<string>('');
@@ -59,7 +65,8 @@ export class MessagesService {
     private authService:AuthService,
     private userService:UserService,
     private actionService:ActionService,
-    private documentService:DocumentService
+    private documentService:DocumentService,
+    private notificationService:NotificationService
   ) {
     this.issueService.project$.subscribe(project => {
       this.project = project;
@@ -170,57 +177,139 @@ export class MessagesService {
       })
     })
   };
+  /**
+   * Ouvre le canal temps réel de l'utilisateur.
+   *
+   * Le courtier STOMP côté serveur ne conserve rien : un évènement émis
+   * pendant une coupure est perdu pour de bon. Le websocket n'est donc qu'une
+   * accélération, jamais la source de vérité. Trois garde-fous en découlent :
+   *
+   * - reconnexion automatique, avec battements de cœur pour détecter une
+   *   liaison morte que le navigateur croit encore ouverte (proxy, veille,
+   *   passage wifi/4G) ;
+   * - à chaque (re)connexion, on recharge les notifications depuis le serveur
+   *   pour rattraper ce qui a pu se perdre ;
+   * - au retour sur l'onglet, même rattrapage : un onglet en arrière-plan peut
+   *   avoir été suspendu sans que la socket soit formellement fermée.
+   */
   connectWs(connectedUserId:String){
-    if (this.client) {
-      if (this.client.connected) {
-        return;
-      }
+    if (!connectedUserId) {
+      return;
     }
+    if (this.client && this.client.active && this.connectedUserId === connectedUserId) {
+      // Deja branche sur le bon canal : reactiver creerait un second client,
+      // et chaque message arriverait en double.
+      return;
+    }
+    this.disconnectWs();
+    this.connectedUserId = connectedUserId;
+
     let head:StompHeaders= {
       'kokok':'kokoko'
     }
-    this.client = new Client({
-      webSocketFactory: () => new SockJS(environment.apiURL+'ws',head)
+    // « api/ws » et non « ws » : le repli SPA du serveur
+    // (GQUserController.publicRedirection) renvoie vers index.html tout chemin
+    // sans point qui ne commence pas par « assets » ou « api ». Une requete sur
+    // /ws/info recevait donc la page HTML au lieu du JSON SockJS, et la
+    // connexion n'aboutissait jamais : aucune notification n'arrivait en
+    // direct, elles n'apparaissaient qu'au rechargement.
+    const url = environment.apiURL + 'api/ws';
+    // Le client est capture dans une constante : les callbacks survivent a une
+    // deconnexion, et this.client peut deja pointer ailleurs (ou etre vide)
+    // quand elles se declenchent.
+    const client = new Client({
+      webSocketFactory: () => new SockJS(url, head),
+      reconnectDelay: 5000,
+      heartbeatIncoming: 10000,
+      heartbeatOutgoing: 10000,
     });
-    this.client.onConnect = (frame) => {
-      this.client.subscribe('/topic/datas/'+connectedUserId, (message: Message) => {
+    this.client = client;
+    client.onConnect = () => {
+      client.subscribe('/topic/datas/'+connectedUserId, (message: Message) => {
         this.processRealTimeData(message.body);
       });
+      this.wsConnectedSubject.next(true);
+      console.info('[ws] connecté sur', url, '— canal /topic/datas/' + connectedUserId);
+      this.rattraper();
     };
-    this.client.onStompError = (frame) => {
+    client.onWebSocketClose = (evt: any) => {
+      this.wsConnectedSubject.next(false);
+      // Trace explicite : une poignee de main refusee (mauvais chemin, origine
+      // non autorisee, session expiree) se traduisait sinon par un silence
+      // impossible a distinguer d'une absence de notification.
+      console.warn('[ws] fermé', url, evt?.code ?? '', evt?.reason ?? '');
+    };
+    client.onWebSocketError = (evt: any) => {
+      this.wsConnectedSubject.next(false);
+      console.error('[ws] erreur de transport sur', url, evt);
+    };
+    client.onStompError = (frame) => {
+      this.wsConnectedSubject.next(false);
       console.error('Broker reported error: ' + frame.headers['message']);
       console.error('Additional details: ' + frame.body);
     };
-    this.client.activate();
-
+    client.activate();
+    this.surveillerRetourOnglet();
   }
   disconnectWs() {
+    this.connectedUserId = undefined;
+    this.wsConnectedSubject.next(false);
     if(this.client != null) {
-      this.client.deactivate().then(() => console.log('Déconnecté du serveur WebSocket'));
+      const ancien = this.client;
+      this.client = undefined;
+      ancien.deactivate().then(() => console.log('Déconnecté du serveur WebSocket'));
     }
   }
+
+  /** Rejoue l'état serveur : ce qui s'est perdu pendant la coupure revient. */
+  private rattraper() {
+    this.notificationService.reload();
+  }
+
+  /**
+   * Un onglet en arrière-plan peut être gelé par le navigateur : la socket
+   * reste ouverte de son point de vue, mais les messages n'arrivent plus. On
+   * ne le détecte qu'au retour, d'où ce rattrapage.
+   */
+  private surveillerRetourOnglet() {
+    if (this.surveillanceOngletPosee || typeof document === 'undefined') {
+      return;
+    }
+    this.surveillanceOngletPosee = true;
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState !== 'visible' || !this.connectedUserId) {
+        return;
+      }
+      if (this.client && !this.client.connected) {
+        // activate() est idempotent : il relance la boucle de reconnexion si
+        // elle s'est arrêtée.
+        this.client.activate();
+      }
+      this.rattraper();
+    });
+  }
   processRealTimeData(body:any) {
+    // Une seule analyse du corps : il etait relu autant de fois qu'il y a de
+    // canaux, et un corps mal forme faisait tomber tout le traitement sans
+    // trace. Ici l'echec est signale et la socket reste utilisable.
+    let charge: any;
+    try {
+      charge = typeof body === 'string' ? JSON.parse(body) : body;
+    } catch (e) {
+      console.error('Message temps réel illisible, ignoré', e, body);
+      return;
+    }
+    if (!charge) {
+      return;
+    }
 
-    let newMessages:MessageApp[] =   JSON.parse(body,(key, value:MessageApp[]) => {
-      return value;
-    }).newMessage;
-    let documentData:DocumentApp = JSON.parse(body,(key,value:DocumentApp) => {
-      return value;
-    }).processDocument ;
-    let newNotification:NotificationApp = JSON.parse(body,(key,value:NotificationApp) => {
-      return value;
-    }).newNotification ;
-    let newUploaded:Uploaded = JSON.parse(body,(key,value:Uploaded) => {
-      return value;
-    }).newUploaded;
-    let actionItem:ActionItem = JSON.parse(body,(key,value:ActionItem) => {
-      return value;
-    }).processAction;
-    let slideDossier:Repertoire = JSON.parse(body,(key,value:ActionItem) => {
-      return value;
-    }).slideDossier;
-
-
+    const newMessages:MessageApp[] = charge.newMessage;
+    const documentData:DocumentApp = charge.processDocument;
+    const newNotification:NotificationApp = charge.newNotification;
+    const notificationRead:any = charge.notificationRead;
+    const newUploaded:Uploaded = charge.newUploaded;
+    const actionItem:ActionItem = charge.processAction;
+    const slideDossier:Repertoire = charge.slideDossier;
 
     if (newMessages) {
        newMessages.forEach( nm=> {
@@ -233,10 +322,15 @@ export class MessagesService {
     }
 
     if (newNotification) {
-      this.actionService.nextNotification(newNotification);
+      this.notificationService.push(newNotification);
+    }
+    if (notificationRead) {
+      // Lecture faite depuis un autre onglet ou un autre appareil : on aligne
+      // l'etat local, sinon la pastille resterait allumee ici.
+      this.notificationService.applyReadEcho(notificationRead.ids, notificationRead.read);
     }
     if (newUploaded) {
-      alert("new Uploaded "+JSON.stringify(newUploaded));
+      console.info('newUploaded', newUploaded);
     }
     if (actionItem) {
       this.issueService.processAction(actionItem);
@@ -246,7 +340,7 @@ export class MessagesService {
     }
   }
   processNotification(notification:NotificationApp){
-    this.actionService.nextNotification(notification);
+    this.notificationService.push(notification);
   }
   showCanal(canal:Canall){
     this.showCanalsSubject.next(canal);

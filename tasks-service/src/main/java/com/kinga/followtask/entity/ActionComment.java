@@ -18,7 +18,12 @@ public class ActionComment extends ActionItem {
 
     @Override
     public String buildMDetails() {
-        return this.getActionGroupe().getUser().getFirstName() +" add comment "+this.getIssue().getIssueKey() +" "+ getIssue().getSummary();
+        return auteur() + " a commenté " + natureTache() + " " + tache();
+    }
+
+    @Override
+    public String buildTitle() {
+        return "Nouveau commentaire";
     }
 
     @Override

@@ -21,6 +21,7 @@ import {MatToolbarModule} from "@angular/material/toolbar";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {FormsModule} from "@angular/forms";
 import {MatMenuModule} from "@angular/material/menu";
+import {MatTooltipModule} from "@angular/material/tooltip";
 import {MatIconModule} from "@angular/material/icon";
 import {MatSelectModule} from "@angular/material/select";
 import {MyCommonModule} from "../../../../common/common.module";
@@ -59,6 +60,7 @@ import {ExportMenuComponent} from "../../../../common/export-menu/export-menu.co
     ],
   imports: [
     ListRoutingModule,
+    MatTooltipModule,
     MatTabsModule,
     MatCardModule,
     MatDialogModule,

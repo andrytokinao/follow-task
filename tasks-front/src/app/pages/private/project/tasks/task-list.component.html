@@ -80,9 +80,21 @@
       <tbody>
       <!-- Demande : ligne en gras avec liseré. Sous-tâche : décalée sous sa
            demande, ou seule avec sa demande en rappel si celle-ci est filtrée. -->
+      <!-- Fond distinct tant que la tâche n'a pas été ouverte : c'est ce qui
+           permet de repérer une affectation nouvelle sans lire la liste
+           ligne à ligne. -->
+      <!-- Le détail au survol de la ligne entière : le compteur seul disait
+           qu'il se passait quelque chose, jamais quoi. Une infobulle Material
+           plutôt qu'une carte CSS, parce que le conteneur du tableau défile
+           (overflow) et rognerait un élément positionné à l'intérieur. -->
       <tr *ngFor="let row of rows; trackBy: trackByRow"
           [class.tl-row--master]="row.master"
           [class.tl-row--nested]="row.nested"
+          [class.tl-row--unread]="nonLues(row.issue) > 0"
+          [matTooltip]="resumeNonLues(row.issue)"
+          matTooltipClass="notif-tooltip"
+          matTooltipPosition="above"
+          [matTooltipShowDelay]="200"
           (click)="openIssue(row.issue)">
         <td class="col-key">
           <span class="tl-key">
@@ -95,7 +107,12 @@
           <span class="tl-parent" *ngIf="!row.master && !row.nested && row.issue.parent" [title]="row.issue.parent.summary">
             <i class="fas fa-folder"></i>{{ row.issue.parent.issueKey }} · {{ row.issue.parent.summary }}
           </span>
-          <span class="tl-summary" [title]="row.issue.summary">{{ row.issue.summary }}</span>
+          <!-- L'info-bulle native du titre s'efface quand la ligne porte des
+               nouveautés : les deux s'afficheraient sinon l'une sur l'autre. -->
+          <span class="tl-summary" [title]="nonLues(row.issue) > 0 ? '' : row.issue.summary">{{ row.issue.summary }}</span>
+          <span class="tl-notif" *ngIf="nonLues(row.issue) > 0">
+            <i class="fas fa-bell"></i>{{ nonLues(row.issue) }}
+          </span>
         </td>
         <td class="col-status" (click)="$event.stopPropagation()">
           <app-status-field [issue]="row.issue" (onUpdateIssue)="onStatusUpdated(row.issue, $event)"></app-status-field>

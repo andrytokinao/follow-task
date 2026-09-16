@@ -951,3 +951,18 @@ h3 {
   border-radius: 16px;
   box-shadow: 0 18px 44px rgba(11, 18, 32, 0.2);
 }
+
+/* Infobulle des notifications : elle liste plusieurs evenements, un par ligne.
+   L'infobulle Material replie les retours a la ligne par defaut ; sans
+   pre-line toutes les phrases se retrouveraient collees en un seul paragraphe.
+   Elargie aussi, parce qu'une phrase du genre « X a fait passer la demande
+   PRJ-12 de En attente a En cours » ne tient pas dans la largeur standard. */
+.notif-tooltip .mdc-tooltip__surface,
+.notif-tooltip.mat-mdc-tooltip .mdc-tooltip__surface {
+  white-space: pre-line;
+  max-width: 420px;
+  text-align: left;
+  font-size: 12px;
+  line-height: 1.45;
+  padding: 8px 10px;
+}

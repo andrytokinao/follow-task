@@ -63,15 +63,22 @@ import numbers = _default.defaults.animations.numbers;
 import {J} from "@angular/cdk/keycodes";
 import {ProjectGuard} from "./ProjectGuard";
 import {NewDocumentComponent} from "../pages/private/project/modal/new-document/new-document.component";
+import {NotificationService} from "./notification.service";
 
 @Injectable({
   providedIn: 'root',
 })
 export class ActionService implements OnInit {
- private notificationsSubject = new BehaviorSubject<NotificationApp[]>([]);
- private unreadedNotificationSubject = new BehaviorSubject<number>(0);
- unreadedNotification$ = this.unreadedNotificationSubject.asObservable();
- notification$ = this.notificationsSubject.asObservable();
+ /**
+  * Les notifications vivent desormais dans NotificationService, qui est la
+  * source unique du front. Ce service n'en garde que des relais, pour les
+  * ecrans qui l'injectaient deja : deux listes paralleles finiraient toujours
+  * par diverger, et c'est exactement ce qu'on veut eviter — une notification
+  * marquee lue ici doit s'eteindre partout ailleurs.
+  */
+ readonly notification$ = this.notificationService.notifications$;
+ /** Compteur de la cloche : les notifications que l'utilisateur n'a pas vues. */
+ readonly unreadedNotification$ = this.notificationService.unseenCount$;
  connectedUser: User;
 
 
@@ -82,30 +89,23 @@ export class ActionService implements OnInit {
               private modalService: NgbModal,
               private authService: AuthService,
               protected projectGuard: ProjectGuard,
+              private notificationService: NotificationService,
   ) {
-    this.notification$.subscribe( notifs => {
-      if (!notifs || notifs.length == 0 || !this.connectedUser)
-        return
-      let unreads = notifs.filter(n => !n.seenUserIds || !n.seenUserIds.includes(this.connectedUser.id));
-      this.unreadedNotificationSubject.next(unreads.length);
-    });
     this.authService.connectedUser$.subscribe(user => {
       this.connectedUser = user;
     });
   }
   nextNotification(notification:NotificationApp){
-    const currentNotification = this.notificationsSubject.getValue();
-    this.notificationsSubject.next([...currentNotification, notification]);
+    this.notificationService.push(notification);
   }
 
   ngOnInit(): void {
 
 
   }
+  /** Relais : le magasin sait deja pour quel utilisateur il travaille. */
   loadNotifications(id: string) {
-    this.getNotificationsByUserId(id).subscribe(notifications => {
-      this.notificationsSubject.next(notifications);
-    });
+    this.notificationService.reload();
   }
   getNotificationsByUserId(userId:String) {
     return new Observable<NotificationApp[]>(observer => {
@@ -125,18 +125,7 @@ export class ActionService implements OnInit {
   }
 
   seenNotification(userId: String) {
-    return new Observable<ResponseApp>(observer => {
-      this.apollo.mutate({
-        mutation: operation.SEEN_NOTIFICATION,
-        variables: {userId}
-      }).subscribe((res: any) => {
-        observer.next(supprimerTypename(res.data.seenNotification));
-        observer.complete();
-      }, error => {
-        observer.error(error);
-        observer.complete();
-      })
-    });
+    return this.notificationService.seenNotification(userId);
   }
 
 }
