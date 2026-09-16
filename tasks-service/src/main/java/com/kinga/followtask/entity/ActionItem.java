@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -104,5 +106,61 @@ public abstract class ActionItem {
     /** « la sous-tâche » ou « la demande », selon la place de l'issue. */
     protected String natureTache() {
         return issue != null && issue.getParent() != null ? "la sous-tâche" : "la demande";
+    }
+
+    /**
+     * Qui est assigné à la tâche — en interrogeant les deux stockages.
+     *
+     * Ils coexistent : les IssueMembership de rôle ASSIGNEE, et le champ
+     * historique {@code Issue.assigne}. Les tâches antérieures aux memberships
+     * n'ont que le second. S'en tenir à getAssignes() ne trouve alors
+     * personne, et l'évènement ne prévient pas l'assigné.
+     */
+    protected Set<String> assigneIds() {
+        Set<String> ids = new HashSet<>();
+        if (issue == null) {
+            return ids;
+        }
+        List<UserApp> parMembership = issue.getAssignes();
+        if (parMembership != null) {
+            parMembership.stream()
+                    .filter(u -> u != null && u.getId() != null)
+                    .forEach(u -> ids.add(u.getId()));
+        }
+        if (issue.getAssigne() != null && issue.getAssigne().getId() != null) {
+            ids.add(issue.getAssigne().getId());
+        }
+        return ids;
+    }
+
+    protected boolean estAssigne(String userId) {
+        return userId != null && assigneIds().stream().anyMatch(userId::equalsIgnoreCase);
+    }
+
+    /** Au-delà, l'extrait encombre la carte de notification sans rien apporter. */
+    protected static final int LONGUEUR_EXTRAIT = 120;
+
+    /**
+     * Extrait lisible d'un texte saisi dans un éditeur riche : le balisage est
+     * retiré et les entités décodées, sinon la notification afficherait des
+     * &lt;p&gt; au lieu de la phrase.
+     */
+    protected String extrait(String texte) {
+        if (texte == null) {
+            return "";
+        }
+        String propre = texte
+                .replaceAll("<[^>]*>", " ")
+                .replace("&nbsp;", " ")
+                .replace("&amp;", "&")
+                .replace("&lt;", "<")
+                .replace("&gt;", ">")
+                .replace("&quot;", "\"")
+                .replaceAll("\\s+", " ")
+                .trim();
+        if (propre.length() <= LONGUEUR_EXTRAIT) {
+            return propre;
+        }
+        return propre.substring(0, LONGUEUR_EXTRAIT).trim() + "…";
     }
 }

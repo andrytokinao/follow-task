@@ -29,6 +29,7 @@ public class ActionService {
     private final StatusRepository statusRepository;
     private final ProjectService projectService;
     private final GroupeUserRepository groupeUserRepository;
+    private final IssueAssignationService assignationService;
     private static List<String> slides = Arrays.asList(
 
     );
@@ -46,6 +47,13 @@ public class ActionService {
 
 
     public void addDocumentAction(Document doc, Issue issue) {
+        // Meme rattrapage que pour les commentaires : une tache dont
+        // l'assignation ne vit que dans Issue.assigne n'a aucun membership, et
+        // resterait donc sans destinataire.
+        if (issue != null && issue.getId() != null) {
+            assignationService.rattraperMembershipManquant(issue.getId());
+            issue = issueRepository.findById(issue.getId()).orElse(issue);
+        }
         ActionGroupe actionGroupe = new ActionGroupe();
         actionGroupe.setIssue(issue);
         actionGroupe.setCreated(new Date());
@@ -64,6 +72,51 @@ public class ActionService {
     public void addDocumentAction(Document doc) {
         ActionDocument actonItem= new ActionDocument();
         actonItem.setDocument(doc);
+    }
+
+    /**
+     * Trace et notifie un nouveau commentaire.
+     *
+     * ActionComment existait depuis le depart mais n'etait instancie nulle
+     * part : deposer un commentaire n'ecrivait aucune action et ne prevenait
+     * personne. Les assignes, qui sont les premiers concernes, l'apprenaient
+     * seulement en rouvrant la tache.
+     *
+     * L'issue et l'auteur sont relus en base : l'entree GraphQL ne porte que
+     * des identifiants, alors qu'il faut ici les observateurs, les assignes et
+     * le nom de l'auteur pour rediger le message.
+     */
+    public void addCommentAction(Comment comment) {
+        if (comment == null || comment.getIssue() == null || comment.getIssue().getId() == null) {
+            return;
+        }
+        // Les taches assignees avant l'arrivee des memberships n'en ont aucun :
+        // leur assigne ne vit que dans Issue.assigne. On remet la tache en
+        // conformite avant de chercher qui prevenir, sinon le rattrapage
+        // n'aurait jamais lieu pour l'historique.
+        assignationService.rattraperMembershipManquant(comment.getIssue().getId());
+
+        Issue issue = issueRepository.findById(comment.getIssue().getId()).orElse(null);
+        if (issue == null) {
+            return;
+        }
+        ActionGroupe actionGroupe = new ActionGroupe();
+        actionGroupe.setIssue(issue);
+        actionGroupe.setCreated(comment.getDate() == null ? new Date() : comment.getDate());
+        actionGroupe.setUser(comment.getUser() == null
+                ? null
+                : chargerUtilisateur(comment.getUser().getId()));
+        actionGroupe = actionGroupeRepository.save(actionGroupe);
+
+        ActionComment actionItem = new ActionComment();
+        actionItem.setActionType(ActionType.COMMENT);
+        actionItem.setComment(comment);
+        actionItem.setIssue(issue);
+        actionItem.setActionGroupe(actionGroupe);
+        actionItem = actionItemRepository.save(actionItem);
+
+        actionGroupe.setActions(new ArrayList<>(List.of(actionItem)));
+        generateAndSendNotification(actionGroupe, actionGroupe.userSpecificToNotifies());
     }
 
     public void ceateAssigneAction(String userId,Issue issue) {
@@ -180,8 +233,18 @@ public class ActionService {
                 if (oldAssignee != null) {
                     actionAssigne.setOldAssigne(oldAssignee);
                 }
-                issue.setAssigne(assignee);
-                issue = issueRepository.save(issue);
+                // Meme ecriture d'etat que la mutation assignUsers : membership,
+                // observerIds et Issue.assigne d'un seul tenant. Ce bloc ne
+                // posait que Issue.assigne, si bien qu'une tache assignee par
+                // ici restait sans membership et sans observateur — invisible a
+                // toute question « qui est assigne ? » et donc a la
+                // notification de commentaire.
+                List<String> cible = assignee == null || assignee.getId() == null
+                        ? List.of()
+                        : List.of(assignee.getId());
+                String executeur = actionGroupe.getUser() == null ? null : actionGroupe.getUser().getId();
+                issue = assignationService.appliquer(issue.getId(), cible, executeur).issue();
+                actionGroupe.setIssue(issue);
                 actionItem = actionItemRepository.save(actionAssigne);
                 actionAssigne.setIssue(issue);
                 break;

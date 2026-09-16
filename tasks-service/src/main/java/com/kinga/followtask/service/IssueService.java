@@ -231,9 +231,16 @@ public class IssueService {
          return commentRepository.findByIssueId(issueId);
     }
     public List<Comment> addComment(Comment comment) {
-        if (comment.getId() ==null )
+        // La meme methode sert a creer et a modifier : seul un commentaire sans
+        // identifiant est nouveau. Notifier sur une modification ferait sonner
+        // les assignes a chaque correction de faute de frappe.
+        boolean nouveau = comment.getId() == null;
+        if (nouveau)
             comment.setDate(new Date());
-       commentRepository.save(comment);
+       Comment enregistre = commentRepository.save(comment);
+       if (nouveau) {
+           actionService.addCommentAction(enregistre);
+       }
        return commentRepository.findByIssueId(comment.getIssue().getId());
     }
     public List<CustomFieldValue> saveValue(ValueDto v) throws ClassNotFoundException, InstantiationException, IllegalAccessException, ParseException {
@@ -654,9 +661,6 @@ public class IssueService {
         if (issue == null) {
             return;
         }
-         commentRepository.findByIssueId(issueId).forEach(comm -> {
-             commentRepository.delete(comm);
-         });
         issue.getDocuments().forEach(doc -> {
             deleteDocument(doc);
         });
@@ -684,6 +688,13 @@ public class IssueService {
         });
         issue.getActionGroupes().forEach(ag->{
             actionService.deleteActionGroupe(ag);
+        });
+        // Apres les groupes d'actions, et pas avant : une ActionComment
+        // reference le commentaire qu'elle trace. Supprimer les commentaires en
+        // premier, comme c'etait le cas, violerait cette cle etrangere et
+        // ferait echouer toute la suppression de la tache.
+        commentRepository.findByIssueId(issueId).forEach(comm -> {
+            commentRepository.delete(comm);
         });
         issue.getEvents().forEach(e->{
             eventRepository.delete(e);

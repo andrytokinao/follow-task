@@ -83,6 +83,12 @@ public class NotificationService {
                     .forEach(specifiques::add);
         }
         if (CollectionUtils.isEmpty(tous) && specifiques.isEmpty()) {
+            // Sans cette trace, « aucun destinataire » et « notification perdue
+            // en route » se ressemblent : les deux se traduisent par un silence
+            // complet côté client.
+            logger.info("Aucun destinataire pour l'action {} sur la tâche {} : rien à notifier",
+                    actionGroupe.buildTitle(),
+                    actionGroupe.getIssue() == null ? "?" : actionGroupe.getIssue().getIssueKey());
             return creees;
         }
 
