@@ -60,8 +60,14 @@
           [hasBackdrop]="true"
           [issues]="masters"
           [issueCourante]="selectedSubtask ?? selectedMaster"
-          (issueChoisie)="onIssueChoisie($event)">
+          (issueChoisie)="onIssueChoisie($event)"
+          (creationTacheDemandee)="creation.ouvrir($event)"
+          (creationProjetDemandee)="creation.ouvrir()">
         </app-issue-picker-menu>
+
+        <!-- Création de projet ou de tâche : formulaire complet (type
+             obligatoire), à côté du lien cliqué. -->
+        <app-issue-creation-menu #creation (creee)="onIssueCreee($event)"></app-issue-creation-menu>
       </div>
 
       <!-- Dates -->

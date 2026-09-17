@@ -12,12 +12,12 @@ import { FormsModule } from '@angular/forms';
 import { MatMenu, MatMenuModule } from '@angular/material/menu';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { Observable } from 'rxjs';
+import { shareReplay } from 'rxjs/operators';
 import {Issue} from '../../type/issue';
 import { CountUpAnimator } from '../../utils/count-up.animator';
 import { RenderedDirective } from './rendered.directive';
 import { ContenuMenuDirective } from '../contenu-menu/contenu-menu.directive';
-import { IssueService } from '../../services/issue.service';
-import { IssueCreationRapideService } from '../../services/issue-creation-rapide.service';
+import { ProjectGuard } from '../../services/ProjectGuard';
 
 /** Choix émis en mode `simple` : l'issue et, pour une tâche, son projet. */
 export interface IssueChoisie {
@@ -29,14 +29,18 @@ export interface IssueChoisie {
 // (comme un sous-dossier), et deux façons de choisir :
 //
 // - mode `multiple` (par défaut, messagerie) : cases à cocher sur chaque
-//   ligne, puis pied de menu "Créer" (lier les issues cochées) et
-//   "Créer une nouvelle sous-issue" ;
+//   ligne, puis pied de menu "Créer" (lier les issues cochées) ;
 // - mode `simple` (formulaire d'événement) : un clic choisit la ligne et
 //   referme le menu.
 //
 // Options, toutes désactivées par défaut pour laisser la messagerie inchangée :
-// `recherche` (filtre sur clé et titre) et `creationEnLigne` (nouvelle tâche
-// dans un projet, nouveau projet pour les porteurs du droit).
+// `recherche` (filtre sur clé et titre) et `creationEnLigne` (liens « Nouvelle
+// tâche » dans un projet, « Nouveau projet » pour les porteurs du droit).
+//
+// La création elle-même n'est pas faite ici : le type de demande est un choix
+// obligatoire, que seul le formulaire complet (app-new-issue-form) propose.
+// Le sélecteur émet une demande de création et l'hôte ouvre ce formulaire,
+// via app-issue-creation-menu.
 //
 // Le pourcentage (barre + chiffre) et la durée passée sont animés : ils
 // repartent de 0 (0% / 00:00) et montent jusqu'à la valeur réelle à CHAQUE
@@ -81,24 +85,24 @@ export class IssuePickerMenuComponent {
   @Input() mode: 'multiple' | 'simple' = 'multiple';
   /** Champ de recherche en tête du panneau. */
   @Input() recherche = false;
-  /** Création sur place : tâche dans un projet, projet selon les droits. */
+  /** Liens de création : tâche dans un projet, projet selon les droits. */
   @Input() creationEnLigne = false;
   /** Fermer au clic extérieur. La messagerie le laisse ouvert. */
   @Input() hasBackdrop = false;
   /** Mode `simple` : l'issue actuellement choisie, mise en évidence. */
   @Input() issueCourante?: Issue;
 
-  /** Mode `simple` : émis au clic sur une ligne, ou après une création. */
+  /** Mode `simple` : émis au clic sur une ligne. */
   @Output() issueChoisie = new EventEmitter<IssueChoisie>();
+  /** « Nouvelle tâche » dans ce projet : l'hôte ouvre le formulaire de création. */
+  @Output() creationTacheDemandee = new EventEmitter<Issue>();
+  /** « Nouveau projet » : l'hôte ouvre le formulaire de création de projet. */
+  @Output() creationProjetDemandee = new EventEmitter<void>();
 
   // Émis quand l'utilisateur valide via "Créer" : toutes les issues cochées,
   // parents et enfants confondus.
   @Output() issuesSelected = new EventEmitter<Issue[]>();
 
-  // Émis quand l'utilisateur clique "Créer une nouvelle sous-issue".
-  // Si une seule issue est cochée au moment du clic, elle est passée comme
-  // parent pressenti ; sinon `null` (le consommateur devra la demander).
-  @Output() createSubIssueRequested = new EventEmitter<Issue | null>();
 
   @ViewChild('menu', { static: true }) menu!: MatMenu;
 
@@ -109,22 +113,17 @@ export class IssuePickerMenuComponent {
   // remis à zéro à la fermeture pour rejouer l'animation la fois suivante.
   private readonly counters: CountUpAnimator;
 
-  // État de la recherche et de la création en ligne.
   terme = '';
-  creationDans?: string;
-  creationProjetOuverte = false;
-  libelle = '';
-  enCreation = false;
-  erreur = '';
+  /** Même règle que partout ailleurs : gestionnaire de projet ou administrateur. */
   readonly peutCreerProjet$: Observable<boolean>;
 
   // MessagingService était injecté sans être utilisé : il liait ce sélecteur à
   // la messagerie et empêchait de le réutiliser ailleurs.
-  constructor(cdr: ChangeDetectorRef, zone: NgZone,
-              private creation: IssueCreationRapideService,
-              private issueService: IssueService) {
+  constructor(cdr: ChangeDetectorRef, zone: NgZone, projectGuard: ProjectGuard) {
     this.counters = new CountUpAnimator(zone, cdr);
-    this.peutCreerProjet$ = creation.peutCreerProjet$;
+    this.peutCreerProjet$ = projectGuard
+      .hasCredential(['PROJECT_MANAGER', 'ADMIN'])
+      .pipe(shareReplay(1));
   }
 
   hasChildren(issue: Issue): boolean {
@@ -176,10 +175,6 @@ export class IssuePickerMenuComponent {
     this.selectedByKey.clear();
   }
 
-  onCreateSubIssueClick(): void {
-    const selected = Array.from(this.selectedByKey.values());
-    this.createSubIssueRequested.emit(selected.length === 1 ? selected[0] : null);
-  }
 
   // ---------------------------------------------------------------------
   // Mode simple : un clic choisit
@@ -202,8 +197,11 @@ export class IssuePickerMenuComponent {
 
   private choisir(issue: Issue, parent?: Issue): void {
     this.issueChoisie.emit({issue, parent});
-    this.annulerCreation();
-    // Fermeture sans raison « click » : rien n'est propagé à un menu parent.
+    this.fermer();
+  }
+
+  /** Fermeture sans raison « click » : rien n'est propagé à un menu parent. */
+  private fermer(): void {
     this.menu.closed.emit();
   }
 
@@ -254,79 +252,28 @@ export class IssuePickerMenuComponent {
   }
 
   // ---------------------------------------------------------------------
-  // Création en ligne
+  // Demandes de création
   // ---------------------------------------------------------------------
 
-  ouvrirCreationTache(parent: Issue, event: Event): void {
+  /**
+   * Le panneau se referme : le formulaire de création s'ouvre ensuite dans
+   * son propre menu, et deux panneaux superposés se gêneraient.
+   *
+   * Fermeture avec la raison « click », cette fois : quand ce sélecteur est un
+   * sous-menu (messagerie : menu d'actions du message → « Lier une issue »),
+   * toute la chaîne se referme au lieu de laisser le menu d'actions ouvert
+   * derrière le formulaire. Là où le sélecteur est isolé (appContenuMenu,
+   * formulaire d'événement), rien d'autre n'est fermé.
+   */
+  demanderCreationTache(parent: Issue, event: Event): void {
     event.stopPropagation();
-    this.annulerCreation();
-    this.expandedKeys.add(this.keyOf(parent));
-    this.creationDans = this.keyOf(parent);
+    this.creationTacheDemandee.emit(parent);
+    this.menu.closed.emit('click');
   }
 
-  ouvrirCreationProjet(): void {
-    this.annulerCreation();
-    this.creationProjetOuverte = true;
-  }
-
-  estCreationDans(parent: Issue): boolean {
-    return this.creationDans === this.keyOf(parent);
-  }
-
-  annulerCreation(): void {
-    this.creationDans = undefined;
-    this.creationProjetOuverte = false;
-    this.libelle = '';
-    this.erreur = '';
-  }
-
-  /** Échap annule la saisie sans refermer tout le panneau. */
-  onEchapSaisie(event: Event): void {
-    event.stopPropagation();
-    this.annulerCreation();
-  }
-
-  /** La tâche créée est aussitôt choisie : on la crée pour s'en servir. */
-  creerTache(parent: Issue): void {
-    if (!this.libelle.trim() || this.enCreation) {
-      return;
-    }
-    this.enCreation = true;
-    this.erreur = '';
-    this.creation.creerTache(parent, this.libelle).subscribe({
-      next: cree => {
-        this.enCreation = false;
-        // Visible tout de suite ; le rechargement met ensuite toute
-        // l'application à jour.
-        parent.children = [...(parent.children ?? []), cree];
-        this.issueService.refreshIssueListMasters();
-        this.choisir(cree, parent);
-      },
-      error: (err: Error) => {
-        this.enCreation = false;
-        this.erreur = err?.message ?? 'Création impossible.';
-      }
-    });
-  }
-
-  creerProjet(): void {
-    if (!this.libelle.trim() || this.enCreation) {
-      return;
-    }
-    this.enCreation = true;
-    this.erreur = '';
-    this.creation.creerProjet(this.libelle).subscribe({
-      next: cree => {
-        this.enCreation = false;
-        this.issues = [...(this.issues ?? []), cree];
-        this.issueService.refreshIssueListMasters();
-        this.choisir(cree);
-      },
-      error: (err: Error) => {
-        this.enCreation = false;
-        this.erreur = err?.message ?? 'Création impossible.';
-      }
-    });
+  demanderCreationProjet(): void {
+    this.creationProjetDemandee.emit();
+    this.menu.closed.emit('click');
   }
 
   progressClass(percent: number | null | undefined): string {
@@ -351,7 +298,6 @@ export class IssuePickerMenuComponent {
   // Appelé par (rendered) sur le contenu paresseux : une fois par ouverture.
   onMenuOpened(): void {
     this.terme = '';
-    this.annulerCreation();
     // Mode simple : le dossier contenant le choix courant s'ouvre, pour le
     // montrer sans avoir à le chercher.
     if (this.mode === 'simple' && this.issueCourante?.id != null) {

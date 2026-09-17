@@ -81,7 +81,7 @@
 
             <!-- Nouvelle tâche dans ce projet : ouverte à tous. -->
             <button class="issue-tree-add" *ngIf="creationEnLigne && depth === 0"
-                    (click)="ouvrirCreationTache(issue, $event)" title="Nouvelle tâche dans ce projet">
+                    (click)="demanderCreationTache(issue, $event)" title="Nouvelle tâche dans ce projet">
               <i class="fas fa-plus"></i>
             </button>
           </div>
@@ -90,28 +90,13 @@
           <div class="issue-tree-children" *ngIf="peutDeplier(issue, depth) && estDeplie(issue)" @expandCollapse>
             <ng-container *ngTemplateOutlet="nodeList; context: { issues: filtrer(issue.children, issue), depth: depth + 1, parent: issue }"></ng-container>
 
-            <ng-container *ngIf="creationEnLigne && depth === 0">
-              <div class="issue-tree-create" *ngIf="estCreationDans(issue); else lienTache"
-                   [style.paddingLeft.px]="(depth + 1) * 16 + 22" appContenuMenu>
-                <input type="text" placeholder="Titre de la nouvelle tâche"
-                       [(ngModel)]="libelle" [ngModelOptions]="{standalone: true}"
-                       [disabled]="enCreation"
-                       (keydown.enter)="creerTache(issue)"
-                       (keydown.escape)="onEchapSaisie($event)" />
-                <button type="button" class="create-ok" [disabled]="!libelle.trim() || enCreation"
-                        (click)="creerTache(issue)">{{ enCreation ? '…' : 'Créer' }}</button>
-                <button type="button" class="create-cancel" (click)="annulerCreation()" title="Annuler">
-                  <i class="fas fa-xmark"></i>
-                </button>
-              </div>
-              <ng-template #lienTache>
-                <button type="button" class="issue-tree-link"
-                        [style.paddingLeft.px]="(depth + 1) * 16 + 22"
-                        (click)="ouvrirCreationTache(issue, $event)">
-                  <i class="fas fa-plus"></i> Nouvelle tâche
-                </button>
-              </ng-template>
-            </ng-container>
+            <!-- Le type de demande est obligatoire : la création passe par le
+                 formulaire complet, ouvert par l'hôte. -->
+            <button type="button" class="issue-tree-link" *ngIf="creationEnLigne && depth === 0"
+                    [style.paddingLeft.px]="(depth + 1) * 16 + 22"
+                    (click)="demanderCreationTache(issue, $event)">
+              <i class="fas fa-plus"></i> Nouvelle tâche
+            </button>
           </div>
         </ng-container>
       </ng-template>
@@ -121,18 +106,18 @@
       </div>
     </div>
 
-    <p class="issue-picker-error" *ngIf="erreur">{{ erreur }}</p>
-
-    <!-- Mode multiple : pied de menu historique, inchangé. -->
-    <div class="issue-picker-footer" *ngIf="mode === 'multiple'">
-      <button
-        mat-menu-item
-        class="footer-btn footer-btn-secondary"
-        (click)="onCreateSubIssueClick()"
-      >
-        <i class="fas fa-plus"></i>
-        <span>Nouvelle sous-issue</span>
+    <!-- Nouveau projet : réservé aux gestionnaires de projet et administrateurs. -->
+    <div class="issue-picker-new-project"
+         *ngIf="creationEnLigne && (peutCreerProjet$ | async)" appContenuMenu>
+      <button type="button" class="issue-tree-link" (click)="demanderCreationProjet()">
+        <i class="fas fa-folder-plus"></i> Nouveau projet
       </button>
+    </div>
+
+    <!-- Mode multiple : valider les issues cochées. L'ancien « Nouvelle
+         sous-issue » est remplacé par « Nouvelle tâche » dans chaque projet :
+         il émettait une demande qu'aucun écran ne traitait. -->
+    <div class="issue-picker-footer" *ngIf="mode === 'multiple'">
       <button
         mat-menu-item
         class="footer-btn footer-btn-primary"
@@ -142,28 +127,6 @@
         <i class="fas fa-check"></i>
         <span>Créer{{ selectionCount > 0 ? ' (' + selectionCount + ')' : '' }}</span>
       </button>
-    </div>
-
-    <!-- Nouveau projet : réservé aux gestionnaires de projet et administrateurs. -->
-    <div class="issue-picker-new-project"
-         *ngIf="mode === 'simple' && creationEnLigne && (peutCreerProjet$ | async)" appContenuMenu>
-      <div class="issue-tree-create" *ngIf="creationProjetOuverte; else lienProjet">
-        <input type="text" placeholder="Titre du nouveau projet"
-               [(ngModel)]="libelle" [ngModelOptions]="{standalone: true}"
-               [disabled]="enCreation"
-               (keydown.enter)="creerProjet()"
-               (keydown.escape)="onEchapSaisie($event)" />
-        <button type="button" class="create-ok" [disabled]="!libelle.trim() || enCreation"
-                (click)="creerProjet()">{{ enCreation ? '…' : 'Créer' }}</button>
-        <button type="button" class="create-cancel" (click)="annulerCreation()" title="Annuler">
-          <i class="fas fa-xmark"></i>
-        </button>
-      </div>
-      <ng-template #lienProjet>
-        <button type="button" class="issue-tree-link" (click)="ouvrirCreationProjet()">
-          <i class="fas fa-folder-plus"></i> Nouveau projet
-        </button>
-      </ng-template>
     </div>
   </ng-template>
 </mat-menu>

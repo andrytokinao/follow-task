@@ -2,20 +2,15 @@ import {
   ChangeDetectorRef,
   Component,
   EventEmitter,
-  NgZone,
-  OnDestroy,
   Output,
   ViewChild
 } from '@angular/core';
 import {MatMenuTrigger} from '@angular/material/menu';
 import {EditEventComponent} from '../edit-event/edit-event.component';
 import {EventApp} from '../../type/issue';
+import {DernierPointeurService, PositionMenu} from '../../services/dernier-pointeur.service';
 
-/** Point d'affichage, en coordonnées de la fenêtre. */
-export interface PositionMenu {
-  x: number;
-  y: number;
-}
+export type {PositionMenu};
 
 /**
  * Formulaire d'événement affiché en menu, à côté du clic — jamais en popup.
@@ -30,9 +25,8 @@ export interface PositionMenu {
  * ouvrirCreation ou ouvrirEdition.
  *
  * Position du clic : DayPilot fournit l'évènement souris à ses menus
- * contextuels et à onEventClick, mais pas à onTimeRangeSelected. On mémorise
- * donc le dernier relâchement de pointeur, en phase de capture pour le lire
- * avant que DayPilot ne traite la sélection.
+ * contextuels et à onEventClick, mais pas à onTimeRangeSelected. On se rabat
+ * alors sur le dernier relâchement de pointeur (DernierPointeurService).
  */
 @Component({
   standalone: false,
@@ -40,7 +34,7 @@ export interface PositionMenu {
   templateUrl: './event-menu.component.html',
   styleUrl: './event-menu.component.css'
 })
-export class EventMenuComponent implements OnDestroy {
+export class EventMenuComponent {
 
   /** Émis après enregistrement : l'hôte recharge son planning. */
   @Output() saved = new EventEmitter<EventApp>();
@@ -51,21 +45,7 @@ export class EventMenuComponent implements OnDestroy {
   x = 0;
   y = 0;
 
-  private dernierPointeur?: PositionMenu;
-
-  private readonly memoriserPointeur = (event: PointerEvent) => {
-    this.dernierPointeur = {x: event.clientX, y: event.clientY};
-  };
-
-  constructor(private zone: NgZone, private cdr: ChangeDetectorRef) {
-    // Hors zone : chaque relâchement de souris déclencherait sinon une
-    // détection de changements dans toute l'application.
-    this.zone.runOutsideAngular(() =>
-      document.addEventListener('pointerup', this.memoriserPointeur, true));
-  }
-
-  ngOnDestroy(): void {
-    document.removeEventListener('pointerup', this.memoriserPointeur, true);
+  constructor(private pointeur: DernierPointeurService, private cdr: ChangeDetectorRef) {
   }
 
   /**
@@ -93,7 +73,7 @@ export class EventMenuComponent implements OnDestroy {
   }
 
   private ouvrir(position: PositionMenu | MouseEvent | undefined, preparer: () => void): void {
-    const cible = this.resoudre(position);
+    const cible = this.pointeur.resoudre(position);
     // Le traitement du clic courant n'est pas terminé : ouvrir tout de suite
     // laisserait ce même clic fermer le menu aussitôt.
     setTimeout(() => {
@@ -110,19 +90,5 @@ export class EventMenuComponent implements OnDestroy {
       preparer();
       this.trigger.openMenu();
     });
-  }
-
-  private resoudre(position: PositionMenu | MouseEvent | undefined): PositionMenu {
-    if (position instanceof MouseEvent) {
-      return {x: position.clientX, y: position.clientY};
-    }
-    if (position) {
-      return position;
-    }
-    if (this.dernierPointeur) {
-      return this.dernierPointeur;
-    }
-    // Ouverture sans clic connu (clavier, appel programmatique) : au centre.
-    return {x: window.innerWidth / 2, y: window.innerHeight / 3};
   }
 }

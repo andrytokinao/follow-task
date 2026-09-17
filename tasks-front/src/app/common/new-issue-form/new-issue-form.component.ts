@@ -37,9 +37,36 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
   allIssueTypes: IssueType[] = [];
   useIssueType: IssueType[] = [];
   projects:Project [] = [];
-  @Input() parentIssue: Issue | undefined;
+  /**
+   * Demande parente d'une sous-tâche.
+   *
+   * Transmise par l'hôte, elle prime sur la demande courante diffusée par
+   * `issueMaster$`. Sans cette priorité, un hôte qui crée une tâche dans un
+   * projet choisi (le sélecteur du formulaire d'événement) voyait ce projet
+   * remplacé par celui de la page, rejoué par le BehaviorSubject à
+   * l'initialisation. Les écrans qui ne transmettent rien gardent le
+   * comportement d'origine.
+   */
+  @Input()
+  set parentIssue(parent: Issue | undefined) {
+    this.parentFourni = parent?.id != null ? parent : undefined;
+    this._parentIssue = parent;
+    if (this.initialise && this.parentFourni && !this.isMaster) {
+      this.loadIssueTypeSubtask();
+    }
+  }
+  get parentIssue(): Issue | undefined {
+    return this._parentIssue;
+  }
+  private _parentIssue: Issue | undefined;
+  private parentFourni: Issue | undefined;
+  private initialise = false;
+
   @ViewChild(MatMenuTrigger) menuTrigger!: MatMenuTrigger;
-  @Output() saved = new EventEmitter<void>();
+  /** L'issue créée : l'hôte peut la sélectionner aussitôt. */
+  @Output() saved = new EventEmitter<Issue>();
+  /** « Annuler » : l'hôte referme le menu qui porte le formulaire. */
+  @Output() cancelled = new EventEmitter<void>();
   step: string = '';
   @Input() isMaster = true;
   isDesable = false;
@@ -111,17 +138,22 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
       }
     });
     this.issueService.issueMaster$.subscribe(issue => {
-      this.parentIssue = issue;
-      if (this.parentIssue?.id) {
+      // Un parent transmis par l'hôte prime sur la demande de la page.
+      if (this.parentFourni) {
+        return;
+      }
+      this._parentIssue = issue;
+      if (this._parentIssue?.id) {
         if (!this.isMaster) {
           this.loadIssueTypeSubtask();
         }
-      } else {
-
       }
-
     })
 
+    if (this.parentFourni && !this.isMaster) {
+      this.loadIssueTypeSubtask();
+    }
+    this.initialise = true;
   }
 
   save(form: any) {
@@ -157,7 +189,7 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
       next: (res) => {
         this.saving = false;
         this.messageService.showRight('');
-        this.saved.emit();
+        this.saved.emit(res);
         this.summary = '';
         this.description = '';
         this.loadNextKey();
@@ -182,6 +214,7 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
 
   cancel() {
    this.messageService.showRight('');
+   this.cancelled.emit();
   }
 
 

@@ -412,17 +412,3 @@
 .pt-fichier { flex: none; color: #9ca3af; font-size: 11px; }
 .pt-cle { flex: none; font-weight: 600; color: #374151; }
 .pt-titre { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #4b5563; }
-
-/* Ancre invisible du menu de création, sous le bouton projet / tâche. */
-.pt-ancre {
-  display: block;
-  width: 100%;
-  height: 0;
-}
-
-/* Le formulaire de création est plus large que le panneau par défaut (280 px). */
-::ng-deep .creation-issue-panel.mat-mdc-menu-panel {
-  width: 520px;
-  max-width: min(520px, 95vw);
-  max-height: 85vh;
-}

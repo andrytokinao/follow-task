@@ -7,6 +7,7 @@ import {
   NgZone,
   OnChanges,
   Output,
+  ViewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatMenuModule } from '@angular/material/menu';
@@ -19,13 +20,17 @@ import {Issue, MessageApp} from "../../type/issue";
 import {IssueService} from "../../services/issue.service";
 import {MessagingService} from "../../services/messaging.service";
 import {IssuePickerMenuComponent} from "../issue-picker/issue-picker-menu.component";
+import {IssueCreationMenuComponent, IssueCreee} from "../issue-creation-menu/issue-creation-menu.component";
+import {MyCommonModule} from "../common.module";
 
 const LONG_PRESS_MS = 450;
 
 @Component({
   selector: 'app-message-thread',
   standalone: true,
-  imports: [CommonModule, AvatarComponent, MatMenuModule, RouterLink, IssuePickerMenuComponent],
+  // MyCommonModule pour app-issue-creation-menu : il embarque
+  // app-new-issue-form, déclaré dans ce module et non autonome.
+  imports: [CommonModule, AvatarComponent, MatMenuModule, RouterLink, IssuePickerMenuComponent, MyCommonModule],
   templateUrl: './message-thread.component.html',
   styleUrls: ['./message-thread.component.scss'],
 })
@@ -42,10 +47,13 @@ export class MessageThreadComponent implements OnChanges {
   @Output() issuesLinked = new EventEmitter<{ messages: MessageApp[]; issues: Issue[] }>();
   @Output() unlinkIssueFromMessage = new EventEmitter<IssueMessageLink>();
 
-  // Relaie la demande de création de sous-issue au parent, qui gère le
-  // formulaire/dialogue de création. `parent` est l'issue pressentie comme
-  // parente si une seule était cochée au moment du clic, sinon null.
-  @Output() createSubIssueRequested = new EventEmitter<{ parent: Issue | null }>();
+  /**
+   * Messages auxquels lier l'issue en cours de création. Figés au moment de la
+   * demande : la sélection pourrait changer pendant qu'on remplit le formulaire.
+   */
+  private messagesACibler: MessageApp[] = [];
+
+  @ViewChild(IssueCreationMenuComponent) private creationMenu!: IssueCreationMenuComponent;
 
   dayGroups: MessageDayGroup[] = [];
 
@@ -267,15 +275,41 @@ export class MessageThreadComponent implements OnChanges {
   // picker de la barre de sélection groupée.
   onIssuesPickedForSelection(issues: Issue[]): void {
     if (this.selectedMessageIds.size === 0) return;
-    const selected = this.dayGroups
-      .flatMap(group => group.messages)
-      .filter(msg => this.isSelected(msg));
-    this.linkIssue(issues, selected)
+    this.linkIssue(issues, this.messagesSelectionnes())
     this.cancelSelection();
   }
 
-  onCreateSubIssueRequested(parent: Issue | null): void {
-    this.createSubIssueRequested.emit({ parent });
+  messagesSelectionnes(): MessageApp[] {
+    return this.dayGroups
+      .flatMap(group => group.messages)
+      .filter(msg => this.isSelected(msg));
+  }
+
+  // ==================== Création depuis le sélecteur ====================
+
+  /**
+   * « Nouvelle tâche » ou « Nouveau projet » dans le sélecteur. Le bouton
+   * « Nouvelle sous-issue » d'avant relayait la demande à la page, qui ne la
+   * traitait pas : rien ne se passait. La création se fait maintenant ici,
+   * dans le formulaire complet.
+   *
+   * @param parent projet où créer la tâche ; absent pour créer un projet
+   */
+  demanderCreation(messages: MessageApp[], parent?: Issue): void {
+    if (!messages.length) return;
+    this.messagesACibler = messages;
+    this.creationMenu.ouvrir(parent);
+  }
+
+  /** On crée depuis un message pour l'y rattacher : la liaison est immédiate. */
+  onIssueCreee(creee: IssueCreee): void {
+    const messages = this.messagesACibler;
+    this.messagesACibler = [];
+    if (!messages.length) return;
+    this.linkIssue([creee.issue], messages);
+    if (this.selectionMode) {
+      this.cancelSelection();
+    }
   }
 
   private linkIssue(issues: Issue[], messages: MessageApp[]): void {

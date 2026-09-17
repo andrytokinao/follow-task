@@ -21,6 +21,7 @@ import { takeUntil, finalize } from 'rxjs/operators';
 import { EventApp, Issue, EventTypeApp, User, Project, PercentageProposal } from '../../type/issue';
 import { EventsService } from '../../services/events.service';
 import { IssueChoisie } from '../issue-picker/issue-picker-menu.component';
+import { IssueCreee } from '../issue-creation-menu/issue-creation-menu.component';
 import { IssueService } from '../../services/issue.service';
 import { AuthService } from '../../services/auth.service';
 
@@ -366,6 +367,24 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
     this.selectMaster(choix.issue);
+  }
+
+  // ─── Création de projet ou de tâche ────────────────────────────────────────
+
+  /**
+   * Issue créée depuis le sélecteur : aussitôt choisie, puisqu'on la crée pour
+   * y planifier. Un projet est ajouté à la liste affichée sans attendre le
+   * rechargement ; une tâche l'a déjà été dans son projet par le menu de
+   * création.
+   */
+  onIssueCreee(creee: IssueCreee): void {
+    if (creee.parent) {
+      this.selectedMaster = creee.parent;
+      this.selectSubtask(creee.issue);
+      return;
+    }
+    this.masters = [...this.masters, creee.issue];
+    this.selectMaster(creee.issue);
   }
 
   selectMaster(issue: Issue): void {

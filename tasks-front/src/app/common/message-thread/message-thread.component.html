@@ -73,11 +73,15 @@
               </button>
             </mat-menu>
 
+            <!-- Création possible sur place : la tâche ou le projet créé est
+                 aussitôt lié à ce message. -->
             <app-issue-picker-menu
               #rootPicker
               [issues]="masters"
+              [creationEnLigne]="true"
               (issuesSelected)="onIssuesPickedForSingle(msg, $event)"
-              (createSubIssueRequested)="onCreateSubIssueRequested($event)"
+              (creationTacheDemandee)="demanderCreation([msg], $event)"
+              (creationProjetDemandee)="demanderCreation([msg])"
             ></app-issue-picker-menu>
 
             <!-- Issues liées : unique zone d'affichage, à l'intérieur de la card -->
@@ -186,8 +190,14 @@
     <app-issue-picker-menu
       #selectionRootPicker
       [issues]="masters"
+      [creationEnLigne]="true"
       (issuesSelected)="onIssuesPickedForSelection($event)"
-      (createSubIssueRequested)="onCreateSubIssueRequested($event)"
+      (creationTacheDemandee)="demanderCreation(messagesSelectionnes(), $event)"
+      (creationProjetDemandee)="demanderCreation(messagesSelectionnes())"
     ></app-issue-picker-menu>
   </div>
 </div>
+
+<!-- Création de projet ou de tâche : formulaire complet (type obligatoire),
+     à côté du lien cliqué. L'issue créée est liée aux messages d'origine. -->
+<app-issue-creation-menu (creee)="onIssueCreee($event)"></app-issue-creation-menu>
