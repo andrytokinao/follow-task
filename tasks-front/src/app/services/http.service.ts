@@ -42,6 +42,22 @@ export class HttpInterceptorService implements HttpInterceptor {
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     req = req.clone({ withCredentials: true });
 
+    // Envoi de fichiers : le service worker doit rester à l'écart.
+    //
+    // Il n'est actif qu'en production, et y intercepte toutes les requêtes,
+    // POST compris (event.respondWith) : le navigateur lui remet alors le
+    // corps entier, qu'il renvoie lui-même au serveur. Deux effets, visibles
+    // seulement en prod : la progression d'envoi n'est pas remontée — elle
+    // restait à 0 % jusqu'à la fin — et le fichier est recopié en chemin, ce
+    // qui ralentit nettement les gros envois.
+    //
+    // Paramètre d'URL et non en-tête : un en-tête personnalisé imposerait une
+    // requête CORS préalable à chaque envoi quand front et API ne partagent
+    // pas l'origine (développement). Le serveur ignore ce paramètre.
+    if (req.body instanceof FormData) {
+      req = req.clone({ setParams: { 'ngsw-bypass': 'true' } });
+    }
+
     return next.handle(req).pipe(
       tap(event => {
         if (event instanceof HttpResponse) {
