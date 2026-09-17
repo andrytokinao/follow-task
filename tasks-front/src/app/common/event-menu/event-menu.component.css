@@ -7,6 +7,12 @@
   pointer-events: none;
 }
 
+/* Consultation et édition partagent le panneau : une seule est visible. */
+app-event-detail[hidden],
+app-edit-event[hidden] {
+  display: none !important;
+}
+
 /* Le panneau Material est plafonné à 280 px, trop étroit pour ce formulaire.
    On l'élargit sans dépasser l'écran, et on le laisse défiler plutôt que de
    sortir de la fenêtre sur un petit écran. */

@@ -29,6 +29,7 @@ import {RouterLink, RouterLinkActive} from "@angular/router";
 import {StatusFieldComponent} from "./status-field/status-field.component";
 import {EditEventComponent} from "./edit-event/edit-event.component";
 import {EventMenuComponent} from "./event-menu/event-menu.component";
+import {EventDetailComponent} from "./event-detail/event-detail.component";
 import {IssueCreationMenuComponent} from "./issue-creation-menu/issue-creation-menu.component";
 import {QuestionAssignationComponent} from "./question-assignation/question-assignation.component";
 import {ContenuMenuDirective} from "./contenu-menu/contenu-menu.directive";
@@ -85,6 +86,7 @@ import {IssueBoardComponent} from "./issue-board/issue-board.component";
     StatusFieldComponent,
     EditEventComponent,
     EventMenuComponent,
+    EventDetailComponent,
     IssueCreationMenuComponent,
     QuestionAssignationComponent,
     NewEventComponent,

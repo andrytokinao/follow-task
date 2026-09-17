@@ -27,6 +27,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -109,8 +110,13 @@ public class WebSecurityConfig {
                 // Le point d'entree par defaut de formLogin() redirige vers "/login",
                 // qui sert desormais l'index Angular : le front ne reconnaitrait plus
                 // la page de connexion dans la reponse et raterait l'expiration.
+                // Enregistre comme point d'entree "par defaut" et non via
+                // authenticationEntryPoint() : ce dernier desactive la page generee.
+                // Declare avant celui de formLogin(), il est retenu en premier.
                 .exceptionHandling(exceptions -> exceptions
-                        .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint(LOGIN_PROCESSING_URL))
+                        .defaultAuthenticationEntryPointFor(
+                                new LoginUrlAuthenticationEntryPoint(LOGIN_PROCESSING_URL),
+                                AnyRequestMatcher.INSTANCE)
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")

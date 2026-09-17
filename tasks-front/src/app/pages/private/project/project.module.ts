@@ -41,7 +41,6 @@ import {ShowMasterComponent} from "./show-master/show-master.component";
 import {IssueMasterListComponent} from "./list/issue-master-list/simple-liste/issue-master-list.component";
 import {DocumentComponent} from "./document/document.component";
 import {MarkdownComponent} from "ngx-markdown";
-import {ViewEventComponent} from "./modal/view-event/view-event.component";
 import {DayPilotModule} from "@daypilot/daypilot-lite-angular";
 import {PlanningIssueComponent} from "./modal/planning-issue/planning-issue.component";
 import {ShowIssueOptionComponent} from "./modal/show-issue-option/show-issue-option.component";
@@ -80,7 +79,6 @@ import {TaskListComponent} from "./tasks/task-list.component";
     NewIssueComponent,
     ViewEditIssueComponent,
     DocumentComponent,
-    ViewEventComponent,
     PlanningIssueComponent,
     ShowIssueOptionComponent,
     ShowIssueFullOptionComponent,

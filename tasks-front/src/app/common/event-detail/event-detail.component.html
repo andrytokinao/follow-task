@@ -1,0 +1,101 @@
+<div class="event-detail">
+
+  <!-- ── Header ─────────────────────────────────────────────── -->
+  <div class="ed-header">
+    <h4 class="ed-title">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="2" y="3" width="12" height="11" rx="1.5"/>
+        <path d="M5 2v2M11 2v2M2 7h12"/>
+      </svg>
+      <span class="ed-title-text">{{ event?.title || 'Exécution' }}</span>
+    </h4>
+    <div class="ed-header-actions">
+      <button type="button" class="ed-icon-btn" title="Modifier" aria-label="Modifier"
+              [disabled]="!event" (click)="editer()">
+        <i class="fas fa-pen"></i>
+      </button>
+      <button type="button" class="ed-icon-btn" aria-label="Fermer" (click)="fermer()">×</button>
+    </div>
+  </div>
+
+  <div class="ed-body">
+
+    <div *ngIf="loading" class="ed-loading">
+      <div class="spinner"></div>
+    </div>
+
+    <ng-container *ngIf="event">
+
+      <!-- Quand, qui, quoi -->
+      <div class="ed-meta">
+        <div class="ed-meta-row" *ngIf="periode">
+          <i class="fas fa-clock"></i>
+          <span class="ed-periode">{{ periode }}</span>
+        </div>
+        <div class="ed-meta-row" *ngIf="event.user">
+          <app-avatar [url]="photoUtilisateur" [displayName]="nomUtilisateur" style="--avatar-size: 20px"></app-avatar>
+          <span>{{ nomUtilisateur }}</span>
+        </div>
+        <div class="ed-meta-row" *ngIf="event.completionPercentage != null">
+          <span class="ed-badge ed-badge--avancement">
+            {{ event.completionPercentage }}%
+          </span>
+        </div>
+      </div>
+
+      <!-- Projet et tâche : liens vers leur page -->
+      <ng-container *ngIf="projet">
+        <div class="section-label"><span>Projet et tâche</span></div>
+        <div class="ed-liens">
+          <div class="ed-lien-ligne">
+            <span class="pt-niveau">Projet</span>
+            <i class="fas fa-folder pt-dossier"></i>
+            <a *ngIf="lienProjet; else projetTexte" class="ed-lien" [routerLink]="lienProjet" (click)="fermer()"
+               title="Ouvrir le projet">
+              <span class="pt-cle">{{ projet.issueKey }}</span>
+              <span class="pt-titre">{{ projet.summary }}</span>
+              <i class="fas fa-arrow-up-right-from-square ed-lien-icone"></i>
+            </a>
+            <ng-template #projetTexte>
+              <span class="pt-cle">{{ projet.issueKey }}</span>
+              <span class="pt-titre">{{ projet.summary }}</span>
+            </ng-template>
+          </div>
+
+          <div class="ed-lien-ligne" *ngIf="tache">
+            <span class="pt-niveau">Tâche</span>
+            <i class="fas fa-file-lines pt-fichier"></i>
+            <a *ngIf="lienTache; else tacheTexte" class="ed-lien" [routerLink]="lienTache" (click)="fermer()"
+               title="Ouvrir la tâche">
+              <span class="pt-cle">{{ tache.issueKey }}</span>
+              <span class="pt-titre">{{ tache.summary }}</span>
+              <i class="fas fa-arrow-up-right-from-square ed-lien-icone"></i>
+            </a>
+            <ng-template #tacheTexte>
+              <span class="pt-cle">{{ tache.issueKey }}</span>
+              <span class="pt-titre">{{ tache.summary }}</span>
+            </ng-template>
+            <app-status-field class="ed-statut" [issue]="event.issue"></app-status-field>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- Notes de session -->
+      <ng-container *ngIf="event.description">
+        <div class="section-label"><span>Notes de session</span></div>
+        <div class="ed-description" [innerHTML]="event.description"></div>
+      </ng-container>
+
+    </ng-container>
+
+    <!-- Actions -->
+    <div class="form-actions">
+      <button type="button" class="btn btn-outline" (click)="fermer()">Fermer</button>
+      <button type="button" class="btn btn-primary" [disabled]="!event" (click)="editer()">
+        <i class="fas fa-pen"></i>
+        Modifier
+      </button>
+    </div>
+  </div>
+
+</div>

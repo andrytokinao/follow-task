@@ -140,11 +140,6 @@ export class PlanningIssueComponent implements OnInit{
     args.control?.clearSelection?.();
     this.eventMenu.ouvrirCreation(newEvent);
   }
-  viewEvent(args:any){
-    this.eventService.viewEvent(args.e.data.id).subscribe(result => {
-      console.debug(result);
-    })
-  }
   selectNextWeek() {
     this.changeDate(this.date.addDays(7));
   }

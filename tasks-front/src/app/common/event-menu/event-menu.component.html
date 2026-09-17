@@ -11,7 +11,15 @@
   <!-- Clics, clavier et sous-menus du formulaire ne doivent pas refermer ce
        menu : voir ContenuMenuDirective. -->
   <div appContenuMenu>
+    <!-- Les deux vues restent instanciées : les @ViewChild doivent exister
+         avant l'ouverture, qui leur demande de se charger. -->
+    <app-event-detail
+      [hidden]="mode !== 'consultation'"
+      (modifier)="ouvrirEdition($event.id, {x: x, y: y})"
+      (onClose)="fermer()">
+    </app-event-detail>
     <app-edit-event
+      [hidden]="mode !== 'edition'"
       [byIssue]="false"
       [suivreSelection]="false"
       (saved)="onSaved($event)"

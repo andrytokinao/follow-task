@@ -727,10 +727,9 @@ export class PlanningCalendarComponent implements AfterViewInit, OnDestroy {
     resourceSubject.complete();
     eventsSubject.complete();
   }
+  /** Consultation en menu, à côté du clic ; « Modifier » y bascule sur le formulaire. */
   viewEvent(args:any){
-    this.eventService.viewEvent(args.e.data.id).subscribe(result => {
-      this.loadEvents();
-    })
+    this.eventMenu.ouvrirConsultation(args.e.data.id, args.originalEvent as MouseEvent);
   }
   detailsIssue(issue:Issue) {
     this.issueService.browsIssueMaster(issue)
