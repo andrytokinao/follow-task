@@ -62,7 +62,9 @@
               <span class="issue-picker-key">{{ issue.issueKey }}</span>
               <span class="issue-picker-summary" [title]="issue.summary">{{ issue.summary }}</span>
 
-              <span class="issue-picker-moi" *ngIf="estAMoi(issue)" title="Assignée à vous">à vous</span>
+              <!-- Clignote tant que la tâche n'est pas terminée : c'est encore à faire. -->
+              <span class="issue-picker-moi" *ngIf="estAMoi(issue)" title="Assignée à vous"
+                    [class.issue-picker-moi--a-faire]="!estTerminee(issue)">Pour vous</span>
               <i class="fas fa-spinner fa-spin issue-picker-loading" *ngIf="depth === 0 && estEnChargement(issue)"
                  title="Chargement des tâches"></i>
 

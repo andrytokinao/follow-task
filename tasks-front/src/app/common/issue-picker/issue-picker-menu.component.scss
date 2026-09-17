@@ -1,8 +1,12 @@
 ::ng-deep .issue-picker-menu.mat-mdc-menu-panel {
   min-width: 260px;
-  // Élargi : les avatars des assignés et l'avancement prennent place sur la
-  // ligne, à côté du titre.
-  max-width: min(400px, 92vw);
+  // Pas de plafond fixe (Material en impose un à 280 px) : clé, titre,
+  // avatars, durée et avancement tiennent sur la ligne. Seul l'écran borne la
+  // largeur ; au-delà, c'est le titre qui s'abrège, jamais un défilement
+  // horizontal.
+  width: max-content;
+  max-width: 95vw;
+  overflow-x: hidden;
 }
 
 ::ng-deep .issue-picker-menu .mat-mdc-menu-content {
@@ -12,6 +16,7 @@
 .issue-tree-scroll {
   max-height: 300px;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 4px 0;
 }
 
@@ -60,6 +65,9 @@
   gap: 6px;
   min-height: 34px;
   flex: 1;
+  // Sans min-width: 0, un élément flex ne descend pas sous la largeur de son
+  // contenu : un long titre élargissait la ligne au lieu de s'abréger.
+  min-width: 0;
   padding: 0 12px 0 4px;
   font-size: 12px;
   cursor: pointer;
@@ -110,6 +118,7 @@
 
 .issue-picker-summary {
   flex: 1;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -212,8 +221,7 @@
 // Panneau plus large : le titre d'une tâche doit rester lisible à côté de sa
 // clé, et la recherche a besoin de place.
 ::ng-deep .issue-picker-menu--simple.mat-mdc-menu-panel {
-  min-width: 340px;
-  max-width: min(420px, 92vw);
+  min-width: min(480px, 95vw);
 }
 
 .issue-picker-menu--simple .issue-tree-scroll,
@@ -319,25 +327,36 @@
   color: #9CA3AF;
 }
 
-// Ce qui vous est assigné : liseré, clé et titre plus marqués, pastille
-// « à vous ». Visible sans être criard — c'est une invitation, pas une alerte.
+// Ce qui vous est assigné : liseré, titre plus marqué, mention « Pour vous ».
+// La clé garde un fond neutre : c'est la mention qui attire l'œil.
 .issue-tree-item--moi {
   box-shadow: inset 3px 0 0 #6366F1;
   background: #F5F3FF;
 
   &:hover { background: #EDE9FE; }
 
-  .issue-picker-key { background: #6366F1; color: #fff; }
+  .issue-picker-key { background: transparent; }
   .issue-picker-summary { font-weight: 600; color: #1F2937; }
 }
 
 .issue-picker-moi {
   flex-shrink: 0;
-  padding: 1px 6px;
-  border-radius: 8px;
-  background: #E0E7FF;
   color: #4338CA;
-  font-size: 9px;
-  font-weight: 600;
+  font-size: 9.5px;
+  font-weight: 700;
   white-space: nowrap;
+}
+
+// Tâche pas encore à 100 % : la mention clignote, seulement le texte.
+.issue-picker-moi--a-faire {
+  animation: issue-picker-clignote 1.2s ease-in-out infinite;
+}
+
+@keyframes issue-picker-clignote {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .issue-picker-moi--a-faire { animation: none; }
 }

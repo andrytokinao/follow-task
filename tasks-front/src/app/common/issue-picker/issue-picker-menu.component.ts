@@ -209,6 +209,11 @@ export class IssuePickerMenuComponent {
       && this.assignesDe(issue).some(u => String(u.id) === String(this.utilisateurId));
   }
 
+  /** Avancement réel (pas la valeur animée) : sans avancement connu, rien n'est terminé. */
+  estTerminee(issue: Issue): boolean {
+    return (issue.currentCompletionPercent ?? 0) >= 100;
+  }
+
   /** Charge le détail des tâches d'un projet, une fois par ouverture du panneau. */
   private chargerDetails(projet: Issue): void {
     const cle = this.keyOf(projet);
