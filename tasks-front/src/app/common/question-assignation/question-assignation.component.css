@@ -1,0 +1,60 @@
+.qa {
+  padding: 14px 16px 12px;
+  box-sizing: border-box;
+  min-width: 280px;
+}
+
+.qa-titre {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 2px;
+  font-size: 13px;
+  color: #111827;
+}
+.qa-titre i { color: #16a34a; }
+
+.qa-resume {
+  margin: 0 0 12px 21px;
+  font-size: 12px;
+  color: #6b7280;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.qa-texte {
+  margin: 0 0 12px;
+  font-size: 12.5px;
+  color: #374151;
+}
+
+.qa-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.qa-non, .qa-oui {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.qa-non {
+  border: 0.5px solid #d1d5db;
+  background: #fff;
+  color: #374151;
+}
+.qa-non:hover:not(:disabled) { background: #f3f4f6; }
+.qa-oui {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  background: #2563eb;
+  color: #fff;
+}
+.qa-oui:hover:not(:disabled) { background: #1d4ed8; }
+.qa-non:disabled, .qa-oui:disabled { opacity: .6; cursor: default; }

@@ -1,0 +1,17 @@
+<div class="qa">
+  <p class="qa-titre">
+    <i class="fas fa-circle-check"></i>
+    Tâche <strong>{{ tache.issueKey }}</strong> créée
+  </p>
+  <p class="qa-resume" [title]="tache.summary">{{ tache.summary }}</p>
+  <p class="qa-texte">Voulez-vous vous assigner cette tâche ?</p>
+  <div class="qa-actions">
+    <button type="button" class="qa-non" [disabled]="enCours" (click)="repondre(false)">
+      Non
+    </button>
+    <button type="button" class="qa-oui" [disabled]="enCours" (click)="repondre(true)">
+      <i class="fas fa-user-check" *ngIf="!enCours"></i>
+      {{ enCours ? 'Assignation…' : 'Oui, me l’assigner' }}
+    </button>
+  </div>
+</div>

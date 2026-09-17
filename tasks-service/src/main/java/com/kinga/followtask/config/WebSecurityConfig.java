@@ -11,17 +11,21 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
+import org.springframework.security.config.annotation.web.configurers.DefaultLoginPageConfigurer;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import java.io.IOException;
@@ -38,9 +42,11 @@ public class WebSecurityConfig {
     private static final Logger logger = LoggerFactory.getLogger(WebSecurityConfig.class);
 
     /**
-     * URL de soumission du formulaire de connexion, alignee sur le prefixe "/api"
-     * du reste des endpoints. La page de connexion generee reste, elle, sur
-     * "/login" : le front s'en sert pour detecter une session expiree.
+     * URL de la page de connexion generee par Spring Security et de soumission
+     * du formulaire, alignee sur le prefixe "/api" du reste des endpoints.
+     * "/login" est une route Angular : laissee a Spring, un rechargement ou un
+     * lien direct affichait sa page generee au lieu de celle du front. Le front
+     * detecte toujours une session expiree au contenu de la page generee.
      */
     static final String LOGIN_PROCESSING_URL = "/api/login";
 
@@ -48,6 +54,19 @@ public class WebSecurityConfig {
     private CustomUserDetailsService userDetailsService;
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        // formLogin() place la page generee sur "/login" et ne permet de la
+        // deplacer qu'en la declarant personnalisee, ce qui la desactive. On la
+        // conserve en corrigeant ses URL une fois initialisee par formLogin().
+        http.getConfigurer(DefaultLoginPageConfigurer.class)
+                .withObjectPostProcessor(new ObjectPostProcessor<DefaultLoginPageGeneratingFilter>() {
+                    @Override
+                    public <O extends DefaultLoginPageGeneratingFilter> O postProcess(O filter) {
+                        filter.setLoginPageUrl(LOGIN_PROCESSING_URL);
+                        filter.setFailureUrl(LOGIN_PROCESSING_URL + "?error");
+                        filter.setLogoutSuccessUrl(LOGIN_PROCESSING_URL + "?logout");
+                        return filter;
+                    }
+                });
         http
                 .csrf(csrf -> csrf.disable())
                 .headers(headers -> headers
@@ -86,6 +105,12 @@ public class WebSecurityConfig {
                         .permitAll()
                         .failureHandler(failureHandler())
                         .successHandler(successHandler())
+                )
+                // Le point d'entree par defaut de formLogin() redirige vers "/login",
+                // qui sert desormais l'index Angular : le front ne reconnaitrait plus
+                // la page de connexion dans la reponse et raterait l'expiration.
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint(LOGIN_PROCESSING_URL))
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")

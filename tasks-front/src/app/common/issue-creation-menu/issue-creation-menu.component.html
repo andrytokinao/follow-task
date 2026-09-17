@@ -1,0 +1,23 @@
+<!-- Ancre invisible placée au clic : le formulaire s'ouvre à côté. -->
+<span class="creation-ancre"
+      [matMenuTriggerFor]="creationMenu"
+      [style.left.px]="x"
+      [style.top.px]="y"></span>
+
+<!-- Contenu paresseux : le formulaire est recréé vierge à chaque ouverture et
+     ne charge rien tant qu'on ne crée pas.
+     appContenuMenu : ses sous-menus (type de demande) et ses clics ne
+     referment pas ce menu. -->
+<mat-menu #creationMenu="matMenu" class="creation-issue-panel" [overlapTrigger]="false">
+  <ng-template matMenuContent>
+    <div appContenuMenu class="creation-contenu">
+      <app-new-issue-form
+        [isMaster]="!parent"
+        [parentIssue]="parent"
+        (saved)="onSaved($event)"
+        (termine)="onTermine()"
+        (cancelled)="fermer()">
+      </app-new-issue-form>
+    </div>
+  </ng-template>
+</mat-menu>
