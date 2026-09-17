@@ -3,6 +3,7 @@ package com.kinga.followtask.entity;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Transient;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -27,8 +28,43 @@ import java.util.Set;
 public class ActionComment extends ActionItem {
     @ManyToOne
     private Document document;
-    @ManyToOne
+
+    /** Clé de {@code details} qui porte l'identifiant du commentaire. */
+    public static final String DETAIL_COMMENT_ID = "commentId";
+
+    /**
+     * Pas de colonne comment_id : les bases déjà en service ne l'ont pas, et on
+     * ne fait pas de migration SQL. L'identifiant est rangé dans la colonne
+     * {@code details}, qui existe partout ; l'objet ne vit que le temps de la
+     * requête qui a créé l'action (rédaction de la notification). Relu depuis
+     * la base, il est rechargé à la demande via {@link #getCommentId()}.
+     */
+    @Transient
     private Comment comment;
+
+    public void setComment(Comment comment) {
+        this.comment = comment;
+        if (details == null) {
+            details = new java.util.HashMap<>();
+        }
+        if (comment == null || comment.getId() == null) {
+            details.remove(DETAIL_COMMENT_ID);
+        } else {
+            details.put(DETAIL_COMMENT_ID, comment.getId().toString());
+        }
+    }
+
+    public Long getCommentId() {
+        String id = details == null ? null : details.get(DETAIL_COMMENT_ID);
+        if (id == null || id.isBlank()) {
+            return null;
+        }
+        try {
+            return Long.valueOf(id);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
 
     @Override
     protected ActionType typeParDefaut() {
