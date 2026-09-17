@@ -1,44 +1,58 @@
 <mat-menu
   #menu="matMenu"
   class="issue-picker-menu"
-  [hasBackdrop]="false"
+  [class.issue-picker-menu--simple]="mode === 'simple'"
+  [hasBackdrop]="hasBackdrop"
   (closed)="onMenuClosed()"
 >
   <!-- Contenu paresseux : Material détruit puis recrée cette vue à CHAQUE
        ouverture. C'est ce qui permet de relancer les compteurs animés
        (0% -> valeur réelle, 00:00 -> durée réelle) via (rendered). -->
   <ng-template matMenuContent>
+
+    <!-- Recherche (option). appContenuMenu : taper ne doit ni fermer le menu,
+         ni laisser son gestionnaire clavier voler les flèches. -->
+    <div class="issue-picker-search" *ngIf="recherche" appContenuMenu>
+      <i class="fas fa-search"></i>
+      <input type="text" placeholder="Rechercher un projet ou une tâche…"
+             [(ngModel)]="terme" [ngModelOptions]="{standalone: true}" />
+    </div>
+
     <div class="issue-tree-scroll" (rendered)="onMenuOpened()" (click)="$event.stopPropagation()">
-      <ng-container *ngTemplateOutlet="nodeList; context: { issues: issues, depth: 0 }"></ng-container>
+      <ng-container *ngTemplateOutlet="nodeList; context: { issues: filtrer(issues), depth: 0, parent: undefined }"></ng-container>
 
       <!-- Template récursif : un niveau de l'arbre. Se ré-invoque pour les
            enfants d'une issue dépliée, avec depth + 1 pour l'indentation —
            tout reste dans le même panneau, sans overlay supplémentaire. -->
-      <ng-template #nodeList let-issues="issues" let-depth="depth">
+      <ng-template #nodeList let-issues="issues" let-depth="depth" let-parent="parent">
         <ng-container *ngFor="let issue of issues">
           <div class="issue-tree-row" [style.paddingLeft.px]="depth * 16">
             <button
               class="issue-tree-toggle"
-              *ngIf="hasChildren(issue); else noToggle"
+              *ngIf="peutDeplier(issue, depth); else noToggle"
               (click)="toggleExpand(issue, $event)"
-              [attr.title]="isExpanded(issue) ? 'Replier' : 'Déplier'"
+              [attr.title]="estDeplie(issue) ? 'Replier' : 'Déplier'"
             >
-              <i class="fas fa-chevron-right" [class.expanded]="isExpanded(issue)"></i>
+              <i class="fas fa-chevron-right" [class.expanded]="estDeplie(issue)"></i>
             </button>
             <ng-template #noToggle>
               <span class="issue-tree-toggle-spacer"></span>
             </ng-template>
 
             <!-- Ligne cliquable : PAS un mat-menu-item, pour que cocher une
-                 case ne ferme jamais le menu et permette d'en cocher plusieurs. -->
+                 case ne ferme jamais le menu et permette d'en cocher plusieurs.
+                 En mode simple, le clic choisit et referme explicitement. -->
             <div
               class="issue-tree-item"
-              [class.selected]="isSelected(issue)"
-              (click)="toggleSelect(issue, $event)"
+              [class.selected]="isSelected(issue) || estCourante(issue)"
+              (click)="onLigneClic(issue, parent, $event)"
             >
-              <span class="issue-tree-checkbox" [class.checked]="isSelected(issue)">
+              <span class="issue-tree-checkbox" *ngIf="mode === 'multiple'" [class.checked]="isSelected(issue)">
                 <i class="fas fa-check" *ngIf="isSelected(issue)" @checkPop></i>
               </span>
+              <!-- Mode simple : un projet se lit comme un dossier, une tâche comme son contenu. -->
+              <i *ngIf="mode === 'simple'" class="fas issue-tree-icon"
+                 [ngClass]="depth === 0 ? (estDeplie(issue) ? 'fa-folder-open' : 'fa-folder') : 'fa-file-lines'"></i>
 
               <span class="issue-picker-key">{{ issue.issueKey }}</span>
               <span class="issue-picker-summary">{{ issue.summary }}</span>
@@ -64,22 +78,53 @@
                 <span class="progress-value">{{ animatedPercent(issue) }}%</span>
               </span>
             </div>
+
+            <!-- Nouvelle tâche dans ce projet : ouverte à tous. -->
+            <button class="issue-tree-add" *ngIf="creationEnLigne && depth === 0"
+                    (click)="ouvrirCreationTache(issue, $event)" title="Nouvelle tâche dans ce projet">
+              <i class="fas fa-plus"></i>
+            </button>
           </div>
 
           <!-- Dépliage animé des enfants -->
-          <div class="issue-tree-children" *ngIf="hasChildren(issue) && isExpanded(issue)" @expandCollapse>
-            <ng-container *ngTemplateOutlet="nodeList; context: { issues: issue.children, depth: depth + 1 }"></ng-container>
+          <div class="issue-tree-children" *ngIf="peutDeplier(issue, depth) && estDeplie(issue)" @expandCollapse>
+            <ng-container *ngTemplateOutlet="nodeList; context: { issues: filtrer(issue.children, issue), depth: depth + 1, parent: issue }"></ng-container>
+
+            <ng-container *ngIf="creationEnLigne && depth === 0">
+              <div class="issue-tree-create" *ngIf="estCreationDans(issue); else lienTache"
+                   [style.paddingLeft.px]="(depth + 1) * 16 + 22" appContenuMenu>
+                <input type="text" placeholder="Titre de la nouvelle tâche"
+                       [(ngModel)]="libelle" [ngModelOptions]="{standalone: true}"
+                       [disabled]="enCreation"
+                       (keydown.enter)="creerTache(issue)"
+                       (keydown.escape)="onEchapSaisie($event)" />
+                <button type="button" class="create-ok" [disabled]="!libelle.trim() || enCreation"
+                        (click)="creerTache(issue)">{{ enCreation ? '…' : 'Créer' }}</button>
+                <button type="button" class="create-cancel" (click)="annulerCreation()" title="Annuler">
+                  <i class="fas fa-xmark"></i>
+                </button>
+              </div>
+              <ng-template #lienTache>
+                <button type="button" class="issue-tree-link"
+                        [style.paddingLeft.px]="(depth + 1) * 16 + 22"
+                        (click)="ouvrirCreationTache(issue, $event)">
+                  <i class="fas fa-plus"></i> Nouvelle tâche
+                </button>
+              </ng-template>
+            </ng-container>
           </div>
         </ng-container>
       </ng-template>
 
-      <div class="issue-picker-empty" *ngIf="!issues.length">
-        Aucune issue disponible
+      <div class="issue-picker-empty" *ngIf="!filtrer(issues).length">
+        {{ terme ? 'Aucun résultat' : 'Aucune issue disponible' }}
       </div>
     </div>
 
-    <!-- Pied de menu : actions globales, en dehors du template récursif. -->
-    <div class="issue-picker-footer">
+    <p class="issue-picker-error" *ngIf="erreur">{{ erreur }}</p>
+
+    <!-- Mode multiple : pied de menu historique, inchangé. -->
+    <div class="issue-picker-footer" *ngIf="mode === 'multiple'">
       <button
         mat-menu-item
         class="footer-btn footer-btn-secondary"
@@ -97,6 +142,28 @@
         <i class="fas fa-check"></i>
         <span>Créer{{ selectionCount > 0 ? ' (' + selectionCount + ')' : '' }}</span>
       </button>
+    </div>
+
+    <!-- Nouveau projet : réservé aux gestionnaires de projet et administrateurs. -->
+    <div class="issue-picker-new-project"
+         *ngIf="mode === 'simple' && creationEnLigne && (peutCreerProjet$ | async)" appContenuMenu>
+      <div class="issue-tree-create" *ngIf="creationProjetOuverte; else lienProjet">
+        <input type="text" placeholder="Titre du nouveau projet"
+               [(ngModel)]="libelle" [ngModelOptions]="{standalone: true}"
+               [disabled]="enCreation"
+               (keydown.enter)="creerProjet()"
+               (keydown.escape)="onEchapSaisie($event)" />
+        <button type="button" class="create-ok" [disabled]="!libelle.trim() || enCreation"
+                (click)="creerProjet()">{{ enCreation ? '…' : 'Créer' }}</button>
+        <button type="button" class="create-cancel" (click)="annulerCreation()" title="Annuler">
+          <i class="fas fa-xmark"></i>
+        </button>
+      </div>
+      <ng-template #lienProjet>
+        <button type="button" class="issue-tree-link" (click)="ouvrirCreationProjet()">
+          <i class="fas fa-folder-plus"></i> Nouveau projet
+        </button>
+      </ng-template>
     </div>
   </ng-template>
 </mat-menu>

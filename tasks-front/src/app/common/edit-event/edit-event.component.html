@@ -26,29 +26,42 @@
 
 
 
-      <!-- Tâche parente + Sous-tâche -->
-      <div class="two-col" *ngIf="!byIssue">
-        <div>
-          <div class="selector-label">Tâche parente</div>
-          <button type="button" class="selector-btn" [class.selected]="selectedMaster" [matMenuTriggerFor]="master_list">
-            <span *ngIf="selectedMaster">
-              <app-icone-view [icon]="selectedMaster.issueType.icone"></app-icone-view>
-              {{ selectedMaster.issueKey }} : {{ selectedMaster.summary }}
+      <!-- Projet et tâche : le sélecteur arborescent partagé (issue-picker-menu)
+           en mode simple — chaque projet est un dossier contenant ses tâches,
+           avec recherche et création sur place. -->
+      <div *ngIf="!byIssue">
+        <div class="selector-label">Projet et tâche</div>
+        <button type="button" class="pt-trigger" [class.pt-trigger--vide]="!selectedMaster"
+                [matMenuTriggerFor]="picker.menu">
+          <ng-container *ngIf="selectedMaster; else ptVide">
+            <span class="pt-ligne">
+              <span class="pt-niveau">Projet</span>
+              <i class="fas fa-folder pt-dossier"></i>
+              <span class="pt-cle">{{ selectedMaster.issueKey }}</span>
+              <span class="pt-titre">{{ selectedMaster.summary }}</span>
             </span>
-            <span *ngIf="!selectedMaster" class="placeholder-text">Choisir…</span>
-          </button>
-        </div>
-        <div>
-          <div class="selector-label">Sous-tâche</div>
-          <button type="button" class="selector-btn" [class.selected]="selectedSubtask"
-                  [disabled]="!selectedMaster" [matMenuTriggerFor]="subtask_list">
-            <span *ngIf="selectedSubtask">
-              <app-icone-view [icon]="selectedSubtask.issueType.icone"></app-icone-view>
-              {{ selectedSubtask.issueKey }} : {{ selectedSubtask.summary }}
+            <span class="pt-ligne" *ngIf="selectedSubtask">
+              <span class="pt-niveau">Tâche</span>
+              <i class="fas fa-file-lines pt-fichier"></i>
+              <span class="pt-cle">{{ selectedSubtask.issueKey }}</span>
+              <span class="pt-titre">{{ selectedSubtask.summary }}</span>
             </span>
-            <span *ngIf="!selectedSubtask" class="placeholder-text">Choisir…</span>
-          </button>
-        </div>
+          </ng-container>
+          <ng-template #ptVide>
+            <span class="placeholder-text">Choisir un projet ou une tâche…</span>
+          </ng-template>
+          <i class="fas fa-chevron-down pt-chevron"></i>
+        </button>
+        <app-issue-picker-menu
+          #picker
+          mode="simple"
+          [recherche]="true"
+          [creationEnLigne]="true"
+          [hasBackdrop]="true"
+          [issues]="masters"
+          [issueCourante]="selectedSubtask ?? selectedMaster"
+          (issueChoisie)="onIssueChoisie($event)">
+        </app-issue-picker-menu>
       </div>
 
       <!-- Dates -->
@@ -196,22 +209,5 @@
 
     </form>
   </div>
-
-  <!-- Menus -->
-  <mat-menu #master_list="matMenu" yPosition="below" xPosition="after" class="master-breadcrumb">
-    <ul class="navigation-list">
-      <li *ngFor="let im of masters" (click)="selectMaster(im)">
-        <a><app-icone-view [icon]="im.issueType.icone"></app-icone-view> {{ im.issueKey }} : {{ im.summary }}</a>
-      </li>
-    </ul>
-  </mat-menu>
-
-  <mat-menu #subtask_list="matMenu" yPosition="below" xPosition="after" class="master-breadcrumb">
-    <ul class="navigation-list">
-      <li *ngFor="let im of subtasksList" (click)="selectSubtask(im)">
-        <a><app-icone-view [icon]="im.issueType.icone"></app-icone-view> {{ im.issueKey }} : {{ im.summary }}</a>
-      </li>
-    </ul>
-  </mat-menu>
 
 </div>

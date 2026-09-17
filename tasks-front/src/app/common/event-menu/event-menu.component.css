@@ -1,0 +1,21 @@
+/* Ancre fixe et sans taille : elle ne sert qu'à situer le panneau. */
+.event-menu-anchor {
+  position: fixed;
+  width: 0;
+  height: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Le panneau Material est plafonné à 280 px, trop étroit pour ce formulaire.
+   On l'élargit sans dépasser l'écran, et on le laisse défiler plutôt que de
+   sortir de la fenêtre sur un petit écran. */
+::ng-deep .event-menu-panel.mat-mdc-menu-panel {
+  width: 560px;
+  max-width: min(560px, 95vw);
+  max-height: 90vh;
+}
+
+::ng-deep .event-menu-panel .mat-mdc-menu-content {
+  padding: 0;
+}

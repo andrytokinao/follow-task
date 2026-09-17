@@ -20,6 +20,7 @@ import { Subject } from 'rxjs';
 import { takeUntil, finalize } from 'rxjs/operators';
 import { EventApp, Issue, EventTypeApp, User, Project, PercentageProposal } from '../../type/issue';
 import { EventsService } from '../../services/events.service';
+import { IssueChoisie } from '../issue-picker/issue-picker-menu.component';
 import { IssueService } from '../../services/issue.service';
 import { AuthService } from '../../services/auth.service';
 
@@ -79,7 +80,8 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   masters:      Issue[] = [];
-  subtasksList: Issue[] = [];
+  /** Dernier titre proposé : tant qu'on ne l'a pas retouché, on peut le remplacer. */
+  private derniereSuggestion = '';
 
   @Input() selectedMaster?:  Issue;
   @Input() selectedSubtask?: Issue;
@@ -183,16 +185,20 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /**
    * Propose un titre basé sur la tâche sélectionnée.
-   * N'écrase pas si l'utilisateur a déjà saisi quelque chose.
+   *
+   * Une saisie manuelle est respectée. Une suggestion précédente, elle, est
+   * remplacée : choisir un projet puis une de ses tâches doit donner le titre
+   * de la tâche, et non rester figé sur la clé du projet.
    */
   suggestTitle(): void {
     const currentTitle = this.editEventForm.get('title')?.value?.trim();
-    if (currentTitle) return; // respecte la saisie manuelle
+    if (currentTitle && currentTitle !== this.derniereSuggestion) return;
     const issue = this.selectedSubtask ?? this.selectedMaster;
     if (!issue) return;
     const part = this._dayPart();
     const day  = new Date().toLocaleDateString('fr-FR', { weekday: 'long' });
     const suggestion = `Travail sur ${issue.issueKey} — ${day} ${part}`;
+    this.derniereSuggestion = suggestion;
     this.editEventForm.patchValue({ title: suggestion });
   }
 
@@ -252,8 +258,8 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.byIssue) {
       this.selectedMaster = undefined;
       this.selectedSubtask = undefined;
-      this.subtasksList = [];
     }
+    this.derniereSuggestion = '';
     this.event = {
       ...event,
       id: undefined,
@@ -327,7 +333,6 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
     if (event.issue.parent != null) {
       this.selectedMaster  = event.issue.parent;
       this.selectedSubtask = event.issue;
-      this._loadSubtasks(event.issue.parent.id);
       return;
     }
     if (this._estSousTache(event.issue)) {
@@ -339,7 +344,6 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     this.selectedMaster  = event.issue;
     this.selectedSubtask = undefined;
-    this._loadSubtasks(event.issue.id);
   }
 
   /** Sans parent chargé, on se fie à la sélection déjà connue puis au type. */
@@ -351,14 +355,25 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
     return niveau != null && niveau !== 'PARENT';
   }
 
+  /**
+   * Choix fait dans le sélecteur arborescent partagé. Une tâche arrive avec
+   * son projet ; un projet arrive seul.
+   */
+  onIssueChoisie(choix: IssueChoisie): void {
+    if (choix.parent) {
+      this.selectedMaster = choix.parent;
+      this.selectSubtask(choix.issue);
+      return;
+    }
+    this.selectMaster(choix.issue);
+  }
+
   selectMaster(issue: Issue): void {
     this.selectedMaster  = issue;
     this.selectedSubtask = undefined;
-    this.subtasksList    = [];
-    this._loadSubtasks(issue.id);
     this.suggestTitle();
-    // Pas de proposition pour une demande : l'avancement ne concerne que les
-    // sous-tâches, et une valeur calculée ici resterait affichée à tort.
+    // Pas de proposition pour un projet : l'avancement ne concerne que les
+    // tâches, et une valeur calculée ici resterait affichée à tort.
     this._effacerAvancement();
   }
 
@@ -372,15 +387,6 @@ export class EditEventComponent implements OnInit, AfterViewInit, OnDestroy {
   private _effacerAvancement(): void {
     this.percentageProposal   = undefined;
     this.completionPercentage = 0;
-  }
-
-  private _loadSubtasks(masterId: number): void {
-    this.issueService.loadSubtask(masterId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next:  (issues) => { this.subtasksList = issues; },
-        error: (err)    => { console.error(err); }
-      });
   }
 
   // ─── Event types ───────────────────────────────────────────────────────────

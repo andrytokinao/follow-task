@@ -204,3 +204,130 @@
     opacity: 1;
   }
 }
+
+// ---- Mode simple : sélecteur projet / tâche ----
+
+// Panneau plus large : le titre d'une tâche doit rester lisible à côté de sa
+// clé, et la recherche a besoin de place.
+::ng-deep .issue-picker-menu--simple.mat-mdc-menu-panel {
+  min-width: 340px;
+  max-width: min(420px, 92vw);
+}
+
+.issue-picker-menu--simple .issue-tree-scroll,
+::ng-deep .issue-picker-menu--simple .issue-tree-scroll {
+  max-height: 55vh;
+}
+
+.issue-tree-icon {
+  flex-shrink: 0;
+  width: 14px;
+  font-size: 12px;
+  color: #F59E0B;
+
+  &.fa-file-lines { color: #9CA3AF; font-size: 11px; }
+}
+
+// « + » au survol d'un projet : présent sans encombrer la liste.
+.issue-tree-add {
+  flex-shrink: 0;
+  width: 26px;
+  height: 34px;
+  border: none;
+  background: transparent;
+  color: #9CA3AF;
+  cursor: pointer;
+  opacity: 0;
+  font-size: 10px;
+
+  &:hover, &:focus { color: #6366F1; opacity: 1; }
+}
+.issue-tree-row:hover .issue-tree-add { opacity: 1; }
+
+.issue-picker-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid #E5E7EB;
+  color: #9CA3AF;
+  font-size: 11px;
+
+  input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 12px;
+  }
+}
+
+.issue-tree-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  min-height: 30px;
+  padding: 0 12px;
+  border: none;
+  background: transparent;
+  font-size: 11.5px;
+  color: #6366F1;
+  cursor: pointer;
+  text-align: left;
+
+  &:hover { text-decoration: underline; }
+  i { font-size: 10px; }
+}
+
+.issue-tree-create {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+
+  input {
+    flex: 1;
+    min-width: 0;
+    padding: 5px 8px;
+    border: 1px solid #D1D5DB;
+    border-radius: 6px;
+    font-size: 12px;
+    outline: none;
+
+    &:focus { border-color: #6366F1; }
+  }
+
+  .create-ok {
+    flex-shrink: 0;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 6px;
+    background: #6366F1;
+    color: #fff;
+    font-size: 11px;
+    cursor: pointer;
+
+    &:disabled { background: #C7D2FE; cursor: default; }
+  }
+
+  .create-cancel {
+    flex-shrink: 0;
+    border: none;
+    background: transparent;
+    color: #9CA3AF;
+    cursor: pointer;
+  }
+}
+
+.issue-picker-new-project {
+  border-top: 1px solid #E5E7EB;
+  padding: 2px 0;
+}
+
+.issue-picker-error {
+  margin: 0;
+  padding: 6px 12px;
+  font-size: 11px;
+  color: #DC2626;
+}

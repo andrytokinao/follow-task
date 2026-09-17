@@ -1,0 +1,21 @@
+<!-- Déclencheur invisible, placé à l'endroit du clic : le menu s'ouvre à côté,
+     et non au centre de l'écran. -->
+<span
+  class="event-menu-anchor"
+  [matMenuTriggerFor]="menuEvenement"
+  [style.left.px]="x"
+  [style.top.px]="y">
+</span>
+
+<mat-menu #menuEvenement="matMenu" class="event-menu-panel" [overlapTrigger]="false">
+  <!-- Clics, clavier et sous-menus du formulaire ne doivent pas refermer ce
+       menu : voir ContenuMenuDirective. -->
+  <div appContenuMenu>
+    <app-edit-event
+      [byIssue]="false"
+      [suivreSelection]="false"
+      (saved)="onSaved($event)"
+      (onClose)="fermer()">
+    </app-edit-event>
+  </div>
+</mat-menu>
