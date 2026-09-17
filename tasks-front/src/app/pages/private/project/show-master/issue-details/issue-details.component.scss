@@ -730,3 +730,12 @@ $t:             all .15s cubic-bezier(.4,0,.2,1);
     }
   }
 }
+
+// Avatar compact (app-avatar) : même encombrement que l'ancien .avatar-xs,
+// taille fixe pour qu'aucun chargement ne déforme la ligne.
+.avatar-mini {
+  display: inline-block;
+  flex-shrink: 0;
+  --avatar-size: 20px;
+  ::ng-deep .initials { font-size: 8px; }
+}

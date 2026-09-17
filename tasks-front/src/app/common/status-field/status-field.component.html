@@ -5,7 +5,7 @@
 </span>
 
 <mat-menu #menu2="matMenu">
-  <div *ngIf="canChangeStatus() | async">
+  <div *ngIf="peutChangerStatut$ | async">
     <h4> status  </h4>
     <span  *ngIf="issueType != null && issueType.curentWorkFlow != null && issueType.curentWorkFlow.statuses != null && issueType.curentWorkFlow.statuses.length !=0 ">
        <button  mat-menu-item *ngFor="let status of issueType.curentWorkFlow.statuses" (click)="changeStatus(status)"

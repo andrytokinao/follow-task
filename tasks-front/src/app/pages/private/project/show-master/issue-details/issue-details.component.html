@@ -75,8 +75,10 @@
           </div>
         </div>
         <div class="subtasks-list" *ngIf="subtasks?.length > 0">
+          <!-- trackBy : un rechargement de la liste (création, retour) garde les
+               lignes en place au lieu de les reconstruire, avatars compris. -->
           <div class="subtask-item"
-               *ngFor="let sub of subtasks"
+               *ngFor="let sub of subtasks; trackBy: trackBySubtask"
                [routerLink]="['../subtask', sub.issueKey]"
                [ngClass]="'status-' + sub?.status?.displayName?.toLowerCase()?.replace(' ', '-')">
             <div class="subtask-left">
@@ -86,8 +88,15 @@
             </div>
             <div class="subtask-right">
               <span class="status-chip" [ngClass]="'chip-' + sub?.status?.displayName?.toLowerCase()?.replace(' ', '-')">{{ sub?.status?.displayName }}</span>
-              <span class="subtask-assignee" *ngIf="sub?.assigne">
-                <img [src]="userService.getUrlPhoto(sub.assigne)" [alt]="sub.assigne?.firstName" class="avatar-xs" onerror="this.src='assets/default-avatar.png'">
+              <!-- app-avatar et non <img onerror> : le repli visait
+                   assets/default-avatar.png, qui n'existe pas. Une photo
+                   introuvable relançait onerror sans fin et l'avatar
+                   clignotait en changeant de forme. app-avatar bascule une
+                   fois sur les initiales. -->
+              <span class="subtask-assignee" *ngIf="sub?.assigne" [title]="sub.assigne?.firstName">
+                <app-avatar class="avatar-mini"
+                            [url]="userService.getUrlPhoto(sub.assigne)"
+                            [displayName]="sub.assigne?.firstName + ' ' + (sub.assigne?.lastName ?? '')"></app-avatar>
               </span>
             </div>
           </div>
@@ -244,8 +253,11 @@
         <div class="sidebar-field" *ngIf="parentIssue?.reporter">
           <label class="sidebar-label"><i class="fas fa-user-edit"></i> Rapporteur</label>
           <div class="reporter-row">
-            <img [src]="userService.getUrlPhoto(parentIssue.reporter)" class="avatar-xs" onerror="this.src='assets/default-avatar.png'">
-            <span class="meta-text">{{ parentIssue.reporter?.firstName }} {{ parentIssue.reporter?.lastname }}</span>
+            <!-- Même correction que pour les sous-tâches : pas de boucle onerror. -->
+            <app-avatar class="avatar-mini"
+                        [url]="userService.getUrlPhoto(parentIssue.reporter)"
+                        [displayName]="parentIssue.reporter?.firstName + ' ' + (parentIssue.reporter?.lastName ?? '')"></app-avatar>
+            <span class="meta-text">{{ parentIssue.reporter?.firstName }} {{ parentIssue.reporter?.lastName }}</span>
           </div>
         </div>
       </div>

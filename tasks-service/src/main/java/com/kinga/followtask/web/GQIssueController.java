@@ -234,7 +234,8 @@ public class GQIssueController {
      }
      /**
       * « M'assigner » : l'utilisateur connecté s'ajoute aux assignés, sans
-      * toucher aux autres. Libre pour le créateur de la tâche. L'identité vient
+      * toucher aux autres. Libre pour le créateur de la tâche et pour qui peut
+      * être assigné, même sans droit d'assigner les autres. L'identité vient
       * de la session et non d'un argument, pour qu'on ne puisse pas assigner
       * quelqu'un d'autre par ce chemin.
       */

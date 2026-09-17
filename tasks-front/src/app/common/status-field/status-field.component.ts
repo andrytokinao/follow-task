@@ -7,7 +7,7 @@ import {ActivatedRoute} from "@angular/router";
 import {ToastrService} from "ngx-toastr";
 import {AuthGuard} from "../../services/SystemGuard";
 import {AuthService} from "../../services/auth.service";
-import {Observable} from "rxjs";
+import {filter, map, Observable, shareReplay, take} from "rxjs";
 import _default from "chart.js/dist/plugins/plugin.tooltip";
 import reset = _default.reset;
 
@@ -82,19 +82,26 @@ export class StatusFieldComponent implements OnInit , AfterViewInit{
 
   }
 
-  canChangeStatus() {
-    return new Observable<boolean>(observer=>{
-      this.authService.getProfile().subscribe((profile:any)=>{
-        if (profile.id == this.issue.assigne?.id || this.issue.reporter?.id == profile.id) {
-          observer.next(true);
-          observer.complete();
-        }  else {
-          observer.next(true);
-          observer.complete();
-        }
-      })
-    })
-  }
+  /**
+   * Le menu de statuts s'affiche une fois le profil connu.
+   *
+   * Calculé une seule fois par composant. L'ancienne méthode, appelée dans le
+   * gabarit (`canChangeStatus() | async`), créait un Observable neuf à chaque
+   * détection de changements : le pipe async se réabonnait, le profil — un
+   * BehaviorSubject — répondait aussitôt et relançait un rendu (Angular 19
+   * planifie un cycle sur markForCheck). La page se redessinait en continu,
+   * avatars compris, et un abonnement jamais libéré s'accumulait à chaque
+   * tour, pour chaque champ de statut affiché.
+   *
+   * Comportement inchangé : la règle d'origine autorisait dans tous les cas
+   * (ses deux branches renvoyaient vrai).
+   */
+  readonly peutChangerStatut$: Observable<boolean> = this.authService.getProfile().pipe(
+    filter(profile => !!profile),
+    take(1),
+    map(() => true),
+    shareReplay(1)
+  );
 
   statusStyle() {
       if (this.issue.status && this.issue.status.color){

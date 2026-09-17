@@ -96,22 +96,33 @@ public class IssueAccessService {
     }
 
     /**
+     * Accessibilites qui permettent de s'assigner soi-meme une issue, sans
+     * pouvoir y assigner quelqu'un d'autre : un simple membre du projet, qui
+     * peut recevoir des taches, peut aussi prendre celle-ci de lui-meme.
+     */
+    public static final Set<String> SELF_ASSIGN_ACCESSIBILITIES =
+            Set.of("CAN_ASSIGN_TASK", "CAN_SELF_ASSIGN_TASK", "CAN_ASSIGNABLE");
+
+    /**
      * S'assigner soi-même une tâche : libre pour son créateur, sans aucun
      * rôle. Qui crée une tâche est le premier à pouvoir la prendre en charge,
      * et l'obliger à attendre un gestionnaire pour cela n'aurait pas de sens.
+     * Libre aussi pour qui peut être assigné sur l'issue
+     * ({@link #SELF_ASSIGN_ACCESSIBILITIES}), même sans droit d'assigner.
      *
      * Ce passe-droit ne vaut que pour soi : assigner quelqu'un d'autre reste
-     * soumis à {@link #checkCanAssign}. Les autres utilisateurs retombent
-     * d'ailleurs sur cette règle ordinaire.
+     * soumis à {@link #checkCanAssign}.
      */
     @Transactional(readOnly = true)
     public void checkCanAssignSelf(Long issueId, UserApp user) {
         Issue issue = issueRepository.findById(issueId)
                 .orElseThrow(() -> new IllegalArgumentException("Issue introuvable : " + issueId));
-        if (isReporter(issue, user)) {
+        if (isReporter(issue, user) || authorizationService.hasSystemAccessibility(user, "CAN_ACCESS_ALL")) {
             return;
         }
-        checkCanAssign(issueId, user);
+        if (issueAccessibilities(issue, user).stream().noneMatch(SELF_ASSIGN_ACCESSIBILITIES::contains)) {
+            throw new AccessDeniedException("Vous n'avez pas le droit de vous assigner " + issue.getIssueKey());
+        }
     }
 
     private boolean isReporter(Issue issue, UserApp user) {

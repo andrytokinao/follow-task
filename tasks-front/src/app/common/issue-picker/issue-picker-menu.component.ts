@@ -14,6 +14,7 @@ import { trigger, transition, style, animate } from '@angular/animations';
 import { Observable } from 'rxjs';
 import { shareReplay } from 'rxjs/operators';
 import {Issue, User} from '../../type/issue';
+import { issueAssignees } from '../../type/issue-grouping.util';
 import { CountUpAnimator } from '../../utils/count-up.animator';
 import { RenderedDirective } from './rendered.directive';
 import { ContenuMenuDirective } from '../contenu-menu/contenu-menu.directive';
@@ -173,18 +174,12 @@ export class IssuePickerMenuComponent {
   // ---------------------------------------------------------------------
 
   /**
-   * Assignés d'une issue : les memberships actifs de rôle ASSIGNEE ou ADMIN,
-   * à défaut le champ historique `assigne`. Les observateurs ne comptent pas.
+   * Assignés d'une issue, selon la règle commune à toute l'application
+   * (issueAssignees) : memberships actifs hors observateurs, à défaut le champ
+   * historique `assigne`.
    */
   assignesDe(issue: Issue): User[] {
-    const parUtilisateur = new Map<string, User>();
-    (issue?.activeMemberships ?? [])
-      .filter((m: any) => m?.user?.id && m.role !== 'OBSERVER')
-      .forEach((m: any) => parUtilisateur.set(m.user.id, m.user));
-    if (!parUtilisateur.size && issue?.assigne?.id) {
-      parUtilisateur.set(issue.assigne.id as string, issue.assigne);
-    }
-    return [...parUtilisateur.values()];
+    return issueAssignees(issue);
   }
 
   avatarsVisibles(issue: Issue): User[] {

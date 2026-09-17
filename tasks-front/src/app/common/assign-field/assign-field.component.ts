@@ -1,5 +1,5 @@
 import {ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild} from '@angular/core';
-import {Subscription} from "rxjs";
+import {forkJoin, Subscription} from "rxjs";
 import {MatMenuTrigger} from "@angular/material/menu";
 import {UserService} from "../../services/user.service";
 import {FormControl} from "@angular/forms";
@@ -39,6 +39,13 @@ export class AssignFieldComponent implements OnInit, OnChanges, OnDestroy {
    * d'une liste serait trop couteuse).
    */
   canAssign: boolean | null = null;
+  /**
+   * Droit de s'assigner soi-meme, sans assigner les autres : menu reduit
+   * « M'assigner ». Meme regle que le serveur (checkCanAssignSelf) ; null
+   * tant qu'il n'est pas connu, comme canAssign.
+   */
+  canAssignSelf: boolean | null = null;
+  private static readonly SELF_ASSIGN_ROLES = ['CAN_ASSIGN_TASK', 'CAN_SELF_ASSIGN_TASK', 'CAN_ASSIGNABLE'];
   private checkingCanAssign = false;
   private recheckOnClose = false;
   @ViewChild('menuTrigger') menuTrigger: MatMenuTrigger;
@@ -87,6 +94,14 @@ export class AssignFieldComponent implements OnInit, OnChanges, OnDestroy {
     return !!moi && !!createur && String(moi).toLowerCase() === String(createur).toLowerCase();
   }
 
+  /**
+   * Sans droit d'assigner, le menu reduit « M'assigner » reste ouvert au
+   * createur de la tache et a qui peut etre assigne dans le projet.
+   */
+  get peutMAssigner(): boolean {
+    return this.estCreateur || this.canAssignSelf === true;
+  }
+
   get suisAssigne(): boolean {
     const moi = this.me?.id;
     return !!moi && this.selectedIds.some(id => String(id).toLowerCase() === String(moi).toLowerCase());
@@ -94,8 +109,8 @@ export class AssignFieldComponent implements OnInit, OnChanges, OnDestroy {
 
   /**
    * L'utilisateur connecté s'ajoute aux assignés, les autres restent. Passe
-   * par une mutation dédiée : le serveur l'autorise sans rôle au créateur,
-   * alors que assignUsers exige le droit d'assigner.
+   * par une mutation dédiée : le serveur l'autorise au créateur et à qui peut
+   * être assigné, alors que assignUsers exige le droit d'assigner.
    */
   assignerMoi(event?: Event) {
     if (event) {
@@ -138,6 +153,7 @@ export class AssignFieldComponent implements OnInit, OnChanges, OnDestroy {
    */
   private evaluateCanAssign() {
     this.canAssign = null;
+    this.canAssignSelf = null;
     if (this.issue == null) {
       return;
     }
@@ -146,6 +162,12 @@ export class AssignFieldComponent implements OnInit, OnChanges, OnDestroy {
       this.canAssign = true;
     } else if (workspace === false && this.issue.parent === null) {
       this.canAssign = false;
+    }
+    const self = this.masterGuard.hasProjectCredential(AssignFieldComponent.SELF_ASSIGN_ROLES, this.projectPrefix());
+    if (self) {
+      this.canAssignSelf = true;
+    } else if (self === false && this.issue.parent === null) {
+      this.canAssignSelf = false;
     }
   }
 
@@ -158,12 +180,20 @@ export class AssignFieldComponent implements OnInit, OnChanges, OnDestroy {
       return;
     }
     this.checkingCanAssign = true;
-    this.masterGuard.hasIssueCredential(['CAN_ASSIGN_TASK'], this.projectPrefix(), this.issue.issueKey as string)
-      .subscribe(canAssign => {
+    const prefix = this.projectPrefix();
+    const issueKey = this.issue.issueKey as string;
+    // Les deux lisent les memes accessibilites, mises en cache par MasterGuard :
+    // une seule requete au serveur.
+    forkJoin([
+      this.masterGuard.hasIssueCredential(['CAN_ASSIGN_TASK'], prefix, issueKey),
+      this.masterGuard.hasIssueCredential(AssignFieldComponent.SELF_ASSIGN_ROLES, prefix, issueKey)
+    ])
+      .subscribe(([canAssign, canAssignSelf]) => {
         this.checkingCanAssign = false;
         this.canAssign = canAssign;
-        // Sans le droit, le créateur a encore le menu réduit « M'assigner ».
-        if (canAssign || this.estCreateur) {
+        this.canAssignSelf = canAssignSelf;
+        // Sans le droit, il reste le menu réduit « M'assigner ».
+        if (canAssign || this.peutMAssigner) {
           // Differe : le declencheur doit d'abord recevoir le menu, et son
           // propre gestionnaire de clic ne doit pas le refermer aussitot.
           setTimeout(() => {

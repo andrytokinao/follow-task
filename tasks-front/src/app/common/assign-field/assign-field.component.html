@@ -1,9 +1,10 @@
-<span class="assigne" [class.assigne-lecture]="canAssign === false && !estCreateur">
-  <!-- Sans droit, pas de menu, sauf pour le createur de la tache : il garde
-       le menu reduit « M'assigner ». Tant que le droit n'est pas connu (null),
-       onTriggerClick le verifie puis ouvre le bon menu. -->
+<span class="assigne" [class.assigne-lecture]="canAssign === false && !peutMAssigner">
+  <!-- Sans droit, pas de menu, sauf pour le createur de la tache et pour qui
+       peut etre assigne : ils gardent le menu reduit « M'assigner ». Tant que
+       le droit n'est pas connu (null), onTriggerClick le verifie puis ouvre le
+       bon menu. -->
   <span #menuTrigger="matMenuTrigger"
-        [matMenuTriggerFor]="canAssign ? menu2 : (canAssign === false && estCreateur ? menuMoi : null)"
+        [matMenuTriggerFor]="canAssign ? menu2 : (canAssign === false && peutMAssigner ? menuMoi : null)"
         (click)="onTriggerClick()" (menuClosed)="onMenuClosed()"
         class="assigne-trigger" [title]="assigneesTitle">
     <span class="avatar-stack" *ngIf="assignees.length > 0">
@@ -56,8 +57,8 @@
     </div>
   </mat-menu>
 
-  <!-- Menu reduit du createur sans droit d'assigner : il ne peut assigner
-       que lui-meme. -->
+  <!-- Menu reduit sans droit d'assigner (createur, simple membre) : on ne
+       peut assigner que soi-meme. -->
   <mat-menu #menuMoi="matMenu" class="assigne-menu">
     <div class="assigne-panel" (click)="stopPropagation($event)">
       <div class="assigne-panel-header">

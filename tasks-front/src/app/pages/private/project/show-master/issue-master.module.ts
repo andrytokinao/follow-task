@@ -61,6 +61,7 @@ import {
     IssueDocumentsViewerComponent
 } from "../../../../common/issue-documents-viewer/issue-documents-viewer.component";
 import {IconeViewComponent} from "../../../../common/icone-view/icone-view.component";
+import {AvatarComponent} from "../../../../common/avatar/avatar.component";
 
 
 @NgModule({
@@ -83,6 +84,7 @@ import {IconeViewComponent} from "../../../../common/icone-view/icone-view.compo
   ],
     imports: [
         IssueMasterRoutingModule,
+        AvatarComponent,
         MatTabsModule,
         MatCardModule,
         MatDialogModule,

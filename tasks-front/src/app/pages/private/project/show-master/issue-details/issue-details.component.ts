@@ -273,6 +273,10 @@ export class IssueDetailsComponent implements OnInit, OnDestroy {
       .subscribe(comments => this.comments = comments);
   }
 
+  trackBySubtask(_index: number, sub: Issue): unknown {
+    return sub?.id;
+  }
+
   /**
    * Même source que la liste des sous-tâches (sous-tâche 2). L'ancien appel à
    * `getSubtasks`, absent du service, laissait la liste toujours vide.
