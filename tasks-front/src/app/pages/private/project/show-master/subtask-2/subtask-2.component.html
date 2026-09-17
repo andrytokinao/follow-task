@@ -454,7 +454,7 @@
 
         <!-- Historique -->
         <div class="tab-panel" *ngIf="activeTab === 'history'">
-          <p class="empty-tab">Aucun historique disponible.</p>
+          <app-issue-history [issueId]="selectedTask?.id"></app-issue-history>
         </div>
 
       </div>

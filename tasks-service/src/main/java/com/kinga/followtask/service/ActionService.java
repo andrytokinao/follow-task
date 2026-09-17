@@ -60,6 +60,7 @@ public class ActionService {
         actionGroupe.setUser(doc.getUserApp());
         actionGroupe = actionGroupeRepository.save(actionGroupe);
         ActionDocument actonItem= new ActionDocument();
+        actonItem.setActionType(ActionType.DOCUMENT);
         actonItem.setDocument(doc);
         actonItem.setIssue(issue);
         actonItem.setActionGroupe(actionGroupe);
@@ -221,6 +222,10 @@ public class ActionService {
         if (actionGroupe.getUser() != null) {
             actionGroupe.setUser(chargerUtilisateur(actionGroupe.getUser().getId()));
         }
+        // Le front n'envoie pas de date, et celle du client ne ferait de toute
+        // facon pas foi : sans elle, statuts et assignations passes par ici
+        // restaient sans date dans l'historique et dans les notifications.
+        actionGroupe.setCreated(new Date());
         actionGroupe = actionGroupeRepository.save(actionGroupe);
         switch (actionItem.getActionType()) {
             case ASSIGN ->{
@@ -335,6 +340,14 @@ public class ActionService {
         }
         return fichier;
     }
+    /** Toutes les actions tracées sur une issue, les plus récentes d'abord. */
+    public List<ActionItem> getIssueHistory(Long issueId) {
+        if (issueId == null) {
+            return List.of();
+        }
+        return actionItemRepository.findHistoriqueByIssueId(issueId);
+    }
+
     public void deleteAction(ActionItem action){
         this.actionItemRepository.delete(action);
     }

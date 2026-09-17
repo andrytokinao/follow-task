@@ -21,6 +21,12 @@ public class ActionField extends ActionItem {
     private String oldValue;
     @ManyToOne
     private CustomFieldValue value;
+
+    @Override
+    protected ActionType typeParDefaut() {
+        return ActionType.CHANGE_FIELD;
+    }
+
     @Override
     public String buildMDetails() {
         return actionGroupe.getUser().getFirstName() +" Change field "+fieldName + (oldValue == null ? "" : " "+oldValue) +" to "+fieldValue ;

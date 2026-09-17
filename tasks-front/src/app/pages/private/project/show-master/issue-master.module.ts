@@ -62,6 +62,7 @@ import {
 } from "../../../../common/issue-documents-viewer/issue-documents-viewer.component";
 import {IconeViewComponent} from "../../../../common/icone-view/icone-view.component";
 import {AvatarComponent} from "../../../../common/avatar/avatar.component";
+import {IssueHistoryComponent} from "../../../../common/action-history/issue-history/issue-history.component";
 
 
 @NgModule({
@@ -132,7 +133,8 @@ import {AvatarComponent} from "../../../../common/avatar/avatar.component";
         AngularSplitModule,
         AddNewValueComponent,
         IssueDocumentsViewerComponent,
-        IconeViewComponent
+        IconeViewComponent,
+        IssueHistoryComponent
     ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })

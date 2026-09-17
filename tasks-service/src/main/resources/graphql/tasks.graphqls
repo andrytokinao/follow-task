@@ -880,7 +880,16 @@ type ActionItem {
     value:CustomFieldValue
     actionGroupe: ActionGroupe
     status:Status
-
+    # Un seul type a plat pour toutes les sous-classes : chaque champ n'est
+    # renseigne que par celles qui le portent, les autres le laissent vide.
+    oldAssigne:UserApp
+    oldStatusValue:Status
+    oldStatus:String
+    newStatus:String
+    document:Document
+    comment:Comment
+    # Date du groupe d'actions, en ISO-8601.
+    date:String
 }
 input ActionItemInput {
     id: ID

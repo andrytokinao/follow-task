@@ -21,6 +21,10 @@ public class ActionAssigne extends ActionItem {
     @ManyToOne
     protected UserApp oldAssigne;
     @Override
+    protected ActionType typeParDefaut() {
+        return ActionType.ASSIGN;
+    }
+    @Override
     public String buildMDetails() {
         return buildMDetails(null);
     }

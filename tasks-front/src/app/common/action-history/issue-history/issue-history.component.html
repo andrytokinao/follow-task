@@ -1,0 +1,28 @@
+<div class="hist">
+
+  <div class="hist__squelette" *ngIf="chargement">
+    <div class="hist__sk-ligne" *ngFor="let i of [1, 2, 3]">
+      <span class="sk sk--rond"></span>
+      <span class="sk sk--texte"></span>
+    </div>
+  </div>
+
+  <div class="hist__vide" *ngIf="erreur">
+    <i class="fas fa-triangle-exclamation"></i>
+    Impossible de charger l'historique.
+    <button type="button" class="hist__reessayer" (click)="charger()">Réessayer</button>
+  </div>
+
+  <div class="hist__vide" *ngIf="!chargement && !erreur && jours.length === 0">
+    <i class="fas fa-clock-rotate-left"></i>
+    Aucune modification enregistrée.
+  </div>
+
+  <section class="hist__jour" *ngFor="let jour of jours; trackBy: trackByJour">
+    <h4 class="hist__libelle">{{ jour.libelle }}</h4>
+    <div class="hist__liste">
+      <app-action-item *ngFor="let action of jour.actions; trackBy: trackByAction" [action]="action"></app-action-item>
+    </div>
+  </section>
+
+</div>

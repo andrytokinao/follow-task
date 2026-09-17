@@ -1,0 +1,22 @@
+<div class="ai" [ngClass]="'ai--' + vue.tonalite">
+  <span class="ai__pastille">
+    <i class="fas" [ngClass]="vue.icone"></i>
+  </span>
+
+  <div class="ai__corps">
+    <div class="ai__ligne">
+      <app-avatar class="ai__avatar" [url]="vue.photoAuteur" [displayName]="vue.nomAuteur"></app-avatar>
+      <span class="ai__phrase">
+        <strong class="ai__auteur">{{ vue.nomAuteur }}</strong>
+        <ng-content></ng-content>
+      </span>
+      <time class="ai__heure"
+            *ngIf="vue.action?.date"
+            [attr.datetime]="vue.action.date"
+            [title]="vue.action.date | date:'dd/MM/yyyy HH:mm'">
+        {{ vue.action.date | date:'HH:mm' }}
+      </time>
+    </div>
+    <ng-content select="[detail]"></ng-content>
+  </div>
+</div>

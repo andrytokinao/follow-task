@@ -473,9 +473,31 @@ export class MessageApp {
   userReades?: string[];
 }
 
+export type ActionType = 'CHANGE_FIELD' | 'CUSTOM_FIELD' | 'STATUS' | 'ASSIGN'|'ADD_EVENT'| 'CHANGE_PROFILE' | 'UPLOAD' | 'COMMENT' | 'DOCUMENT';
+
+/**
+ * Action telle que la renvoie l'historique d'une issue. Le type GraphQL est à
+ * plat : chaque champ propre à une nature d'action reste vide pour les autres.
+ */
+export interface ActionHistorique {
+  id: number
+  actionType: ActionType
+  /** ISO-8601, date du groupe d'actions. */
+  date?: string
+  actionGroupe?: ActionGroupe
+  assigne?: User
+  oldAssigne?: User
+  status?: Status
+  oldStatusValue?: Status
+  oldStatus?: string
+  newStatus?: string
+  document?: DocumentApp
+  comment?: Comment
+}
+
 export abstract class ActionItem {
   id?:Number
-  actionType : 'CHANGE_FIELD' | 'CUSTOM_FIELD' | 'STATUS' | 'ASSIGN'|'ADD_EVENT'| 'CHANGE_PROFILE' | 'UPLOAD' | 'COMMENT' | 'DOCUMENT'
+  actionType : ActionType
   actionGroupe:ActionGroupe
    details:any;
   constructor(groupe: ActionGroupe) {

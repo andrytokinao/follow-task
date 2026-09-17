@@ -31,6 +31,11 @@ public class ActionComment extends ActionItem {
     private Comment comment;
 
     @Override
+    protected ActionType typeParDefaut() {
+        return ActionType.COMMENT;
+    }
+
+    @Override
     public String buildMDetails() {
         return buildMDetails(null);
     }

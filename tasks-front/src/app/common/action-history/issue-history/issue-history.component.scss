@@ -1,0 +1,80 @@
+$c-border: #e8eaed;
+$c-muted:  #6b7280;
+$c-subtle: #9ca3af;
+$c-accent: #4f46e5;
+
+:host { display: block; }
+
+.hist__jour + .hist__jour { margin-top: 14px; }
+
+.hist__libelle {
+  margin: 0 0 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  color: $c-subtle;
+
+  // « jeudi 17 septembre » → « Jeudi 17 septembre » : capitalize toucherait chaque mot.
+  &::first-letter { text-transform: uppercase; }
+}
+
+// Fil vertical passant au centre des pastilles (24px de large).
+.hist__liste {
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 14px;
+    bottom: 14px;
+    left: 11.5px;
+    border-left: 1px solid $c-border;
+  }
+}
+
+.hist__vide {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 32px 0;
+  font-size: 12.5px;
+  color: $c-subtle;
+  text-align: center;
+
+  i { font-size: 20px; opacity: .4; }
+}
+
+.hist__reessayer {
+  border: none;
+  background: none;
+  padding: 0;
+  font-size: 12.5px;
+  color: $c-accent;
+  cursor: pointer;
+
+  &:hover { text-decoration: underline; }
+}
+
+.hist__sk-ligne {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+}
+
+.sk {
+  display: block;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #f0f1f3 25%, #e8eaed 50%, #f0f1f3 75%);
+  background-size: 200% 100%;
+  animation: sk-vague 1.2s ease-in-out infinite;
+
+  &--rond  { width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0; }
+  &--texte { height: 12px; flex: 1; max-width: 260px; }
+}
+
+@keyframes sk-vague {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}

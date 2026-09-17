@@ -1,0 +1,76 @@
+$c-text:   #111827;
+$c-muted:  #6b7280;
+$c-subtle: #9ca3af;
+
+:host { display: block; }
+
+.ai {
+  --ai-teinte: #{$c-subtle};
+  --ai-fond:   #f3f4f6;
+
+  position: relative;
+  display: flex;
+  gap: 10px;
+  padding: 6px 0;
+
+  &--assign   { --ai-teinte: #4f46e5; --ai-fond: #eef2ff; }
+  &--status   { --ai-teinte: #d97706; --ai-fond: #fef3c7; }
+  &--comment  { --ai-teinte: #059669; --ai-fond: #d1fae5; }
+  &--document { --ai-teinte: #0284c7; --ai-fond: #e0f2fe; }
+}
+
+// Posée sur la ligne verticale tracée par la liste : le liseré blanc la coupe.
+.ai__pastille {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: var(--ai-teinte);
+  background: var(--ai-fond);
+  box-shadow: 0 0 0 3px #fff;
+}
+
+.ai__corps {
+  flex: 1;
+  min-width: 0;
+  padding-top: 2px;
+}
+
+.ai__ligne {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+}
+
+.ai__avatar {
+  --avatar-size: 20px;
+  flex-shrink: 0;
+  ::ng-deep .initials { font-size: 9px; }
+}
+
+.ai__phrase {
+  flex: 1;
+  min-width: 0;
+  font-size: 12.5px;
+  line-height: 20px;
+  color: $c-muted;
+}
+
+.ai__auteur {
+  font-weight: 600;
+  color: $c-text;
+}
+
+.ai__heure {
+  flex-shrink: 0;
+  font-size: 11px;
+  line-height: 20px;
+  color: $c-subtle;
+  font-variant-numeric: tabular-nums;
+}

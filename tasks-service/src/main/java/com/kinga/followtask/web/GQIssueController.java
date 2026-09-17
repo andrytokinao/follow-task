@@ -475,6 +475,10 @@ public class GQIssueController {
         return actionService.saveAction(action);
     }
     @QueryMapping
+    public List<ActionItem> getIssueHistory(@Argument Long issueId) {
+        return actionService.getIssueHistory(issueId);
+    }
+    @QueryMapping
     public List<IssuePlanningSummary> getIssuePlanningSummaries(@Argument List<Long> issueIds) {
         return issueService.getIssuePlanningSummaries(issueIds);
     }

@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -41,6 +42,30 @@ public abstract class ActionItem {
             }
         }
         return null;
+    }
+
+    /**
+     * Nature de l'action, telle que la lit l'historique.
+     *
+     * La colonne n'est pas renseignée par tous les chemins de création —
+     * addDocumentAction ne la posait pas —, alors que le discriminant, lui,
+     * l'est toujours. Sans ce repli, ces lignes arriveraient au front sans type
+     * et ne sauraient pas quel affichage choisir.
+     */
+    public ActionType getActionType() {
+        return actionType != null ? actionType : typeParDefaut();
+    }
+
+    /** Le type que porte, par construction, chaque sous-classe. */
+    protected abstract ActionType typeParDefaut();
+
+    /**
+     * Date de l'action, en ISO-8601. Elle vit sur le groupe ; le Date brut
+     * sortirait en « Thu Sep 17 ... » que le pipe date du front ne lit pas.
+     */
+    public String getDate() {
+        Date created = actionGroupe == null ? null : actionGroupe.getCreated();
+        return created == null ? null : created.toInstant().toString();
     }
 
     public abstract String buildMDetails();

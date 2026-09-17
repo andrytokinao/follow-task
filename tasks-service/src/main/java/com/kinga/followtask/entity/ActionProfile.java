@@ -18,6 +18,11 @@ public class ActionProfile extends ActionItem {
     private UserApp profile;
 
     @Override
+    protected ActionType typeParDefaut() {
+        return ActionType.CHANGE_PROFILE;
+    }
+
+    @Override
     public String buildMDetails() {
         return actionGroupe.getUser().getFirstName() +" Change profile "+profile.getUsername();
     }

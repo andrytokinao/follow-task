@@ -12,6 +12,11 @@ import java.util.Set;
 @NoArgsConstructor
 public class ActionUpload extends ActionItem {
     @Override
+    protected ActionType typeParDefaut() {
+        return ActionType.UPLOAD;
+    }
+
+    @Override
     public String buildMDetails() {
         return this.getActionGroupe().getUser().getFirstName() +" add comment "+this.getIssue().getSummary();
     }

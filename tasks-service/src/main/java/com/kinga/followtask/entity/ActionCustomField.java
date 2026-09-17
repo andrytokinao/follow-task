@@ -22,6 +22,11 @@ public class ActionCustomField extends ActionItem {
     private String newStringValue ;
 
     @Override
+    protected ActionType typeParDefaut() {
+        return ActionType.CUSTOM_FIELD;
+    }
+
+    @Override
     public String buildMDetails() {
         return getActionGroupe().getUser().getFirstName()+" change "+this.getCustomFieldValue().getCustomField().getName() +" to "+this.getCustomFieldValue().getStrinValue();
     }

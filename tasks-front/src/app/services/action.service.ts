@@ -1,7 +1,7 @@
 import {Injectable, OnInit} from '@angular/core';
 import {HttpClient, HttpEvent, HttpEventType, HttpHeaders, HttpParams, HttpRequest} from '@angular/common/http';
 import {BehaviorSubject, concatMap, finalize, observable, Observable, of, switchMap, tap, throwError} from 'rxjs';
-import { retry, catchError } from 'rxjs/operators';
+import { retry, catchError, map } from 'rxjs/operators';
 import {
   Issue,
   Status,
@@ -21,7 +21,7 @@ import {
   Uploading,
   Uploaded,
   DocumentApp,
-  DomainActivity, Label, IssueLabels, AppSettings, NotificationApp, ResponseApp
+  DomainActivity, Label, IssueLabels, AppSettings, NotificationApp, ResponseApp, ActionHistorique
 } from "../type/issue";
 import {Apollo} from "apollo-angular";
 import * as operation from "../type/graphql.operations";
@@ -126,6 +126,17 @@ export class ActionService implements OnInit {
 
   seenNotification(userId: String) {
     return this.notificationService.seenNotification(userId);
+  }
+
+  /** Historique d'une issue, les actions les plus récentes d'abord. */
+  getIssueHistory(issueId: number): Observable<ActionHistorique[]> {
+    return this.apollo.query({
+      query: operation.GET_ISSUE_HISTORY,
+      variables: {issueId},
+      fetchPolicy: 'network-only'
+    }).pipe(
+      map((res: any) => supprimerTypename(res.data.getIssueHistory) ?? [])
+    );
   }
 
 }

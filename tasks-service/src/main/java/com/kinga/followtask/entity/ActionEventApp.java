@@ -16,6 +16,11 @@ public class ActionEventApp extends ActionItem {
     private PlanningEvent event;
 
     @Override
+    protected ActionType typeParDefaut() {
+        return ActionType.ADD_EVENT;
+    }
+
+    @Override
     public String buildMDetails() {
         return this.getActionGroupe().getUser()+ " add planification of  "+this.issue.getIssueKey()+" "+this.issue.getSummary();
     }

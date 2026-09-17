@@ -22,6 +22,12 @@ public class ActionStatus extends ActionItem {
     private Status status;
     @ManyToOne
     private Status oldStatusValue;
+
+    @Override
+    protected ActionType typeParDefaut() {
+        return ActionType.STATUS;
+    }
+
     /**
      * « Andry a fait passer la demande PRJ-12 · ... de « Ouvert » à « En cours » ».
      * Les colonnes oldStatus/newStatus ne sont renseignées que par le

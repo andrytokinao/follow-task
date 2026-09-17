@@ -3324,6 +3324,27 @@ export let READ_ALL_NOTIFICATIONS = gql`
     }
   }
 `;
+export const GET_ISSUE_HISTORY = gql`
+    query getIssueHistory($issueId:Int) {
+      getIssueHistory(issueId: $issueId){
+        id
+        actionType
+        date
+        actionGroupe {
+          id
+          user { id username firstName lastName photo }
+        }
+        assigne { id username firstName lastName photo }
+        oldAssigne { id username firstName lastName photo }
+        status { id displayName color }
+        oldStatusValue { id displayName color }
+        oldStatus
+        newStatus
+        document { id titre description typeDocument }
+        comment { id text }
+      }
+    }
+`;
 export let SAVE_ACTION = gql`
     mutation saveAction($action:ActionItemInput) {
       saveAction(action: $action){

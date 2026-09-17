@@ -39,6 +39,8 @@ type Query {
     getNextKeyParent(issueTypeId:Int,projectId:Int):String
     getIssue(issueKey:String):Issue
     loadSubtask(parentId:Int):[Issue]
+    # Actions tracees sur une issue (assignation, statut, commentaire...), les plus recentes d'abord.
+    getIssueHistory(issueId:Int):[ActionItem]
     loadIssueMasterByProject(projectId:Int):[Issue]
     searchIssues(criteria:IssueSearchCriteriaInput):[Issue]
     allEventType:[EventType]

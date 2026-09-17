@@ -26,6 +26,11 @@ public class ActionDocument extends ActionItem {
     @ManyToOne
     private Document document;
 
+    @Override
+    protected ActionType typeParDefaut() {
+        return ActionType.DOCUMENT;
+    }
+
     private boolean estCommentaire() {
         return document != null && document.getTypeDocument() == TypeDocument.COMMENT_FILES;
     }

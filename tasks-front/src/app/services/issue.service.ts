@@ -1,6 +1,6 @@
 import {Injectable, OnInit} from '@angular/core';
 import {HttpClient, HttpEvent, HttpEventType, HttpHeaders, HttpParams, HttpRequest} from '@angular/common/http';
-import {BehaviorSubject, concatMap, finalize, observable, Observable, of, switchMap, tap, throwError} from 'rxjs';
+import {BehaviorSubject, concatMap, finalize, observable, Observable, of, Subject, switchMap, tap, throwError} from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import {
   Issue,
@@ -89,6 +89,12 @@ export class IssueService implements OnInit {
   user: User | undefined;
   private subtaskSubject = new BehaviorSubject<Issue[]>([]);
   private issueMastersListSubject = new BehaviorSubject<Issue[]>([]);
+  /**
+   * Identifiant de l'issue sur laquelle une action vient d'être appliquée, ici
+   * ou reçue d'un autre poste : l'historique affiché se recharge dessus.
+   */
+  private actionTraiteeSubject = new Subject<number>();
+  readonly actionTraitee$ = this.actionTraiteeSubject.asObservable();
   private projectSubject = new BehaviorSubject<Project>(undefined);
   private projectsSubject = new BehaviorSubject<Project[]>([]);
   private worksFlowsSubject = new BehaviorSubject<WorkFlow[]>([]);
@@ -2190,6 +2196,10 @@ export class IssueService implements OnInit {
     // l'etat affiche est deja le bon.
     if (!action) {
       return;
+    }
+    const issueId = action.actionGroupe?.issue?.id;
+    if (issueId != null) {
+      this.actionTraiteeSubject.next(Number(issueId));
     }
     switch (action.actionType) {
       case "ASSIGN":{
