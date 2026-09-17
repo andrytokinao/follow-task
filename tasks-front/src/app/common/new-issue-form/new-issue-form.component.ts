@@ -63,10 +63,23 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
   private initialise = false;
 
   @ViewChild(MatMenuTrigger) menuTrigger!: MatMenuTrigger;
-  /** L'issue créée : l'hôte peut la sélectionner aussitôt. */
+  /**
+   * L'issue vient d'être créée : l'hôte peut rafraîchir sa liste, la
+   * sélectionner, la lier... Émis tout de suite, même si une question reste
+   * posée — la création ne dépend pas de la réponse.
+   */
   @Output() saved = new EventEmitter<Issue>();
+  /**
+   * Le parcours de création est terminé : l'hôte peut refermer le menu ou le
+   * panneau. Pour une tâche, c'est après la réponse à « vous assigner ? » ;
+   * pour un projet, aussitôt après `saved`.
+   */
+  @Output() termine = new EventEmitter<void>();
   /** « Annuler » : l'hôte referme le menu qui porte le formulaire. */
   @Output() cancelled = new EventEmitter<void>();
+
+  /** Tâche créée en attente de la réponse « vous l'assigner ? ». */
+  tacheCreee?: Issue;
   step: string = '';
   @Input() isMaster = true;
   isDesable = false;
@@ -90,8 +103,9 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
   protected readonly peutCreerType$: Observable<boolean>;
 
   /**
-   * S'assigner la tâche dès sa création. Aucun droit requis : le créateur
-   * peut toujours se l'assigner (voir IssueAccessService.checkCanAssignSelf).
+   * Case « M'assigner », pour un projet seulement. Une tâche pose la question
+   * après sa création (app-question-assignation) : la case ferait doublon.
+   * Aucun droit requis pour s'assigner (IssueAccessService.checkCanAssignSelf).
    */
   assignerMoi = false;
 
@@ -172,27 +186,35 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
       issue.parent = { id: this.parentIssue.id };
     }
 
-    // L'assignation passe avant `saved` : le parent recharge sa liste à ce
-    // signal, et la tâche doit y arriver déjà assignée. Son échec ne défait
-    // pas la création : la tâche existe, on le signale seulement.
+    const estTache = this.isSubtask();
+
+    // Projet : la case « M'assigner » est traitée avant `saved`, pour que la
+    // liste rechargée par l'hôte le montre déjà assigné. Son échec ne défait
+    // pas la création : on le signale seulement.
     this.issueService.saveIssue(issue).pipe(
-      switchMap(cree => !this.assignerMoi || !cree?.id
+      switchMap(cree => estTache || !this.assignerMoi || !cree?.id
         ? of(cree)
         : this.issueService.assignMe(cree).pipe(
           map(() => cree),
           catchError(() => {
-            this.toastr.warning(`Tâche ${cree.issueKey} créée, mais l'assignation a échoué`);
+            this.toastr.warning(`${cree.issueKey} créée, mais l'assignation a échoué`);
             return of(cree);
           })
         ))
     ).subscribe({
       next: (res) => {
         this.saving = false;
-        this.messageService.showRight('');
         this.saved.emit(res);
         this.summary = '';
         this.description = '';
         this.loadNextKey();
+        // Toute création de tâche, quel que soit l'écran, demande si on se
+        // l'assigne. Le panneau reste ouvert sur la question.
+        if (estTache && res?.id) {
+          this.tacheCreee = res;
+          return;
+        }
+        this.terminer();
       },
       error: (err:Error) => {
         console.log(err);
@@ -213,8 +235,24 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
   }
 
   cancel() {
+   this.tacheCreee = undefined;
    this.messageService.showRight('');
    this.cancelled.emit();
+  }
+
+  /**
+   * Réponse à « vous assigner cette tâche ? » : le parcours est terminé.
+   * `saved` n'est pas réémis — un hôte qui lie ou ajoute l'issue à ce signal
+   * le ferait deux fois. Pour afficher l'assignation, rafraîchir sur `termine`.
+   */
+  onReponseAssignation(): void {
+    this.terminer();
+  }
+
+  private terminer(): void {
+    this.tacheCreee = undefined;
+    this.messageService.showRight('');
+    this.termine.emit();
   }
 
 
@@ -315,6 +353,9 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
   }
 
   onOpen() {
+    // Menu refermé pendant la question (clic en dehors) : on repart du
+    // formulaire, la tâche existe déjà et reste non assignée.
+    this.tacheCreee = undefined;
     this.loadNextKey();
   }
   getIssueTypeColor(type: IssueType | null | undefined): string {

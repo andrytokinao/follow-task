@@ -58,9 +58,24 @@ export class NewIssueComponent implements OnInit{
     }
     issue.status = this.status;
       this.issueService.saveIssue(issue).subscribe((res:any)=>{
+        // Une tâche (issue rattachée à un parent) demande, comme partout, si
+        // on se l'assigne : la modale reste ouverte sur la question.
+        if (this.parent && res?.id) {
+          this.tacheCreee = res;
+          return;
+        }
         this.activeModal.close({ issue: res,step :this.step });
       });
     }
+
+  /** Tâche créée en attente de la réponse « vous l'assigner ? ». */
+  tacheCreee?: Issue;
+
+  onReponseAssignation(): void {
+    const tache = this.tacheCreee;
+    this.tacheCreee = undefined;
+    this.activeModal.close({ issue: tache, step: this.step });
+  }
    next(){
      this.step = "next";
      this.save();

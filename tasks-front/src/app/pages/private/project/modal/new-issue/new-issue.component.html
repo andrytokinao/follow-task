@@ -4,7 +4,13 @@
     <i class="fas fa-close"></i>  <span aria-hidden="true"></span>
   </span>
 </div>
-<div class="modal-body">
+<!-- Après la création d'une tâche : la question d'assignation remplace le
+     formulaire dans la même modale. -->
+<div class="modal-body" *ngIf="tacheCreee">
+  <app-question-assignation [tache]="tacheCreee" (repondu)="onReponseAssignation()">
+  </app-question-assignation>
+</div>
+<div class="modal-body" *ngIf="!tacheCreee">
   <form #f="ngForm" (ngSubmit)="save()">
     <div class="form-group" #parentIssue>
       <mat-form-field style="width: 100%">
@@ -45,7 +51,7 @@
     </div>-
   </form>
 </div>
-<div class="modal-footer">
+<div class="modal-footer" *ngIf="!tacheCreee">
   <button typeField="button" class="btn btn-primary" (click)="cancel()">Annuler</button>
   <button typeField="button" class="btn btn-primary" [disabled]="isDesable" (click)="complete()">Terminé</button>
   <button typeField="button" class="btn btn-primary" [disabled]="isDesable" (click)="next()">Continue</button>

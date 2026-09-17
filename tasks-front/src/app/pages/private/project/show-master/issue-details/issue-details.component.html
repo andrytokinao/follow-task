@@ -316,5 +316,5 @@
 
 <!-- Même formulaire que la liste des sous-tâches (sous-tâche 2). -->
 <mat-menu #createSubtask="matMenu">
-  <app-new-issue-form [parentIssue]="parentIssue" [isMaster]="false" #newIssueForm (saved)="closeCreateSubtaskMenu()"></app-new-issue-form>
+  <app-new-issue-form [parentIssue]="parentIssue" [isMaster]="false" #newIssueForm (saved)="loadSubtasks()" (termine)="closeCreateSubtaskMenu()"></app-new-issue-form>
 </mat-menu>

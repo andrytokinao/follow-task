@@ -30,6 +30,7 @@ import {StatusFieldComponent} from "./status-field/status-field.component";
 import {EditEventComponent} from "./edit-event/edit-event.component";
 import {EventMenuComponent} from "./event-menu/event-menu.component";
 import {IssueCreationMenuComponent} from "./issue-creation-menu/issue-creation-menu.component";
+import {QuestionAssignationComponent} from "./question-assignation/question-assignation.component";
 import {ContenuMenuDirective} from "./contenu-menu/contenu-menu.directive";
 import {IssuePickerMenuComponent} from "./issue-picker/issue-picker-menu.component";
 import {NewEventComponent} from "./new-event/new-event.component";
@@ -85,6 +86,7 @@ import {IssueBoardComponent} from "./issue-board/issue-board.component";
     EditEventComponent,
     EventMenuComponent,
     IssueCreationMenuComponent,
+    QuestionAssignationComponent,
     NewEventComponent,
     IssueFilterFieldComponent,
     EditorComponent,
@@ -170,6 +172,7 @@ import {IssueBoardComponent} from "./issue-board/issue-board.component";
         EditEventComponent,
         EventMenuComponent,
         IssueCreationMenuComponent,
+        QuestionAssignationComponent,
         ContenuMenuDirective,
         NewEventComponent,
         QuillEditorComponent,

@@ -1,4 +1,13 @@
-<form #f="ngForm" novalidate (click)="clickMenu($event)" class="issue-form">
+<!-- Après la création d'une tâche : la question d'assignation remplace le
+     formulaire, dans le même panneau. -->
+<div *ngIf="tacheCreee" (click)="clickMenu($event)">
+  <app-question-assignation [tache]="tacheCreee" (repondu)="onReponseAssignation()">
+  </app-question-assignation>
+</div>
+
+<!-- Masqué et non retiré : le menu des types, hors du formulaire, utilise la
+     référence #subMenuIssueType déclarée dedans. -->
+<form #f="ngForm" novalidate (click)="clickMenu($event)" class="issue-form" [hidden]="!!tacheCreee">
 
   <!-- Header -->
   <div class="form-header">
@@ -77,7 +86,8 @@
     </div>
 
     <!-- Ouvert a tous : le createur peut toujours se prendre la tache. -->
-    <label class="assign-me">
+    <!-- Projet seulement : une tâche pose la question après sa création. -->
+    <label class="assign-me" *ngIf="!isSubtask()">
       <input type="checkbox" name="assignerMoi"
              [(ngModel)]="assignerMoi"
              [ngModelOptions]="{standalone: true}" />

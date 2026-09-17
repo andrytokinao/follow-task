@@ -466,7 +466,7 @@
 
 <!-- Menus -->
 <mat-menu #createSubtask="matMenu">
-  <app-new-issue-form [parentIssue]="parentIssue" [isMaster]="false" #newIssueForm (saved)="closeCreateSubtaskMenu()"></app-new-issue-form>
+  <app-new-issue-form [parentIssue]="parentIssue" [isMaster]="false" #newIssueForm (saved)="loadSubtask()" (termine)="closeCreateSubtaskMenu()"></app-new-issue-form>
 </mat-menu>
 <mat-menu #addPlanning="matMenu" class="planning-panel" [overlapTrigger]="false" xPosition="after">
   <app-edit-event #newEventForm [byIssue]="true" (saved)="closeEventForm()" [selectedMaster]="parentIssue" [selectedSubtask]="selectedTask" [isNext]="true"></app-edit-event>
