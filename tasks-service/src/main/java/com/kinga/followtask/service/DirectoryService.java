@@ -129,6 +129,7 @@ public class DirectoryService {
         noeud.setUploadeur(nomAffiche(uploaded.getUserApp()));
         if (uploaded.getUserApp() != null) {
             noeud.setUploadeurUsername(uploaded.getUserApp().getUsername());
+            noeud.setUploadeurPhoto(uploaded.getUserApp().getPhoto());
         }
         if (uploaded.getUploadDate() != null) {
             noeud.setDateUpload(dateTimeFormater.format(uploaded.getUploadDate()));

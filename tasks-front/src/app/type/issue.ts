@@ -147,6 +147,8 @@ export interface Repertoire {
   uploadeur?:string;
   /** Identifiant de connexion de l'auteur, pour reconnaitre le proprietaire. */
   uploadeurUsername?:string;
+  /** Photo de l'auteur ; absente, l'avatar affiche ses initiales. */
+  uploadeurPhoto?:string;
   dateUpload?:string;
 }
 export interface Uploading {

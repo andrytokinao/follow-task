@@ -20,6 +20,8 @@ public abstract class Repertoire {
     protected String uploadeur;
 
     protected String uploadeurUsername;
+    /** Nom du fichier photo de l'auteur, servi par /photo/{photo} ; null sans photo. */
+    protected String uploadeurPhoto;
     protected String dateUpload;
     public Repertoire(String absolutePath , String name){
         this.absolutePath = KingaUtils.encodeText(absolutePath);

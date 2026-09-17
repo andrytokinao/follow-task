@@ -379,6 +379,17 @@
   white-space: nowrap;
 }
 
+/* Auteur de l'upload : avatar seul, le nom est dans l'infobulle. */
+.ligne-fichier .uploadeur {
+  flex: 0 0 auto;
+  display: inline-flex;
+  cursor: default;
+  --avatar-size: 22px;
+}
+.ligne-fichier .uploadeur ::ng-deep .initials {
+  font-size: 9px;
+}
+
 /* color:inherit : sans lui l'icone corbeille d'un dossier heriterait du jaune. */
 .ligne-dossier .meta i,
 .ligne-fichier .meta i {

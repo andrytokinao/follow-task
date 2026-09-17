@@ -254,6 +254,14 @@ export class ExplorateurFichiersComponent implements OnChanges, OnDestroy {
     return !!item.uploadeurUsername && item.uploadeurUsername === this.usernameConnecte;
   }
 
+  /**
+   * Photo de l'auteur, ou null sans photo : app-avatar affiche alors ses
+   * initiales sur une couleur propre, plutôt que la même silhouette pour tous.
+   */
+  protected photoUploadeur(item: Repertoire): string | null {
+    return item.uploadeurPhoto ? environment.apiURL + 'photo/' + item.uploadeurPhoto : null;
+  }
+
   /** Elements du dossier courant que l'utilisateur a le droit de supprimer. */
   protected get elementsSupprimables(): Repertoire[] {
     return this.elementsCourants.filter(i => this.peutSupprimer(i));

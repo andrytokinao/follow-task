@@ -125,8 +125,10 @@
                  (click)="basculerSelection(fichier, $event)">
           <i [class]="getFileIconClass(fichier.fileName.toString())"></i>
           <span class="nom">{{ fichier.fileName }}</span>
-          <span class="meta" *ngIf="fichier.uploadeur">
-            <i class="fas fa-user"></i> {{ fichier.uploadeur }}
+          <!-- Avatar seul : le nom complet prenait la place du nom du fichier.
+               Il reste lisible au survol. -->
+          <span class="uploadeur" *ngIf="fichier.uploadeur" [title]="'Déposé par ' + fichier.uploadeur">
+            <app-avatar [url]="photoUploadeur(fichier)" [displayName]="fichier.uploadeur"></app-avatar>
           </span>
           <span class="meta" *ngIf="fichier.dateUpload">
             <i class="fas fa-clock"></i> {{ fichier.dateUpload | date:'dd/MM/yyyy HH:mm' }}

@@ -30,7 +30,7 @@ import {StatusFieldComponent} from "./status-field/status-field.component";
 import {EditEventComponent} from "./edit-event/edit-event.component";
 import {EventMenuComponent} from "./event-menu/event-menu.component";
 import {ContenuMenuDirective} from "./contenu-menu/contenu-menu.directive";
-import {ProjetTachePickerComponent} from "./projet-tache-picker/projet-tache-picker.component";
+import {IssuePickerMenuComponent} from "./issue-picker/issue-picker-menu.component";
 import {NewEventComponent} from "./new-event/new-event.component";
 import {IssueFilterFieldComponent} from "./issue-filter-field/issue-filter-field.component";
 import {MatCheckbox} from "@angular/material/checkbox";
@@ -83,8 +83,6 @@ import {IssueBoardComponent} from "./issue-board/issue-board.component";
     StatusFieldComponent,
     EditEventComponent,
     EventMenuComponent,
-    ContenuMenuDirective,
-    ProjetTachePickerComponent,
     NewEventComponent,
     IssueFilterFieldComponent,
     EditorComponent,
@@ -146,7 +144,9 @@ import {IssueBoardComponent} from "./issue-board/issue-board.component";
     NgbSlide,
     IssutypeForm2Component,
     AvatarComponent,
-    IconeViewComponent
+    IconeViewComponent,
+    ContenuMenuDirective,
+    IssuePickerMenuComponent
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA
@@ -168,7 +168,6 @@ import {IssueBoardComponent} from "./issue-board/issue-board.component";
         EditEventComponent,
         EventMenuComponent,
         ContenuMenuDirective,
-        ProjetTachePickerComponent,
         NewEventComponent,
         QuillEditorComponent,
         EditorComponent,

@@ -27,7 +27,9 @@ import {MAT_MENU_PANEL} from '@angular/material/menu';
  * création de projet ou de tâche ouvert depuis un sélecteur.
  */
 @Directive({
-  standalone: false,
+  // Autonome : utilisable aussi bien dans les modules que dans les composants
+  // autonomes comme issue-picker-menu.
+  standalone: true,
   selector: '[appContenuMenu]',
   providers: [{provide: MAT_MENU_PANEL, useValue: null}]
 })
