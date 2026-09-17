@@ -44,6 +44,20 @@ export class CountUpAnimator {
 
   start(targets: CountUpTarget[]): void {
     this.reset();
+    this.animer(targets);
+  }
+
+  /**
+   * Anime des valeurs arrivées après l'ouverture — par exemple le détail des
+   * tâches d'un dossier chargé au dépliage — sans remettre à zéro celles qui
+   * sont déjà affichées. Une nouvelle ouverture (start) ou une fermeture
+   * (reset) interrompt aussi ces animations-là.
+   */
+  ajouter(targets: CountUpTarget[]): void {
+    this.animer(targets);
+  }
+
+  private animer(targets: CountUpTarget[]): void {
     const generation = this.generation;
 
     // Cibles figées au moment de l'ouverture.

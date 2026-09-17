@@ -25,7 +25,9 @@
            enfants d'une issue dépliée, avec depth + 1 pour l'indentation —
            tout reste dans le même panneau, sans overlay supplémentaire. -->
       <ng-template #nodeList let-issues="issues" let-depth="depth" let-parent="parent">
-        <ng-container *ngFor="let issue of issues">
+        <!-- trackBy : quand le détail d'un dossier arrive, les mêmes tâches
+             reviennent sous de nouveaux objets ; les lignes restent en place. -->
+        <ng-container *ngFor="let issue of issues; trackBy: parId">
           <div class="issue-tree-row" [style.paddingLeft.px]="depth * 16">
             <button
               class="issue-tree-toggle"
@@ -42,9 +44,12 @@
             <!-- Ligne cliquable : PAS un mat-menu-item, pour que cocher une
                  case ne ferme jamais le menu et permette d'en cocher plusieurs.
                  En mode simple, le clic choisit et referme explicitement. -->
+            <!-- issue-tree-item--moi : ce qui vous est assigné ressort, pour
+                 qu'on le choisisse en premier. -->
             <div
               class="issue-tree-item"
               [class.selected]="isSelected(issue) || estCourante(issue)"
+              [class.issue-tree-item--moi]="estAMoi(issue)"
               (click)="onLigneClic(issue, parent, $event)"
             >
               <span class="issue-tree-checkbox" *ngIf="mode === 'multiple'" [class.checked]="isSelected(issue)">
@@ -55,7 +60,20 @@
                  [ngClass]="depth === 0 ? (estDeplie(issue) ? 'fa-folder-open' : 'fa-folder') : 'fa-file-lines'"></i>
 
               <span class="issue-picker-key">{{ issue.issueKey }}</span>
-              <span class="issue-picker-summary">{{ issue.summary }}</span>
+              <span class="issue-picker-summary" [title]="issue.summary">{{ issue.summary }}</span>
+
+              <span class="issue-picker-moi" *ngIf="estAMoi(issue)" title="Assignée à vous">à vous</span>
+              <i class="fas fa-spinner fa-spin issue-picker-loading" *ngIf="depth === 0 && estEnChargement(issue)"
+                 title="Chargement des tâches"></i>
+
+              <!-- Assignés : quelques avatars, le reste résumé en « +n ». -->
+              <span class="issue-picker-assignes" *ngIf="assignesDe(issue).length" [title]="nomAssignes(issue)">
+                <app-avatar *ngFor="let user of avatarsVisibles(issue); trackBy: parId"
+                            class="issue-picker-avatar"
+                            [url]="photoDe(user)"
+                            [displayName]="nomDe(user)"></app-avatar>
+                <span class="issue-picker-avatar-plus" *ngIf="avatarsMasques(issue)">+{{ avatarsMasques(issue) }}</span>
+              </span>
 
               <!-- Durée : compteur animé 00:00 -> hh:mm réel -->
               <span class="issue-picker-duration" *ngIf="hasDuration(issue)">
@@ -88,7 +106,7 @@
 
           <!-- Dépliage animé des enfants -->
           <div class="issue-tree-children" *ngIf="peutDeplier(issue, depth) && estDeplie(issue)" @expandCollapse>
-            <ng-container *ngTemplateOutlet="nodeList; context: { issues: filtrer(issue.children, issue), depth: depth + 1, parent: issue }"></ng-container>
+            <ng-container *ngTemplateOutlet="nodeList; context: { issues: filtrer(enfantsDe(issue), issue), depth: depth + 1, parent: issue }"></ng-container>
 
             <!-- Le type de demande est obligatoire : la création passe par le
                  formulaire complet, ouvert par l'hôte. -->

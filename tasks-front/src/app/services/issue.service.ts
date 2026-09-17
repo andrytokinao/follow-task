@@ -1402,6 +1402,31 @@ export class IssueService implements OnInit {
     });
   }
 
+  /**
+   * Tâches d'un projet avec leurs assignés et leur avancement, pour le
+   * sélecteur d'issues. En cas d'erreur, liste vide : le sélecteur garde alors
+   * les tâches qu'il connaissait déjà, sans détail.
+   */
+  loadSubtaskResume(parentId: Number): Observable<Issue[]> {
+    return new Observable<Issue[]>(observer => {
+      this.apollo.query({
+        query: operation.LOAD_SUBTASK_RESUME,
+        variables: {parentId},
+        fetchPolicy: "network-only"
+      }).subscribe({
+        next: (res: any) => {
+          observer.next(supprimerTypename(res.data.loadSubtask) ?? []);
+          observer.complete();
+        },
+        error: error => {
+          console.error(error);
+          observer.next([]);
+          observer.complete();
+        }
+      });
+    });
+  }
+
   setMasters(masters: Issue[]) {
     let filtered = masters.filter(m => !m.deleted);
     this.issueMastersListSubject.next(filtered);

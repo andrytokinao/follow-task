@@ -1,6 +1,8 @@
 ::ng-deep .issue-picker-menu.mat-mdc-menu-panel {
   min-width: 260px;
-  max-width: 320px;
+  // Élargi : les avatars des assignés et l'avancement prennent place sur la
+  // ligne, à côté du titre.
+  max-width: min(400px, 92vw);
 }
 
 ::ng-deep .issue-picker-menu .mat-mdc-menu-content {
@@ -283,4 +285,59 @@
 .issue-picker-new-project {
   border-top: 1px solid #E5E7EB;
   padding: 2px 0;
+}
+
+// ---- Assignés, « à vous » ----
+
+.issue-picker-assignes {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  // Avatars légèrement superposés : trois tiennent dans la place de deux.
+  --avatar-size: 18px;
+}
+
+::ng-deep .issue-picker-assignes .issue-picker-avatar {
+  display: block;
+  border: 1.5px solid #fff;
+  border-radius: 50%;
+
+  & + .issue-picker-avatar { margin-left: -6px; }
+  .initials { font-size: 8px; }
+}
+
+.issue-picker-avatar-plus {
+  margin-left: 3px;
+  font-size: 9px;
+  font-weight: 600;
+  color: #6B7280;
+}
+
+.issue-picker-loading {
+  flex-shrink: 0;
+  font-size: 9px;
+  color: #9CA3AF;
+}
+
+// Ce qui vous est assigné : liseré, clé et titre plus marqués, pastille
+// « à vous ». Visible sans être criard — c'est une invitation, pas une alerte.
+.issue-tree-item--moi {
+  box-shadow: inset 3px 0 0 #6366F1;
+  background: #F5F3FF;
+
+  &:hover { background: #EDE9FE; }
+
+  .issue-picker-key { background: #6366F1; color: #fff; }
+  .issue-picker-summary { font-weight: 600; color: #1F2937; }
+}
+
+.issue-picker-moi {
+  flex-shrink: 0;
+  padding: 1px 6px;
+  border-radius: 8px;
+  background: #E0E7FF;
+  color: #4338CA;
+  font-size: 9px;
+  font-weight: 600;
+  white-space: nowrap;
 }

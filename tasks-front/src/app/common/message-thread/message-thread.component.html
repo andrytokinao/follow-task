@@ -79,6 +79,7 @@
               #rootPicker
               [issues]="masters"
               [creationEnLigne]="true"
+              [detailsTaches]="true"
               (issuesSelected)="onIssuesPickedForSingle(msg, $event)"
               (creationTacheDemandee)="demanderCreation([msg], $event)"
               (creationProjetDemandee)="demanderCreation([msg])"
@@ -191,6 +192,7 @@
       #selectionRootPicker
       [issues]="masters"
       [creationEnLigne]="true"
+              [detailsTaches]="true"
       (issuesSelected)="onIssuesPickedForSelection($event)"
       (creationTacheDemandee)="demanderCreation(messagesSelectionnes(), $event)"
       (creationProjetDemandee)="demanderCreation(messagesSelectionnes())"

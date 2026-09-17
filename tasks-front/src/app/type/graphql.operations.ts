@@ -1998,6 +1998,45 @@ const GET_ISSUE = gql`
     }
   }
 `
+/**
+ * Tâches d'un projet, version légère pour le sélecteur d'issues : de quoi
+ * afficher les assignés et l'avancement de chaque tâche, rien de plus.
+ *
+ * Même champ serveur que LOAD_SUBTASK, sans les valeurs personnalisées, le
+ * statut ni le rapporteur. Chargée au dépliage d'un dossier plutôt qu'ajoutée
+ * à SEARCH_ISSUES : l'avancement et les assignés sont des relations chargées
+ * à la demande côté serveur, et cette requête-là alimente aussi les listes
+ * de projets et de tâches.
+ */
+export const LOAD_SUBTASK_RESUME = gql`
+    query loadSubtaskResume($parentId:Int) {
+      loadSubtask(parentId: $parentId){
+        id
+        issueKey
+        summary
+        currentCompletionPercent
+        elapsedDurationMinutes
+        assigne {
+          id
+          username
+          firstName
+          lastName
+          photo
+        }
+        activeMemberships {
+          id
+          role
+          user {
+            id
+            username
+            firstName
+            lastName
+            photo
+          }
+        }
+      }
+    }
+`;
 const LOAD_SUBTASK = gql`
     query loadSubtask($parentId:Int) {
       loadSubtask(parentId: $parentId){
