@@ -24,11 +24,26 @@
   min-height: 0;
 }
 
+// Le contenu paresseux (ng-template matMenuContent) n'est pas posé tel quel :
+// Material l'enveloppe dans un <div> anonyme, qu'il crée lui-même. Ce div
+// rompait la chaîne flex — la liste ne recevait donc aucune hauteur bornée,
+// elle grandissait sans fin et le panneau se contentait de couper le bas, sans
+// jamais laisser défiler. On le remet dans la colonne.
+::ng-deep .issue-picker-menu .mat-mdc-menu-content > div {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
 .issue-tree-scroll {
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
+  // Arrivé en bout de liste, la molette ne doit pas se reporter sur la page
+  // derrière le panneau : elle bougerait sous un menu qui, lui, ne suit pas.
+  overscroll-behavior: contain;
   padding: 4px 0;
 }
 
