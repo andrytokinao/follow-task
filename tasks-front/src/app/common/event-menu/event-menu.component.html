@@ -3,6 +3,8 @@
 <span
   class="event-menu-anchor"
   [matMenuTriggerFor]="menuEvenement"
+  (menuOpened)="dansEcran.suivre(menuEvenement.panelId, '.modal-header, .ed-header')"
+  (menuClosed)="dansEcran.arreter()"
   [style.left.px]="x"
   [style.top.px]="y">
 </span>

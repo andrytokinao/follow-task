@@ -15,6 +15,8 @@ export interface CountUpTarget {
 export class CountUpAnimator {
   private percentByKey = new Map<string, number>();
   private minutesByKey = new Map<string, number>();
+  /** Valeur finale visée par clé : fixer() peut la corriger en cours d'animation. */
+  private cibles = new Map<string, {percent: number; minutes: number}>();
 
   // Incrémenté à chaque start()/reset() : invalide la boucle en cours si le
   // panneau est refermé puis rouvert pendant l'animation.
@@ -40,6 +42,22 @@ export class CountUpAnimator {
     this.generation++;
     this.percentByKey.clear();
     this.minutesByKey.clear();
+    this.cibles.clear();
+  }
+
+  /**
+   * Met à jour des valeurs déjà affichées, sans les faire repartir de 0 : un
+   * rafraîchissement en arrière-plan ne doit pas donner l'impression que tout
+   * se recharge. Une animation en cours termine sur la nouvelle valeur.
+   */
+  fixer(targets: CountUpTarget[]): void {
+    for (const target of targets) {
+      const cible = {percent: target.percent ?? 0, minutes: target.minutes ?? 0};
+      this.cibles.set(target.key, cible);
+      this.percentByKey.set(target.key, cible.percent);
+      this.minutesByKey.set(target.key, cible.minutes);
+    }
+    this.cdr.markForCheck();
   }
 
   start(targets: CountUpTarget[]): void {
@@ -60,18 +78,13 @@ export class CountUpAnimator {
   private animer(targets: CountUpTarget[]): void {
     const generation = this.generation;
 
-    // Cibles figées au moment de l'ouverture.
-    const frozen = targets.map(target => ({
-      key: target.key,
-      percent: target.percent ?? 0,
-      minutes: target.minutes ?? 0,
-    }));
-
-    for (const target of frozen) {
+    const keys = targets.map(target => target.key);
+    for (const target of targets) {
+      this.cibles.set(target.key, {percent: target.percent ?? 0, minutes: target.minutes ?? 0});
       this.percentByKey.set(target.key, 0);
       this.minutesByKey.set(target.key, 0);
     }
-    if (frozen.length === 0) return;
+    if (keys.length === 0) return;
 
     const startTime = performance.now();
     // Montée rapide puis stabilisation en douceur sur la valeur finale.
@@ -83,9 +96,11 @@ export class CountUpAnimator {
       const progress = Math.min(1, (now - startTime) / this.durationMs);
       const eased = easeOutCubic(progress);
 
-      for (const target of frozen) {
-        this.percentByKey.set(target.key, Math.round(target.percent * eased));
-        this.minutesByKey.set(target.key, Math.round(target.minutes * eased));
+      for (const key of keys) {
+        const cible = this.cibles.get(key);
+        if (!cible) continue;
+        this.percentByKey.set(key, Math.round(cible.percent * eased));
+        this.minutesByKey.set(key, Math.round(cible.minutes * eased));
       }
       this.cdr.markForCheck();
 

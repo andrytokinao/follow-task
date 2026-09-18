@@ -6,18 +6,57 @@
   // horizontal.
   width: max-content;
   max-width: 95vw;
-  overflow-x: hidden;
+  // Hauteur : tout l'écran s'il le faut. La valeur exacte (place restante
+  // sous ou au-dessus du déclencheur) est posée à l'ouverture, voir
+  // ajusterHauteur ; celle-ci n'est que le plafond de repli.
+  max-height: calc(100vh - 16px);
+  // Colonne : recherche et pieds restent visibles, seule la liste défile.
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 ::ng-deep .issue-picker-menu .mat-mdc-menu-content {
   padding: 0;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .issue-tree-scroll {
-  max-height: 300px;
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
   padding: 4px 0;
+}
+
+.issue-picker-poignee,
+.issue-picker-search,
+.issue-picker-new-project,
+.issue-picker-footer {
+  flex-shrink: 0;
+}
+
+// Barre de préhension : discrète, mais elle se voit au survol.
+.issue-picker-poignee {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 12px;
+  cursor: grab;
+
+  &:active { cursor: grabbing; }
+  &:hover .issue-picker-poignee-trait { background: #9CA3AF; }
+}
+
+.issue-picker-poignee-trait {
+  width: 32px;
+  height: 3px;
+  border-radius: 2px;
+  background: #E5E7EB;
+  transition: background 0.15s ease;
 }
 
 .issue-tree-row {
@@ -222,11 +261,6 @@
 // clé, et la recherche a besoin de place.
 ::ng-deep .issue-picker-menu--simple.mat-mdc-menu-panel {
   min-width: min(480px, 95vw);
-}
-
-.issue-picker-menu--simple .issue-tree-scroll,
-::ng-deep .issue-picker-menu--simple .issue-tree-scroll {
-  max-height: 55vh;
 }
 
 .issue-tree-icon {

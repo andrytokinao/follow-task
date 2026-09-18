@@ -13,7 +13,10 @@
 /* ═══════════════════════════════════════════
    HEADER
 ═══════════════════════════════════════════ */
+/* Barre de titre : aussi la poignée de déplacement du panneau
+   (voir PanneauDansEcran). */
 .modal-header {
+  cursor: grab;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -32,6 +35,8 @@
   gap: 7px;
   margin: 0;
 }
+
+.modal-header:active { cursor: grabbing; }
 
 .btn-close {
   background: none;

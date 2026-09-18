@@ -48,7 +48,7 @@
             </span>
           </ng-container>
           <ng-template #ptVide>
-            <span class="placeholder-text">Choisir un projet ou une tâche…</span>
+            <span class="placeholder-text">Choisir une tâche…</span>
           </ng-template>
           <i class="fas fa-chevron-down pt-chevron"></i>
         </button>
@@ -58,6 +58,7 @@
           [recherche]="true"
           [creationEnLigne]="true"
           [detailsTaches]="true"
+          [projetsSelectionnables]="false"
           [hasBackdrop]="true"
           [issues]="masters"
           [issueCourante]="selectedSubtask ?? selectedMaster"

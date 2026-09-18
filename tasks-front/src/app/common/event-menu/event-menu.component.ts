@@ -2,6 +2,7 @@ import {
   ChangeDetectorRef,
   Component,
   EventEmitter,
+  NgZone,
   Output,
   ViewChild
 } from '@angular/core';
@@ -10,6 +11,7 @@ import {EditEventComponent} from '../edit-event/edit-event.component';
 import {EventDetailComponent} from '../event-detail/event-detail.component';
 import {EventApp} from '../../type/issue';
 import {DernierPointeurService, PositionMenu} from '../../services/dernier-pointeur.service';
+import {PanneauDansEcran} from '../../utils/panneau-dans-ecran';
 
 export type {PositionMenu};
 
@@ -48,7 +50,11 @@ export class EventMenuComponent {
   y = 0;
   mode: 'consultation' | 'edition' = 'edition';
 
-  constructor(private pointeur: DernierPointeurService, private cdr: ChangeDetectorRef) {
+  /** Le formulaire grandit (avancement, sélection) : son bas doit rester visible. */
+  readonly dansEcran: PanneauDansEcran;
+
+  constructor(private pointeur: DernierPointeurService, private cdr: ChangeDetectorRef, zone: NgZone) {
+    this.dansEcran = new PanneauDansEcran(zone);
   }
 
   /**

@@ -16,6 +16,7 @@ import { shareReplay } from 'rxjs/operators';
 import {Issue, User} from '../../type/issue';
 import { issueAssignees } from '../../type/issue-grouping.util';
 import { CountUpAnimator } from '../../utils/count-up.animator';
+import { PanneauDansEcran } from '../../utils/panneau-dans-ecran';
 import { RenderedDirective } from './rendered.directive';
 import { ContenuMenuDirective } from '../contenu-menu/contenu-menu.directive';
 import { AvatarComponent } from '../avatar/avatar.component';
@@ -106,6 +107,11 @@ export class IssuePickerMenuComponent {
   @Input() issueCourante?: Issue;
   /** Charger assignés et avancement des tâches à l'ouverture d'un dossier. */
   @Input() detailsTaches = false;
+  /**
+   * Mode `simple` : un projet peut-il être choisi lui-même ? Sinon, cliquer
+   * un projet l'ouvre (ou le referme) et seules ses tâches se choisissent.
+   */
+  @Input() projetsSelectionnables = true;
 
   /** Mode `simple` : émis au clic sur une ligne. */
   @Output() issueChoisie = new EventEmitter<IssueChoisie>();
@@ -127,14 +133,27 @@ export class IssuePickerMenuComponent {
   // Compteurs animés : remplis à l'ouverture du menu (onMenuOpened) et
   // remis à zéro à la fermeture pour rejouer l'animation la fois suivante.
   private readonly counters: CountUpAnimator;
+  private readonly dansEcran: PanneauDansEcran;
 
   terme = '';
   /** Même règle que partout ailleurs : gestionnaire de projet ou administrateur. */
   readonly peutCreerProjet$: Observable<boolean>;
 
-  /** Détail des tâches par projet, chargé au dépliage (option detailsTaches). */
+  /**
+   * Détail des tâches par projet, chargé au dépliage (option detailsTaches).
+   * Gardé d'une ouverture à l'autre : le vider rechargeait et réanimait toute
+   * la liste à chaque ouverture, comme si la page se rechargeait.
+   */
   private readonly tachesDetaillees = new Map<string, Issue[]>();
+  /** Projets rafraîchis depuis l'ouverture du panneau. */
+  private readonly detailsAJour = new Set<string>();
   private readonly chargementEnCours = new Set<string>();
+  /**
+   * Animation de dépliage coupée tant que l'utilisateur n'a rien déplié : à
+   * l'ouverture, les dossiers restés ouverts s'affichent tels quels au lieu
+   * de se redéplier un à un.
+   */
+  animerDepliage = false;
   private utilisateurId?: string;
 
   // MessagingService était injecté sans être utilisé : il liait ce sélecteur à
@@ -144,6 +163,7 @@ export class IssuePickerMenuComponent {
               private userService: UserService,
               authService: AuthService) {
     this.counters = new CountUpAnimator(zone, cdr);
+    this.dansEcran = new PanneauDansEcran(zone);
     this.peutCreerProjet$ = projectGuard
       .hasCredential(['PROJECT_MANAGER', 'ADMIN'])
       .pipe(shareReplay(1));
@@ -214,32 +234,45 @@ export class IssuePickerMenuComponent {
     return (issue.currentCompletionPercent ?? 0) >= 100;
   }
 
-  /** Charge le détail des tâches d'un projet, une fois par ouverture du panneau. */
+  /**
+   * Charge le détail des tâches d'un projet, une fois par ouverture du
+   * panneau. Déjà connu, il reste affiché pendant qu'on le rafraîchit en
+   * arrière-plan, et les valeurs se corrigent sans repartir de 0.
+   */
   private chargerDetails(projet: Issue): void {
     const cle = this.keyOf(projet);
     if (!this.detailsTaches || projet?.id == null
-      || this.tachesDetaillees.has(cle) || this.chargementEnCours.has(cle)) {
+      || this.detailsAJour.has(cle) || this.chargementEnCours.has(cle)) {
       return;
     }
+    const dejaConnu = this.tachesDetaillees.has(cle);
     this.chargementEnCours.add(cle);
     this.issueService.loadSubtaskResume(projet.id).subscribe(taches => {
       this.chargementEnCours.delete(cle);
+      this.detailsAJour.add(cle);
       if (!taches?.length) {
         return;
       }
       this.tachesDetaillees.set(cle, taches);
-      // Les lignes sont déjà affichées : on anime seulement leurs nouvelles
-      // valeurs, sans relancer celles des autres dossiers.
-      this.counters.ajouter(taches.map(t => ({
+      const valeurs = taches.map(t => ({
         key: this.keyOf(t),
         percent: t.currentCompletionPercent,
         minutes: t.elapsedDurationMinutes,
-      })));
+      }));
+      if (dejaConnu) {
+        this.counters.fixer(valeurs);
+      } else {
+        // Premières valeurs de ce dossier : on anime seulement elles, sans
+        // relancer celles des autres dossiers.
+        this.counters.ajouter(valeurs);
+      }
     });
   }
 
+  /** Indicateur seulement au premier chargement : un rafraîchissement reste discret. */
   estEnChargement(projet: Issue): boolean {
-    return this.chargementEnCours.has(this.keyOf(projet));
+    const cle = this.keyOf(projet);
+    return this.chargementEnCours.has(cle) && !this.tachesDetaillees.has(cle);
   }
 
   parId(_index: number, element: Issue | User): unknown {
@@ -265,6 +298,7 @@ export class IssuePickerMenuComponent {
   // Déplie/replie sans toucher à la sélection ni fermer le menu.
   toggleExpand(issue: Issue, event: Event): void {
     event.stopPropagation();
+    this.animerDepliage = true;
     const key = this.keyOf(issue);
     if (this.expandedKeys.has(key)) {
       this.expandedKeys.delete(key);
@@ -300,6 +334,10 @@ export class IssuePickerMenuComponent {
   /** Clic sur une ligne : cocher en mode multiple, choisir en mode simple. */
   onLigneClic(issue: Issue, parent: Issue | undefined, event: Event): void {
     if (this.mode === 'simple') {
+      if (!parent && !this.projetsSelectionnables) {
+        this.toggleExpand(issue, event);
+        return;
+      }
       event.stopPropagation();
       this.choisir(issue, parent);
       return;
@@ -420,10 +458,13 @@ export class IssuePickerMenuComponent {
 
   // Appelé par (rendered) sur le contenu paresseux : une fois par ouverture.
   onMenuOpened(): void {
+    // Toute la hauteur de l'écran s'il le faut, et le panneau remonte quand
+    // un dossier déplié le fait dépasser en bas.
+    this.dansEcran.suivre(this.menu.panelId, '.issue-picker-poignee');
     this.terme = '';
-    // Détail rechargé à chaque ouverture : l'avancement a pu bouger depuis.
-    this.tachesDetaillees.clear();
-    this.chargementEnCours.clear();
+    // Détail rafraîchi à chaque ouverture, l'avancement a pu bouger depuis ;
+    // l'ancien reste affiché en attendant.
+    this.detailsAJour.clear();
     // Mode simple : le dossier contenant le choix courant s'ouvre, pour le
     // montrer sans avoir à le chercher.
     if (this.mode === 'simple' && this.issueCourante?.id != null) {
@@ -448,7 +489,9 @@ export class IssuePickerMenuComponent {
   }
 
   onMenuClosed(): void {
+    this.dansEcran.arreter();
     this.counters.reset();
+    this.animerDepliage = false;
   }
 
   // Aplatit l'arbre (parents + enfants, quel que soit l'état déplié/replié)
@@ -459,7 +502,9 @@ export class IssuePickerMenuComponent {
     const walk = (list: Issue[]) => {
       for (const issue of list) {
         all.push(issue);
-        if (issue.children?.length) walk(issue.children);
+        // Détail déjà chargé compris : ses valeurs s'animent avec les autres.
+        const enfants = this.enfantsDe(issue);
+        if (enfants.length) walk(enfants);
       }
     };
     walk(issues ?? []);

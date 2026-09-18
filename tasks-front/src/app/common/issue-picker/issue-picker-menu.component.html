@@ -10,6 +10,13 @@
        (0% -> valeur réelle, 00:00 -> durée réelle) via (rendered). -->
   <ng-template matMenuContent>
 
+    <!-- Barre de préhension : ce panneau n'a pas d'en-tête, il faut de quoi
+         le saisir pour le déplacer. Le clic y est arrêté, sinon le panneau
+         (qui se ferme sur tout clic) disparaîtrait au relâchement. -->
+    <div class="issue-picker-poignee" title="Déplacer" (click)="$event.stopPropagation()">
+      <span class="issue-picker-poignee-trait"></span>
+    </div>
+
     <!-- Recherche (option). appContenuMenu : taper ne doit ni fermer le menu,
          ni laisser son gestionnaire clavier voler les flèches. -->
     <div class="issue-picker-search" *ngIf="recherche" appContenuMenu>
@@ -18,7 +25,8 @@
              [(ngModel)]="terme" [ngModelOptions]="{standalone: true}" />
     </div>
 
-    <div class="issue-tree-scroll" (rendered)="onMenuOpened()" (click)="$event.stopPropagation()">
+    <div class="issue-tree-scroll" (rendered)="onMenuOpened()" (click)="$event.stopPropagation()"
+         [@.disabled]="!animerDepliage">
       <ng-container *ngTemplateOutlet="nodeList; context: { issues: filtrer(issues), depth: 0, parent: undefined }"></ng-container>
 
       <!-- Template récursif : un niveau de l'arbre. Se ré-invoque pour les

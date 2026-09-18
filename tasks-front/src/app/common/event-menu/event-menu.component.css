@@ -19,7 +19,9 @@ app-edit-event[hidden] {
 ::ng-deep .event-menu-panel.mat-mdc-menu-panel {
   width: 560px;
   max-width: min(560px, 95vw);
-  max-height: 90vh;
+  /* Plafond de repli : PanneauDansEcran le porte à la hauteur de l'écran et
+     remonte le panneau quand le formulaire grandit. */
+  max-height: calc(100vh - 16px);
 }
 
 ::ng-deep .event-menu-panel .mat-mdc-menu-content {

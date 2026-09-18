@@ -9,7 +9,9 @@
 }
 
 /* ── Header ── */
+/* Aussi la poignée de déplacement du panneau (voir PanneauDansEcran). */
 .ed-header {
+  cursor: grab;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -18,6 +20,8 @@
   border-bottom: 0.5px solid #e5e7eb;
   background: #f9fafb;
 }
+.ed-header:active { cursor: grabbing; }
+
 .ed-title {
   display: flex;
   align-items: center;
