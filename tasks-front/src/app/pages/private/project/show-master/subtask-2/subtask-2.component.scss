@@ -23,6 +23,15 @@ $r-xl: 16px;
 
 $mobile: 768px;
 
+// ─── Scrollbar mixin (réutilisée partout : liste, détail, description) ──
+@mixin thin-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #e0e0e6 transparent;
+
+  &::-webkit-scrollbar       { width: 3px; }
+  &::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+}
+
 // ─── Host ────────────────────────────────────────────────────────
 :host {
   display: flex;
@@ -158,6 +167,8 @@ $mobile: 768px;
   font-weight: 600;
   color: $c-muted;
   letter-spacing: .03em;
+  flex-shrink: 0;
+  white-space: nowrap;
 
   svg { color: $c-accent; }
 }
@@ -175,6 +186,7 @@ $mobile: 768px;
   display: flex;
   align-items: center;
   gap: 4px;
+  flex-shrink: 0;
 }
 
 // ─── Parent pill ─────────────────────────────────────────────────
@@ -211,12 +223,6 @@ $mobile: 768px;
 }
 
 // ─── Filtres ─────────────────────────────────────────────────────
-// Assignés : dans l'en-tête, calés à droite contre les actions. Largeur du
-// contenu (flex 0 1 auto) poussée par margin-left:auto — et non
-// justify-content:flex-end dans la zone défilante, qui rendrait inaccessibles
-// les avatars débordant à gauche. min-width:0 : s'ils ne tiennent pas, le
-// filtre rétrécit et défile. Les composants communs exposent leur couleur
-// d'accent : on les aligne sur celle de l'écran.
 .sw-list__assignees {
   --af-accent: #{$c-accent};
   --af-size: 24px;
@@ -227,10 +233,6 @@ $mobile: 768px;
   border-right: 1px solid $c-border;
 }
 
-.sw-list__title { flex-shrink: 0; white-space: nowrap; }
-.sw-list__actions { flex-shrink: 0; }
-
-// Statuts : une rangée fine, en liste compacte seulement.
 .sw-filters {
   padding: 6px 14px;
   border-bottom: 1px solid $c-border;
@@ -241,10 +243,6 @@ $mobile: 768px;
 }
 
 // ─── Board ───────────────────────────────────────────────────────
-// show-master n'impose aucune hauteur : sans hauteur explicite, le board
-// prendrait celle de sa colonne la plus remplie — quelques centimètres avec
-// deux tâches. On le cale sur la fenêtre, avec un plancher pour les écrans
-// bas. --sw-board-offset = barres de navigation + en-tête de la liste.
 app-issue-board {
   --ib-accent: #{$c-accent};
   --ib-accent-bg: #{$c-accent-lt};
@@ -253,8 +251,6 @@ app-issue-board {
   height: max(var(--ib-min-height), calc(100dvh - var(--sw-board-offset)));
 }
 
-// Si un conteneur parent venait à contraindre la hauteur, le plancher du
-// board ne doit pas être rogné par l'overflow:hidden de .sw.
 .sw-list--full { overflow-y: auto; }
 
 // ─── Skeleton ────────────────────────────────────────────────────
@@ -289,17 +285,14 @@ app-issue-board {
   100% { background-position: -200% 0; }
 }
 
-// ─── Scroll ──────────────────────────────────────────────────────
+// ─── Scroll : LISTE des tâches (indépendant du détail) ────────────
 .sw-list__scroll {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  max-height: 480px;
   -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
-  scrollbar-color: #e0e0e6 transparent;
-
-  &::-webkit-scrollbar       { width: 3px; }
-  &::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+  @include thin-scrollbar;
 }
 
 // ─── Task rows ───────────────────────────────────────────────────
@@ -325,9 +318,6 @@ app-issue-board {
     .task-row__key { color: $c-accent; }
   }
 
-  // Sous-tâche annoncée par une notification, pas encore ouverte : mêmes
-  // couleurs ambrées que la liste des tâches, pour qu'on la reconnaisse d'un
-  // écran à l'autre.
   &--unread {
     background: #fff8e8;
     box-shadow: inset 3px 0 0 #F59E0B;
@@ -346,7 +336,6 @@ app-issue-board {
   .task-row__sum { min-width: 0; }
 }
 
-// Compteur en bout de titre : la couleur seule ne dit pas combien.
 .task-row__notif {
   display: inline-flex;
   align-items: center;
@@ -368,7 +357,6 @@ app-issue-board {
   height: 6px;
   border-radius: 50%;
   flex-shrink: 0;
-  margin-top: 1px;
   align-self: flex-start;
   margin-top: 5px;
 
@@ -666,7 +654,7 @@ app-issue-board {
   &--sm { font-size: 11px; }
 }
 
-// ─── Detail body ─────────────────────────────────────────────────
+// ─── Detail body : scroll GLOBAL du panneau (hors description) ───
 .detail-body {
   flex: 1;
   min-height: 0;
@@ -674,11 +662,7 @@ app-issue-board {
   display: flex;
   flex-direction: column;
   -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
-  scrollbar-color: #e0e0e6 transparent;
-
-  &::-webkit-scrollbar       { width: 3px; }
-  &::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+  @include thin-scrollbar;
 }
 
 // ─── Sections statiques ──────────────────────────────────────────
@@ -711,6 +695,10 @@ app-issue-board {
   }
 }
 
+// ─── Description : scroll INDÉPENDANT, borné en hauteur ──────────
+// Séparé du scroll de .detail-body : une description longue défile
+// dans sa propre boîte sans faire bouger le reste du panneau (champs
+// personnalisés, onglets…) ni s'y mélanger.
 .description-view {
   font-size: 13px;
   line-height: 1.65;
@@ -718,9 +706,12 @@ app-issue-board {
   cursor: pointer;
   border-radius: $r;
   padding: 8px 10px;
-  margin: -8px -10px;
   transition: background .12s;
   min-height: 32px;
+  max-height: 240px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  @include thin-scrollbar;
 
   &:hover { background: $c-bg; }
   &--empty { color: $c-subtle; font-style: italic; }
@@ -730,6 +721,15 @@ app-issue-board {
   display: flex;
   flex-direction: column;
   gap: 10px;
+
+  // L'éditeur Quill gère son propre scroll interne (zone de saisie) ;
+  // on borne juste sa hauteur max pour rester cohérent visuellement
+  // avec .description-view.
+  ::ng-deep .ql-editor {
+    max-height: 240px;
+    overflow-y: auto;
+    @include thin-scrollbar;
+  }
 }
 
 .editor-actions {
@@ -887,7 +887,6 @@ app-issue-board {
   flex-shrink: 0;
 }
 
-
 .tl-ring {
   position: relative;
   width: 34px;
@@ -1004,11 +1003,7 @@ app-issue-board {
   svg { flex-shrink: 0; }
 }
 
-// ─── Safe area iOS ───────────────────────────────────────────────
-.mobile-safe-area {
-  height: env(safe-area-inset-bottom, 16px);
-  flex-shrink: 0;
-}
+// ─── Avatar utilisateur (planning) ────────────────────────────────
 .event-user {
   display: inline-flex;
   align-items: center;
@@ -1026,7 +1021,7 @@ app-issue-board {
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    background: #4f46e5;
+    background: $c-accent;
     color: #fff;
     font-size: 9px;
     font-weight: 600;
@@ -1034,5 +1029,12 @@ app-issue-board {
     align-items: center;
     justify-content: center;
     line-height: 1;
+    flex-shrink: 0;
   }
+}
+
+// ─── Safe area iOS ───────────────────────────────────────────────
+.mobile-safe-area {
+  height: env(safe-area-inset-bottom, 16px);
+  flex-shrink: 0;
 }
