@@ -385,6 +385,15 @@
 
                   <div class="event-card__body" [class.event-card__body--past]="group.isPast">
                     <div class="event-card__hd">
+                      <div class="event-user" *ngIf="ev.user" [title]="fullName(ev.user)">
+                        <img *ngIf="urlPhoto(ev.user); else initialsTpl"
+                             [src]="urlPhoto(ev.user)"
+                             [alt]="fullName(ev.user)"
+                             class="event-user__avatar" />
+                        <ng-template #initialsTpl>
+                          <span class="event-user__initials">{{ initials(ev.user) }}</span>
+                        </ng-template>
+                      </div>
                       <span class="event-title">{{ ev.title }}</span>
                       <div class="event-card__hd-right">
                         <span class="event-time">

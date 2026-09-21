@@ -18,7 +18,7 @@ import {
   EventSearchCriteria,
   Issue,
   NotificationApp,
-  Status,
+  Status, User,
   UsingCustomField
 } from '../../../../../type/issue';
 import { BehaviorSubject, forkJoin, of, Subscription } from 'rxjs';
@@ -70,7 +70,23 @@ export class Subtask2Component implements OnInit, AfterViewInit, OnDestroy {
     { originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top' },
     { originX: 'start', originY: 'top',    overlayX: 'start', overlayY: 'bottom' },
   ];
+  urlPhoto(user: User): string {
+    return user ? this.userService.getUrlPhoto(user) : null;
+  }
 
+  fullName(user: User): string {
+    if (!user) return '';
+    const first = (user as any).firstName ?? '';
+    const last  = (user as any).lastName ?? '';
+    return `${first} ${last}`.trim();
+  }
+
+  initials(user: User): string {
+    if (!user) return '';
+    const first = (user as any).firstName?.charAt(0) ?? '';
+    const last  = (user as any).lastName?.charAt(0) ?? '';
+    return (first + last).toUpperCase();
+  }
   // ── Data ────────────────────────────────────────────────────────
   protected parentIssue: Issue;
   subtasks: Issue[] = [];
