@@ -1,0 +1,44 @@
+<!-- Rien à envoyer : rien à l'écran. -->
+<div class="tw-panneau" *ngIf="liste.length" [class.tw-erreur]="enErreur > 0 && restants === 0">
+
+  <div class="tw-entete" (click)="deplie = !deplie">
+    <i class="fas fa-arrow-up-from-bracket tw-icone" [class.tw-anime]="restants > 0"></i>
+    <span class="tw-libelle">{{ libelle }}</span>
+    <span class="tw-pourcent" *ngIf="restants > 0">{{ progression }}%</span>
+    <button type="button" class="tw-bouton" [title]="deplie ? 'Réduire' : 'Détailler'">
+      <i class="fas" [ngClass]="deplie ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+    </button>
+    <button type="button" class="tw-bouton" *ngIf="restants === 0"
+            (click)="transferts.effacerTermines(); $event.stopPropagation()" title="Fermer">
+      <i class="fas fa-xmark"></i>
+    </button>
+  </div>
+
+  <!-- Barre d'ensemble, pondérée par la taille des fichiers. -->
+  <div class="tw-barre" *ngIf="restants > 0">
+    <span class="tw-barre-remplie" [style.width.%]="progression"></span>
+  </div>
+
+  <div class="tw-liste" *ngIf="deplie">
+    <div class="tw-ligne" *ngFor="let t of liste; trackBy: trackById" [ngClass]="'etat-' + t.etat">
+      <i class="fas tw-ligne-icone"
+         [ngClass]="{
+           'fa-clock': t.etat === 'attente',
+           'fa-arrow-up-from-bracket': t.etat === 'encours',
+           'fa-circle-check': t.etat === 'termine',
+           'fa-circle-exclamation': t.etat === 'erreur'
+         }"></i>
+      <span class="tw-nom" [title]="t.nom">{{ t.nom }}</span>
+      <span class="tw-dossier" [title]="t.destinationNom">
+        <i class="fas fa-folder"></i> {{ t.destinationNom }}
+      </span>
+      <span class="tw-etat" *ngIf="t.etat === 'encours'">{{ t.progression }}%</span>
+      <span class="tw-etat" *ngIf="t.etat === 'attente'">En attente</span>
+      <span class="tw-etat tw-etat-erreur" *ngIf="t.etat === 'erreur'" [title]="t.erreur">Échec</span>
+      <button type="button" class="tw-bouton" *ngIf="t.etat !== 'encours'"
+              (click)="transferts.retirer(t.id)" title="Retirer de la liste">
+        <i class="fas fa-xmark"></i>
+      </button>
+    </div>
+  </div>
+</div>

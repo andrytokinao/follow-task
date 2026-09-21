@@ -1,0 +1,108 @@
+/* Ancré en haut, au-dessus du contenu mais sous les menus (overlay = 2000). */
+.tw-panneau {
+  position: fixed;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1500;
+  width: min(460px, 94vw);
+  background: #fff;
+  border: 0.5px solid #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(16, 24, 40, 0.16);
+  overflow: hidden;
+  font-size: 12px;
+}
+
+.tw-entete {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  cursor: pointer;
+}
+
+.tw-icone { color: #2563eb; font-size: 12px; }
+.tw-anime { animation: tw-monte 1.2s ease-in-out infinite; }
+@keyframes tw-monte {
+  0%, 100% { transform: translateY(0); opacity: 1; }
+  50% { transform: translateY(-2px); opacity: .6; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tw-anime { animation: none; }
+}
+
+.tw-libelle { flex: 1; min-width: 0; color: #111827; }
+.tw-pourcent { font-weight: 600; color: #2563eb; font-variant-numeric: tabular-nums; }
+
+.tw-bouton {
+  border: none;
+  background: none;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 2px 4px;
+  font-size: 11px;
+}
+.tw-bouton:hover { color: #374151; }
+
+.tw-barre {
+  height: 3px;
+  background: #eef2ff;
+}
+.tw-barre-remplie {
+  display: block;
+  height: 100%;
+  background: #2563eb;
+  transition: width .2s ease;
+}
+
+.tw-erreur .tw-icone { color: #dc2626; }
+.tw-erreur .tw-libelle { color: #991b1b; }
+
+/* ── Détail ── */
+.tw-liste {
+  max-height: 40vh;
+  overflow-y: auto;
+  border-top: 0.5px solid #e5e7eb;
+}
+
+.tw-ligne {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-bottom: 0.5px solid #f3f4f6;
+}
+.tw-ligne:last-child { border-bottom: none; }
+
+.tw-ligne-icone { flex: none; width: 12px; font-size: 10px; color: #9ca3af; }
+.etat-encours .tw-ligne-icone { color: #2563eb; }
+.etat-termine .tw-ligne-icone { color: #16a34a; }
+.etat-erreur .tw-ligne-icone { color: #dc2626; }
+
+.tw-nom {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #374151;
+}
+
+.tw-dossier {
+  flex: none;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.tw-etat {
+  flex: none;
+  font-size: 11px;
+  color: #6b7280;
+  font-variant-numeric: tabular-nums;
+}
+.tw-etat-erreur { color: #dc2626; }

@@ -1,0 +1,159 @@
+<div class="imp">
+
+  <div class="imp__entete">
+    <div class="imp__entete-gauche">
+      <div class="imp__icone"><i class="fas fa-file-excel"></i></div>
+      <div>
+        <span class="imp__titre">Importer des utilisateurs</span>
+        <span class="imp__sous-titre">Depuis un classeur Excel</span>
+      </div>
+    </div>
+    <button type="button" class="imp__fermer" (click)="fermer()" title="Fermer">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+
+  <!-- ================= Rapport : après l'import ================= -->
+  <div class="imp__corps" *ngIf="rapport; else choix">
+
+    <div class="imp__bilan">
+      <div class="imp__chiffre imp__chiffre--succes">
+        <strong>{{ rapport.crees }}</strong>
+        <span>{{ rapport.crees > 1 ? 'créés' : 'créé' }}</span>
+      </div>
+      <div class="imp__chiffre" [class.imp__chiffre--erreur]="rapport.rejetes > 0">
+        <strong>{{ rapport.rejetes }}</strong>
+        <span>{{ rapport.rejetes > 1 ? 'rejetés' : 'rejeté' }}</span>
+      </div>
+      <div class="imp__chiffre imp__chiffre--neutre">
+        <strong>{{ rapport.total }}</strong>
+        <span>{{ rapport.total > 1 ? 'lignes lues' : 'ligne lue' }}</span>
+      </div>
+    </div>
+
+    <!-- Photos manquantes : le compte existe, seule l'image a manqué. Ce n'est
+         pas une erreur d'import, l'administrateur peut la déposer plus tard. -->
+    <div class="imp__bandeau imp__bandeau--avertissement" *ngIf="sansPhoto.length">
+      <i class="fas fa-image"></i>
+      {{ sansPhoto.length }}
+      {{ sansPhoto.length > 1 ? 'comptes créés sans leur photo' : 'compte créé sans sa photo' }}.
+      La photo peut être ajoutée depuis la fiche de la personne.
+    </div>
+
+    <div class="imp__bandeau imp__bandeau--succes" *ngIf="rapport.rejetes === 0">
+      <i class="fas fa-check-circle"></i>
+      Toutes les lignes ont été traitées.
+    </div>
+
+    <!-- Le détail ne porte que sur ce qui demande une action : les lignes
+         passées sans encombre n'ont rien à dire. -->
+    <div class="imp__detail" *ngIf="rejets.length || sansPhoto.length">
+      <span class="imp__detail-titre">Lignes à corriger</span>
+      <table class="imp__table">
+        <thead>
+        <tr>
+          <th>Ligne</th>
+          <th>Identifiant</th>
+          <th>Motif</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let ligne of rejets">
+          <td class="mono">{{ ligne.ligne }}</td>
+          <td class="mono">{{ ligne.username || '—' }}</td>
+          <td class="imp__motif imp__motif--erreur">{{ ligne.message }}</td>
+        </tr>
+        <tr *ngFor="let ligne of sansPhoto">
+          <td class="mono">{{ ligne.ligne }}</td>
+          <td class="mono">{{ ligne.username || '—' }}</td>
+          <td class="imp__motif">{{ ligne.message }}</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="imp__actions">
+      <button type="button" class="imp__bouton" (click)="recommencer()">
+        <i class="fas fa-rotate-left"></i> Importer un autre fichier
+      </button>
+      <button type="button" class="imp__bouton imp__bouton--principal" (click)="fermer()">Terminer</button>
+    </div>
+  </div>
+
+  <!-- ================= Choix du fichier ================= -->
+  <ng-template #choix>
+    <div class="imp__corps">
+
+      <p class="imp__aide">
+        Une ligne par personne, les intitulés en première ligne :
+        <code>username</code>, <code>email</code>, <code>Nom</code>,
+        <code>Prenom</code>, <code>cin</code>, <code>contact</code>,
+        <code>password</code>, <code>urlPhoto</code>.
+        L'ordre des colonnes est libre.
+      </p>
+
+      <ul class="imp__regles">
+        <li>
+          <strong>password</strong> est obligatoire, <strong>username</strong> est
+          déduit du nom s'il est vide.
+        </li>
+        <li>
+          <strong>contact</strong> doit être un numéro malgache
+          (<span class="mono">032</span>, <span class="mono">033</span>,
+          <span class="mono">034</span> ou <span class="mono">038</span>).
+          Mettez la colonne au format <em>Texte</em> pour garder le zéro initial.
+        </li>
+        <li>
+          <strong>urlPhoto</strong> est téléchargée puis rangée sous
+          <span class="mono">username.jpg</span>. Un fichier déjà présent sous ce
+          nom n'est jamais écrasé.
+        </li>
+      </ul>
+
+      <button type="button" class="imp__lien" (click)="telechargerModele()">
+        <i class="fas fa-download"></i> Télécharger le modèle
+      </button>
+
+      <div class="imp__bandeau imp__bandeau--erreur" *ngIf="erreur">
+        <i class="fas fa-exclamation-circle"></i> {{ erreur }}
+      </div>
+
+      <!-- Dépôt ou sélection : les deux gestes mènent au même endroit. -->
+      <label class="imp__depot" [class.imp__depot--rempli]="fichier"
+             (drop)="deposer($event)" (dragover)="survol($event)">
+        <input type="file" accept=".xlsx,.xls" (change)="choisir($event)" hidden/>
+        <ng-container *ngIf="fichier; else vide">
+          <i class="fas fa-file-excel imp__depot-icone"></i>
+          <span class="imp__depot-nom">{{ fichier.name }}</span>
+          <span class="imp__depot-taille">{{ tailleLisible() }}</span>
+        </ng-container>
+        <ng-template #vide>
+          <i class="fas fa-cloud-arrow-up imp__depot-icone"></i>
+          <span class="imp__depot-nom">Déposez le classeur ici</span>
+          <span class="imp__depot-taille">ou cliquez pour le choisir</span>
+        </ng-template>
+      </label>
+
+      <div class="imp__actions">
+        <button type="button" class="imp__bouton" (click)="fermer()">Annuler</button>
+        <button type="button"
+                class="imp__bouton imp__bouton--principal"
+                [disabled]="!fichier || import"
+                (click)="lancer()">
+          <i class="fas fa-circle-notch fa-spin" *ngIf="import"></i>
+          {{ import ? 'Import en cours…' : 'Importer' }}
+        </button>
+      </div>
+
+      <!-- Les photos sont rapatriées une par une : sur deux cents lignes, cela
+           prend le temps d'autant de requêtes réseau. Le dire évite qu'on
+           referme la fenêtre en croyant l'écran bloqué. -->
+      <p class="imp__patience" *ngIf="import">
+        Les photos sont téléchargées une par une : sur un gros fichier, comptez
+        plusieurs minutes.
+      </p>
+
+    </div>
+  </ng-template>
+
+</div>

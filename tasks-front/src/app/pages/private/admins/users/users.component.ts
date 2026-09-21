@@ -5,6 +5,7 @@ import {MemberGroupe, User} from "../../../../type/issue";
 import {UserService} from "../../../../services/user.service";
 import {EditUserComponent} from "../edit-user/edit-user.component";
 import {SetPasswordComponent} from "./set-password/set-password.component";
+import {ImportUsersComponent} from "./import-users/import-users.component";
 import {AuthService} from "../../../../services/auth.service";
 
 @Component({
@@ -297,6 +298,23 @@ export class UsersComponent implements OnInit, OnDestroy {
     dialogRef.componentInstance.action = "Nouvel utilisateur";
     dialogRef.componentInstance.isCreate = true;
     this.handleResult(dialogRef);
+  }
+
+  /**
+   * Creation en masse depuis un classeur Excel.
+   *
+   * La liste n'est rechargee que si au moins un compte a ete cree : la fenetre
+   * sert aussi a consulter un rapport, et refermer un rapport ne change rien.
+   */
+  importer() {
+    const dialogRef = this.modalService.open(ImportUsersComponent,
+      {backdrop: "static", keyboard: false, size: "lg"});
+    dialogRef.result.then((creations: boolean) => {
+      if (creations) {
+        this.rafraichir();
+      }
+    }, () => {
+    });
   }
 
   editProfile(user: User) {

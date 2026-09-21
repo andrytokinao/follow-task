@@ -1,0 +1,370 @@
+/* =========================================================================
+   Import d'utilisateurs par tableur
+   -------------------------------------------------------------------------
+   Deux écrans dans une même fenêtre : le choix du fichier, puis le rapport.
+   Le second est le plus important — un import de deux cents lignes se juge sur
+   ce qui a échoué, pas sur ce qui a réussi — d'où des chiffres lisibles de loin
+   et un tableau qui ne liste que les lignes à corriger.
+   ========================================================================= */
+:host {
+  --c-primary: #1565c0;
+  --c-text: #111827;
+  --c-text-muted: #6b7280;
+  --c-text-faint: #9ca3af;
+  --c-border: #e5e7eb;
+  --c-border-soft: #f1f2f4;
+  --c-surface: #ffffff;
+  --c-surface-muted: #f9fafb;
+  --c-error: #c62828;
+  --c-error-bg: #fdecea;
+  --c-success: #1c6b32;
+  --c-success-bg: #e6f5ea;
+  --c-warning: #8a5a12;
+  --c-warning-bg: #fdf3e0;
+
+  display: block;
+  font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: var(--c-text);
+}
+
+.imp {
+  min-width: 0;
+}
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* ---- En-tête ---- */
+.imp__entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--c-border);
+}
+
+.imp__entete-gauche {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.imp__icone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #1c6b32;
+  color: #fff;
+  font-size: 15px;
+}
+
+.imp__titre {
+  display: block;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.imp__sous-titre {
+  display: block;
+  font-size: 12px;
+  color: var(--c-text-muted);
+}
+
+.imp__fermer {
+  border: none;
+  background: transparent;
+  color: var(--c-text-faint);
+  font-size: 15px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.imp__fermer:hover {
+  background: var(--c-surface-muted);
+  color: var(--c-text);
+}
+
+/* ---- Corps ---- */
+.imp__corps {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.imp__aide {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--c-text-muted);
+}
+
+.imp__aide code {
+  background: var(--c-surface-muted);
+  border: 1px solid var(--c-border-soft);
+  border-radius: 4px;
+  padding: 1px 4px;
+  font-size: 11.5px;
+  color: var(--c-text);
+}
+
+.imp__regles {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--c-text-muted);
+}
+
+.imp__lien {
+  align-self: flex-start;
+  border: none;
+  background: transparent;
+  color: var(--c-primary);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.imp__lien:hover {
+  text-decoration: underline;
+}
+
+/* ---- Zone de dépôt ---- */
+.imp__depot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 26px 16px;
+  border: 2px dashed var(--c-border);
+  border-radius: 10px;
+  background: var(--c-surface-muted);
+  cursor: pointer;
+  text-align: center;
+  transition: border-color .15s ease, background .15s ease;
+}
+
+.imp__depot:hover {
+  border-color: var(--c-primary);
+  background: var(--c-surface);
+}
+
+.imp__depot--rempli {
+  border-style: solid;
+  border-color: #1c6b32;
+  background: var(--c-success-bg);
+}
+
+.imp__depot-icone {
+  font-size: 22px;
+  color: var(--c-text-faint);
+}
+
+.imp__depot--rempli .imp__depot-icone {
+  color: #1c6b32;
+}
+
+.imp__depot-nom {
+  font-size: 13px;
+  font-weight: 600;
+  word-break: break-all;
+}
+
+.imp__depot-taille {
+  font-size: 11.5px;
+  color: var(--c-text-muted);
+}
+
+/* ---- Bandeaux ---- */
+.imp__bandeau {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 9px 11px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.imp__bandeau--erreur {
+  background: var(--c-error-bg);
+  color: var(--c-error);
+}
+
+.imp__bandeau--succes {
+  background: var(--c-success-bg);
+  color: var(--c-success);
+}
+
+.imp__bandeau--avertissement {
+  background: var(--c-warning-bg);
+  color: var(--c-warning);
+}
+
+/* ---- Bilan chiffré ---- */
+.imp__bilan {
+  display: flex;
+  gap: 10px;
+}
+
+.imp__chiffre {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 12px 8px;
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  background: var(--c-surface-muted);
+}
+
+.imp__chiffre strong {
+  font-size: 22px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.imp__chiffre span {
+  font-size: 11.5px;
+  color: var(--c-text-muted);
+}
+
+.imp__chiffre--succes {
+  background: var(--c-success-bg);
+  border-color: transparent;
+}
+
+.imp__chiffre--succes strong {
+  color: var(--c-success);
+}
+
+.imp__chiffre--erreur {
+  background: var(--c-error-bg);
+  border-color: transparent;
+}
+
+.imp__chiffre--erreur strong {
+  color: var(--c-error);
+}
+
+.imp__chiffre--neutre strong {
+  color: var(--c-text-muted);
+}
+
+/* ---- Détail des lignes ---- */
+.imp__detail {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+}
+
+.imp__detail-titre {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--c-text-muted);
+}
+
+/* Le tableau défile seul : un import de deux cents lignes ne doit pas pousser
+   les boutons hors de la fenêtre. */
+.imp__table {
+  display: block;
+  width: 100%;
+  max-height: 260px;
+  overflow-y: auto;
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.imp__table thead th {
+  position: sticky;
+  top: 0;
+  background: var(--c-surface-muted);
+  text-align: left;
+  font-weight: 600;
+  color: var(--c-text-muted);
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--c-border);
+}
+
+.imp__table td {
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--c-border-soft);
+  vertical-align: top;
+}
+
+.imp__table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.imp__motif {
+  color: var(--c-warning);
+}
+
+.imp__motif--erreur {
+  color: var(--c-error);
+}
+
+/* ---- Actions ---- */
+.imp__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 2px;
+}
+
+.imp__bouton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--c-border);
+  background: var(--c-surface);
+  color: var(--c-text);
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.imp__bouton:hover:not(:disabled) {
+  background: var(--c-surface-muted);
+}
+
+.imp__bouton--principal {
+  background: var(--c-primary);
+  border-color: var(--c-primary);
+  color: #fff;
+}
+
+.imp__bouton--principal:hover:not(:disabled) {
+  background: #0f4c95;
+}
+
+.imp__bouton:disabled {
+  opacity: .55;
+  cursor: default;
+}
+
+.imp__patience {
+  margin: 0;
+  font-size: 11.5px;
+  color: var(--c-text-muted);
+  text-align: right;
+}

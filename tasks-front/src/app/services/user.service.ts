@@ -17,6 +17,7 @@ import {
   LOAD_PERMISSION_TASK,
   SAVE_USER, SEARCH_USERS, supprimerTypename, DELETE_MEMBER
 } from "../type/graphql.operations";
+import {RapportImportUsers} from "../type/import-users";
 import {Apollo} from "apollo-angular";
 import {environment} from "../../environments/environment";
 import {stripTypename} from "@apollo/client/utilities";
@@ -167,6 +168,26 @@ export class UserService {
   definirMotDePasse(userId: string, motDePasse: string): Observable<void> {
     return this.http.post<void>(`${this.apiUrl}/users/${userId}/password`,
       {newPassword: motDePasse}, {withCredentials: true});
+  }
+
+  /**
+   * Crée en une fois les utilisateurs décrits par un classeur Excel.
+   *
+   * Le serveur répond 200 même quand des lignes ont été rejetées : un import
+   * est partiel par nature, et c'est le rapport qui porte le détail. Seul un
+   * fichier illisible dans son ensemble donne une erreur HTTP.
+   */
+  importerUtilisateurs(fichier: File): Observable<RapportImportUsers> {
+    const formData: FormData = new FormData();
+    formData.append('file', fichier);
+    return this.http.post<RapportImportUsers>(`${this.apiUrl}/users/import`, formData,
+      {withCredentials: true});
+  }
+
+  /** Classeur vierge aux bons intitulés, avec une ligne d'exemple. */
+  modeleImportUtilisateurs(): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/users/import/modele`,
+      {responseType: 'blob', withCredentials: true});
   }
 
   upload(file: File, userId:string): Observable<HttpEvent<any>> {

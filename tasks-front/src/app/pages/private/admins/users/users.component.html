@@ -18,6 +18,12 @@
     <span class="btn controle" (click)="rafraichir()" title="Recharger la liste">
       <i class="fa fa-sync" [class.fa-spin]="loading"></i> Actualiser
     </span>
+    <!-- L'import en masse demande CAN_CREATE_USER, que seul SYSTEM_ADMIN porte :
+         le serveur refuse la route aux autres, inutile de leur proposer. -->
+    <span class="btn controle" *ngIf="adminSysteme" (click)="importer()"
+          title="Créer plusieurs comptes depuis un classeur Excel">
+      <i class="fa fa-file-excel" style="font-size:16px"></i> Importer
+    </span>
     <span class="btn controle primary" (click)="create()">
       <i class="fa fa-user-plus" style="font-size:16px"></i> Créer
     </span>
