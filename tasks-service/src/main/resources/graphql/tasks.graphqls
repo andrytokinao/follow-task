@@ -113,7 +113,7 @@ type IssueType{
     style:String
     curentWorkFlow:WorkFlow
     usingCustomFields:[UsingCustomField]
-    parent:IssueType
+    parents:[IssueType]
     children:[IssueType]
 }
 
@@ -338,7 +338,7 @@ input IssueTypeInput{
     level:String
     color:String
     style:String
-    parent:IssueTypeInput
+    parents:[IssueTypeInput]
     children:[IssueTypeInput]
     usingCustomFields:[UsingCustomFieldInput]
     icone:IconeInput

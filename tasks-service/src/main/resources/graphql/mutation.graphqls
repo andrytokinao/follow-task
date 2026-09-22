@@ -12,7 +12,7 @@ type Mutation {
     saveIssueType(issueType:IssueTypeInput):IssueType
     deleteIssueType(issueTypeId:Int):ResponseApp
     affectIssueTypeForParent(childId:Int,parrentId:Int):IssueType
-    removeIssueTypeParent(childId:Int):IssueType
+    removeIssueTypeParent(childId:Int,parentId:Int):IssueType
     saveWorkFlow(workFlow:WorkFlowInput):WorkFlow
     affectWorkFlow(issueType:IssueTypeInput):WorkFlow
     addStatus(status:StatusInput, workFlow:WorkFlowInput):WorkFlow

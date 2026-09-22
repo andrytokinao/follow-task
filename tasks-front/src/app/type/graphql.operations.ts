@@ -940,7 +940,7 @@ const  SAVE_ISSUE_TYPE = gql`
       level
       color
       style
-      parent {
+      parents {
         id
         name
       }
@@ -995,7 +995,7 @@ const  GET_ISSUE_TYPE = gql`
           }
         }
       }
-      parent {
+      parents {
         id
         prefix
         name
@@ -1073,7 +1073,7 @@ const ALL_ISSUE_TYPE =gql`
           id
 
         }
-        parent {
+        parents {
           id
           prefix
           name
@@ -1323,7 +1323,7 @@ const GET_PROJECT = gql`
             name
           }
         }
-        parent {
+        parents {
           id
           name
           icone {
@@ -1401,7 +1401,7 @@ const GET_ISSUE_TYPE_BY_ID = gql`
        typeIcone
        value
      }
-     parent {
+     parents {
        id
        name
        icone {
@@ -1642,7 +1642,7 @@ const AFFECT_ISSUE_TYPE_FOR_PARENT=gql`
         value
         typeIcone
       }
-      parent {
+      parents {
         id
         name
         icone {
@@ -1665,8 +1665,8 @@ const AFFECT_ISSUE_TYPE_FOR_PARENT=gql`
   }
 `
 const REMOVE_ISSUE_TYPE_PARENT=gql`
-  mutation removeIssueTypeParent($childId:Int){
-    removeIssueTypeParent(childId:$childId){
+  mutation removeIssueTypeParent($childId:Int,$parentId:Int){
+    removeIssueTypeParent(childId:$childId,parentId:$parentId){
       id
       name
       prefix
@@ -1675,7 +1675,7 @@ const REMOVE_ISSUE_TYPE_PARENT=gql`
         value
         typeIcone
       }
-      parent {
+      parents {
         id
         name
         icone {
@@ -2625,7 +2625,7 @@ const GET_PROJECT_BY_USER = gql`
             value
             typeIcone
           }
-          parent {
+          parents {
             id
             name
             icone {

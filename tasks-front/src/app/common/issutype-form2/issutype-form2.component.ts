@@ -53,7 +53,17 @@ export class IssutypeForm2Component {
   @Output() cancelled = new EventEmitter<void>();
 
   @Input() level: 'PARENT' | 'SUB_TASK' = 'PARENT';
-  @Input() parent: IssueType | null = null;
+  /** Types principaux auxquels le sous-type est rattache (plusieurs possibles). */
+  @Input() set parents(value: IssueType[] | null | undefined) {
+    this.selectedParents = [...(value || [])];
+  }
+  /** Types principaux proposes ; a defaut, ceux du projet courant. */
+  @Input() set availableParents(value: IssueType[] | null | undefined) {
+    this.explicitParents = value || null;
+  }
+  selectedParents: IssueType[] = [];
+  private explicitParents: IssueType[] | null = null;
+  private projectParents: IssueType[] = [];
   /** true quand le formulaire est integre a un panneau et non a un menu flottant */
   @Input() embedded: boolean = false;
 
@@ -83,6 +93,32 @@ export class IssutypeForm2Component {
     });
 
     this.issueService.project$.subscribe(p => this.project = p);
+    this.issueService.issueTypeParent$.subscribe(types => this.projectParents = types || []);
+  }
+
+  get parentOptions(): IssueType[] {
+    return (this.explicitParents || this.projectParents)
+      .filter(type => type.level !== 'SUB_TASK' && type.id != this.edited?.id);
+  }
+
+  isParentSelected(parent: IssueType): boolean {
+    return this.selectedParents.some(p => p.id == parent.id);
+  }
+
+  toggleParent(parent: IssueType): void {
+    this.selectedParents = this.isParentSelected(parent)
+      ? this.selectedParents.filter(p => p.id != parent.id)
+      : [...this.selectedParents, parent];
+  }
+
+  get allParentsSelected(): boolean {
+    const options = this.parentOptions;
+    return options.length > 0 && options.every(p => this.isParentSelected(p));
+  }
+
+  /** Rattache le sous-type a tous les types principaux (ou a aucun). */
+  toggleAllParents(): void {
+    this.selectedParents = this.allParentsSelected ? [] : [...this.parentOptions];
   }
 
   /**
@@ -103,7 +139,7 @@ export class IssutypeForm2Component {
     });
     this.selectedIcone = this.edited.icone;
     this.level = (this.edited.level as 'PARENT' | 'SUB_TASK') || 'PARENT';
-    this.parent = this.edited.parent || null;
+    this.selectedParents = [...(this.edited.parents || [])];
   }
 
   get isEdit(): boolean {
@@ -116,8 +152,12 @@ export class IssutypeForm2Component {
   }
 
   setParent(parent: IssueType | null | undefined): void {
-    this.parent = parent || null;
-    if (this.parent) {
+    this.setParents(parent ? [parent] : []);
+  }
+
+  setParents(parents: IssueType[] | null | undefined): void {
+    this.selectedParents = [...(parents || [])];
+    if (this.selectedParents.length) {
       this.setLevel('SUB_TASK');
     }
   }
@@ -167,8 +207,16 @@ export class IssutypeForm2Component {
       }
     }
 
-    if (this.level === 'SUB_TASK' && this.parent) {
-      issueType.parent = { id: this.parent.id };
+    if (this.level === 'SUB_TASK') {
+      if (!this.selectedParents.length) {
+        this.errorMessage = 'Choisissez au moins un type parent.';
+        this.saving = false;
+        return;
+      }
+      issueType.parents = this.selectedParents.map(p => ({ id: p.id }));
+    } else if (this.isEdit && this.edited.level === 'SUB_TASK') {
+      // repasse en type principal : plus aucun parent
+      issueType.parents = [];
     }
 
     this.issueService.saveIssueType(issueType).subscribe({

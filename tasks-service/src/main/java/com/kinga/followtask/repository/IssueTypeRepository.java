@@ -9,7 +9,9 @@ import java.util.List;
 public interface IssueTypeRepository extends JpaRepository<IssueType,Long> {
     List<IssueType> findByProjectId(Long projectId);
     List<IssueType> findByProjectIdAndLevel(Long projectId, Niveau level);
-    List<IssueType> findByParentId(Long parentId);
+    /** Sous-types rattaches au type parent donne (table issue_type_parent_child). */
+    List<IssueType> findByParents_Id(Long parentId);
+    List<IssueType> findByLegacyParentIsNotNull();
     List<IssueType> findByName(String name);
 
 }

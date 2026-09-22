@@ -50,6 +50,61 @@
   opacity: .75;
 }
 
+/* Choix des parents d'un sous-type */
+.parents-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.parents-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.parents-header .all-toggle {
+  font-size: 12px;
+}
+
+.parent-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-height: 140px;
+  overflow-y: auto;
+}
+
+.parent-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px 3px 6px;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  background: #fff;
+  font-size: 12px;
+  color: #374151;
+  cursor: pointer;
+}
+
+.parent-chip mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.parent-chip.selected {
+  border-color: var(--c);
+  color: var(--c);
+  background: color-mix(in srgb, var(--c) 10%, #fff);
+}
+
+.no-parent {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
 /* Formulaire */
 .issue-form {
   display: flex;

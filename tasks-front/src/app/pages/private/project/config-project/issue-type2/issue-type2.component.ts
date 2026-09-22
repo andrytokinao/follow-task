@@ -26,7 +26,7 @@ export class IssueType2Component implements OnInit, OnDestroy {
   // ---- panneau de formulaire ----
   formMode: FormMode = 'idle';
   formLevel: 'PARENT' | 'SUB_TASK' = 'PARENT';
-  formParent: IssueType | null = null;
+  formParents: IssueType[] = [];
   editingType: IssueType | null = null;
 
   // ---- glisser-deposer ----
@@ -129,8 +129,14 @@ export class IssueType2Component implements OnInit, OnDestroy {
       || ('' + (issueType.prefix || '')).toLowerCase().includes(term);
   }
 
+  /** Un sous-type partage entre plusieurs parents n'est compte qu'une fois. */
   get totalCount(): number {
-    return this.issueTypes.reduce((total, parent) => total + 1 + (parent.children || []).length, 0);
+    const ids = new Set<number | undefined>();
+    this.issueTypes.forEach(parent => {
+      ids.add(parent.id);
+      (parent.children || []).forEach(child => ids.add(child.id));
+    });
+    return ids.size;
   }
 
   // -----------------------------------------------------------------
@@ -148,7 +154,7 @@ export class IssueType2Component implements OnInit, OnDestroy {
     this.errorMessage = '';
     this.formMode = 'create';
     this.formLevel = 'PARENT';
-    this.formParent = null;
+    this.formParents = [];
     this.editingType = null;
   }
 
@@ -157,7 +163,7 @@ export class IssueType2Component implements OnInit, OnDestroy {
     this.selectedIssue = parent;
     this.formMode = 'create';
     this.formLevel = 'SUB_TASK';
-    this.formParent = parent;
+    this.formParents = [parent];
     this.editingType = null;
   }
 
@@ -166,14 +172,14 @@ export class IssueType2Component implements OnInit, OnDestroy {
     this.selectedIssue = issueType;
     this.formMode = 'edit';
     this.formLevel = (issueType.level as 'PARENT' | 'SUB_TASK') || 'PARENT';
-    this.formParent = issueType.parent || null;
+    this.formParents = [...(issueType.parents || [])];
     this.editingType = issueType;
   }
 
   closeForm() {
     this.formMode = 'idle';
     this.editingType = null;
-    this.formParent = null;
+    this.formParents = [];
     this.formLevel = 'PARENT';
   }
 
@@ -227,16 +233,16 @@ export class IssueType2Component implements OnInit, OnDestroy {
   // Hierarchie : rattachement / detachement
   // -----------------------------------------------------------------
 
-  /** Detache un sous-type : il redevient un type principal. */
-  detach(child: IssueType, event?: Event) {
+  /** Detache un sous-type de ce parent uniquement ; ses autres parents sont conserves. */
+  detach(child: IssueType, parent: IssueType, event?: Event) {
     if (event) {
       event.stopPropagation();
     }
-    if (child.id == null) {
+    if (child.id == null || parent.id == null) {
       return;
     }
     this.errorMessage = '';
-    this.issueService.removeIssueTypeParent(child.id).subscribe({
+    this.issueService.removeIssueTypeParent(child.id, parent.id).subscribe({
       next: () => this.reload(),
       error: (error) => this.errorMessage = this.extractMessage(error)
     });
@@ -290,9 +296,12 @@ export class IssueType2Component implements OnInit, OnDestroy {
     if (!dragged || dragged.id == newParent.id) {
       return;
     }
-    if (this.draggedFromParent?.id == newParent.id) {
+    if (this.draggedFromParent?.id == newParent.id
+      || (newParent.children || []).some(child => child.id == dragged.id)) {
       return;
     }
+    // Relation plusieurs-a-plusieurs : le sous-type est ajoute au nouveau parent
+    // sans etre retire des autres (utiliser « Détacher » pour le retirer).
     this.attachTo(dragged, newParent);
   }
 
@@ -338,6 +347,15 @@ export class IssueType2Component implements OnInit, OnDestroy {
 
   childCount(issueType: IssueType): number {
     return (issueType?.children || []).length;
+  }
+
+  parentNames(issueType: IssueType): string {
+    return (issueType?.parents || []).map(parent => parent.name).join(', ');
+  }
+
+  /** Nombre d'autres parents du sous-type, affiche comme badge « partage ». */
+  otherParentCount(child: IssueType): number {
+    return Math.max(0, (child?.parents || []).length - 1);
   }
 
   private extractMessage(error: any): string {

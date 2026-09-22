@@ -51,7 +51,7 @@ export class IssueTypeStepperComponent {
   private customFieldsSelected: UsingCustomField[] = [];
   selectedChildIssueType:IssueType[] = [];
   issueTypes: IssueType[] = [];
-  selectedParentIssueType: IssueType;
+  selectedParentIssueTypes: IssueType[] = [];
   desactive: boolean = true;
   workFlows : WorkFlow[]= [];
   selectedWorkflow:WorkFlow ;
@@ -84,10 +84,8 @@ export class IssueTypeStepperComponent {
       this.selectedWorkflowId = issueType.curentWorkFlow.id;
 
       this.issueType = issueType;
-      if (this.issueType.parentDocument != undefined) {
-        this.selectedParentIssueType = this.issueType.parentDocument;
-      }
-      this.selectedChildIssueType = this.issueType.children;
+      this.selectedParentIssueTypes = [...(this.issueType.parents || [])];
+      this.selectedChildIssueType = this.issueType.children || [];
      this.selectedWorkflow = this.issueType.curentWorkFlow;
     }, error => {
       this.selectedWorkflowId = undefined;
@@ -99,11 +97,18 @@ export class IssueTypeStepperComponent {
       this.loadIssueType();
     })
   }
-  addParrent(parent){
-    this.issueService.affectIssueTypeForParent(this.issueType.id,parent.id)
-      .subscribe(ist =>{
-        this.loadIssueType();
-      })
+  /** Synchronise les parents (selection multiple) avec le serveur. */
+  onParentsChange(parents: IssueType[]) {
+    const current: IssueType[] = this.issueType.parents || [];
+    const added = parents.filter(p => !current.some(c => c.id == p.id));
+    const removed = current.filter(c => !parents.some(p => p.id == c.id));
+    added.forEach(p => this.issueService.affectIssueTypeForParent(this.issueType.id, p.id)
+      .subscribe(() => this.loadIssueType()));
+    removed.forEach(p => this.issueService.removeIssueTypeParent(this.issueType.id, p.id)
+      .subscribe(() => this.loadIssueType()));
+  }
+  isParentOf(type: IssueType) {
+    return this.selectedParentIssueTypes.some(p => p.id == type.id);
   }
   getFilteredParentOptions() {
     return this.getFilteredChildrenOptions().filter(type => !this.checkedChildren(type));
@@ -132,7 +137,7 @@ export class IssueTypeStepperComponent {
       })
   }
   removeChild(issueType:IssueType){
-    this.issueService.removeIssueTypeParent(issueType.id)
+    this.issueService.removeIssueTypeParent(issueType.id, this.issueType.id)
       .subscribe(it =>{
         this.loadIssueType();
       })

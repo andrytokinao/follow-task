@@ -4,6 +4,7 @@ import com.kinga.followtask.entity.enumapp.Niveau;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
@@ -34,9 +35,31 @@ public class IssueType {
     private List<UsingCustomField> usingCustomFields;
     @ManyToOne
     private WorkFlow curentWorkFlow;
-    @ManyToOne
-    private IssueType parent ;
-    @OneToMany(mappedBy = "parent")
+
+    /** Types principaux sous lesquels ce type peut etre utilise comme sous-tache. */
+    @ManyToMany
+    @JoinTable(name = "issue_type_parent_child",
+            joinColumns = @JoinColumn(name = "child_id"),
+            inverseJoinColumns = @JoinColumn(name = "parent_id"),
+            uniqueConstraints = @UniqueConstraint(columnNames = {"child_id", "parent_id"}))
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private List<IssueType> parents;
+
+    @ManyToMany(mappedBy = "parents")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private List<IssueType> children;
+
+    /**
+     * Ancienne relation OneToMany (colonne parent_id). Conservee uniquement pour
+     * migrer les donnees existantes vers {@link #parents} au demarrage.
+     */
+    @Deprecated
+    @ManyToOne
+    @JoinColumn(name = "parent_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private IssueType legacyParent;
 
 }

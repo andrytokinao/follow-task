@@ -86,13 +86,17 @@
             <i [ngClass]="iconOf(child, 'fas fa-file')" class="icon"></i>
             <span class="type-name" [title]="describe(child)">{{ child.name }}</span>
             <code class="type-prefix" *ngIf="child.prefix">{{ child.prefix }}</code>
+            <span class="child-count" *ngIf="otherParentCount(child)"
+                  [title]="'Partagé avec : ' + parentNames(child)">
+              <i class="fas fa-share-alt"></i> {{ otherParentCount(child) }}
+            </span>
 
             <span class="item-actions">
               <button class="icon-btn" title="Modifier"
                       (click)="startEdit(child); $event.stopPropagation()">
                 <i class="fas fa-pen"></i>
               </button>
-              <button class="icon-btn" title="Détacher du parent" (click)="detach(child, $event)">
+              <button class="icon-btn" [title]="'Détacher de « ' + parent.name + ' »'" (click)="detach(child, parent, $event)">
                 <i class="fas fa-link-slash"></i>
               </button>
               <button class="icon-btn danger" title="Supprimer" (click)="remove(child, $event)">
@@ -102,7 +106,7 @@
           </div>
 
           <div class="drop-hint" *ngIf="isDropTarget(parent)">
-            <i class="fas fa-arrow-down"></i> Déposer ici pour rattacher à « {{ parent.name }} »
+            <i class="fas fa-arrow-down"></i> Déposer ici pour rattacher aussi à « {{ parent.name }} »
           </div>
         </div>
       </div>
@@ -116,7 +120,8 @@
       <app-issutype-form2
         [embedded]="true"
         [level]="formLevel"
-        [parent]="formParent"
+        [parents]="formParents"
+        [availableParents]="issueTypes"
         [issueType]="editingType"
         (oneSaved)="onSaved($event)"
         (cancelled)="closeForm()">
@@ -132,7 +137,7 @@
             <h3>{{ selectedIssue.name }}</h3>
             <span class="details-subtitle">
               {{ selectedIssue.level === 'SUB_TASK' ? 'Sous-type' : 'Type principal' }}
-              <span *ngIf="selectedIssue.parent"> de {{ selectedIssue.parent.name }}</span>
+              <span *ngIf="selectedIssue.parents?.length"> de {{ parentNames(selectedIssue) }}</span>
             </span>
           </div>
           <button class="btn-primary" (click)="startEdit(selectedIssue)">

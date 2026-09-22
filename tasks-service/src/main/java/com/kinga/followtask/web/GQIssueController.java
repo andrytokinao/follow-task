@@ -288,8 +288,8 @@ public class GQIssueController {
         return projectService.affectIssueTypeForParent(childId,parrentId);
     }
     @MutationMapping
-    public IssueType removeIssueTypeParent(@Argument Long childId){
-        return projectService.removeIssueTypeParent(childId);
+    public IssueType removeIssueTypeParent(@Argument Long childId, @Argument Long parentId){
+        return projectService.removeIssueTypeParent(childId, parentId);
     }
     @QueryMapping
     public IssueType getIssueTypeById(@Argument Long issueTypeId){

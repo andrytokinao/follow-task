@@ -116,12 +116,17 @@ export class ConfigCustomFieldComponent implements OnInit, OnDestroy {
     return this.usedBy(field).length;
   }
 
-  /** Tous les types du projet, parents et sous-types confondus. */
+  /** Tous les types du projet, parents et sous-types confondus (un sous-type partage n'apparait qu'une fois). */
   get flatIssueTypes(): IssueType[] {
     const flat: IssueType[] = [];
+    const push = (type: IssueType) => {
+      if (!flat.some(existing => existing.id == type.id)) {
+        flat.push(type);
+      }
+    };
     this.issueTypes.forEach(parent => {
-      flat.push(parent);
-      (parent.children || []).forEach(child => flat.push(child));
+      push(parent);
+      (parent.children || []).forEach(push);
     });
     return flat;
   }

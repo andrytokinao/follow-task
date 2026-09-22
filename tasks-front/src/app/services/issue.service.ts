@@ -1260,11 +1260,12 @@ export class IssueService implements OnInit {
     })
   }
 
-  removeIssueTypeParent(childId: number) {
+  /** Retire le lien childId -> parentId ; sans parentId, retire tous les parents. */
+  removeIssueTypeParent(childId: number, parentId?: number) {
     return new Observable<IssueType>(observer => {
       this.apollo.mutate({
         mutation: REMOVE_ISSUE_TYPE_PARENT,
-        variables: {childId},
+        variables: {childId, parentId: parentId ?? null},
         fetchPolicy: "network-only"
       }).subscribe((res: any) => {
         observer.next(supprimerTypename(res.data.removeIssueTypeParent));

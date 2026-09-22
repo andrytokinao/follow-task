@@ -195,7 +195,7 @@ export interface IssueType{
  curentWorkFlow?:WorkFlow;
   usingCustomFields ?: UsingCustomField[]
   icone? :Icone | undefined;
-  parent?:IssueType;
+  parents?:IssueType[];
   children?:IssueType[]
 
 }

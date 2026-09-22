@@ -61,7 +61,7 @@ export class IssueTypeModalComponent implements OnInit{
   private customFieldsSelected: UsingCustomField[] = [];
   selectedChildIssueType:IssueType[] = [];
   issueTypes: IssueType[] = [];
-  selectedParentIssueType: IssueType;
+  selectedParentIssueTypes: IssueType[] = [];
   desactive: boolean = true;
 
    constructor(private issueService :IssueService,
@@ -210,15 +210,25 @@ export class IssueTypeModalComponent implements OnInit{
   loadIssueType(){
     this.issueService.getIssueTypeById(this.issueType.id).subscribe(issueType => {
       this.issueType = issueType;
-      this.selectedParentIssueType = this.issueType.parentDocument;
-      this.selectedChildIssueType = this.issueType.children;
+      this.selectedParentIssueTypes = [...(this.issueType.parents || [])];
+      this.selectedChildIssueType = this.issueType.children || [];
     })
   }
-  addParrent(){
-    this.issueService.affectIssueTypeForParent(this.issueType.id,this.selectedParentIssueType.id)
-      .subscribe(ist =>{
-        this.loadIssueType();
-      })
+  /** Synchronise les parents (selection multiple) avec le serveur. */
+  onParentsChange(parents: IssueType[]) {
+    const current: IssueType[] = this.issueType.parents || [];
+    const added = parents.filter(p => !current.some(c => c.id == p.id));
+    const removed = current.filter(c => !parents.some(p => p.id == c.id));
+    added.forEach(p => this.issueService.affectIssueTypeForParent(this.issueType.id, p.id)
+      .subscribe(() => this.loadIssueType()));
+    removed.forEach(p => this.issueService.removeIssueTypeParent(this.issueType.id, p.id)
+      .subscribe(() => this.loadIssueType()));
+  }
+  isParentOf(type: IssueType) {
+    return this.selectedParentIssueTypes.some(p => p.id == type.id);
+  }
+  compareById(a: IssueType, b: IssueType) {
+    return a?.id == b?.id;
   }
   addAsChild(issueType:IssueType){
     this.issueService.affectIssueTypeForParent(issueType.id,this.issueType.id)
@@ -227,7 +237,7 @@ export class IssueTypeModalComponent implements OnInit{
       })
   }
   removeChild(issueType:IssueType){
-    this.issueService.removeIssueTypeParent(issueType.id)
+    this.issueService.removeIssueTypeParent(issueType.id, this.issueType.id)
       .subscribe(it =>{
         this.loadIssueType();
       })

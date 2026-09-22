@@ -45,6 +45,11 @@ public class Initializer implements CommandLineRunner {
          }
          projectService.initDomaineActivity();
          try {
+             projectService.migrateLegacyIssueTypeParents();
+         } catch (Exception e) {
+             LoggerFactory.getLogger(Initializer.class).error("Migration des parents de types impossible", e);
+         }
+         try {
              projectService.initDefaultSubtaskTypes();
          } catch (Exception e) {
              LoggerFactory.getLogger(Initializer.class).error("Rattrapage des sous-types par defaut impossible", e);

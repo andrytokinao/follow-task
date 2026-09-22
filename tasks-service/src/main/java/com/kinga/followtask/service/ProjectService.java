@@ -227,7 +227,7 @@ public class ProjectService {
         soutache.setIcone(sousTacheIcone);
         soutache.setCurentWorkFlow(getDefaultWorkFlow());
         issueTypeRepository.save(soutache);
-        soutache.setParent(principale);
+        soutache.setParents(new ArrayList<>(List.of(principale)));
         soutache.setProject(project);
         soutache = issueTypeRepository.save(soutache);
 
@@ -353,6 +353,7 @@ public class ProjectService {
         String installation = configEntry.getInstalationState();
         if (issueType.getIcone() != null)
             issueType.setIcone(iconeRepository.save(issueType.getIcone()));
+        issueType.setParents(resolveParents(issueType));
         issueType = issueTypeRepository.save(issueType);
         if (issueType.getCurentWorkFlow() == null) {
             issueType.setCurentWorkFlow(getDefaultWorkFlow());
@@ -374,6 +375,26 @@ public class ProjectService {
     }
 
     /**
+     * Parents envoyes par le client (references par id). Si le client n'envoie pas
+     * la liste (null), les parents deja enregistres sont conserves.
+     */
+    private List<IssueType> resolveParents(IssueType issueType) {
+        if (issueType.getParents() == null) {
+            if (issueType.getId() == null) return new ArrayList<>();
+            return issueTypeRepository.findById(issueType.getId())
+                    .map(existing -> new ArrayList<>(existing.getParents() == null ? List.of() : existing.getParents()))
+                    .orElseGet(ArrayList::new);
+        }
+        List<IssueType> parents = new ArrayList<>();
+        for (IssueType p : issueType.getParents()) {
+            if (p == null || p.getId() == null || p.getId().equals(issueType.getId())) continue;
+            if (parents.stream().anyMatch(existing -> existing.getId().equals(p.getId()))) continue;
+            issueTypeRepository.findById(p.getId()).ifPresent(parents::add);
+        }
+        return parents;
+    }
+
+    /**
      * Cree le sous-type par defaut d'un type principal, pour qu'une sous-tache
      * puisse toujours etre creee sans devoir configurer un type au prealable.
      */
@@ -386,7 +407,7 @@ public class ProjectService {
         soutache.setIcone(iconeRepository.save(new Icone("\uf0ae", "fas fa-tasks", "class")));
         soutache.setCurentWorkFlow(parent.getCurentWorkFlow() != null ? parent.getCurentWorkFlow() : getDefaultWorkFlow());
         soutache.setProject(parent.getProject());
-        soutache.setParent(parent);
+        soutache.setParents(new ArrayList<>(List.of(parent)));
         return issueTypeRepository.save(soutache);
     }
 
@@ -408,12 +429,31 @@ public class ProjectService {
         return prefix;
     }
 
+    /**
+     * Migration : recopie l'ancien lien parent (colonne parent_id) dans la table
+     * issue_type_parent_child, puis vide la colonne pour ne migrer qu'une fois.
+     */
+    @Transactional
+    public void migrateLegacyIssueTypeParents() {
+        for (IssueType child : issueTypeRepository.findByLegacyParentIsNotNull()) {
+            IssueType parent = child.getLegacyParent();
+            List<IssueType> parents = child.getParents() == null ? new ArrayList<>() : child.getParents();
+            if (parents.stream().noneMatch(p -> p.getId().equals(parent.getId()))) {
+                parents.add(parent);
+            }
+            child.setParents(parents);
+            child.setLegacyParent(null);
+            issueTypeRepository.save(child);
+            logger.info("Sous-type " + child.getName() + " migre vers le parent " + parent.getName());
+        }
+    }
+
     /** Rattrapage : ajoute le sous-type par defaut aux types principaux qui n'en ont aucun. */
     @Transactional
     public void initDefaultSubtaskTypes() {
         for (Project project : projectRepository.findAll()) {
             for (IssueType parent : issueTypeRepository.findByProjectIdAndLevel(project.getId(), Niveau.PARENT)) {
-                if (CollectionUtils.isEmpty(issueTypeRepository.findByParentId(parent.getId()))) {
+                if (CollectionUtils.isEmpty(issueTypeRepository.findByParents_Id(parent.getId()))) {
                     IssueType soutache = createDefaultSubtaskType(parent);
                     logger.info("Sous-type " + soutache.getPrefix() + " cree pour le type " + parent.getName());
                 }
@@ -734,10 +774,19 @@ public class ProjectService {
         return configProjectRepo.findConfigProjectsByConfigofLike("%config.project." + projectId + ".%");
     }
 
+    /** Ajoute un parent au sous-type (un sous-type peut avoir plusieurs parents). */
+    @Transactional
     public IssueType affectIssueTypeForParent(Long childId, Long parrentId) {
+        if (Objects.equals(childId, parrentId))
+            throw new RuntimeException("Un type ne peut pas etre son propre parent");
         IssueType child = issueTypeRepository.getById(childId);
         IssueType parent = issueTypeRepository.getById(parrentId);
-        child.setParent(parent);
+        if (parent.getParents() != null && parent.getParents().stream().anyMatch(p -> p.getId().equals(childId)))
+            throw new RuntimeException("Rattachement circulaire : " + parent.getName() + " est deja sous-type de " + child.getName());
+        if (child.getParents() == null)
+            child.setParents(new ArrayList<>());
+        if (child.getParents().stream().noneMatch(p -> p.getId().equals(parrentId)))
+            child.getParents().add(parent);
         return issueTypeRepository.save(child);
     }
 
@@ -752,9 +801,14 @@ public class ProjectService {
         return masters;
     }
 
-    public IssueType removeIssueTypeParent(Long childId) {
+    /** Retire le lien avec le parent donne ; sans parent, retire tous les liens. */
+    @Transactional
+    public IssueType removeIssueTypeParent(Long childId, Long parentId) {
         IssueType child = issueTypeRepository.getById(childId);
-        child.setParent(null);
+        if (child.getParents() != null) {
+            if (parentId == null) child.getParents().clear();
+            else child.getParents().removeIf(p -> p.getId().equals(parentId));
+        }
         return issueTypeRepository.save(child);
     }
 
@@ -776,16 +830,25 @@ public class ProjectService {
 
         // Le sous-type par defaut suit son parent tant qu'il n'a jamais servi ;
         // les autres sous-types doivent toujours etre supprimes ou detaches a la main.
-        List<IssueType> children = issueTypeRepository.findByParentId(issueTypeId);
+        // Les sous-types partages avec un autre parent sont simplement detaches.
+        List<IssueType> children = issueTypeRepository.findByParents_Id(issueTypeId);
+        List<IssueType> sharedChildren = children.stream()
+                .filter(child -> child.getParents().size() > 1)
+                .collect(Collectors.toList());
         List<IssueType> defaultChildren = children.stream()
+                .filter(child -> child.getParents().size() <= 1)
                 .filter(this::isUnusedDefaultSubtaskType)
                 .collect(Collectors.toList());
-        int blocking = children.size() - defaultChildren.size();
+        int blocking = children.size() - sharedChildren.size() - defaultChildren.size();
         if (blocking > 0) {
             throw new RuntimeException("Ce type possede " + blocking
                     + " sous-type(s) : supprimez ou detachez-les d'abord.");
         }
 
+        for (IssueType child : sharedChildren) {
+            child.getParents().removeIf(p -> p.getId().equals(issueTypeId));
+            issueTypeRepository.save(child);
+        }
         for (IssueType child : defaultChildren) {
             deleteTypeAndCustomFieldUsings(child);
         }
@@ -801,13 +864,18 @@ public class ProjectService {
     private boolean isUnusedDefaultSubtaskType(IssueType child) {
         return DEFAULT_SUBTASK_NAME.equals(child.getName())
                 && CollectionUtils.isEmpty(issueRepository.findByIssueTypeIdIn(List.of(child.getId())))
-                && CollectionUtils.isEmpty(issueTypeRepository.findByParentId(child.getId()));
+                && CollectionUtils.isEmpty(issueTypeRepository.findByParents_Id(child.getId()));
     }
 
     private void deleteTypeAndCustomFieldUsings(IssueType issueType) {
         List<UsingCustomField> usings = usingCustomFieldRepository.findByIssueTypeId(issueType.getId());
         if (!CollectionUtils.isEmpty(usings)) {
             usingCustomFieldRepository.deleteAll(usings);
+        }
+        // Supprime les lignes de la table de liaison ou ce type est l'enfant.
+        if (issueType.getParents() != null) {
+            issueType.getParents().clear();
+            issueTypeRepository.saveAndFlush(issueType);
         }
         issueTypeRepository.delete(issueType);
     }
@@ -818,7 +886,7 @@ public class ProjectService {
     }
 
     public List<IssueType> listIssueTypeSubtasks(Long masterId) {
-        return issueTypeRepository.findByParentId(masterId);
+        return issueTypeRepository.findByParents_Id(masterId);
     }
 
     public String getNextKey(Long issueTypeId) {

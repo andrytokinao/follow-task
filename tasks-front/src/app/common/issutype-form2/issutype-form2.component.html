@@ -5,9 +5,31 @@
     <div class="level-strip" [class.is-sub]="level === 'SUB_TASK'">
       <mat-icon>{{ level === 'SUB_TASK' ? 'subdirectory_arrow_right' : 'folder_special' }}</mat-icon>
       <span>{{ isEdit ? 'Modifier' : 'Nouveau' }} — {{ level === 'SUB_TASK' ? 'sous-type' : 'type principal' }}</span>
-      <span class="parent-hint" *ngIf="level === 'SUB_TASK' && parent">
-        — {{ parent.name }}
+      <span class="parent-hint" *ngIf="level === 'SUB_TASK' && selectedParents.length">
+        — {{ selectedParents.length === 1 ? selectedParents[0].name : selectedParents.length + ' parents' }}
       </span>
+    </div>
+
+    <!-- Parents du sous-type (plusieurs possibles) -->
+    <div class="parents-picker" *ngIf="level === 'SUB_TASK'">
+      <div class="parents-header">
+        <span class="mini-label">Utilisable comme sous-tâche de</span>
+        <button mat-button type="button" class="all-toggle" (click)="toggleAllParents()"
+                *ngIf="parentOptions.length > 1">
+          {{ allParentsSelected ? 'Aucun' : 'Tous les types' }}
+        </button>
+      </div>
+      <div class="parent-chips">
+        <button type="button" class="parent-chip"
+                *ngFor="let p of parentOptions"
+                [class.selected]="isParentSelected(p)"
+                [style.--c]="p.color || '#6C63FF'"
+                (click)="toggleParent(p)">
+          <mat-icon>{{ isParentSelected(p) ? 'check_box' : 'check_box_outline_blank' }}</mat-icon>
+          {{ p.name }}
+        </button>
+        <span class="no-parent" *ngIf="!parentOptions.length">Aucun type principal disponible</span>
+      </div>
     </div>
 
     <!-- Formulaire -->
