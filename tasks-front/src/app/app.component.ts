@@ -6,6 +6,7 @@ import {environment} from "../environments/environment";
 import {OtaService} from "./services/ota.service";
 import {UpdateService} from "./services/update.service";
 import {ChunkErrorHandler} from "./services/chunk-error.handler";
+import {afficherDernierRechargement} from "./services/trace-rechargement";
 
 /** Intervalle entre deux verifications de mise a jour native (OTA). */
 const INTERVALLE_OTA = 30 * 60 * 1000;
@@ -31,6 +32,10 @@ export class AppComponent implements OnInit, OnDestroy {
               private router: Router) {
   }
   ngOnInit() {
+    // Un rechargement efface la console : sa raison, notée juste avant, est
+    // réaffichée ici.
+    afficherDernierRechargement();
+
     // Cache applicatif (web / PWA) : téléchargement silencieux et bascule au
     // prochain changement de page.
     this.updateService.init();

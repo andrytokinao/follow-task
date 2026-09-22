@@ -2,6 +2,8 @@ import {ApplicationRef, Injectable} from '@angular/core';
 import {SwUpdate, VersionEvent} from '@angular/service-worker';
 import {NavigationEnd, Router} from '@angular/router';
 import {concat, filter, first, interval} from 'rxjs';
+import {ToastrService} from 'ngx-toastr';
+import {recharger} from './trace-rechargement';
 
 /** Intervalle entre deux verifications de version. */
 const INTERVALLE_VERIFICATION = 30 * 60 * 1000;
@@ -18,10 +20,13 @@ const INTERVALLE_VERIFICATION = 30 * 60 * 1000;
 export class UpdateService {
   /** Une version est telechargee et attend un moment opportun pour s'activer. */
   private versionPrete = false;
+  /** Cache irrecuperable : rechargement reporte au prochain changement de page. */
+  private raisonRechargement?: string;
 
   constructor(private swUpdate: SwUpdate,
               private appRef: ApplicationRef,
-              private router: Router) {
+              private router: Router,
+              private toastr: ToastrService) {
   }
 
   init(): void {
@@ -58,6 +63,10 @@ export class UpdateService {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe(() => {
+      if (this.raisonRechargement) {
+        recharger(this.raisonRechargement, 'changement de page');
+        return;
+      }
       if (!this.versionPrete) {
         return;
       }
@@ -80,12 +89,22 @@ export class UpdateService {
   }
 
   private reagirAuCacheCorrompu(): void {
-    // Fichiers manquants ou corrompus dans le cache : l'application ne peut
-    // plus charger ses morceaux differes. Seul un rechargement complet, qui
-    // repart du reseau, la remet dans un etat sain.
+    // Fichiers manquants ou corrompus dans le cache : seul un rechargement
+    // complet, qui repart du reseau, remet l'application dans un etat sain.
+    //
+    // Mais pas tout de suite : recharger sur-le-champ faisait perdre la
+    // saisie en cours (formulaire d'evenement, au premier choix d'une tache).
+    // On attend le prochain changement de page, et l'utilisateur peut
+    // recharger lui-meme depuis le message.
     this.swUpdate.unrecoverable.subscribe(event => {
       console.error('[MAJ] Cache irrecuperable :', event.reason);
-      document.location.reload();
+      if (this.raisonRechargement) {
+        return;
+      }
+      this.raisonRechargement = `Cache irrecuperable : ${event.reason}`;
+      this.toastr.warning('Cliquez ici pour recharger quand vous aurez terminé.',
+        'Mise à jour nécessaire', {disableTimeOut: true, tapToDismiss: true})
+        .onTap.subscribe(() => recharger(this.raisonRechargement!, 'clic sur le message'));
     });
   }
 
@@ -93,7 +112,7 @@ export class UpdateService {
   async appliquer(): Promise<void> {
     try {
       if (await this.swUpdate.activateUpdate()) {
-        document.location.reload();
+        recharger('Nouvelle version activee');
       }
     } catch (err) {
       console.warn('[MAJ] Activation impossible :', err);

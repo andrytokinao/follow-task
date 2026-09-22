@@ -1,4 +1,5 @@
 import {ErrorHandler, Injectable} from '@angular/core';
+import {recharger} from './trace-rechargement';
 
 /**
  * Rattrape les echecs de chargement des modules differes (lazy chunks).
@@ -30,7 +31,7 @@ export class ChunkErrorHandler implements ErrorHandler {
 
   handleError(error: any): void {
     if (this.estChunkManquant(error)) {
-      this.rechargerUneFois();
+      this.rechargerUneFois(error);
       return;
     }
     console.error(error);
@@ -41,7 +42,7 @@ export class ChunkErrorHandler implements ErrorHandler {
     return ChunkErrorHandler.SIGNATURES.some(signature => texte.includes(signature));
   }
 
-  private rechargerUneFois(): void {
+  private rechargerUneFois(error: any): void {
     if (sessionStorage.getItem(ChunkErrorHandler.CLE_RECHARGEMENT)) {
       // Deja tente : on laisse l'erreur visible plutot que de boucler.
       console.error('[APP] Chunk introuvable apres rechargement, abandon.');
@@ -49,7 +50,7 @@ export class ChunkErrorHandler implements ErrorHandler {
     }
     sessionStorage.setItem(ChunkErrorHandler.CLE_RECHARGEMENT, '1');
     console.warn('[APP] Chunk introuvable : rechargement de l application.');
-    document.location.reload();
+    recharger('Chunk introuvable', error?.message ?? error?.rejection?.message);
   }
 
   /**
