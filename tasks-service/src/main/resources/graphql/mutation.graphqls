@@ -12,6 +12,8 @@ type Mutation {
     saveIssueType(issueType:IssueTypeInput):IssueType
     deleteIssueType(issueTypeId:Int):ResponseApp
     reassignIssuesAndDeleteIssueType(issueTypeId:Int,reassignments:[IssueTypeReassignmentInput]):ResponseApp
+    # Change le type d'une seule tache, avec sa cle et son dossier si demande.
+    changeIssueType(issueId:Int,issueTypeId:Int,renameKey:Boolean):Issue
     affectIssueTypeForParent(childId:Int,parrentId:Int):IssueType
     removeIssueTypeParent(childId:Int,parentId:Int):IssueType
     saveWorkFlow(workFlow:WorkFlowInput):WorkFlow

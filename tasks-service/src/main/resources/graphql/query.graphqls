@@ -30,13 +30,17 @@ type Query {
     getIssueType(issueTypeId:Int):IssueType
     allIssueType(projectId:Int):[IssueType]
     issuesByIssueType(issueTypeId:Int):[Issue]
+    # Types proposables pour une tache : principaux pour une tache racine,
+    # sous-types de la tache parente pour une sous-tache.
+    changeableIssueTypes(issueId:Int):[IssueType]
     issueByCriteria(criterias:[CriteriaInput]):[Issue]
     allCustomField(projectId:Int):[CustomField]
     customFieldsByIssueType(issueTypeId:Int):[UsingCustomField]
     getGroupeUserForProject(prefix:String):[GroupeUser]
     listIssueTypeMaster(projectId:Int):[IssueType]
     listIssueTypeSubtasks(masterId:Int):[IssueType]
-    getNextKey(issueTypeId:Int):String
+    # Cle suivante d'un type dans un projet : creation d'une tache comme
+    # changement de type lisent celle-ci, il n'y en a pas d'autre.
     getNextKeyParent(issueTypeId:Int,projectId:Int):String
     getIssue(issueKey:String):Issue
     loadSubtask(parentId:Int):[Issue]

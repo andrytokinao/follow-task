@@ -24,6 +24,8 @@ export class Issue {
   issueKey?:String ="";
   creationDate?:string;
   encodedPath?:string;
+  /** Dossier de la tache sur le disque, renomme avec la cle. */
+  directory?:string;
   status?: Status | null = null;
   assigne?:User = new User();
   values?:CustomFieldValue[];

@@ -45,7 +45,7 @@ import {
   GET_CUSTOM_FIELD,
   GET_GROUPE_USER_FOR_PROJECT, GET_ISSUE, GET_ISSUE_PLANNING_SUMMARIES, GET_ISSUE_PLANNING_SUMMARY,
   GET_ISSUE_TYPE_BY_ID,
-  GET_NEXT_KEY, GET_NEXT_KEY_PARENT, GET_PROJECT_BY_USER,
+  GET_NEXT_KEY_PARENT, GET_PROJECT_BY_USER,
   ISSUE_BY_CRITERIA, LIST_ISSUE_TYPE_MASTER, LIST_ISSUE_TYPE_SUBTASKS, LOAD_ISSUE_MASTER_BY_PROJECT, LOAD_SUBTASK,
   REMOVE_ISSUE_TYPE_PARENT, SAVE_ACTION,
   SAVE_CONFIG,
@@ -62,6 +62,7 @@ import {UserService} from "./user.service";
 import {NewIssueComponent} from "../pages/private//project/modal/new-issue/new-issue.component";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {IssueFilterFieldComponent} from "../common/issue-filter-field/issue-filter-field.component";
+import {ChangeIssueTypeComponent} from "../common/change-issue-type/change-issue-type.component";
 import {ViewEditIssueComponent} from "../pages/private//project/modal/view-edit-issue/view-edit-issue.component";
 import {PlanningIssueComponent} from "../pages/private/project/modal/planning-issue/planning-issue.component";
 import {AuthService} from "./auth.service";
@@ -812,6 +813,74 @@ export class IssueService implements OnInit {
     })
   }
 
+  // -----------------------------------------------------------------
+  // Changement de type d'une tache : un seul chemin, le formulaire ci-dessous
+  // -----------------------------------------------------------------
+
+  /**
+   * Ouvre le formulaire de changement de type d'une tache et emet la tache
+   * mise a jour. Rien n'est emis si l'utilisateur ferme sans valider : c'est
+   * une annulation, pas une erreur.
+   */
+  openChangeIssueType(issue: Issue): Observable<Issue> {
+    return new Observable<Issue>(observer => {
+      const dialogRef = this.modalService.open(ChangeIssueTypeComponent, {
+        size: 'lg',
+        backdrop: 'static',
+        scrollable: true
+      });
+      dialogRef.componentInstance.issue = issue;
+      dialogRef.result.then(
+        updated => {
+          if (updated) {
+            observer.next(updated);
+          }
+          observer.complete();
+        },
+        () => observer.complete()
+      );
+    })
+  }
+
+  /** Types proposables pour une tache : principaux, ou sous-types de sa tache parente. */
+  changeableIssueTypes(issueId: number) {
+    return new Observable<IssueType[]>(observer => {
+      this.apollo.query({
+        query: operation.CHANGEABLE_ISSUE_TYPES,
+        variables: {issueId},
+        fetchPolicy: "network-only"
+      }).subscribe((res: any) => {
+          observer.next(supprimerTypename(res.data.changeableIssueTypes) || []);
+          observer.complete();
+        }, (err: any) => {
+          observer.error(err);
+          observer.complete();
+        }
+      )
+    })
+  }
+
+  /**
+   * Change le type d'une tache. Avec renameKey, elle prend aussi la cle
+   * suivante du nouveau type et son dossier est renomme si possible.
+   */
+  changeIssueType(issueId: number, issueTypeId: number, renameKey: boolean) {
+    return new Observable<Issue>(observer => {
+      this.apollo.mutate({
+        mutation: operation.CHANGE_ISSUE_TYPE,
+        variables: {issueId, issueTypeId, renameKey},
+        fetchPolicy: "network-only"
+      }).subscribe((res: any) => {
+          observer.next(supprimerTypename(res.data.changeIssueType));
+          observer.complete();
+        }, (err: any) => {
+          observer.error(err);
+          observer.complete();
+        }
+      )
+    })
+  }
+
   getIssueType(issueTypeId: number) {
     return new Observable<IssueType>((observer) => {
       this.apollo.mutate({
@@ -1354,23 +1423,10 @@ export class IssueService implements OnInit {
     })
   }
 
-  /*getNextKey(issueTypeId: Number) {
-
-    return new Observable<String>(observer => {
-      this.apollo.query({
-        query: GET_NEXT_KEY,
-        variables: {issueTypeId},
-        fetchPolicy: "network-only"
-      }).subscribe((res: any) => {
-        observer.next(supprimerTypename(res.data.getNextKey));
-        observer.complete();
-      }, error => {
-        observer.error(error);
-        observer.complete();
-      })
-    })
-  }*/
-
+  /**
+   * Cle suivante d'un type dans un projet : creation d'une tache comme
+   * changement de type passent par ici, il n'y a pas d'autre calcul de cle.
+   */
   getNextKeyParent(issueTypeId: Number, projectId: Number) {
     return new Observable<String>(observer => {
       this.apollo.query({

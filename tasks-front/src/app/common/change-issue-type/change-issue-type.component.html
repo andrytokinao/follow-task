@@ -1,0 +1,92 @@
+<div class="modal-header">
+  <div class="modal-title">
+    <i class="fas fa-exchange-alt"></i>
+    <span>Changer le type de « {{ issue?.issueKey }} »</span>
+  </div>
+  <button type="button" class="btn-close" aria-label="Fermer" (click)="dismiss()"></button>
+</div>
+
+<div class="modal-body">
+
+  <div class="banner error" *ngIf="errorMessage">
+    <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+    <i class="fas fa-times close" (click)="errorMessage = ''"></i>
+  </div>
+
+  <p class="intro">
+    <span class="summary" [title]="issue?.summary">{{ issue?.summary }}</span>
+    <span class="current">Type actuel : <b>{{ currentTypeName }}</b></span>
+  </p>
+
+  <div class="state-block" *ngIf="loading">
+    <i class="fas fa-circle-notch fa-spin"></i> Chargement des types disponibles...
+  </div>
+
+  <ng-container *ngIf="!loading">
+
+    <div class="banner warning" *ngIf="candidates.length === 0">
+      <i class="fas fa-exclamation-triangle"></i>
+      <span *ngIf="isSubtask">
+        Le type de la tâche parente n'a aucun sous-type : ajoutez-en un dans la configuration du projet.
+      </span>
+      <span *ngIf="!isSubtask">
+        Aucun type principal n'existe dans ce projet : créez-en un dans la configuration.
+      </span>
+    </div>
+
+    <ng-container *ngIf="candidates.length">
+      <p class="scope-hint">
+        <i class="fas fa-info-circle"></i>
+        <span *ngIf="isSubtask">Sous-types déclarés sous le type de « {{ issue?.parent?.issueKey }} ».</span>
+        <span *ngIf="!isSubtask">Types principaux de l'espace de travail.</span>
+      </p>
+
+      <div class="type-list">
+        <label class="type-option" *ngFor="let type of candidates; trackBy: trackByType"
+               [class.selected]="targetId == type.id">
+          <input type="radio" name="issueType" [value]="type.id"
+                 [(ngModel)]="targetId" (ngModelChange)="onTargetChange()"/>
+          <span class="type-dot" [style.background]="type.color || '#8993a4'"></span>
+          <span class="type-name">{{ type.name }}</span>
+          <code class="type-prefix">{{ type.prefix }}</code>
+          <span class="type-current" *ngIf="issue?.issueType?.id == type.id">actuel</span>
+        </label>
+      </div>
+
+      <div class="key-block">
+        <label class="key-toggle">
+          <input type="checkbox" [checked]="renameKey" (change)="toggleRename()"/>
+          Changer aussi la clé de la tâche
+        </label>
+
+        <div class="key-preview" *ngIf="renameKey">
+          <code class="key-old">{{ issue?.issueKey }}</code>
+          <i class="fas fa-long-arrow-alt-right"></i>
+          <span class="key-loading" *ngIf="loadingPreview"><i class="fas fa-circle-notch fa-spin"></i></span>
+          <code class="key-new" *ngIf="!loadingPreview && previewKey">{{ previewKey }}</code>
+          <span class="key-loading" *ngIf="!loadingPreview && !previewKey">choisir un type</span>
+        </div>
+
+        <p class="hint" *ngIf="renameKey">
+          <i class="fas fa-folder-open"></i>
+          Le dossier de la tâche est renommé pour suivre la nouvelle clé quand c'est possible ;
+          sinon la clé change quand même et le dossier garde son nom.
+        </p>
+      </div>
+
+      <p class="hint">
+        <i class="fas fa-info-circle"></i>
+        Si le statut actuel n'existe pas dans le flux de travail du nouveau type,
+        la tâche reprend le statut initial de ce flux.
+      </p>
+    </ng-container>
+  </ng-container>
+</div>
+
+<div class="modal-footer">
+  <button class="btn-secondary" (click)="dismiss()" [disabled]="saving">Annuler</button>
+  <button class="btn-primary" (click)="confirm()" [disabled]="!canConfirm">
+    <i class="fas" [ngClass]="saving ? 'fa-circle-notch fa-spin' : 'fa-check'"></i>
+    Enregistrer
+  </button>
+</div>

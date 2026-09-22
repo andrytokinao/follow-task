@@ -236,6 +236,13 @@ $t:             all .15s cubic-bezier(.4,0,.2,1);
 }
 
 .title-card {
+  .issue-type-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
   .issue-type-badge {
     display: inline-flex;
     align-items: center;
@@ -246,7 +253,6 @@ $t:             all .15s cubic-bezier(.4,0,.2,1);
     font-weight: 600;
     padding: 2px 8px;
     border-radius: 20px;
-    margin-bottom: 8px;
     text-transform: uppercase;
     letter-spacing: .05em;
   }

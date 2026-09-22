@@ -47,6 +47,8 @@ public class GQIssueController {
     private final IssueMembershipService issueMembershipService;
     private final IssueAccessService issueAccessService;
     private final CurrentUserProvider currentUserProvider;
+    private final IssueTypeChangeService issueTypeChangeService;
+    private final IssueKeyService issueKeyService;
 
 
     @QueryMapping
@@ -149,6 +151,17 @@ public class GQIssueController {
     @QueryMapping
     public List<Issue> issuesByIssueType(@Argument Long issueTypeId){
         return projectService.issuesByIssueType(issueTypeId);
+    }
+
+    /** Types proposables pour une tache : principaux, ou sous-types de sa tache parente. */
+    @QueryMapping
+    public List<IssueType> changeableIssueTypes(@Argument Long issueId){
+        return issueTypeChangeService.changeableIssueTypes(issueId);
+    }
+
+    @MutationMapping
+    public Issue changeIssueType(@Argument Long issueId, @Argument Long issueTypeId, @Argument Boolean renameKey){
+        return issueTypeChangeService.changeIssueType(issueId, issueTypeId, renameKey);
     }
     @MutationMapping
     public WorkFlow affectWorkFlow(@Argument IssueType issueType){
@@ -312,13 +325,10 @@ public class GQIssueController {
         return projectService.listIssueTypeSubtasks(masterId);
 
     }
-    @QueryMapping
-    public String getNextKey(@Argument Long issueTypeId){
-        return projectService.getNextKey(issueTypeId);
-    }
+    /** Cle suivante d'un type dans un projet : creation d'une tache et changement de type. */
     @QueryMapping
     public String getNextKeyParent(@Argument Long issueTypeId, @Argument Long projectId){
-        return projectService.getNextKeyParent(issueTypeId,projectId);
+        return issueKeyService.nextKey(issueTypeId, projectId);
     }
 
 

@@ -367,6 +367,30 @@ export class Subtask2Component implements OnInit, AfterViewInit, OnDestroy {
       .catch(() => undefined);
   }
 
+  /**
+   * Changement de type de la sous-tâche, via le formulaire commun. Le parent
+   * est transmis : c'est lui qui détermine les sous-types proposés.
+   *
+   * L'URL porte la clé de la sous-tâche ; si elle change, on rejoint la
+   * nouvelle après avoir rechargé la liste.
+   */
+  changeIssueType(): void {
+    const task = this.selectedTask;
+    if (!task?.id) return;
+    const ancienneCle = task.issueKey;
+    this.issueService
+      .openChangeIssueType({...task, parent: task.parent ?? this.parentIssue})
+      .subscribe(issue => {
+        this.selectedTask = {...task, ...issue};
+        this.loadSubtask();
+        if (issue.issueKey && issue.issueKey !== ancienneCle) {
+          // Même navigation que selectTask : …/subtask/{clé}, syncSelectionWithUrl fait le reste.
+          this.router.navigate([issue.issueKey.toString()], {relativeTo: this.route});
+        }
+        this.toastr.success(`Type de ${issue.issueKey} mis à jour`);
+      });
+  }
+
   /** L'URL courante est déjà …/subtask/{clé} : c'est le lien à partager. */
   copyTaskLink(): void {
     if (!navigator.clipboard) { this.toastr.error('Impossible de copier le lien'); return; }

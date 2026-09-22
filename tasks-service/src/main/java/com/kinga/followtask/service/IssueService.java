@@ -66,6 +66,9 @@ public class IssueService {
     CustomFieldRepository customFieldRepository;
     @Autowired
     public ProjectService projectService;
+    /** Seul calcul de cle de tache : voir IssueKeyService. */
+    @Autowired
+    private IssueKeyService issueKeyService;
     @Autowired
     public ConfigRepository configRepository;
     @Autowired
@@ -361,6 +364,12 @@ public class IssueService {
         issueType.setPrefix("TODO");
         return saveIssueType(issueType);
     }
+    /**
+     * Cle d'une tache creee sans cle. Le calcul est celui de IssueKeyService,
+     * comme la cle que le formulaire de creation affiche : une tache enregistree
+     * sans passer par ce formulaire recoit desormais la meme forme de cle
+     * (prefixe du type) que toutes les autres.
+     */
     public String getKeySuivente(IssueType issueType) throws IOException {
         Project project = issueType.getProject();
         if(project == null ) {
@@ -368,11 +377,7 @@ public class IssueService {
             issueType.setProject(project);
             issueTypeRepository.save(issueType);
         }
-        Integer dernierNumero  = project.getDernierNumero() == null ? 0 : project.getDernierNumero();
-        Integer nexNumber = new Integer((dernierNumero.intValue() + 1));
-        project.setDernierNumero(nexNumber);
-        projectRepository.save(project);
-        return project.getPrefix()+"-"+nexNumber;
+        return issueKeyService.nextKey(issueType, project);
     }
     public Repertoire loadDirectory(Long issueId) {
         Issue issue = issueRepository.getById(issueId);

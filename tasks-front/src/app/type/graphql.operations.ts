@@ -1002,6 +1002,57 @@ export const REASSIGN_ISSUES_AND_DELETE_ISSUE_TYPE = gql`
     }
   }
 `;
+
+/** Types proposables pour une tache : principaux, ou sous-types de sa tache parente. */
+export const CHANGEABLE_ISSUE_TYPES = gql`
+  query changeableIssueTypes($issueId:Int) {
+    changeableIssueTypes(issueId: $issueId){
+      id
+      name
+      prefix
+      level
+      color
+      # Le projet sert a demander la cle suivante du type (getNextKeyParent).
+      project {
+        id
+      }
+      icone {
+        id
+        typeIcone
+        value
+      }
+    }
+  }
+`;
+
+/** Change le type d'une seule tache, avec sa cle et son dossier si demande. */
+export const CHANGE_ISSUE_TYPE = gql`
+  mutation changeIssueType($issueId:Int, $issueTypeId:Int, $renameKey:Boolean) {
+    changeIssueType(issueId: $issueId, issueTypeId: $issueTypeId, renameKey: $renameKey){
+      id
+      issueKey
+      summary
+      directory
+      encodedPath
+      issueType {
+        id
+        name
+        prefix
+        level
+        color
+        icone {
+          id
+          typeIcone
+          value
+        }
+      }
+      status {
+        id
+        displayName
+      }
+    }
+  }
+`;
 const  GET_ISSUE_TYPE = gql`
    query ($issueTypeId:Int!) {
     getIssueType(issueTypeId: $issueTypeId){
@@ -1941,11 +1992,7 @@ const ADD_USER_IN_GROUPE = gql`
    }
  }
 `
-const GET_NEXT_KEY = gql`
-  query getNextKey($issueTypeId:Int){
-    getNextKey(issueTypeId: $issueTypeId)
-  }
-`
+/** Seule requete de cle suivante : creation d'une tache et changement de type. */
 const GET_NEXT_KEY_PARENT = gql`
   query getNextKeyParent($issueTypeId:Int ,$projectId:Int){
     getNextKeyParent(issueTypeId: $issueTypeId,projectId:$projectId)
@@ -3942,7 +3989,6 @@ export {
   REMOVE_ISSUE_TYPE_PARENT,
   LIST_ISSUE_TYPE_MASTER,
   LIST_ISSUE_TYPE_SUBTASKS,
-  GET_NEXT_KEY,
   GET_ISSUE,
   LOAD_SUBTASK,
   LOAD_ISSUE_MASTER_BY_PROJECT,

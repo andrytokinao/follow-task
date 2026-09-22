@@ -70,6 +70,8 @@ public class ProjectService {
     private final UserSettingsRepository userSettingsRepository;
     private final WorkspaceSettingsRepository workspaceSettingsRepository;
     private final CurrentUserProvider currentUserProvider;
+    /** Seul endroit ou le type d'une tache change : voir IssueTypeChangeService. */
+    private final IssueTypeChangeService issueTypeChangeService;
     private IssueService issueService;
 
     public Status saveStatus(Status status) {
@@ -913,44 +915,13 @@ public class ProjectService {
                     && !Objects.equals(deleted.getProject().getId(), target.getProject().getId()))
                 throw new RuntimeException("Le type " + target.getName() + " n'appartient pas au meme projet");
 
-            issue.setIssueType(target);
-            WorkFlow workFlow = target.getCurentWorkFlow();
-            if (workFlow != null && !CollectionUtils.isEmpty(workFlow.getStatuses())) {
-                boolean statusKept = issue.getStatus() != null && workFlow.getStatuses().stream()
-                        .anyMatch(status -> status.getId().equals(issue.getStatus().getId()));
-                if (!statusKept)
-                    issue.setStatus(workFlow.getStatuses().get(0));
-            }
-            if (Boolean.TRUE.equals(reassignment.getRenameKey())) {
-                Project project = issue.getProject() != null ? issue.getProject() : target.getProject();
-                issue.setIssueKey(nextFreeKey(target, project));
-            }
-            issue.setUpdateDate(LocalDateTime.now());
-            issueRepository.saveAndFlush(issue);
+            issueTypeChangeService.applyIssueType(issue, target, Boolean.TRUE.equals(reassignment.getRenameKey()));
         }
         if (!pending.isEmpty()) {
             Issue first = pending.values().iterator().next();
             throw new RuntimeException("Aucun nouveau type choisi pour la tache " + first.getIssueKey());
         }
         return deleteIssueType(issueTypeId);
-    }
-
-    /**
-     * Cle suivante du type dans le projet (meme calcul qu'a la creation d'une
-     * tache), en sautant une cle deja portee par une autre tache du projet.
-     */
-    private String nextFreeKey(IssueType issueType, Project project) {
-        String prefix = issueType.getPrefix() + "-";
-        Integer max = project != null
-                ? issueRepository.findMaxProjectNumberWithPrefixAndProject(prefix, issueType.getId(), project.getId())
-                : issueRepository.findMaxProjectNumberWithPrefix(prefix, issueType.getId());
-        int numero = max == null ? 1 : max + 1;
-        String key = prefix + numero;
-        while (project != null && project.getPrefix() != null
-                && issueRepository.findFirstByIssueKeyAndProjectPrefix(key, project.getPrefix()).isPresent()) {
-            key = prefix + (++numero);
-        }
-        return key;
     }
 
     private boolean isUnusedDefaultSubtaskType(IssueType child) {
@@ -979,30 +950,6 @@ public class ProjectService {
 
     public List<IssueType> listIssueTypeSubtasks(Long masterId) {
         return issueTypeRepository.findByParents_Id(masterId);
-    }
-
-    public String getNextKey(Long issueTypeId) {
-        Optional<IssueType> issueType = issueTypeRepository.findById(issueTypeId);
-        if (!issueType.isPresent())
-            return "";
-        Integer numero = issueRepository.findMaxProjectNumberWithPrefix(issueType.get().getPrefix() + "-", issueTypeId);
-        if (numero == null) {
-            numero = 0;
-        }
-        numero++;
-        return issueType.get().getPrefix() + "-" + numero;
-    }
-
-    public String getNextKeyParent(Long issueTypeId, Long projectId) {
-        Optional<IssueType> issueType = issueTypeRepository.findById(issueTypeId);
-        if (!issueType.isPresent())
-            return "";
-        Integer numero = issueRepository.findMaxProjectNumberWithPrefixAndProject(issueType.get().getPrefix() + "-", issueTypeId, projectId);
-        if (numero == null) {
-            numero = 0;
-        }
-        numero++;
-        return issueType.get().getPrefix() + "-" + numero;
     }
 
     public Issue getIssue(String issueKey) {

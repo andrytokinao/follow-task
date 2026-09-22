@@ -18,8 +18,17 @@
     <div class="issue-main">
 
       <div class="card title-card">
-        <div class="issue-type-badge" *ngIf="issueType">
-          <i class="fas fa-tasks"></i> {{ issueType?.name }}
+        <div class="issue-type-line" *ngIf="issueType">
+          <div class="issue-type-badge">
+            <i class="fas fa-tasks"></i> {{ issueType?.name }}
+          </div>
+          <!-- Changement de type : formulaire commun, ouvert depuis le service. -->
+          <button class="btn-edit-inline"
+                  *ngIf="canEditField"
+                  (click)="changeIssueType()"
+                  title="Changer le type de la tâche">
+            <i class="fas fa-exchange-alt"></i> Changer le type
+          </button>
         </div>
         <div class="summary-wrapper">
           <h1 class="issue-title" *ngIf="!editSummary" (click)="editIssueSummary()">

@@ -418,6 +418,25 @@ export class IssueDetailsComponent implements OnInit, OnDestroy {
       });
   }
 
+  /**
+   * Changement de type de la demande, via le formulaire commun. Une clé
+   * modifiée change aussi l'URL : on rejoint la nouvelle avant de recharger,
+   * sinon le résolveur cherche une clé qui n'existe plus.
+   */
+  changeIssueType(): void {
+    const ancienneCle = this.parentIssue?.issueKey;
+    this.issueService.openChangeIssueType(this.parentIssue)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(issue => {
+        this.parentIssue = {...this.parentIssue, ...issue};
+        if (issue.issueKey && issue.issueKey !== ancienneCle) {
+          this.router.navigate(['/working', this.project?.prefix, 'issue', issue.issueKey, 'details']);
+          return;
+        }
+        this.loadValues();
+      });
+  }
+
   editIssueDescription(): void {
     this.projectGuard.hasCredential(['CAN_CREATE_TASK'])
       .pipe(takeUntil(this.destroy$))

@@ -67,6 +67,7 @@ import {AvatarComponent} from "./avatar/avatar.component";
 import {AssigneeFilterComponent} from "./assignee-filter/assignee-filter.component";
 import {StatusTabsComponent} from "./status-tabs/status-tabs.component";
 import {IssueBoardComponent} from "./issue-board/issue-board.component";
+import {ChangeIssueTypeComponent} from "./change-issue-type/change-issue-type.component";
 
 @NgModule({
   declarations: [
@@ -113,7 +114,8 @@ import {IssueBoardComponent} from "./issue-board/issue-board.component";
     ExplorateurFichiersComponent,
     AssigneeFilterComponent,
     StatusTabsComponent,
-    IssueBoardComponent
+    IssueBoardComponent,
+    ChangeIssueTypeComponent
   ],
   imports: [
     CommonModule,
@@ -199,7 +201,8 @@ import {IssueBoardComponent} from "./issue-board/issue-board.component";
       ExplorateurFichiersComponent,
       AssigneeFilterComponent,
       StatusTabsComponent,
-      IssueBoardComponent
+      IssueBoardComponent,
+      ChangeIssueTypeComponent
     ],
   providers:[
     NgbActiveModal
