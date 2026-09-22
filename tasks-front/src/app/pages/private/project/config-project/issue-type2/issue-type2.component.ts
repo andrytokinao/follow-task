@@ -2,8 +2,8 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {Subscription} from "rxjs";
 import {IssueTypeModalComponent} from "../issue-type/issue-type-modal/issue-type-modal.component";
+import {DeleteIssueTypeModalComponent} from "./delete-issue-type-modal/delete-issue-type-modal.component";
 import {IssueService} from "../../../../../services/issue.service";
-import {ConfirmationDialogService} from "../../../../../services/confirmation-dialog.service";
 import {IssueType, Project} from "../../../../../type/issue";
 
 type FormMode = 'idle' | 'create' | 'edit';
@@ -38,8 +38,7 @@ export class IssueType2Component implements OnInit, OnDestroy {
 
   constructor(
     private modalService: NgbModal,
-    private issueService: IssueService,
-    private confirmationDialog: ConfirmationDialogService
+    private issueService: IssueService
   ) {
   }
 
@@ -213,32 +212,18 @@ export class IssueType2Component implements OnInit, OnDestroy {
     if (issueType.id == null) {
       return;
     }
-    // le sous-type par defaut « Tâche » est supprime avec son parent cote serveur
-    const childCount = (issueType.children || []).filter(child => child.name !== 'Tâche').length;
-    const warning = childCount
-      ? ` Ce type possède ${childCount} sous-type(s) qu'il faudra détacher au préalable.`
-      : '';
-    this.confirmationDialog.confirm(
-      'Supprimer le type',
-      `Supprimer définitivement « ${issueType.name} » ?${warning}`,
-      'Supprimer',
-      'Annuler'
-    ).then((confirmed) => {
-      if (!confirmed) {
-        return;
+    // la popup liste les taches de ce type et leur fait choisir un autre type avant la suppression
+    this.errorMessage = '';
+    const dialogRef = this.modalService.open(DeleteIssueTypeModalComponent, {size: 'xl', scrollable: true});
+    dialogRef.componentInstance.issueType = issueType;
+    dialogRef.componentInstance.issueTypes = this.issueTypes;
+    dialogRef.result.then(() => {
+      if (this.selectedIssue?.id == issueType.id) {
+        this.selectedIssue = null;
+        this.closeForm();
       }
-      this.errorMessage = '';
-      this.issueService.deleteIssueType(issueType.id).subscribe({
-        next: () => {
-          if (this.selectedIssue?.id == issueType.id) {
-            this.selectedIssue = null;
-            this.closeForm();
-          }
-          this.reload();
-        },
-        error: (error) => this.errorMessage = this.extractMessage(error)
-      });
-    }).catch(() => {
+      this.reload();
+    }, () => {
     });
   }
 

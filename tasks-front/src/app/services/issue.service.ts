@@ -772,6 +772,42 @@ export class IssueService implements OnInit {
     })
   }
 
+  /** Taches qui utilisent ce type, a rattacher a un autre type avant sa suppression. */
+  issuesByIssueType(issueTypeId: number) {
+    return new Observable<Issue[]>((observer) => {
+      this.apollo.query({
+        query: operation.ISSUES_BY_ISSUE_TYPE,
+        variables: {issueTypeId},
+        fetchPolicy: "network-only"
+      }).subscribe((res: any) => {
+          observer.next(supprimerTypename(res.data.issuesByIssueType) || []);
+          observer.complete();
+        }, (err: any) => {
+          observer.error(err);
+          observer.complete();
+        }
+      )
+    })
+  }
+
+  /** Change le type de chaque tache ({issueId, issueTypeId}) puis supprime le type. */
+  reassignIssuesAndDeleteIssueType(issueTypeId: number, reassignments: { issueId: number, issueTypeId: number }[]) {
+    return new Observable<ResponseApp>((observer) => {
+      this.apollo.mutate({
+        mutation: operation.REASSIGN_ISSUES_AND_DELETE_ISSUE_TYPE,
+        variables: {issueTypeId, reassignments},
+        fetchPolicy: "network-only"
+      }).subscribe((res: any) => {
+          observer.next(supprimerTypename(res.data.reassignIssuesAndDeleteIssueType));
+          observer.complete();
+        }, (err: any) => {
+          observer.error(err);
+          observer.complete();
+        }
+      )
+    })
+  }
+
   getIssueType(issueTypeId: number) {
     return new Observable<IssueType>((observer) => {
       this.apollo.mutate({

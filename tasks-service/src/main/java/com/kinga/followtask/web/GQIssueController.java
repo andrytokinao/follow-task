@@ -143,6 +143,14 @@ public class GQIssueController {
         return projectService.deleteIssueType(issueTypeId);
     }
     @MutationMapping
+    public Response reassignIssuesAndDeleteIssueType(@Argument Long issueTypeId, @Argument List<IssueTypeReassignmentInput> reassignments){
+        return projectService.reassignIssuesAndDeleteIssueType(issueTypeId, reassignments);
+    }
+    @QueryMapping
+    public List<Issue> issuesByIssueType(@Argument Long issueTypeId){
+        return projectService.issuesByIssueType(issueTypeId);
+    }
+    @MutationMapping
     public WorkFlow affectWorkFlow(@Argument IssueType issueType){
         return projectService.affectWorkFlow(issueType);
     }

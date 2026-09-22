@@ -1,0 +1,117 @@
+<div class="modal-header">
+  <div class="modal-title">
+    <i class="fas fa-trash-alt danger-icon"></i>
+    <span>Supprimer le type « {{ issueType.name }} »</span>
+  </div>
+  <button type="button" class="btn-close" aria-label="Fermer" (click)="dismiss()"></button>
+</div>
+
+<div class="modal-body">
+
+  <div class="banner error" *ngIf="errorMessage">
+    <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+    <i class="fas fa-times close" (click)="errorMessage = ''"></i>
+  </div>
+
+  <div class="banner warning" *ngIf="blockingChildren.length">
+    <i class="fas fa-exclamation-triangle"></i>
+    Ce type possède {{ blockingChildren.length }} sous-type(s) à détacher ou supprimer au préalable :
+    <b>{{ blockingNames }}</b>
+  </div>
+
+  <div class="state-block" *ngIf="loading">
+    <i class="fas fa-circle-notch fa-spin"></i> Recherche des tâches rattachées...
+  </div>
+
+  <ng-container *ngIf="!loading">
+
+    <!-- aucune tache : suppression directe -->
+    <div class="state-block" *ngIf="issues.length === 0">
+      <i class="fas fa-check-circle"></i>
+      <span>Aucune tâche n'utilise ce type : il peut être supprimé directement.</span>
+    </div>
+
+    <ng-container *ngIf="issues.length > 0">
+      <p class="intro">
+        <b>{{ issues.length }}</b> tâche(s) utilisent ce type.
+        Choisissez le type auquel rattacher chacune avant la suppression.
+      </p>
+
+      <div class="banner warning" *ngIf="candidates.length === 0">
+        <i class="fas fa-exclamation-triangle"></i>
+        Aucun autre type {{ issueType.level === 'SUB_TASK' ? 'de sous-tâche' : 'principal' }} n'existe :
+        créez-en un pour pouvoir y rattacher ces tâches.
+      </div>
+
+      <!-- barre d'action groupee -->
+      <div class="toolbar" *ngIf="candidates.length">
+        <div class="search-wrap">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Filtrer par clé ou résumé..." [(ngModel)]="search"/>
+        </div>
+        <div class="bulk">
+          <span class="bulk-count">{{ selected.size }} sélectionnée(s)</span>
+          <select class="type-select" [(ngModel)]="bulkTarget" [disabled]="!selected.size">
+            <option [ngValue]="null">Type pour la sélection...</option>
+            <option *ngFor="let type of candidates" [ngValue]="type.id">{{ type.name }}</option>
+          </select>
+          <button class="btn-secondary" [disabled]="!selected.size || bulkTarget == null" (click)="applyToSelection()">
+            <i class="fas fa-check-double"></i> Appliquer
+          </button>
+        </div>
+      </div>
+
+      <!-- liste des taches -->
+      <div class="issue-table">
+        <div class="issue-row head">
+          <input type="checkbox" [checked]="allSelected" (change)="toggleAll()"
+                 [disabled]="!candidates.length" title="Tout sélectionner"/>
+          <span class="col-key">Clé</span>
+          <span class="col-summary">Tâche</span>
+          <span class="col-status">Statut</span>
+          <span class="col-target">Nouveau type</span>
+        </div>
+
+        <div class="issue-row" *ngFor="let issue of filteredIssues; trackBy: trackByIssue"
+             [class.selected]="isSelected(issue)"
+             [class.missing]="targets[issue.id!] == null">
+          <input type="checkbox" [checked]="isSelected(issue)" (change)="toggle(issue)"
+                 [disabled]="!candidates.length"/>
+          <code class="col-key">{{ issue.issueKey }}</code>
+          <span class="col-summary" [title]="issue.summary">
+            {{ issue.summary }}
+            <small *ngIf="issue.parent" class="parent-ref">dans {{ issue.parent.issueKey }}</small>
+          </span>
+          <span class="col-status">{{ issue.status?.displayName || '—' }}</span>
+          <select class="type-select col-target" [(ngModel)]="targets[issue.id!]" [disabled]="!candidates.length">
+            <option [ngValue]="null">Choisir...</option>
+            <option *ngFor="let type of candidates" [ngValue]="type.id">
+              {{ type.name }}{{ type.parents?.length ? ' (' + parentNames(type) + ')' : '' }}
+            </option>
+          </select>
+        </div>
+
+        <div class="state-block small" *ngIf="filteredIssues.length === 0">
+          Aucune tâche ne correspond à « {{ search }} »
+        </div>
+      </div>
+
+      <p class="hint">
+        <i class="fas fa-info-circle"></i>
+        Si le statut d'une tâche n'existe pas dans le flux de travail du nouveau type,
+        elle reprend le statut initial de ce flux.
+      </p>
+    </ng-container>
+  </ng-container>
+</div>
+
+<div class="modal-footer">
+  <span class="remaining" *ngIf="!loading && remainingCount > 0">
+    <i class="fas fa-exclamation-circle"></i> {{ remainingCount }} tâche(s) sans nouveau type
+  </span>
+  <button class="btn-secondary" (click)="dismiss()" [disabled]="saving">Annuler</button>
+  <button class="btn-danger" (click)="confirm()" [disabled]="!canConfirm">
+    <i class="fas" [ngClass]="saving ? 'fa-circle-notch fa-spin' : 'fa-trash-alt'"></i>
+    {{ issues.length ? 'Rattacher et supprimer' : 'Supprimer' }}
+  </button>
+</div>

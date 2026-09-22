@@ -3,6 +3,7 @@ package com.kinga.followtask.service;
 import com.kinga.followtask.config.CurrentUserProvider;
 import com.kinga.followtask.dto.Criteria;
 import com.kinga.followtask.dto.CrossingStateInput;
+import com.kinga.followtask.dto.IssueTypeReassignmentInput;
 import com.kinga.followtask.dto.Response;
 import com.kinga.followtask.dto.UploadedDto;
 import com.kinga.followtask.dto.UserDetailsDeto;
@@ -872,6 +873,57 @@ public class ProjectService {
         response.setCode("OK");
         response.setMessage("Type " + issueType.getName() + " supprime");
         return response;
+    }
+
+    /** Taches qui utilisent ce type : ce sont elles qu'il faut changer de type avant de le supprimer. */
+    public List<Issue> issuesByIssueType(Long issueTypeId) {
+        return issueRepository.findByIssueTypeIdIn(List.of(issueTypeId));
+    }
+
+    /**
+     * Change le type de chaque tache du type supprime puis supprime ce type.
+     * Toutes les taches doivent recevoir un nouveau type du meme projet ;
+     * un statut absent du flux de travail du nouveau type est ramene au
+     * statut initial de ce flux.
+     */
+    @Transactional
+    public Response reassignIssuesAndDeleteIssueType(Long issueTypeId, List<IssueTypeReassignmentInput> reassignments) {
+        IssueType deleted = issueTypeRepository.findById(issueTypeId)
+                .orElseThrow(() -> new RuntimeException("Type de tache introuvable : " + issueTypeId));
+        Map<Long, Long> targetByIssue = new HashMap<>();
+        if (reassignments != null) {
+            for (IssueTypeReassignmentInput reassignment : reassignments) {
+                if (reassignment.getIssueId() != null && reassignment.getIssueTypeId() != null)
+                    targetByIssue.put(reassignment.getIssueId(), reassignment.getIssueTypeId());
+            }
+        }
+
+        Map<Long, IssueType> targets = new HashMap<>();
+        for (Issue issue : issueRepository.findByIssueTypeIdIn(List.of(issueTypeId))) {
+            Long targetId = targetByIssue.get(issue.getId());
+            if (targetId == null)
+                throw new RuntimeException("Aucun nouveau type choisi pour la tache " + issue.getIssueKey());
+            if (targetId.equals(issueTypeId))
+                throw new RuntimeException("La tache " + issue.getIssueKey() + " ne peut pas garder le type supprime");
+            IssueType target = targets.computeIfAbsent(targetId, id -> issueTypeRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Type de tache introuvable : " + id)));
+            if (deleted.getProject() != null && target.getProject() != null
+                    && !Objects.equals(deleted.getProject().getId(), target.getProject().getId()))
+                throw new RuntimeException("Le type " + target.getName() + " n'appartient pas au meme projet");
+
+            issue.setIssueType(target);
+            WorkFlow workFlow = target.getCurentWorkFlow();
+            if (workFlow != null && !CollectionUtils.isEmpty(workFlow.getStatuses())) {
+                boolean statusKept = issue.getStatus() != null && workFlow.getStatuses().stream()
+                        .anyMatch(status -> status.getId().equals(issue.getStatus().getId()));
+                if (!statusKept)
+                    issue.setStatus(workFlow.getStatuses().get(0));
+            }
+            issue.setUpdateDate(LocalDateTime.now());
+            issueRepository.save(issue);
+        }
+        issueRepository.flush();
+        return deleteIssueType(issueTypeId);
     }
 
     private boolean isUnusedDefaultSubtaskType(IssueType child) {

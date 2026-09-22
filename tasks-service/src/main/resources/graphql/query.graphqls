@@ -29,6 +29,7 @@ type Query {
     getConfigProject(projectId:Int):[ConfigProject]
     getIssueType(issueTypeId:Int):IssueType
     allIssueType(projectId:Int):[IssueType]
+    issuesByIssueType(issueTypeId:Int):[Issue]
     issueByCriteria(criterias:[CriteriaInput]):[Issue]
     allCustomField(projectId:Int):[CustomField]
     customFieldsByIssueType(issueTypeId:Int):[UsingCustomField]

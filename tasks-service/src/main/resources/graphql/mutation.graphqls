@@ -11,6 +11,7 @@ type Mutation {
     createProjectOrSave(project:ProjectInput):Project
     saveIssueType(issueType:IssueTypeInput):IssueType
     deleteIssueType(issueTypeId:Int):ResponseApp
+    reassignIssuesAndDeleteIssueType(issueTypeId:Int,reassignments:[IssueTypeReassignmentInput]):ResponseApp
     affectIssueTypeForParent(childId:Int,parrentId:Int):IssueType
     removeIssueTypeParent(childId:Int,parentId:Int):IssueType
     saveWorkFlow(workFlow:WorkFlowInput):WorkFlow

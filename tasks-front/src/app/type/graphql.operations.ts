@@ -975,6 +975,33 @@ const DELETE_ISSUE_TYPE = gql`
     }
   }
 `;
+export const ISSUES_BY_ISSUE_TYPE = gql`
+  query issuesByIssueType($issueTypeId:Int) {
+    issuesByIssueType(issueTypeId: $issueTypeId){
+      id
+      issueKey
+      summary
+      status {
+        id
+        displayName
+      }
+      parent {
+        id
+        issueKey
+        summary
+      }
+    }
+  }
+`;
+export const REASSIGN_ISSUES_AND_DELETE_ISSUE_TYPE = gql`
+  mutation reassignIssuesAndDeleteIssueType($issueTypeId:Int, $reassignments:[IssueTypeReassignmentInput]) {
+    reassignIssuesAndDeleteIssueType(issueTypeId: $issueTypeId, reassignments: $reassignments){
+      status
+      message
+      code
+    }
+  }
+`;
 const  GET_ISSUE_TYPE = gql`
    query ($issueTypeId:Int!) {
     getIssueType(issueTypeId: $issueTypeId){

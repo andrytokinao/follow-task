@@ -286,6 +286,10 @@ input CredentialInput{
     roles:[RoleAppInput]
 }
 
+input IssueTypeReassignmentInput{
+    issueId:Int
+    issueTypeId:Int
+}
 input CrossingStateInput{
     id:Int
     name:String
