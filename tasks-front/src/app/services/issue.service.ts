@@ -790,8 +790,12 @@ export class IssueService implements OnInit {
     })
   }
 
-  /** Change le type de chaque tache ({issueId, issueTypeId}) puis supprime le type. */
-  reassignIssuesAndDeleteIssueType(issueTypeId: number, reassignments: { issueId: number, issueTypeId: number }[]) {
+  /**
+   * Change le type de chaque tache, une a une dans l'ordre donne, puis supprime le type.
+   * Avec renameKey, la tache recoit la cle suivante du nouveau type.
+   */
+  reassignIssuesAndDeleteIssueType(issueTypeId: number,
+                                   reassignments: { issueId: number, issueTypeId: number, renameKey: boolean }[]) {
     return new Observable<ResponseApp>((observer) => {
       this.apollo.mutate({
         mutation: operation.REASSIGN_ISSUES_AND_DELETE_ISSUE_TYPE,

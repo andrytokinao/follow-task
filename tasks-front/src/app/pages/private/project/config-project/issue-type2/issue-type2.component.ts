@@ -217,6 +217,7 @@ export class IssueType2Component implements OnInit, OnDestroy {
     const dialogRef = this.modalService.open(DeleteIssueTypeModalComponent, {size: 'xl', scrollable: true});
     dialogRef.componentInstance.issueType = issueType;
     dialogRef.componentInstance.issueTypes = this.issueTypes;
+    dialogRef.componentInstance.project = this.project;
     dialogRef.result.then(() => {
       if (this.selectedIssue?.id == issueType.id) {
         this.selectedIssue = null;

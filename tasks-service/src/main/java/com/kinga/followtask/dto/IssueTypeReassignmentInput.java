@@ -11,4 +11,6 @@ import lombok.NoArgsConstructor;
 public class IssueTypeReassignmentInput {
     private Long issueId;
     private Long issueTypeId;
+    /** Donne aussi a la tache une nouvelle cle avec le prefixe du nouveau type (PROJ-12 -> DATA-102). */
+    private Boolean renameKey;
 }

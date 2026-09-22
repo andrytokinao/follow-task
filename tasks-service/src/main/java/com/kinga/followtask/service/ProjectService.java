@@ -885,22 +885,24 @@ public class ProjectService {
      * Toutes les taches doivent recevoir un nouveau type du meme projet ;
      * un statut absent du flux de travail du nouveau type est ramene au
      * statut initial de ce flux.
+     *
+     * <p>Les taches sont traitees une a une, dans l'ordre recu, et chacune est
+     * enregistree avant de passer a la suivante : la cle suivante d'un type
+     * tient donc compte des taches qui viennent de le recevoir.</p>
      */
     @Transactional
     public Response reassignIssuesAndDeleteIssueType(Long issueTypeId, List<IssueTypeReassignmentInput> reassignments) {
         IssueType deleted = issueTypeRepository.findById(issueTypeId)
                 .orElseThrow(() -> new RuntimeException("Type de tache introuvable : " + issueTypeId));
-        Map<Long, Long> targetByIssue = new HashMap<>();
-        if (reassignments != null) {
-            for (IssueTypeReassignmentInput reassignment : reassignments) {
-                if (reassignment.getIssueId() != null && reassignment.getIssueTypeId() != null)
-                    targetByIssue.put(reassignment.getIssueId(), reassignment.getIssueTypeId());
-            }
-        }
+        Map<Long, Issue> pending = new LinkedHashMap<>();
+        issueRepository.findByIssueTypeIdIn(List.of(issueTypeId)).forEach(issue -> pending.put(issue.getId(), issue));
 
         Map<Long, IssueType> targets = new HashMap<>();
-        for (Issue issue : issueRepository.findByIssueTypeIdIn(List.of(issueTypeId))) {
-            Long targetId = targetByIssue.get(issue.getId());
+        for (IssueTypeReassignmentInput reassignment : reassignments == null ? List.<IssueTypeReassignmentInput>of() : reassignments) {
+            Issue issue = pending.remove(reassignment.getIssueId());
+            if (issue == null)
+                continue;
+            Long targetId = reassignment.getIssueTypeId();
             if (targetId == null)
                 throw new RuntimeException("Aucun nouveau type choisi pour la tache " + issue.getIssueKey());
             if (targetId.equals(issueTypeId))
@@ -919,11 +921,36 @@ public class ProjectService {
                 if (!statusKept)
                     issue.setStatus(workFlow.getStatuses().get(0));
             }
+            if (Boolean.TRUE.equals(reassignment.getRenameKey())) {
+                Project project = issue.getProject() != null ? issue.getProject() : target.getProject();
+                issue.setIssueKey(nextFreeKey(target, project));
+            }
             issue.setUpdateDate(LocalDateTime.now());
-            issueRepository.save(issue);
+            issueRepository.saveAndFlush(issue);
         }
-        issueRepository.flush();
+        if (!pending.isEmpty()) {
+            Issue first = pending.values().iterator().next();
+            throw new RuntimeException("Aucun nouveau type choisi pour la tache " + first.getIssueKey());
+        }
         return deleteIssueType(issueTypeId);
+    }
+
+    /**
+     * Cle suivante du type dans le projet (meme calcul qu'a la creation d'une
+     * tache), en sautant une cle deja portee par une autre tache du projet.
+     */
+    private String nextFreeKey(IssueType issueType, Project project) {
+        String prefix = issueType.getPrefix() + "-";
+        Integer max = project != null
+                ? issueRepository.findMaxProjectNumberWithPrefixAndProject(prefix, issueType.getId(), project.getId())
+                : issueRepository.findMaxProjectNumberWithPrefix(prefix, issueType.getId());
+        int numero = max == null ? 1 : max + 1;
+        String key = prefix + numero;
+        while (project != null && project.getPrefix() != null
+                && issueRepository.findFirstByIssueKeyAndProjectPrefix(key, project.getPrefix()).isPresent()) {
+            key = prefix + (++numero);
+        }
+        return key;
     }
 
     private boolean isUnusedDefaultSubtaskType(IssueType child) {

@@ -289,6 +289,7 @@ input CredentialInput{
 input IssueTypeReassignmentInput{
     issueId:Int
     issueTypeId:Int
+    renameKey:Boolean
 }
 input CrossingStateInput{
     id:Int

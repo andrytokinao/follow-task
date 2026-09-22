@@ -1,7 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {IssueService} from "../../../../../../services/issue.service";
-import {Issue, IssueType} from "../../../../../../type/issue";
+import {Issue, IssueType, Project} from "../../../../../../type/issue";
 
 /**
  * Popup de suppression d'un type de tache : les taches qui l'utilisent
@@ -20,11 +20,19 @@ export class DeleteIssueTypeModalComponent implements OnInit {
   @Input() issueType!: IssueType;
   /** Arborescence des types du projet (parents et leurs sous-types). */
   @Input() issueTypes: IssueType[] = [];
+  @Input() project: Project | undefined;
 
   issues: Issue[] = [];
   candidates: IssueType[] = [];
   /** Nouveau type choisi par tache : issueId -> issueTypeId. */
   targets: { [issueId: number]: number | null } = {};
+  /** Taches qui prennent aussi une cle du nouveau type (PROJ-12 -> DATA-102). */
+  renameKeys: { [issueId: number]: boolean } = {};
+  /** Apercu de la nouvelle cle par tache. */
+  previewKeys: { [issueId: number]: string } = {};
+  /** Premier numero libre de chaque type, lu une fois par type : typeId -> numero. */
+  private nextNumbers = new Map<number, number>();
+  private loadingNext = new Set<number>();
   selected = new Set<number>();
   bulkTarget: number | null = null;
   search: string = '';
@@ -43,8 +51,12 @@ export class DeleteIssueTypeModalComponent implements OnInit {
     this.issueService.issuesByIssueType(this.issueType.id!).subscribe({
       next: issues => {
         this.issues = issues;
-        issues.forEach(issue => this.targets[issue.id!] = single);
+        issues.forEach(issue => {
+          this.targets[issue.id!] = single;
+          this.renameKeys[issue.id!] = false;
+        });
         this.loading = false;
+        this.refreshPreview();
       },
       error: error => {
         this.errorMessage = this.extractMessage(error);
@@ -114,6 +126,74 @@ export class DeleteIssueTypeModalComponent implements OnInit {
     }
     this.selected.forEach(issueId => this.targets[issueId] = this.bulkTarget);
     this.selected.clear();
+    this.refreshPreview();
+  }
+
+  // -----------------------------------------------------------------
+  // Changement de cle
+  // -----------------------------------------------------------------
+
+  get allRenamed(): boolean {
+    return this.issues.length > 0 && this.issues.every(issue => this.renameKeys[issue.id!]);
+  }
+
+  toggleRename(issue: Issue) {
+    this.renameKeys[issue.id!] = !this.renameKeys[issue.id!];
+    this.refreshPreview();
+  }
+
+  toggleRenameAll() {
+    const rename = !this.allRenamed;
+    this.issues.forEach(issue => this.renameKeys[issue.id!] = rename);
+    this.refreshPreview();
+  }
+
+  onTargetChange() {
+    this.refreshPreview();
+  }
+
+  /**
+   * Recalcule l'apercu des nouvelles cles. Les taches sont numerotees dans
+   * l'ordre de la liste, qui est aussi l'ordre de traitement cote serveur :
+   * chaque tache d'un meme type prend le numero suivant de la precedente.
+   */
+  private refreshPreview() {
+    const counters = new Map<number, number>();
+    this.previewKeys = {};
+    this.issues.forEach(issue => {
+      const typeId = this.targets[issue.id!];
+      if (typeId == null || !this.renameKeys[issue.id!]) {
+        return;
+      }
+      const start = this.nextNumbers.get(typeId);
+      if (start == null) {
+        this.loadNextNumber(typeId);
+        this.previewKeys[issue.id!] = '…';
+        return;
+      }
+      const numero = counters.get(typeId) ?? start;
+      counters.set(typeId, numero + 1);
+      const prefix = this.candidates.find(type => type.id == typeId)?.prefix || '';
+      this.previewKeys[issue.id!] = prefix + '-' + numero;
+    });
+  }
+
+  /** Lit la prochaine cle du type (ex. « DATA-102 ») pour en garder le numero. */
+  private loadNextNumber(typeId: number) {
+    const projectId = this.project?.id ?? this.issueType.project?.id;
+    if (this.loadingNext.has(typeId) || projectId == null) {
+      return;
+    }
+    this.loadingNext.add(typeId);
+    this.issueService.getNextKeyParent(typeId, projectId).subscribe({
+      next: key => {
+        const numero = parseInt(('' + (key || '')).split('-').pop() || '', 10);
+        this.nextNumbers.set(typeId, isNaN(numero) ? 1 : numero);
+        this.loadingNext.delete(typeId);
+        this.refreshPreview();
+      },
+      error: () => this.loadingNext.delete(typeId)
+    });
   }
 
   // -----------------------------------------------------------------
@@ -135,9 +215,11 @@ export class DeleteIssueTypeModalComponent implements OnInit {
     }
     this.saving = true;
     this.errorMessage = '';
+    // ordre de la liste conserve : le serveur traite les taches une a une dans cet ordre
     const reassignments = this.issues.map(issue => ({
       issueId: issue.id!,
-      issueTypeId: this.targets[issue.id!]!
+      issueTypeId: this.targets[issue.id!]!,
+      renameKey: !!this.renameKeys[issue.id!]
     }));
     this.issueService.reassignIssuesAndDeleteIssueType(this.issueType.id!, reassignments).subscribe({
       next: response => {

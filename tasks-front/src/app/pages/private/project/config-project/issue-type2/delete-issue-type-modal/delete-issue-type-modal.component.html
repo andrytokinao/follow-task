@@ -70,6 +70,11 @@
           <span class="col-summary">Tâche</span>
           <span class="col-status">Statut</span>
           <span class="col-target">Nouveau type</span>
+          <label class="col-key-change" title="Donner à toutes les tâches une clé du nouveau type">
+            <input type="checkbox" [checked]="allRenamed" (change)="toggleRenameAll()"
+                   [disabled]="!candidates.length"/>
+            Changer la clé
+          </label>
         </div>
 
         <div class="issue-row" *ngFor="let issue of filteredIssues; trackBy: trackByIssue"
@@ -83,12 +88,23 @@
             <small *ngIf="issue.parent" class="parent-ref">dans {{ issue.parent.issueKey }}</small>
           </span>
           <span class="col-status">{{ issue.status?.displayName || '—' }}</span>
-          <select class="type-select col-target" [(ngModel)]="targets[issue.id!]" [disabled]="!candidates.length">
+          <select class="type-select col-target" [(ngModel)]="targets[issue.id!]" (ngModelChange)="onTargetChange()"
+                  [disabled]="!candidates.length">
             <option [ngValue]="null">Choisir...</option>
             <option *ngFor="let type of candidates" [ngValue]="type.id">
               {{ type.name }}{{ type.parents?.length ? ' (' + parentNames(type) + ')' : '' }}
             </option>
           </select>
+          <label class="col-key-change">
+            <input type="checkbox" [checked]="renameKeys[issue.id!]" (change)="toggleRename(issue)"
+                   [disabled]="!candidates.length"/>
+            <span *ngIf="!renameKeys[issue.id!]" class="key-kept">garder</span>
+            <span *ngIf="renameKeys[issue.id!] && targets[issue.id!] == null" class="key-kept">choisir un type</span>
+            <code *ngIf="renameKeys[issue.id!] && targets[issue.id!] != null" class="key-new"
+                  title="Aperçu : la clé définitive est attribuée à l'enregistrement">
+              {{ previewKeys[issue.id!] }}
+            </code>
+          </label>
         </div>
 
         <div class="state-block small" *ngIf="filteredIssues.length === 0">
@@ -100,6 +116,8 @@
         <i class="fas fa-info-circle"></i>
         Si le statut d'une tâche n'existe pas dans le flux de travail du nouveau type,
         elle reprend le statut initial de ce flux.
+        Avec « Changer la clé », les tâches sont traitées une à une dans l'ordre de la liste
+        et chacune prend la clé suivante du nouveau type (ex. PROJ-12 → DATA-102, puis DATA-103).
       </p>
     </ng-container>
   </ng-container>
