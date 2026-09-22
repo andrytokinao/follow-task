@@ -10,18 +10,34 @@
       </span>
     </div>
 
+    <!-- Sous-type : creer un nouveau ou reutiliser un existant -->
+    <div class="mode-switch" *ngIf="level === 'SUB_TASK' && !isEdit">
+      <button type="button" [class.active]="subMode === 'new'" (click)="subMode = 'new'">
+        <mat-icon>add_circle_outline</mat-icon> Nouveau sous-type
+      </button>
+      <button type="button" [class.active]="subMode === 'existing'" (click)="subMode = 'existing'">
+        <mat-icon>link</mat-icon> Réutiliser un existant
+      </button>
+    </div>
+
     <!-- Parents du sous-type (plusieurs possibles) -->
     <div class="parents-picker" *ngIf="level === 'SUB_TASK'">
       <div class="parents-header">
-        <span class="mini-label">Utilisable comme sous-tâche de</span>
+        <span class="mini-label">
+          Utilisable comme sous-tâche de
+          <span class="counter">{{ selectedParents.length }}/{{ parentOptions.length }}</span>
+        </span>
         <button mat-button type="button" class="all-toggle" (click)="toggleAllParents()"
                 *ngIf="parentOptions.length > 1">
           {{ allParentsSelected ? 'Aucun' : 'Tous les types' }}
         </button>
       </div>
+      <input class="mini-search" type="text" placeholder="Filtrer les types parents…"
+             *ngIf="parentOptions.length > 6"
+             [value]="parentSearch" (input)="parentSearch = $any($event.target).value">
       <div class="parent-chips">
         <button type="button" class="parent-chip"
-                *ngFor="let p of parentOptions"
+                *ngFor="let p of filteredParentOptions"
                 [class.selected]="isParentSelected(p)"
                 [style.--c]="p.color || '#6C63FF'"
                 (click)="toggleParent(p)">
@@ -30,10 +46,49 @@
         </button>
         <span class="no-parent" *ngIf="!parentOptions.length">Aucun type principal disponible</span>
       </div>
+      <span class="picker-hint err-text" *ngIf="!selectedParents.length">
+        Sélectionnez au moins un type parent.
+      </span>
+    </div>
+
+    <!-- Reutilisation d'un sous-type existant -->
+    <div class="existing-picker" *ngIf="level === 'SUB_TASK' && !isEdit && subMode === 'existing'">
+      <span class="mini-label">Sous-types existants</span>
+      <input class="mini-search" type="text" placeholder="Rechercher un sous-type…"
+             [value]="existingSearch" (input)="existingSearch = $any($event.target).value">
+      <div class="existing-list">
+        <button type="button" class="existing-item"
+                *ngFor="let t of existingSubTypes"
+                [class.selected]="isExistingSelected(t)"
+                (click)="toggleExisting(t)">
+          <mat-icon>{{ isExistingSelected(t) ? 'check_box' : 'check_box_outline_blank' }}</mat-icon>
+          <span class="dot" [style.background]="t.color || '#9ca3af'"></span>
+          <span class="existing-name">{{ t.name }}</span>
+          <code *ngIf="t.prefix">{{ t.prefix }}</code>
+          <span class="existing-parents">{{ parentNamesOf(t) }}</span>
+        </button>
+        <span class="no-parent" *ngIf="!existingSubTypes.length">
+          Aucun sous-type à rattacher
+        </span>
+      </div>
+
+      <p class="err" *ngIf="errorMessage">
+        <mat-icon>error_outline</mat-icon> {{ errorMessage }}
+      </p>
+
+      <div class="actions">
+        <button mat-button type="button" (click)="onCancel()" [disabled]="saving">Annuler</button>
+        <button mat-flat-button color="primary" type="button"
+                [disabled]="!selectedExisting.length || !selectedParents.length || saving"
+                (click)="attachExisting()">
+          {{ saving ? 'Rattachement…' : 'Rattacher (' + selectedExisting.length + ')' }}
+        </button>
+      </div>
     </div>
 
     <!-- Formulaire -->
-    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="issue-form">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="issue-form"
+          *ngIf="level !== 'SUB_TASK' || isEdit || subMode === 'new'">
 
       <mat-form-field appearance="outline" class="fw">
         <mat-label>Nom</mat-label>
@@ -44,6 +99,10 @@
       <mat-form-field appearance="outline" class="fw">
         <mat-label>Préfixe</mat-label>
         <input matInput formControlName="prefix" placeholder="Ex: RTS">
+        <mat-hint *ngIf="!isEdit && !prefixConflict">Proposé à partir du nom, modifiable</mat-hint>
+        <mat-hint *ngIf="prefixConflict" class="err-text">
+          Déjà utilisé par « {{ prefixConflict.name }} »
+        </mat-hint>
         <mat-error *ngIf="form.get('prefix')?.hasError('required')">Obligatoire</mat-error>
       </mat-form-field>
 

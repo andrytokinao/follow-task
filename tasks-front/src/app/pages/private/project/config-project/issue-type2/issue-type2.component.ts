@@ -124,6 +124,16 @@ export class IssueType2Component implements OnInit, OnDestroy {
       .filter(parent => parent != null) as IssueType[];
   }
 
+  /** Types principaux (racines de l'arbre). */
+  get rootTypes(): IssueType[] {
+    return this.filteredTypes.filter(type => type.level !== 'SUB_TASK');
+  }
+
+  /** Sous-types rattaches a aucun parent : ils restent visibles pour etre rattaches de nouveau. */
+  get orphanTypes(): IssueType[] {
+    return this.filteredTypes.filter(type => type.level === 'SUB_TASK');
+  }
+
   private matches(issueType: IssueType, term: string): boolean {
     return ('' + (issueType.name || '')).toLowerCase().includes(term)
       || ('' + (issueType.prefix || '')).toLowerCase().includes(term);
@@ -158,12 +168,15 @@ export class IssueType2Component implements OnInit, OnDestroy {
     this.editingType = null;
   }
 
-  startCreateSubTask(parent: IssueType) {
+  /** Sans parent (bouton d'en-tete), les parents sont choisis dans le formulaire. */
+  startCreateSubTask(parent?: IssueType) {
     this.errorMessage = '';
-    this.selectedIssue = parent;
+    if (parent) {
+      this.selectedIssue = parent;
+    }
     this.formMode = 'create';
     this.formLevel = 'SUB_TASK';
-    this.formParents = [parent];
+    this.formParents = parent ? [parent] : [];
     this.editingType = null;
   }
 

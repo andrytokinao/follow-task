@@ -355,6 +355,14 @@ public class ProjectService {
             issueType.setIcone(iconeRepository.save(issueType.getIcone()));
         issueType.setParents(resolveParents(issueType));
         issueType = issueTypeRepository.save(issueType);
+        if (issueType.getCurentWorkFlow() == null && issueType.getLevel() == SUB_TASK) {
+            // un nouveau sous-type reprend le flux de travail de son premier parent
+            issueType.getParents().stream()
+                    .map(IssueType::getCurentWorkFlow)
+                    .filter(Objects::nonNull)
+                    .findFirst()
+                    .ifPresent(issueType::setCurentWorkFlow);
+        }
         if (issueType.getCurentWorkFlow() == null) {
             issueType.setCurentWorkFlow(getDefaultWorkFlow());
         }
@@ -797,7 +805,12 @@ public class ProjectService {
     public List<IssueType> allIssueType(Long projectId) {
         /*List<IssueType> issueTypes = issueTypeRepository.findByProjectId(projectId);
         return issueTypes;*/
-        List<IssueType> masters = issueTypeRepository.findByProjectIdAndLevel(projectId, Niveau.PARENT);
+        List<IssueType> masters = new ArrayList<>(issueTypeRepository.findByProjectIdAndLevel(projectId, Niveau.PARENT));
+        // Sous-types detaches de tous leurs parents : renvoyes a la racine pour
+        // rester visibles et pouvoir etre rattaches de nouveau.
+        issueTypeRepository.findByProjectIdAndLevel(projectId, SUB_TASK).stream()
+                .filter(type -> CollectionUtils.isEmpty(type.getParents()))
+                .forEach(masters::add);
         return masters;
     }
 

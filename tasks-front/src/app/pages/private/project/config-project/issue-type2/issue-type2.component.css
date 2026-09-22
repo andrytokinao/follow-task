@@ -205,6 +205,38 @@
 
 .children { padding-left: 18px; }
 
+/* Sous-types non rattaches */
+.orphan-block {
+  margin-top: 10px;
+  padding: 6px;
+  border: 0.5px dashed var(--color-border-secondary, #d1d5db);
+  border-radius: 9px;
+}
+
+.orphan-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 4px 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.orphan-hint {
+  margin-left: auto;
+  font-weight: 400;
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.header-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.header-actions .btn-secondary { margin-top: 0; }
+
 .type-color {
   width: 4px;
   height: 18px;

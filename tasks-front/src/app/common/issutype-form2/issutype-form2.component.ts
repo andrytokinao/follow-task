@@ -22,6 +22,7 @@ import { IssueType, Project, Icone } from '../../type/issue';
 import { IssueService } from '../../services/issue.service';
 import { ChooseDialogComponent } from '../icone-field/choose-dialog/choose-dialog.component';
 import {IconeViewComponent} from "../icone-view/icone-view.component";
+import {forkJoin} from "rxjs";
 
 @Component({
   selector: 'app-issutype-form2',
@@ -56,6 +57,7 @@ export class IssutypeForm2Component {
   /** Types principaux auxquels le sous-type est rattache (plusieurs possibles). */
   @Input() set parents(value: IssueType[] | null | undefined) {
     this.selectedParents = [...(value || [])];
+    this.applyParentDefaults();
   }
   /** Types principaux proposes ; a defaut, ceux du projet courant. */
   @Input() set availableParents(value: IssueType[] | null | undefined) {
@@ -73,6 +75,15 @@ export class IssutypeForm2Component {
   project: Project;
   saving = false;
   errorMessage: string | undefined;
+
+  /** Creation d'un sous-type : en creer un nouveau ou reutiliser un existant. */
+  subMode: 'new' | 'existing' = 'new';
+  parentSearch = '';
+  existingSearch = '';
+  selectedExisting: IssueType[] = [];
+  /** Le prefixe est propose a partir du nom tant que l'utilisateur ne l'a pas saisi. */
+  private prefixEdited = false;
+  private colorEdited = false;
 
   colorPalette = [
     '#6C63FF', '#4f46e5', '#7c3aed',
@@ -93,12 +104,39 @@ export class IssutypeForm2Component {
     });
 
     this.issueService.project$.subscribe(p => this.project = p);
-    this.issueService.issueTypeParent$.subscribe(types => this.projectParents = types || []);
+    this.issueService.issueType$.subscribe(types => this.projectParents = types || []);
+
+    this.form.get('name')!.valueChanges.subscribe(name => {
+      if (!this.isEdit && !this.prefixEdited) {
+        this.form.get('prefix')!.setValue(this.suggestPrefix(name), {emitEvent: false});
+      }
+    });
+    this.form.get('prefix')!.valueChanges.subscribe(() => this.prefixEdited = true);
+    this.form.get('color')!.valueChanges.subscribe(() => this.colorEdited = true);
+  }
+
+  /** Types du projet : racines et sous-types, sans doublon. */
+  private get knownTypes(): IssueType[] {
+    const byId = new Map<any, IssueType>();
+    (this.explicitParents || this.projectParents).forEach(root => {
+      byId.set(root.id, root);
+      (root.children || []).forEach(child => {
+        if (!byId.has(child.id)) {
+          byId.set(child.id, child);
+        }
+      });
+    });
+    return [...byId.values()];
   }
 
   get parentOptions(): IssueType[] {
     return (this.explicitParents || this.projectParents)
       .filter(type => type.level !== 'SUB_TASK' && type.id != this.edited?.id);
+  }
+
+  get filteredParentOptions(): IssueType[] {
+    const term = this.parentSearch.toLowerCase().trim();
+    return this.parentOptions.filter(p => !term || this.matches(p, term));
   }
 
   isParentSelected(parent: IssueType): boolean {
@@ -109,6 +147,102 @@ export class IssutypeForm2Component {
     this.selectedParents = this.isParentSelected(parent)
       ? this.selectedParents.filter(p => p.id != parent.id)
       : [...this.selectedParents, parent];
+    this.applyParentDefaults();
+  }
+
+  // ---- reutilisation d'un sous-type existant ----
+
+  /** Sous-types existants qui ne sont pas encore rattaches a tous les parents choisis. */
+  get existingSubTypes(): IssueType[] {
+    const term = this.existingSearch.toLowerCase().trim();
+    return this.knownTypes
+      .filter(type => type.level === 'SUB_TASK')
+      .filter(type => !this.selectedParents.length || this.missingParents(type).length > 0)
+      .filter(type => !term || this.matches(type, term));
+  }
+
+  private missingParents(type: IssueType): IssueType[] {
+    return this.selectedParents.filter(p => !(type.parents || []).some(tp => tp.id == p.id));
+  }
+
+  parentNamesOf(type: IssueType): string {
+    const names = (type.parents || []).map(p => p.name);
+    return names.length ? names.join(', ') : 'non rattaché';
+  }
+
+  isExistingSelected(type: IssueType): boolean {
+    return this.selectedExisting.some(t => t.id == type.id);
+  }
+
+  toggleExisting(type: IssueType): void {
+    this.selectedExisting = this.isExistingSelected(type)
+      ? this.selectedExisting.filter(t => t.id != type.id)
+      : [...this.selectedExisting, type];
+  }
+
+  /** Rattache les sous-types existants choisis a chacun des parents selectionnes. */
+  attachExisting(): void {
+    if (!this.selectedParents.length) {
+      this.errorMessage = 'Choisissez au moins un type parent.';
+      return;
+    }
+    const links = this.selectedExisting.flatMap(type =>
+      this.missingParents(type).map(parent => this.issueService.affectIssueTypeForParent(type.id, parent.id)));
+    if (!links.length || this.saving) {
+      return;
+    }
+    this.saving = true;
+    this.errorMessage = undefined;
+    forkJoin(links).subscribe({
+      next: (saved) => {
+        this.saving = false;
+        this.selectedExisting = [];
+        this.oneSaved.emit(saved[saved.length - 1]);
+      },
+      error: (error) => {
+        this.errorMessage = this.extractMessage(error);
+        this.saving = false;
+      }
+    });
+  }
+
+  // ---- valeurs proposees ----
+
+  /** RELEVE TOPO -> RT ; un seul mot -> 4 premieres lettres. */
+  private suggestPrefix(name: string): string {
+    const words = ('' + (name || ''))
+      .normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .toUpperCase().split(/[^A-Z0-9]+/).filter(w => w);
+    if (!words.length) {
+      return '';
+    }
+    return words.length === 1 ? words[0].substring(0, 4) : words.map(w => w[0]).join('').substring(0, 5);
+  }
+
+  /** En creation d'un sous-type, reprend la couleur du premier parent. */
+  private applyParentDefaults(): void {
+    if (this.isEdit || this.colorEdited || !this.selectedParents.length) {
+      return;
+    }
+    const color = this.selectedParents[0].color;
+    if (color) {
+      this.form.get('color')!.setValue(color, {emitEvent: false});
+    }
+  }
+
+  /** Type du projet qui utilise deja ce prefixe (hors type modifie). */
+  get prefixConflict(): IssueType | undefined {
+    const prefix = ('' + (this.form.get('prefix')?.value || '')).trim().toUpperCase();
+    if (!prefix) {
+      return undefined;
+    }
+    return this.knownTypes.find(type => type.id != this.edited?.id
+      && ('' + (type.prefix || '')).toUpperCase() === prefix);
+  }
+
+  private matches(type: IssueType, term: string): boolean {
+    return ('' + (type.name || '')).toLowerCase().includes(term)
+      || ('' + (type.prefix || '')).toLowerCase().includes(term);
   }
 
   get allParentsSelected(): boolean {
@@ -119,6 +253,7 @@ export class IssutypeForm2Component {
   /** Rattache le sous-type a tous les types principaux (ou a aucun). */
   toggleAllParents(): void {
     this.selectedParents = this.allParentsSelected ? [] : [...this.parentOptions];
+    this.applyParentDefaults();
   }
 
   /**
@@ -137,6 +272,7 @@ export class IssutypeForm2Component {
       description: this.edited.description || '',
       color: this.edited.color || '#6C63FF'
     });
+    this.subMode = 'new';
     this.selectedIcone = this.edited.icone;
     this.level = (this.edited.level as 'PARENT' | 'SUB_TASK') || 'PARENT';
     this.selectedParents = [...(this.edited.parents || [])];
@@ -160,6 +296,7 @@ export class IssutypeForm2Component {
     if (this.selectedParents.length) {
       this.setLevel('SUB_TASK');
     }
+    this.applyParentDefaults();
   }
 
   onIconSelected(icone: Icone | any): void {
@@ -169,8 +306,13 @@ export class IssutypeForm2Component {
 
   onReset(): void {
     this.form.reset({ color: '#6C63FF', name: '', prefix: '', description: '' });
+    this.prefixEdited = false;
+    this.colorEdited = false;
+    this.selectedExisting = [];
+    this.existingSearch = '';
     this.selectedIcone = this.edited ? this.edited.icone : undefined;
     this.errorMessage = undefined;
+    this.applyParentDefaults();
   }
 
   onCancel(): void {
@@ -180,6 +322,11 @@ export class IssutypeForm2Component {
   onSubmit(): void {
     if (this.form.invalid || !this.level || this.saving) {
       this.form.markAllAsTouched();
+      return;
+    }
+    const conflict = this.prefixConflict;
+    if (conflict) {
+      this.errorMessage = `Le préfixe est déjà utilisé par « ${conflict.name} ».`;
       return;
     }
 

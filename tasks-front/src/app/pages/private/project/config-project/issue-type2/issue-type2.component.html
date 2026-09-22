@@ -8,9 +8,14 @@
         <span>Types de tâche</span>
         <span class="count-badge" *ngIf="!loading">{{ totalCount }}</span>
       </div>
-      <button class="btn-primary" (click)="startCreateParent()">
-        <i class="fas fa-plus"></i> Nouveau type
-      </button>
+      <div class="header-actions">
+        <button class="btn-secondary" (click)="startCreateSubTask()" title="Créer un sous-type pour un ou plusieurs types">
+          <i class="fas fa-level-down-alt"></i> Sous-type
+        </button>
+        <button class="btn-primary" (click)="startCreateParent()">
+          <i class="fas fa-plus"></i> Nouveau type
+        </button>
+      </div>
     </div>
 
     <div class="search-wrap">
@@ -35,7 +40,7 @@
     </div>
 
     <div class="type-tree">
-      <div class="parent-block" *ngFor="let parent of filteredTypes; trackBy: trackByType"
+      <div class="parent-block" *ngFor="let parent of rootTypes; trackBy: trackByType"
            [class.drop-target]="isDropTarget(parent)"
            (dragover)="dragOver($event, parent)"
            (dragleave)="dragLeave(parent)"
@@ -110,6 +115,36 @@
           </div>
         </div>
       </div>
+
+      <!-- sous-types detaches de tous leurs parents -->
+      <div class="orphan-block" *ngIf="orphanTypes.length">
+        <div class="orphan-title">
+          <i class="fas fa-unlink"></i> Sous-types non rattachés
+          <span class="orphan-hint">glisser sur un type pour le rattacher</span>
+        </div>
+        <div class="issue-item child"
+             *ngFor="let orphan of orphanTypes; trackBy: trackByType"
+             [class.selected]="selectedIssue?.id === orphan.id"
+             draggable="true"
+             (dragstart)="dragStart(orphan)"
+             (dragend)="dragEnd()"
+             (click)="select(orphan)">
+          <span class="type-color" [style.background]="colorOf(orphan, '#9ca3af')"></span>
+          <i [ngClass]="iconOf(orphan, 'fas fa-file')" class="icon"></i>
+          <span class="type-name" [title]="describe(orphan)">{{ orphan.name }}</span>
+          <code class="type-prefix" *ngIf="orphan.prefix">{{ orphan.prefix }}</code>
+
+          <span class="item-actions">
+            <button class="icon-btn" title="Modifier (choisir ses parents)"
+                    (click)="startEdit(orphan); $event.stopPropagation()">
+              <i class="fas fa-pen"></i>
+            </button>
+            <button class="icon-btn danger" title="Supprimer" (click)="remove(orphan, $event)">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+          </span>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -138,6 +173,7 @@
             <span class="details-subtitle">
               {{ selectedIssue.level === 'SUB_TASK' ? 'Sous-type' : 'Type principal' }}
               <span *ngIf="selectedIssue.parents?.length"> de {{ parentNames(selectedIssue) }}</span>
+              <span *ngIf="selectedIssue.level === 'SUB_TASK' && !selectedIssue.parents?.length"> non rattaché</span>
             </span>
           </div>
           <button class="btn-primary" (click)="startEdit(selectedIssue)">
