@@ -98,12 +98,23 @@
 
       <mat-form-field appearance="outline" class="fw">
         <mat-label>Préfixe</mat-label>
-        <input matInput formControlName="prefix" placeholder="Ex: RTS">
-        <mat-hint *ngIf="!isEdit && !prefixConflict">Proposé à partir du nom, modifiable</mat-hint>
-        <mat-hint *ngIf="prefixConflict" class="err-text">
-          Déjà utilisé par « {{ prefixConflict.name }} »
+        <!-- Espaces normalisés à la sortie du champ, pour ne pas déplacer le
+             curseur pendant la frappe. La longueur n'est pas tronquée : au delà
+             de la limite le champ passe en rouge. -->
+        <input matInput formControlName="prefix" placeholder="Ex: RTS"
+               (blur)="onPrefixBlur()">
+        <mat-hint *ngIf="prefixChecking">Vérification…</mat-hint>
+        <mat-hint *ngIf="!prefixChecking && prefixTaken" class="err-text">
+          Déjà utilisé dans cet espace de travail
+        </mat-hint>
+        <mat-hint *ngIf="!prefixChecking && prefixAvailable === true">Préfixe disponible</mat-hint>
+        <mat-hint *ngIf="!prefixChecking && prefixAvailable === null && !isEdit">
+          Proposé à partir du nom, modifiable
         </mat-hint>
         <mat-error *ngIf="form.get('prefix')?.hasError('required')">Obligatoire</mat-error>
+        <mat-error *ngIf="form.get('prefix')?.hasError('maxlength')">
+          {{ prefixMaxLength }} caractères au maximum
+        </mat-error>
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="fw">
@@ -170,7 +181,7 @@
           Réinitialiser
         </button>
         <button mat-flat-button color="primary" type="submit"
-                [disabled]="form.invalid || saving">
+                [disabled]="form.invalid || saving || prefixTaken || prefixChecking">
           {{ saving ? 'Enregistrement…' : (isEdit ? 'Enregistrer' : 'Créer') }}
         </button>
       </div>

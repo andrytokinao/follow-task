@@ -7,7 +7,13 @@
     </mat-form-field>
     <mat-form-field class="my-full-width">
       <mat-label>Prefix</mat-label>
-      <input matInput [placeholder]="'Ex. E-C '" [(ngModel)] = "prefix"  style="width: 95%;display: block;float: start">
+      <!-- Espaces normalisés à la sortie du champ ; longueur non tronquée,
+           un préfixe trop long est signalé en rouge. -->
+      <input matInput [placeholder]="'Ex. E-C '" [(ngModel)] = "prefix" (blur)="onPrefixBlur()"
+             [class.prefix-too-long]="prefixTooLong" style="width: 95%;display: block;float: start">
+      <mat-hint *ngIf="prefixTooLong" class="prefix-error">
+        {{ prefixMaxLength }} caractères au maximum
+      </mat-hint>
     </mat-form-field>
     <app-icone-field (iconSelected) = "selectIcon($event)"></app-icone-field>
   </div>

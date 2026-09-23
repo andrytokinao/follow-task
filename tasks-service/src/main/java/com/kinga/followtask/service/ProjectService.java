@@ -43,6 +43,8 @@ public class ProjectService {
     private static final String TASK = "TASK";
     private static final String DEFAULT_SUBTASK_NAME = "Tâche";
     private static final String DEFAULT_SUBTASK_SUFFIX = "-T";
+    /** Longueur maximale d'un prefixe saisi ; la meme borne cote formulaire. */
+    private static final int PREFIX_MAX_LENGTH = 10;
     @Autowired
     public StatusRepository statusRepository;
     final ProjectRepository projectRepository;
@@ -352,6 +354,8 @@ public class ProjectService {
     @Transactional
     public IssueType saveIssueType(IssueType issueType) {
         boolean creation = issueType.getId() == null;
+        issueType.setPrefix(nettoyerPrefixeSaisi(issueType.getPrefix()));
+        verifierPrefixeDisponible(issueType);
         ConfigEntry configEntry = configRepository.getByActiveIs(true);
         String installation = configEntry.getInstalationState();
         if (issueType.getIcone() != null)
@@ -383,6 +387,87 @@ public class ProjectService {
             createDefaultSubtaskType(issueType);
         }
         return issueType;
+    }
+
+    // -----------------------------------------------------------------
+    // Unicite du prefixe dans un espace de travail
+    // -----------------------------------------------------------------
+
+    /**
+     * Un prefixe ne sert qu'a un seul type par espace de travail.
+     *
+     * <p>Les cles sont calculees par type ({@link IssueKeyService}) : deux types
+     * de meme prefixe calculent chacun leur maximum de leur cote et finissent
+     * par produire la meme cle. C'est la seule regle, le formulaire de saisie
+     * interroge celle-ci plutot que d'en tenir une copie.</p>
+     *
+     * @param issueTypeId type en cours de modification, qui ne se bloque pas lui-meme ; null a la creation
+     */
+    public boolean isPrefixAvailable(Long projectId, String prefix, Long issueTypeId) {
+        String cherche = normaliserPrefixe(prefix);
+        if (projectId == null || cherche.isEmpty())
+            return true;
+        return issueTypeRepository.findByProjectId(projectId).stream()
+                .filter(type -> issueTypeId == null || !issueTypeId.equals(type.getId()))
+                .noneMatch(type -> normaliserPrefixe(type.getPrefix()).equals(cherche));
+    }
+
+    /**
+     * Refuse l'enregistrement d'un type dont le prefixe est deja pris dans
+     * l'espace de travail.
+     *
+     * <p>Un type existant dont le prefixe ne change pas passe sans controle :
+     * les espaces de travail crees avant cette regle peuvent contenir des
+     * doublons, et on ne veut pas rendre ces types intouchables (renommer,
+     * changer la couleur) tant que leur prefixe n'est pas modifie.</p>
+     */
+    private void verifierPrefixeDisponible(IssueType issueType) {
+        if (issueType == null || issueType.getProject() == null)
+            return;
+        if (prefixeInchange(issueType))
+            return;
+        if (issueType.getPrefix() != null && issueType.getPrefix().length() > PREFIX_MAX_LENGTH)
+            throw new RuntimeException("Le préfixe ne peut pas dépasser " + PREFIX_MAX_LENGTH + " caractères");
+        Long projectId = issueType.getProject().getId();
+        if (isPrefixAvailable(projectId, issueType.getPrefix(), issueType.getId()))
+            return;
+        String cherche = normaliserPrefixe(issueType.getPrefix());
+        String occupant = issueTypeRepository.findByProjectId(projectId).stream()
+                .filter(type -> issueType.getId() == null || !issueType.getId().equals(type.getId()))
+                .filter(type -> normaliserPrefixe(type.getPrefix()).equals(cherche))
+                .map(IssueType::getName)
+                .findFirst()
+                .orElse("un autre type");
+        throw new RuntimeException("Le préfixe " + issueType.getPrefix()
+                + " est déjà utilisé par « " + occupant + " » dans cet espace de travail");
+    }
+
+    /**
+     * Prefixe tel qu'il est enregistre : espaces de tete et de fin retires,
+     * espaces internes remplaces par un tiret bas, longueur bornee.
+     *
+     * <p>Le prefixe se retrouve dans chaque cle (DATA-102) : un espace y rendrait
+     * les cles ambigues. Les formulaires appliquent deja cette regle a la saisie,
+     * elle est refaite ici parce que l'enregistrement est le seul point sur
+     * lequel s'appuyer pour les autres clients.</p>
+     */
+    private String nettoyerPrefixeSaisi(String prefix) {
+        return prefix == null ? null : prefix.strip().replaceAll("\\s+", "_");
+    }
+
+    /** true quand un type existant est enregistre avec le prefixe qu'il porte deja. */
+    private boolean prefixeInchange(IssueType issueType) {
+        if (issueType.getId() == null)
+            return false;
+        return issueTypeRepository.findById(issueType.getId())
+                .map(existing -> normaliserPrefixe(existing.getPrefix())
+                        .equals(normaliserPrefixe(issueType.getPrefix())))
+                .orElse(false);
+    }
+
+    /** Comparaison insensible a la casse et aux espaces : BUG, bug et « bug » sont le meme prefixe. */
+    private String normaliserPrefixe(String prefix) {
+        return prefix == null ? "" : prefix.trim().toUpperCase();
     }
 
     /**
@@ -428,13 +513,10 @@ public class ProjectService {
      */
     private String defaultSubtaskPrefix(IssueType parent) {
         String base = (StringUtils.hasText(parent.getPrefix()) ? parent.getPrefix() : TASK) + DEFAULT_SUBTASK_SUFFIX;
-        Set<String> prefixes = issueTypeRepository.findByProjectId(parent.getProject().getId()).stream()
-                .map(IssueType::getPrefix)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
+        Long projectId = parent.getProject().getId();
         String prefix = base;
         int i = 2;
-        while (prefixes.contains(prefix)) {
+        while (!isPrefixAvailable(projectId, prefix, null)) {
             prefix = base + i++;
         }
         return prefix;

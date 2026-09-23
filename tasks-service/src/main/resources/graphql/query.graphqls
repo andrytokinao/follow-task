@@ -33,6 +33,9 @@ type Query {
     # Types proposables pour une tache : principaux pour une tache racine,
     # sous-types de la tache parente pour une sous-tache.
     changeableIssueTypes(issueId:Int):[IssueType]
+    # Prefixe encore libre dans l'espace de travail. Le formulaire de type
+    # interroge cette regle, il n'en tient pas de copie.
+    isPrefixAvailable(projectId:Int,prefix:String,issueTypeId:Int):Boolean
     issueByCriteria(criterias:[CriteriaInput]):[Issue]
     allCustomField(projectId:Int):[CustomField]
     customFieldsByIssueType(issueTypeId:Int):[UsingCustomField]

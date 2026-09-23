@@ -47,6 +47,8 @@ export class PlanningCalendarComponent implements AfterViewInit, OnDestroy {
   date = DayPilot.Date.today();
   users:User[] = [];
   private resources: any[];
+  /** Rythme le trait de l'heure actuelle ; arrêté à la destruction de la vue. */
+  private horlogeMinute?: ReturnType<typeof setInterval>;
 
   contextMenu = new DayPilot.Menu({
 
@@ -191,9 +193,7 @@ export class PlanningCalendarComponent implements AfterViewInit, OnDestroy {
     onBeforeEventRender: function (args) {
       args.data.html = args.data.html ;
     },
-    onBeforeCellRender: (args: any) => {
-      args.cell.backColor = "#FF0000";
-    },
+    onBeforeCellRender: (args) => this.marquerHeureActuelle(args),
     onEventClick:(args)=> this.viewEvent(args),
     onEventResize: (args) => this.resizeEvent(args),
     onEventMove: (args) => this.moveEvent(args),
@@ -220,13 +220,7 @@ export class PlanningCalendarComponent implements AfterViewInit, OnDestroy {
     onEventClick:(args) =>this.viewEvent(args),
     onEventResize: (args) => this.resizeEvent(args),
     onEventMove: (args) => this.moveEvent(args),
-    onBeforeCellRender: (args:any) => {
-      const now = DayPilot.Date.now();
-      if (args.cell.start <= now && now < args.cell.end) {
-        args.cell.backColor = "red";
-      }
-    },
-
+    onBeforeCellRender: (args) => this.marquerHeureActuelle(args),
   };
 
   configMonth: DayPilot.MonthConfig = {
@@ -247,6 +241,8 @@ export class PlanningCalendarComponent implements AfterViewInit, OnDestroy {
     heightSpec:"BusinessHours",
     businessBeginsHour:6,
     businessEndsHour:20,
+    onBeforeCellRender: (args) => this.marquerHeureActuelle(args),
+    onBeforeHeaderRender: (args) => this.rendreEnteteResource(args),
     onEventResize: (args) => this.resizeEvent(args),
     onEventMove: (args) => this.mouveEventAtResources(args),
     onEventClick:(args)=> this.viewEvent(args),
@@ -327,18 +323,16 @@ export class PlanningCalendarComponent implements AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.mobileQuery?.removeEventListener('change', this.onViewportChange);
+    if (this.horlogeMinute) {
+      clearInterval(this.horlogeMinute);
+    }
   }
 
   ngAfterViewInit(): void {
     this.applyZoom();
     this.viewWeek();
-    // Ajouter un "fake event" pour l'heure actuelle
-    this.addCurrentTimeMarker();
-
-    // Mettre à jour l'heure actuelle chaque minute
-    setInterval(() => {
-      this.addCurrentTimeMarker();
-    }, 60000);
+    // Le trait de l'heure actuelle avance d'une minute à l'autre.
+    this.horlogeMinute = setInterval(() => this.rafraichirHeureActuelle(), 60000);
     this.eventService.events$.subscribe(events => {
       this.events = events;
         this.refreshView();
@@ -734,40 +728,69 @@ export class PlanningCalendarComponent implements AfterViewInit, OnDestroy {
   detailsIssue(issue:Issue) {
     this.issueService.browsIssueMaster(issue)
   }
-  updateCurrentTimeMarker() {
-    const marker = document.getElementById('current-time-marker');
-    if (!marker) return;
+  // ─────────────────────────────────────────────
+  // Heure actuelle
+  // ─────────────────────────────────────────────
 
-    const now = new Date();
-    const startOfDay = new Date();
-    startOfDay.setHours(0, 0, 0, 0);
-
-    const dayLengthInMs = 24 * 60 * 60 * 1000;
-    const positionPercentage = ((now.getTime() - startOfDay.getTime()) / dayLengthInMs) * 100;
-
-    // Ajuster la position de la ligne
-    marker.style.top = positionPercentage + '%';
+  /**
+   * Pose le trait de l'heure actuelle dans la cellule qui contient l'instant
+   * présent. Sa position à l'intérieur de la cellule suit les minutes écoulées :
+   * le trait tombe sur l'heure exacte, pas en haut du créneau.
+   *
+   * <p>Une seule cellule par colonne est concernée, et seule la colonne du jour
+   * courant en contient une : en vue semaine, le trait n'apparaît donc que sur
+   * aujourd'hui. En vue équipe, où toutes les colonnes partagent la même date,
+   * il traverse toutes les personnes.</p>
+   */
+  private marquerHeureActuelle(args: DayPilot.CalendarBeforeCellRenderArgs): void {
+    const maintenant = DayPilot.Date.now().getTotalTicks();
+    const debut = args.cell.start.getTotalTicks();
+    const fin = args.cell.end.getTotalTicks();
+    if (maintenant < debut || maintenant >= fin) {
+      return;
+    }
+    const position = fin > debut ? ((maintenant - debut) / (fin - debut)) * 100 : 0;
+    args.cell.properties.html =
+      `<div class="now-line" style="top:${position}%"><span class="now-dot"></span></div>`;
   }
-  setInterval() {
-  this.updateCurrentTimeMarker();
+
+  /**
+   * Redessine la vue affichée pour que le trait suive la minute. Seule la vue
+   * visible est mise à jour : les autres seront redessinées en y basculant.
+   */
+  private rafraichirHeureActuelle(): void {
+    if (this.configDay.visible) this.day?.control?.update();
+    if (this.configWeek.visible) this.week?.control?.update();
+    if (this.configResource.visible) this.calendar?.control?.update();
   }
-  addCurrentTimeMarker() {
-    const now = DayPilot.Date.today().addMilliseconds(new Date().getTime() - new Date().setHours(0, 0, 0, 0));
 
-    // Supprimer l'ancien événement de l'heure actuelle
-    this.events = this.events.filter((event) => event.id !== "current-time");
+  // ─────────────────────────────────────────────
+  // En-tête d'une personne (vue équipe)
+  // ─────────────────────────────────────────────
 
-/*    // Ajouter un nouvel événement pour représenter l'heure actuelle
-    this.events.push({
-      id: "current-time",
-      text: "",
-      start: now,
-      end: now.addMinutes(1),
-      cssClass: "current-time-event",
-    });*/
+  /**
+   * En-tête d'une colonne de la vue équipe : la photo de la personne, son nom
+   * en dessous. Le nom s'efface quand la colonne devient trop étroite (voir la
+   * requête de conteneur sur `.resource-head`) ; la photo, elle, reste toujours
+   * lisible et l'infobulle donne le nom complet.
+   */
+  private rendreEnteteResource(args: DayPilot.CalendarBeforeHeaderRenderArgs): void {
+    const membre = this.eventService.getUserByResource('' + args.header.id);
+    const nom = (membre ? this.memberFullName(membre) : args.header.name) || '';
+    const photo = membre?.photo ? this.userService.getUrlPhoto(membre) : null;
+    const visuel = photo
+      ? `<img class="resource-photo" src="${this.echapper(photo)}" alt="">`
+      : `<span class="resource-initials">${this.echapper(this.userInitials(membre))}</span>`;
+    args.header.html =
+      `<div class="resource-head">${visuel}<span class="resource-name">${this.echapper(nom)}</span></div>`;
+    args.header.toolTip = nom;
+  }
 
-    // Rafraîchir le calendrier
-    this.configDay = { ...this.configDay };
+  /** Le nom d'une personne est une donnee saisie : il ne doit pas etre interprete en HTML. */
+  private echapper(valeur: string): string {
+    return ('' + (valeur ?? '')).replace(/[&<>"']/g, caractere => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[caractere] as string));
   }
 
   isSelectedCustomFieldDate(id: number) {

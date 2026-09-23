@@ -22,7 +22,9 @@ import { IssueType, Project, Icone } from '../../type/issue';
 import { IssueService } from '../../services/issue.service';
 import { ChooseDialogComponent } from '../icone-field/choose-dialog/choose-dialog.component';
 import {IconeViewComponent} from "../icone-view/icone-view.component";
-import {forkJoin} from "rxjs";
+import {forkJoin, Observable, of, Subject} from "rxjs";
+import {catchError, debounceTime, distinctUntilChanged, switchMap} from "rxjs/operators";
+import {cleanPrefixForSave, normalizePrefix, PREFIX_MAX_LENGTH} from "../../type/issue-type-prefix.util";
 
 @Component({
   selector: 'app-issutype-form2',
@@ -85,6 +87,24 @@ export class IssutypeForm2Component {
   private prefixEdited = false;
   private colorEdited = false;
 
+  /**
+   * Disponibilite du prefixe saisi, telle que le serveur la voit.
+   * null tant qu'aucune reponse n'est connue pour la valeur courante.
+   *
+   * <p>Verifie pendant la frappe et non a la sortie du champ : le prefixe est
+   * propose a partir du nom, l'utilisateur n'y passe donc souvent jamais.</p>
+   */
+  prefixAvailable: boolean | null = null;
+  prefixChecking = false;
+  private prefixRequests = new Subject<string>();
+  /**
+   * Prefixe deja enregistre du type modifie. Il reste acceptable meme s'il est
+   * en double : les espaces de travail crees avant la regle d'unicite peuvent
+   * en contenir, et on ne rend pas ces types intouchables. Meme tolerance que
+   * le serveur.
+   */
+  private originalPrefix = '';
+
   colorPalette = [
     '#6C63FF', '#4f46e5', '#7c3aed',
     '#db2777', '#dc2626', '#ea7c0e',
@@ -98,7 +118,7 @@ export class IssutypeForm2Component {
   ) {
     this.form = this.fb.group({
       name:        ['', Validators.required],
-      prefix:      ['', Validators.required],
+      prefix:      ['', [Validators.required, Validators.maxLength(PREFIX_MAX_LENGTH)]],
       description: [''],
       color:       ['#6C63FF'],
     });
@@ -108,11 +128,80 @@ export class IssutypeForm2Component {
 
     this.form.get('name')!.valueChanges.subscribe(name => {
       if (!this.isEdit && !this.prefixEdited) {
-        this.form.get('prefix')!.setValue(this.suggestPrefix(name), {emitEvent: false});
+        this.setPrefix(this.suggestPrefix(name));
       }
     });
-    this.form.get('prefix')!.valueChanges.subscribe(() => this.prefixEdited = true);
+    this.form.get('prefix')!.valueChanges.subscribe(value => {
+      this.prefixEdited = true;
+      // La saisie n'est pas reecrite ici : la normaliser a chaque frappe
+      // renverrait le curseur en fin de champ. Seule la verification suit.
+      this.prefixRequests.next(normalizePrefix(value));
+    });
     this.form.get('color')!.valueChanges.subscribe(() => this.colorEdited = true);
+    this.watchPrefixAvailability();
+  }
+
+  /**
+   * Normalise le prefixe a la sortie du champ : les espaces qui separent deux
+   * mots deviennent un tiret bas, ceux de tete et de fin disparaissent.
+   *
+   * <p>A la sortie du champ et non pendant la frappe : l'utilisateur garde la
+   * main sur son curseur, et voit le resultat une fois sa saisie terminee.</p>
+   */
+  onPrefixBlur(): void {
+    this.setPrefix(this.form.get('prefix')!.value);
+  }
+
+  /**
+   * Ecrit le prefixe normalise et demande sa disponibilite.
+   *
+   * <p>L'ecriture est silencieuse ({@code emitEvent: false}) pour ne pas
+   * reboucler sur l'abonnement a {@code valueChanges} ; la verification est
+   * donc declenchee ici, y compris pour un prefixe propose a partir du nom.</p>
+   */
+  private setPrefix(value: string | null | undefined): void {
+    const normalized = normalizePrefix(value);
+    const control = this.form.get('prefix')!;
+    if (control.value !== normalized) {
+      control.setValue(normalized, {emitEvent: false});
+    }
+    this.prefixRequests.next(normalized);
+  }
+
+  /**
+   * Demande au serveur si le prefixe est libre, pendant la frappe.
+   * Le prefixe etant propose a partir du nom, un controle a la sortie du champ
+   * ne se declencherait pas dans le parcours courant.
+   */
+  private watchPrefixAvailability(): void {
+    this.prefixRequests
+      .pipe(
+        debounceTime(350),
+        distinctUntilChanged(),
+        switchMap((prefix): Observable<boolean | null> => {
+          const projectId = this.currentProjectId;
+          // Champ vide, ou prefixe deja porte par le type modifie : rien a dire.
+          if (!prefix || projectId == null || prefix === this.originalPrefix) {
+            this.prefixChecking = false;
+            return of(null);
+          }
+          this.prefixChecking = true;
+          // switchMap : une reponse tardive ne doit pas ecraser une saisie plus recente.
+          return this.issueService
+            .isPrefixAvailable(projectId, prefix, this.edited?.id ?? null)
+            .pipe(catchError(() => of(true)));
+        })
+      )
+      .subscribe(available => {
+        this.prefixChecking = false;
+        this.prefixAvailable = available;
+      });
+  }
+
+  /** Espace de travail dans lequel le prefixe doit etre unique. */
+  private get currentProjectId(): number | null {
+    const id = this.edited?.project?.id ?? this.project?.id;
+    return id == null ? null : Number(id);
   }
 
   /** Types du projet : racines et sous-types, sans doublon. */
@@ -230,15 +319,13 @@ export class IssutypeForm2Component {
     }
   }
 
-  /** Type du projet qui utilise deja ce prefixe (hors type modifie). */
-  get prefixConflict(): IssueType | undefined {
-    const prefix = ('' + (this.form.get('prefix')?.value || '')).trim().toUpperCase();
-    if (!prefix) {
-      return undefined;
-    }
-    return this.knownTypes.find(type => type.id != this.edited?.id
-      && ('' + (type.prefix || '')).toUpperCase() === prefix);
+  /** Prefixe saisi et refuse par le serveur : le formulaire ne peut pas etre valide. */
+  get prefixTaken(): boolean {
+    return this.prefixAvailable === false;
   }
+
+  /** Longueur maximale du champ, reprise par le template. */
+  readonly prefixMaxLength = PREFIX_MAX_LENGTH;
 
   private matches(type: IssueType, term: string): boolean {
     return ('' + (type.name || '')).toLowerCase().includes(term)
@@ -266,6 +353,10 @@ export class IssutypeForm2Component {
       return;
     }
     this.errorMessage = undefined;
+    // Le prefixe deja enregistre est valide : pas de verification a l'ouverture.
+    this.prefixAvailable = null;
+    this.prefixChecking = false;
+    this.originalPrefix = normalizePrefix(this.edited.prefix as string);
     this.form.reset({
       name: this.edited.name || '',
       prefix: this.edited.prefix || '',
@@ -308,6 +399,9 @@ export class IssutypeForm2Component {
     this.form.reset({ color: '#6C63FF', name: '', prefix: '', description: '' });
     this.prefixEdited = false;
     this.colorEdited = false;
+    this.prefixAvailable = null;
+    this.prefixChecking = false;
+    this.originalPrefix = this.edited ? normalizePrefix(this.edited.prefix as string) : '';
     this.selectedExisting = [];
     this.existingSearch = '';
     this.selectedIcone = this.edited ? this.edited.icone : undefined;
@@ -324,9 +418,8 @@ export class IssutypeForm2Component {
       this.form.markAllAsTouched();
       return;
     }
-    const conflict = this.prefixConflict;
-    if (conflict) {
-      this.errorMessage = `Le préfixe est déjà utilisé par « ${conflict.name} ».`;
+    if (this.prefixTaken) {
+      this.errorMessage = 'Ce préfixe est déjà utilisé dans cet espace de travail.';
       return;
     }
 
@@ -336,8 +429,9 @@ export class IssutypeForm2Component {
     const projectId = this.edited?.project?.id || this.project?.id;
     const issueType: IssueType = {
       level:       this.level,
-      name:        this.form.value.name,
-      prefix:      this.form.value.prefix,
+      name:        ('' + (this.form.value.name || '')).trim(),
+      // Espaces de tete et de fin retires a l'enregistrement.
+      prefix:      cleanPrefixForSave(this.form.value.prefix),
       description: this.form.value.description,
       color:       this.form.value.color,
       icone:       this.selectedIcone,

@@ -1003,6 +1003,13 @@ export const REASSIGN_ISSUES_AND_DELETE_ISSUE_TYPE = gql`
   }
 `;
 
+/** Prefixe encore libre dans l'espace de travail : meme regle que l'enregistrement. */
+export const IS_PREFIX_AVAILABLE = gql`
+  query isPrefixAvailable($projectId:Int, $prefix:String, $issueTypeId:Int) {
+    isPrefixAvailable(projectId: $projectId, prefix: $prefix, issueTypeId: $issueTypeId)
+  }
+`;
+
 /** Types proposables pour une tache : principaux, ou sous-types de sa tache parente. */
 export const CHANGEABLE_ISSUE_TYPES = gql`
   query changeableIssueTypes($issueId:Int) {

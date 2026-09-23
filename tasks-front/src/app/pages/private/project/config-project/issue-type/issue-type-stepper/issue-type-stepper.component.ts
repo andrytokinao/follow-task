@@ -8,6 +8,11 @@ import {ConfigService} from "../../../../../../services/config.service";
 import {IssueService} from "../../../../../../services/issue.service";
 import {ActivatedRoute} from "@angular/router";
 import {NgbActiveModal, NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import {
+  cleanPrefixForSave,
+  normalizePrefix,
+  PREFIX_MAX_LENGTH
+} from "../../../../../../type/issue-type-prefix.util";
 
 @Component({
   selector: 'app-issue-type-stepper',
@@ -30,7 +35,8 @@ export class IssueTypeStepperComponent {
   private _formBuilder = inject(FormBuilder);
   creationFormGroupe = this._formBuilder.group({
     typeName: ['', Validators.required],
-    prefix: ['', Validators.required],
+    // Pas de troncature : au dela de la limite le champ passe en rouge.
+    prefix: ['', [Validators.required, Validators.maxLength(PREFIX_MAX_LENGTH)]],
   });
   levelFormGroup = this._formBuilder.group({
     level: ['', Validators.required],
@@ -55,11 +61,21 @@ export class IssueTypeStepperComponent {
   desactive: boolean = true;
   workFlows : WorkFlow[]= [];
   selectedWorkflow:WorkFlow ;
+  /** Longueur maximale du prefixe, meme regle que les autres formulaires. */
+  readonly prefixMaxLength = PREFIX_MAX_LENGTH;
+
+  /** Espaces normalises a la sortie du champ, pas pendant la frappe. */
+  onPrefixBlur(): void {
+    this.issueType.prefix = normalizePrefix(this.issueType.prefix);
+  }
+
   /*CREATION*/
   create() {
     let project :any = {} ;
     project.id = this.project.id;
     this.issueType.project = project;
+    // Espaces de tete et de fin retires a l'enregistrement.
+    this.issueType.prefix = cleanPrefixForSave(this.issueType.prefix);
     this.issueService.saveIssueType(this.issueType).subscribe(
       (issueType) => {
         this.issueType = supprimerTypename(issueType);

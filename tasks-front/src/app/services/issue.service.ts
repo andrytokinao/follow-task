@@ -842,6 +842,28 @@ export class IssueService implements OnInit {
     })
   }
 
+  /**
+   * Prefixe encore libre dans l'espace de travail. Le formulaire de type
+   * interroge cette regle plutot que d'en tenir une copie : c'est la meme que
+   * celle appliquee a l'enregistrement.
+   */
+  isPrefixAvailable(projectId: number, prefix: string, issueTypeId: number | null) {
+    return new Observable<boolean>(observer => {
+      this.apollo.query({
+        query: operation.IS_PREFIX_AVAILABLE,
+        variables: {projectId, prefix, issueTypeId},
+        fetchPolicy: "network-only"
+      }).subscribe((res: any) => {
+          observer.next(res.data.isPrefixAvailable !== false);
+          observer.complete();
+        }, (err: any) => {
+          observer.error(err);
+          observer.complete();
+        }
+      )
+    })
+  }
+
   /** Types proposables pour une tache : principaux, ou sous-types de sa tache parente. */
   changeableIssueTypes(issueId: number) {
     return new Observable<IssueType[]>(observer => {

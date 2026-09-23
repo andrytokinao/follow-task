@@ -21,3 +21,15 @@
   background-color: #aaaaaa;
   color: white;
 }
+
+/* Prefixe trop long : signale dans le champ, la saisie n'est pas tronquee. */
+.prefix-too-long input,
+input.prefix-too-long {
+  color: #dc2626;
+}
+
+.prefix-error {
+  display: block;
+  color: #dc2626;
+  font-size: 11.5px;
+}

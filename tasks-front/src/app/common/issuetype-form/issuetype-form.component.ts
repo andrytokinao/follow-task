@@ -5,6 +5,12 @@ import {MatInput} from "@angular/material/input";
 import {NgClass, NgIf} from "@angular/common";
 import {MyCommonModule} from "../common.module";
 import {Icone, IssueType} from "../../type/issue";
+import {
+  cleanPrefixForSave,
+  isPrefixTooLong,
+  normalizePrefix,
+  PREFIX_MAX_LENGTH
+} from "../../type/issue-type-prefix.util";
 
 @Component({
   standalone: false,
@@ -15,6 +21,18 @@ import {Icone, IssueType} from "../../type/issue";
 export class IssuetypeFormComponent {
   name:String ="";
   prefix:String = "";
+  /** Longueur maximale du prefixe, meme regle que les autres formulaires. */
+  readonly prefixMaxLength = PREFIX_MAX_LENGTH;
+
+  /** Espaces normalises a la sortie du champ, pas pendant la frappe. */
+  onPrefixBlur(): void {
+    this.prefix = normalizePrefix(this.prefix as string);
+  }
+
+  /** Prefixe trop long : signale en rouge, l'enregistrement est bloque. */
+  get prefixTooLong(): boolean {
+    return isPrefixTooLong(this.prefix as string);
+  }
 
 
 
@@ -51,9 +69,13 @@ export class IssuetypeFormComponent {
   }
 
   save() {
+    // Un prefixe trop long n'est pas envoye : le serveur le refuserait.
+    if (this.prefixTooLong)
+      return;
     let issueType:any = {};
-    issueType.name = this.name;
-    issueType.prefix = this.prefix;
+    issueType.name = ('' + this.name).trim();
+    // Espaces de tete et de fin retires a l'enregistrement.
+    issueType.prefix = cleanPrefixForSave(this.prefix as string);
     if(this.icon)
       issueType.icone = this.icon;
     if(this.inputIssueType != null) {

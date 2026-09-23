@@ -562,6 +562,95 @@
 }
 
 /* =========================================================================
+   DayPilot — trait de l'heure actuelle
+   -------------------------------------------------------------------------
+   Posé dans la cellule qui contient l'instant présent, sa position verticale
+   étant calculée à la minute (voir marquerHeureActuelle). Les cellules
+   DayPilot sont positionnées en absolu : le trait s'y ancre sans avoir besoin
+   d'un `position: relative` supplémentaire.
+   ========================================================================= */
+:host ::ng-deep .now-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 0;
+  border-top: 2px solid #e11d48;
+  z-index: 1;
+  /* Le trait ne doit rien intercepter : la cellule reste cliquable pour créer
+     un événement à cette heure-là. */
+  pointer-events: none;
+}
+
+:host ::ng-deep .now-dot {
+  position: absolute;
+  left: -3px;
+  top: -4px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #e11d48;
+}
+
+/* =========================================================================
+   DayPilot — en-tête d'une personne (vue équipe)
+   -------------------------------------------------------------------------
+   Photo systématique, nom escamotable : c'est le nom qui saute quand la
+   colonne devient étroite, la photo restant le repère le plus lisible.
+   ========================================================================= */
+:host ::ng-deep .resource-head {
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 100%;
+  padding: 4px 2px;
+  overflow: hidden;
+}
+
+:host ::ng-deep .resource-photo,
+:host ::ng-deep .resource-initials {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  flex: none;
+}
+
+:host ::ng-deep .resource-photo {
+  object-fit: cover;
+}
+
+:host ::ng-deep .resource-initials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e5e7eb;
+  color: #4b5563;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+:host ::ng-deep .resource-name {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+/* Colonne trop étroite : le nom disparaît, l'infobulle le donne toujours.
+   Le troncage ci-dessus reste le repli si les requêtes de conteneur ne sont
+   pas comprises par le navigateur. */
+@container (max-width: 76px) {
+  :host ::ng-deep .resource-name {
+    display: none;
+  }
+}
+
+/* =========================================================================
    Angular Material — densité
    ========================================================================= */
 :host ::ng-deep .planning-menu.mat-mdc-menu-panel {

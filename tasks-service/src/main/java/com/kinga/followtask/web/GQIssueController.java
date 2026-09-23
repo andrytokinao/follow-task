@@ -153,6 +153,12 @@ public class GQIssueController {
         return projectService.issuesByIssueType(issueTypeId);
     }
 
+    /** Prefixe encore libre dans l'espace de travail : meme regle que l'enregistrement. */
+    @QueryMapping
+    public Boolean isPrefixAvailable(@Argument Long projectId, @Argument String prefix, @Argument Long issueTypeId){
+        return projectService.isPrefixAvailable(projectId, prefix, issueTypeId);
+    }
+
     /** Types proposables pour une tache : principaux, ou sous-types de sa tache parente. */
     @QueryMapping
     public List<IssueType> changeableIssueTypes(@Argument Long issueId){

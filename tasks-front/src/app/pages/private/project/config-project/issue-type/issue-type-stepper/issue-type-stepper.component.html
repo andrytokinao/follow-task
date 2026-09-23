@@ -19,7 +19,11 @@
                formControlName="prefix"
                required
                [(ngModel)]="issueType.prefix"
+               (blur)="onPrefixBlur()"
         >
+        <mat-error *ngIf="creationFormGroupe.get('prefix')?.hasError('maxlength')">
+          {{ prefixMaxLength }} caractères au maximum
+        </mat-error>
       </mat-form-field>
       <div>
           <app-icone-field  (iconSelected) = "selectIcon($event)"> </app-icone-field>
