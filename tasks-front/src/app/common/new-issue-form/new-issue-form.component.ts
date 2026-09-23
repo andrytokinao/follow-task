@@ -32,6 +32,11 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
   saving = false;
   description: string = '';
   issueType: IssueType | any = {};
+  /**
+   * Statut imposé à la création, quand le formulaire est ouvert depuis une
+   * colonne de board. À null, le serveur applique le statut initial du flux de
+   * travail du type choisi.
+   */
   status: Status | null = null;
   project: Project | undefined;
   allIssueTypes: IssueType[] = [];
@@ -181,6 +186,12 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
       issueType: this.issueType,
       project: { id: this.project?.id }
     };
+
+    // Création depuis une colonne de board : la tâche naît dans ce statut. Le
+    // serveur retombe sur le statut initial du flux si celui-ci ne lui convient pas.
+    if (this.status?.id != null) {
+      issue.status = { id: this.status.id };
+    }
 
     if (this.parentIssue && !this.isMaster) {
       issue.parent = { id: this.parentIssue.id };
@@ -409,5 +420,14 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
   }
   setIsMaster(b: boolean) {
     this.isMaster = b;
+  }
+
+  /**
+   * Impose le statut de la tâche à créer, ou le rend au flux de travail avec
+   * null. Le formulaire reste ouvert après une création : le statut est
+   * conservé, pour enchaîner plusieurs tâches dans la même colonne.
+   */
+  setStatus(status: Status | null) {
+    this.status = status;
   }
 }

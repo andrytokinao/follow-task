@@ -555,6 +555,19 @@ export class Subtask2Component implements OnInit, AfterViewInit, OnDestroy {
   onMenuOpened(): void {
     this.newIssueForm?.setIsMaster(false);
     this.newIssueForm?.onOpen();
+    // Ouverture hors colonne : la tâche reprend le statut initial de son flux.
+    // Sans cette remise à zéro, le statut d'une colonne ouverte précédemment
+    // resterait imposé aux créations suivantes.
+    this.newIssueForm?.setStatus(null);
+  }
+
+  /**
+   * Création depuis l'en-tête d'une colonne du board : même formulaire que la
+   * barre d'outils, avec le statut de la colonne déjà retenu.
+   */
+  onCreateInStatus(status: Status): void {
+    this.onMenuOpened();
+    this.newIssueForm?.setStatus(status);
   }
 
   onPlanningMenuOpened(): void {

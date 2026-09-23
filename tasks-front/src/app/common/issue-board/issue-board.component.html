@@ -11,6 +11,22 @@
         <app-icone-view class="ib-col__icon" *ngIf="status.icone" [icon]="status.icone"></app-icone-view>
         <span class="ib-col__title" [title]="status.displayName">{{ status.displayName }}</span>
         <span class="ib-col__count">{{ issuesFor(status).length }}</span>
+        <!-- Création dans cette colonne : le menu vient de l'hôte, ancré ici
+             pour que le formulaire s'ouvre à côté du statut visé. L'émission
+             sur `menuOpened` et non sur `click` : l'hôte est ainsi prévenu une
+             fois le menu réellement ouvert, quel que soit l'ordre des
+             gestionnaires du clic. -->
+        <button type="button"
+                class="ib-col__add"
+                *ngIf="createMenu"
+                [matMenuTriggerFor]="createMenu"
+                (menuOpened)="createIssue.emit(status)"
+                [attr.aria-label]="'Créer une tâche dans ' + status.displayName"
+                [title]="'Créer une tâche dans ' + status.displayName">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+        </button>
       </header>
 
       <div class="ib-col__body">

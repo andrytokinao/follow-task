@@ -3,6 +3,7 @@ import {Subscription} from "rxjs";
 import {Issue, NotificationApp, Status} from "../../type/issue";
 import {groupByStatus, resolveStatuses} from "../../type/issue-grouping.util";
 import {NotificationService} from "../../services/notification.service";
+import {MatMenu} from "@angular/material/menu";
 
 export interface IssueStatusDrop {
   issue: Issue;
@@ -85,6 +86,19 @@ export class IssueBoardComponent implements OnInit, OnChanges, OnDestroy {
   @Output() statusDrop = new EventEmitter<IssueStatusDrop>();
   /** une carte a été modifiée sur place (assignation) */
   @Output() issueUpdated = new EventEmitter<Issue>();
+
+  /**
+   * Formulaire de création porté par l'hôte, ouvert depuis l'en-tête d'une
+   * colonne. Le board ne crée rien et ne sait pas ce que contient ce menu : il
+   * se contente de l'ancrer à la bonne colonne. Sans ce menu, aucun bouton
+   * n'apparaît — les écrans qui ne créent pas de tâche gardent leur board tel quel.
+   */
+  @Input() createMenu?: MatMenu;
+  /**
+   * Le formulaire de création vient de s'ouvrir sur cette colonne : à l'hôte
+   * d'en pré-remplir le statut.
+   */
+  @Output() createIssue = new EventEmitter<Status>();
 
   columns: Status[] = [];
   draggedIssue: Issue | null = null;

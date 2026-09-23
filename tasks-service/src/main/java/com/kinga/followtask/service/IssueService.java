@@ -69,6 +69,9 @@ public class IssueService {
     /** Seul calcul de cle de tache : voir IssueKeyService. */
     @Autowired
     private IssueKeyService issueKeyService;
+    /** Regle d'alignement du statut sur le flux de travail du type. */
+    @Autowired
+    private IssueTypeChangeService issueTypeChangeService;
     @Autowired
     public ConfigRepository configRepository;
     @Autowired
@@ -165,10 +168,10 @@ public class IssueService {
             if (StringUtils.isEmpty(project.getPath())) {
                 throw new RemoteException(" Config non terminer ");
             }
-            if (issue.getStatus() == null ) {
-                Status defaultStatus = workFlow.getStatuses().get(0);
-                issue.setStatus(defaultStatus);
-            }
+            // Statut absent, ou venu d'une colonne de board appartenant au flux
+            // d'un autre type : dans les deux cas on retombe sur le statut
+            // initial du flux du type choisi.
+            issueTypeChangeService.alignerStatut(issue, issueType);
         } else {
             issue.setUpdateDate(((new Date()).toInstant()).atZone(ZoneId.systemDefault()).toLocalDateTime());
 

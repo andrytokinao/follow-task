@@ -114,6 +114,45 @@
   color: #6b7280;
 }
 
+/* Création dans la colonne : discret au repos, il ne doit pas concurrencer le
+   nom du statut ni le compteur. Il se révèle au survol de la colonne, et reste
+   visible au clavier pour rester atteignable sans souris. */
+.ib-col__add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity .15s, background .15s, color .15s;
+}
+
+.ib-col:hover .ib-col__add,
+.ib-col__add:focus-visible,
+.ib-col__add[aria-expanded="true"] {
+  opacity: 1;
+}
+
+.ib-col__add:hover,
+.ib-col__add[aria-expanded="true"] {
+  background: rgba(17, 24, 39, .08);
+  color: #111827;
+}
+
+/* Pas de survol au doigt : sans ça le bouton resterait invisible sur mobile. */
+@media (hover: none) {
+  .ib-col__add {
+    opacity: 1;
+  }
+}
+
 /* flex:1 + min-height:0 : seul le corps de la colonne défile, l'en-tête de
    statut reste visible. */
 .ib-col__body {

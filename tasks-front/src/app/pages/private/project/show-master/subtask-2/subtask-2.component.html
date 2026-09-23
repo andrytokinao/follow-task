@@ -93,8 +93,10 @@
       <app-issue-board *ngIf="!loadingSubtask && showBoard && subtasks?.length > 0"
                        [statuses]="statuses"
                        [issues]="assigneeFilteredTasks"
+                       [createMenu]="createSubtask"
                        (issueClick)="selectTask($event)"
                        (statusDrop)="onStatusDrop($event)"
+                       (createIssue)="onCreateInStatus($event)"
                        (issueUpdated)="refreshTasks()">
       </app-issue-board>
 

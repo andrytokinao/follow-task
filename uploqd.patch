@@ -1,0 +1,30 @@
+Subject: [PATCH] Amelioration de style
+---
+Index: tasks-service/src/main/java/com/kinga/followtask/entity/Uploaded.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/tasks-service/src/main/java/com/kinga/followtask/entity/Uploaded.java b/tasks-service/src/main/java/com/kinga/followtask/entity/Uploaded.java
+--- a/tasks-service/src/main/java/com/kinga/followtask/entity/Uploaded.java	(revision fec609d3db934c24dd752bf7c1dc10053a4502e5)
++++ b/tasks-service/src/main/java/com/kinga/followtask/entity/Uploaded.java	(date 1788266913093)
+@@ -6,6 +6,8 @@
+ import lombok.Data;
+ import lombok.NoArgsConstructor;
+ 
++import java.time.LocalDateTime;
++
+ @Data
+ @AllArgsConstructor
+ @NoArgsConstructor
+@@ -18,6 +20,10 @@
+     private String path;
+     @ManyToOne
+     private Document document;
++    /** Auteur de l'upload, resolu depuis la session au moment de l'envoi. */
++    @ManyToOne
++    private UserApp userApp;
++    private LocalDateTime uploadDate;
+ 
+     public Uploaded(String fileName, String path) {
+         this.name = fileName;

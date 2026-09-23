@@ -3,6 +3,7 @@ package com.kinga.followtask.service;
 import com.kinga.followtask.entity.Issue;
 import com.kinga.followtask.entity.IssueType;
 import com.kinga.followtask.entity.Project;
+import com.kinga.followtask.entity.Status;
 import com.kinga.followtask.entity.Uploaded;
 import com.kinga.followtask.entity.WorkFlow;
 import com.kinga.followtask.entity.enumapp.Niveau;
@@ -156,17 +157,27 @@ public class IssueTypeChangeService {
     }
 
     /**
-     * Un statut absent du flux de travail du nouveau type est ramene au statut
-     * initial de ce flux.
+     * Retient, parmi les statuts du flux de travail du type, celui que porte la
+     * tache ; a defaut le statut initial du flux.
+     *
+     * <p>Sert au changement de type comme a la creation : une tache creee
+     * depuis une colonne de board porte le statut de cette colonne, qui peut
+     * appartenir au flux d'un autre type que celui finalement choisi.</p>
+     *
+     * <p>Le statut retenu est toujours celui du flux, jamais l'objet recu du
+     * client : celui-ci n'arrive qu'avec son identifiant.</p>
      */
-    private void alignerStatut(Issue issue, IssueType target) {
+    public void alignerStatut(Issue issue, IssueType target) {
         WorkFlow workFlow = target.getCurentWorkFlow();
         if (workFlow == null || CollectionUtils.isEmpty(workFlow.getStatuses()))
             return;
-        boolean conserve = issue.getStatus() != null && workFlow.getStatuses().stream()
-                .anyMatch(status -> status.getId().equals(issue.getStatus().getId()));
-        if (!conserve)
-            issue.setStatus(workFlow.getStatuses().get(0));
+        Status demande = issue.getStatus();
+        Status retenu = demande == null || demande.getId() == null ? null
+                : workFlow.getStatuses().stream()
+                .filter(status -> demande.getId().equals(status.getId()))
+                .findFirst()
+                .orElse(null);
+        issue.setStatus(retenu != null ? retenu : workFlow.getStatuses().get(0));
     }
 
     // -----------------------------------------------------------------
