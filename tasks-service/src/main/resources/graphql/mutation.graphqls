@@ -3,6 +3,12 @@ type Mutation {
     saveUser(userApp:UserAppInput):UserApp
     initUser(userApp:UserAppInput):UserApp
 
+    # Rattachement WhatsApp : l'utilisateur demande un code, l'envoie lui-meme
+    # au numero du systeme, puis fait verifier. Le systeme n'emet rien.
+    startWhatsAppLink:WhatsAppLinkState
+    verifyWhatsAppLink:WhatsAppLinkState
+    unlinkWhatsApp:WhatsAppLinkState
+
     saveIssue(issue:IssueInput) :Issue
     updateIssue(issue:IssueInput) : Issue
     saveValue(value:ValueInput):[CustomFieldValue]

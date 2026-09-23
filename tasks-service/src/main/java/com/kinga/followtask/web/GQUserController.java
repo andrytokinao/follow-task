@@ -1,9 +1,12 @@
 package com.kinga.followtask.web;
 
 
+import com.kinga.followtask.config.CurrentUserProvider;
 import com.kinga.followtask.config.PermissionSystem;
 import com.kinga.followtask.config.PermissionTask;
 import com.kinga.followtask.dto.Response;
+import com.kinga.followtask.dto.WhatsAppLinkStateDto;
+import com.kinga.followtask.service.WhatsAppAccountLinkService;
 import com.kinga.followtask.dto.UserPageDTO;
 import com.kinga.followtask.dto.UserSearchDTO;
 import com.kinga.followtask.entity.GroupeUser;
@@ -41,6 +44,33 @@ public class GQUserController {
     final PermissionSystem permissionSystem;
     final PermissionTask permissionTask;
     private final AuthorizationService authorizationService;
+    private final WhatsAppAccountLinkService whatsAppAccountLinkService;
+    private final CurrentUserProvider currentUserProvider;
+
+    // ---------- Rattachement du compte WhatsApp ----------
+    // Toujours sur l'utilisateur connecte : on ne rattache pas le compte d'un
+    // tiers, et le code prouve la possession du telephone.
+
+    @QueryMapping
+    public WhatsAppLinkStateDto whatsAppLinkState(){
+        return whatsAppAccountLinkService.currentState(currentUserProvider.getCurrentUser());
+    }
+
+    @MutationMapping
+    public WhatsAppLinkStateDto startWhatsAppLink(){
+        return whatsAppAccountLinkService.startLink(currentUserProvider.getCurrentUser());
+    }
+
+    @MutationMapping
+    public WhatsAppLinkStateDto verifyWhatsAppLink(){
+        return whatsAppAccountLinkService.verifyLink(currentUserProvider.getCurrentUser());
+    }
+
+    @MutationMapping
+    public WhatsAppLinkStateDto unlinkWhatsApp(){
+        return whatsAppAccountLinkService.unlink(currentUserProvider.getCurrentUser());
+    }
+
     @QueryMapping
     public UserApp getUser(@Argument String username){
         return userService.findByUsernamOrContactOrCinOrEmail(username);

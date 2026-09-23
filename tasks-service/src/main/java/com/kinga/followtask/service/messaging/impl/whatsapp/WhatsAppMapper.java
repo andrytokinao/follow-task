@@ -125,7 +125,8 @@ public class WhatsAppMapper {
                 .build();
     }
 
-    private LocalDateTime toLocalDateTime(Long epochSeconds) {
+    /** Horodatage WhatsApp (secondes epoch) : conversion partagee avec l'appelant. */
+    public LocalDateTime toLocalDateTime(Long epochSeconds) {
         if (epochSeconds == null) return null;
         return LocalDateTime.ofInstant(Instant.ofEpochSecond(epochSeconds), ZoneOffset.UTC);
     }

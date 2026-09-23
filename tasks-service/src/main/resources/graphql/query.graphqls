@@ -86,4 +86,17 @@ type Query {
     loadUserHours(issueId:ID!):[UserHoursData]
     issueMemberships(issueId:Int):[IssueMembership]
     issueAccessibilities(projectPrefix:String, issueKey:String):[String]
+    # Rattachement WhatsApp de l'utilisateur connecte.
+    whatsAppLinkState:WhatsAppLinkState
+}
+
+# Etat du rattachement WhatsApp affiche par le profil.
+type WhatsAppLinkState {
+    linked:Boolean
+    linkedValue:String
+    linkedDisplayName:String
+    pendingCode:String
+    pendingExpiresAt:String
+    serviceNumber:String
+    codeValidityMinutes:Int
 }

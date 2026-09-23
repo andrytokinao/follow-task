@@ -99,6 +99,113 @@
       <mat-tab label="Contacts ({{ contacts.length }})">
         <div class="tab-content">
 
+          <!-- ===== Compte WhatsApp =====
+               C'est l'utilisateur qui écrit au numéro du système, jamais
+               l'inverse : un compte WhatsApp qui aborde des inconnus se fait
+               suspendre. Le code n'est donc pas un secret qu'il reçoit, mais un
+               jeton qu'il rapporte depuis son propre téléphone. -->
+          <section class="wa-block" *ngIf="whatsAppLink">
+
+            <div class="wa-head">
+              <div class="contact-icon icon-whatsapp"><mat-icon>chat</mat-icon></div>
+              <div class="wa-head__text">
+                <span class="wa-title">Compte WhatsApp</span>
+                <span class="wa-sub" *ngIf="whatsAppLink.linked">
+                  {{ whatsAppLink.linkedDisplayName || 'Compte vérifié' }}
+                </span>
+                <span class="wa-sub" *ngIf="!whatsAppLink.linked">Aucun compte lié</span>
+              </div>
+              <span class="wa-badge wa-badge--ok" *ngIf="whatsAppLink.linked">
+                <mat-icon>verified</mat-icon> Vérifié
+              </span>
+            </div>
+
+            <!-- Ce que le système fait — et ne fait pas — de ce compte.
+                 Énoncé avant toute demande : c'est la question que se pose
+                 l'utilisateur au moment de lier un compte personnel. -->
+            <div class="wa-privacy">
+              <p class="wa-privacy__title">
+                <mat-icon>lock</mat-icon> Ce que l'application fait de ce compte
+              </p>
+              <ul class="wa-privacy__list">
+                <li>Vous envoyer vos <b>notifications</b>.</li>
+                <li>Permettre la <b>récupération de votre mot de passe</b>.</li>
+                <li>Lire les messages des <b>groupes WhatsApp suivis par un projet</b>,
+                  et uniquement ceux dont ce compte est déjà membre.</li>
+              </ul>
+              <p class="wa-privacy__never">
+                L'application ne lit pas vos conversations personnelles, n'écrit
+                à personne en votre nom et n'accède à aucun groupe auquel vous
+                n'appartenez pas.
+              </p>
+            </div>
+
+            <div class="wa-error" *ngIf="whatsAppError">
+              <mat-icon>error_outline</mat-icon> {{ whatsAppError }}
+              <button class="wa-error__close" (click)="whatsAppError = null">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+
+            <!-- Compte lié -->
+            <div class="wa-linked" *ngIf="whatsAppLink.linked">
+              <span class="wa-linked__value">{{ whatsAppLink.linkedValue }}</span>
+              <button class="btn-outline" (click)="unlinkWhatsApp()" [disabled]="whatsAppBusy">
+                Délier
+              </button>
+            </div>
+
+            <ng-container *ngIf="!whatsAppLink.linked">
+
+              <!-- Aucun code en cours -->
+              <div class="wa-start" *ngIf="!whatsAppLink.pendingCode">
+                <p class="wa-start__text">
+                  Pour lier votre compte, vous enverrez vous-même un code depuis
+                  votre WhatsApp. Nous ne vous écrirons jamais en premier.
+                </p>
+                <button class="btn-primary" (click)="startWhatsAppLink()" [disabled]="whatsAppBusy">
+                  <mat-icon>vpn_key</mat-icon>
+                  {{ whatsAppBusy ? 'Génération…' : 'Obtenir mon code' }}
+                </button>
+              </div>
+
+              <!-- Code en cours : la consigne d'envoi -->
+              <div class="wa-pending" *ngIf="whatsAppLink.pendingCode">
+                <p class="wa-pending__step">
+                  <span class="wa-step-num">1</span>
+                  Depuis votre WhatsApp, envoyez ce code au numéro
+                  <b class="wa-number">{{ whatsAppLink.serviceNumber }}</b>
+                </p>
+
+                <div class="wa-code">
+                  <code>{{ whatsAppLink.pendingCode }}</code>
+                  <button class="wa-code__copy" (click)="copyWhatsAppCode()"
+                          [title]="whatsAppCodeCopied ? 'Copié' : 'Copier le code'">
+                    <mat-icon>{{ whatsAppCodeCopied ? 'check' : 'content_copy' }}</mat-icon>
+                  </button>
+                </div>
+
+                <p class="wa-pending__step">
+                  <span class="wa-step-num">2</span>
+                  Revenez ici : la liaison se fait dès que le code nous parvient.
+                </p>
+
+                <div class="wa-pending__actions">
+                  <span class="wa-waiting" *ngIf="whatsAppWatching">
+                    <mat-icon class="spin">autorenew</mat-icon> En attente de votre message…
+                  </span>
+                  <button class="btn-primary" (click)="verifyWhatsAppLink()" [disabled]="whatsAppBusy">
+                    {{ whatsAppBusy ? 'Vérification…' : "J'ai envoyé le code" }}
+                  </button>
+                </div>
+
+                <p class="wa-expire" *ngIf="whatsAppLink.codeValidityMinutes">
+                  Ce code est valable {{ whatsAppLink.codeValidityMinutes }} minutes.
+                </p>
+              </div>
+            </ng-container>
+          </section>
+
           <!-- Vue liste -->
           <ng-container *ngIf="!showAddContact">
             <div class="contacts-header">

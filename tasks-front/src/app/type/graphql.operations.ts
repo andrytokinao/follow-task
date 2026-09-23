@@ -1003,6 +1003,44 @@ export const REASSIGN_ISSUES_AND_DELETE_ISSUE_TYPE = gql`
   }
 `;
 
+/**
+ * Rattachement WhatsApp. Les trois operations rendent le meme etat complet :
+ * le profil se redessine a partir d'une seule reponse, sans relire ensuite.
+ */
+const WHATSAPP_LINK_FIELDS = `
+  linked
+  linkedValue
+  linkedDisplayName
+  pendingCode
+  pendingExpiresAt
+  serviceNumber
+  codeValidityMinutes
+`;
+
+export const WHATSAPP_LINK_STATE = gql`
+  query whatsAppLinkState {
+    whatsAppLinkState { ${WHATSAPP_LINK_FIELDS} }
+  }
+`;
+
+export const START_WHATSAPP_LINK = gql`
+  mutation startWhatsAppLink {
+    startWhatsAppLink { ${WHATSAPP_LINK_FIELDS} }
+  }
+`;
+
+export const VERIFY_WHATSAPP_LINK = gql`
+  mutation verifyWhatsAppLink {
+    verifyWhatsAppLink { ${WHATSAPP_LINK_FIELDS} }
+  }
+`;
+
+export const UNLINK_WHATSAPP = gql`
+  mutation unlinkWhatsApp {
+    unlinkWhatsApp { ${WHATSAPP_LINK_FIELDS} }
+  }
+`;
+
 /** Prefixe encore libre dans l'espace de travail : meme regle que l'enregistrement. */
 export const IS_PREFIX_AVAILABLE = gql`
   query isPrefixAvailable($projectId:Int, $prefix:String, $issueTypeId:Int) {

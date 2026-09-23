@@ -935,3 +935,199 @@
     align-items: flex-start;
   }
 }
+
+/* =========================================================================
+   Compte WhatsApp
+   -------------------------------------------------------------------------
+   Bloc posé en tête de l'onglet Contacts : c'est le seul rattachement réel,
+   et la question de confidentialité se pose avant toute action.
+   ========================================================================= */
+.wa-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4, 12px);
+  padding: var(--sp-4, 14px);
+  margin-bottom: var(--sp-5, 18px);
+  border: 1px solid var(--c-border, #e5e7eb);
+  border-radius: 12px;
+  background: var(--c-surface, #fff);
+}
+
+.wa-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.wa-head__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.wa-title { font-weight: 600; font-size: 13.5px; }
+.wa-sub { font-size: 12px; color: var(--c-text-muted, #6b7280); }
+
+.wa-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.wa-badge--ok { background: #ecfdf5; color: #047857; }
+.wa-badge mat-icon { font-size: 14px; width: 14px; height: 14px; }
+
+/* Transparence : volontairement sobre, ni alarmant ni publicitaire. */
+.wa-privacy {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--c-surface-alt, #f9fafb);
+  font-size: 12px;
+}
+
+.wa-privacy__title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 6px;
+  font-weight: 600;
+}
+
+.wa-privacy__title mat-icon { font-size: 15px; width: 15px; height: 15px; }
+
+.wa-privacy__list { margin: 0; padding-left: 18px; }
+.wa-privacy__list li { margin-bottom: 3px; }
+
+.wa-privacy__never {
+  margin: 8px 0 0;
+  color: var(--c-text-muted, #6b7280);
+}
+
+.wa-error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  color: #b91c1c;
+  font-size: 12px;
+}
+
+.wa-error__close {
+  margin-left: auto;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  display: inline-flex;
+}
+
+.wa-error mat-icon,
+.wa-error__close mat-icon { font-size: 16px; width: 16px; height: 16px; }
+
+.wa-linked {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.wa-linked__value { font-weight: 600; font-size: 13px; }
+.wa-linked .btn-outline { margin-left: auto; }
+
+.wa-start__text,
+.wa-expire {
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: var(--c-text-muted, #6b7280);
+}
+
+.wa-expire { margin: 6px 0 0; }
+
+.wa-pending {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wa-pending__step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 12.5px;
+}
+
+.wa-step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--c-primary, #2563eb);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.wa-number { white-space: nowrap; }
+
+/* Le code est recopié à la main sur un téléphone : gros, espacé, monospace. */
+.wa-code {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  align-self: flex-start;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: var(--c-surface-alt, #f3f4f6);
+  border: 1px dashed var(--c-border, #d1d5db);
+}
+
+.wa-code code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: .12em;
+}
+
+.wa-code__copy {
+  border: none;
+  background: transparent;
+  color: var(--c-text-muted, #6b7280);
+  cursor: pointer;
+  display: inline-flex;
+}
+
+.wa-code__copy mat-icon { font-size: 17px; width: 17px; height: 17px; }
+
+.wa-pending__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.wa-waiting {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--c-text-muted, #6b7280);
+}
+
+.wa-waiting mat-icon { font-size: 15px; width: 15px; height: 15px; }
+
+.spin { animation: wa-spin 1.2s linear infinite; }
+
+@keyframes wa-spin {
+  to { transform: rotate(360deg); }
+}

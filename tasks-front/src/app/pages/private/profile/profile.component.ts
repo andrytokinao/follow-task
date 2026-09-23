@@ -4,6 +4,8 @@ import { MemberGroupe, User } from '../../../type/issue';
 import { UserService } from '../../../services/user.service';
 import { supprimerTypename } from '../../../type/graphql.operations';
 import { environment } from '../../../../environments/environment';
+import { Observable } from 'rxjs';
+import { WhatsAppLinkState } from '../../../type/whatsapp-link';
 
 function passwordMatchValidator(form: AbstractControl): ValidationErrors | null {
   const nw = form.get('newPassword')?.value;
@@ -118,11 +120,135 @@ export class ProfileComponent implements OnInit, OnDestroy {
       newPassword:     ['', [Validators.required, Validators.minLength(8)]],
       confirmPassword: ['', Validators.required],
     }, { validators: passwordMatchValidator });
+
+    this.loadWhatsAppLink();
   }
 
   ngOnDestroy(): void {
     if (this.cooldownTimer) clearInterval(this.cooldownTimer);
     if (this.passwordStatusTimer) clearTimeout(this.passwordStatusTimer);
+    this.stopWhatsAppWatch();
+  }
+
+  // -----------------------------------------------------------------
+  // Rattachement WhatsApp
+  // -----------------------------------------------------------------
+
+  whatsAppLink: WhatsAppLinkState | null = null;
+  whatsAppBusy = false;
+  whatsAppError: string | null = null;
+  /** Le code vient d'être copié : retour visuel bref. */
+  whatsAppCodeCopied = false;
+  /** Une vérification automatique est en cours pendant que l'utilisateur écrit. */
+  whatsAppWatching = false;
+  private whatsAppWatchTimer: ReturnType<typeof setInterval> | null = null;
+  /** Nombre de vérifications automatiques restantes. */
+  private whatsAppWatchLeft = 0;
+
+  /** Une vérification toutes les 5 s, pendant 2 min : au delà, bouton manuel. */
+  private static readonly WATCH_INTERVAL_MS = 5000;
+  private static readonly WATCH_MAX = 24;
+
+  private loadWhatsAppLink(): void {
+    this.userService.whatsAppLinkState().subscribe({
+      next: state => this.whatsAppLink = state,
+      error: err => this.whatsAppError = this.messageErreur(err)
+    });
+  }
+
+  /** Demande le code que l'utilisateur enverra lui-même au numéro du système. */
+  startWhatsAppLink(): void {
+    this.runWhatsApp(this.userService.startWhatsAppLink(), state => {
+      if (state.pendingCode) {
+        this.startWhatsAppWatch();
+      }
+    });
+  }
+
+  /** Vérification demandée explicitement, quand l'utilisateur a envoyé son message. */
+  verifyWhatsAppLink(): void {
+    this.runWhatsApp(this.userService.verifyWhatsAppLink(), state => {
+      if (!state.linked) {
+        this.whatsAppError = "Le code n'est pas encore arrivé. Vérifiez l'envoi, puis réessayez.";
+      }
+    });
+  }
+
+  unlinkWhatsApp(): void {
+    this.runWhatsApp(this.userService.unlinkWhatsApp());
+  }
+
+  /**
+   * Enchaînement commun aux trois actions : un seul appel en vol, l'état rendu
+   * remplace l'état courant, l'erreur est affichée telle que le serveur la
+   * formule.
+   */
+  private runWhatsApp(appel: Observable<WhatsAppLinkState>,
+                      apres?: (state: WhatsAppLinkState) => void): void {
+    if (this.whatsAppBusy) return;
+    this.whatsAppBusy = true;
+    this.whatsAppError = null;
+    appel.subscribe({
+      next: state => {
+        this.whatsAppBusy = false;
+        this.whatsAppLink = state;
+        if (state.linked) {
+          this.stopWhatsAppWatch();
+        }
+        apres?.(state);
+      },
+      error: err => {
+        this.whatsAppBusy = false;
+        this.whatsAppError = this.messageErreur(err);
+      }
+    });
+  }
+
+  /**
+   * Interroge le serveur pendant que l'utilisateur envoie son message : le
+   * fournisseur WhatsApp ne pousse aucune notification, il faut aller voir.
+   * La surveillance s'arrête d'elle-même pour ne pas interroger indéfiniment.
+   */
+  private startWhatsAppWatch(): void {
+    this.stopWhatsAppWatch();
+    this.whatsAppWatching = true;
+    this.whatsAppWatchLeft = ProfileComponent.WATCH_MAX;
+    this.whatsAppWatchTimer = setInterval(() => {
+      if (this.whatsAppWatchLeft-- <= 0) {
+        this.stopWhatsAppWatch();
+        return;
+      }
+      if (this.whatsAppBusy) return;
+      this.userService.verifyWhatsAppLink().subscribe({
+        next: state => {
+          this.whatsAppLink = state;
+          if (state.linked) this.stopWhatsAppWatch();
+        },
+        // Une panne passagère ne doit pas afficher d'erreur pendant une
+        // surveillance de fond : le bouton manuel reste disponible.
+        error: () => this.stopWhatsAppWatch()
+      });
+    }, ProfileComponent.WATCH_INTERVAL_MS);
+  }
+
+  private stopWhatsAppWatch(): void {
+    if (this.whatsAppWatchTimer) clearInterval(this.whatsAppWatchTimer);
+    this.whatsAppWatchTimer = null;
+    this.whatsAppWatching = false;
+  }
+
+  copyWhatsAppCode(): void {
+    const code = this.whatsAppLink?.pendingCode;
+    if (!code || !navigator.clipboard) return;
+    navigator.clipboard.writeText(code).then(() => {
+      this.whatsAppCodeCopied = true;
+      setTimeout(() => this.whatsAppCodeCopied = false, 2000);
+    });
+  }
+
+  private messageErreur(err: any): string {
+    const graphQl = err?.graphQLErrors?.length ? err.graphQLErrors[0].message : null;
+    return graphQl || err?.message || "L'opération a échoué.";
   }
 
   get passwordStrength(): number {

@@ -15,8 +15,10 @@ import {
   LOAD_GROUPE_MEMBER,
   SAVE_CONFIG,
   LOAD_PERMISSION_TASK,
-  SAVE_USER, SEARCH_USERS, supprimerTypename, DELETE_MEMBER
+  SAVE_USER, SEARCH_USERS, supprimerTypename, DELETE_MEMBER,
+  WHATSAPP_LINK_STATE, START_WHATSAPP_LINK, VERIFY_WHATSAPP_LINK, UNLINK_WHATSAPP
 } from "../type/graphql.operations";
+import {WhatsAppLinkState} from "../type/whatsapp-link";
 import {RapportImportUsers} from "../type/import-users";
 import {Apollo} from "apollo-angular";
 import {environment} from "../../environments/environment";
@@ -99,6 +101,47 @@ export class UserService {
         console.error("searchUsers ==> ", error);
         return throwError(() => error);
       })
+    );
+  }
+
+  // -----------------------------------------------------------------
+  // Rattachement WhatsApp
+  // -----------------------------------------------------------------
+  // Les quatre operations portent sur l'utilisateur connecte et rendent le
+  // meme etat complet : l'ecran se redessine d'une seule reponse.
+
+  whatsAppLinkState(): Observable<WhatsAppLinkState> {
+    return this.apollo.query({
+      query: WHATSAPP_LINK_STATE,
+      fetchPolicy: "network-only"
+    }).pipe(
+      map((res: any) => supprimerTypename(res.data.whatsAppLinkState) as WhatsAppLinkState)
+    );
+  }
+
+  /** Demande un code a envoyer au numero du systeme. */
+  startWhatsAppLink(): Observable<WhatsAppLinkState> {
+    return this.apollo.mutate({
+      mutation: START_WHATSAPP_LINK
+    }).pipe(
+      map((res: any) => supprimerTypename(res.data.startWhatsAppLink) as WhatsAppLinkState)
+    );
+  }
+
+  /** Cherche le code dans les messages recus ; l'etat rendu dit s'il a ete trouve. */
+  verifyWhatsAppLink(): Observable<WhatsAppLinkState> {
+    return this.apollo.mutate({
+      mutation: VERIFY_WHATSAPP_LINK
+    }).pipe(
+      map((res: any) => supprimerTypename(res.data.verifyWhatsAppLink) as WhatsAppLinkState)
+    );
+  }
+
+  unlinkWhatsApp(): Observable<WhatsAppLinkState> {
+    return this.apollo.mutate({
+      mutation: UNLINK_WHATSAPP
+    }).pipe(
+      map((res: any) => supprimerTypename(res.data.unlinkWhatsApp) as WhatsAppLinkState)
     );
   }
 

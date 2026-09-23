@@ -3,6 +3,7 @@ package com.kinga.followtask.service.messaging.impl;
 import com.kinga.followtask.entity.*;
 import com.kinga.followtask.entity.enumapp.TypeContact;
 import com.kinga.followtask.repository.*;
+import com.kinga.followtask.service.messaging.DirectMessageReader;
 import com.kinga.followtask.service.messaging.MessagingService;
 import com.kinga.followtask.service.messaging.dto.*;
 import com.kinga.followtask.service.messaging.impl.whatsapp.WhatsAppMapper;
@@ -20,7 +21,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class WhatsAppMessagingService implements MessagingService {
+public class WhatsAppMessagingService implements MessagingService, DirectMessageReader {
 
     private final CanalRepository canallRepository;
     private final MessagesRepository messageAppRepository;
@@ -59,6 +60,49 @@ public class WhatsAppMessagingService implements MessagingService {
                 .map(mapper::toCanalDto)
                 .filter(m->m.isGroup())
                 .toList();
+    }
+
+    /**
+     * Conversations privees portant un message recent : ce sont les seules ou
+     * un code de rattachement peut etre arrive.
+     *
+     * <p>Le tri par date du dernier message evite d'aller chercher l'historique
+     * de toutes les conversations : une seule requete de liste, puis une
+     * requete de messages par conversation ayant bouge depuis {@code since}.</p>
+     */
+    @Override
+    public List<MessageDto> recentDirectMessages(LocalDateTime since) {
+        WhatsAppRawConversationsResponse response = client().get()
+                .uri("/api/whatsapp/conversations-history")
+                .retrieve()
+                .body(WhatsAppRawConversationsResponse.class);
+
+        if (response == null || !response.isSucces() || response.getDonnees() == null) {
+            log.warn("Réponse invalide (conversations) depuis l'app WhatsApp externe");
+            return List.of();
+        }
+
+        return response.getDonnees().stream()
+                .filter(conversation -> !conversation.isEstGroupe())
+                .filter(conversation -> aBougeDepuis(conversation, since))
+                .flatMap(conversation -> listMessages(conversation.getJid(), null).stream())
+                .filter(message -> !message.isFromMe())
+                .filter(message -> message.getCreatedAt() != null && !message.getCreatedAt().isBefore(since))
+                .toList();
+    }
+
+    /**
+     * Le dernier message de la conversation est-il posterieur a l'instant
+     * donne ? Une conversation sans horodatage lisible est retenue : mieux vaut
+     * une requete de trop qu'un code manque.
+     */
+    private boolean aBougeDepuis(WhatsAppRawConversation conversation, LocalDateTime since) {
+        WhatsAppRawLastMessage dernier = conversation.getDernierMessage();
+        if (dernier == null || dernier.getHorodatage() == null) {
+            return true;
+        }
+        LocalDateTime date = mapper.toLocalDateTime(dernier.getHorodatage());
+        return date == null || !date.isBefore(since);
     }
 
     @Override
