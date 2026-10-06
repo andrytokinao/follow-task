@@ -15,7 +15,7 @@ import {
   LOAD_GROUPE_MEMBER,
   SAVE_CONFIG,
   LOAD_PERMISSION_TASK,
-  SAVE_USER, SEARCH_USERS, supprimerTypename, DELETE_MEMBER,
+  SAVE_USER, SEARCH_USERS, SET_USER_ACTIVE, supprimerTypename, DELETE_MEMBER,
   WHATSAPP_LINK_STATE, START_WHATSAPP_LINK, VERIFY_WHATSAPP_LINK, UNLINK_WHATSAPP
 } from "../type/graphql.operations";
 import {WhatsAppLinkState} from "../type/whatsapp-link";
@@ -104,6 +104,28 @@ export class UserService {
     );
   }
 
+  /**
+   * Désactive ou réactive un compte. Réservé à SYSTEM_ADMIN côté serveur.
+   * La liste `users$` est rechargée : un compte désactivé ne doit plus être
+   * proposé dans les sélecteurs.
+   */
+  setUserActive(id: string, active: boolean): Observable<User> {
+    return this.apollo.mutate({
+      mutation: SET_USER_ACTIVE,
+      variables: {id, active}
+    }).pipe(
+      map((res: any) => {
+        this.allUsers(true);
+        return supprimerTypename(res.data.setUserActive) as User;
+      })
+    );
+  }
+
+  /** Un compte sans valeur `active` est antérieur à la désactivation : il est actif. */
+  static estActif(user: User | undefined | null): boolean {
+    return !!user && user.active !== false;
+  }
+
   // -----------------------------------------------------------------
   // Rattachement WhatsApp
   // -----------------------------------------------------------------
@@ -189,6 +211,8 @@ export class UserService {
     var userApp:any = {...user};
     delete  userApp.permissions;
     delete userApp.groupes;
+    // Absent de UserAppInput : l'état actif ne change que par setUserActive.
+    delete userApp.active;
     return this.apollo.mutate(
       {
         mutation : SAVE_USER,
@@ -303,7 +327,7 @@ export class UserService {
   getUsersForProject(prefix: String): Observable<User[]> {
     return this.getGroupeUserForProject(prefix).pipe(
       map(groups => groups.flatMap(groupe =>
-        groupe.members.map(member => member.user)
+        groupe.members.map(member => member.user).filter(UserService.estActif)
       ))
     );
   }
@@ -316,6 +340,7 @@ export class UserService {
               member.roles.some(role => roles.includes(role))  // ← garde si au moins un rôle correspond
             )
             .map(member => member.user)
+            .filter(UserService.estActif)
         )
       ),
       // Supprimer les doublons (un user peut être dans plusieurs groupes)
@@ -328,8 +353,10 @@ export class UserService {
     this.getGroupeUserForProject(prefix).subscribe({
       next: (groups) => {
         this.groupeUsersSubject.next(groups);                          // ← Subject GroupeUser[]
+        // Les comptes désactivés restent membres du groupe (l'écran
+        // d'accessibilité les montre) mais ne sont plus proposés à l'assignation.
         this.allMemberSubject.next(
-          groups.flatMap(g => g.members.map(m => m.user))             // ← Subject User[]
+          groups.flatMap(g => g.members.map(m => m.user).filter(UserService.estActif))  // ← Subject User[]
         );
       },
       error: (error) => console.error(error)

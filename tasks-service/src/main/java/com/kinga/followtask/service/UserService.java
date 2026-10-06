@@ -74,8 +74,10 @@ public class UserService {
         // comparaisons au lieu de les evaluer sur chaque ligne.
         String terme = (texte == null || texte.isEmpty()) ? null : "%" + texte + "%";
 
+        boolean inclureInactifs = Boolean.TRUE.equals(criteria.getIncludeInactive());
+
         Page<UserApp> resultat =
-                userRepository.rechercher(terme, PageRequest.of(page, taille, tri));
+                userRepository.rechercher(terme, inclureInactifs, PageRequest.of(page, taille, tri));
 
         return new UserPageDTO(
                 resultat.getContent(),
@@ -143,12 +145,48 @@ public class UserService {
         return userRepository.findAll();
     }
 
+    /** Comptes actifs seulement : c'est ce que les selecteurs proposent. */
+    public List<UserApp> findAllActifs() {
+        return userRepository.findAllActifs();
+    }
+
+    /**
+     * Active ou desactive un compte.
+     *
+     * <p>Un compte desactive ne peut plus se connecter et disparait des
+     * recherches ; ses taches, commentaires et historiques restent intacts.
+     * On ne se desactive pas soi-meme : ce serait s'enfermer dehors.</p>
+     *
+     * @throws IllegalStateException compte inconnu
+     * @throws IllegalArgumentException desactivation de son propre compte
+     */
+    public UserApp definirActif(String id, boolean actif, String administrateur) {
+        UserApp user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException("Utilisateur introuvable"));
+        if (!actif && administrateur != null && administrateur.equalsIgnoreCase(user.getUsername())) {
+            throw new IllegalArgumentException("Vous ne pouvez pas désactiver votre propre compte");
+        }
+        user.setActive(actif);
+        user = userRepository.save(user);
+        logger.info("Compte {} {} par {}", user.getUsername(), actif ? "réactivé" : "désactivé", administrateur);
+        return user;
+    }
+
     public UserApp save(UserApp entity) {
         boolean isNew = false;
         if(StringUtils.isEmpty(entity.getId())){
             UUID uuid = UUID.randomUUID();
             entity.setId(uuid.toString());
             isNew = true;
+        }
+        // L'etat actif ne se change que par definirActif : le formulaire
+        // d'edition ne le transmet pas, et l'enregistrer reactiverait le compte.
+        if (isNew) {
+            entity.setActive(true);
+        } else {
+            entity.setActive(userRepository.findById(entity.getId())
+                    .map(UserApp::getActive)
+                    .orElse(true));
         }
 
         if (!StringUtils.isEmpty(entity.getUsername()) && isNew) {
@@ -238,7 +276,9 @@ public class UserService {
             return null;
         Set<String> roleApps = new HashSet<>();
         permissionNames =  authorizationService.buildAccessibilities(userApp);
-        return new UserDetailsDeto(userApp.getId(),userApp.getUsername(), userApp.getPassword(),userApp.getFirstName(),userApp.getLastName(), userApp.getPhoto(),permissionNames);
+        UserDetailsDeto details = new UserDetailsDeto(userApp.getId(),userApp.getUsername(), userApp.getPassword(),userApp.getFirstName(),userApp.getLastName(), userApp.getPhoto(),permissionNames);
+        details.setActive(userApp.estActif());
+        return details;
 
     }
     public UserApp getConnected() {

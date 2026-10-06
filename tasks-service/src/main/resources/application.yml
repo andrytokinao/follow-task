@@ -38,6 +38,14 @@ system-authorization:
         - "CAN_EDIT_OWN_TASKS"
         - "CAN_COMMENT_ON_TASKS"
         - "USER"
+    - name: "DIRECTION"
+      description: "Direction : cockpit de pilotage, en lecture seule"
+      accessibilities:
+        - "DIRECTION"
+        - "CAN_VIEW_DIRECTION"
+        - "CAN_VIEW_PROJECTS"
+        - "CAN_VIEW_TASKS"
+        - "USER"
     - name: "ACCOUNT_ADMIN"
       description: "Administrateur de compte"
       accessibilities:

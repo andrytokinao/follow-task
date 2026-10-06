@@ -34,64 +34,21 @@ export class AuthGuard implements CanActivate {
     console.log("current url :" + state.url);
     return new Observable<boolean>((observer) => {
       if (this.profile) {
-        let permissions: string[] = this.profile.permissions;
-        let data: any = route.data;
-        if (data && data.roles) {
-          // On donne l'accès pour ce qui on de
-          data.roles.push('CAN_ACCESS_ALL');
-          let authorized = false;
-          if (permissions.includes('CAN_ACCESS_ALL')) {
-            authorized = true;
-          } else {
-            authorized = data.roles.every((role: string) => permissions.includes(role));
-          }
-
-          if (authorized) {
-            observer.next(true);
-            observer.complete();
-          } else {
-            observer.next(false);
-            observer.complete();
-            this.router.navigate(["working/access-denied"]);
-          }
-        } else {
-          // Route sans `data.roles` : l'ancien code affichait une alerte et
-          // n'emettait rien, ce qui laissait le routeur en attente et l'ecran
-          // vide. Une route protegee sans role declare n'est pas accessible.
-          console.error("AuthGuard : aucune donnee 'roles' sur la route", state.url);
-          observer.next(false);
-          observer.complete();
-        }
+        observer.next(this.decider(this.profile.permissions, route, state));
+        observer.complete();
       } else {
         this.authService.getProfile().subscribe({
           next: (profile) => {
+            // Sans permissions, on refuse : ne rien émettre laissait le
+            // routeur en attente, écran vide.
             if (!profile?.permissions) {
+              observer.next(false);
+              observer.complete();
               return;
             }
             this.profile = profile;
-            let permissions: string[] = profile.permissions;
-            let data: any = route.data;
-            if (data && data.roles) {
-              data.roles.push('CAN_ACCESS_ALL');
-              let authorized = false;
-              if (permissions.includes('CAN_ACCESS_ALL')) {
-                authorized = true;
-              } else {
-                authorized = data.roles.every((role: string) => permissions.includes(role));
-              }
-              if (authorized) {
-                observer.next(true);
-                observer.complete();
-              } else {
-                observer.next(false);
-                observer.complete();
-                this.router.navigate(["working/access-denied"]);
-              }
-            } else {
-              console.error("AuthGuard : aucune donnee 'roles' sur la route", state.url);
-              observer.next(false);
-              observer.complete();
-            }
+            observer.next(this.decider(profile.permissions, route, state));
+            observer.complete();
           },
           error: () => {
             observer.next(false);
@@ -100,6 +57,29 @@ export class AuthGuard implements CanActivate {
         })
       }
     });
+  }
+
+  /**
+   * Accès accordé si l'utilisateur a CAN_ACCESS_ALL, ou s'il a tous les rôles
+   * déclarés par la route.
+   *
+   * `data.roles` n'est plus modifié : l'ancien code y ajoutait CAN_ACCESS_ALL
+   * à chaque navigation puis exigeait tous les rôles, ce qui réservait la
+   * route aux seuls super-administrateurs.
+   */
+  private decider(permissions: string[], route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
+    const roles: string[] | undefined = route.data?.['roles'];
+    if (!roles) {
+      // Une route protégée sans rôle déclaré n'est pas accessible.
+      console.error("AuthGuard : aucune donnee 'roles' sur la route", state.url);
+      return false;
+    }
+    const authorized = permissions.includes('CAN_ACCESS_ALL')
+      || roles.every(role => permissions.includes(role));
+    if (!authorized) {
+      this.router.navigate(["working/access-denied"]);
+    }
+    return authorized;
 
   }
 
@@ -148,8 +128,9 @@ export class AuthGuard implements CanActivate {
      });
   }
   hasAutority(autorities:String[]){
-    autorities.push('CAN_ACCESS_ALL');
-    return  autorities.every((role: string) => this.profile.permissions.includes(role));
+    const permissions: string[] = this.profile?.permissions ?? [];
+    return permissions.includes('CAN_ACCESS_ALL')
+      || autorities.every(role => permissions.includes(role as string));
   }
   hasAutorityInProject(toVerifies: string[]) {
     const nouvelleListe: string[] = [];

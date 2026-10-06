@@ -27,6 +27,9 @@
   <button mat-menu-item (click)="ouvrirProfil()">
     <i class="fas fa-user"></i> Mon profil
   </button>
+  <button mat-menu-item *ngIf="accesDirection" (click)="ouvrirDirection()">
+    <i class="fas fa-compass"></i> Tableau de direction
+  </button>
   <div class="user-menu-divider"></div>
   <button mat-menu-item class="user-menu-logout"
           [disabled]="deconnexionEnCours" (click)="deconnexion()">

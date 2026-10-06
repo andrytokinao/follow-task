@@ -29,9 +29,15 @@ public class CustomUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException("Utilisateur non trouvé : " + username);
         }
 
+        // Compte desactive : `enabled = false` fait refuser la connexion par
+        // Spring (DisabledException), avant meme la verification du mot de passe.
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
                 user.getPassword(),
+                user.isActive(),
+                true,
+                true,
+                true,
                 getAuthorities(user.getPermissions())
         );
     }

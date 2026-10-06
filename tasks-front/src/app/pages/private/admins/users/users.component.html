@@ -15,6 +15,12 @@
              (ngModelChange)="onSearchChange($event)"/>
       <i class="fa fa-times clear-search" *ngIf="search" (click)="clearSearch()" title="Effacer"></i>
     </div>
+    <!-- Recherche côté serveur uniquement : le repli local (allUsers) ne
+         reçoit que les comptes actifs. -->
+    <label class="inactifs-toggle" *ngIf="!modeLocal" title="Afficher aussi les comptes désactivés">
+      <input type="checkbox" [ngModel]="afficherInactifs" (ngModelChange)="basculerInactifs($event)"/>
+      Désactivés
+    </label>
     <span class="btn controle" (click)="rafraichir()" title="Recharger la liste">
       <i class="fa fa-sync" [class.fa-spin]="loading"></i> Actualiser
     </span>
@@ -64,12 +70,13 @@
     <span *ngIf="!search">Aucun utilisateur pour le moment</span>
   </li>
 
-  <li *ngFor="let user of users; trackBy: trackByUser" class="controle" [class.masque]="loading">
+  <li *ngFor="let user of users; trackBy: trackByUser" class="controle" [class.masque]="loading"
+      [class.inactif]="!estActif(user)">
     <div class="item">
       <img [src]="getPhoto(user)" [alt]="fullName(user)" *ngIf="user.photo">
       <span class="avatar-initiales" *ngIf="!user.photo">{{ initiales(user) }}</span>
       <div class="details">
-        <h3>{{ fullName(user) }}</h3>
+        <h3>{{ fullName(user) }} <span class="badge-inactif" *ngIf="!estActif(user)">Désactivé</span></h3>
         <p class="user-email" *ngIf="user.email">{{ user.email }}</p>
       </div>
     </div>
@@ -103,6 +110,11 @@
       <span class="controle btn" *ngIf="adminSysteme" (click)="setPassword(user)"
             title="Définir un nouveau mot de passe">
         <i class="fa fa-key"></i> <span class="btn-label">Mot de passe</span>
+      </span>
+      <span class="controle btn" *ngIf="adminSysteme" (click)="basculerActif(user)"
+            [title]="estActif(user) ? 'Désactiver le compte' : 'Réactiver le compte'">
+        <i class="fa" [ngClass]="estActif(user) ? 'fa-user-lock' : 'fa-user-check'"></i>
+        <span class="btn-label">{{ estActif(user) ? 'Désactiver' : 'Réactiver' }}</span>
       </span>
     </div>
   </li>

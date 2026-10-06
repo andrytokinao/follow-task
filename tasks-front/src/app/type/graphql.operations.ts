@@ -488,6 +488,7 @@ export const SEARCH_USERS = gql`
         cin
         code
         photo
+        active
         groupes {
           id
           roles
@@ -497,6 +498,16 @@ export const SEARCH_USERS = gql`
           }
         }
       }
+    }
+  }
+`;
+
+/** Désactive (`active: false`) ou réactive un compte. */
+export const SET_USER_ACTIVE = gql`
+  mutation setUserActive($id: String, $active: Boolean) {
+    setUserActive(id: $id, active: $active) {
+      id
+      active
     }
   }
 `;
@@ -2011,6 +2022,7 @@ const GET_GROUPE_USER_FOR_PROJECT=gql`
           lastName
           username
           photo
+          active
         }
         roles
       }

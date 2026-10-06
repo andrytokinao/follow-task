@@ -2,6 +2,8 @@
 type Mutation {
     saveUser(userApp:UserAppInput):UserApp
     initUser(userApp:UserAppInput):UserApp
+    # Desactive (active=false) ou reactive un compte. SYSTEM_ADMIN uniquement.
+    setUserActive(id:String, active:Boolean):UserApp
 
     # Rattachement WhatsApp : l'utilisateur demande un code, l'envoie lui-meme
     # au numero du systeme, puis fait verifier. Le systeme n'emet rien.

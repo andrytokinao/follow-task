@@ -29,6 +29,7 @@ public class UserApp {
     private String cin;
     private String photo;
     private Integer code;
+    private Boolean active;
     @ManyToMany
     private List<MemberGroupe> groupes;
     @OneToMany(mappedBy = "userApp")
@@ -44,5 +45,9 @@ public class UserApp {
 
     public String getFullName() {
        return this.lastName +" "+this.firstName;
+    }
+
+    public boolean estActif() {
+        return !Boolean.FALSE.equals(this.active);
     }
 }

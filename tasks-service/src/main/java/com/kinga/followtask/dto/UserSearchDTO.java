@@ -16,4 +16,6 @@ public class UserSearchDTO {
     /** `name`, `username` ou `cin`. */
     private String sortBy;
     private Boolean sortAsc;
+    /** Inclure les comptes desactives (administration). Faux par defaut. */
+    private Boolean includeInactive;
 }

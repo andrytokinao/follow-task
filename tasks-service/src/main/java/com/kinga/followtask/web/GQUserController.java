@@ -28,6 +28,9 @@ import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -79,9 +82,24 @@ public class GQUserController {
     public UserApp saveUser(@Argument UserApp userApp){
        return userService.save(userApp);
     }
+    /** Comptes actifs seulement : la liste alimente les selecteurs d'utilisateurs. */
     @QueryMapping
     public List<UserApp> allUsers(){
-       return userService.findAll();
+       return userService.findAllActifs();
+    }
+
+    /**
+     * Activation / desactivation d'un compte. Reservee a l'administrateur du
+     * systeme, comme la definition de mot de passe : couper l'acces d'un
+     * compte, y compris celui d'un autre administrateur, n'est pas un simple
+     * acte de gestion.
+     */
+    @MutationMapping
+    @PreAuthorize("hasAuthority('SYSTEM_ADMIN')")
+    public UserApp setUserActive(@Argument String id, @Argument Boolean active){
+       Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+       String auteur = authentication == null ? null : authentication.getName();
+       return userService.definirActif(id, !Boolean.FALSE.equals(active), auteur);
     }
     @QueryMapping
     public UserPageDTO searchUsers(@Argument UserSearchDTO criteria){

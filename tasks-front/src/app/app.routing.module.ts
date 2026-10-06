@@ -4,6 +4,7 @@ import {BrowserModule} from "@angular/platform-browser";
 import {NotFoundComponent} from "./pages/not-found/not-found.component";
 import {AuthGuard} from "./services/SystemGuard";
 import {PublicComponent} from "./pages/public/public.component";
+import {directionGuard} from "./pages/private/direction/direction.guard";
 
 
 export const appRoutes: Routes = [
@@ -24,6 +25,11 @@ export const appRoutes: Routes = [
     data:{roles:['ADMIN']
     }
     },
+  {
+    path: 'direction',
+    loadChildren: () => import('./pages/private/direction/direction.module').then(m => m.DirectionModule),
+    canActivate: [directionGuard]
+  },
   {
     path: 'exemple-animation',
     loadChildren: () => import('./animation-examples/animation-examples.module').then(m => m.AnimationExamplesModule),

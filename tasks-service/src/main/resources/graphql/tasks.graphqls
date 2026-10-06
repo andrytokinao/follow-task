@@ -178,6 +178,7 @@ type UserApp{
     entryTime:[EntryTime]
     photo:String
     code:Int
+    active:Boolean   # null = actif (comptes anterieurs a la colonne)
 }
 
 # Recherche paginee d'utilisateurs, pour l'administration des comptes.
@@ -187,6 +188,7 @@ input UserSearchInput {
     size:Int
     sortBy:String    # name | username | cin
     sortAsc:Boolean
+    includeInactive:Boolean  # comptes desactives inclus (administration)
 }
 type UserPage {
     content:[UserApp]

@@ -19,6 +19,8 @@ export class UsersComponent implements OnInit, OnDestroy {
   /** Page courante, telle que le serveur l'a renvoyée. */
   users: User[] = [];
   search: string = '';
+  /** Les comptes désactivés sont masqués, sauf demande explicite pour les réactiver. */
+  afficherInactifs = false;
   loading: boolean = false;
   erreur = '';
 
@@ -96,7 +98,8 @@ export class UsersComponent implements OnInit, OnDestroy {
       page: this.page,
       size: this.taille,
       sortBy: this.sortField,
-      sortAsc: this.sortAsc
+      sortAsc: this.sortAsc,
+      includeInactive: this.afficherInactifs
     }).subscribe({
       next: resultat => {
         this.loading = false;
@@ -182,6 +185,12 @@ export class UsersComponent implements OnInit, OnDestroy {
   onSearchChange(valeur: string): void {
     this.search = valeur;
     this.saisie$.next(valeur);
+  }
+
+  basculerInactifs(valeur: boolean): void {
+    this.afficherInactifs = valeur;
+    this.page = 0;
+    this.charger();
   }
 
   clearSearch(): void {
@@ -335,6 +344,32 @@ export class UsersComponent implements OnInit, OnDestroy {
     const dialogRef = this.modalService.open(SetPasswordComponent,
       {backdrop: "static", keyboard: false});
     dialogRef.componentInstance.user = user;
+  }
+
+  estActif(user: User): boolean {
+    return UserService.estActif(user);
+  }
+
+  /**
+   * Désactive ou réactive un compte. Désactivé, il ne peut plus se connecter
+   * et n'est plus proposé dans les recherches ; ses tâches restent intactes.
+   */
+  basculerActif(user: User) {
+    const actif = this.estActif(user);
+    const question = actif
+      ? `Désactiver le compte de ${this.fullName(user)} ? Il ne pourra plus se connecter et n'apparaîtra plus dans les recherches.`
+      : `Réactiver le compte de ${this.fullName(user)} ?`;
+    if (!confirm(question)) {
+      return;
+    }
+    this.erreur = '';
+    this.userService.setUserActive(user.id, !actif).subscribe({
+      next: () => this.rafraichir(),
+      error: cause => {
+        this.erreur = cause?.graphQLErrors?.[0]?.message || cause?.message
+          || "Impossible de modifier l'état du compte";
+      }
+    });
   }
 
   private openUser(user: User, action: string, readOnly: boolean) {

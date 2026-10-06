@@ -1,0 +1,92 @@
+<div class="dir-shell" [class.collapsed]="collapsed">
+
+  <!-- ═══ NAVIGATION ═══ -->
+  <aside class="dir-sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-brand">
+        <div class="brand-icon"><i class="fas fa-compass"></i></div>
+        <div class="brand-text">
+          <span class="brand-title">Direction</span>
+          <span class="brand-subtitle">Pilotage de la société</span>
+        </div>
+      </div>
+      <button class="collapse-btn" type="button" (click)="toggleSidebar()"
+              [title]="collapsed ? 'Déplier le menu' : 'Replier le menu'">
+        <i class="fas" [ngClass]="collapsed ? 'fa-chevron-right' : 'fa-chevron-left'"></i>
+      </button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a class="dir-nav-item" *ngFor="let menu of menus"
+         [routerLink]="menu.route" routerLinkActive="active" [title]="menu.label">
+        <i [ngClass]="menu.icon"></i>
+        <span class="nav-text">
+          <span class="nav-label">
+            {{ menu.label }}
+            <span class="nav-soon" *ngIf="menu.bientot">Bientôt</span>
+          </span>
+          <span class="nav-description">{{ menu.description }}</span>
+        </span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a class="dir-nav-item back-link" routerLink="/working" title="Espaces de travail">
+        <i class="fas fa-th-large"></i>
+        <span class="nav-text">
+          <span class="nav-label">Espaces de travail</span>
+          <span class="nav-description">Retour aux projets</span>
+        </span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- ═══ CONTENU ═══ -->
+  <div class="dir-main">
+    <header class="dir-topbar">
+      <div class="topbar-title">
+        <h1>{{ titre }}</h1>
+        <p *ngIf="sousTitre">{{ sousTitre }}</p>
+      </div>
+
+      <div class="topbar-actions">
+        <span class="demo-badge" *ngIf="contexte.demonstration"
+              title="L'API d'agrégation n'est pas encore branchée : chiffres fictifs.">
+          <i class="fas fa-flask"></i> Données de démonstration
+        </span>
+        <app-user-menu variante="avatar"></app-user-menu>
+      </div>
+    </header>
+
+    <!-- Filtres communs à tous les écrans : « Toute la société » par défaut. -->
+    <div class="dir-filters" role="toolbar" aria-label="Filtres">
+      <label class="filter-select">
+        <i class="fas fa-sitemap"></i>
+        <select [ngModel]="filtres.departement ?? ''" (ngModelChange)="changerDepartement($event)"
+                aria-label="Département">
+          <option value="">Toute la société</option>
+          <option *ngFor="let dep of contexte.departements" [value]="dep">{{ dep }}</option>
+        </select>
+        <i class="fas fa-chevron-down select-caret"></i>
+      </label>
+
+      <div class="segmented" role="radiogroup" aria-label="Période">
+        <button type="button" *ngFor="let p of periodes"
+                role="radio" [attr.aria-checked]="filtres.periode === p.valeur"
+                [class.selected]="filtres.periode === p.valeur"
+                (click)="changerPeriode(p.valeur)">
+          {{ p.libelle }}
+        </button>
+      </div>
+
+      <span class="filters-meta" *ngIf="contexte.miseAJour">
+        <i class="far fa-clock"></i>
+        Mis à jour à {{ contexte.miseAJour | date:'HH:mm' }}
+      </span>
+    </div>
+
+    <section class="dir-content">
+      <router-outlet></router-outlet>
+    </section>
+  </div>
+</div>

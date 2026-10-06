@@ -18,4 +18,10 @@ public class UserDetailsDeto {
     private String lastName;
     private String photo;
     private Set<String> permissions = new HashSet<>();
+    private boolean active = true;
+
+    public UserDetailsDeto(String id, String username, String password, String firstName,
+                           String lastName, String photo, Set<String> permissions) {
+        this(id, username, password, firstName, lastName, photo, permissions, true);
+    }
 }

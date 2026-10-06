@@ -75,6 +75,8 @@ export class User {
   contact?:string='';
   groupes?:MemberGroupe[] =[];
   code?:number;
+  /** `false` : compte désactivé. Absent ou `null` : actif. */
+  active?:boolean | null;
 
 }
 export class GroupeUser {
@@ -587,6 +589,8 @@ export interface UserSearchCriteria {
   /** `name`, `username` ou `cin`. */
   sortBy?: string;
   sortAsc?: boolean;
+  /** Inclure les comptes désactivés (administration). */
+  includeInactive?: boolean;
 }
 
 /** Une page de résultats renvoyée par `searchUsers`. */
