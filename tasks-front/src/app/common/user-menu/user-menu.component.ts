@@ -9,7 +9,7 @@ import {UserService} from '../../services/user.service';
 import {User} from '../../type/issue';
 import {UserAvatarComponent} from '../user-avatar/user-avatar.component';
 import {ProfileComponent} from '../../pages/private/profile/profile.component';
-import {PERMISSION_DIRECTION} from '../../pages/private/direction/direction.guard';
+import {peutVoirDirection} from '../../pages/private/direction/direction.guard';
 
 /**
  * Zone de compte : qui est connecté, accès à son profil, déconnexion.
@@ -74,8 +74,7 @@ export class UserMenuComponent implements OnInit, OnDestroy {
 
   /** Lien vers le cockpit de direction, pour ceux qui y ont accès. */
   get accesDirection(): boolean {
-    const permissions: string[] = this.profil?.permissions ?? [];
-    return permissions.includes(PERMISSION_DIRECTION) || permissions.includes('CAN_ACCESS_ALL');
+    return peutVoirDirection(this.profil?.permissions);
   }
 
   ouvrirDirection(): void {
