@@ -74,6 +74,7 @@ function versProjet(issue: any): ProjetDirection {
     prefixeDepartement: rapport.prefixeDepartement ?? null,
     avancement: rapport.avancementGlobal ?? 0,
     nombreTaches: rapport.synthese?.nombreTaches ?? 0,
-    tachesEnRetard: rapport.synthese?.nombreEnRetard ?? 0
+    tachesEnRetard: rapport.synthese?.nombreEnRetard ?? 0,
+    heures: rapport.synthese?.totalHeures ?? 0
   };
 }

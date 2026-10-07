@@ -4,9 +4,13 @@ import {ProjetDirection} from './direction.model';
 
 /**
  * Cockpit de direction : les projets en cours de la société, rangés par
- * département (onglets en haut). Un clic sur un projet affiche ses tâches.
+ * département (onglets en haut).
  *
- * Lecture seule : pour agir sur une tâche, on repart vers son espace.
+ * À gauche, le menu des projets ; à droite, la fiche du projet choisi
+ * (avancement, tâches, commentaires, pièces livrables, champs personnalisés).
+ *
+ * Lecture seule, sauf les commentaires : la direction peut commenter le projet
+ * et chacune de ses tâches.
  */
 @Component({
   standalone: false,
@@ -24,9 +28,7 @@ export class DirectionComponent implements OnInit {
   chargement = true;
   erreur = false;
 
-  /** Projets dépliés, et ceux déjà chargés une fois (replier ne recharge pas). */
-  private readonly deplies = new Set<number>();
-  private readonly dejaCharges = new Set<number>();
+  selection: ProjetDirection | null = null;
 
   constructor(private directionService: DirectionService) {
   }
@@ -37,6 +39,7 @@ export class DirectionComponent implements OnInit {
         this.departements = departements;
         this.projets = projets;
         this.chargement = false;
+        this.choisirPremier();
       },
       error: () => {
         this.chargement = false;
@@ -47,6 +50,9 @@ export class DirectionComponent implements OnInit {
 
   choisir(departement: string | null): void {
     this.departement = departement;
+    if (!this.selection || !this.projetsAffiches.includes(this.selection)) {
+      this.choisirPremier();
+    }
   }
 
   get projetsAffiches(): ProjetDirection[] {
@@ -55,52 +61,21 @@ export class DirectionComponent implements OnInit {
       : this.projets.filter(p => p.departement === this.departement);
   }
 
-  /**
-   * Avancement global des projets affichés : moyenne de leur avancement,
-   * pondérée par leur nombre de tâches (un gros projet pèse plus qu'un petit).
-   */
-  get avancementGlobal(): number {
-    const projets = this.projetsAffiches;
-    const taches = projets.reduce((total, p) => total + p.nombreTaches, 0);
-    if (!taches) {
-      return 0;
-    }
-    const pondere = projets.reduce((total, p) => total + p.avancement * p.nombreTaches, 0);
-    return Math.round(pondere / taches);
-  }
-
-  get nombreTachesAffichees(): number {
-    return this.projetsAffiches.reduce((total, p) => total + p.nombreTaches, 0);
-  }
-
-  get nombreRetardsAffiches(): number {
-    return this.projetsAffiches.reduce((total, p) => total + p.tachesEnRetard, 0);
-  }
-
   nombreProjets(departement: string | null): number {
     return departement == null
       ? this.projets.length
       : this.projets.filter(p => p.departement === departement).length;
   }
 
-  basculer(p: ProjetDirection): void {
-    if (this.deplies.has(p.id)) {
-      this.deplies.delete(p.id);
-    } else {
-      this.deplies.add(p.id);
-      this.dejaCharges.add(p.id);
-    }
-  }
-
-  estDeplie(p: ProjetDirection): boolean {
-    return this.deplies.has(p.id);
-  }
-
-  dejaDeplie(p: ProjetDirection): boolean {
-    return this.dejaCharges.has(p.id);
+  choisirProjet(p: ProjetDirection): void {
+    this.selection = p;
   }
 
   parId(_: number, p: ProjetDirection): number {
     return p.id;
+  }
+
+  private choisirPremier(): void {
+    this.selection = this.projetsAffiches[0] ?? null;
   }
 }

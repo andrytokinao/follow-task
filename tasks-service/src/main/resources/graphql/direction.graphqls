@@ -26,6 +26,8 @@ type RapportProjet {
 }
 
 type SyntheseProjet {
+    # Heures passées sur l'ensemble des tâches du projet.
+    totalHeures: Float
     nombreTaches: Int
     nombreTerminees: Int
     nombreEnRetard: Int

@@ -24,78 +24,50 @@
     </button>
   </nav>
 
-  <!-- ═══ AVANCEMENT GLOBAL ═══ -->
-  <section class="dir-card global" *ngIf="!chargement && !erreur && projetsAffiches.length">
-    <div class="global-head">
-      <span class="global-label">Avancement global</span>
-      <span class="global-value">{{ avancementGlobal }} %</span>
-    </div>
-    <div class="meter-track global-track"><div class="meter-fill" [style.width.%]="avancementGlobal"></div></div>
-    <div class="global-stats">
-      <span>{{ projetsAffiches.length }} projet(s)</span>
-      <span>{{ nombreTachesAffichees }} tâche(s)</span>
-      <span class="late" *ngIf="nombreRetardsAffiches">
-        <i class="fas fa-clock"></i> {{ nombreRetardsAffiches }} en retard
-      </span>
-    </div>
-  </section>
+  <div class="state" *ngIf="chargement">
+    <i class="fas fa-circle-notch fa-spin"></i> Chargement des projets…
+  </div>
 
-  <!-- ═══ PROJETS ═══ -->
-  <section class="dir-card">
-    <div class="state" *ngIf="chargement">
-      <i class="fas fa-circle-notch fa-spin"></i> Chargement des projets…
-    </div>
+  <div class="state error" *ngIf="erreur">
+    <i class="fas fa-plug"></i> Impossible de charger les projets. Rechargez la page.
+  </div>
 
-    <div class="state error" *ngIf="erreur">
-      <i class="fas fa-plug"></i> Impossible de charger les projets. Rechargez la page.
-    </div>
+  <div class="dir-layout" *ngIf="!chargement && !erreur">
 
-    <div class="state" *ngIf="!chargement && !erreur && !projetsAffiches.length">
-      <i class="fas fa-folder-open"></i> Aucun projet en cours dans ce département.
-    </div>
+    <!-- ═══ MENU : PROJETS ═══ -->
+    <aside class="dir-card dir-menu" aria-label="Projets">
+      <div class="state" *ngIf="!projetsAffiches.length">
+        <i class="fas fa-folder-open"></i> Aucun projet en cours dans ce département.
+      </div>
 
-    <table class="projects" *ngIf="!chargement && !erreur && projetsAffiches.length">
-      <thead>
-      <tr>
-        <th>Projet</th>
-        <th *ngIf="departement === null">Département</th>
-        <th class="col-progress">Avancement</th>
-        <th class="num">Tâches</th>
-      </tr>
-      </thead>
-      <tbody>
-      <ng-container *ngFor="let p of projetsAffiches; trackBy: parId">
-        <tr class="project-row" [class.open]="estDeplie(p)" (click)="basculer(p)"
-            [attr.aria-expanded]="estDeplie(p)">
-          <td>
-            <div class="project-cell">
-              <i class="fas fa-chevron-right row-caret" [class.open]="estDeplie(p)"></i>
-              <span class="project-key">{{ p.cle }}</span>
+      <ul class="menu-list">
+        <li *ngFor="let p of projetsAffiches; trackBy: parId">
+          <button type="button" class="menu-projet" [class.active]="selection === p" (click)="choisirProjet(p)">
+            <i class="fas fa-folder project-icon"></i>
+            <span class="menu-text">
+              <span class="menu-line">
+                <span class="project-key">{{ p.cle }}</span>
+                <span class="menu-pct">{{ p.avancement }} %</span>
+              </span>
               <span class="project-name" [title]="p.nom">{{ p.nom }}</span>
-            </div>
-          </td>
-          <td *ngIf="departement === null" class="muted">{{ p.departement }}</td>
-          <td class="col-progress">
-            <div class="meter">
-              <div class="meter-track"><div class="meter-fill" [style.width.%]="p.avancement"></div></div>
-              <span class="meter-value">{{ p.avancement }} %</span>
-            </div>
-          </td>
-          <td class="num">
-            {{ p.nombreTaches }}
-            <span class="late" *ngIf="p.tachesEnRetard">
-              <i class="fas fa-clock"></i> {{ p.tachesEnRetard }} en retard
+              <span class="meter-track"><span class="meter-fill" [style.width.%]="p.avancement"></span></span>
+              <span class="menu-meta">
+                {{ p.nombreTaches }} tâche(s)
+                <span class="late" *ngIf="p.tachesEnRetard">· {{ p.tachesEnRetard }} en retard</span>
+              </span>
             </span>
-          </td>
-        </tr>
-        <!-- Chargé au premier dépliage, gardé ensuite. -->
-        <tr class="detail-row" *ngIf="dejaDeplie(p)" [hidden]="!estDeplie(p)">
-          <td [attr.colspan]="departement === null ? 4 : 3">
-            <app-direction-projet-detail [projet]="p"></app-direction-projet-detail>
-          </td>
-        </tr>
-      </ng-container>
-      </tbody>
-    </table>
-  </section>
+          </button>
+        </li>
+      </ul>
+    </aside>
+
+    <!-- ═══ FICHE DU PROJET ═══ -->
+    <section class="dir-card dir-detail">
+      <app-direction-fiche-projet *ngIf="selection; else rien" [projet]="selection">
+      </app-direction-fiche-projet>
+      <ng-template #rien>
+        <div class="state"><i class="fas fa-hand-pointer"></i> Choisissez un projet à gauche.</div>
+      </ng-template>
+    </section>
+  </div>
 </div>

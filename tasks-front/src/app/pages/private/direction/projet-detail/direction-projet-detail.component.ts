@@ -1,4 +1,5 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, HostListener, Input, OnChanges} from '@angular/core';
+import {Subscription} from 'rxjs';
 import {User} from '../../../../type/issue';
 import {issueAssignees} from '../../../../type/issue-grouping.util';
 import {UserService} from '../../../../services/user.service';
@@ -15,7 +16,8 @@ interface IntervenantTache {
  * Tâches d'un projet, en lecture seule : avancement, personnes et temps de
  * chacune, temps passé, date de premier traitement.
  *
- * Chargé au premier dépliage de la ligne du projet.
+ * Chaque tâche a un bouton « Commenter » qui ouvre ses commentaires dans une
+ * popup. Rechargé à chaque changement de projet choisi.
  */
 @Component({
   standalone: false,
@@ -23,7 +25,7 @@ interface IntervenantTache {
   templateUrl: './direction-projet-detail.component.html',
   styleUrls: ['./direction-projet-detail.component.css']
 })
-export class DirectionProjetDetailComponent implements OnInit {
+export class DirectionProjetDetailComponent implements OnChanges {
 
   @Input({required: true}) projet!: ProjetDirection;
 
@@ -32,13 +34,22 @@ export class DirectionProjetDetailComponent implements OnInit {
   intervenantsParTache = new Map<unknown, IntervenantTache[]>();
   chargement = true;
   erreur = false;
+  private abonnement?: Subscription;
+  /** Tâche dont les commentaires sont ouverts en popup. */
+  tacheCommentee: TacheProjet | null = null;
 
   constructor(private directionService: DirectionService,
               private userService: UserService) {
   }
 
-  ngOnInit(): void {
-    this.directionService.detailProjet(this.projet.id).subscribe({
+  /** Rechargé à chaque changement d'élément choisi dans le menu. */
+  ngOnChanges(): void {
+    this.abonnement?.unsubscribe();
+    this.tacheCommentee = null;
+    this.detail = null;
+    this.chargement = true;
+    this.erreur = false;
+    this.abonnement = this.directionService.detailProjet(this.projet.id).subscribe({
       next: detail => {
         this.detail = detail;
         this.intervenantsParTache = new Map(detail.taches.map(t => [t.id, this.intervenants(t)]));
@@ -84,6 +95,17 @@ export class DirectionProjetDetailComponent implements OnInit {
       }
     }
     return resultat;
+  }
+
+  // ---------------------------------------------------------------- commentaires
+
+  ouvrirCommentaires(tache: TacheProjet): void {
+    this.tacheCommentee = tache;
+  }
+
+  @HostListener('document:keydown.escape')
+  fermerCommentaires(): void {
+    this.tacheCommentee = null;
   }
 
   avancement(tache: TacheProjet): number {

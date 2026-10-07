@@ -29,6 +29,7 @@ export const DIRECTION_PROJETS = gql`
         prefixeDepartement
         avancementGlobal
         synthese {
+          totalHeures
           nombreTaches
           nombreEnRetard
         }

@@ -18,6 +18,8 @@ export interface ProjetDirection {
   avancement: number;
   nombreTaches: number;
   tachesEnRetard: number;
+  /** Heures passées sur l'ensemble des tâches (synthèse du rapport). */
+  heures: number;
 }
 
 /** Tâche d'un projet : le type Issue, plus sa date de premier traitement. */

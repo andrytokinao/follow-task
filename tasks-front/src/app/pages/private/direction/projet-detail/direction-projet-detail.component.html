@@ -7,30 +7,26 @@
 </div>
 
 <ng-container *ngIf="detail && !erreur">
-  <div class="detail-head">
-    <a class="detail-link" *ngIf="lienProjet" [routerLink]="lienProjet">
-      Ouvrir le projet <i class="fas fa-arrow-right"></i>
-    </a>
-  </div>
-
   <div class="detail-state" *ngIf="!detail.taches.length">
-    <i class="fas fa-tasks"></i> Aucune tâche dans ce projet.
+    <i class="fas fa-tasks"></i> Aucune tâche.
   </div>
 
   <table class="tasks" *ngIf="detail.taches.length">
     <thead>
     <tr>
       <th>Tâche</th>
-      <th class="col-progress">Avancement</th>
+      <th class="col-progress">Avancement tâche</th>
       <th>Personnes</th>
       <th class="num">Temps passé</th>
       <th>Premier traitement</th>
+      <th></th>
     </tr>
     </thead>
     <tbody>
     <tr *ngFor="let t of detail.taches; trackBy: parId">
       <td>
         <div class="task-cell">
+          <i class="far fa-check-square task-icon" title="Tâche"></i>
           <a class="task-key" *ngIf="lienTache(t) as lien; else cleSeule" [routerLink]="lien">{{ t.issueKey }}</a>
           <ng-template #cleSeule><span class="task-key">{{ t.issueKey }}</span></ng-template>
           <span class="task-name" [title]="t.summary">{{ t.summary }}</span>
@@ -59,7 +55,32 @@
         <span *ngIf="t.dateDebutTraitement; else jamais">{{ t.dateDebutTraitement | date:'dd/MM/yyyy' }}</span>
         <ng-template #jamais><span class="muted">Pas commencée</span></ng-template>
       </td>
+      <td class="num">
+        <button type="button" class="comment-toggle" [class.active]="tacheCommentee === t"
+                aria-haspopup="dialog" (click)="ouvrirCommentaires(t)">
+          <i class="far fa-comment"></i> Commenter
+        </button>
+      </td>
     </tr>
     </tbody>
   </table>
 </ng-container>
+
+<!-- ═══ POPUP COMMENTAIRES D'UNE TÂCHE ═══ -->
+<div class="popup-backdrop" *ngIf="tacheCommentee as t" (click)="fermerCommentaires()">
+  <div class="popup" role="dialog" aria-modal="true" aria-labelledby="popup-titre" (click)="$event.stopPropagation()">
+    <div class="popup-head">
+      <div class="task-cell" id="popup-titre">
+        <i class="far fa-comment task-icon"></i>
+        <span class="task-key">{{ t.issueKey }}</span>
+        <span class="task-name" [title]="t.summary">{{ t.summary }}</span>
+      </div>
+      <button type="button" class="popup-close" title="Fermer" (click)="fermerCommentaires()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="popup-body">
+      <app-direction-commentaires [issueId]="$any(t.id)"></app-direction-commentaires>
+    </div>
+  </div>
+</div>
