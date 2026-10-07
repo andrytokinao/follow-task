@@ -21,7 +21,7 @@
       <col class="w-people">
       <col class="w-time">
       <col class="w-date">
-      <col class="w-comments">
+      <col class="w-actions">
     </colgroup>
     <thead>
     <tr>
@@ -30,7 +30,7 @@
       <th>Personnes</th>
       <th class="num">Temps</th>
       <th>Début</th>
-      <th class="num" title="Commentaires"><i class="far fa-comments"></i></th>
+      <th class="num" title="Commentaires et pièces jointes"><i class="far fa-comments"></i></th>
     </tr>
     </thead>
     <tbody>
@@ -61,10 +61,12 @@
         <ng-template #jamais><span class="muted" title="Pas encore commencée">—</span></ng-template>
       </td>
       <td class="num">
-        <button type="button" class="comment-toggle" [class.active]="tacheCommentee === t"
-                aria-haspopup="dialog" [class.vide]="!t.nombreCommentaires"
-                [title]="(t.nombreCommentaires ?? 0) + ' commentaire(s) — ouvrir'" (click)="ouvrirCommentaires(t)">
+        <!-- Un seul bouton : le menu propose les commentaires et les pièces jointes. -->
+        <button type="button" class="comment-toggle" [class.active]="popup?.tache === t"
+                [class.vide]="!t.nombreCommentaires" [matMenuTriggerFor]="menuTache"
+                [matMenuTriggerData]="{tache: t}" title="Commentaires et pièces jointes">
           <i class="far fa-comment"></i> {{ t.nombreCommentaires ?? 0 }}
+          <i class="fas fa-caret-down caret"></i>
         </button>
       </td>
     </tr>
@@ -73,21 +75,41 @@
   </div>
 </ng-container>
 
-<!-- ═══ POPUP COMMENTAIRES D'UNE TÂCHE ═══ -->
-<div class="popup-backdrop" *ngIf="tacheCommentee as t" (click)="fermerCommentaires()">
-  <div class="popup" role="dialog" aria-modal="true" aria-labelledby="popup-titre" (click)="$event.stopPropagation()">
+<!-- Menu d'une tâche : la tâche est passée par matMenuTriggerData. -->
+<mat-menu #menuTache="matMenu" xPosition="before">
+  <ng-template matMenuContent let-tache="tache">
+    <button mat-menu-item (click)="ouvrir(tache, 'commentaires')">
+      <i class="far fa-comment menu-icon"></i>
+      Commentaires <span class="menu-count">{{ tache.nombreCommentaires ?? 0 }}</span>
+    </button>
+    <button mat-menu-item (click)="ouvrir(tache, 'fichiers')">
+      <i class="fas fa-paperclip menu-icon"></i> Pièces jointes
+    </button>
+  </ng-template>
+</mat-menu>
+
+<!-- ═══ POPUP D'UNE TÂCHE : COMMENTAIRES OU FICHIERS JOINTS ═══ -->
+<div class="popup-backdrop" *ngIf="popup as p" (click)="fermer()">
+  <div class="popup" [class.large]="p.contenu === 'fichiers'" role="dialog" aria-modal="true"
+       aria-labelledby="popup-titre" (click)="$event.stopPropagation()">
     <div class="popup-head">
       <div class="task-cell" id="popup-titre">
-        <i class="far fa-comment task-icon"></i>
-        <span class="task-key">{{ t.issueKey }}</span>
-        <span class="task-name" [title]="t.summary">{{ t.summary }}</span>
+        <i [class]="p.contenu === 'commentaires' ? 'far fa-comment task-icon' : 'fas fa-paperclip task-icon'"></i>
+        <span class="task-key">{{ p.tache.issueKey }}</span>
+        <span class="task-name" [title]="p.tache.summary">{{ p.tache.summary }}</span>
       </div>
-      <button type="button" class="popup-close" title="Fermer" (click)="fermerCommentaires()">
+      <button type="button" class="popup-close" title="Fermer" (click)="fermer()">
         <i class="fas fa-times"></i>
       </button>
     </div>
     <div class="popup-body">
-      <app-direction-commentaires [issueId]="$any(t.id)" (ajoute)="commentaireAjoute(t)"></app-direction-commentaires>
+      <app-direction-commentaires *ngIf="p.contenu === 'commentaires'"
+                                  [issueId]="$any(p.tache.id)" (ajoute)="commentaireAjoute(p.tache)">
+      </app-direction-commentaires>
+      <!-- Même explorateur que l'onglet « Pièces jointes » des tâches de l'espace. -->
+      <app-explorateur-fichiers *ngIf="p.contenu === 'fichiers'"
+                                [issueId]="$any(p.tache.id)" [compact]="true" titre="Pièces jointes">
+      </app-explorateur-fichiers>
     </div>
   </div>
 </div>

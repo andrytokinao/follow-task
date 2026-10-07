@@ -38,7 +38,29 @@
 .w-people { width: 96px; }
 .w-time { width: 64px; }
 .w-date { width: 72px; }
-.w-comments { width: 60px; }
+.w-actions { width: 72px; }
+
+.caret {
+  font-size: 10px;
+  opacity: 0.6;
+}
+
+/* Panneau du mat-menu : rendu hors du composant, d'où ::ng-deep. */
+::ng-deep .mat-mdc-menu-item .menu-icon {
+  width: 16px;
+  margin-right: 8px;
+  color: #8a94a6;
+}
+
+::ng-deep .mat-mdc-menu-item .menu-count {
+  margin-left: 6px;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: #eef4fc;
+  font-size: 11px;
+  font-weight: 600;
+  color: #185FA5;
+}
 
 .tasks th {
   padding: 0 10px 8px;
@@ -193,6 +215,11 @@ a.task-key:hover {
   border-radius: 12px;
   background: var(--dir-surface);
   box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25);
+}
+
+/* L'explorateur de fichiers a besoin de plus de place que les commentaires. */
+.popup.large {
+  width: min(960px, 100%);
 }
 
 .popup-head {

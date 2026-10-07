@@ -9,6 +9,7 @@ import {UserMenuComponent} from '../../../common/user-menu/user-menu.component';
 import {AvatarComponent} from '../../../common/avatar/avatar.component';
 import {CustomFieldComponent} from '../../../common/custom-field/custom-field.component';
 import {MyCommonModule} from '../../../common/common.module';
+import {MatMenuModule} from '@angular/material/menu';
 
 /**
  * Cockpit de direction : projets en cours de la société et leurs tâches, par
@@ -29,7 +30,8 @@ import {MyCommonModule} from '../../../common/common.module';
     AvatarComponent,
     CustomFieldComponent,
     // Composants communs de l'application, dont app-assign-field (assignés).
-    MyCommonModule
+    MyCommonModule,
+    MatMenuModule
   ]
 })
 export class DirectionModule {

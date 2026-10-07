@@ -3,12 +3,14 @@ import {Subscription} from 'rxjs';
 import {DirectionService} from '../direction.service';
 import {DetailProjet, ProjetDirection, TacheProjet} from '../direction.model';
 
+type ContenuPopup = 'commentaires' | 'fichiers';
+
 /**
  * Tâches d'un projet : avancement, assignés (composant commun
  * `app-assign-field`), temps passé, date de premier traitement.
  *
- * Chaque tâche a un bouton avec son nombre de commentaires, qui les ouvre dans
- * une popup. Rechargé à chaque changement de projet choisi.
+ * Chaque tâche a deux boutons ouvrant une popup : ses commentaires (avec leur
+ * nombre) et ses fichiers joints. Rechargé à chaque changement de projet.
  */
 @Component({
   standalone: false,
@@ -24,8 +26,8 @@ export class DirectionProjetDetailComponent implements OnChanges {
   chargement = true;
   erreur = false;
   private abonnement?: Subscription;
-  /** Tâche dont les commentaires sont ouverts en popup. */
-  tacheCommentee: TacheProjet | null = null;
+  /** Popup ouverte : la tâche, et ce qu'on en montre. */
+  popup: { tache: TacheProjet; contenu: ContenuPopup } | null = null;
 
   constructor(private directionService: DirectionService) {
   }
@@ -33,7 +35,7 @@ export class DirectionProjetDetailComponent implements OnChanges {
   /** Rechargé à chaque changement d'élément choisi dans le menu. */
   ngOnChanges(): void {
     this.abonnement?.unsubscribe();
-    this.tacheCommentee = null;
+    this.popup = null;
     this.detail = null;
     this.chargement = true;
     this.erreur = false;
@@ -63,15 +65,15 @@ export class DirectionProjetDetailComponent implements OnChanges {
     return projet && tache.issueKey ? [...projet, 'subtask', tache.issueKey as string] : null;
   }
 
-  // ---------------------------------------------------------------- commentaires
+  // ---------------------------------------------------------------- popup
 
-  ouvrirCommentaires(tache: TacheProjet): void {
-    this.tacheCommentee = tache;
+  ouvrir(tache: TacheProjet, contenu: ContenuPopup): void {
+    this.popup = {tache, contenu};
   }
 
   @HostListener('document:keydown.escape')
-  fermerCommentaires(): void {
-    this.tacheCommentee = null;
+  fermer(): void {
+    this.popup = null;
   }
 
   /** Le compteur du bouton suit les ajouts faits dans la popup. */
