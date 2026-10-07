@@ -1,9 +1,9 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {DocumentApp, User} from '../../../../type/issue';
+import {User} from '../../../../type/issue';
 import {issueAssignees} from '../../../../type/issue-grouping.util';
 import {UserService} from '../../../../services/user.service';
 import {DirectionService} from '../direction.service';
-import {DetailProjet, ProjetPortefeuille, TacheProjet, TempsPersonne} from '../direction.model';
+import {DetailProjet, ProjetDirection, TacheProjet, TempsPersonne} from '../direction.model';
 
 /** Une personne sur une tâche : assignée, avec le temps qu'elle y a passé. */
 interface IntervenantTache {
@@ -12,9 +12,8 @@ interface IntervenantTache {
 }
 
 /**
- * Détail d'un projet du portefeuille, en lecture seule : ses tâches —
- * avancement, personnes et temps de chacune, date de premier traitement — et
- * ses livrables, les fichiers finaux du menu « Livrable ».
+ * Tâches d'un projet, en lecture seule : avancement, personnes et temps de
+ * chacune, temps passé, date de premier traitement.
  *
  * Chargé au premier dépliage de la ligne du projet.
  */
@@ -26,7 +25,7 @@ interface IntervenantTache {
 })
 export class DirectionProjetDetailComponent implements OnInit {
 
-  @Input({required: true}) projet!: ProjetPortefeuille;
+  @Input({required: true}) projet!: ProjetDirection;
 
   detail: DetailProjet | null = null;
   /** Calculé une fois au chargement : le template le relit à chaque cycle. */
@@ -57,7 +56,7 @@ export class DirectionProjetDetailComponent implements OnInit {
   /** Adresse du projet dans son espace de travail. */
   get lienProjet(): string[] | null {
     return this.projet.prefixeDepartement
-      ? ['/working', this.projet.prefixeDepartement, 'issue', this.projet.prefixe]
+      ? ['/working', this.projet.prefixeDepartement, 'issue', this.projet.cle]
       : null;
   }
 
@@ -96,12 +95,6 @@ export class DirectionProjetDetailComponent implements OnInit {
     return p >= 100 ? 'termine' : p >= 70 ? 'haut' : p >= 30 ? 'moyen' : 'bas';
   }
 
-  // ---------------------------------------------------------------- livrables
-
-  nombreFichiers(livrable: DocumentApp): number {
-    return livrable.uploadeds?.length ?? 0;
-  }
-
   // ---------------------------------------------------------------- affichage
 
   nomDe(user: User | null | undefined): string {
@@ -113,7 +106,7 @@ export class DirectionProjetDetailComponent implements OnInit {
     return this.userService.getUrlPhoto(user);
   }
 
-  /** Durée en « 4 h 30 », lisible d'un coup d'œil par la direction. */
+  /** Durée en « 4 h 30 », lisible d'un coup d'œil. */
   duree(minutes: number | null | undefined): string {
     const total = Math.max(0, Math.round(minutes ?? 0));
     const h = Math.floor(total / 60);

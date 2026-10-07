@@ -12,9 +12,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 
 import java.time.LocalDateTime;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Cockpit de direction (schéma {@code direction.graphqls}).
@@ -33,8 +33,8 @@ public class GQDirectionController {
 
     /**
      * Rapports déjà calculés pendant la requête, par identifiant de projet :
-     * {@code rapportProjet}, {@code santeProjet} et {@code prochaineEcheance}
-     * en ont besoin tous les trois, un rapport complet ne se calcule qu'une fois.
+     * {@code directionProjets} les calcule pour écarter les projets terminés,
+     * {@code rapportProjet} les réutilise au lieu de les recalculer.
      */
     private static final String RAPPORTS = "direction.rapports";
 
@@ -50,39 +50,14 @@ public class GQDirectionController {
         return directionService.projets(departement, rapports(contexte));
     }
 
-    // ------------------------------------------------------------------
-    // Champs ajoutés au type Issue
-    // ------------------------------------------------------------------
-
     @SchemaMapping(typeName = "Issue", field = "rapportProjet")
     public RapportProjetDTO rapportProjet(Issue issue, GraphQLContext contexte) {
-        return rapport(issue, contexte);
-    }
-
-    @SchemaMapping(typeName = "Issue", field = "santeProjet")
-    public String santeProjet(Issue issue, GraphQLContext contexte) {
-        return directionService.sante(rapport(issue, contexte));
-    }
-
-    @SchemaMapping(typeName = "Issue", field = "prochaineEcheance")
-    public Issue prochaineEcheance(Issue issue, GraphQLContext contexte) {
-        return directionService.prochaineEcheance(issue, rapport(issue, contexte));
-    }
-
-    @SchemaMapping(typeName = "Issue", field = "finPlanifiee")
-    public LocalDateTime finPlanifiee(Issue issue) {
-        return directionService.finPlanifiee(issue);
+        return rapports(contexte).computeIfAbsent(issue.getId(), id -> directionService.rapport(issue));
     }
 
     @SchemaMapping(typeName = "Issue", field = "dateDebutTraitement")
     public LocalDateTime dateDebutTraitement(Issue issue) {
         return directionService.dateDebutTraitement(issue);
-    }
-
-    // ------------------------------------------------------------------
-
-    private RapportProjetDTO rapport(Issue issue, GraphQLContext contexte) {
-        return rapports(contexte).computeIfAbsent(issue.getId(), id -> directionService.rapport(issue));
     }
 
     private Map<Long, RapportProjetDTO> rapports(GraphQLContext contexte) {

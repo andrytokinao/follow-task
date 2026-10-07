@@ -3,9 +3,9 @@ import {gql} from 'apollo-angular';
 /**
  * Requêtes GraphQL du cockpit de direction.
  *
- * Elles s'appuient sur les requêtes existantes (`loadSubtask`,
- * `getDocuments`, `getIssuePlanningSummaries`) ; seul `dateDebutTraitement`
- * est propre au cockpit.
+ * Le détail des tâches s'appuie sur les requêtes existantes (`loadSubtask`,
+ * `getIssuePlanningSummaries`) ; seul `dateDebutTraitement` est propre au
+ * cockpit.
  */
 
 const UTILISATEUR = `
@@ -16,44 +16,30 @@ const UTILISATEUR = `
   photo
 `;
 
-/**
- * Portefeuille : projets en cours (demandes racines non terminées) avec les
- * chiffres de leur rapport, et la liste des départements pour le filtre.
- */
+/** Départements (onglets) et projets en cours de toute la société. */
 export const DIRECTION_PROJETS = gql`
-  query directionProjets($departement: String) {
+  query directionProjets {
     directionDepartements
-    directionProjets(departement: $departement) {
+    directionProjets {
       id
       issueKey
       summary
-      santeProjet
       rapportProjet {
         departement
         prefixeDepartement
-        chefDeProjet
         avancementGlobal
         synthese {
-          totalHeures
-          heuresPlanifiees
           nombreTaches
-          nombreTerminees
           nombreEnRetard
         }
-      }
-      prochaineEcheance {
-        id
-        issueKey
-        summary
-        finPlanifiee
       }
     }
   }
 `;
 
-/** Tâches du projet et livrables (fichiers finaux, type DONNE_FILE). */
-export const DIRECTION_DETAIL_PROJET = gql`
-  query directionDetailProjet($projetId: Int, $typeDocument: String) {
+/** Tâches d'un projet : avancement, personnes, temps passé, premier traitement. */
+export const DIRECTION_TACHES_PROJET = gql`
+  query directionTachesProjet($projetId: Int) {
     loadSubtask(parentId: $projetId) {
       id
       issueKey
@@ -67,13 +53,6 @@ export const DIRECTION_DETAIL_PROJET = gql`
         role
         user { ${UTILISATEUR} }
       }
-    }
-    getDocuments(issueId: $projetId, typeDocument: $typeDocument) {
-      id
-      titre
-      creation
-      userApp { ${UTILISATEUR} }
-      uploadeds { id name }
     }
   }
 `;
