@@ -512,6 +512,16 @@ export const SET_USER_ACTIVE = gql`
   }
 `;
 
+/** Donne ou retire le rôle système DIRECTION (administrateur du système). */
+export const DEFINIR_DIRECTION = gql`
+  mutation definirDirection($userId: String!, $direction: Boolean!) {
+    definirDirection(userId: $userId, direction: $direction) {
+      id
+      roles
+    }
+  }
+`;
+
 const ALL_GROUPES = gql`
   query allGroupes {
     allGroupes {

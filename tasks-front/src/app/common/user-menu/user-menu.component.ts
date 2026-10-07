@@ -9,7 +9,7 @@ import {UserService} from '../../services/user.service';
 import {User} from '../../type/issue';
 import {UserAvatarComponent} from '../user-avatar/user-avatar.component';
 import {ProfileComponent} from '../../pages/private/profile/profile.component';
-import {peutVoirDirection} from '../../pages/private/direction/direction.guard';
+import {estAdminSysteme, peutVoirDirection} from '../../pages/private/direction/direction.permissions';
 
 /**
  * Zone de compte : qui est connecté, accès à son profil, déconnexion.
@@ -79,6 +79,15 @@ export class UserMenuComponent implements OnInit, OnDestroy {
 
   ouvrirDirection(): void {
     this.router.navigate(['/direction']);
+  }
+
+  /** Administration : réservée à l'administrateur du système. */
+  get accesAdmin(): boolean {
+    return estAdminSysteme(this.profil?.permissions);
+  }
+
+  ouvrirAdmin(): void {
+    this.router.navigate(['/admin']);
   }
 
   get urlPhoto(): string {

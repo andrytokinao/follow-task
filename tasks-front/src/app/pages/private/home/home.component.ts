@@ -2,11 +2,13 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { IssueService } from "../../../services/issue.service";
 import { Project } from "../../../type/issue";
 import { Router } from "@angular/router";
+import { Subscription } from "rxjs";
 import { AuthService } from "../../../services/auth.service";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { UserService } from "../../../services/user.service";
 import { AuthGuard } from "../../../services/SystemGuard";
 import { PopupCreateProjectComponent } from "../popup-create-project/popup-create-project.component";
+import { estAdminSysteme, peutVoirDirection } from "../direction/direction.permissions";
 
 interface Slide {
   id: string;
@@ -83,6 +85,11 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   private sliderInterval: any;
 
+  /** Raccourcis au-dessus des espaces, selon les droits du profil. */
+  accesDirection = false;
+  accesAdmin = false;
+  private profilAbonnement?: Subscription;
+
   constructor(
     private router: Router,
     private authService: AuthService,
@@ -93,6 +100,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.profilAbonnement = this.authService.profile$.subscribe(profil => {
+      this.accesDirection = peutVoirDirection(profil?.permissions);
+      this.accesAdmin = estAdminSysteme(profil?.permissions);
+    });
     this.issueService.projects$.subscribe(projects => {
       this.projects = projects;
       this.animateCounter('animatedProjectCount', projects.length);
@@ -103,6 +114,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.profilAbonnement?.unsubscribe();
     this.stopAutoSlide();
   }
 

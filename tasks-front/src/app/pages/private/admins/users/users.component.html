@@ -76,7 +76,11 @@
       <img [src]="getPhoto(user)" [alt]="fullName(user)" *ngIf="user.photo">
       <span class="avatar-initiales" *ngIf="!user.photo">{{ initiales(user) }}</span>
       <div class="details">
-        <h3>{{ fullName(user) }} <span class="badge-inactif" *ngIf="!estActif(user)">Désactivé</span></h3>
+        <h3>
+          {{ fullName(user) }}
+          <span class="badge-inactif" *ngIf="!estActif(user)">Désactivé</span>
+          <span class="badge-direction" *ngIf="estDirection(user)"><i class="fas fa-compass"></i> Direction</span>
+        </h3>
         <p class="user-email" *ngIf="user.email">{{ user.email }}</p>
       </div>
     </div>
@@ -115,6 +119,12 @@
             [title]="estActif(user) ? 'Désactiver le compte' : 'Réactiver le compte'">
         <i class="fa" [ngClass]="estActif(user) ? 'fa-user-lock' : 'fa-user-check'"></i>
         <span class="btn-label">{{ estActif(user) ? 'Désactiver' : 'Réactiver' }}</span>
+      </span>
+      <span class="controle btn" *ngIf="adminSysteme" [class.direction-on]="estDirection(user)"
+            (click)="basculerDirection(user)"
+            [title]="estDirection(user) ? 'Retirer de la direction' : 'Ajouter à la direction'">
+        <i class="fas fa-compass"></i>
+        <span class="btn-label">{{ estDirection(user) ? 'Direction ✓' : 'Direction' }}</span>
       </span>
     </div>
   </li>

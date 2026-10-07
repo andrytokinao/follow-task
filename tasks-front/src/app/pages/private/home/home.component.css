@@ -435,6 +435,15 @@
   flex-shrink: 0;
 }
 
+/* Raccourcis Direction / Administration, au-dessus des espaces de travail. */
+.pp-raccourcis {
+  padding: 0.75rem 1.25rem;
+  border-bottom: 1px solid #E2E8F0;
+  flex-shrink: 0;
+}
+.raccourci { text-decoration: none; color: inherit; }
+.raccourci .p-avatar { font-size: 15px; }
+
 .pp-header {
   display: flex;
   align-items: center;

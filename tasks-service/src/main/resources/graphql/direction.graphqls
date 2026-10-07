@@ -11,6 +11,12 @@ extend type Query {
     directionProjets(departement: String): [Issue]
 }
 
+extend type Mutation {
+    # Donne (true) ou retire (false) le rôle système DIRECTION. Administrateur
+    # du système seulement.
+    definirDirection(userId: String!, direction: Boolean!): MemberGroupe
+}
+
 extend type Issue {
     # Début du premier événement de planning déjà commencé ; null si jamais traitée.
     dateDebutTraitement: String

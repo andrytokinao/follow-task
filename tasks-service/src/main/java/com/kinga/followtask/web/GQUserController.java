@@ -121,6 +121,15 @@ public class GQUserController {
     public MemberGroupe addUserInGroupe(@Argument String username , @Argument Long groupeId, @Argument List<String> roles) {
         return authorizationService.addUserInGroupe (username,groupeId,roles);
     }
+    /**
+     * Fait d'un utilisateur un membre de la direction, ou le retire. Reserve a
+     * l'administrateur du systeme, comme les autres actes sur les droits.
+     */
+    @MutationMapping
+    @PreAuthorize("hasAuthority('SYSTEM_ADMIN')")
+    public MemberGroupe definirDirection(@Argument String userId, @Argument Boolean direction) {
+        return authorizationService.definirDirection(userId, Boolean.TRUE.equals(direction));
+    }
     @QueryMapping
     public PermissionTask loadPermissiontTask(){
        return permissionTask;

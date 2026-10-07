@@ -235,6 +235,27 @@
       <app-user-menu variante="ligne"></app-user-menu>
     </div>
 
+    <!-- Accès selon les droits, au-dessus des espaces : la direction
+         (CAN_VIEW_DIRECTION) et l'administration (super admin). -->
+    <nav class="pp-raccourcis" *ngIf="accesDirection || accesAdmin" aria-label="Accès">
+      <a class="project-row raccourci" *ngIf="accesDirection" routerLink="/direction">
+        <div class="p-avatar" style="background:#185FA5"><i class="fas fa-compass"></i></div>
+        <div class="p-info">
+          <span class="p-name">Direction</span>
+          <p class="p-desc">Projets en cours, avancement et commentaires</p>
+        </div>
+        <i class="fa fa-chevron-right p-arrow"></i>
+      </a>
+      <a class="project-row raccourci" *ngIf="accesAdmin" routerLink="/admin">
+        <div class="p-avatar" style="background:#334155"><i class="fas fa-user-shield"></i></div>
+        <div class="p-info">
+          <span class="p-name">Administration</span>
+          <p class="p-desc">Utilisateurs, groupes et configuration</p>
+        </div>
+        <i class="fa fa-chevron-right p-arrow"></i>
+      </a>
+    </nav>
+
     <div class="pp-header">
       <div>
         <h2 class="pp-title">Espaces de travail</h2>

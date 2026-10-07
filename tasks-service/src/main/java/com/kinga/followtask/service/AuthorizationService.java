@@ -21,6 +21,9 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class AuthorizationService {
+    /** Role systeme du cockpit de direction (application.yml). */
+    public static final String ROLE_DIRECTION = "DIRECTION";
+
     @Autowired
     PermissionSystem permissionSystem;
     @Autowired
@@ -71,6 +74,33 @@ public class AuthorizationService {
         memberGroupe.setRoles (roles);
         return memberGroupeRepository.save (memberGroupe);
     }
+    /**
+     * Donne ou retire le role systeme DIRECTION (application.yml) a un
+     * utilisateur, sans toucher a ses autres roles systeme : un administrateur
+     * peut aussi etre de la direction, un retrait ne doit pas lui couter ses
+     * droits d'administration.
+     */
+    public MemberGroupe definirDirection(String userId, boolean direction) {
+        UserApp userApp = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Utilisateur introuvable : " + userId));
+        List<MemberGroupe> membres = memberGroupeRepository.findByUserIdAndGroupeType(userApp.getId(), GroupeUser.SYSTEM_GROUPE);
+        MemberGroupe membre;
+        if (CollectionUtils.isEmpty(membres)) {
+            membre = new MemberGroupe();
+            membre.setUser(userApp);
+            membre.setGroupe(systemGroupe());
+        } else {
+            membre = membres.get(0);
+        }
+        List<String> roles = membre.getRoles() == null ? new ArrayList<>() : new ArrayList<>(membre.getRoles());
+        roles.remove(ROLE_DIRECTION);
+        if (direction) {
+            roles.add(ROLE_DIRECTION);
+        }
+        membre.setRoles(roles);
+        return memberGroupeRepository.save(membre);
+    }
+
     public List<MemberGroupe> deletInGroupe(UserApp userApp, GroupeUser groupeUser) {
         List<MemberGroupe> memberGroupes = memberGroupeRepository.findByGroupeIdAndUserId(groupeUser.getId(), userApp.getId());
         if (CollectionUtils.isEmpty(memberGroupes)) {

@@ -372,6 +372,32 @@ export class UsersComponent implements OnInit, OnDestroy {
     });
   }
 
+  estDirection(user: User): boolean {
+    return UserService.estDirection(user);
+  }
+
+  /**
+   * Donne ou retire l'accès au cockpit de direction (rôle système DIRECTION).
+   * Ses espaces de travail, eux, restent ceux dont elle est membre.
+   */
+  basculerDirection(user: User) {
+    const direction = this.estDirection(user);
+    const question = direction
+      ? `Retirer ${this.fullName(user)} de la direction ? Il n'aura plus accès au cockpit de direction.`
+      : `Ajouter ${this.fullName(user)} à la direction ? Il aura accès au cockpit de direction.`;
+    if (!confirm(question)) {
+      return;
+    }
+    this.erreur = '';
+    this.userService.definirDirection(user.id, !direction).subscribe({
+      next: () => this.rafraichir(),
+      error: cause => {
+        this.erreur = cause?.graphQLErrors?.[0]?.message || cause?.message
+          || "Impossible de modifier l'accès à la direction";
+      }
+    });
+  }
+
   private openUser(user: User, action: string, readOnly: boolean) {
     const dialogRef = this.modalService.open(EditUserComponent, {windowClass: "xlModal", backdrop: "static", keyboard: false});
     dialogRef.componentInstance.action = action;

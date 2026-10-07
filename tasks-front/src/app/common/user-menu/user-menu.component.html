@@ -30,6 +30,9 @@
   <button mat-menu-item *ngIf="accesDirection" (click)="ouvrirDirection()">
     <i class="fas fa-compass"></i> Tableau de direction
   </button>
+  <button mat-menu-item *ngIf="accesAdmin" (click)="ouvrirAdmin()">
+    <i class="fas fa-user-shield"></i> Administration
+  </button>
   <div class="user-menu-divider"></div>
   <button mat-menu-item class="user-menu-logout"
           [disabled]="deconnexionEnCours" (click)="deconnexion()">

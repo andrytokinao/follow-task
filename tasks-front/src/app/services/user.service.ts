@@ -15,7 +15,7 @@ import {
   LOAD_GROUPE_MEMBER,
   SAVE_CONFIG,
   LOAD_PERMISSION_TASK,
-  SAVE_USER, SEARCH_USERS, SET_USER_ACTIVE, supprimerTypename, DELETE_MEMBER,
+  SAVE_USER, SEARCH_USERS, SET_USER_ACTIVE, DEFINIR_DIRECTION, supprimerTypename, DELETE_MEMBER,
   WHATSAPP_LINK_STATE, START_WHATSAPP_LINK, VERIFY_WHATSAPP_LINK, UNLINK_WHATSAPP
 } from "../type/graphql.operations";
 import {WhatsAppLinkState} from "../type/whatsapp-link";
@@ -119,6 +119,22 @@ export class UserService {
         return supprimerTypename(res.data.setUserActive) as User;
       })
     );
+  }
+
+  /**
+   * Fait d'un utilisateur un membre de la direction, ou le retire. Ses autres
+   * rôles système restent inchangés.
+   */
+  definirDirection(userId: string, direction: boolean): Observable<unknown> {
+    return this.apollo.mutate({
+      mutation: DEFINIR_DIRECTION,
+      variables: {userId, direction}
+    });
+  }
+
+  /** Rôle système DIRECTION (voir application.yml), lu dans les groupes de l'utilisateur. */
+  static estDirection(user: User | undefined | null): boolean {
+    return !!user?.groupes?.some(membre => membre.roles?.includes('DIRECTION'));
   }
 
   /** Un compte sans valeur `active` est antérieur à la désactivation : il est actif. */
