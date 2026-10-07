@@ -1,4 +1,4 @@
-import {Issue, User} from '../../../type/issue';
+import {Issue} from '../../../type/issue';
 
 /**
  * Modèle d'affichage du cockpit de direction. Les données viennent de
@@ -22,21 +22,13 @@ export interface ProjetDirection {
   heures: number;
 }
 
-/** Tâche d'un projet : le type Issue, plus sa date de premier traitement. */
+/** Tâche d'un projet : le type Issue, plus les champs propres au cockpit. */
 export type TacheProjet = Issue & {
   /** Début du premier événement de planning commencé ; null si jamais traitée. */
   dateDebutTraitement?: string | null;
+  nombreCommentaires?: number;
 };
-
-/** Temps d'une personne sur une tâche (`getIssuePlanningSummaries`). */
-export interface TempsPersonne {
-  user: User;
-  spentMinutes: number;
-  totalMinutes: number;
-}
 
 export interface DetailProjet {
   taches: TacheProjet[];
-  /** Temps par personne, indexé par identifiant de tâche. */
-  tempsParTache: Map<number, TempsPersonne[]>;
 }

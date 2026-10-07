@@ -3,9 +3,8 @@ import {gql} from 'apollo-angular';
 /**
  * Requêtes GraphQL du cockpit de direction.
  *
- * Le détail des tâches s'appuie sur les requêtes existantes (`loadSubtask`,
- * `getIssuePlanningSummaries`) ; seul `dateDebutTraitement` est propre au
- * cockpit.
+ * Le détail des tâches s'appuie sur la requête existante `loadSubtask` ;
+ * `dateDebutTraitement` et `nombreCommentaires` sont propres au cockpit.
  */
 
 const UTILISATEUR = `
@@ -38,7 +37,11 @@ export const DIRECTION_PROJETS = gql`
   }
 `;
 
-/** Tâches d'un projet : avancement, personnes, temps passé, premier traitement. */
+/**
+ * Tâches d'un projet : avancement, assignés, temps passé, premier traitement,
+ * nombre de commentaires. `project`, `parent` et `reporter` servent au
+ * composant des assignés (`app-assign-field`) pour juger des droits.
+ */
 export const DIRECTION_TACHES_PROJET = gql`
   query directionTachesProjet($projetId: Int) {
     loadSubtask(parentId: $projetId) {
@@ -48,25 +51,15 @@ export const DIRECTION_TACHES_PROJET = gql`
       currentCompletionPercent
       elapsedDurationMinutes
       dateDebutTraitement
+      nombreCommentaires
+      project { id prefix }
+      parent { id }
+      reporter { id }
       assigne { ${UTILISATEUR} }
       activeMemberships {
         id
         role
         user { ${UTILISATEUR} }
-      }
-    }
-  }
-`;
-
-/** Temps de chaque personne, par tâche. */
-export const DIRECTION_TEMPS_PAR_PERSONNE = gql`
-  query directionTempsParPersonne($issueIds: [ID!]!) {
-    getIssuePlanningSummaries(issueIds: $issueIds) {
-      issue { id }
-      userStats {
-        user { ${UTILISATEUR} }
-        spentMinutes
-        totalMinutes
       }
     }
   }

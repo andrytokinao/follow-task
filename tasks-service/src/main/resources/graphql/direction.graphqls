@@ -20,6 +20,8 @@ extend type Mutation {
 extend type Issue {
     # Début du premier événement de planning déjà commencé ; null si jamais traitée.
     dateDebutTraitement: String
+    # Nombre de commentaires (documents COMMENT_FILES non supprimés).
+    nombreCommentaires: Int
     # Chiffres du rapport de projet (RapportService.genererRapport).
     rapportProjet: RapportProjet
 }

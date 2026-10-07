@@ -20,11 +20,25 @@
 }
 
 /* ═══ TÂCHES ═══ */
+/* Secours si la fiche devient vraiment étroite : défilement plutôt que débord. */
+.tasks-wrap {
+  overflow-x: auto;
+}
+
+/* Largeurs fixes : seule la colonne « Tâche » s'adapte, son nom se tronque. */
 .tasks {
   width: 100%;
+  min-width: 560px;
+  table-layout: fixed;
   border-collapse: collapse;
   font-size: 12.5px;
 }
+
+.w-progress { width: 130px; }
+.w-people { width: 96px; }
+.w-time { width: 64px; }
+.w-date { width: 72px; }
+.w-comments { width: 60px; }
 
 .tasks th {
   padding: 0 10px 8px;
@@ -41,6 +55,7 @@
   border-bottom: 1px solid var(--dir-hairline);
   vertical-align: middle;
   color: var(--dir-ink-2);
+  overflow: hidden;
 }
 
 .tasks tbody tr:last-child td {
@@ -56,10 +71,6 @@
   text-align: right;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
-}
-
-.col-progress {
-  min-width: 130px;
 }
 
 .task-cell {
@@ -89,10 +100,11 @@ a.task-key:hover {
 }
 
 .task-name {
+  flex: 1;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 320px;
   color: var(--dir-ink);
 }
 
@@ -152,6 +164,15 @@ a.task-key:hover {
   background: var(--dir-accent-soft);
 }
 
+/* Aucun commentaire : le compteur s'efface, sans disparaître. */
+.comment-toggle.vide:not(:hover):not(.active) {
+  color: var(--dir-ink-3);
+}
+
+.comment-toggle {
+  font-variant-numeric: tabular-nums;
+}
+
 /* ═══ POPUP COMMENTAIRES ═══ */
 .popup-backdrop {
   position: fixed;
@@ -209,29 +230,3 @@ a.task-key:hover {
   padding: 12px 18px 16px;
 }
 
-.people {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 12px;
-}
-
-.person {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  white-space: nowrap;
-}
-
-.person-avatar {
-  --avatar-size: 22px;
-}
-
-.person-name {
-  color: var(--dir-ink);
-}
-
-.person-time {
-  font-size: 11px;
-  color: var(--dir-ink-3);
-  font-variant-numeric: tabular-nums;
-}

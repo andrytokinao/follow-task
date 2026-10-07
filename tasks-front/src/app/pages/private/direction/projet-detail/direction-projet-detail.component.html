@@ -11,15 +11,26 @@
     <i class="fas fa-tasks"></i> Aucune tâche.
   </div>
 
-  <table class="tasks" *ngIf="detail.taches.length">
+  <!-- Largeurs fixes : le nom de la tâche prend la place restante et se tronque,
+       le tableau ne déborde plus de la fiche. -->
+  <div class="tasks-wrap" *ngIf="detail.taches.length">
+  <table class="tasks">
+    <colgroup>
+      <col>
+      <col class="w-progress">
+      <col class="w-people">
+      <col class="w-time">
+      <col class="w-date">
+      <col class="w-comments">
+    </colgroup>
     <thead>
     <tr>
       <th>Tâche</th>
-      <th class="col-progress">Avancement tâche</th>
+      <th>Avancement</th>
       <th>Personnes</th>
-      <th class="num">Temps passé</th>
-      <th>Premier traitement</th>
-      <th></th>
+      <th class="num">Temps</th>
+      <th>Début</th>
+      <th class="num" title="Commentaires"><i class="far fa-comments"></i></th>
     </tr>
     </thead>
     <tbody>
@@ -32,7 +43,7 @@
           <span class="task-name" [title]="t.summary">{{ t.summary }}</span>
         </div>
       </td>
-      <td class="col-progress">
+      <td>
         <div class="meter">
           <div class="meter-track">
             <div class="meter-fill" [ngClass]="classeAvancement(t)" [style.width.%]="avancement(t)"></div>
@@ -41,29 +52,25 @@
         </div>
       </td>
       <td>
-        <div class="people" *ngIf="intervenantsParTache.get(t.id) ?? [] as personnes">
-          <span class="person" *ngFor="let i of personnes" [title]="nomDe(i.user)">
-            <app-avatar class="person-avatar" [url]="photoDe(i.user)" [displayName]="nomDe(i.user)"></app-avatar>
-            <span class="person-name">{{ nomDe(i.user) }}</span>
-            <span class="person-time" *ngIf="i.minutes">{{ duree(i.minutes) }}</span>
-          </span>
-          <span class="muted" *ngIf="!personnes.length">Non assignée</span>
-        </div>
+        <!-- Même composant que les listes de l'espace de travail ; avatars seuls. -->
+        <app-assign-field [issue]="t" [maxAvatars]="3" [maxLabelWidth]="0"></app-assign-field>
       </td>
       <td class="num">{{ duree(t.elapsedDurationMinutes) }}</td>
       <td>
-        <span *ngIf="t.dateDebutTraitement; else jamais">{{ t.dateDebutTraitement | date:'dd/MM/yyyy' }}</span>
-        <ng-template #jamais><span class="muted">Pas commencée</span></ng-template>
+        <span *ngIf="t.dateDebutTraitement; else jamais">{{ t.dateDebutTraitement | date:'dd/MM/yy' }}</span>
+        <ng-template #jamais><span class="muted" title="Pas encore commencée">—</span></ng-template>
       </td>
       <td class="num">
         <button type="button" class="comment-toggle" [class.active]="tacheCommentee === t"
-                aria-haspopup="dialog" (click)="ouvrirCommentaires(t)">
-          <i class="far fa-comment"></i> Commenter
+                aria-haspopup="dialog" [class.vide]="!t.nombreCommentaires"
+                [title]="(t.nombreCommentaires ?? 0) + ' commentaire(s) — ouvrir'" (click)="ouvrirCommentaires(t)">
+          <i class="far fa-comment"></i> {{ t.nombreCommentaires ?? 0 }}
         </button>
       </td>
     </tr>
     </tbody>
   </table>
+  </div>
 </ng-container>
 
 <!-- ═══ POPUP COMMENTAIRES D'UNE TÂCHE ═══ -->
@@ -80,7 +87,7 @@
       </button>
     </div>
     <div class="popup-body">
-      <app-direction-commentaires [issueId]="$any(t.id)"></app-direction-commentaires>
+      <app-direction-commentaires [issueId]="$any(t.id)" (ajoute)="commentaireAjoute(t)"></app-direction-commentaires>
     </div>
   </div>
 </div>

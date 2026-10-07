@@ -8,6 +8,7 @@ import {DirectionCommentairesComponent} from './commentaires/direction-commentai
 import {UserMenuComponent} from '../../../common/user-menu/user-menu.component';
 import {AvatarComponent} from '../../../common/avatar/avatar.component';
 import {CustomFieldComponent} from '../../../common/custom-field/custom-field.component';
+import {MyCommonModule} from '../../../common/common.module';
 
 /**
  * Cockpit de direction : projets en cours de la société et leurs tâches, par
@@ -26,7 +27,9 @@ import {CustomFieldComponent} from '../../../common/custom-field/custom-field.co
     DirectionRoutingModule,
     UserMenuComponent,
     AvatarComponent,
-    CustomFieldComponent
+    CustomFieldComponent,
+    // Composants communs de l'application, dont app-assign-field (assignés).
+    MyCommonModule
   ]
 })
 export class DirectionModule {

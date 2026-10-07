@@ -1,4 +1,4 @@
-import {Component, Input, OnChanges} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, Output} from '@angular/core';
 import {Subscription} from 'rxjs';
 import {filter, switchMap, take} from 'rxjs/operators';
 import {DocumentApp, Uploaded, User} from '../../../../type/issue';
@@ -23,6 +23,9 @@ import {AuthService} from '../../../../services/auth.service';
 export class DirectionCommentairesComponent implements OnChanges {
 
   @Input({required: true}) issueId!: number;
+
+  /** Émis après l'enregistrement d'un commentaire (pour les compteurs). */
+  @Output() ajoute = new EventEmitter<void>();
 
   commentaires: DocumentApp[] = [];
   chargement = true;
@@ -63,6 +66,7 @@ export class DirectionCommentairesComponent implements OnChanges {
       next: () => {
         this.envoi = false;
         this.texte = '';
+        this.ajoute.emit();
         this.charger();
       },
       error: () => {

@@ -4,6 +4,8 @@ import com.kinga.followtask.dto.rapport.RapportProjetDTO;
 import com.kinga.followtask.entity.Issue;
 import com.kinga.followtask.entity.PlanningEvent;
 import com.kinga.followtask.entity.Project;
+import com.kinga.followtask.entity.TypeDocument;
+import com.kinga.followtask.repository.DocumentRepository;
 import com.kinga.followtask.repository.IssueRepository;
 import com.kinga.followtask.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +39,7 @@ public class DirectionService {
     private final RapportService rapportService;
     private final IssueRepository issueRepository;
     private final ProjectRepository projectRepository;
+    private final DocumentRepository documentRepository;
 
     /** Noms des espaces de travail, triés. */
     @Transactional(readOnly = true)
@@ -105,6 +108,15 @@ public class DirectionService {
                 .filter(debut -> !debut.isAfter(maintenant))
                 .min(Comparator.naturalOrder())
                 .orElse(null);
+    }
+
+    /**
+     * Nombre de commentaires d'une demande : les documents
+     * {@code COMMENT_FILES} non supprimés, comme dans l'espace de travail.
+     */
+    @Transactional(readOnly = true)
+    public long nombreCommentaires(Issue issue) {
+        return documentRepository.countByIssuesIdAndTypeDocumentAndDeleted(issue.getId(), TypeDocument.COMMENT_FILES, false);
     }
 
     /** Même règle que {@code RapportService} : le nom, à défaut le préfixe. */

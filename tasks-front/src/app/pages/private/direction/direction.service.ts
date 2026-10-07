@@ -1,9 +1,9 @@
 import {Injectable} from '@angular/core';
 import {Apollo} from 'apollo-angular';
-import {Observable, of} from 'rxjs';
-import {catchError, map, switchMap} from 'rxjs/operators';
-import {DetailProjet, ProjetDirection, TacheProjet, TempsPersonne} from './direction.model';
-import {DIRECTION_PROJETS, DIRECTION_TACHES_PROJET, DIRECTION_TEMPS_PAR_PERSONNE} from './direction.operations';
+import {Observable} from 'rxjs';
+import {map} from 'rxjs/operators';
+import {DetailProjet, ProjetDirection, TacheProjet} from './direction.model';
+import {DIRECTION_PROJETS, DIRECTION_TACHES_PROJET} from './direction.operations';
 
 /** Projets de la société, et les tâches d'un projet. Lecture seule, en GraphQL. */
 @Injectable({providedIn: 'root'})
@@ -27,40 +27,18 @@ export class DirectionService {
       })));
   }
 
-  /** Tâches d'un projet, avec le temps de chaque personne sur chacune. */
+  /** Tâches d'un projet, avec leurs assignés et leur nombre de commentaires. */
   detailProjet(projetId: number): Observable<DetailProjet> {
     return this.apollo.query<any>({
       query: DIRECTION_TACHES_PROJET,
       variables: {projetId},
       fetchPolicy: 'network-only'
     }).pipe(
-      switchMap(res => {
-        const taches: TacheProjet[] = res.data?.loadSubtask ?? [];
-        if (!taches.length) {
-          return of({taches, tempsParTache: new Map<number, TempsPersonne[]>()});
-        }
-        return this.tempsParTache(taches.map(t => t.id as number)).pipe(
-          map(tempsParTache => ({taches, tempsParTache})));
-      }));
-  }
-
-  private tempsParTache(issueIds: number[]): Observable<Map<number, TempsPersonne[]>> {
-    return this.apollo.query<any>({
-      query: DIRECTION_TEMPS_PAR_PERSONNE,
-      variables: {issueIds},
-      fetchPolicy: 'network-only'
-    }).pipe(
-      map(res => {
-        const parTache = new Map<number, TempsPersonne[]>();
-        for (const resume of res.data?.getIssuePlanningSummaries ?? []) {
-          if (resume?.issue?.id != null) {
-            parTache.set(Number(resume.issue.id), resume.userStats ?? []);
-          }
-        }
-        return parTache;
-      }),
-      // Sans le détail des heures, les tâches restent lisibles.
-      catchError(() => of(new Map<number, TempsPersonne[]>())));
+      // Copie modifiable : le compteur de commentaires est mis à jour sur
+      // place après un ajout, et Apollo rend des objets figés.
+      map(res => ({
+        taches: (res.data?.loadSubtask ?? []).map((t: TacheProjet) => ({...t}))
+      })));
   }
 }
 

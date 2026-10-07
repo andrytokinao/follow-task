@@ -1,23 +1,14 @@
 import {Component, HostListener, Input, OnChanges} from '@angular/core';
 import {Subscription} from 'rxjs';
-import {User} from '../../../../type/issue';
-import {issueAssignees} from '../../../../type/issue-grouping.util';
-import {UserService} from '../../../../services/user.service';
 import {DirectionService} from '../direction.service';
-import {DetailProjet, ProjetDirection, TacheProjet, TempsPersonne} from '../direction.model';
-
-/** Une personne sur une tâche : assignée, avec le temps qu'elle y a passé. */
-interface IntervenantTache {
-  user: User;
-  minutes: number | null;
-}
+import {DetailProjet, ProjetDirection, TacheProjet} from '../direction.model';
 
 /**
- * Tâches d'un projet, en lecture seule : avancement, personnes et temps de
- * chacune, temps passé, date de premier traitement.
+ * Tâches d'un projet : avancement, assignés (composant commun
+ * `app-assign-field`), temps passé, date de premier traitement.
  *
- * Chaque tâche a un bouton « Commenter » qui ouvre ses commentaires dans une
- * popup. Rechargé à chaque changement de projet choisi.
+ * Chaque tâche a un bouton avec son nombre de commentaires, qui les ouvre dans
+ * une popup. Rechargé à chaque changement de projet choisi.
  */
 @Component({
   standalone: false,
@@ -30,16 +21,13 @@ export class DirectionProjetDetailComponent implements OnChanges {
   @Input({required: true}) projet!: ProjetDirection;
 
   detail: DetailProjet | null = null;
-  /** Calculé une fois au chargement : le template le relit à chaque cycle. */
-  intervenantsParTache = new Map<unknown, IntervenantTache[]>();
   chargement = true;
   erreur = false;
   private abonnement?: Subscription;
   /** Tâche dont les commentaires sont ouverts en popup. */
   tacheCommentee: TacheProjet | null = null;
 
-  constructor(private directionService: DirectionService,
-              private userService: UserService) {
+  constructor(private directionService: DirectionService) {
   }
 
   /** Rechargé à chaque changement d'élément choisi dans le menu. */
@@ -52,7 +40,6 @@ export class DirectionProjetDetailComponent implements OnChanges {
     this.abonnement = this.directionService.detailProjet(this.projet.id).subscribe({
       next: detail => {
         this.detail = detail;
-        this.intervenantsParTache = new Map(detail.taches.map(t => [t.id, this.intervenants(t)]));
         this.chargement = false;
       },
       error: () => {
@@ -76,27 +63,6 @@ export class DirectionProjetDetailComponent implements OnChanges {
     return projet && tache.issueKey ? [...projet, 'subtask', tache.issueKey as string] : null;
   }
 
-  // ---------------------------------------------------------------- tâches
-
-  /**
-   * Personnes d'une tâche : les assignés (règle commune issueAssignees), puis
-   * celles qui y ont du temps sans être assignées. Chacune avec ses heures.
-   */
-  private intervenants(tache: TacheProjet): IntervenantTache[] {
-    const temps: TempsPersonne[] = this.detail?.tempsParTache.get(Number(tache.id)) ?? [];
-    const minutesDe = (user: User) =>
-      temps.find(t => String(t.user?.id) === String(user.id))?.spentMinutes ?? null;
-
-    const resultat: IntervenantTache[] = issueAssignees(tache)
-      .map(user => ({user, minutes: minutesDe(user)}));
-    for (const t of temps) {
-      if (t.user && !resultat.some(i => String(i.user.id) === String(t.user.id))) {
-        resultat.push({user: t.user, minutes: t.spentMinutes});
-      }
-    }
-    return resultat;
-  }
-
   // ---------------------------------------------------------------- commentaires
 
   ouvrirCommentaires(tache: TacheProjet): void {
@@ -106,6 +72,11 @@ export class DirectionProjetDetailComponent implements OnChanges {
   @HostListener('document:keydown.escape')
   fermerCommentaires(): void {
     this.tacheCommentee = null;
+  }
+
+  /** Le compteur du bouton suit les ajouts faits dans la popup. */
+  commentaireAjoute(tache: TacheProjet): void {
+    tache.nombreCommentaires = (tache.nombreCommentaires ?? 0) + 1;
   }
 
   avancement(tache: TacheProjet): number {
@@ -118,15 +89,6 @@ export class DirectionProjetDetailComponent implements OnChanges {
   }
 
   // ---------------------------------------------------------------- affichage
-
-  nomDe(user: User | null | undefined): string {
-    const nom = `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim();
-    return nom || (user?.username as string) || '';
-  }
-
-  photoDe(user: User): string {
-    return this.userService.getUrlPhoto(user);
-  }
 
   /** Durée en « 4 h 30 », lisible d'un coup d'œil. */
   duree(minutes: number | null | undefined): string {

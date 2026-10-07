@@ -13,6 +13,8 @@ import java.util.List;
 public interface DocumentRepository extends JpaRepository<Document, Long> {
 
     List<Document> findByIssuesIdAndTypeDocumentAndDeleted(Long issueId, TypeDocument typeDocument, Boolean deleted);
+
+    long countByIssuesIdAndTypeDocumentAndDeleted(Long issueId, TypeDocument typeDocument, Boolean deleted);
     List<Document> findByIssuesId(Long issueId);
     List<Document> findByParentIdAndDeleted(Long parentId, boolean deleted);
 
