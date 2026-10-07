@@ -1,6 +1,6 @@
 import {inject} from '@angular/core';
 import {CanActivateFn, Router} from '@angular/router';
-import {catchError, map, of} from 'rxjs';
+import {catchError, filter, map, of, take} from 'rxjs';
 import {AuthService} from '../../../services/auth.service';
 
 /** Permission portée par le rôle système DIRECTION (voir application.yml). */
@@ -24,6 +24,8 @@ export const directionGuard: CanActivateFn = () => {
   const authService = inject(AuthService);
   const router = inject(Router);
   return authService.getProfile().pipe(
+    filter((profile: any) => !!profile),
+    take(1),
     map((profile: any) => peutVoirDirection(profile?.permissions)),
     catchError(() => of(false)),
     map(autorise => autorise || router.createUrlTree(['/working/access-denied']))

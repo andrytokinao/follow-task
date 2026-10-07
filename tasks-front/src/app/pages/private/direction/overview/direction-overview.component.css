@@ -483,6 +483,33 @@
   min-width: 220px;
 }
 
+/* Ligne dépliable : un clic ouvre les tâches et les livrables du projet. */
+.project-row {
+  cursor: pointer;
+}
+
+.row-caret {
+  flex-shrink: 0;
+  width: 10px;
+  font-size: 10px;
+  color: var(--dir-ink-3);
+  transition: transform 0.15s ease;
+}
+
+.row-caret.open {
+  transform: rotate(90deg);
+}
+
+.portfolio tr.project-row.open td {
+  border-bottom-color: transparent;
+}
+
+.portfolio .project-detail-row td {
+  padding: 4px 0 18px 20px;
+  background: var(--dir-surface-muted);
+  cursor: default;
+}
+
 .prefix {
   flex-shrink: 0;
   min-width: 42px;

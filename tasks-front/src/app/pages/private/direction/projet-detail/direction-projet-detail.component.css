@@ -1,0 +1,249 @@
+:host {
+  display: block;
+}
+
+.detail-loading,
+.detail-error,
+.detail-empty {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 4px;
+  font-size: 13px;
+  color: var(--dir-ink-3);
+}
+
+.detail-error {
+  color: var(--dir-serious-text);
+}
+
+.detail {
+  display: grid;
+  grid-template-columns: minmax(0, 2.4fr) minmax(220px, 1fr);
+  gap: 24px;
+}
+
+.detail-block {
+  min-width: 0;
+}
+
+.detail-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.detail-head h3 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--dir-ink);
+}
+
+.count {
+  margin-left: 4px;
+  font-weight: 500;
+  color: var(--dir-ink-3);
+}
+
+.detail-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--dir-accent);
+  text-decoration: none;
+}
+
+.detail-link:hover {
+  text-decoration: underline;
+}
+
+.muted {
+  color: var(--dir-ink-3);
+}
+
+/* ═══ TÂCHES ═══ */
+.tasks {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+
+.tasks th {
+  padding: 0 10px 8px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--dir-ink-3);
+  border-bottom: 1px solid var(--dir-hairline);
+  white-space: nowrap;
+}
+
+.tasks td {
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--dir-hairline);
+  vertical-align: middle;
+  color: var(--dir-ink-2);
+}
+
+.tasks tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.tasks th:first-child,
+.tasks td:first-child {
+  padding-left: 0;
+}
+
+.tasks .num {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.col-progress {
+  min-width: 130px;
+}
+
+.task-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.task-key {
+  flex-shrink: 0;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--dir-accent);
+  text-decoration: none;
+}
+
+a.task-key:hover {
+  text-decoration: underline;
+}
+
+.task-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 280px;
+  color: var(--dir-ink);
+}
+
+.meter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.meter-track {
+  flex: 1;
+  height: 5px;
+  border-radius: 999px;
+  background: #eef0f3;
+}
+
+.meter-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+.meter-fill.bas { background: #EF4444; }
+.meter-fill.moyen { background: #F59E0B; }
+.meter-fill.haut { background: #22C55E; }
+.meter-fill.termine { background: var(--dir-series-1); }
+
+.meter-value {
+  min-width: 36px;
+  text-align: right;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--dir-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.people {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+}
+
+.person {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.person-avatar {
+  --avatar-size: 22px;
+}
+
+.person-name {
+  color: var(--dir-ink);
+}
+
+.person-time {
+  font-size: 11px;
+  color: var(--dir-ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ═══ LIVRABLES ═══ */
+.deliverables {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.deliverable {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 9px 10px;
+  border: 1px solid var(--dir-hairline);
+  border-radius: 8px;
+  background: var(--dir-surface);
+}
+
+.deliverable-icon {
+  margin-top: 2px;
+  color: var(--dir-accent);
+}
+
+.deliverable-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.deliverable-title {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--dir-ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.deliverable-meta {
+  font-size: 11px;
+  color: var(--dir-ink-3);
+}
+
+@media (max-width: 1100px) {
+  .detail {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

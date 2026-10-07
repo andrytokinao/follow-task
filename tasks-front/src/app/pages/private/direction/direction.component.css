@@ -261,20 +261,6 @@
   gap: 12px;
 }
 
-.demo-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 500;
-  background: var(--dir-warning-soft);
-  color: var(--dir-warning-text);
-  border: 1px solid #f6dfa8;
-  white-space: nowrap;
-}
-
 /* ---------- FILTRES ---------- */
 .dir-filters {
   display: flex;

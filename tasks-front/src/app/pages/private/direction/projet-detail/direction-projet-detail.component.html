@@ -1,0 +1,98 @@
+<div class="detail-loading" *ngIf="chargement">
+  <i class="fas fa-circle-notch fa-spin"></i> Chargement du projet…
+</div>
+
+<div class="detail-error" *ngIf="erreur">
+  <i class="fas fa-plug"></i> Impossible de charger le détail de ce projet.
+</div>
+
+<div class="detail" *ngIf="detail && !erreur">
+
+  <!-- ═══ TÂCHES ═══ -->
+  <section class="detail-block">
+    <header class="detail-head">
+      <h3>Tâches <span class="count">{{ detail.taches.length }}</span></h3>
+      <a class="detail-link" *ngIf="lienProjet" [routerLink]="lienProjet">
+        Ouvrir le projet <i class="fas fa-arrow-right"></i>
+      </a>
+    </header>
+
+    <div class="detail-empty" *ngIf="!detail.taches.length">
+      <i class="fas fa-tasks"></i> Aucune tâche dans ce projet.
+    </div>
+
+    <table class="tasks" *ngIf="detail.taches.length">
+      <thead>
+      <tr>
+        <th>Tâche</th>
+        <th class="col-progress">Avancement</th>
+        <th>Personnes</th>
+        <th class="num">Temps passé</th>
+        <th>Premier traitement</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let t of detail.taches; trackBy: parId">
+        <td>
+          <div class="task-cell">
+            <a class="task-key" *ngIf="lienTache(t) as lien; else cleSeule" [routerLink]="lien">{{ t.issueKey }}</a>
+            <ng-template #cleSeule><span class="task-key">{{ t.issueKey }}</span></ng-template>
+            <span class="task-name" [title]="t.summary">{{ t.summary }}</span>
+          </div>
+        </td>
+        <td class="col-progress">
+          <div class="meter">
+            <div class="meter-track">
+              <div class="meter-fill" [ngClass]="classeAvancement(t)" [style.width.%]="avancement(t)"></div>
+            </div>
+            <span class="meter-value">{{ avancement(t) }} %</span>
+          </div>
+        </td>
+        <td>
+          <div class="people" *ngIf="intervenantsParTache.get(t.id) ?? [] as personnes">
+            <span class="person" *ngFor="let i of personnes" [title]="nomDe(i.user)">
+              <app-avatar class="person-avatar" [url]="photoDe(i.user)" [displayName]="nomDe(i.user)"></app-avatar>
+              <span class="person-name">{{ nomDe(i.user) }}</span>
+              <span class="person-time" *ngIf="i.minutes">{{ duree(i.minutes) }}</span>
+            </span>
+            <span class="muted" *ngIf="!personnes.length">Non assignée</span>
+          </div>
+        </td>
+        <td class="num">{{ duree(t.elapsedDurationMinutes) }}</td>
+        <td>
+          <span *ngIf="t.dateDebutTraitement; else jamais">{{ t.dateDebutTraitement | date:'dd/MM/yyyy' }}</span>
+          <ng-template #jamais><span class="muted">Pas commencée</span></ng-template>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ═══ LIVRABLES ═══ -->
+  <section class="detail-block">
+    <header class="detail-head">
+      <h3>Livrables <span class="count">{{ detail.livrables.length }}</span></h3>
+      <a class="detail-link" *ngIf="lienProjet" [routerLink]="lienProjet.concat('espace-livraison')">
+        Espace de livraison <i class="fas fa-arrow-right"></i>
+      </a>
+    </header>
+
+    <div class="detail-empty" *ngIf="!detail.livrables.length">
+      <i class="fas fa-box-open"></i> Aucun livrable déposé.
+    </div>
+
+    <ul class="deliverables" *ngIf="detail.livrables.length">
+      <li class="deliverable" *ngFor="let l of detail.livrables; trackBy: parId">
+        <i class="fas fa-file-alt deliverable-icon"></i>
+        <div class="deliverable-text">
+          <span class="deliverable-title">{{ l.titre }}</span>
+          <span class="deliverable-meta">
+            <span *ngIf="l.creation">{{ l.creation | date:'dd/MM/yyyy' }}</span>
+            <span *ngIf="l.userApp"> · {{ nomDe(l.userApp) }}</span>
+            <span> · {{ nombreFichiers(l) }} fichier{{ nombreFichiers(l) > 1 ? 's' : '' }}</span>
+          </span>
+        </div>
+      </li>
+    </ul>
+  </section>
+</div>

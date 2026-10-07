@@ -98,8 +98,13 @@ export class DirectionOverviewComponent implements OnInit, OnDestroy {
 
   // ---------------------------------------------------------------- indicateurs
 
+  /** Sans valeur précédente, pas de tendance : une flèche inventée tromperait. */
+  aTendance(ind: IndicateurCle): boolean {
+    return ind.valeurPrecedente != null;
+  }
+
   ecart(ind: IndicateurCle): number {
-    return ind.valeur - ind.valeurPrecedente;
+    return ind.valeur - (ind.valeurPrecedente ?? ind.valeur);
   }
 
   /** « bon », « mauvais » ou « neutre » selon le sens favorable de l'indicateur. */
@@ -134,7 +139,7 @@ export class DirectionOverviewComponent implements OnInit, OnDestroy {
   // ------------------------------------------------------------ carte de charge
 
   get semaines(): string[] {
-    return this.vue?.charges[0]?.semaines.map(s => s.semaine) ?? [];
+    return this.vue?.charges?.[0]?.semaines.map(s => s.semaine) ?? [];
   }
 
   classeCharge(pourcentage: number): string {
@@ -186,6 +191,27 @@ export class DirectionOverviewComponent implements OnInit, OnDestroy {
   }
 
   // ------------------------------------------------------------- portefeuille
+
+  /** Projets dépliés, et ceux déjà chargés une fois. */
+  private readonly deplies = new Set<number>();
+  private readonly dejaCharges = new Set<number>();
+
+  basculer(p: ProjetPortefeuille): void {
+    if (this.deplies.has(p.id)) {
+      this.deplies.delete(p.id);
+    } else {
+      this.deplies.add(p.id);
+      this.dejaCharges.add(p.id);
+    }
+  }
+
+  estDeplie(p: ProjetPortefeuille): boolean {
+    return this.deplies.has(p.id);
+  }
+
+  dejaDeplie(p: ProjetPortefeuille): boolean {
+    return this.dejaCharges.has(p.id);
+  }
 
   /** Critiques d'abord : la direction lit le tableau de haut en bas. */
   get projetsTries(): ProjetPortefeuille[] {

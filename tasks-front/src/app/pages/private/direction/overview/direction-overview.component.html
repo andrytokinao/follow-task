@@ -29,7 +29,7 @@
         {{ ind.valeur }}<span class="kpi-unit" *ngIf="ind.unite">{{ ind.unite }}</span>
       </div>
       <div class="kpi-foot">
-        <span class="delta" [ngClass]="sensEcart(ind)">
+        <span class="delta" *ngIf="aTendance(ind)" [ngClass]="sensEcart(ind)">
           <i class="fas" [ngClass]="ecart(ind) > 0 ? 'fa-arrow-up' : ecart(ind) < 0 ? 'fa-arrow-down' : 'fa-minus'"></i>
           {{ libelleEcart(ind) }}
         </span>
@@ -56,18 +56,22 @@
         </div>
       </header>
 
-      <div class="empty-inline" *ngIf="!vue.charges.length">
+      <div class="empty-inline" *ngIf="!vue.charges">
+        <i class="fas fa-hourglass-half"></i> Mesure en préparation : la capacité des personnes n'est pas encore saisie.
+      </div>
+
+      <div class="empty-inline" *ngIf="vue.charges && !vue.charges.length">
         <i class="fas fa-user-slash"></i> Aucune personne dans ce périmètre.
       </div>
 
-      <div class="heatmap" *ngIf="vue.charges.length" role="table" aria-label="Charge par personne et par semaine"
+      <div class="heatmap" *ngIf="vue.charges?.length" role="table" aria-label="Charge par personne et par semaine"
            [style.grid-template-columns]="'minmax(180px, 1.4fr) repeat(' + semaines.length + ', minmax(44px, 1fr))'">
         <div class="hm-corner" role="columnheader">Personne</div>
         <div class="hm-week" role="columnheader" *ngFor="let s of semaines; let first = first">
           {{ s }}<span class="hm-now" *ngIf="first">en cours</span>
         </div>
 
-        <ng-container *ngFor="let p of vue.charges">
+        <ng-container *ngFor="let p of vue.charges ?? []">
           <div class="hm-person" role="rowheader">
             <span class="avatar">{{ p.initiales }}</span>
             <span class="hm-person-text">
@@ -138,18 +142,21 @@
           <th class="col-progress">Avancement</th>
           <th class="col-progress">Budget heures</th>
           <th class="num">Tâches</th>
-          <th>Prochain livrable</th>
+          <th>Prochaine échéance</th>
           <th>Chef de projet</th>
         </tr>
         </thead>
         <tbody>
-        <tr *ngFor="let p of projetsTries">
+        <ng-container *ngFor="let p of projetsTries">
+        <tr class="project-row" [class.open]="estDeplie(p)" (click)="basculer(p)"
+            [attr.aria-expanded]="estDeplie(p)">
           <td>
             <div class="project-cell">
+              <i class="fas fa-chevron-right row-caret" [class.open]="estDeplie(p)"></i>
               <span class="prefix">{{ p.prefixe }}</span>
               <div class="project-text">
                 <span class="project-name" [title]="p.nom">{{ p.nom }}</span>
-                <span class="project-client">{{ p.client }}</span>
+                <span class="project-client">{{ p.client || p.departement }}</span>
               </div>
             </div>
           </td>
@@ -185,16 +192,26 @@
             </span>
           </td>
           <td>
-            <div class="deliverable" *ngIf="p.prochainLivrable; else aucunLivrable">
-              <span class="deliverable-name">{{ p.prochainLivrable.libelle }}</span>
-              <span class="deliverable-due" [class.late]="p.prochainLivrable.echeance.startsWith('en retard')">
-                {{ p.prochainLivrable.echeance }}
+            <div class="deliverable" *ngIf="p.prochaineEcheance; else aucuneEcheance">
+              <span class="deliverable-name">{{ p.prochaineEcheance.libelle }}</span>
+              <span class="deliverable-due" [class.late]="p.prochaineEcheance.echeance.startsWith('en retard')">
+                {{ p.prochaineEcheance.echeance }}
               </span>
             </div>
-            <ng-template #aucunLivrable><span class="muted">—</span></ng-template>
+            <ng-template #aucuneEcheance><span class="muted">—</span></ng-template>
           </td>
-          <td><span class="owner">{{ p.chefProjet }}</span></td>
+          <td>
+            <span class="owner" *ngIf="p.chefProjet; else sansChef">{{ p.chefProjet }}</span>
+            <ng-template #sansChef><span class="muted">Non désigné</span></ng-template>
+          </td>
         </tr>
+        <!-- Détail chargé au premier dépliage, gardé ensuite : replier puis rouvrir ne recharge pas. -->
+        <tr class="project-detail-row" *ngIf="dejaDeplie(p)" [hidden]="!estDeplie(p)">
+          <td colspan="7">
+            <app-direction-projet-detail [projet]="p"></app-direction-projet-detail>
+          </td>
+        </tr>
+        </ng-container>
         </tbody>
       </table>
     </div>
@@ -217,12 +234,16 @@
       </div>
     </header>
 
-    <div class="empty-inline" *ngIf="!vue.repartition.length">
+    <div class="empty-inline" *ngIf="!vue.repartition">
+      <i class="fas fa-hourglass-half"></i> Mesure en préparation : la nature des activités n'est pas encore définie.
+    </div>
+
+    <div class="empty-inline" *ngIf="vue.repartition && !vue.repartition.length">
       <i class="fas fa-clock"></i> Aucun temps saisi sur la période.
     </div>
 
     <div class="split-chart">
-      <div class="split-row" *ngFor="let r of vue.repartition">
+      <div class="split-row" *ngFor="let r of vue.repartition ?? []">
         <span class="split-label">{{ r.departement }}</span>
         <div class="split-bar">
           <div class="split-seg" *ngFor="let s of segments(r)" [ngClass]="s.cle"

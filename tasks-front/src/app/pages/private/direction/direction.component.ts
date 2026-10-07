@@ -34,7 +34,7 @@ export class DirectionComponent implements OnInit, OnDestroy {
   filtres: FiltresDirection;
 
   /** Alimenté par les réponses des écrans : le shell n'interroge pas le serveur lui-même. */
-  contexte: ContexteDonnees = {departements: [], demonstration: false, miseAJour: null};
+  contexte: ContexteDonnees = {departements: [], miseAJour: null};
 
   readonly periodes: { valeur: PeriodeDirection; libelle: string }[] = [
     {valeur: 'semaine', libelle: 'Semaine'},

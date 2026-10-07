@@ -1,9 +1,10 @@
+import {DocumentApp, Issue, User} from '../../../type/issue';
+
 /**
  * Contrat de données du cockpit de direction.
  *
- * Ces types décrivent la réponse attendue de `GET api/direction/overview` :
- * des agrégats déjà calculés côté serveur, jamais la liste brute des tâches,
- * pour que l'écran reste instantané quelle que soit la taille de la société.
+ * Modèle d'affichage des écrans. Les données viennent de GraphQL
+ * (`direction.operations.ts`) et sont mises en forme par `DirectionService`.
  */
 
 export type PeriodeDirection = 'semaine' | 'mois' | 'trimestre';
@@ -24,8 +25,8 @@ export interface IndicateurCle {
   libelle: string;
   valeur: number;
   unite?: string;
-  /** Valeur de la période précédente, pour la tendance. */
-  valeurPrecedente: number;
+  /** Valeur de la période précédente, pour la tendance ; null sans historique. */
+  valeurPrecedente: number | null;
   /** true si une hausse est une bonne nouvelle (temps productif), false sinon (retards). */
   hausseFavorable: boolean;
   aide: string;
@@ -53,16 +54,20 @@ export interface ProjetPortefeuille {
   id: number;
   prefixe: string;
   nom: string;
-  client: string;
+  /** null : le modèle ne porte pas encore de client. */
+  client: string | null;
   departement: string;
-  chefProjet: string;
+  /** Préfixe de l'espace de travail, pour les liens vers le projet. */
+  prefixeDepartement?: string | null;
+  /** null si aucun responsable n'est désigné. */
+  chefProjet: string | null;
   sante: SanteProjet;
   avancement: number;
   heuresPrevues: number;
   heuresReelles: number;
   tachesOuvertes: number;
   tachesEnRetard: number;
-  prochainLivrable: { libelle: string; echeance: string } | null;
+  prochaineEcheance: { libelle: string; echeance: string } | null;
 }
 
 export interface AlerteDirection {
@@ -81,14 +86,39 @@ export interface RepartitionTemps {
   commercial: number;
 }
 
+// ---------------------------------------------------------------------------
+// Détail d'un projet, lu en GraphQL sur les requêtes existantes
+// ---------------------------------------------------------------------------
+
+/** Tâche du projet : le type Issue, plus sa date de premier traitement. */
+export type TacheProjet = Issue & {
+  /** Début du premier événement de planning commencé ; null si jamais traitée. */
+  dateDebutTraitement?: string | null;
+};
+
+/** Temps d'une personne sur une tâche (`getIssuePlanningSummaries`). */
+export interface TempsPersonne {
+  user: User;
+  spentMinutes: number;
+  totalMinutes: number;
+}
+
+export interface DetailProjet {
+  taches: TacheProjet[];
+  /** Temps par personne, indexé par identifiant de tâche. */
+  tempsParTache: Map<number, TempsPersonne[]>;
+  /** Fichiers finaux du menu « Livrable » (documents DONNE_FILE). */
+  livrables: DocumentApp[];
+}
+
 export interface VueEnsembleDirection {
-  /** true tant que l'API d'agrégation n'est pas branchée. */
-  demonstration: boolean;
   miseAJour: string;
   departements: string[];
   indicateurs: IndicateurCle[];
-  charges: ChargePersonne[];
+  /** null : pas encore mesuré. À distinguer d'une liste vide (personne dans le périmètre). */
+  charges: ChargePersonne[] | null;
   projets: ProjetPortefeuille[];
   alertes: AlerteDirection[];
-  repartition: RepartitionTemps[];
+  /** null : pas encore mesuré. */
+  repartition: RepartitionTemps[] | null;
 }

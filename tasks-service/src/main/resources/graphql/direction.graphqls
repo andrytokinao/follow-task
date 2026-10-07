@@ -1,0 +1,48 @@
+# Cockpit de direction.
+#
+# Vocabulaire du modèle : un « projet » est une demande racine (Issue sans
+# parent, avec des tâches) ; un « département » est l'espace de travail
+# (Project) qui la porte.
+
+extend type Query {
+    # Noms des espaces de travail, pour le filtre du cockpit.
+    directionDepartements: [String]
+    # Projets en cours (non terminés) ; tous les départements si null.
+    directionProjets(departement: String): [Issue]
+}
+
+extend type Issue {
+    # Début du premier événement de planning déjà commencé ; null si jamais traitée.
+    dateDebutTraitement: String
+    # Fin planifiée la plus tardive des événements de la demande ; null sans planning.
+    finPlanifiee: String
+    # Chiffres du rapport de projet (RapportService.genererRapport).
+    rapportProjet: RapportProjet
+    # BON, VIGILANCE ou CRITIQUE.
+    santeProjet: String
+    # Tâche à surveiller : la plus en retard, sinon la prochaine à finir.
+    prochaineEcheance: Issue
+}
+
+type RapportProjet {
+    cle: String
+    titre: String
+    departement: String
+    prefixeDepartement: String
+    chefDeProjet: String
+    statut: String
+    avancementGlobal: Int
+    synthese: SyntheseProjet
+}
+
+type SyntheseProjet {
+    totalHeures: Float
+    heuresPlanifiees: Float
+    nombreTaches: Int
+    nombreTerminees: Int
+    nombreEnCours: Int
+    nombreEnRetard: Int
+    nombreBloquees: Int
+    nombreReportees: Int
+    nombreNonDemarrees: Int
+}
