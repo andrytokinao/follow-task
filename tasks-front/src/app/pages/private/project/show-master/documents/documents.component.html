@@ -25,7 +25,7 @@
             <div *ngIf="document.uploadeds && document.uploadeds.length != 0"> Fichier </div>
             <div class="file-item-list">
               <div class="file-item" *ngFor="let up of document.uploadeds"   [ngClass]="{'selected-file':up.id === selectedFile?.id}">
-                <i [class]="getFileIconClass(up.name.toString())"></i> <span (click)="selectFile(up)"> {{up.name}} </span>
+                <i [class]="getFileIconClass(up.name.toString())"></i> <span (click)="selectFile(up)" (mouseenter)="preloadIfPdf(up)"> {{up.name}} </span>
                 <a [href]="issueService.downloadUploadedUrl(up)" style="float: right;margin-right: 20px" > <i class="fa fa-download"></i></a>
               </div>
             </div>
@@ -40,7 +40,6 @@
 
   <div class="file-preview-container" *ngIf="selectedFile || isNewFile" >
     <div class="file-preview" *ngIf="!isNewFile" >
-     <app-pdf-overview *ngIf="isPdfSelected()" [setUploaded]="selectedFile"> </app-pdf-overview>
     </div>
     <div *ngIf="isNewFile" (dragover)="onDragOver($event)" (drop)="onDrop($event)">
       <div>

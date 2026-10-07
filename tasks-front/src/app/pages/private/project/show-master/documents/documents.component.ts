@@ -7,6 +7,7 @@ import {IssueService} from "../../../../../services/issue.service";
 import {UserService} from "../../../../../services/user.service";
 import {AuthService} from "../../../../../services/auth.service";
 import {BehaviorSubject} from "rxjs";
+import {PdfViewerService} from "../../../../../common/pdf-viewer-dialog/pdf-viewer.service";
 
 
 @Component({
@@ -33,7 +34,8 @@ export class DocumentsComponent {
               protected issueService: IssueService,
               private userService: UserService,
               private route: ActivatedRoute,
-              private authService: AuthService
+              private authService: AuthService,
+              private pdfViewer: PdfViewerService
   ) {
   }
   documents:DocumentApp[] = [ ];
@@ -140,6 +142,10 @@ export class DocumentsComponent {
 
 
   selectFile(up: Uploaded) {
+    if (this.isPdf(up)) {
+      this.pdfViewer.open(up);
+      return;
+    }
     this.isNewFile = false;
     this.selectedFile = up;
     this.isApercu = !this.isApercu;
@@ -196,11 +202,14 @@ export class DocumentsComponent {
     this.step.update(i => i - 1);
   }
 
-  isPdfSelected() {
-    if( !this.selectedFile) {
-      return false;
+  isPdf(file: Uploaded) {
+   return  'pdf' === this.getFiletype(file.name.toString())
+  }
+
+  preloadIfPdf(file: Uploaded) {
+    if (this.isPdf(file)) {
+      this.pdfViewer.preload();
     }
-   return  'pdf' === this.getFiletype(this.selectedFile.name.toString())
   }
 
 }

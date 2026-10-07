@@ -39,8 +39,6 @@ import {IssueFilterFieldComponent} from "./issue-filter-field/issue-filter-field
 import {MatCheckbox} from "@angular/material/checkbox";
 import {QuillEditorComponent} from "ngx-quill";
 import {EditorComponent} from "./quill-editor/quill-editor.component";
-import {PdfOverviewComponent} from "./pdf-overview/pdf-overview.component";
-import {NgxExtendedPdfViewerModule} from "ngx-extended-pdf-viewer";
 import {NgbActiveModal, NgbCarousel, NgbCollapse, NgbSlide} from "@ng-bootstrap/ng-bootstrap";
 import {DocViewerComponent} from "./doc-viewer/doc-viewer.component";
 import {NgxDocViewerModule} from "ngx-doc-viewer";
@@ -93,7 +91,6 @@ import {ChangeIssueTypeComponent} from "./change-issue-type/change-issue-type.co
     NewEventComponent,
     IssueFilterFieldComponent,
     EditorComponent,
-    PdfOverviewComponent,
     DocViewerComponent,
     IssueFilterComponent,
     IssueMasterBreadcrumbComponent,
@@ -143,7 +140,6 @@ import {ChangeIssueTypeComponent} from "./change-issue-type/change-issue-type.co
     RouterLink,
     MatCheckbox,
     QuillEditorComponent,
-    NgxExtendedPdfViewerModule,
     NgbCollapse,
     NgxDocViewerModule,
     RouterLinkActive,
@@ -181,7 +177,6 @@ import {ChangeIssueTypeComponent} from "./change-issue-type/change-issue-type.co
         NewEventComponent,
         QuillEditorComponent,
         EditorComponent,
-        PdfOverviewComponent,
         DocViewerComponent,
         IssueFilterComponent,
         IssueMasterBreadcrumbComponent,

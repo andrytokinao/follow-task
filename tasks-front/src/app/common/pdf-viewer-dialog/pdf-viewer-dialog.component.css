@@ -1,0 +1,39 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.pdf-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.pdf-title {
+  flex: 1;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pdf-close {
+  border: none;
+  background: none;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.pdf-body {
+  flex: 1;
+  min-height: 0;
+}
+
+.pdf-message {
+  padding: 24px;
+  text-align: center;
+  color: #666;
+}
