@@ -1,0 +1,147 @@
+:host {
+  display: block;
+}
+
+.c-state {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0 10px;
+  font-size: 12.5px;
+  color: var(--dir-ink-3);
+}
+
+/* ═══ LISTE ═══ */
+.comment {
+  display: flex;
+  gap: 10px;
+  padding: 10px 0;
+}
+
+.comment + .comment {
+  border-top: 1px dashed var(--dir-hairline);
+}
+
+.comment-avatar {
+  --avatar-size: 28px;
+  flex-shrink: 0;
+}
+
+.comment-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.comment-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.comment-author {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--dir-ink);
+}
+
+.comment-date {
+  font-size: 11.5px;
+  color: var(--dir-ink-3);
+}
+
+.comment-text {
+  margin-top: 2px;
+  font-size: 13px;
+  color: var(--dir-ink-2);
+  overflow-wrap: anywhere;
+}
+
+.comment-text :first-child {
+  margin-top: 0;
+}
+
+.comment-text :last-child {
+  margin-bottom: 0;
+}
+
+.files {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.file {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--dir-surface-muted);
+  border: 1px solid var(--dir-hairline);
+  font-size: 12px;
+  color: var(--dir-accent);
+  text-decoration: none;
+}
+
+.file:hover {
+  background: var(--dir-accent-soft);
+}
+
+/* ═══ AJOUT ═══ */
+.c-form {
+  margin-top: 8px;
+}
+
+.c-input {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  border: 1px solid var(--dir-hairline);
+  border-radius: 10px;
+  background: var(--dir-surface);
+  font: inherit;
+  font-size: 13px;
+  color: var(--dir-ink);
+  resize: vertical;
+}
+
+.c-input:focus {
+  outline: none;
+  border-color: var(--dir-accent);
+  box-shadow: 0 0 0 3px var(--dir-accent-soft);
+}
+
+.c-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.c-error {
+  font-size: 12px;
+  color: var(--dir-critical-text);
+}
+
+.c-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--dir-accent);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+}
+
+.c-button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}

@@ -1,0 +1,232 @@
+:host {
+  display: block;
+}
+
+/* ═══ EN-TÊTE ═══ */
+.el-head {
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--dir-hairline);
+}
+
+.el-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.el-title h2 {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--dir-ink);
+}
+
+.el-type {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--dir-accent);
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.el-key {
+  flex-shrink: 0;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--dir-ink-2);
+}
+
+.el-link {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--dir-accent);
+  text-decoration: none;
+}
+
+.el-link:hover {
+  text-decoration: underline;
+}
+
+.el-sub {
+  margin-top: 4px;
+  font-size: 12.5px;
+  color: var(--dir-ink-3);
+}
+
+.el-progress {
+  margin-top: 16px;
+}
+
+.el-progress-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--dir-ink-3);
+}
+
+.el-meter {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.el-track {
+  flex: 1;
+  height: 10px;
+  border-radius: 999px;
+  background: #eef0f3;
+}
+
+.el-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--dir-series-1);
+  transition: width 0.4s ease;
+}
+
+.el-value {
+  min-width: 48px;
+  text-align: right;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--dir-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.el-stats {
+  display: flex;
+  gap: 24px;
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--dir-ink-2);
+}
+
+.el-stat i {
+  margin-right: 4px;
+  color: var(--dir-ink-3);
+}
+
+.el-stat strong {
+  font-size: 15px;
+  color: var(--dir-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ═══ SECTIONS ═══ */
+.el-section {
+  padding: 18px 0 4px;
+}
+
+.el-section + .el-section {
+  border-top: 1px solid var(--dir-hairline);
+}
+
+.el-section h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--dir-ink);
+}
+
+.el-section h3 i {
+  color: var(--dir-ink-3);
+}
+
+.el-count {
+  padding: 0 7px;
+  border-radius: 999px;
+  background: var(--dir-surface-muted);
+  border: 1px solid var(--dir-hairline);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--dir-ink-3);
+}
+
+.el-state,
+.el-empty {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0 12px;
+  font-size: 12.5px;
+  color: var(--dir-ink-3);
+}
+
+.el-state {
+  padding-top: 18px;
+}
+
+/* ═══ LIVRABLES ═══ */
+.livrable {
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  border: 1px solid var(--dir-hairline);
+  border-radius: 10px;
+}
+
+.livrable-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.livrable-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--dir-ink);
+}
+
+.livrable-meta {
+  font-size: 11.5px;
+  color: var(--dir-ink-3);
+}
+
+.files {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.file {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--dir-surface-muted);
+  border: 1px solid var(--dir-hairline);
+  font-size: 12px;
+  color: var(--dir-accent);
+  text-decoration: none;
+}
+
+.file:hover {
+  background: var(--dir-accent-soft);
+}
+
+/* ═══ CHAMPS PERSONNALISÉS ═══ */
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}

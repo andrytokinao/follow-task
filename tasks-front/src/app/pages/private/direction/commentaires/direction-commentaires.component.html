@@ -1,0 +1,39 @@
+<div class="c-state" *ngIf="chargement">
+  <i class="fas fa-circle-notch fa-spin"></i> Chargement des commentaires…
+</div>
+
+<ng-container *ngIf="!chargement">
+  <div class="c-state" *ngIf="!commentaires.length">Aucun commentaire.</div>
+
+  <div class="comment" *ngFor="let c of commentaires; trackBy: parId">
+    <app-avatar class="comment-avatar" [url]="photoDe(c.userApp)" [displayName]="nomDe(c.userApp)"></app-avatar>
+    <div class="comment-body">
+      <div class="comment-head">
+        <span class="comment-author">{{ nomDe(c.userApp) }}</span>
+        <span class="comment-date" *ngIf="c.creation">{{ c.creation | date:'dd/MM/yyyy HH:mm' }}</span>
+      </div>
+      <div class="comment-text" [innerHTML]="c.description"></div>
+      <div class="files" *ngIf="c.uploadeds?.length">
+        <a class="file" *ngFor="let f of c.uploadeds" [href]="telechargement(f)">
+          <i class="fas fa-paperclip"></i> {{ f.name }}
+        </a>
+      </div>
+    </div>
+  </div>
+</ng-container>
+
+<!-- ═══ AJOUT ═══ -->
+<div class="c-form">
+  <textarea class="c-input" rows="2" placeholder="Écrire un commentaire…"
+            [value]="texte" (input)="texte = $any($event.target).value"
+            (keydown.control.enter)="commenter()" [disabled]="envoi"></textarea>
+  <div class="c-actions">
+    <span class="c-error" *ngIf="erreurEnvoi">
+      <i class="fas fa-exclamation-circle"></i> Le commentaire n'a pas pu être enregistré.
+    </span>
+    <button type="button" class="c-button" [disabled]="!texte.trim() || envoi" (click)="commenter()">
+      <i class="fas" [class.fa-paper-plane]="!envoi" [class.fa-circle-notch]="envoi" [class.fa-spin]="envoi"></i>
+      Commenter
+    </button>
+  </div>
+</div>

@@ -1,0 +1,72 @@
+<!-- ═══ EN-TÊTE ═══ -->
+<header class="el-head">
+  <div class="el-title">
+    <span class="el-type"><i class="fas fa-folder"></i> Projet</span>
+    <span class="el-key">{{ projet.cle }}</span>
+    <h2 [title]="projet.nom">{{ projet.nom }}</h2>
+    <a class="el-link" *ngIf="lien" [routerLink]="lien">
+      Ouvrir <i class="fas fa-arrow-right"></i>
+    </a>
+  </div>
+  <div class="el-sub">{{ projet.departement }}</div>
+
+  <div class="el-progress">
+    <span class="el-progress-label">Avancement global</span>
+    <div class="el-meter">
+      <div class="el-track"><div class="el-fill" [style.width.%]="projet.avancement"></div></div>
+      <span class="el-value">{{ projet.avancement }} %</span>
+    </div>
+  </div>
+
+  <div class="el-stats">
+    <span class="el-stat"><i class="fas fa-tasks"></i> <strong>{{ projet.nombreTaches }}</strong> tâche(s)</span>
+    <span class="el-stat"><i class="far fa-clock"></i> <strong>{{ heures }}</strong> passées</span>
+  </div>
+</header>
+
+<!-- ═══ TÂCHES ═══ -->
+<section class="el-section">
+  <h3><i class="fas fa-tasks"></i> Tâches <span class="el-count">{{ projet.nombreTaches }}</span></h3>
+  <app-direction-projet-detail [projet]="projet"></app-direction-projet-detail>
+</section>
+
+<!-- ═══ COMMENTAIRES DU PROJET ═══ -->
+<section class="el-section">
+  <h3><i class="far fa-comments"></i> Commentaires du projet</h3>
+  <app-direction-commentaires [issueId]="projet.id"></app-direction-commentaires>
+</section>
+
+<div class="el-state" *ngIf="chargement">
+  <i class="fas fa-circle-notch fa-spin"></i> Chargement…
+</div>
+
+<ng-container *ngIf="!chargement">
+
+  <!-- ═══ PIÈCES LIVRABLES ═══ -->
+  <section class="el-section">
+    <h3><i class="fas fa-box-open"></i> Pièces livrables <span class="el-count">{{ livrables.length }}</span></h3>
+    <div class="el-empty" *ngIf="!livrables.length">Aucune pièce livrable.</div>
+    <div class="livrable" *ngFor="let l of livrables; trackBy: parId">
+      <div class="livrable-head">
+        <span class="livrable-title">{{ l.titre || 'Sans titre' }}</span>
+        <span class="livrable-meta" *ngIf="l.creation">{{ l.creation | date:'dd/MM/yyyy' }}</span>
+        <span class="livrable-meta" *ngIf="l.userApp">· {{ nomDe(l.userApp) }}</span>
+      </div>
+      <div class="files" *ngIf="l.uploadeds?.length">
+        <a class="file" *ngFor="let f of l.uploadeds" [href]="telechargement(f)">
+          <i class="fas fa-download"></i> {{ f.name }}
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ CHAMPS PERSONNALISÉS ═══ -->
+  <section class="el-section">
+    <h3><i class="fas fa-sliders-h"></i> Champs personnalisés <span class="el-count">{{ champs.length }}</span></h3>
+    <div class="el-empty" *ngIf="!champs.length">Aucun champ renseigné.</div>
+    <div class="fields" *ngIf="champs.length">
+      <app-custom-field *ngFor="let v of champs; trackBy: parId" [customFieldValue]="v" viewMode="ro">
+      </app-custom-field>
+    </div>
+  </section>
+</ng-container>
