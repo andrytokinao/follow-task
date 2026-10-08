@@ -1,0 +1,73 @@
+<div class="rs">
+
+  <div class="rs__entete">
+    <div class="rs__entete-gauche">
+      <div class="rs__icone"><i class="fas fa-user-shield"></i></div>
+      <div>
+        <span class="rs__titre">Rôles système</span>
+        <span class="rs__sous-titre">{{ nomComplet() }}<span class="mono" *ngIf="user?.username"> · {{ user.username }}</span></span>
+      </div>
+    </div>
+    <button type="button" class="rs__fermer" (click)="fermer()" title="Fermer">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+
+  <div class="rs__corps">
+    <p class="rs__info">
+      <i class="fas fa-circle-info"></i>
+      Rôles valables dans toute l'application. Les rôles dans un espace de
+      travail se gèrent depuis chaque espace.
+    </p>
+
+    <div class="rs__bandeau rs__bandeau--erreur" *ngIf="erreur">
+      <i class="fas fa-exclamation-circle"></i> {{ erreur }}
+    </div>
+
+    <div class="rs__chargement" *ngIf="chargement">
+      <i class="fas fa-circle-notch fa-spin"></i> Chargement des rôles…
+    </div>
+
+    <div class="rs__liste" *ngIf="!chargement">
+      <label class="rs__role" *ngFor="let role of roles" [class.coche]="selection.has(role.name)">
+        <input type="checkbox" [checked]="selection.has(role.name)" (change)="basculer(role.name)">
+        <span class="rs__role-texte">
+          <span class="rs__role-libelle">{{ role.description || role.name }}</span>
+          <span class="rs__role-code mono">{{ role.name }}</span>
+        </span>
+      </label>
+
+      <!-- Rôle retiré de application.yml mais encore enregistré : il ne donne
+           plus aucun droit et disparaîtra à l'enregistrement. -->
+      <div class="rs__role rs__role--inconnu" *ngFor="let nom of rolesInconnus">
+        <i class="fas fa-triangle-exclamation"></i>
+        <span class="rs__role-texte">
+          <span class="rs__role-libelle">Rôle inconnu, sera retiré</span>
+          <span class="rs__role-code mono">{{ nom }}</span>
+        </span>
+      </div>
+
+      <p class="rs__avertissement" *ngIf="selection.size === 0">
+        <i class="fas fa-triangle-exclamation"></i>
+        Sans rôle système, la personne n'a accès qu'aux espaces de travail dont
+        elle est membre.
+      </p>
+    </div>
+
+    <p class="rs__aide">
+      Les droits côté serveur sont recalculés à la prochaine connexion de la personne.
+    </p>
+
+    <div class="rs__actions">
+      <button type="button" class="rs__bouton" (click)="fermer()">Annuler</button>
+      <button type="button"
+              class="rs__bouton rs__bouton--principal"
+              [disabled]="chargement || !modifie || enregistrement"
+              (click)="enregistrer()">
+        <i class="fas fa-circle-notch fa-spin" *ngIf="enregistrement"></i>
+        {{ enregistrement ? 'Enregistrement…' : 'Enregistrer' }}
+      </button>
+    </div>
+  </div>
+
+</div>

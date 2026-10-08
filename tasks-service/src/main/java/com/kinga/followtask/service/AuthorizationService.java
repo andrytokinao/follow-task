@@ -101,6 +101,53 @@ public class AuthorizationService {
         return memberGroupeRepository.save(membre);
     }
 
+    /** Roles systeme de l'utilisateur (application.yml), sans ses roles d'espace de travail. */
+    public List<String> rolesSysteme(String userId) {
+        List<String> roles = new ArrayList<>();
+        for (MemberGroupe membre : memberGroupeRepository.findByUserIdAndGroupeType(userId, GroupeUser.SYSTEM_GROUPE)) {
+            if (membre.getRoles() != null) {
+                membre.getRoles().stream().filter(r -> !roles.contains(r)).forEach(roles::add);
+            }
+        }
+        return roles;
+    }
+
+    /**
+     * Remplace l'ensemble des roles systeme d'un utilisateur. Les roles d'espace
+     * de travail ne sont pas concernes : ils se gerent dans chaque espace.
+     *
+     * Un administrateur ne peut pas se retirer lui-meme SYSTEM_ADMIN : il
+     * perdrait sur-le-champ l'acces a cet ecran, sans personne pour le lui rendre.
+     */
+    public MemberGroupe definirRolesSysteme(String userId, List<String> roles, String auteur) {
+        UserApp userApp = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Utilisateur introuvable : " + userId));
+        List<String> demandes = roles == null ? new ArrayList<>() : roles.stream().distinct().collect(Collectors.toList());
+        List<String> inconnus = demandes.stream()
+                .filter(r -> getRoleSystemByName(r).isEmpty())
+                .collect(Collectors.toList());
+        if (!inconnus.isEmpty()) {
+            throw new IllegalArgumentException("Role systeme inconnu : " + String.join(", ", inconnus));
+        }
+        if (userApp.getUsername() != null && userApp.getUsername().equals(auteur)
+                && rolesSysteme(userId).contains("SYSTEM_ADMIN") && !demandes.contains("SYSTEM_ADMIN")) {
+            throw new IllegalArgumentException("Vous ne pouvez pas retirer votre propre role d'administrateur du systeme.");
+        }
+        List<MemberGroupe> membres = memberGroupeRepository.findByUserIdAndGroupeType(userId, GroupeUser.SYSTEM_GROUPE);
+        MemberGroupe membre;
+        if (CollectionUtils.isEmpty(membres)) {
+            membre = new MemberGroupe();
+            membre.setUser(userApp);
+            membre.setGroupe(systemGroupe());
+        } else {
+            membre = membres.get(0);
+            // Doublons historiques : un seul rattachement porte desormais les roles.
+            membres.stream().skip(1).forEach(memberGroupeRepository::delete);
+        }
+        membre.setRoles(demandes);
+        return memberGroupeRepository.save(membre);
+    }
+
     public List<MemberGroupe> deletInGroupe(UserApp userApp, GroupeUser groupeUser) {
         List<MemberGroupe> memberGroupes = memberGroupeRepository.findByGroupeIdAndUserId(groupeUser.getId(), userApp.getId());
         if (CollectionUtils.isEmpty(memberGroupes)) {

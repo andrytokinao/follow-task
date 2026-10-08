@@ -4,6 +4,7 @@ package com.kinga.followtask.web;
 import com.kinga.followtask.config.CurrentUserProvider;
 import com.kinga.followtask.config.PermissionSystem;
 import com.kinga.followtask.config.PermissionTask;
+import com.kinga.followtask.config.RoleApp;
 import com.kinga.followtask.dto.Response;
 import com.kinga.followtask.dto.WhatsAppLinkStateDto;
 import com.kinga.followtask.service.WhatsAppAccountLinkService;
@@ -130,6 +131,31 @@ public class GQUserController {
     public MemberGroupe definirDirection(@Argument String userId, @Argument Boolean direction) {
         return authorizationService.definirDirection(userId, Boolean.TRUE.equals(direction));
     }
+    /** Roles systeme definis dans application.yml (system-authorization). */
+    @QueryMapping
+    @PreAuthorize("hasAuthority('SYSTEM_ADMIN')")
+    public List<RoleApp> rolesSystemeDisponibles() {
+        return authorizationService.allRoleSystems();
+    }
+
+    @QueryMapping
+    @PreAuthorize("hasAuthority('SYSTEM_ADMIN')")
+    public List<String> rolesSystemeUtilisateur(@Argument String userId) {
+        return authorizationService.rolesSysteme(userId);
+    }
+
+    /**
+     * Remplace les roles systeme d'un utilisateur. Les roles d'espace de
+     * travail restent geres dans chaque espace.
+     */
+    @MutationMapping
+    @PreAuthorize("hasAuthority('SYSTEM_ADMIN')")
+    public MemberGroupe definirRolesSysteme(@Argument String userId, @Argument List<String> roles) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String auteur = authentication == null ? null : authentication.getName();
+        return authorizationService.definirRolesSysteme(userId, roles, auteur);
+    }
+
     @QueryMapping
     public PermissionTask loadPermissiontTask(){
        return permissionTask;

@@ -1,0 +1,15 @@
+# Rôles système (application.yml, system-authorization). Les rôles d'espace
+# de travail ne sont pas gérés ici : ils se règlent dans chaque espace.
+# Administrateur du système seulement.
+
+extend type Query {
+    # Rôles système existants, avec leur description.
+    rolesSystemeDisponibles: [RoleApp]
+    # Rôles système actuels d'un utilisateur.
+    rolesSystemeUtilisateur(userId: String!): [String]
+}
+
+extend type Mutation {
+    # Remplace l'ensemble des rôles système de l'utilisateur.
+    definirRolesSysteme(userId: String!, roles: [String]!): MemberGroupe
+}

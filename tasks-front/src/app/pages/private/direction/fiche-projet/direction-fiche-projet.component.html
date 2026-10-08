@@ -24,23 +24,22 @@
   </div>
 </header>
 
-<!-- ═══ TÂCHES ═══ -->
-<section class="el-section">
-  <h3><i class="fas fa-tasks"></i> Tâches <span class="el-count">{{ projet.nombreTaches }}</span></h3>
-  <app-direction-projet-detail [projet]="projet"></app-direction-projet-detail>
-</section>
-
-<!-- ═══ COMMENTAIRES DU PROJET ═══ -->
-<section class="el-section">
-  <h3><i class="far fa-comments"></i> Commentaires du projet</h3>
-  <app-direction-commentaires [issueId]="projet.id"></app-direction-commentaires>
-</section>
-
 <div class="el-state" *ngIf="chargement">
   <i class="fas fa-circle-notch fa-spin"></i> Chargement…
 </div>
 
+<!-- Champs personnalisés et livrables d'abord, au-dessus des tâches. -->
 <ng-container *ngIf="!chargement">
+
+  <!-- ═══ CHAMPS PERSONNALISÉS ═══ -->
+  <section class="el-section">
+    <h3><i class="fas fa-sliders-h"></i> Champs personnalisés <span class="el-count">{{ champs.length }}</span></h3>
+    <div class="el-empty" *ngIf="!champs.length">Aucun champ renseigné.</div>
+    <div class="fields" *ngIf="champs.length">
+      <app-custom-field *ngFor="let v of champs; trackBy: parId" [customFieldValue]="v" viewMode="ro">
+      </app-custom-field>
+    </div>
+  </section>
 
   <!-- ═══ PIÈCES LIVRABLES ═══ -->
   <section class="el-section">
@@ -59,14 +58,16 @@
       </div>
     </div>
   </section>
-
-  <!-- ═══ CHAMPS PERSONNALISÉS ═══ -->
-  <section class="el-section">
-    <h3><i class="fas fa-sliders-h"></i> Champs personnalisés <span class="el-count">{{ champs.length }}</span></h3>
-    <div class="el-empty" *ngIf="!champs.length">Aucun champ renseigné.</div>
-    <div class="fields" *ngIf="champs.length">
-      <app-custom-field *ngFor="let v of champs; trackBy: parId" [customFieldValue]="v" viewMode="ro">
-      </app-custom-field>
-    </div>
-  </section>
 </ng-container>
+
+<!-- ═══ TÂCHES ═══ -->
+<section class="el-section">
+  <h3><i class="fas fa-tasks"></i> Tâches <span class="el-count">{{ projet.nombreTaches }}</span></h3>
+  <app-direction-projet-detail [projet]="projet"></app-direction-projet-detail>
+</section>
+
+<!-- ═══ COMMENTAIRES DU PROJET ═══ -->
+<section class="el-section">
+  <h3><i class="far fa-comments"></i> Commentaires du projet</h3>
+  <app-direction-commentaires [issueId]="projet.id"></app-direction-commentaires>
+</section>

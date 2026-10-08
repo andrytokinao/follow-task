@@ -115,6 +115,10 @@
             title="Définir un nouveau mot de passe">
         <i class="fa fa-key"></i> <span class="btn-label">Mot de passe</span>
       </span>
+      <span class="controle btn" *ngIf="adminSysteme" (click)="definirRolesSysteme(user)"
+            title="Rôles système (hors espaces de travail)">
+        <i class="fas fa-user-shield"></i> <span class="btn-label">Rôles</span>
+      </span>
       <span class="controle btn" *ngIf="adminSysteme" (click)="basculerActif(user)"
             [title]="estActif(user) ? 'Désactiver le compte' : 'Réactiver le compte'">
         <i class="fa" [ngClass]="estActif(user) ? 'fa-user-lock' : 'fa-user-check'"></i>

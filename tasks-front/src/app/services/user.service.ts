@@ -3,7 +3,7 @@ import {HttpClient, HttpEvent, HttpHeaders, HttpRequest} from '@angular/common/h
 import {BehaviorSubject, map, Observable, throwError} from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import {
-  ConfigEntry, GroupeUser, Issue, MemberGroupe, Permission, Status, User,
+  ConfigEntry, GroupeUser, Issue, MemberGroupe, Permission, RoleApp, Status, User,
   UserPage, UserSearchCriteria
 } from "../type/issue";
 import {
@@ -16,6 +16,7 @@ import {
   SAVE_CONFIG,
   LOAD_PERMISSION_TASK,
   SAVE_USER, SEARCH_USERS, SET_USER_ACTIVE, DEFINIR_DIRECTION, supprimerTypename, DELETE_MEMBER,
+  ROLES_SYSTEME_DISPONIBLES, ROLES_SYSTEME_UTILISATEUR, DEFINIR_ROLES_SYSTEME,
   WHATSAPP_LINK_STATE, START_WHATSAPP_LINK, VERIFY_WHATSAPP_LINK, UNLINK_WHATSAPP
 } from "../type/graphql.operations";
 import {WhatsAppLinkState} from "../type/whatsapp-link";
@@ -129,6 +130,31 @@ export class UserService {
     return this.apollo.mutate({
       mutation: DEFINIR_DIRECTION,
       variables: {userId, direction}
+    });
+  }
+
+  /** Rôles système existants (application.yml). Réservé à SYSTEM_ADMIN côté serveur. */
+  rolesSystemeDisponibles(): Observable<RoleApp[]> {
+    return this.apollo.query({
+      query: ROLES_SYSTEME_DISPONIBLES,
+      fetchPolicy: "network-only"
+    }).pipe(map((res: any) => supprimerTypename(res.data.rolesSystemeDisponibles ?? []) as RoleApp[]));
+  }
+
+  /** Rôles système actuels d'un utilisateur, sans ses rôles d'espace de travail. */
+  rolesSystemeUtilisateur(userId: string): Observable<string[]> {
+    return this.apollo.query({
+      query: ROLES_SYSTEME_UTILISATEUR,
+      variables: {userId},
+      fetchPolicy: "network-only"
+    }).pipe(map((res: any) => [...(res.data.rolesSystemeUtilisateur ?? [])]));
+  }
+
+  /** Remplace l'ensemble des rôles système d'un utilisateur. */
+  definirRolesSysteme(userId: string, roles: string[]): Observable<unknown> {
+    return this.apollo.mutate({
+      mutation: DEFINIR_ROLES_SYSTEME,
+      variables: {userId, roles}
     });
   }
 

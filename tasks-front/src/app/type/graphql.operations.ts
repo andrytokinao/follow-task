@@ -522,6 +522,32 @@ export const DEFINIR_DIRECTION = gql`
   }
 `;
 
+/** Rôles système définis côté serveur (application.yml). */
+export const ROLES_SYSTEME_DISPONIBLES = gql`
+  query rolesSystemeDisponibles {
+    rolesSystemeDisponibles {
+      name
+      description
+    }
+  }
+`;
+
+export const ROLES_SYSTEME_UTILISATEUR = gql`
+  query rolesSystemeUtilisateur($userId: String!) {
+    rolesSystemeUtilisateur(userId: $userId)
+  }
+`;
+
+/** Remplace les rôles système d'un utilisateur (administrateur du système). */
+export const DEFINIR_ROLES_SYSTEME = gql`
+  mutation definirRolesSysteme($userId: String!, $roles: [String]!) {
+    definirRolesSysteme(userId: $userId, roles: $roles) {
+      id
+      roles
+    }
+  }
+`;
+
 const ALL_GROUPES = gql`
   query allGroupes {
     allGroupes {

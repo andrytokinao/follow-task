@@ -6,6 +6,7 @@ import {UserService} from "../../../../services/user.service";
 import {EditUserComponent} from "../edit-user/edit-user.component";
 import {SetPasswordComponent} from "./set-password/set-password.component";
 import {ImportUsersComponent} from "./import-users/import-users.component";
+import {RolesSystemeComponent} from "./roles-systeme/roles-systeme.component";
 import {AuthService} from "../../../../services/auth.service";
 
 @Component({
@@ -344,6 +345,22 @@ export class UsersComponent implements OnInit, OnDestroy {
     const dialogRef = this.modalService.open(SetPasswordComponent,
       {backdrop: "static", keyboard: false});
     dialogRef.componentInstance.user = user;
+  }
+
+  /**
+   * Rôles système du compte (administrateur, direction, …). Les rôles dans
+   * un espace de travail restent gérés depuis chaque espace.
+   */
+  definirRolesSysteme(user: User) {
+    const dialogRef = this.modalService.open(RolesSystemeComponent,
+      {backdrop: "static", keyboard: false});
+    dialogRef.componentInstance.user = user;
+    dialogRef.result.then((modifie: boolean) => {
+      if (modifie) {
+        this.rafraichir();
+      }
+    }, () => {
+    });
   }
 
   estActif(user: User): boolean {
