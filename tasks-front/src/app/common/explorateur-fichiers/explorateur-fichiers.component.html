@@ -131,15 +131,18 @@
                  [disabled]="!peutSupprimer(fichier)"
                  (click)="basculerSelection(fichier, $event)">
           <i [class]="getFileIconClass(fichier.fileName.toString())"></i>
-          <span class="nom" [class.apercu]="aApercu(fichier)"
-                (click)="ouvrirFichier(fichier)" (mouseenter)="prechargerApercu(fichier)">{{ fichier.fileName }}</span>
+          <!-- Nom et date empiles : sur une seule ligne la date ecrasait le nom. -->
+          <div class="fichier-infos">
+            <span class="nom" [class.apercu]="aApercu(fichier)" [title]="fichier.fileName"
+                  (click)="ouvrirFichier(fichier)" (mouseenter)="prechargerApercu(fichier)">{{ fichier.fileName }}</span>
+            <span class="date-upload" *ngIf="fichier.dateUpload">
+              <i class="fas fa-clock"></i> {{ fichier.dateUpload | date:'dd/MM/yyyy HH:mm' }}
+            </span>
+          </div>
           <!-- Avatar seul : le nom complet prenait la place du nom du fichier.
                Il reste lisible au survol. -->
           <span class="uploadeur" *ngIf="fichier.uploadeur" [title]="'Déposé par ' + fichier.uploadeur">
             <app-avatar [url]="photoUploadeur(fichier)" [displayName]="fichier.uploadeur"></app-avatar>
-          </span>
-          <span class="meta" *ngIf="fichier.dateUpload">
-            <i class="fas fa-clock"></i> {{ fichier.dateUpload | date:'dd/MM/yyyy HH:mm' }}
           </span>
           <span class="meta action" title="Supprimer" *ngIf="peutSupprimer(fichier)"
                 (click)="supprimer([fichier])">
