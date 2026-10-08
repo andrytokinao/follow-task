@@ -7,6 +7,7 @@ import {ProjectGuard} from "../../services/ProjectGuard";
 import {HttpEventType} from "@angular/common/http";
 import {catchError, concatMap, forkJoin, from, of, Subscription, tap} from "rxjs";
 import {environment} from "../../../environments/environment";
+import {PdfViewerService} from "../pdf-viewer-dialog/pdf-viewer.service";
 
 /**
  * Fichier en attente d'envoi. La destination est figee au moment du depot :
@@ -68,7 +69,8 @@ export class ExplorateurFichiersComponent implements OnChanges, OnDestroy {
               private confirmation: ConfirmationDialogService,
               private authService: AuthService,
               private projectGuard: ProjectGuard,
-              private zone: NgZone
+              private zone: NgZone,
+              private pdfViewer: PdfViewerService
   ) {
     this.abonnements.add(
       this.authService.getProfile().subscribe(profile => this.usernameConnecte = profile?.username)
@@ -467,6 +469,29 @@ export class ExplorateurFichiersComponent implements OnChanges, OnDestroy {
   }
 
   // ----------------------------------------------------------------- affichage
+
+  protected estPdf(fichier: Repertoire): boolean {
+    return fichier.fileName?.toString().split('.').pop()?.toLowerCase() === 'pdf';
+  }
+
+  /** Un PDF s'ouvre en popup ; les autres fichiers restent en simple téléchargement. */
+  protected ouvrirFichier(fichier: Repertoire) {
+    if (!this.estPdf(fichier)) {
+      return;
+    }
+    this.pdfViewer.open({
+      fileName: fichier.fileName.toString(),
+      encodedPath: fichier.absolutePath,
+      downloadUrl: this.downloadUrl(fichier),
+    });
+  }
+
+  /** Le survol télécharge le viewer en avance : l'ouverture paraît immédiate. */
+  protected prechargerSiPdf(fichier: Repertoire) {
+    if (this.estPdf(fichier)) {
+      this.pdfViewer.preload();
+    }
+  }
 
   protected downloadUrl(fichier: Repertoire): string {
     return environment.apiURL + 'api/download?fileNames=' + fichier.absolutePath

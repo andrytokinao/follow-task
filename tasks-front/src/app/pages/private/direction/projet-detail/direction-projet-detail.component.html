@@ -30,7 +30,7 @@
       <th>Personnes</th>
       <th class="num">Temps</th>
       <th>Début</th>
-      <th class="num" title="Commentaires et pièces jointes"><i class="far fa-comments"></i></th>
+      <th class="num" title="Commentaires et pièces jointes"><i class="far fa-comments"></i> / <i class="fas fa-paperclip"></i></th>
     </tr>
     </thead>
     <tbody>
@@ -61,32 +61,25 @@
         <ng-template #jamais><span class="muted" title="Pas encore commencée">—</span></ng-template>
       </td>
       <td class="num">
-        <!-- Un seul bouton : le menu propose les commentaires et les pièces jointes. -->
-        <button type="button" class="comment-toggle" [class.active]="popup?.tache === t"
-                [class.vide]="!t.nombreCommentaires" [matMenuTriggerFor]="menuTache"
-                [matMenuTriggerData]="{tache: t}" title="Commentaires et pièces jointes">
-          <i class="far fa-comment"></i> {{ t.nombreCommentaires ?? 0 }}
-          <i class="fas fa-caret-down caret"></i>
-        </button>
+        <!-- Deux boutons, chacun ouvre sa popup : commentaires et pièces jointes. -->
+        <div class="actions">
+          <button type="button" class="comment-toggle"
+                  [class.active]="popup?.tache === t && popup?.contenu === 'commentaires'"
+                  [class.vide]="!t.nombreCommentaires" (click)="ouvrir(t, 'commentaires')" title="Commentaires">
+            <i class="far fa-comment"></i> {{ t.nombreCommentaires ?? 0 }}
+          </button>
+          <button type="button" class="comment-toggle"
+                  [class.active]="popup?.tache === t && popup?.contenu === 'fichiers'"
+                  [class.vide]="!t.nombrePiecesJointes" (click)="ouvrir(t, 'fichiers')" title="Pièces jointes">
+            <i class="fas fa-paperclip"></i> {{ t.nombrePiecesJointes ?? 0 }}
+          </button>
+        </div>
       </td>
     </tr>
     </tbody>
   </table>
   </div>
 </ng-container>
-
-<!-- Menu d'une tâche : la tâche est passée par matMenuTriggerData. -->
-<mat-menu #menuTache="matMenu" xPosition="before">
-  <ng-template matMenuContent let-tache="tache">
-    <button mat-menu-item (click)="ouvrir(tache, 'commentaires')">
-      <i class="far fa-comment menu-icon"></i>
-      Commentaires <span class="menu-count">{{ tache.nombreCommentaires ?? 0 }}</span>
-    </button>
-    <button mat-menu-item (click)="ouvrir(tache, 'fichiers')">
-      <i class="fas fa-paperclip menu-icon"></i> Pièces jointes
-    </button>
-  </ng-template>
-</mat-menu>
 
 <!-- ═══ POPUP D'UNE TÂCHE : COMMENTAIRES OU FICHIERS JOINTS ═══ -->
 <div class="popup-backdrop" *ngIf="popup as p" (click)="fermer()">

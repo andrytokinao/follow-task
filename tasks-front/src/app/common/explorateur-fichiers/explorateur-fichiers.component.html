@@ -124,7 +124,8 @@
                  [disabled]="!peutSupprimer(fichier)"
                  (click)="basculerSelection(fichier, $event)">
           <i [class]="getFileIconClass(fichier.fileName.toString())"></i>
-          <span class="nom">{{ fichier.fileName }}</span>
+          <span class="nom" [class.apercu]="estPdf(fichier)"
+                (click)="ouvrirFichier(fichier)" (mouseenter)="prechargerSiPdf(fichier)">{{ fichier.fileName }}</span>
           <!-- Avatar seul : le nom complet prenait la place du nom du fichier.
                Il reste lisible au survol. -->
           <span class="uploadeur" *ngIf="fichier.uploadeur" [title]="'Déposé par ' + fichier.uploadeur">

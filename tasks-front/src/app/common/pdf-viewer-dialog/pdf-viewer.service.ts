@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {MatDialog} from '@angular/material/dialog';
-import {Uploaded} from '../../type/issue';
+import type {PdfViewerDialogData} from './pdf-viewer-dialog.component';
 
 type PdfViewerDialogChunk = typeof import('./pdf-viewer-dialog.component');
 
@@ -23,13 +23,16 @@ export class PdfViewerService {
     this.load().catch(() => {});
   }
 
-  async open(uploaded: Uploaded): Promise<void> {
+  async open(pdf: PdfViewerDialogData): Promise<void> {
     const {PdfViewerDialogComponent} = await this.load();
     this.dialog.open(PdfViewerDialogComponent, {
-      data: {uploaded},
-      width: '90vw',
-      maxWidth: '1200px',
-      height: '90vh',
+      data: pdf,
+      // Plein écran : Material plafonne sinon la largeur à 80vw.
+      width: '100vw',
+      maxWidth: '100vw',
+      height: '100vh',
+      maxHeight: '100vh',
+      panelClass: 'pdf-viewer-dialog-panel',
       autoFocus: false,
     });
   }

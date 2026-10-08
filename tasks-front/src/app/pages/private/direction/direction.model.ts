@@ -27,6 +27,8 @@ export type TacheProjet = Issue & {
   /** Début du premier événement de planning commencé ; null si jamais traitée. */
   dateDebutTraitement?: string | null;
   nombreCommentaires?: number;
+  /** Fichiers du répertoire de la tâche, sous-dossiers compris. */
+  nombrePiecesJointes?: number;
 };
 
 export interface DetailProjet {

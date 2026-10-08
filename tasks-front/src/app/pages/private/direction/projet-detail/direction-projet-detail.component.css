@@ -38,28 +38,12 @@
 .w-people { width: 96px; }
 .w-time { width: 64px; }
 .w-date { width: 72px; }
-.w-actions { width: 72px; }
+.w-actions { width: 128px; }
 
-.caret {
-  font-size: 10px;
-  opacity: 0.6;
-}
-
-/* Panneau du mat-menu : rendu hors du composant, d'où ::ng-deep. */
-::ng-deep .mat-mdc-menu-item .menu-icon {
-  width: 16px;
-  margin-right: 8px;
-  color: #8a94a6;
-}
-
-::ng-deep .mat-mdc-menu-item .menu-count {
-  margin-left: 6px;
-  padding: 0 7px;
-  border-radius: 999px;
-  background: #eef4fc;
-  font-size: 11px;
-  font-weight: 600;
-  color: #185FA5;
+/* Commentaires et pièces jointes, côte à côte. */
+.actions {
+  display: inline-flex;
+  gap: 6px;
 }
 
 .tasks th {
@@ -163,12 +147,12 @@ a.task-key:hover {
   font-variant-numeric: tabular-nums;
 }
 
-/* ═══ COMMENTAIRES D'UNE TÂCHE ═══ */
+/* ═══ COMMENTAIRES ET PIÈCES JOINTES D'UNE TÂCHE ═══ */
 .comment-toggle {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 10px;
+  padding: 4px 8px;
   border: 1px solid var(--dir-hairline);
   border-radius: 8px;
   background: var(--dir-surface);
@@ -186,7 +170,7 @@ a.task-key:hover {
   background: var(--dir-accent-soft);
 }
 
-/* Aucun commentaire : le compteur s'efface, sans disparaître. */
+/* Rien à montrer : le compteur s'efface, sans disparaître. */
 .comment-toggle.vide:not(:hover):not(.active) {
   color: var(--dir-ink-3);
 }

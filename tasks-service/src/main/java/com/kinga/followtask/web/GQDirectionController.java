@@ -65,6 +65,11 @@ public class GQDirectionController {
         return directionService.nombreCommentaires(issue);
     }
 
+    @SchemaMapping(typeName = "Issue", field = "nombrePiecesJointes")
+    public long nombrePiecesJointes(Issue issue) {
+        return directionService.nombrePiecesJointes(issue);
+    }
+
     private Map<Long, RapportProjetDTO> rapports(GraphQLContext contexte) {
         Map<Long, RapportProjetDTO> rapports = contexte.get(RAPPORTS);
         if (rapports == null) {

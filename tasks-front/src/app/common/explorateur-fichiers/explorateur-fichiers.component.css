@@ -370,6 +370,15 @@
   white-space: nowrap;
 }
 
+/* PDF : un clic ouvre l'aperçu en popup. */
+.ligne-fichier .nom.apercu {
+  cursor: pointer;
+}
+
+.ligne-fichier .nom.apercu:hover {
+  text-decoration: underline;
+}
+
 /* Auteur et date d'upload : lisibles mais en retrait du nom du fichier. */
 .ligne-dossier .meta,
 .ligne-fichier .meta {

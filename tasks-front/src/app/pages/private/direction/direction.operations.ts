@@ -4,7 +4,8 @@ import {gql} from 'apollo-angular';
  * Requêtes GraphQL du cockpit de direction.
  *
  * Le détail des tâches s'appuie sur la requête existante `loadSubtask` ;
- * `dateDebutTraitement` et `nombreCommentaires` sont propres au cockpit.
+ * `dateDebutTraitement`, `nombreCommentaires` et `nombrePiecesJointes` sont
+ * propres au cockpit.
  */
 
 const UTILISATEUR = `
@@ -39,7 +40,7 @@ export const DIRECTION_PROJETS = gql`
 
 /**
  * Tâches d'un projet : avancement, assignés, temps passé, premier traitement,
- * nombre de commentaires. `project`, `parent` et `reporter` servent au
+ * nombre de commentaires et de pièces jointes. `project`, `parent` et `reporter` servent au
  * composant des assignés (`app-assign-field`) pour juger des droits.
  */
 export const DIRECTION_TACHES_PROJET = gql`
@@ -52,6 +53,7 @@ export const DIRECTION_TACHES_PROJET = gql`
       elapsedDurationMinutes
       dateDebutTraitement
       nombreCommentaires
+      nombrePiecesJointes
       project { id prefix }
       parent { id }
       reporter { id }

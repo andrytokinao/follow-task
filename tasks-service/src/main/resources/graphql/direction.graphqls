@@ -22,6 +22,8 @@ extend type Issue {
     dateDebutTraitement: String
     # Nombre de commentaires (documents COMMENT_FILES non supprimés).
     nombreCommentaires: Int
+    # Nombre de fichiers du répertoire de la demande, sous-dossiers compris.
+    nombrePiecesJointes: Int
     # Chiffres du rapport de projet (RapportService.genererRapport).
     rapportProjet: RapportProjet
 }

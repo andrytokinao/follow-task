@@ -4,12 +4,14 @@ import {HttpClient} from '@angular/common/http';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from '@angular/material/dialog';
 import {NgxExtendedPdfViewerModule} from 'ngx-extended-pdf-viewer';
-import {Uploaded} from '../../type/issue';
 import {environment} from '../../../environments/environment';
-import {IssueService} from '../../services/issue.service';
 
+/** Le PDF à afficher, quelle que soit sa provenance (document, pièce jointe…). */
 export interface PdfViewerDialogData {
-  uploaded: Uploaded;
+  fileName: string;
+  /** Chemin encodé, tel qu'attendu par api/fech-file. */
+  encodedPath: string;
+  downloadUrl: string;
 }
 
 /**
@@ -28,27 +30,34 @@ export interface PdfViewerDialogData {
 })
 export class PdfViewerDialogComponent implements OnInit {
 
-  /** Le fichier est passé tel quel au viewer, sans conversion base64. */
-  pdfSrc: Blob | null = null;
+  /**
+   * URL blob: du fichier. Une chaîne, et non le Blob lui-même : avec un Blob le viewer
+   * convertit en asynchrone et peut manquer l'ouverture du PDF. Pas de base64 non plus.
+   */
+  pdfSrc: string | null = null;
   erreur = false;
 
   constructor(
     private readonly http: HttpClient,
     private readonly destroyRef: DestroyRef,
     private readonly dialogRef: MatDialogRef<PdfViewerDialogComponent>,
-    protected readonly issueService: IssueService,
     @Inject(MAT_DIALOG_DATA) readonly data: PdfViewerDialogData,
   ) {
   }
 
   ngOnInit(): void {
-    const url = environment.apiURL + 'api/fech-file?fileType=pdf&fileName=' + this.data.uploaded.encodedPath;
+    const url = environment.apiURL + 'api/fech-file?fileType=pdf&fileName=' + this.data.encodedPath;
     this.http.get(url, {responseType: 'blob', withCredentials: true})
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: blob => this.pdfSrc = blob,
+        next: blob => this.pdfSrc = URL.createObjectURL(blob),
         error: () => this.erreur = true,
       });
+    this.destroyRef.onDestroy(() => {
+      if (this.pdfSrc) {
+        URL.revokeObjectURL(this.pdfSrc);
+      }
+    });
   }
 
   fermer(): void {

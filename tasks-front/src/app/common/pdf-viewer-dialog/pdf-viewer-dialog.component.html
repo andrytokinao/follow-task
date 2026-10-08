@@ -1,6 +1,6 @@
 <div class="pdf-header">
-  <span class="pdf-title"><i class="fas fa-file-pdf"></i> {{ data.uploaded.name }}</span>
-  <a [href]="issueService.downloadUploadedUrl(data.uploaded)" title="Télécharger"><i class="fa fa-download"></i></a>
+  <span class="pdf-title"><i class="fas fa-file-pdf"></i> {{ data.fileName }}</span>
+  <a [href]="data.downloadUrl" title="Télécharger"><i class="fa fa-download"></i></a>
   <button type="button" class="pdf-close" (click)="fermer()" title="Fermer"><i class="fa fa-times"></i></button>
 </div>
 
@@ -10,7 +10,7 @@
     [src]="pdfSrc"
     [showOpenFileButton]="false"
     zoom="page-width"
-    height="100%"
+    height="calc(100vh - 52px)"
   ></ngx-extended-pdf-viewer>
 
   <p *ngIf="!pdfSrc && !erreur" class="pdf-message">Chargement du PDF…</p>

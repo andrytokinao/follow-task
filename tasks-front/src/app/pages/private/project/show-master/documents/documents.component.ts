@@ -143,7 +143,11 @@ export class DocumentsComponent {
 
   selectFile(up: Uploaded) {
     if (this.isPdf(up)) {
-      this.pdfViewer.open(up);
+      this.pdfViewer.open({
+        fileName: up.name.toString(),
+        encodedPath: up.encodedPath.toString(),
+        downloadUrl: this.issueService.downloadUploadedUrl(up),
+      });
       return;
     }
     this.isNewFile = false;
