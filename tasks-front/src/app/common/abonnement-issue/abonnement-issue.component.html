@@ -1,0 +1,10 @@
+<button type="button" class="abonnement"
+        [class.abonne]="abonne"
+        [class.compact]="compact"
+        [class.erreur]="erreur"
+        [disabled]="enCours || !issue?.id"
+        [title]="infobulle"
+        (click)="basculer($event)">
+  <i class="fas" [ngClass]="enCours ? 'fa-circle-notch fa-spin' : (abonne ? 'fa-bell' : 'fa-bell-slash')"></i>
+  <span class="libelle" *ngIf="!compact">{{ libelle }}</span>
+</button>

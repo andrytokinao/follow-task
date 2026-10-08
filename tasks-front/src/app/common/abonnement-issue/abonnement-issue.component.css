@@ -1,0 +1,50 @@
+:host {
+  display: inline-flex;
+}
+
+.abonnement {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid #dcdee3;
+  border-radius: 6px;
+  background-color: #fff;
+  color: #5a5a5a;
+  font-size: 13px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.abonnement:hover:enabled {
+  background-color: #eaebef;
+}
+
+.abonnement:disabled {
+  opacity: .6;
+  cursor: default;
+}
+
+/* Abonne : meme bleu que les elements selectionnes de l'application. */
+.abonnement.abonne {
+  border-color: #b9cdf0;
+  background-color: #eaf1fb;
+  color: #1565c0;
+}
+
+.abonnement.abonne:hover:enabled {
+  background-color: #dce8f8;
+}
+
+.abonnement.erreur {
+  border-color: #f3c6c2;
+  color: #b3261e;
+}
+
+/* Icone seule : carre, comme les boutons d'outils de l'explorateur. */
+.abonnement.compact {
+  width: 30px;
+  padding: 0;
+  justify-content: center;
+}
