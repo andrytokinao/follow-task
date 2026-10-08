@@ -1,0 +1,11 @@
+<div class="docx-header">
+  <span class="docx-title"><i class="fas fa-file-word"></i> {{ data.fileName }}</span>
+  <a [href]="data.downloadUrl" title="Télécharger"><i class="fa fa-download"></i></a>
+  <button type="button" class="docx-close" (click)="fermer()" title="Fermer"><i class="fa fa-times"></i></button>
+</div>
+
+<div class="docx-body">
+  <p *ngIf="chargement" class="docx-message">Chargement du document…</p>
+  <p *ngIf="erreur" class="docx-message">Impossible d'afficher ce document.</p>
+  <div #conteneur></div>
+</div>

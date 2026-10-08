@@ -7,7 +7,7 @@ import {IssueService} from "../../../../../services/issue.service";
 import {UserService} from "../../../../../services/user.service";
 import {AuthService} from "../../../../../services/auth.service";
 import {BehaviorSubject} from "rxjs";
-import {PdfViewerService} from "../../../../../common/pdf-viewer-dialog/pdf-viewer.service";
+import {FileViewerService} from "../../../../../common/file-viewer/file-viewer.service";
 
 
 @Component({
@@ -35,7 +35,7 @@ export class DocumentsComponent {
               private userService: UserService,
               private route: ActivatedRoute,
               private authService: AuthService,
-              private pdfViewer: PdfViewerService
+              private fileViewer: FileViewerService
   ) {
   }
   documents:DocumentApp[] = [ ];
@@ -142,8 +142,8 @@ export class DocumentsComponent {
 
 
   selectFile(up: Uploaded) {
-    if (this.isPdf(up)) {
-      this.pdfViewer.open({
+    if (this.fileViewer.canPreview(up.name.toString())) {
+      this.fileViewer.open({
         fileName: up.name.toString(),
         encodedPath: up.encodedPath.toString(),
         downloadUrl: this.issueService.downloadUploadedUrl(up),
@@ -206,14 +206,8 @@ export class DocumentsComponent {
     this.step.update(i => i - 1);
   }
 
-  isPdf(file: Uploaded) {
-   return  'pdf' === this.getFiletype(file.name.toString())
-  }
-
-  preloadIfPdf(file: Uploaded) {
-    if (this.isPdf(file)) {
-      this.pdfViewer.preload();
-    }
+  preloadPreview(file: Uploaded) {
+    this.fileViewer.preload(file.name.toString());
   }
 
 }
