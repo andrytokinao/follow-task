@@ -31,6 +31,12 @@
   max-height: 45vh;
 }
 
+/* Sans titre, la barre d'outils seule : alignee a droite et plus fine. */
+.dossier-explorer.compact .explorer-entete {
+  justify-content: flex-end;
+  padding: 6px 12px;
+}
+
 .explorer-entete {
   display: flex;
   align-items: center;

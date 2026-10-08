@@ -20,7 +20,8 @@
 
 <div class="dossier-explorer" [class.compact]="compact">
   <div class="explorer-entete">
-    <div class="explorer-titre">
+    <!-- Compact : l'onglet ou le menu porte deja le titre, on garde la place. -->
+    <div class="explorer-titre" *ngIf="!compact">
       <h3><i class="fas fa-folder-tree"></i> {{ titre }}</h3>
       <small>{{ sousTitre }}</small>
     </div>
