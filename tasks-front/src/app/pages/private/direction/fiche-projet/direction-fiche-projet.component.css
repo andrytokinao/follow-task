@@ -69,6 +69,39 @@
   color: var(--dir-ink-3);
 }
 
+/* Statut et assignés du projet. */
+.el-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 24px;
+  margin-top: 12px;
+  font-size: 13px;
+}
+
+.el-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.el-meta-label {
+  color: var(--dir-ink-3);
+}
+
+/* Sans couleur de statut, le badge reste dans les tons du cockpit. */
+.el-status {
+  padding: 2px 10px;
+  border: 1px solid var(--dir-ink-3);
+  border-radius: 999px;
+  font-weight: 600;
+  color: var(--dir-ink-2);
+}
+
+.el-muted {
+  color: var(--dir-ink-3);
+}
+
 .el-progress {
   margin-top: 16px;
 }

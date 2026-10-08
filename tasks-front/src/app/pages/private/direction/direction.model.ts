@@ -20,6 +20,10 @@ export interface ProjetDirection {
   tachesEnRetard: number;
   /** Heures passées sur l'ensemble des tâches (synthèse du rapport). */
   heures: number;
+  /** Statut de la demande racine ; null si aucun. */
+  statut: { libelle: string; couleur: string | null } | null;
+  /** La demande racine telle que reçue, pour `app-assign-field` (assignés). */
+  issue: Issue;
 }
 
 /** Tâche d'un projet : le type Issue, plus les champs propres au cockpit. */

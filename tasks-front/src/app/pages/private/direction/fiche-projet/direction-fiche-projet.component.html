@@ -10,6 +10,22 @@
   </div>
   <div class="el-sub">{{ projet.departement }}</div>
 
+  <!-- Statut et assignés du projet (la demande racine). -->
+  <div class="el-meta">
+    <span class="el-meta-item">
+      <span class="el-meta-label">Statut</span>
+      <span class="el-status" *ngIf="projet.statut; else sansStatut"
+            [style.color]="projet.statut.couleur" [style.border-color]="projet.statut.couleur">
+        {{ projet.statut.libelle }}
+      </span>
+      <ng-template #sansStatut><span class="el-muted">Aucun statut</span></ng-template>
+    </span>
+    <span class="el-meta-item">
+      <!-- Même composant que la liste des tâches ; il porte déjà son libellé. -->
+      <app-assign-field [issue]="projet.issue" [maxAvatars]="5"></app-assign-field>
+    </span>
+  </div>
+
   <div class="el-progress">
     <span class="el-progress-label">Avancement global</span>
     <div class="el-meter">

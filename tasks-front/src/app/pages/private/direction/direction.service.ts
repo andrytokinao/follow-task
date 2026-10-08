@@ -53,6 +53,11 @@ function versProjet(issue: any): ProjetDirection {
     avancement: rapport.avancementGlobal ?? 0,
     nombreTaches: rapport.synthese?.nombreTaches ?? 0,
     tachesEnRetard: rapport.synthese?.nombreEnRetard ?? 0,
-    heures: rapport.synthese?.totalHeures ?? 0
+    heures: rapport.synthese?.totalHeures ?? 0,
+    statut: issue.status
+      ? {libelle: issue.status.displayName, couleur: issue.status.color ?? null}
+      : null,
+    // Copie modifiable, comme pour les tâches : Apollo rend des objets figés.
+    issue: {...issue}
   };
 }

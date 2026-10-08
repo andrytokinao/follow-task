@@ -16,7 +16,11 @@ const UTILISATEUR = `
   photo
 `;
 
-/** Départements (onglets) et projets en cours de toute la société. */
+/**
+ * Départements (onglets) et projets en cours de toute la société. Statut et
+ * assignés du projet ; `project`, `parent` et `reporter` servent, comme pour les
+ * tâches, au composant des assignés (`app-assign-field`).
+ */
 export const DIRECTION_PROJETS = gql`
   query directionProjets {
     directionDepartements
@@ -24,6 +28,16 @@ export const DIRECTION_PROJETS = gql`
       id
       issueKey
       summary
+      status { id displayName color }
+      project { id prefix }
+      parent { id }
+      reporter { id }
+      assigne { ${UTILISATEUR} }
+      activeMemberships {
+        id
+        role
+        user { ${UTILISATEUR} }
+      }
       rapportProjet {
         departement
         prefixeDepartement

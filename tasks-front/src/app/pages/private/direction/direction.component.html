@@ -52,6 +52,7 @@
               <span class="project-name" [title]="p.nom">{{ p.nom }}</span>
               <span class="meter-track"><span class="meter-fill" [style.width.%]="p.avancement"></span></span>
               <span class="menu-meta">
+                <span class="menu-status" *ngIf="p.statut" [style.color]="p.statut.couleur">{{ p.statut.libelle }} ·</span>
                 {{ p.nombreTaches }} tâche(s)
                 <span class="late" *ngIf="p.tachesEnRetard">· {{ p.tachesEnRetard }} en retard</span>
               </span>
