@@ -10,6 +10,9 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   background-color: #fff;
   font-family: sans-serif;
+  /* Conteneur de reference : l'affichage etroit depend de la largeur de
+     l'explorateur, pas de l'ecran (onglet, panneau lateral, mobile). */
+  container: explorateur / inline-size;
 }
 
 /* Integre dans un onglet : ni marge ni hauteur imposee. */
@@ -370,7 +373,7 @@
   white-space: nowrap;
 }
 
-/* PDF : un clic ouvre l'aperçu en popup. */
+/* PDF, DOCX : un clic ouvre l'aperçu en popup. */
 .ligne-fichier .nom.apercu {
   cursor: pointer;
 }
@@ -424,16 +427,52 @@
   color: #aaa;
 }
 
-@media (max-width: 768px) {
-  .explorer-corps {
-    flex-direction: column;
+/* Remonter au parent : inutile tant que l'arbre est affiche. */
+.ligne-parent {
+  display: none;
+}
+
+/* Remplace la case a cocher, pour garder l'alignement des icones. */
+.ligne-parent .case {
+  width: 13px;
+}
+
+/* Affichage etroit : plus d'arbre a gauche, un seul explorateur ou l'on
+   navigue par le contenu, la ligne ".." et le fil d'Ariane. */
+@container explorateur (max-width: 640px) {
+  .explorer-entete {
+    flex-wrap: wrap;
+    padding: 12px 14px;
   }
 
-  /* En colonne l'arbre n'a plus de largeur contrainte : on borne sa hauteur
-     pour qu'il ne pousse pas la liste hors de l'ecran. */
+  .explorer-outils {
+    flex-wrap: wrap;
+  }
+
+  .explorer-corps {
+    padding: 10px 12px 14px;
+  }
+
   .explorer-arbre {
-    width: 100%;
-    max-height: 30vh;
-    flex: 0 0 auto;
+    display: none;
+  }
+
+  .ligne-parent {
+    display: flex;
+  }
+
+  .explorer-contenu {
+    padding: 4px;
+  }
+
+  .fil-ariane {
+    overflow-wrap: anywhere;
+  }
+}
+
+/* Tres etroit : la date d'upload cede la place au nom du fichier. */
+@container explorateur (max-width: 420px) {
+  .ligne-fichier .meta:not(.action) {
+    display: none;
   }
 }

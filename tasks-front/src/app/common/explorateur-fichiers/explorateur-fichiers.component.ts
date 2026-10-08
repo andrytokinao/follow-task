@@ -7,7 +7,7 @@ import {ProjectGuard} from "../../services/ProjectGuard";
 import {HttpEventType} from "@angular/common/http";
 import {catchError, concatMap, forkJoin, from, of, Subscription, tap} from "rxjs";
 import {environment} from "../../../environments/environment";
-import {PdfViewerService} from "../pdf-viewer-dialog/pdf-viewer.service";
+import {FileViewerService} from "../file-viewer/file-viewer.service";
 
 /**
  * Fichier en attente d'envoi. La destination est figee au moment du depot :
@@ -70,7 +70,7 @@ export class ExplorateurFichiersComponent implements OnChanges, OnDestroy {
               private authService: AuthService,
               private projectGuard: ProjectGuard,
               private zone: NgZone,
-              private pdfViewer: PdfViewerService
+              private fileViewer: FileViewerService
   ) {
     this.abonnements.add(
       this.authService.getProfile().subscribe(profile => this.usernameConnecte = profile?.username)
@@ -470,27 +470,26 @@ export class ExplorateurFichiersComponent implements OnChanges, OnDestroy {
 
   // ----------------------------------------------------------------- affichage
 
-  protected estPdf(fichier: Repertoire): boolean {
-    return fichier.fileName?.toString().split('.').pop()?.toLowerCase() === 'pdf';
+  /** PDF, DOCX : un aperçu en popup existe pour ce fichier. */
+  protected aApercu(fichier: Repertoire): boolean {
+    return this.fileViewer.canPreview(fichier.fileName?.toString());
   }
 
-  /** Un PDF s'ouvre en popup ; les autres fichiers restent en simple téléchargement. */
+  /** Les fichiers avec aperçu s'ouvrent en popup ; les autres restent en simple téléchargement. */
   protected ouvrirFichier(fichier: Repertoire) {
-    if (!this.estPdf(fichier)) {
+    if (!this.aApercu(fichier)) {
       return;
     }
-    this.pdfViewer.open({
+    this.fileViewer.open({
       fileName: fichier.fileName.toString(),
       encodedPath: fichier.absolutePath,
       downloadUrl: this.downloadUrl(fichier),
     });
   }
 
-  /** Le survol télécharge le viewer en avance : l'ouverture paraît immédiate. */
-  protected prechargerSiPdf(fichier: Repertoire) {
-    if (this.estPdf(fichier)) {
-      this.pdfViewer.preload();
-    }
+  /** Le survol télécharge la visionneuse en avance : l'ouverture paraît immédiate. */
+  protected prechargerApercu(fichier: Repertoire) {
+    this.fileViewer.preload(fichier.fileName?.toString());
   }
 
   protected downloadUrl(fichier: Repertoire): string {

@@ -1,7 +1,8 @@
 /*
  * Jetons du cockpit de direction. Déclarés sur le shell : les propriétés
  * personnalisées héritent dans le DOM, le détail d'un projet les lit donc
- * malgré l'encapsulation des styles.
+ * malgré l'encapsulation des styles. Les panneaux de mat-menu du cockpit sont
+ * rendus dans l'overlay, hors du shell : ils reçoivent les mêmes jetons.
  */
 :host {
   display: block;
@@ -11,7 +12,8 @@
   line-height: 1.45;
 }
 
-.dir-shell {
+.dir-shell,
+::ng-deep .direction-menu-panel {
   --dir-plane: #f4f5f7;
   --dir-surface: #ffffff;
   --dir-surface-muted: #f8f9fb;
@@ -28,7 +30,9 @@
   --dir-critical-text: #b42318;
   --dir-critical-soft: #fdeeee;
   --dir-serious-text: #a6431c;
+}
 
+.dir-shell {
   min-height: 100vh;
   padding: 16px 24px 32px;
   box-sizing: border-box;

@@ -1,16 +1,15 @@
-import {Component, HostListener, Input, OnChanges} from '@angular/core';
+import {Component, Input, OnChanges} from '@angular/core';
 import {Subscription} from 'rxjs';
 import {DirectionService} from '../direction.service';
 import {DetailProjet, ProjetDirection, TacheProjet} from '../direction.model';
-
-type ContenuPopup = 'commentaires' | 'fichiers';
 
 /**
  * Tâches d'un projet : avancement, assignés (composant commun
  * `app-assign-field`), temps passé, date de premier traitement.
  *
- * Chaque tâche a deux boutons ouvrant une popup : ses commentaires (avec leur
- * nombre) et ses fichiers joints. Rechargé à chaque changement de projet.
+ * Chaque tâche a deux boutons, chacun avec son nombre, ouvrant un mat-menu
+ * qui affiche directement ses commentaires ou ses pièces jointes. Rechargé à
+ * chaque changement de projet.
  */
 @Component({
   standalone: false,
@@ -26,8 +25,6 @@ export class DirectionProjetDetailComponent implements OnChanges {
   chargement = true;
   erreur = false;
   private abonnement?: Subscription;
-  /** Popup ouverte : la tâche, et ce qu'on en montre. */
-  popup: { tache: TacheProjet; contenu: ContenuPopup } | null = null;
 
   constructor(private directionService: DirectionService) {
   }
@@ -35,7 +32,6 @@ export class DirectionProjetDetailComponent implements OnChanges {
   /** Rechargé à chaque changement d'élément choisi dans le menu. */
   ngOnChanges(): void {
     this.abonnement?.unsubscribe();
-    this.popup = null;
     this.detail = null;
     this.chargement = true;
     this.erreur = false;
@@ -65,18 +61,19 @@ export class DirectionProjetDetailComponent implements OnChanges {
     return projet && tache.issueKey ? [...projet, 'subtask', tache.issueKey as string] : null;
   }
 
-  // ---------------------------------------------------------------- popup
+  // ---------------------------------------------------------------- menus
 
-  ouvrir(tache: TacheProjet, contenu: ContenuPopup): void {
-    this.popup = {tache, contenu};
+  /**
+   * Les touches restent au contenu du menu (saisie d'un commentaire, flèches),
+   * sauf Échap, laissée au mat-menu pour qu'il se ferme.
+   */
+  garderTouche(event: KeyboardEvent): void {
+    if (event.key !== 'Escape') {
+      event.stopPropagation();
+    }
   }
 
-  @HostListener('document:keydown.escape')
-  fermer(): void {
-    this.popup = null;
-  }
-
-  /** Le compteur du bouton suit les ajouts faits dans la popup. */
+  /** Le compteur du bouton suit les ajouts faits dans le menu. */
   commentaireAjoute(tache: TacheProjet): void {
     tache.nombreCommentaires = (tache.nombreCommentaires ?? 0) + 1;
   }

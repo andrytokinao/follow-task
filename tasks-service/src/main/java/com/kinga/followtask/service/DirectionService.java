@@ -1,5 +1,6 @@
 package com.kinga.followtask.service;
 
+import com.kinga.followtask.config.StatutsFinaux;
 import com.kinga.followtask.dto.rapport.RapportProjetDTO;
 import com.kinga.followtask.entity.Issue;
 import com.kinga.followtask.entity.IssueType;
@@ -50,6 +51,7 @@ public class DirectionService {
     private final ProjectRepository projectRepository;
     private final DocumentRepository documentRepository;
     private final IssueTypeRepository issueTypeRepository;
+    private final StatutsFinaux statutsFinaux;
 
     /** Noms des espaces de travail, triés. */
     @Transactional(readOnly = true)
@@ -64,13 +66,12 @@ public class DirectionService {
 
     /**
      * Projets en cours : demandes principales de l'espace, comme dans sa
-     * liste, non terminées.
+     * liste, dont le statut n'est pas final ({@link StatutsFinaux}).
      *
      * @param departement nom de l'espace de travail, {@code null} pour tous
      * @param rapports    reçoit le rapport de chaque projet retenu, par
-     *                    identifiant : il a fallu le calculer pour écarter les
-     *                    projets terminés, le champ {@code rapportProjet} le
-     *                    réutilise
+     *                    identifiant : le champ {@code rapportProjet} le
+     *                    réutilise au lieu de le recalculer
      */
     @Transactional(readOnly = true)
     public List<Issue> projets(String departement, Map<Long, RapportProjetDTO> rapports) {
@@ -87,11 +88,13 @@ public class DirectionService {
                 continue;
             }
             for (Issue racine : issueRepository.findByIssueTypeIn(typesPrincipaux)) {
-                RapportProjetDTO rapport = rapportService.genererRapport(racine);
-                // Un projet terminé n'a plus rien à piloter.
-                if (rapport.avancementGlobal() >= 100) {
+                // Un projet terminé n'a plus rien à piloter. On en juge par son
+                // statut, comme l'espace de travail : des tâches à 100 % ne
+                // ferment pas un projet resté « En attente ».
+                if (statutsFinaux.estStatutFinal(racine.getStatus())) {
                     continue;
                 }
+                RapportProjetDTO rapport = rapportService.genererRapport(racine);
                 rapports.put(racine.getId(), rapport);
                 projets.add(racine);
             }

@@ -952,8 +952,8 @@ h3 {
   box-shadow: 0 18px 44px rgba(11, 18, 32, 0.2);
 }
 
-/* Visionneuse PDF plein écran : pas d'arrondi ni de marge autour de la surface. */
-.pdf-viewer-dialog-panel .mat-mdc-dialog-surface {
+/* Aperçus PDF et DOCX plein écran : pas d'arrondi ni de marge autour de la surface. */
+.file-viewer-dialog-panel .mat-mdc-dialog-surface {
   border-radius: 0;
 }
 

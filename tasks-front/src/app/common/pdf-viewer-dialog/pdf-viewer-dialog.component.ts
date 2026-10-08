@@ -5,19 +5,12 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from '@angular/material/dialog';
 import {NgxExtendedPdfViewerModule} from 'ngx-extended-pdf-viewer';
 import {environment} from '../../../environments/environment';
-
-/** Le PDF à afficher, quelle que soit sa provenance (document, pièce jointe…). */
-export interface PdfViewerDialogData {
-  fileName: string;
-  /** Chemin encodé, tel qu'attendu par api/fech-file. */
-  encodedPath: string;
-  downloadUrl: string;
-}
+import {FileViewerData} from '../file-viewer/file-viewer-data';
 
 /**
  * Visionneuse PDF en popup.
  *
- * Composant standalone pour être chargé à la demande par le {@link PdfViewerService} :
+ * Composant standalone pour être chargé à la demande par le {@link FileViewerService} :
  * ngx-extended-pdf-viewer n'entre ainsi dans aucun module partagé et n'alourdit pas
  * le chargement de l'application.
  */
@@ -41,7 +34,7 @@ export class PdfViewerDialogComponent implements OnInit {
     private readonly http: HttpClient,
     private readonly destroyRef: DestroyRef,
     private readonly dialogRef: MatDialogRef<PdfViewerDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) readonly data: PdfViewerDialogData,
+    @Inject(MAT_DIALOG_DATA) readonly data: FileViewerData,
   ) {
   }
 

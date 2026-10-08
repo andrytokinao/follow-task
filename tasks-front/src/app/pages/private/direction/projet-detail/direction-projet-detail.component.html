@@ -61,16 +61,16 @@
         <ng-template #jamais><span class="muted" title="Pas encore commencée">—</span></ng-template>
       </td>
       <td class="num">
-        <!-- Deux boutons, chacun ouvre sa popup : commentaires et pièces jointes. -->
+        <!-- Deux boutons, chacun ouvre son mat-menu : commentaires et pièces jointes. -->
         <div class="actions">
-          <button type="button" class="comment-toggle"
-                  [class.active]="popup?.tache === t && popup?.contenu === 'commentaires'"
-                  [class.vide]="!t.nombreCommentaires" (click)="ouvrir(t, 'commentaires')" title="Commentaires">
+          <button type="button" class="comment-toggle" #declCommentaires="matMenuTrigger"
+                  [class.active]="declCommentaires.menuOpen" [class.vide]="!t.nombreCommentaires"
+                  [matMenuTriggerFor]="menuCommentaires" [matMenuTriggerData]="{tache: t}" title="Commentaires">
             <i class="far fa-comment"></i> {{ t.nombreCommentaires ?? 0 }}
           </button>
-          <button type="button" class="comment-toggle"
-                  [class.active]="popup?.tache === t && popup?.contenu === 'fichiers'"
-                  [class.vide]="!t.nombrePiecesJointes" (click)="ouvrir(t, 'fichiers')" title="Pièces jointes">
+          <button type="button" class="comment-toggle" #declFichiers="matMenuTrigger"
+                  [class.active]="declFichiers.menuOpen" [class.vide]="!t.nombrePiecesJointes"
+                  [matMenuTriggerFor]="menuFichiers" [matMenuTriggerData]="{tache: t}" title="Pièces jointes">
             <i class="fas fa-paperclip"></i> {{ t.nombrePiecesJointes ?? 0 }}
           </button>
         </div>
@@ -81,28 +81,35 @@
   </div>
 </ng-container>
 
-<!-- ═══ POPUP D'UNE TÂCHE : COMMENTAIRES OU FICHIERS JOINTS ═══ -->
-<div class="popup-backdrop" *ngIf="popup as p" (click)="fermer()">
-  <div class="popup" [class.large]="p.contenu === 'fichiers'" role="dialog" aria-modal="true"
-       aria-labelledby="popup-titre" (click)="$event.stopPropagation()">
-    <div class="popup-head">
-      <div class="task-cell" id="popup-titre">
-        <i [class]="p.contenu === 'commentaires' ? 'far fa-comment task-icon' : 'fas fa-paperclip task-icon'"></i>
-        <span class="task-key">{{ p.tache.issueKey }}</span>
-        <span class="task-name" [title]="p.tache.summary">{{ p.tache.summary }}</span>
+<!-- ═══ MENUS D'UNE TÂCHE ═══
+     La tâche arrive par matMenuTriggerData. Le contenu est interactif (saisie,
+     clics, dossiers) : clics et touches s'arrêtent au panneau, sinon le menu se
+     fermerait au premier clic et capterait les flèches du clavier. Échap ferme. -->
+<mat-menu #menuCommentaires="matMenu" xPosition="before" class="direction-menu-panel">
+  <ng-template matMenuContent let-tache="tache">
+    <div class="menu-contenu" (click)="$event.stopPropagation()" (keydown)="garderTouche($event)">
+      <div class="menu-head task-cell">
+        <i class="far fa-comment task-icon"></i>
+        <span class="task-key">{{ tache.issueKey }}</span>
+        <span class="task-name" [title]="tache.summary">{{ tache.summary }}</span>
       </div>
-      <button type="button" class="popup-close" title="Fermer" (click)="fermer()">
-        <i class="fas fa-times"></i>
-      </button>
-    </div>
-    <div class="popup-body">
-      <app-direction-commentaires *ngIf="p.contenu === 'commentaires'"
-                                  [issueId]="$any(p.tache.id)" (ajoute)="commentaireAjoute(p.tache)">
+      <app-direction-commentaires [issueId]="$any(tache.id)" (ajoute)="commentaireAjoute(tache)">
       </app-direction-commentaires>
+    </div>
+  </ng-template>
+</mat-menu>
+
+<mat-menu #menuFichiers="matMenu" xPosition="before" class="direction-menu-panel large">
+  <ng-template matMenuContent let-tache="tache">
+    <div class="menu-contenu" (click)="$event.stopPropagation()" (keydown)="garderTouche($event)">
+      <div class="menu-head task-cell">
+        <i class="fas fa-paperclip task-icon"></i>
+        <span class="task-key">{{ tache.issueKey }}</span>
+        <span class="task-name" [title]="tache.summary">{{ tache.summary }}</span>
+      </div>
       <!-- Même explorateur que l'onglet « Pièces jointes » des tâches de l'espace. -->
-      <app-explorateur-fichiers *ngIf="p.contenu === 'fichiers'"
-                                [issueId]="$any(p.tache.id)" [compact]="true" titre="Pièces jointes">
+      <app-explorateur-fichiers [issueId]="$any(tache.id)" [compact]="true" titre="Pièces jointes">
       </app-explorateur-fichiers>
     </div>
-  </div>
-</div>
+  </ng-template>
+</mat-menu>
