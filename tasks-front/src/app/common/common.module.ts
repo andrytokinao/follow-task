@@ -66,6 +66,7 @@ import {AssigneeFilterComponent} from "./assignee-filter/assignee-filter.compone
 import {StatusTabsComponent} from "./status-tabs/status-tabs.component";
 import {IssueBoardComponent} from "./issue-board/issue-board.component";
 import {ChangeIssueTypeComponent} from "./change-issue-type/change-issue-type.component";
+import {AbonnementIssueComponent} from "./abonnement-issue/abonnement-issue.component";
 
 @NgModule({
   declarations: [
@@ -112,7 +113,8 @@ import {ChangeIssueTypeComponent} from "./change-issue-type/change-issue-type.co
     AssigneeFilterComponent,
     StatusTabsComponent,
     IssueBoardComponent,
-    ChangeIssueTypeComponent
+    ChangeIssueTypeComponent,
+    AbonnementIssueComponent
   ],
   imports: [
     CommonModule,
@@ -197,7 +199,8 @@ import {ChangeIssueTypeComponent} from "./change-issue-type/change-issue-type.co
       AssigneeFilterComponent,
       StatusTabsComponent,
       IssueBoardComponent,
-      ChangeIssueTypeComponent
+      ChangeIssueTypeComponent,
+      AbonnementIssueComponent
     ],
   providers:[
     NgbActiveModal

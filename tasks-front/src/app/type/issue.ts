@@ -51,6 +51,29 @@ export class Issue {
   activeMemberships?:IssueMembership[];
   assignes?:User[];
 }
+/** Nature d'un lien, lu de la source vers la destination : « A bloque B ». */
+export type LinkType = 'BLOCKS' | 'PRECEDES' | 'TRIGGERS' | 'RELATES_TO';
+
+/** Contrainte de planning (Gantt) : quelle borne de la source conditionne quelle borne de la destination. */
+export type DependencyMode = 'FINISH_TO_START' | 'START_TO_START' | 'FINISH_TO_FINISH' | 'START_TO_FINISH';
+
+/** Lien entre deux tâches, éventuellement de départements différents. */
+export class IssueLink {
+  id?:number;
+  type?:LinkType;
+  /** Libellé vu depuis la source : « bloque ». */
+  outwardLabel?:string;
+  /** Libellé vu depuis la destination : « est bloquée par ». */
+  inwardLabel?:string;
+  source?:Issue;
+  destination?:Issue;
+  mode?:DependencyMode;
+  /** Décalage en jours ; négatif pour un chevauchement. */
+  lagDays?:number;
+  createdAt?:string;
+  createdBy?:User;
+}
+
 export type IssueRole = 'ADMIN' | 'ASSIGNEE' | 'OBSERVER';
 
 export class IssueMembership {

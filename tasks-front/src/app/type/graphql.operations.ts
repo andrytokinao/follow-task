@@ -522,6 +522,13 @@ export const DEFINIR_DIRECTION = gql`
   }
 `;
 
+/** Abonne ou désabonne l'utilisateur connecté ; renvoie les observerIds à jour. */
+export const ABONNER_ISSUE = gql`
+  mutation abonnerIssue($issueId: Int!, $abonne: Boolean!) {
+    abonnerIssue(issueId: $issueId, abonne: $abonne)
+  }
+`;
+
 /** Rôles système définis côté serveur (application.yml). */
 export const ROLES_SYSTEME_DISPONIBLES = gql`
   query rolesSystemeDisponibles {

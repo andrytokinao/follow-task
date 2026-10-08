@@ -1,0 +1,8 @@
+# Abonnement aux issues : s'abonner, c'est entrer dans Issue.observerIds, la
+# liste des personnes notifiées à chaque événement de l'issue.
+
+extend type Mutation {
+    # Abonne (true) ou désabonne (false) l'utilisateur connecté ; renvoie les
+    # observerIds à jour.
+    abonnerIssue(issueId: Int!, abonne: Boolean!): [String]
+}

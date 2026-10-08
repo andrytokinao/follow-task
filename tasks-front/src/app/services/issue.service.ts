@@ -1,6 +1,6 @@
 import {Injectable, OnInit} from '@angular/core';
 import {HttpClient, HttpEvent, HttpEventType, HttpHeaders, HttpParams, HttpRequest} from '@angular/common/http';
-import {BehaviorSubject, concatMap, finalize, observable, Observable, of, Subject, switchMap, tap, throwError} from 'rxjs';
+import {BehaviorSubject, concatMap, finalize, map, observable, Observable, of, Subject, switchMap, tap, throwError} from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import {
   Issue,
@@ -156,6 +156,18 @@ export class IssueService implements OnInit {
   }
 
   curentMasterCriteria: IssueSearchCriteriaInput = {};
+
+  /**
+   * Abonne (true) ou désabonne (false) l'utilisateur connecté à une issue :
+   * il entre dans observerIds, la liste des personnes notifiées.
+   * Renvoie les observerIds à jour.
+   */
+  abonnerIssue(issueId: number, abonne: boolean): Observable<string[]> {
+    return this.apollo.mutate({
+      mutation: operation.ABONNER_ISSUE,
+      variables: {issueId, abonne}
+    }).pipe(map((res: any) => [...(res.data.abonnerIssue ?? [])]));
+  }
 
   constructor(private http: HttpClient,
               private apollo: Apollo,

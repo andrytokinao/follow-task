@@ -1,0 +1,53 @@
+# Liens entre tâches, éventuellement de départements différents.
+#
+# Un lien se lit de la source vers la destination : « A bloque B ». Le sens
+# inverse (« B est bloquée par A ») se lit depuis la destination, avec
+# inwardLabel. La relation parent / sous-tâche reste dans Issue.parent.
+
+enum LinkType {
+    # A doit être terminée avant que B puisse avancer.
+    BLOCKS
+    # A est planifiée avant B (dépendance de planning, sans blocage).
+    PRECEDES
+    # La fin de A ouvre B.
+    TRIGGERS
+    # Simple référence, sans contrainte.
+    RELATES_TO
+}
+
+# Contrainte de planning (Gantt) : quelle borne de A conditionne quelle borne de B.
+enum DependencyMode {
+    FINISH_TO_START
+    START_TO_START
+    FINISH_TO_FINISH
+    START_TO_FINISH
+}
+
+type IssueLink {
+    id: Int
+    type: LinkType
+    # Libellé vu depuis la source : « bloque ».
+    outwardLabel: String
+    # Libellé vu depuis la destination : « est bloquée par ».
+    inwardLabel: String
+    source: Issue
+    destination: Issue
+    mode: DependencyMode
+    # Décalage en jours ; négatif pour un chevauchement.
+    lagDays: Int
+    createdAt: String
+    createdBy: UserApp
+}
+
+extend type Query {
+    outgoingIssueLinks(issueId: Int!): [IssueLink]
+    incomingIssueLinks(issueId: Int!): [IssueLink]
+}
+
+extend type Mutation {
+    # Refusé pour un lien de dépendance qui créerait une boucle, ou entre une
+    # tâche et sa parente / ses sous-tâches. Réactive un lien retiré.
+    linkIssues(sourceId: Int!, destinationId: Int!, type: LinkType!, mode: DependencyMode, lagDays: Int): IssueLink
+    updateIssueLink(linkId: Int!, mode: DependencyMode, lagDays: Int): IssueLink
+    unlinkIssues(linkId: Int!): Boolean
+}
