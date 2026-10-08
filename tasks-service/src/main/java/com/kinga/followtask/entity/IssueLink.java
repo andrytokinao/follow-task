@@ -53,13 +53,14 @@ public class IssueLink {
 
     /** Décalage en jours entre les deux bornes ; négatif pour un chevauchement. */
     private Integer lagDays = 0;
-
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by")
     private UserApp createdBy;
 
+    @Column(name = "removed_at")
     private LocalDateTime removedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
