@@ -67,6 +67,8 @@ import {StatusTabsComponent} from "./status-tabs/status-tabs.component";
 import {IssueBoardComponent} from "./issue-board/issue-board.component";
 import {ChangeIssueTypeComponent} from "./change-issue-type/change-issue-type.component";
 import {AbonnementIssueComponent} from "./abonnement-issue/abonnement-issue.component";
+import {IssueLinkMenuComponent} from "./issue-link-menu/issue-link-menu.component";
+import {RenderedDirective} from "./issue-picker/rendered.directive";
 
 @NgModule({
   declarations: [
@@ -114,7 +116,8 @@ import {AbonnementIssueComponent} from "./abonnement-issue/abonnement-issue.comp
     StatusTabsComponent,
     IssueBoardComponent,
     ChangeIssueTypeComponent,
-    AbonnementIssueComponent
+    AbonnementIssueComponent,
+    IssueLinkMenuComponent
   ],
   imports: [
     CommonModule,
@@ -152,7 +155,8 @@ import {AbonnementIssueComponent} from "./abonnement-issue/abonnement-issue.comp
     AvatarComponent,
     IconeViewComponent,
     ContenuMenuDirective,
-    IssuePickerMenuComponent
+    IssuePickerMenuComponent,
+    RenderedDirective
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA
@@ -200,7 +204,8 @@ import {AbonnementIssueComponent} from "./abonnement-issue/abonnement-issue.comp
       StatusTabsComponent,
       IssueBoardComponent,
       ChangeIssueTypeComponent,
-      AbonnementIssueComponent
+      AbonnementIssueComponent,
+      IssueLinkMenuComponent
     ],
   providers:[
     NgbActiveModal

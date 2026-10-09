@@ -2,9 +2,43 @@
         [class.abonne]="abonne"
         [class.compact]="compact"
         [class.erreur]="erreur"
-        [disabled]="enCours || !issue?.id"
+        [disabled]="!issue?.id"
         [title]="infobulle"
-        (click)="basculer($event)">
+        [matMenuTriggerFor]="menu"
+        (click)="arreter($event)">
   <i class="fas" [ngClass]="enCours ? 'fa-circle-notch fa-spin' : (abonne ? 'fa-bell' : 'fa-bell-slash')"></i>
   <span class="libelle" *ngIf="!compact">{{ libelle }}</span>
+  <span class="nombre" *ngIf="nombre > 0">{{ nombre }}</span>
 </button>
+
+<mat-menu #menu="matMenu" class="abonnement-menu" xPosition="before">
+  <div class="abonnement-panel" (click)="arreter($event)">
+    <div class="abonnement-panel-header">
+      <h4> Abonnés </h4>
+      <span class="abonnement-aide">Notifiés à chaque évènement de la tâche.</span>
+    </div>
+
+    <!-- Action principale : chacun ne gère que son propre abonnement. -->
+    <button type="button" class="abonnement-moi" [class.desabonner]="abonne"
+            [disabled]="enCours || !issue?.id" (click)="basculer($event)">
+      <i class="fas" [ngClass]="enCours ? 'fa-circle-notch fa-spin' : (abonne ? 'fa-bell-slash' : 'fa-bell')"
+         aria-hidden="true"></i>
+      {{ abonne ? 'Se désabonner' : "S'abonner" }}
+    </button>
+
+    <div class="abonnement-erreur" *ngIf="erreur">{{ erreur }}</div>
+
+    <div class="abonnement-list">
+      <div class="abonnement-option" *ngFor="let user of abonnes">
+        <app-avatar [url]="photoUrl(user)" [displayName]="displayName(user)"></app-avatar>
+        <span class="abonnement-nom" [title]="displayName(user)">{{ displayName(user) }}</span>
+        <span class="abonnement-vous" *ngIf="estMoi(user)">vous</span>
+      </div>
+      <div class="abonnement-empty" *ngIf="abonnes.length == 0"> Personne ne suit cette tâche </div>
+    </div>
+
+    <div class="abonnement-panel-footer">
+      <span class="abonnement-count">{{ nombre }} abonné(s)</span>
+    </div>
+  </div>
+</mat-menu>
