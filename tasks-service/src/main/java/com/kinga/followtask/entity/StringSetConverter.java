@@ -24,6 +24,7 @@ public class StringSetConverter implements AttributeConverter<Set<String>, Strin
     public Set<String> convertToEntityAttribute(String dbData) {
         return dbData != null ? Arrays.stream(dbData.split(SEPARATOR))
                 .map(String::trim)
+                .filter(id -> !id.isEmpty())
                 .collect(Collectors.toSet()) : null;
     }
 }
