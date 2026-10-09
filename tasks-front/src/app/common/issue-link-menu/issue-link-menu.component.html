@@ -1,0 +1,69 @@
+<mat-menu #menu="matMenu" class="issue-link-menu" xPosition="before">
+  <!-- Contenu paresseux : recréé à chaque ouverture, (rendered) recharge les liens. -->
+  <ng-template matMenuContent>
+    <div class="liens" (rendered)="charger()" appContenuMenu>
+
+      <div class="liens-entete">
+        <i class="fas fa-link"></i>
+        <span>Tâches liées</span>
+        <span class="liens-compte" *ngIf="liens.length">{{ liens.length }}</span>
+      </div>
+
+      <div class="liens-etat" *ngIf="chargement">
+        <i class="fas fa-circle-notch fa-spin"></i> Chargement…
+      </div>
+
+      <div class="liens-etat" *ngIf="!chargement && !liens.length">
+        Aucune tâche liée.
+      </div>
+
+      <div class="liens-liste" *ngIf="!chargement && liens.length">
+        <ng-container *ngFor="let affiche of liens; let i = index; trackBy: parId">
+          <div class="liens-groupe" *ngIf="debutGroupe(i)">{{ affiche.libelle }}</div>
+          <div class="lien" [title]="affiche.autre?.summary" (click)="ouvrir(affiche)">
+            <span class="lien-cle">{{ affiche.autre?.issueKey }}</span>
+            <span class="lien-titre">{{ affiche.autre?.summary }}</span>
+            <span class="lien-statut" *ngIf="affiche.autre?.status"
+                  [style.background-color]="affiche.autre.status?.color">
+              {{ affiche.autre.status?.displayName }}
+            </span>
+            <button type="button" class="lien-retirer" *ngIf="!lectureSeule"
+                    [disabled]="enCours" title="Retirer le lien"
+                    (click)="retirer(affiche, $event)">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </ng-container>
+      </div>
+
+      <div class="liens-erreur" *ngIf="erreur">
+        <i class="fas fa-exclamation-circle"></i> {{ erreur }}
+      </div>
+
+      <!-- Ajout : la relation, puis la tâche dans le sélecteur. Le sélecteur
+           s'ouvre en menu autonome (appContenuMenu) : le choix ne referme pas
+           ce panneau. -->
+      <div class="liens-ajout" *ngIf="!lectureSeule">
+        <select class="liens-relation" [(ngModel)]="relation" [disabled]="enCours">
+          <option *ngFor="let r of relations" [ngValue]="r">{{ issue?.issueKey }} {{ r.libelle }}…</option>
+        </select>
+        <button type="button" class="liens-ajouter" [disabled]="enCours || !issue?.id"
+                [matMenuTriggerFor]="picker.menu">
+          <i class="fas" [ngClass]="enCours ? 'fa-circle-notch fa-spin' : 'fa-plus'"></i>
+          Choisir une tâche
+        </button>
+      </div>
+    </div>
+  </ng-template>
+</mat-menu>
+
+<app-issue-picker-menu
+  #picker
+  mode="simple"
+  [recherche]="true"
+  [detailsTaches]="true"
+  [projetsSelectionnables]="false"
+  [hasBackdrop]="true"
+  [issues]="masters"
+  (issueChoisie)="lier($event)">
+</app-issue-picker-menu>

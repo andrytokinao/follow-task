@@ -28,7 +28,6 @@ public class IssueCanalLink {
     @Column(name = "linked_at")
     private LocalDateTime linkedAt;
     @Column(name = "ended_at")
-
     private LocalDateTime endedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)

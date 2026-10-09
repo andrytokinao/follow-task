@@ -1,0 +1,164 @@
+/* Le composant ne rend rien en place : tout vit dans le panneau du menu. */
+:host {
+  display: contents;
+}
+
+.liens {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 360px;
+  max-width: 90vw;
+  padding: 4px 12px 8px;
+  font-size: 13px;
+  color: #3c3c3c;
+}
+
+.liens-entete {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0 6px;
+  border-bottom: 1px solid #eceef1;
+  font-weight: 600;
+}
+
+.liens-compte {
+  padding: 0 7px;
+  border-radius: 10px;
+  background-color: #eaebef;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.liens-etat {
+  padding: 10px 0;
+  color: #8a8a8a;
+  text-align: center;
+}
+
+.liens-liste {
+  display: flex;
+  flex-direction: column;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.liens-groupe {
+  padding: 8px 0 2px;
+  color: #8a8a8a;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+}
+
+.lien {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 30px;
+  padding: 0 6px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.lien:hover {
+  background-color: #f2f3f5;
+}
+
+.lien-cle {
+  flex-shrink: 0;
+  color: #1565c0;
+  font-weight: 600;
+}
+
+.lien-titre {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lien-statut {
+  flex-shrink: 0;
+  max-width: 90px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background-color: #dcdee3;
+  color: #fff;
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lien-retirer {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: #8a8a8a;
+  cursor: pointer;
+  visibility: hidden;
+}
+
+.lien:hover .lien-retirer {
+  visibility: visible;
+}
+
+.lien-retirer:hover:enabled {
+  background-color: #f3c6c2;
+  color: #b3261e;
+}
+
+.liens-erreur {
+  padding: 6px 8px;
+  border-radius: 6px;
+  background-color: #fdecea;
+  color: #b3261e;
+}
+
+.liens-ajout {
+  display: flex;
+  gap: 6px;
+  padding-top: 8px;
+  border-top: 1px solid #eceef1;
+}
+
+.liens-relation {
+  flex: 1;
+  min-width: 0;
+  height: 30px;
+  padding: 0 6px;
+  border: 1px solid #dcdee3;
+  border-radius: 6px;
+  background-color: #fff;
+  font-size: 13px;
+}
+
+.liens-ajouter {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid #b9cdf0;
+  border-radius: 6px;
+  background-color: #eaf1fb;
+  color: #1565c0;
+  font-size: 13px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.liens-ajouter:hover:enabled {
+  background-color: #dce8f8;
+}
+
+.liens-ajouter:disabled {
+  opacity: .6;
+  cursor: default;
+}
