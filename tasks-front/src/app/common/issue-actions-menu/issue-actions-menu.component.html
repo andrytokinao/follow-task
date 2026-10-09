@@ -1,0 +1,50 @@
+<button type="button" class="actions-trigger" title="Plus d'actions"
+        [disabled]="!issue?.id"
+        [matMenuTriggerFor]="menu"
+        (menuOpened)="verifierDroits()"
+        (click)="$event.stopPropagation()">
+  <i class="fas fa-ellipsis-h"></i>
+</button>
+
+<mat-menu #menu="matMenu" class="issue-actions-menu" xPosition="before">
+  <button mat-menu-item [matMenuTriggerFor]="partager">
+    <i class="fas fa-share-alt"></i>
+    <span>Partager</span>
+  </button>
+
+  <button mat-menu-item [matMenuTriggerFor]="liens.menu">
+    <i class="fas fa-link"></i>
+    <span>Tâches liées</span>
+  </button>
+
+  <button mat-menu-item *ngIf="avecDossier" (click)="demanderDossier()">
+    <i class="fas fa-folder-open"></i>
+    <span>Ouvrir le dossier</span>
+  </button>
+
+  <button mat-menu-item *ngIf="avecChangerType" (click)="demanderChangementType()">
+    <i class="fas fa-exchange-alt"></i>
+    <span>Changer le type</span>
+  </button>
+
+  <ng-container *ngIf="peutSupprimer">
+    <div class="actions-separateur"></div>
+    <button mat-menu-item class="actions-danger" [disabled]="suppressionEnCours" (click)="supprimer()">
+      <i class="fas" [ngClass]="suppressionEnCours ? 'fa-circle-notch fa-spin' : 'fa-trash'"></i>
+      <span>Supprimer</span>
+    </button>
+  </ng-container>
+</mat-menu>
+
+<mat-menu #partager="matMenu" class="issue-actions-menu">
+  <button mat-menu-item (click)="copierLien()">
+    <i class="fas fa-link"></i>
+    <span>Copier le lien</span>
+  </button>
+  <button mat-menu-item (click)="copierCle()">
+    <i class="fas fa-key"></i>
+    <span>Copier la clé {{ issue?.issueKey }}</span>
+  </button>
+</mat-menu>
+
+<app-issue-link-menu #liens [issue]="issue"></app-issue-link-menu>

@@ -44,14 +44,9 @@
 
 /* Icone seule : carre, comme les boutons d'outils de l'explorateur. */
 .abonnement.compact {
-  min-width: 30px;
-  padding: 0 8px;
+  width: 30px;
+  padding: 0;
   justify-content: center;
-}
-
-.nombre {
-  font-size: 11px;
-  font-weight: 600;
 }
 
 /* ---- panneau du menu, sur le modele de celui d'assignation ---- */

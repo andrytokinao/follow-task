@@ -9,7 +9,10 @@
     <div class="issue-header-actions">
       <button class="btn-icon" title="Partager"><i class="fas fa-share-alt"></i></button>
       <app-abonnement-issue [issue]="parentIssue" [compact]="true"></app-abonnement-issue>
-      <button class="btn-icon" title="Plus"><i class="fas fa-ellipsis-h"></i></button>
+      <app-issue-actions-menu [issue]="parentIssue"
+                              (changerType)="changeIssueType()"
+                              (ouvrirDossier)="openDossier()"
+                              (supprimee)="onIssueSupprimee()"></app-issue-actions-menu>
     </div>
   </div>
 

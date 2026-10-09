@@ -1,0 +1,46 @@
+:host {
+  display: inline-flex;
+}
+
+/* Meme carre de 30px que le bouton d'abonnement voisin. */
+.actions-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid #dcdee3;
+  border-radius: 6px;
+  background-color: #fff;
+  color: #5a5a5a;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.actions-trigger:hover:enabled {
+  background-color: #eaebef;
+}
+
+.actions-trigger:disabled {
+  opacity: .6;
+  cursor: default;
+}
+
+/* Icone et libelle alignes, largeur d'icone fixe pour un texte bien aligne. */
+.mat-mdc-menu-item i {
+  width: 18px;
+  margin-right: 10px;
+  color: #5a5a5a;
+  text-align: center;
+}
+
+.actions-separateur {
+  margin: 4px 0;
+  border-top: 1px solid #eee;
+}
+
+.actions-danger,
+.actions-danger i {
+  color: #b3261e;
+}

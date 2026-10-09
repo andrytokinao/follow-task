@@ -8,7 +8,6 @@
         (click)="arreter($event)">
   <i class="fas" [ngClass]="enCours ? 'fa-circle-notch fa-spin' : (abonne ? 'fa-bell' : 'fa-bell-slash')"></i>
   <span class="libelle" *ngIf="!compact">{{ libelle }}</span>
-  <span class="nombre" *ngIf="nombre > 0">{{ nombre }}</span>
 </button>
 
 <mat-menu #menu="matMenu" class="abonnement-menu" xPosition="before">

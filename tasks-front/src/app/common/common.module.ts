@@ -68,6 +68,7 @@ import {IssueBoardComponent} from "./issue-board/issue-board.component";
 import {ChangeIssueTypeComponent} from "./change-issue-type/change-issue-type.component";
 import {AbonnementIssueComponent} from "./abonnement-issue/abonnement-issue.component";
 import {IssueLinkMenuComponent} from "./issue-link-menu/issue-link-menu.component";
+import {IssueActionsMenuComponent} from "./issue-actions-menu/issue-actions-menu.component";
 import {RenderedDirective} from "./issue-picker/rendered.directive";
 
 @NgModule({
@@ -117,7 +118,8 @@ import {RenderedDirective} from "./issue-picker/rendered.directive";
     IssueBoardComponent,
     ChangeIssueTypeComponent,
     AbonnementIssueComponent,
-    IssueLinkMenuComponent
+    IssueLinkMenuComponent,
+    IssueActionsMenuComponent
   ],
   imports: [
     CommonModule,
@@ -205,7 +207,8 @@ import {RenderedDirective} from "./issue-picker/rendered.directive";
       IssueBoardComponent,
       ChangeIssueTypeComponent,
       AbonnementIssueComponent,
-      IssueLinkMenuComponent
+      IssueLinkMenuComponent,
+      IssueActionsMenuComponent
     ],
   providers:[
     NgbActiveModal

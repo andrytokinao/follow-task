@@ -437,6 +437,11 @@ export class IssueDetailsComponent implements OnInit, OnDestroy {
       });
   }
 
+  /** La demande n'existe plus : retour à la liste des demandes du projet. */
+  onIssueSupprimee(): void {
+    this.router.navigate(['/working', this.project?.prefix, 'projects']);
+  }
+
   editIssueDescription(): void {
     this.projectGuard.hasCredential(['CAN_CREATE_TASK'])
       .pipe(takeUntil(this.destroy$))

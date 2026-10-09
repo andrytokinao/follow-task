@@ -25,7 +25,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @Table(uniqueConstraints = @UniqueConstraint(name = "uk_issuelink", columnNames = {"source_id", "destination_id", "type"}),
-        indexes = @Index(name = "idx_issuelink_destination", columnList = "destination_id, removedAt"))
+        indexes = @Index(name = "idx_issuelink_destination", columnList = "destination_id, removed_at"))
 public class IssueLink {
 
     @Id

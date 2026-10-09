@@ -13,8 +13,8 @@
 --   - colonnes ajoutees pour le Gantt et la tracabilite.
 --
 -- Pas de convention snake_case dans ce projet : les colonnes portent le
--- nom des champs (lagDays, createdAt...), sauf les cles etrangeres
--- nommees par @JoinColumn (source_id, created_by...).
+-- nom des champs (lagDays...), sauf celles nommees par @Column ou
+-- @JoinColumn (created_at, removed_at, source_id, created_by...).
 --
 -- L'entite ne declare pas de nom de table : sur MySQL Windows
 -- (lower_case_table_names = 1) la table s'appelle `issuelink`, sur un
@@ -83,11 +83,11 @@ ALTER TABLE issuelink
     ADD COLUMN mode       VARCHAR(30)  NULL DEFAULT 'FINISH_TO_START',
     -- Decalage en jours ; negatif pour un chevauchement.
     ADD COLUMN lagDays    INT          NULL DEFAULT 0,
-    ADD COLUMN createdAt  DATETIME(6)  NULL,
+    ADD COLUMN created_at DATETIME(6)  NULL,
     ADD COLUMN created_by VARCHAR(255) NULL,
     -- Renseigne quand le lien est retire : la ligne est gardee et
     -- reactivee si le meme lien est recree.
-    ADD COLUMN removedAt  DATETIME(6)  NULL,
+    ADD COLUMN removed_at DATETIME(6)  NULL,
     ADD COLUMN removed_by VARCHAR(255) NULL;
 
 UPDATE issuelink SET mode = 'FINISH_TO_START' WHERE mode IS NULL;
@@ -103,7 +103,7 @@ ALTER TABLE issuelink
     -- les liens sortants (source_id en tete).
     ADD CONSTRAINT uk_issuelink UNIQUE (source_id, destination_id, type),
     -- Liens entrants d'une tache.
-    ADD INDEX idx_issuelink_destination (destination_id, removedAt);
+    ADD INDEX idx_issuelink_destination (destination_id, removed_at);
 
 
 -- ---------------------------------------------------------------------
@@ -122,7 +122,7 @@ ALTER TABLE issuelink
 -- Verification
 -- ---------------------------------------------------------------------
 -- SHOW CREATE TABLE issuelink;
--- SELECT type, COUNT(*) FROM issuelink WHERE removedAt IS NULL GROUP BY type;
+-- SELECT type, COUNT(*) FROM issuelink WHERE removed_at IS NULL GROUP BY type;
 
 
 -- ---------------------------------------------------------------------
@@ -132,5 +132,5 @@ ALTER TABLE issuelink
 --     DROP INDEX idx_issuelink_destination,
 --     DROP INDEX uk_issuelink,
 --     DROP COLUMN mode, DROP COLUMN lagDays,
---     DROP COLUMN createdAt, DROP COLUMN created_by,
---     DROP COLUMN removedAt, DROP COLUMN removed_by;
+--     DROP COLUMN created_at, DROP COLUMN created_by,
+--     DROP COLUMN removed_at, DROP COLUMN removed_by;
