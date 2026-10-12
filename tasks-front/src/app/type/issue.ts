@@ -229,7 +229,15 @@ export interface IssueType{
   icone? :Icone | undefined;
   parents?:IssueType[];
   children?:IssueType[]
+  /** Phase dans laquelle le type est range ; absente tant qu'il ne l'a pas ete. */
+  phase?:Phase | null
 
+}
+/** Groupe de types de tache d'un espace de travail : « Etude », « Controle »... */
+export interface Phase{
+  id?:number
+  name?:string
+  project?:Project
 }
 export interface WorkFlow {
   id:Number,

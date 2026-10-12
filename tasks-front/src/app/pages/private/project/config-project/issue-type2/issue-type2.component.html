@@ -9,6 +9,9 @@
         <span class="count-badge" *ngIf="!loading">{{ totalCount }}</span>
       </div>
       <div class="header-actions">
+        <button class="btn-secondary" (click)="showPhases()" title="Phases : groupes de types (Étude, Contrôle…)">
+          <i class="fas fa-layer-group"></i> Phases
+        </button>
         <button class="btn-secondary" (click)="startCreateSubTask()" title="Créer un sous-type pour un ou plusieurs types">
           <i class="fas fa-level-down-alt"></i> Sous-type
         </button>
@@ -57,6 +60,7 @@
           <i [ngClass]="iconOf(parent, 'fas fa-folder')" class="icon"></i>
           <span class="type-name" [title]="describe(parent)">{{ parent.name }}</span>
           <code class="type-prefix" *ngIf="parent.prefix">{{ parent.prefix }}</code>
+          <span class="phase-badge" *ngIf="parent.phase" title="Phase">{{ parent.phase.name }}</span>
           <span class="child-count" *ngIf="childCount(parent)">{{ childCount(parent) }}</span>
 
           <span class="item-actions">
@@ -91,6 +95,7 @@
             <i [ngClass]="iconOf(child, 'fas fa-file')" class="icon"></i>
             <span class="type-name" [title]="describe(child)">{{ child.name }}</span>
             <code class="type-prefix" *ngIf="child.prefix">{{ child.prefix }}</code>
+            <span class="phase-badge" *ngIf="child.phase" title="Phase">{{ child.phase.name }}</span>
             <span class="child-count" *ngIf="otherParentCount(child)"
                   [title]="'Partagé avec : ' + parentNames(child)">
               <i class="fas fa-share-alt"></i> {{ otherParentCount(child) }}
@@ -133,6 +138,7 @@
           <i [ngClass]="iconOf(orphan, 'fas fa-file')" class="icon"></i>
           <span class="type-name" [title]="describe(orphan)">{{ orphan.name }}</span>
           <code class="type-prefix" *ngIf="orphan.prefix">{{ orphan.prefix }}</code>
+          <span class="phase-badge" *ngIf="orphan.phase" title="Phase">{{ orphan.phase.name }}</span>
 
           <span class="item-actions">
             <button class="icon-btn" title="Modifier (choisir ses parents)"
@@ -151,7 +157,44 @@
   <!-- COLONNE DROITE : FORMULAIRE / DÉTAILS -->
   <div class="right-panel">
 
-    <ng-container *ngIf="formMode !== 'idle'; else details">
+    <!-- phases : groupes de types -->
+    <div class="details-card" *ngIf="formMode === 'phases'">
+      <div class="details-header">
+        <i class="fas fa-layer-group big-icon"></i>
+        <div class="details-title">
+          <h3>Phases</h3>
+          <span class="details-subtitle">Groupes de types de tâche, facultatifs</span>
+        </div>
+        <button class="btn-secondary" (click)="closeForm()">
+          <i class="fas fa-times"></i> Fermer
+        </button>
+      </div>
+
+      <div class="phase-row" *ngFor="let phase of phases">
+        <input type="text" maxlength="100" [(ngModel)]="phaseNames[phase.id]" (keyup.enter)="renamePhase(phase)"/>
+        <span class="child-count" title="Types rangés dans cette phase">{{ typeCountOf(phase) }}</span>
+        <button class="icon-btn" title="Renommer" [disabled]="!isPhaseRenamed(phase)" (click)="renamePhase(phase)">
+          <i class="fas fa-check"></i>
+        </button>
+        <button class="icon-btn danger" title="Supprimer" (click)="removePhase(phase)">
+          <i class="fas fa-trash-alt"></i>
+        </button>
+      </div>
+      <div class="empty-inline" *ngIf="!phases.length">
+        Aucune phase : les types restent utilisables sans phase.
+      </div>
+
+      <div class="phase-row">
+        <input type="text" maxlength="100" placeholder="Nouvelle phase (ex : Étude)"
+               [(ngModel)]="newPhaseName" (keyup.enter)="addPhase()"/>
+        <button class="btn-primary" [disabled]="!newPhaseName.trim()" (click)="addPhase()">
+          <i class="fas fa-plus"></i> Ajouter
+        </button>
+      </div>
+      <span class="details-subtitle">La phase d'un type se choisit en modifiant le type.</span>
+    </div>
+
+    <ng-container *ngIf="formMode === 'create' || formMode === 'edit'">
       <app-issutype-form2
         [embedded]="true"
         [level]="formLevel"
@@ -163,7 +206,7 @@
       </app-issutype-form2>
     </ng-container>
 
-    <ng-template #details>
+    <ng-container *ngIf="formMode === 'idle'">
       <div class="details-card" *ngIf="selectedIssue; else noSelection">
         <div class="details-header">
           <span class="type-color big" [style.background]="colorOf(selectedIssue, '#6b7280')"></span>
@@ -187,6 +230,10 @@
           <div class="details-row">
             <span class="label">Préfixe</span>
             <span class="value"><code>{{ selectedIssue.prefix || '—' }}</code></span>
+          </div>
+          <div class="details-row">
+            <span class="label">Phase</span>
+            <span class="value">{{ selectedIssue.phase?.name || 'Aucune' }}</span>
           </div>
           <div class="details-row">
             <span class="label">Flux de travail</span>
@@ -221,7 +268,7 @@
           </button>
         </div>
       </ng-template>
-    </ng-template>
+    </ng-container>
 
   </div>
 </div>

@@ -16,14 +16,15 @@ import { MatFormField, MatFormFieldModule } from '@angular/material/form-field';
 import { CommonModule } from '@angular/common';
 import { MatInput, MatInputModule } from '@angular/material/input';
 import {MatMenuModule, MatMenuTrigger} from '@angular/material/menu';
+import { MatSelectModule } from '@angular/material/select';
 import { TextFieldModule } from '@angular/cdk/text-field';
 import { NgxColorsModule } from 'ngx-colors';
-import { IssueType, Project, Icone } from '../../type/issue';
+import { IssueType, Project, Icone, Phase } from '../../type/issue';
 import { IssueService } from '../../services/issue.service';
 import { ChooseDialogComponent } from '../icone-field/choose-dialog/choose-dialog.component';
 import {IconeViewComponent} from "../icone-view/icone-view.component";
 import {forkJoin, Observable, of, Subject} from "rxjs";
-import {catchError, debounceTime, distinctUntilChanged, switchMap} from "rxjs/operators";
+import {catchError, debounceTime, distinctUntilChanged, map, switchMap, tap} from "rxjs/operators";
 import {cleanPrefixForSave, normalizePrefix, PREFIX_MAX_LENGTH} from "../../type/issue-type-prefix.util";
 
 @Component({
@@ -34,6 +35,7 @@ import {cleanPrefixForSave, normalizePrefix, PREFIX_MAX_LENGTH} from "../../type
     MatIcon,
     MatButton,
     MatMenuModule,
+    MatSelectModule,
     MatFormFieldModule,
     MatInputModule,
     ReactiveFormsModule,
@@ -77,6 +79,15 @@ export class IssutypeForm2Component {
   project: Project;
   saving = false;
   errorMessage: string | undefined;
+
+  // ---- phase : groupe de types, facultatif ----
+  /** Choix « Aucune phase » de la liste ; les phases y sont designees par leur id. */
+  readonly noPhase = 0;
+  /** Choix « Nouvelle phase » : son nom est saisi dans le champ qui apparait. */
+  readonly newPhase = -1;
+  phases: Phase[] = [];
+  phaseChoice: number = this.noPhase;
+  newPhaseName = '';
 
   /** Creation d'un sous-type : en creer un nouveau ou reutiliser un existant. */
   subMode: 'new' | 'existing' = 'new';
@@ -123,7 +134,10 @@ export class IssutypeForm2Component {
       color:       ['#6C63FF'],
     });
 
-    this.issueService.project$.subscribe(p => this.project = p);
+    this.issueService.project$.subscribe(p => {
+      this.project = p;
+      this.loadPhases();
+    });
     this.issueService.issueType$.subscribe(types => this.projectParents = types || []);
 
     this.form.get('name')!.valueChanges.subscribe(name => {
@@ -196,6 +210,56 @@ export class IssutypeForm2Component {
         this.prefixChecking = false;
         this.prefixAvailable = available;
       });
+  }
+
+  private loadPhases(): void {
+    const projectId = this.currentProjectId;
+    if (projectId == null) {
+      this.phases = [];
+      return;
+    }
+    this.issueService.phasesByProject(projectId).subscribe({
+      next: phases => this.phases = phases,
+      error: () => this.phases = []
+    });
+  }
+
+  onPhaseChoice(choice: number): void {
+    this.phaseChoice = choice;
+    if (choice !== this.newPhase) {
+      this.newPhaseName = '';
+    }
+  }
+
+  /**
+   * Id de la phase choisie, null pour aucune. Une nouvelle phase est creee ici,
+   * avant l'enregistrement du type : si son nom est refuse, rien n'est enregistre.
+   */
+  private resolvePhaseId(): Observable<number | null> {
+    if (this.phaseChoice !== this.newPhase) {
+      return of(this.phaseChoice === this.noPhase ? null : this.phaseChoice);
+    }
+    return this.issueService
+      .savePhase({name: this.newPhaseName.trim(), project: {id: this.currentProjectId}})
+      .pipe(
+        tap(phase => {
+          // Devient un choix ordinaire : un nouvel essai ne la recree pas.
+          this.phases = [...this.phases, phase];
+          this.phaseChoice = phase.id;
+          this.newPhaseName = '';
+        }),
+        map(phase => phase.id)
+      );
+  }
+
+  /** Range le type enregistre dans la phase choisie, si elle a change. */
+  private applyPhase(saved: IssueType, phaseId: number | null): Observable<IssueType> {
+    const current = this.isEdit ? (this.edited.phase?.id ?? null) : null;
+    if (phaseId == current) {
+      return of({...saved, phase: this.edited?.phase ?? null});
+    }
+    return this.issueService.setIssueTypePhase(saved.id, phaseId)
+      .pipe(map(updated => ({...saved, phase: updated.phase ?? null})));
   }
 
   /** Espace de travail dans lequel le prefixe doit etre unique. */
@@ -364,6 +428,8 @@ export class IssutypeForm2Component {
       color: this.edited.color || '#6C63FF'
     });
     this.subMode = 'new';
+    this.phaseChoice = this.edited.phase?.id ?? this.noPhase;
+    this.newPhaseName = '';
     this.selectedIcone = this.edited.icone;
     this.level = (this.edited.level as 'PARENT' | 'SUB_TASK') || 'PARENT';
     this.selectedParents = [...(this.edited.parents || [])];
@@ -404,6 +470,8 @@ export class IssutypeForm2Component {
     this.originalPrefix = this.edited ? normalizePrefix(this.edited.prefix as string) : '';
     this.selectedExisting = [];
     this.existingSearch = '';
+    this.phaseChoice = this.edited?.phase?.id ?? this.noPhase;
+    this.newPhaseName = '';
     this.selectedIcone = this.edited ? this.edited.icone : undefined;
     this.errorMessage = undefined;
     this.applyParentDefaults();
@@ -420,6 +488,10 @@ export class IssutypeForm2Component {
     }
     if (this.prefixTaken) {
       this.errorMessage = 'Ce préfixe est déjà utilisé dans cet espace de travail.';
+      return;
+    }
+    if (this.phaseChoice === this.newPhase && !this.newPhaseName.trim()) {
+      this.errorMessage = 'Saisissez le nom de la nouvelle phase.';
       return;
     }
 
@@ -460,7 +532,11 @@ export class IssutypeForm2Component {
       issueType.parents = [];
     }
 
-    this.issueService.saveIssueType(issueType).subscribe({
+    this.resolvePhaseId().pipe(
+      switchMap(phaseId => this.issueService.saveIssueType(issueType).pipe(
+        switchMap(saved => this.applyPhase(saved, phaseId))
+      ))
+    ).subscribe({
       next: (saved) => {
         this.saving = false;
         this.oneSaved.emit(saved);

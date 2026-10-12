@@ -36,6 +36,13 @@ public class IssueType {
     @ManyToOne
     private WorkFlow curentWorkFlow;
 
+    /** Phase dans laquelle le type est range ; aucune tant qu'il n'a pas ete range. */
+    @ManyToOne
+    @JoinColumn(name = "phase_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Phase phase;
+
     /** Types principaux sous lesquels ce type peut etre utilise comme sous-tache. */
     @ManyToMany
     @JoinTable(name = "issue_type_parent_child",

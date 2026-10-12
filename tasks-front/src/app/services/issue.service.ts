@@ -31,7 +31,7 @@ import {
   ActionGroupe,
   ActionAssigne,
   ActionStatus, UploadingState, DocumentMember, DocumentPage, IssuePlanningSummary, UserHoursData,
-  IssueMembership, CrossingStateInput
+  IssueMembership, CrossingStateInput, Phase
 } from "../type/issue";
 import {Apollo} from "apollo-angular";
 import * as operation from "../type/graphql.operations";
@@ -1412,6 +1412,75 @@ export class IssueService implements OnInit {
         fetchPolicy: "network-only"
       }).subscribe((res: any) => {
         observer.next(supprimerTypename(res.data.removeIssueTypeParent));
+        observer.complete();
+      }, error => {
+        observer.error(error);
+        observer.complete();
+      })
+    })
+  }
+
+  // ---- phases : groupes de types de tache ----
+
+  phasesByProject(projectId: Number) {
+    return new Observable<Phase[]>(observer => {
+      this.apollo.query({
+        query: operation.PHASES_BY_PROJECT,
+        variables: {projectId},
+        fetchPolicy: "network-only"
+      }).subscribe((res: any) => {
+        observer.next(supprimerTypename(res.data.phasesByProject) || []);
+        observer.complete();
+      }, error => {
+        observer.error(error);
+        observer.complete();
+      })
+    })
+  }
+
+  /** Cree la phase, ou la renomme si elle porte un id. */
+  savePhase(phase: Phase) {
+    return new Observable<Phase>(observer => {
+      this.apollo.mutate({
+        mutation: operation.SAVE_PHASE,
+        variables: {phase},
+        fetchPolicy: "network-only"
+      }).subscribe((res: any) => {
+        observer.next(supprimerTypename(res.data.savePhase));
+        observer.complete();
+      }, error => {
+        observer.error(error);
+        observer.complete();
+      })
+    })
+  }
+
+  /** Les types de la phase sont conserves et se retrouvent sans phase. */
+  deletePhase(phaseId: number) {
+    return new Observable<ResponseApp>(observer => {
+      this.apollo.mutate({
+        mutation: operation.DELETE_PHASE,
+        variables: {phaseId},
+        fetchPolicy: "network-only"
+      }).subscribe((res: any) => {
+        observer.next(supprimerTypename(res.data.deletePhase));
+        observer.complete();
+      }, error => {
+        observer.error(error);
+        observer.complete();
+      })
+    })
+  }
+
+  /** Range le type dans la phase ; sans phaseId, le type n'en a plus. */
+  setIssueTypePhase(issueTypeId: number, phaseId: number | null) {
+    return new Observable<IssueType>(observer => {
+      this.apollo.mutate({
+        mutation: operation.SET_ISSUE_TYPE_PHASE,
+        variables: {issueTypeId, phaseId},
+        fetchPolicy: "network-only"
+      }).subscribe((res: any) => {
+        observer.next(supprimerTypename(res.data.setIssueTypePhase));
         observer.complete();
       }, error => {
         observer.error(error);

@@ -4,9 +4,9 @@ import {Subscription} from "rxjs";
 import {IssueTypeModalComponent} from "../issue-type/issue-type-modal/issue-type-modal.component";
 import {DeleteIssueTypeModalComponent} from "./delete-issue-type-modal/delete-issue-type-modal.component";
 import {IssueService} from "../../../../../services/issue.service";
-import {IssueType, Project} from "../../../../../type/issue";
+import {IssueType, Phase, Project} from "../../../../../type/issue";
 
-type FormMode = 'idle' | 'create' | 'edit';
+type FormMode = 'idle' | 'create' | 'edit' | 'phases';
 
 @Component({
   selector: 'app-issue-type2',
@@ -28,6 +28,12 @@ export class IssueType2Component implements OnInit, OnDestroy {
   formLevel: 'PARENT' | 'SUB_TASK' = 'PARENT';
   formParents: IssueType[] = [];
   editingType: IssueType | null = null;
+
+  // ---- phases : groupes de types ----
+  phases: Phase[] = [];
+  /** Nom en cours de saisie de chaque phase, par id. */
+  phaseNames: { [id: number]: string } = {};
+  newPhaseName: string = '';
 
   // ---- glisser-deposer ----
   draggedItem?: IssueType;
@@ -70,6 +76,7 @@ export class IssueType2Component implements OnInit, OnDestroy {
     }
     this.loading = true;
     this.issueService.allIssueType(this.project.id);
+    this.loadPhases();
   }
 
   /** Garde la selection courante synchronisee avec la liste rechargee. */
@@ -199,6 +206,86 @@ export class IssueType2Component implements OnInit, OnDestroy {
     this.selectedIssue = savedIssueType;
     this.closeForm();
     this.reload();
+  }
+
+  // -----------------------------------------------------------------
+  // Phases
+  // -----------------------------------------------------------------
+
+  private loadPhases() {
+    if (!this.project?.id) {
+      return;
+    }
+    this.issueService.phasesByProject(this.project.id).subscribe({
+      next: phases => {
+        this.phases = phases;
+        this.phaseNames = {};
+        phases.forEach(phase => this.phaseNames[phase.id] = phase.name);
+      },
+      error: (error) => this.errorMessage = this.extractMessage(error)
+    });
+  }
+
+  showPhases() {
+    this.errorMessage = '';
+    this.formMode = 'phases';
+    this.editingType = null;
+  }
+
+  addPhase() {
+    const name = this.newPhaseName.trim();
+    if (!name || !this.project?.id) {
+      return;
+    }
+    this.errorMessage = '';
+    this.issueService.savePhase({name, project: {id: this.project.id}}).subscribe({
+      next: () => {
+        this.newPhaseName = '';
+        this.loadPhases();
+      },
+      error: (error) => this.errorMessage = this.extractMessage(error)
+    });
+  }
+
+  isPhaseRenamed(phase: Phase): boolean {
+    const name = (this.phaseNames[phase.id] || '').trim();
+    return !!name && name != phase.name;
+  }
+
+  renamePhase(phase: Phase) {
+    if (!this.isPhaseRenamed(phase)) {
+      return;
+    }
+    this.errorMessage = '';
+    this.issueService.savePhase({id: phase.id, name: this.phaseNames[phase.id].trim()}).subscribe({
+      // les types affichent le nom de leur phase : ils sont recharges aussi
+      next: () => this.reload(),
+      error: (error) => this.errorMessage = this.extractMessage(error)
+    });
+  }
+
+  removePhase(phase: Phase) {
+    const count = this.typeCountOf(phase);
+    const detail = count ? " Ses " + count + " type(s) seront conservés, sans phase." : "";
+    if (!confirm("Supprimer la phase « " + phase.name + " » ?" + detail)) {
+      return;
+    }
+    this.errorMessage = '';
+    this.issueService.deletePhase(phase.id).subscribe({
+      next: () => this.reload(),
+      error: (error) => this.errorMessage = this.extractMessage(error)
+    });
+  }
+
+  /** Types ranges dans la phase ; un sous-type partage n'est compte qu'une fois. */
+  typeCountOf(phase: Phase): number {
+    const ids = new Set<number | undefined>();
+    this.issueTypes.forEach(parent => {
+      [parent, ...(parent.children || [])]
+        .filter(type => type.phase?.id == phase.id)
+        .forEach(type => ids.add(type.id));
+    });
+    return ids.size;
   }
 
   // -----------------------------------------------------------------

@@ -282,6 +282,36 @@
   color: var(--color-text-info, #185FA5);
 }
 
+.phase-badge {
+  font-size: 10.5px;
+  padding: 1px 7px;
+  border-radius: 20px;
+  white-space: nowrap;
+  background: var(--color-background-secondary, #f3f4f6);
+  color: var(--color-text-secondary, #6b7280);
+  border: 1px solid var(--color-border-tertiary, #e5e7eb);
+}
+
+/* gestion des phases */
+.phase-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.phase-row input {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 10px;
+  font-size: 13px;
+  border: 1px solid var(--color-border-tertiary, #e5e7eb);
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+}
+
+.icon-btn:disabled { opacity: 0.35; cursor: default; }
+
 /* actions revelees au survol */
 .item-actions {
   display: flex;

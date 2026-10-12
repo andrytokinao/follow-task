@@ -124,6 +124,23 @@
                   placeholder="Rôle et usage de ce type…"></textarea>
       </mat-form-field>
 
+      <!-- Phase : groupe de types, facultatif -->
+      <mat-form-field appearance="outline" class="fw">
+        <mat-label>Phase</mat-label>
+        <mat-select [value]="phaseChoice" (selectionChange)="onPhaseChoice($event.value)">
+          <mat-option [value]="noPhase">Aucune phase</mat-option>
+          <mat-option *ngFor="let phase of phases" [value]="phase.id">{{ phase.name }}</mat-option>
+          <mat-option [value]="newPhase">+ Nouvelle phase…</mat-option>
+        </mat-select>
+        <mat-hint>Facultatif : regroupe des types (Étude, Contrôle…)</mat-hint>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="fw" *ngIf="phaseChoice === newPhase">
+        <mat-label>Nom de la nouvelle phase</mat-label>
+        <input matInput placeholder="Ex: Étude" maxlength="100"
+               [value]="newPhaseName" (input)="newPhaseName = $any($event.target).value">
+      </mat-form-field>
+
       <!-- Couleur + Icône -->
       <div class="row-pair">
 

@@ -1,0 +1,41 @@
+# Phases : groupes de types de tâche d'un espace de travail (« Étude »,
+# « Contrôle »...).
+#
+# Un type appartient à une phase au plus, et peut n'en avoir aucune.
+
+type Phase {
+    id: Int
+    name: String
+    project: Project
+    issueTypes: [IssueType]
+}
+
+input PhaseInput {
+    id: Int
+    name: String
+    project: ProjectInput
+}
+
+extend type IssueType {
+    phase: Phase
+}
+
+# Accepté pour qu'un type relu puisse être renvoyé tel quel, mais sans effet :
+# saveIssueType conserve la phase du type, seule setIssueTypePhase la change.
+extend input IssueTypeInput {
+    phase: PhaseInput
+}
+
+extend type Query {
+    phasesByProject(projectId: Int!): [Phase]
+}
+
+extend type Mutation {
+    # Crée une phase, ou renomme celle dont l'id est donné. Le nom est unique
+    # dans l'espace de travail.
+    savePhase(phase: PhaseInput!): Phase
+    # Les types de la phase sont conservés et se retrouvent sans phase.
+    deletePhase(phaseId: Int!): ResponseApp
+    # Sans phaseId, le type n'appartient plus à aucune phase.
+    setIssueTypePhase(issueTypeId: Int!, phaseId: Int): IssueType
+}

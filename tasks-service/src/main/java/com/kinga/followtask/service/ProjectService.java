@@ -355,6 +355,10 @@ public class ProjectService {
     @Transactional
     public IssueType saveIssueType(IssueType issueType) {
         boolean creation = issueType.getId() == null;
+        // La phase ne se change que par PhaseService.setIssueTypePhase : la plupart des
+        // formulaires ne la renvoient pas, et l'enregistrement l'effacerait.
+        issueType.setPhase(creation ? null : issueTypeRepository.findById(issueType.getId())
+                .map(IssueType::getPhase).orElse(null));
         issueType.setPrefix(nettoyerPrefixeSaisi(issueType.getPrefix()));
         verifierPrefixeDisponible(issueType);
         ConfigEntry configEntry = configRepository.getByActiveIs(true);

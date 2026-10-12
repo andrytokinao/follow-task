@@ -49,17 +49,22 @@ export const PAR_TYPE: Regroupement = {
     : SANS_TYPE
 };
 
+const SANS_PHASE: GroupeGantt = {cle: 'phase:aucune', nom: 'Sans phase'};
+
 /**
- * Phase : un groupe de types de tâche. Les phases n'existent pas encore dans
- * l'application ; le jour où un type porte sa phase, `groupeDe` la lira et
- * `disponible` passera à true.
+ * Phase : un groupe de types de tâche (« Étude », « Contrôle »…), choisi sur
+ * le type. Les tâches dont le type n'est rangé dans aucune phase forment le
+ * groupe « Sans phase ».
  */
 export const PAR_PHASE: Regroupement = {
   id: 'phase',
   libelle: 'Phase',
-  disponible: false,
+  disponible: true,
   parTache: false,
-  groupeDe: PAR_TYPE.groupeDe
+  groupeDe: tache => {
+    const phase = tache.issueType?.phase;
+    return phase?.id != null ? {cle: `phase:${phase.id}`, nom: String(phase.name ?? '')} : SANS_PHASE;
+  }
 };
 
 /** Du plus large au plus fin, dans l'ordre du menu. */
