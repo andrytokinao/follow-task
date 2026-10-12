@@ -340,7 +340,9 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
   }
 
   private titre(ligne: LigneGantt): string {
-    return ligne.tache ? ` · ` : ` ·  tâche(s)`;
+    return ligne.tache
+      ? `${ligne.tache.issueKey} · ${ligne.tache.summary}`
+      : `${ligne.nom} · ${ligne.taches.length} tâche(s)`;
   }
 
   private position(event: MouseEvent): { x: number; y: number; versLeHaut: boolean } {

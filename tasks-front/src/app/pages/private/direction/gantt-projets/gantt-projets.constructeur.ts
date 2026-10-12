@@ -98,7 +98,7 @@ function ligne(tache: TacheGantt, projet: ProjetGantt, entrees: EntreesStructure
   const groupe = entrees.regroupement.groupeDe(tache);
   return {
     // Deux projets peuvent avoir le même groupe (un même type) : la clé porte le projet.
-    cle: `/`,
+    cle: `${projet.id}/${groupe.cle}`,
     nom: groupe.nom,
     taches: [tache],
     tache,
@@ -187,7 +187,7 @@ function reperes(demande: TacheGantt, entrees: EntreesStructure): RepereGantt[] 
     resultat.push({
       // Milieu du jour : la barre ne se confond pas avec un bord de cadre.
       gauche: entrees.fenetre.x(jour + JOUR / 2),
-      source: ` · `,
+      source: `${demande.issueKey} · ${demande.summary}`,
       nom: String(valeur.customField.name ?? ''),
       couleur: entrees.champs.find(c => c.id === valeur.customField.id)?.couleur ?? COULEUR_AUTRE,
       date: jour
