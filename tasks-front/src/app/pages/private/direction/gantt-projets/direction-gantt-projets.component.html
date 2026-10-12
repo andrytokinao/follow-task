@@ -86,7 +86,18 @@
 
         <!-- ═══ AXE DU TEMPS ═══ -->
         <div class="gp-row gp-head">
-          <div class="gp-nom">Projet / tâche</div>
+          <div class="gp-nom">
+            <span>Projet /</span>
+            <!-- Ce que liste chaque projet : ses tâches, ou des groupes de tâches. -->
+            <label class="gp-grouper">
+              <span class="gp-grouper-label">Grouper par</span>
+              <select [ngModel]="regroupement" (ngModelChange)="choisirRegroupement($event)" aria-label="Grouper par">
+                <option *ngFor="let r of regroupements" [ngValue]="r" [disabled]="!r.disponible">
+                  {{ r.libelle }}{{ r.disponible ? '' : ' (à venir)' }}
+                </option>
+              </select>
+            </label>
+          </div>
           <div class="gp-axe" [style.width.px]="fenetre.largeur">
             <div class="axe-rang axe-groupes">
               <span class="axe-groupe" *ngFor="let g of axe.groupes" [style.left.px]="g.gauche" [style.width.px]="g.largeur">
@@ -107,7 +118,7 @@
           <!-- Champs personnalisés du projet : sur toute la hauteur de son bloc. -->
           <span class="repere repere-projet" *ngFor="let r of bloc.reperes" [style.left.px]="300 + r.gauche"
                 [style.background]="r.couleur"
-                (mouseenter)="survolerRepere(r, bloc.projet, $event)"
+                (mouseenter)="survolerRepere(r, $event)"
                 (mousemove)="suivre($event)" (mouseleave)="quitter()"></span>
 
           <div class="gp-row gp-projet">
@@ -118,9 +129,8 @@
                 <i class="fas" [ngClass]="replies.has(bloc.projet.id!) ? 'fa-chevron-right' : 'fa-chevron-down'"></i>
               </button>
               <span class="gp-texte">
-                <a class="projet-nom" *ngIf="lienProjet(bloc) as lien; else nomSeul" [routerLink]="lien"
-                   [title]="bloc.projet.summary">{{ bloc.projet.summary }}</a>
-                <ng-template #nomSeul><span class="projet-nom" [title]="bloc.projet.summary">{{ bloc.projet.summary }}</span></ng-template>
+                <!-- Pas de lien vers l'espace de travail pour le moment : ni projet, ni tâche. -->
+                <span class="projet-nom" [title]="bloc.projet.summary">{{ bloc.projet.summary }}</span>
                 <span class="projet-meta">
                   {{ bloc.projet.issueKey }} · {{ bloc.nombreTaches }} tâche(s) · {{ bloc.avancement }} % avancé
                   <span class="en-retard" *ngIf="bloc.enRetard">
@@ -149,28 +159,41 @@
               <div class="gp-piste" [style.width.px]="fenetre.largeur"></div>
             </div>
 
-            <!-- ═══ UNE LIGNE PAR TÂCHE ═══ -->
-            <div class="gp-row gp-tache" *ngFor="let l of bloc.lignes; trackBy: parTache"
-                 [style.height.px]="hauteurLigne(activites.de(l.tache.id).voies)">
-              <div class="gp-nom">
+            <!-- ═══ UNE LIGNE PAR TÂCHE, OU PAR GROUPE DE TÂCHES ═══ -->
+            <div class="gp-row gp-tache" *ngFor="let l of bloc.lignes; trackBy: parLigne"
+                 [style.height.px]="hauteurLigne(activites.de(l.cle).voies)">
+              <!-- La ligne est une tâche : son responsable, son lien, son statut. -->
+              <div class="gp-nom" *ngIf="l.tache as t; else groupe">
                 <app-avatar *ngIf="l.responsable as r; else sansResponsable" class="tache-avatar"
                             [url]="photoDe(r)" [displayName]="nomDe(r)" [title]="nomDe(r)"></app-avatar>
                 <ng-template #sansResponsable><span class="tache-avatar vide" title="Non assignée"><i class="far fa-user"></i></span></ng-template>
                 <span class="gp-texte">
-                  <a class="tache-nom" *ngIf="lienTache(bloc, l.tache) as lien; else tacheSeule" [routerLink]="lien"
-                     [title]="l.tache.summary">{{ l.tache.summary }}</a>
-                  <ng-template #tacheSeule><span class="tache-nom" [title]="l.tache.summary">{{ l.tache.summary }}</span></ng-template>
+                  <span class="tache-nom" [title]="t.summary">{{ t.summary }}</span>
                   <span class="tache-meta">
-                    {{ l.tache.issueKey }}
-                    <ng-container *ngIf="l.tache.status as s"> · {{ s.displayName }}</ng-container>
+                    {{ t.issueKey }}
+                    <ng-container *ngIf="t.status as s"> · {{ s.displayName }}</ng-container>
                     · {{ l.avancement }} %
                     <span class="en-retard" *ngIf="l.retard"> · <i class="fas fa-exclamation-triangle"></i> +{{ l.retard.jours }} j</span>
                     <ng-container *ngIf="!l.cadre"> · sans dates</ng-container>
                   </span>
                 </span>
               </div>
+              <!-- La ligne est un groupe : ce qu'il résume. -->
+              <ng-template #groupe>
+                <div class="gp-nom">
+                  <span class="tache-avatar groupe"><i class="fas fa-layer-group"></i></span>
+                  <span class="gp-texte">
+                    <span class="tache-nom" [title]="l.nom">{{ l.nom }}</span>
+                    <span class="tache-meta">
+                      {{ l.taches.length }} tâche(s) · {{ l.avancement }} % en moyenne
+                      <span class="en-retard" *ngIf="l.retard"> · <i class="fas fa-exclamation-triangle"></i> +{{ l.retard.jours }} j</span>
+                      <ng-container *ngIf="!l.cadre"> · sans dates</ng-container>
+                    </span>
+                  </span>
+                </div>
+              </ng-template>
 
-              <div class="gp-piste" [style.width.px]="fenetre.largeur" *ngIf="activites.de(l.tache.id) as a">
+              <div class="gp-piste" [style.width.px]="fenetre.largeur" *ngIf="activites.de(l.cle) as a">
                 <!-- Le cadre : du démarrage à la deadline, son bord droit épais. -->
                 <span class="cadre" *ngIf="l.cadre?.segment as c" [style.left.px]="c.gauche"
                       [style.width.px]="c.largeur" [style.height.px]="hauteurCadre(a.voies)"
@@ -209,7 +232,7 @@
                 <!-- Champs personnalisés de la tâche. -->
                 <span class="repere repere-tache" *ngFor="let r of l.reperes" [style.left.px]="r.gauche"
                       [style.background]="r.couleur"
-                      (mouseenter)="survolerRepere(r, l.tache, $event)"
+                      (mouseenter)="survolerRepere(r, $event)"
                       (mousemove)="suivre($event)" (mouseleave)="quitter()"></span>
               </div>
             </div>

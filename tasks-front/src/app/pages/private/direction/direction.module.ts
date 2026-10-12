@@ -1,5 +1,6 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
 import {DirectionRoutingModule} from './direction.routing.module';
 import {DirectionComponent} from './direction.component';
 import {DirectionProjetDetailComponent} from './projet-detail/direction-projet-detail.component';
@@ -29,6 +30,8 @@ import {MatMenuModule} from '@angular/material/menu';
   ],
   imports: [
     CommonModule,
+    // Sélecteur « Grouper par » du Gantt des projets.
+    FormsModule,
     DirectionRoutingModule,
     UserMenuComponent,
     AvatarComponent,

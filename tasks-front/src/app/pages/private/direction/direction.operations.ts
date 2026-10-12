@@ -121,6 +121,7 @@ const CADRE_GANTT = `
   id
   issueKey
   summary
+  issueType { id name }
   currentCompletionPercent
   status { id displayName color }
   dateDemarrage

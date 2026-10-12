@@ -18,6 +18,8 @@ import {Segment} from './gantt-fenetre';
 /** Champ personnalisé de type Date : une barre verticale. */
 export interface RepereGantt {
   gauche: number;
+  /** Projet ou tâche qui porte la date : « PRJ-12 · Maquettes ». */
+  source: string;
   nom: string;
   couleur: string;
   date: number;
@@ -31,13 +33,24 @@ export interface CadreGantt {
   segment: Segment | null;
 }
 
+/**
+ * Une ligne du diagramme : une tâche, ou un groupe de tâches (leur type, par
+ * exemple) selon le regroupement choisi.
+ */
 export interface LigneGantt {
-  tache: TacheGantt;
+  /** Identifiant de la ligne : l'activité de ses tâches y est rangée. */
+  cle: string;
+  nom: string;
+  /** Les tâches de la ligne ; une seule quand on groupe par tâche. */
+  taches: TacheGantt[];
+  /** La tâche, quand la ligne en est une ; null pour un groupe. */
+  tache: TacheGantt | null;
+  /** Avancement de la tâche, ou moyenne de ceux du groupe. */
   avancement: number;
   responsable: User | null;
-  /** null si la tâche n'a ni date de démarrage ni deadline. */
+  /** null sans date de démarrage ni deadline ; pour un groupe, l'étendue de ses tâches. */
   cadre: CadreGantt | null;
-  /** Tâche non finie après sa deadline : de la deadline à aujourd'hui. */
+  /** Tâche non finie après sa deadline : de la deadline à aujourd'hui. Groupe : son plus long retard. */
   retard: (Segment & { jours: number }) | null;
   reperes: RepereGantt[];
 }
@@ -98,7 +111,7 @@ export interface PlanGantt extends Segment {
   voie: number;
 }
 
-/** Activité d'une tâche sur la période : ce que ses événements de planning donnent à voir. */
+/** Activité d'une ligne sur la période : ce que les événements de planning de ses tâches donnent à voir. */
 export interface ActiviteTache {
   parties: PartieGantt[];
   plans: PlanGantt[];

@@ -4,6 +4,7 @@ import {ProjetGantt, TacheGantt} from '../direction.model';
 import {JOUR, jourDe, plusJours} from './gantt-dates.util';
 import {FenetreGantt} from './gantt-fenetre';
 import {BlocGantt, CadreGantt, ChampGantt, LigneGantt, RepereGantt} from './gantt-projets.model';
+import {Regroupement} from './gantt-regroupement';
 
 /*
  * Couche « structure » du Gantt de direction : des projets vers leurs blocs —
@@ -29,6 +30,8 @@ export interface EntreesStructure {
   fenetre: FenetreGantt;
   maintenant: number;
   champs: ChampGantt[];
+  /** Ce que liste chaque projet : ses tâches, ou des groupes de tâches. */
+  regroupement: Regroupement;
 }
 
 /** Une couleur par champ personnalisé de type Date, dans l'ordre où les projets les présentent. */
@@ -57,12 +60,13 @@ export function construireBlocs(entrees: EntreesStructure): BlocGantt[] {
 
 function bloc(projet: ProjetGantt, entrees: EntreesStructure): BlocGantt {
   const taches = projet.children ?? [];
-  const lignes = taches
-    .map(tache => ligne(tache, entrees))
+  const lignes = regrouper(taches.map(tache => ligne(tache, projet, entrees)), entrees)
     // Dans l'ordre où le travail est prévu : le diagramme se lit en escalier.
     .sort((a, b) => (a.cadre?.debut ?? Infinity) - (b.cadre?.debut ?? Infinity));
   const avancement = borner(projet.rapportProjet?.avancementGlobal ?? projet.currentCompletionPercent ?? 0);
-  const cadreProjet = cadre(projet, entrees.fenetre) ?? englobant(lignes, entrees.fenetre);
+  // Sans dates sur le projet, son cadre est celui qui englobe ses tâches.
+  const cadres = lignes.map(l => l.cadre).filter((c): c is CadreGantt => c !== null);
+  const cadreProjet = cadre(projet, entrees.fenetre) ?? (cadres.length ? englobant(cadres, entrees.fenetre) : null);
 
   return {
     projet,
@@ -78,12 +82,8 @@ function bloc(projet: ProjetGantt, entrees: EntreesStructure): BlocGantt {
   };
 }
 
-/** Sans dates sur le projet, son cadre est celui qui englobe ses tâches. */
-function englobant(lignes: LigneGantt[], fenetre: FenetreGantt): CadreGantt | null {
-  const cadres = lignes.map(l => l.cadre).filter((c): c is CadreGantt => c !== null);
-  if (!cadres.length) {
-    return null;
-  }
+/** Le cadre qui englobe plusieurs cadres : du premier démarrage à la dernière deadline. */
+function englobant(cadres: CadreGantt[], fenetre: FenetreGantt): CadreGantt {
   const debut = Math.min(...cadres.map(c => c.debut));
   const fin = Math.max(...cadres.map(c => c.fin));
   return {debut, fin, sansEcheance: cadres.every(c => c.sansEcheance), segment: fenetre.segment(debut, fin)};
@@ -91,16 +91,54 @@ function englobant(lignes: LigneGantt[], fenetre: FenetreGantt): CadreGantt | nu
 
 // ------------------------------------------------------------------ tâche
 
-function ligne(tache: TacheGantt, entrees: EntreesStructure): LigneGantt {
+/** La ligne d'une tâche seule ; sa clé est déjà celle de son groupe dans le projet. */
+function ligne(tache: TacheGantt, projet: ProjetGantt, entrees: EntreesStructure): LigneGantt {
   const avancement = borner(tache.currentCompletionPercent ?? 0);
   const cadreTache = cadre(tache, entrees.fenetre);
+  const groupe = entrees.regroupement.groupeDe(tache);
   return {
+    // Deux projets peuvent avoir le même groupe (un même type) : la clé porte le projet.
+    cle: `/`,
+    nom: groupe.nom,
+    taches: [tache],
     tache,
     avancement,
     responsable: issueAssignees(tache)[0] ?? null,
     cadre: cadreTache,
     retard: retard(cadreTache, avancement, entrees),
     reperes: reperes(tache, entrees)
+  };
+}
+
+/**
+ * Une ligne par groupe. Par tâche, chaque ligne est déjà son propre groupe ;
+ * sinon les lignes d'un même groupe sont fondues en une seule, qui les résume.
+ */
+function regrouper(lignes: LigneGantt[], entrees: EntreesStructure): LigneGantt[] {
+  if (entrees.regroupement.parTache) {
+    return lignes;
+  }
+  const groupes = new Map<string, LigneGantt[]>();
+  for (const l of lignes) {
+    groupes.set(l.cle, [...(groupes.get(l.cle) ?? []), l]);
+  }
+  return [...groupes.values()].map(groupe => fondre(groupe, entrees.fenetre));
+}
+
+/** Résumé d'un groupe : l'étendue de ses tâches, leur avancement moyen, leur plus long retard. */
+function fondre(lignes: LigneGantt[], fenetre: FenetreGantt): LigneGantt {
+  const cadres = lignes.map(l => l.cadre).filter((c): c is CadreGantt => c !== null);
+  const retards = lignes.map(l => l.retard).filter((r): r is NonNullable<LigneGantt['retard']> => r !== null);
+  return {
+    cle: lignes[0].cle,
+    nom: lignes[0].nom,
+    taches: lignes.flatMap(l => l.taches),
+    tache: null,
+    avancement: borner(lignes.reduce((somme, l) => somme + l.avancement, 0) / lignes.length),
+    responsable: null,
+    cadre: cadres.length ? englobant(cadres, fenetre) : null,
+    retard: retards.length ? retards.reduce((pire, r) => r.jours > pire.jours ? r : pire) : null,
+    reperes: lignes.flatMap(l => l.reperes)
   };
 }
 
@@ -149,6 +187,7 @@ function reperes(demande: TacheGantt, entrees: EntreesStructure): RepereGantt[] 
     resultat.push({
       // Milieu du jour : la barre ne se confond pas avec un bord de cadre.
       gauche: entrees.fenetre.x(jour + JOUR / 2),
+      source: ` · `,
       nom: String(valeur.customField.name ?? ''),
       couleur: entrees.champs.find(c => c.id === valeur.customField.id)?.couleur ?? COULEUR_AUTRE,
       date: jour

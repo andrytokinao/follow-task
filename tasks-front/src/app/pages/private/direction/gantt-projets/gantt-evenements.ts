@@ -8,8 +8,8 @@ import {ActiviteTache, PartieGantt, PlanGantt, Seance, Serie} from './gantt-proj
  * (`PlanningEvent`, tels que `searchEvents` les rend) vers ce que la page en
  * dessine. Tout se fait ici, dans le navigateur : le serveur ne prépare rien.
  *
- * Cette couche ignore les projets et les tâches : elle range son résultat par
- * identifiant de tâche, et la page le pose sur la ligne correspondante. On
+ * Cette couche ignore les projets et les regroupements : on lui dit seulement
+ * sur quelle ligne se dessine chaque tâche, et elle range son résultat par ligne. On
  * peut donc changer d'événements (une personne, une autre recherche) sans
  * rien reconstruire d'autre.
  */
@@ -21,24 +21,24 @@ const LARGEUR_PASTILLE = 36;
 
 const SANS_ACTIVITE: ActiviteTache = {parties: [], plans: [], voies: 0, personnes: []};
 
-/** Activité des tâches sur une période, par identifiant de tâche. */
+/** Activité des lignes du diagramme sur une période, par clé de ligne. */
 export class ActivitesGantt {
 
   static readonly AUCUNE = new ActivitesGantt(new Map());
 
-  constructor(private readonly parTache: Map<number, ActiviteTache>) {
+  constructor(private readonly parLigne: Map<string, ActiviteTache>) {
   }
 
-  /** Activité d'une tâche ; vide si elle n'a aucun événement sur la période. */
-  de(tacheId: number | undefined): ActiviteTache {
-    return this.parTache.get(tacheId as number) ?? SANS_ACTIVITE;
+  /** Activité d'une ligne ; vide si ses tâches n'ont aucun événement sur la période. */
+  de(cle: string): ActiviteTache {
+    return this.parLigne.get(cle) ?? SANS_ACTIVITE;
   }
 
-  /** Personnes distinctes au travail sur un ensemble de tâches : celles d'un projet, par exemple. */
-  personnes(tacheIds: (number | undefined)[]): User[] {
+  /** Personnes distinctes au travail sur un ensemble de lignes : celles d'un projet, par exemple. */
+  personnes(cles: string[]): User[] {
     const personnes = new Map<string, User>();
-    for (const id of tacheIds) {
-      this.de(id).personnes.forEach(personne => personnes.set(personne.id, personne));
+    for (const cle of cles) {
+      this.de(cle).personnes.forEach(personne => personnes.set(personne.id, personne));
     }
     return [...personnes.values()];
   }
@@ -50,18 +50,22 @@ export class ActivitesGantt {
  * Une séance passée est du réalisé, une séance à venir du planifié : c'est la
  * date qui décide, à `maintenant`. Les événements `CUSTOM_FIELD` sont écartés,
  * comme dans les plannings : ce sont des dates de champ, pas du travail.
+ *
+ * @param ligneDe clé de la ligne où se dessine une tâche — la tâche elle-même ou
+ *                son groupe ; un événement dont la tâche n'a pas de ligne est ignoré
  */
-export function placerEvenements(evenements: EventApp[], fenetre: FenetreGantt, maintenant: number): ActivitesGantt {
-  const seances = new Map<number, Seance[]>();
+export function placerEvenements(evenements: EventApp[], fenetre: FenetreGantt, maintenant: number,
+                                 ligneDe: (tacheId: number) => string | undefined): ActivitesGantt {
+  const seances = new Map<string, Seance[]>();
   for (const evenement of evenements) {
     const seance = versSeance(evenement, maintenant);
-    const tacheId = evenement.issue?.id;
-    if (seance && tacheId != null) {
-      seances.set(tacheId, [...(seances.get(tacheId) ?? []), seance]);
+    const cle = evenement.issue?.id == null ? undefined : ligneDe(evenement.issue.id);
+    if (seance && cle !== undefined) {
+      seances.set(cle, [...(seances.get(cle) ?? []), seance]);
     }
   }
-  const activites = new Map<number, ActiviteTache>();
-  seances.forEach((lot, tacheId) => activites.set(tacheId, activite(lot, fenetre)));
+  const activites = new Map<string, ActiviteTache>();
+  seances.forEach((lot, cle) => activites.set(cle, activite(lot, fenetre)));
   return new ActivitesGantt(activites);
 }
 

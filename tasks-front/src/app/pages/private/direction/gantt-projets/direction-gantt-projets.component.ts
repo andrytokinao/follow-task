@@ -15,6 +15,7 @@ import {IntervenantsGantt} from './gantt-personnes';
 import {ActivitesGantt, placerEvenements} from './gantt-evenements';
 import {construireBlocs, indexerChamps} from './gantt-projets.constructeur';
 import {BlocGantt, ChampGantt, LigneGantt, PartieGantt, PlanGantt, RepereGantt, Serie} from './gantt-projets.model';
+import {PAR_TACHE, Regroupement, REGROUPEMENTS} from './gantt-regroupement';
 
 /** Géométrie d'une ligne de tâche, en pixels : voir la feuille de styles. */
 const HAUT_CADRE = 8;
@@ -63,6 +64,8 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
     {valeur: 'mois', libelle: 'Mois'},
   ];
 
+  readonly regroupements = REGROUPEMENTS;
+
   chargement = true;
   erreur = false;
   /** Recherche d'événements en cours : le diagramme reste affiché. */
@@ -72,6 +75,8 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
   /** null : tous les départements. */
   departement: string | null = null;
   fenetre = FenetreGantt.autour('jour', Date.now());
+  /** Ce que liste chaque projet : ses tâches, ou des groupes de tâches. */
+  regroupement: Regroupement = PAR_TACHE;
   /** Identifiants des personnes choisies ; vide : tout le monde. */
   selection: string[] = [];
   replies = new Set<number>();
@@ -94,6 +99,9 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
   bulle: Bulle | null = null;
 
   private projets: ProjetGantt[] = [];
+  /** Derniers événements reçus : reposés tels quels quand seul le regroupement change. */
+  private evenements: EventApp[] = [];
+  private ligneDeTache = new Map<number, string>();
   private readonly intervenants = new IntervenantsGantt();
   private abonnement?: Subscription;
   private abonnementMembres?: Subscription;
@@ -146,6 +154,14 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
 
   revenirAujourdhui(): void {
     this.choisirEchelle(this.fenetre.echelle);
+  }
+
+  /** Les lignes changent, pas les données : les événements déjà reçus sont reposés, sans nouvelle recherche. */
+  choisirRegroupement(regroupement: Regroupement): void {
+    this.regroupement = regroupement;
+    this.bulle = null;
+    this.construire();
+    this.poser(this.evenements);
   }
 
   /** Seuls les événements changent : projets, tâches et cadres restent en place. */
@@ -208,13 +224,25 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
    * quand l'un des deux change, puis suivie de la recherche des événements.
    */
   private structurer(): void {
-    const maintenant = Date.now();
-    const projets = this.projetsDe(this.departement);
-    this.axe = this.fenetre.axe(maintenant);
-    this.aujourdhui = this.fenetre.contient(maintenant) ? this.fenetre.x(maintenant) : null;
-    this.blocs = construireBlocs({projets, fenetre: this.fenetre, maintenant, champs: this.champs});
+    this.construire();
     this.chargerMembres();
     this.chercher();
+  }
+
+  private construire(): void {
+    const maintenant = Date.now();
+    this.axe = this.fenetre.axe(maintenant);
+    this.aujourdhui = this.fenetre.contient(maintenant) ? this.fenetre.x(maintenant) : null;
+    this.blocs = construireBlocs({
+      projets: this.projetsDe(this.departement),
+      fenetre: this.fenetre,
+      maintenant,
+      champs: this.champs,
+      regroupement: this.regroupement
+    });
+    // Chaque tâche mène à sa ligne : c'est par là que ses événements la rejoignent.
+    this.ligneDeTache = new Map(this.blocs.flatMap(bloc =>
+      bloc.lignes.flatMap(l => l.taches.map(tache => [tache.id as number, l.cle] as [number, string]))));
   }
 
   /**
@@ -249,9 +277,10 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
 
   /** Pose des événements sur le diagramme en place. */
   private poser(evenements: EventApp[]): void {
-    this.activites = placerEvenements(evenements, this.fenetre, Date.now());
+    this.evenements = evenements;
+    this.activites = placerEvenements(evenements, this.fenetre, Date.now(), tacheId => this.ligneDeTache.get(tacheId));
     this.effectifs = new Map(this.blocs.map(bloc =>
-      [bloc.projet.id as number, this.activites.personnes(bloc.lignes.map(l => l.tache.id)).length]));
+      [bloc.projet.id as number, this.activites.personnes(bloc.lignes.map(l => l.cle)).length]));
     this.intervenants.retenir(evenements);
     this.taches = this.intervenants.completer(this.blocs.flatMap(bloc => bloc.projet.children ?? []));
   }
@@ -261,29 +290,29 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
   /** Ce qui a réellement été fait pendant cette partie, séance par séance. */
   survolerPartie(ligne: LigneGantt, partie: PartieGantt, event: MouseEvent): void {
     const personnes = partie.serie.personnes;
-    this.montrer(event, bulleDeSerie(this.titre(ligne.tache),
+    this.montrer(event, bulleDeSerie(this.titre(ligne),
       `Réalisé · ${periode(partie.serie)} — ${personnes.length} personne${personnes.length > 1 ? 's' : ''} au travail : `
       + personnes.map(userDisplayName).join(', '),
       partie.serie, true));
   }
 
   survolerPlan(ligne: LigneGantt, plan: PlanGantt, event: MouseEvent): void {
-    this.montrer(event, bulleDeSerie(this.titre(ligne.tache),
+    this.montrer(event, bulleDeSerie(this.titre(ligne),
       `Planifié · ${periode(plan.serie)} — ${userDisplayName(plan.personne)}`, plan.serie, false));
   }
 
   survolerCadre(ligne: LigneGantt, event: MouseEvent): void {
     const cadre = ligne.cadre!;
     const jour = (t: number) => new Date(t).toLocaleDateString('fr-FR');
-    this.montrer(event, bulleSimple(this.titre(ligne.tache),
+    this.montrer(event, bulleSimple(this.titre(ligne),
       `${jour(cadre.debut)} → ${jour(cadre.fin - 1)} — `
       + (cadre.sansEcheance ? 'sans deadline : étendue des séances' : 'démarrage → deadline')
       + ` · ${ligne.avancement} % avancé`
       + (ligne.retard ? ` · ${ligne.retard.jours} j de retard` : '')));
   }
 
-  survolerRepere(repere: RepereGantt, demande: TacheGantt, event: MouseEvent): void {
-    this.montrer(event, bulleSimple(this.titre(demande),
+  survolerRepere(repere: RepereGantt, event: MouseEvent): void {
+    this.montrer(event, bulleSimple(repere.source,
       `${repere.nom} : ${new Date(repere.date).toLocaleDateString('fr-FR')}`));
   }
 
@@ -310,8 +339,8 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
     this.bulle = {...contenu, ...this.position(event)};
   }
 
-  private titre(demande: TacheGantt): string {
-    return `${demande.issueKey} · ${demande.summary}`;
+  private titre(ligne: LigneGantt): string {
+    return ligne.tache ? ` · ` : ` ·  tâche(s)`;
   }
 
   private position(event: MouseEvent): { x: number; y: number; versLeHaut: boolean } {
@@ -324,16 +353,6 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
   }
 
   // ---------------------------------------------------------------- affichage
-
-  lienProjet(bloc: BlocGantt): string[] | null {
-    const prefixe = bloc.projet.rapportProjet?.prefixeDepartement;
-    return prefixe ? ['/working', prefixe, 'issue', bloc.projet.issueKey as string] : null;
-  }
-
-  lienTache(bloc: BlocGantt, tache: TacheGantt): string[] | null {
-    const projet = this.lienProjet(bloc);
-    return projet && tache.issueKey ? [...projet, 'subtask', tache.issueKey as string] : null;
-  }
 
   /**
    * Hauteur du cadre. Réalisé et planifié partagent la même bande : le cadre
@@ -374,7 +393,7 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
     return bloc.projet.id;
   }
 
-  parTache(_: number, ligne: LigneGantt): unknown {
-    return ligne.tache.id;
+  parLigne(_: number, ligne: LigneGantt): unknown {
+    return ligne.cle;
   }
 }

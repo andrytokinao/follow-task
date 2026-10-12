@@ -496,12 +496,6 @@
   text-decoration: none;
 }
 
-a.projet-nom:hover,
-a.tache-nom:hover {
-  color: var(--dir-accent);
-  text-decoration: underline;
-}
-
 .projet-meta,
 .tache-meta {
   overflow: hidden;
@@ -794,4 +788,43 @@ a.tache-nom:hover {
 
 .bulle-aide {
   margin-top: 6px;
+}
+
+/* ═══ GROUPER PAR ═══ */
+.gp-grouper {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  min-width: 0;
+}
+
+.gp-grouper-label {
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.gp-grouper select {
+  min-width: 0;
+  padding: 3px 6px;
+  border: 1px solid var(--dir-hairline);
+  border-radius: 6px;
+  background: var(--dir-surface);
+  font: inherit;
+  font-weight: 600;
+  color: var(--dir-ink);
+  cursor: pointer;
+}
+
+/* Ligne d'un groupe de tâches : une icône à la place de l'avatar du responsable. */
+.tache-avatar.groupe {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--dir-accent-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: var(--dir-accent);
 }
