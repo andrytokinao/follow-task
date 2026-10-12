@@ -25,6 +25,11 @@ export class DirectionFicheProjetComponent implements OnChanges {
   livrables: DocumentApp[] = [];
   champs: CustomFieldValue[] = [];
   chargement = true;
+  /**
+   * Tâches en tableau (`detail`) ou en diagramme de Gantt (`gantt`). Gardé
+   * d'un projet à l'autre : on compare les projets dans la même vue.
+   */
+  vueTaches: 'detail' | 'gantt' = 'detail';
 
   private abonnement?: Subscription;
 

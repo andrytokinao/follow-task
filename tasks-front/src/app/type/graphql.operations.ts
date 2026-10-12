@@ -1680,6 +1680,7 @@ const SEVE_CUSTOM_FIELD = gql`
         type
         options
         configDisplay
+        portee
         issueTypes {
           id
           issueType {
@@ -1702,6 +1703,8 @@ const ALL_CUSTOM_FIELD = gql`
        name
        options
        configDisplay
+       portee
+       code
        issueTypes {
          id
          issueType {
@@ -1757,6 +1760,7 @@ const GET_CUSTOM_FIELD = gql `
        options
        type
        configDisplay
+       portee
        issueTypes {
          id
          issueType {
@@ -2611,6 +2615,7 @@ const SEARCH_EVENTS  = gql`
         photo
       }
       completionPercentage
+      executionStatus
 
     }
   }

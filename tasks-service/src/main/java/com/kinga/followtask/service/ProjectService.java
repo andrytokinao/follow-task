@@ -237,6 +237,7 @@ public class ProjectService {
         soutache = issueTypeRepository.save(soutache);
 
         issueTypes.add(soutache);
+        issueTypes.forEach(this::rattacherChampsCommuns);
         return issueTypes;
     }
 
@@ -383,6 +384,9 @@ public class ProjectService {
 
         configRepository.save(configEntry);
         issueType = issueTypeRepository.save(issueType);
+        if (creation) {
+            rattacherChampsCommuns(issueType);
+        }
         if (creation && issueType.getLevel() == Niveau.PARENT) {
             createDefaultSubtaskType(issueType);
         }
@@ -504,7 +508,9 @@ public class ProjectService {
         soutache.setCurentWorkFlow(parent.getCurentWorkFlow() != null ? parent.getCurentWorkFlow() : getDefaultWorkFlow());
         soutache.setProject(parent.getProject());
         soutache.setParents(new ArrayList<>(List.of(parent)));
-        return issueTypeRepository.save(soutache);
+        soutache = issueTypeRepository.save(soutache);
+        rattacherChampsCommuns(soutache);
+        return soutache;
     }
 
     /**
@@ -773,12 +779,111 @@ public class ProjectService {
         return new ArrayList<>();
     }
 
+    @Transactional
     public CustomField saveCustomField(CustomField customField) {
-        return customFieldRepository.save(customField);
+        if (customField.getId() != null) {
+            // le code n'est pas saisissable : sans cette reprise, modifier un
+            // champ cree par l'application lui ferait perdre son code.
+            customFieldRepository.findById(customField.getId())
+                    .ifPresent(existing -> customField.setCode(existing.getCode()));
+        }
+        if (!customField.isCommun()) {
+            customField.setPortee(null);
+        }
+        if (CustomField.PORTEE_APPLICATION.equals(customField.getPortee())) {
+            // partage par tous les espaces de travail : n'appartient a aucun
+            customField.setProject(null);
+        }
+        CustomField saved = customFieldRepository.save(customField);
+        appliquerPortee(saved);
+        return saved;
     }
 
     public List<CustomField> allCustomField(Long projectId) {
-        return customFieldRepository.findByProjectId(projectId);
+        return customFieldRepository.findByProjectIdOrPortee(projectId, CustomField.PORTEE_APPLICATION);
+    }
+
+    // -----------------------------------------------------------------
+    // Champs communs a toutes les taches
+    // -----------------------------------------------------------------
+
+    /**
+     * Rattache un champ commun a tous les types que sa portee couvre. Les
+     * ecrans lisent les champs d'une tache par le type : creer les
+     * rattachements suffit a les servir tous, sans les modifier.
+     */
+    private void appliquerPortee(CustomField customField) {
+        if (!customField.isCommun()) {
+            return;
+        }
+        boolean application = CustomField.PORTEE_APPLICATION.equals(customField.getPortee());
+        Long projectId = customField.getProject() == null ? null : customField.getProject().getId();
+        if (!application) {
+            // champ ramene de l'application a un seul espace : les types des
+            // autres espaces ne doivent plus le porter.
+            for (UsingCustomField using : usingCustomFieldRepository.findByCustomFieldId(customField.getId())) {
+                Project project = using.getIssueType() == null ? null : using.getIssueType().getProject();
+                if (project != null && !project.getId().equals(projectId)) {
+                    usingCustomFieldRepository.delete(using);
+                }
+            }
+        }
+        List<IssueType> issueTypes = application
+                ? issueTypeRepository.findAll()
+                : issueTypeRepository.findByProjectId(projectId);
+        for (IssueType issueType : issueTypes) {
+            rattacher(customField, issueType);
+        }
+    }
+
+    /** Donne a un type qui vient d'etre cree les champs communs qu'il doit porter. */
+    private void rattacherChampsCommuns(IssueType issueType) {
+        List<CustomField> communs = new ArrayList<>(customFieldRepository.findByPortee(CustomField.PORTEE_APPLICATION));
+        if (issueType.getProject() != null) {
+            communs.addAll(customFieldRepository.findByProjectIdAndPortee(
+                    issueType.getProject().getId(), CustomField.PORTEE_PROJET));
+        }
+        for (CustomField customField : communs) {
+            rattacher(customField, issueType);
+        }
+    }
+
+    private void rattacher(CustomField customField, IssueType issueType) {
+        if (!CollectionUtils.isEmpty(usingCustomFieldRepository
+                .findByCustomFieldIdAndIssueTypeId(customField.getId(), issueType.getId()))) {
+            return;
+        }
+        UsingCustomField using = new UsingCustomField();
+        using.setCustomField(customField);
+        using.setIssueType(issueType);
+        usingCustomFieldRepository.save(using);
+    }
+
+    /**
+     * Cree les champs de date fournis par l'application et rattrape les
+     * rattachements des champs communs : un type cree avant eux, ou hors de ce
+     * service, les recoit au demarrage suivant.
+     */
+    @Transactional
+    public void initDefaultCustomFields() {
+        creerChampParDefaut(CustomField.CODE_DATE_DEMARRAGE, "Date Démarrage");
+        creerChampParDefaut(CustomField.CODE_DEADLINE, "Deadline");
+        List<CustomField> communs = new ArrayList<>(customFieldRepository.findByPortee(CustomField.PORTEE_APPLICATION));
+        communs.addAll(customFieldRepository.findByPortee(CustomField.PORTEE_PROJET));
+        communs.forEach(this::appliquerPortee);
+    }
+
+    private void creerChampParDefaut(String code, String name) {
+        if (!CollectionUtils.isEmpty(customFieldRepository.findByCode(code))) {
+            return;
+        }
+        CustomField customField = new CustomField();
+        customField.setCode(code);
+        customField.setName(name);
+        customField.setType(TypeField.DateValue.getType());
+        customField.setPortee(CustomField.PORTEE_APPLICATION);
+        customFieldRepository.save(customField);
+        logger.info("Champ par defaut " + name + " cree");
     }
 
     public List<UsingCustomField> useCustomField(UsingCustomField usingCustomField) {
@@ -802,6 +907,12 @@ public class ProjectService {
                 usingCustomField.getIssueType().getId() == null) {
             throw new RuntimeException("Invalid data ");
         }
+        boolean commun = customFieldRepository.findById(usingCustomField.getCustomField().getId())
+                .map(CustomField::isCommun).orElse(false);
+        if (commun) {
+            throw new RuntimeException("Ce champ est commun a toutes les taches : "
+                    + "changez sa portee pour le retirer d'un type.");
+        }
         List<UsingCustomField> existing = usingCustomFieldRepository.findByCustomFieldIdAndIssueTypeId(usingCustomField.getCustomField().getId(), usingCustomField.getIssueType().getId());
         if (!CollectionUtils.isEmpty(existing)) {
             existing.forEach(e -> usingCustomFieldRepository.delete(e));
@@ -822,6 +933,11 @@ public class ProjectService {
     public Response deleteCustomField(Long customFieldId) {
         CustomField customField = customFieldRepository.findById(customFieldId)
                 .orElseThrow(() -> new RuntimeException("Champ personnalise introuvable : " + customFieldId));
+
+        if (StringUtils.hasText(customField.getCode())) {
+            throw new RuntimeException("« " + customField.getName()
+                    + " » est un champ fourni par l'application : il ne peut pas etre supprime.");
+        }
 
         long valueCount = customFieldValueRepository.countByCustomFieldId(customFieldId);
         if (valueCount > 0) {

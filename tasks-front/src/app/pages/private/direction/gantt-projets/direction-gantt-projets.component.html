@@ -1,0 +1,243 @@
+<div class="gp-shell">
+
+  <header class="gp-topbar">
+    <div class="gp-title">
+      <span class="gp-brand"><i class="fas fa-stream"></i></span>
+      <h1>Direction · Gantt des projets</h1>
+    </div>
+    <div class="gp-actions">
+      <a class="gp-link" routerLink="/direction"><i class="fas fa-compass"></i> Fiches projets</a>
+      <a class="gp-link" routerLink="/working"><i class="fas fa-th-large"></i> Espaces de travail</a>
+      <app-user-menu variante="avatar"></app-user-menu>
+    </div>
+  </header>
+
+  <div class="gp-state" *ngIf="chargement">
+    <i class="fas fa-circle-notch fa-spin"></i> Chargement des projets…
+  </div>
+
+  <div class="gp-state error" *ngIf="erreur">
+    <i class="fas fa-plug"></i> Impossible de charger les projets. Rechargez la page.
+  </div>
+
+  <ng-container *ngIf="!chargement && !erreur">
+
+    <!-- ═══ FILTRES : une rangée au-dessus du diagramme ═══ -->
+    <div class="gp-filtres">
+      <nav class="gp-tabs" aria-label="Départements">
+        <button type="button" class="gp-tab" [class.active]="departement === null" (click)="choisirDepartement(null)">
+          Tous <span class="gp-count">{{ nombreProjets(null) }}</span>
+        </button>
+        <button type="button" class="gp-tab" *ngFor="let dep of departements"
+                [class.active]="departement === dep" (click)="choisirDepartement(dep)">
+          {{ dep }} <span class="gp-count">{{ nombreProjets(dep) }}</span>
+        </button>
+      </nav>
+
+      <div class="gp-periode">
+        <button type="button" class="gp-btn" (click)="deplacer(-1)" title="Période précédente" aria-label="Période précédente">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+        <button type="button" class="gp-btn" (click)="revenirAujourdhui()">Aujourd'hui</button>
+        <button type="button" class="gp-btn" (click)="deplacer(1)" title="Période suivante" aria-label="Période suivante">
+          <i class="fas fa-chevron-right"></i>
+        </button>
+        <span class="gp-dates">{{ fenetre.debut | date:'dd/MM/yyyy' }} – {{ fenetre.fin - 1 | date:'dd/MM/yyyy' }}</span>
+        <i class="fas fa-circle-notch fa-spin gp-recherche" *ngIf="recherche" title="Recherche des séances…"></i>
+        <div class="gp-echelles" role="group" aria-label="Échelle du temps">
+          <button type="button" *ngFor="let e of echelles" [class.active]="fenetre.echelle === e.valeur"
+                  (click)="choisirEchelle(e.valeur)">{{ e.libelle }}</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Personnes : le filtre des listes de tâches. En choisir une relance la
+         recherche des séances pour elle seule. -->
+    <div class="gp-personnes">
+      <span class="gp-label">Personnes</span>
+      <app-assignee-filter [issues]="taches" [users]="membres" [selectedIds]="selection"
+                           (selectedIdsChange)="choisirPersonnes($event)"></app-assignee-filter>
+    </div>
+
+    <!-- Légende : aucun état n'est porté par la couleur seule (plein, pointillé, bord épais, libellé). -->
+    <ul class="gp-legende" aria-label="Légende">
+      <li><span class="lg lg-cadre"></span> Tâche : démarrage → deadline (bord épais)</li>
+      <li><span class="lg lg-reel"></span> Réalisé (séances passées)</li>
+      <li><span class="lg lg-plan"></span> Planifié (séances à venir), par personne</li>
+      <li><span class="lg lg-retard"></span> Retard</li>
+      <li><span class="pastille"><i class="fas fa-user"></i> 2</span> Personnes en même temps</li>
+      <li *ngFor="let c of champs"><span class="lg lg-champ" [style.background]="c.couleur"></span> {{ c.nom }}</li>
+    </ul>
+
+    <div class="gp-state" *ngIf="!blocs.length">
+      <i class="fas fa-folder-open"></i>
+      Aucun projet en cours dans ce département.
+    </div>
+
+    <div class="gp-scroll" *ngIf="blocs.length" (scroll)="quitter()">
+      <div class="gp-inner" [style.width.px]="300 + fenetre.largeur">
+
+        <!-- Fond : week-ends et séparateurs, sur toute la hauteur. -->
+        <div class="gp-fond" [style.width.px]="fenetre.largeur" aria-hidden="true">
+          <span class="fond-weekend" *ngFor="let w of axe.weekends" [style.left.px]="w.gauche" [style.width.px]="w.largeur"></span>
+          <span class="fond-sep" *ngFor="let g of axe.groupes" [style.left.px]="g.gauche"></span>
+        </div>
+        <span class="gp-jour" *ngIf="aujourdhui !== null" [style.left.px]="300 + aujourdhui" aria-hidden="true"></span>
+
+        <!-- ═══ AXE DU TEMPS ═══ -->
+        <div class="gp-row gp-head">
+          <div class="gp-nom">Projet / tâche</div>
+          <div class="gp-axe" [style.width.px]="fenetre.largeur">
+            <div class="axe-rang axe-groupes">
+              <span class="axe-groupe" *ngFor="let g of axe.groupes" [style.left.px]="g.gauche" [style.width.px]="g.largeur">
+                <strong>{{ g.libelle }}</strong>
+                <small *ngIf="g.detail">{{ g.detail }}</small>
+              </span>
+            </div>
+            <div class="axe-rang">
+              <span class="axe-grad" *ngFor="let g of axe.graduations" [class.aujourdhui]="g.aujourdhui"
+                    [style.left.px]="g.gauche" [style.width.px]="g.largeur">{{ g.libelle }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ UN BLOC PAR PROJET ═══ -->
+        <section class="gp-bloc" *ngFor="let bloc of blocs; trackBy: parProjet">
+
+          <!-- Champs personnalisés du projet : sur toute la hauteur de son bloc. -->
+          <span class="repere repere-projet" *ngFor="let r of bloc.reperes" [style.left.px]="300 + r.gauche"
+                [style.background]="r.couleur"
+                (mouseenter)="survolerRepere(r, bloc.projet, $event)"
+                (mousemove)="suivre($event)" (mouseleave)="quitter()"></span>
+
+          <div class="gp-row gp-projet">
+            <div class="gp-nom">
+              <button type="button" class="gp-plier" (click)="basculerProjet(bloc)"
+                      [attr.aria-expanded]="!replies.has(bloc.projet.id!)"
+                      [attr.aria-label]="replies.has(bloc.projet.id!) ? 'Déplier le projet' : 'Replier le projet'">
+                <i class="fas" [ngClass]="replies.has(bloc.projet.id!) ? 'fa-chevron-right' : 'fa-chevron-down'"></i>
+              </button>
+              <span class="gp-texte">
+                <a class="projet-nom" *ngIf="lienProjet(bloc) as lien; else nomSeul" [routerLink]="lien"
+                   [title]="bloc.projet.summary">{{ bloc.projet.summary }}</a>
+                <ng-template #nomSeul><span class="projet-nom" [title]="bloc.projet.summary">{{ bloc.projet.summary }}</span></ng-template>
+                <span class="projet-meta">
+                  {{ bloc.projet.issueKey }} · {{ bloc.nombreTaches }} tâche(s) · {{ bloc.avancement }} % avancé
+                  <span class="en-retard" *ngIf="bloc.enRetard">
+                    · <i class="fas fa-exclamation-triangle"></i> {{ bloc.enRetard }} en retard
+                  </span>
+                </span>
+              </span>
+            </div>
+            <div class="gp-piste" [style.width.px]="fenetre.largeur">
+              <span class="projet-cadre" *ngIf="bloc.cadre?.segment as c" [style.left.px]="c.gauche" [style.width.px]="c.largeur"
+                    [class.coupe-gauche]="c.coupeGauche" [class.coupe-droite]="c.coupeDroite"
+                    [class.sans-echeance]="bloc.cadre?.sansEcheance"></span>
+              <span class="projet-rempli" *ngIf="bloc.rempli as r" [style.left.px]="r.gauche" [style.width.px]="r.largeur"
+                    [class.coupe-gauche]="r.coupeGauche"></span>
+              <span class="pastille pastille-projet" *ngIf="effectifs.get(bloc.projet.id!) as effectif"
+                    [style.left.px]="aujourdhui !== null ? aujourdhui - 18 : 8"
+                    [title]="effectif + ' personne(s) sur la période'">
+                <i class="fas fa-user"></i> {{ effectif }}
+              </span>
+            </div>
+          </div>
+
+          <ng-container *ngIf="!replies.has(bloc.projet.id!)">
+            <div class="gp-row gp-vide" *ngIf="!bloc.lignes.length">
+              <div class="gp-nom">Aucune tâche</div>
+              <div class="gp-piste" [style.width.px]="fenetre.largeur"></div>
+            </div>
+
+            <!-- ═══ UNE LIGNE PAR TÂCHE ═══ -->
+            <div class="gp-row gp-tache" *ngFor="let l of bloc.lignes; trackBy: parTache"
+                 [style.height.px]="hauteurLigne(activites.de(l.tache.id).voies)">
+              <div class="gp-nom">
+                <app-avatar *ngIf="l.responsable as r; else sansResponsable" class="tache-avatar"
+                            [url]="photoDe(r)" [displayName]="nomDe(r)" [title]="nomDe(r)"></app-avatar>
+                <ng-template #sansResponsable><span class="tache-avatar vide" title="Non assignée"><i class="far fa-user"></i></span></ng-template>
+                <span class="gp-texte">
+                  <a class="tache-nom" *ngIf="lienTache(bloc, l.tache) as lien; else tacheSeule" [routerLink]="lien"
+                     [title]="l.tache.summary">{{ l.tache.summary }}</a>
+                  <ng-template #tacheSeule><span class="tache-nom" [title]="l.tache.summary">{{ l.tache.summary }}</span></ng-template>
+                  <span class="tache-meta">
+                    {{ l.tache.issueKey }}
+                    <ng-container *ngIf="l.tache.status as s"> · {{ s.displayName }}</ng-container>
+                    · {{ l.avancement }} %
+                    <span class="en-retard" *ngIf="l.retard"> · <i class="fas fa-exclamation-triangle"></i> +{{ l.retard.jours }} j</span>
+                    <ng-container *ngIf="!l.cadre"> · sans dates</ng-container>
+                  </span>
+                </span>
+              </div>
+
+              <div class="gp-piste" [style.width.px]="fenetre.largeur" *ngIf="activites.de(l.tache.id) as a">
+                <!-- Le cadre : du démarrage à la deadline, son bord droit épais. -->
+                <span class="cadre" *ngIf="l.cadre?.segment as c" [style.left.px]="c.gauche"
+                      [style.width.px]="c.largeur" [style.height.px]="hauteurCadre(a.voies)"
+                      [class.coupe-gauche]="c.coupeGauche" [class.coupe-droite]="c.coupeDroite"
+                      [class.sans-echeance]="l.cadre?.sansEcheance"
+                      (mouseenter)="survolerCadre(l, $event)" (mousemove)="suivre($event)" (mouseleave)="quitter()"></span>
+
+                <!-- Retard : au-delà de la deadline. -->
+                <span class="retard" *ngIf="l.retard as r" [style.left.px]="r.gauche" [style.width.px]="r.largeur">
+                  <span class="retard-jours">+{{ r.jours }} j</span>
+                </span>
+
+                <!-- Couche « activité » : les événements de planning. Réalisé : une partie
+                     par groupe de personnes au travail. -->
+                <ng-container *ngFor="let p of a.parties; let premiere = first">
+                  <span class="reel" [style.left.px]="p.gauche" [style.width.px]="p.largeur"
+                        [class.coupe-gauche]="p.coupeGauche" [class.cliquable]="p.serie.seances.length === 1"
+                        (mouseenter)="survolerPartie(l, p, $event)" (mousemove)="suivre($event)" (mouseleave)="quitter()"
+                        (click)="ouvrir(p.serie, $event)">
+                    <span class="reel-pct" *ngIf="premiere && p.largeur >= 50">{{ l.avancement }} %</span>
+                  </span>
+                  <span class="pastille pastille-partie" *ngIf="p.pastille" [style.left.px]="p.centre - 17"
+                        [style.top.px]="hauteurCadre(a.voies) + 12">
+                    <i class="fas fa-user"></i> {{ p.serie.personnes.length }}
+                  </span>
+                </ng-container>
+
+                <!-- Planifié : ce qui reste à venir, en pointillé, par personne. -->
+                <span class="plan" *ngFor="let p of a.plans" [style.left.px]="p.gauche" [style.width.px]="p.largeur"
+                      [style.top.px]="hautVoie(p.voie)" [style.height.px]="hauteurPlan(a.voies)" [class.cliquable]="p.serie.seances.length === 1"
+                      (mouseenter)="survolerPlan(l, p, $event)" (mousemove)="suivre($event)" (mouseleave)="quitter()"
+                      (click)="ouvrir(p.serie, $event)">
+                  <span class="plan-qui" *ngIf="p.largeur >= 26">{{ initiales(p.personne) }}</span>
+                </span>
+
+                <!-- Champs personnalisés de la tâche. -->
+                <span class="repere repere-tache" *ngFor="let r of l.reperes" [style.left.px]="r.gauche"
+                      [style.background]="r.couleur"
+                      (mouseenter)="survolerRepere(r, l.tache, $event)"
+                      (mousemove)="suivre($event)" (mouseleave)="quitter()"></span>
+              </div>
+            </div>
+          </ng-container>
+        </section>
+      </div>
+    </div>
+  </ng-container>
+</div>
+
+<!-- ═══ INFOBULLE : ce qui a été fait, ou prévu, séance par séance ═══ -->
+<div class="gp-bulle" *ngIf="bulle as b" [style.left.px]="b.x"
+     [style.top.px]="b.versLeHaut ? null : b.y" [style.bottom.px]="b.versLeHaut ? b.y : null">
+  <div class="bulle-titre">{{ b.titre }}</div>
+  <div class="bulle-sous">{{ b.sousTitre }}</div>
+  <div class="bulle-seance" *ngFor="let s of b.seances">
+    <div class="bulle-qui">
+      <strong>{{ s.qui }}</strong> <span class="bulle-quand">{{ s.quand }}</span>
+    </div>
+    <div class="bulle-quoi" *ngIf="s.quoi">{{ s.quoi }}</div>
+    <div class="bulle-detail" *ngIf="s.detail">{{ s.detail }}</div>
+    <div class="bulle-etat">
+      {{ s.etat }}<ng-container *ngIf="s.avancement !== null"> · avancement déclaré : {{ s.avancement }} %</ng-container>
+    </div>
+  </div>
+  <div class="bulle-aide" *ngIf="b.reste">+ {{ b.reste }} autre(s) séance(s)</div>
+  <div class="bulle-aide" *ngIf="b.aide">{{ b.aide }}</div>
+</div>
+
+<!-- Fiche d'une séance : le même menu que dans les plannings de l'espace de travail. -->
+<app-event-menu (saved)="chercher()"></app-event-menu>

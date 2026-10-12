@@ -54,6 +54,11 @@ public class Initializer implements CommandLineRunner {
          } catch (Exception e) {
              LoggerFactory.getLogger(Initializer.class).error("Rattrapage des sous-types par defaut impossible", e);
          }
+         try {
+             projectService.initDefaultCustomFields();
+         } catch (Exception e) {
+             LoggerFactory.getLogger(Initializer.class).error("Creation des champs personnalises par defaut impossible", e);
+         }
        //  projectService.initCollorStatus();
     }
 }

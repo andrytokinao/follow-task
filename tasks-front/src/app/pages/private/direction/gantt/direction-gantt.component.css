@@ -1,0 +1,460 @@
+:host {
+  display: block;
+
+  /* États d'une séance. Palette vérifiée pour les daltoniens ; « prolongée »
+     et « reportée » ont en plus des hachures, « planifiée » est un contour. */
+  --gantt-realisee: #008573;
+  --gantt-en-cours: #2a78d6;
+  --gantt-bloquee: #d03b3b;
+  --gantt-reportee: #d99a00;
+  --gantt-planifiee: #8a94a6;
+  --gantt-nom: 260px;
+  --gantt-rang: 34px;
+}
+
+.gantt-state {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 4px;
+  font-size: 13px;
+  color: var(--dir-ink-3);
+}
+
+.gantt-state.error {
+  color: var(--dir-serious-text);
+}
+
+/* ═══ LÉGENDE ET ÉCHELLE ═══ */
+.gantt-outils {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.gantt-legende {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 11.5px;
+  color: var(--dir-ink-2);
+}
+
+.gantt-legende li {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.gantt-legende i {
+  font-size: 10px;
+  color: var(--dir-ink-3);
+}
+
+.gantt-echelles {
+  display: inline-flex;
+  border: 1px solid var(--dir-hairline);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.gantt-echelles button {
+  padding: 4px 10px;
+  border: 0;
+  border-left: 1px solid var(--dir-hairline);
+  background: var(--dir-surface);
+  font-size: 11.5px;
+  color: var(--dir-ink-2);
+  cursor: pointer;
+}
+
+.gantt-echelles button:first-child {
+  border-left: 0;
+}
+
+.gantt-echelles button:hover {
+  background: var(--dir-surface-muted);
+}
+
+.gantt-echelles button.active {
+  background: var(--dir-accent-soft);
+  color: var(--dir-accent);
+  font-weight: 600;
+}
+
+/* ═══ GRILLE ═══ */
+.gantt-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--dir-hairline);
+  border-radius: 10px;
+}
+
+.gantt-inner {
+  position: relative;
+  min-width: 100%;
+}
+
+.gantt-row {
+  display: flex;
+  min-height: var(--gantt-rang);
+  border-bottom: 1px solid var(--dir-hairline);
+}
+
+.gantt-row:last-child {
+  border-bottom: 0;
+}
+
+/* Hauteur exacte, filet non compris : le calque des dépendances compte sur
+   des lignes de 35px (RANG dans le composant). */
+.gantt-row:not(.gantt-head) {
+  height: var(--gantt-rang);
+}
+
+/* Colonne des tâches, figée pendant le défilement horizontal. */
+.gantt-nom {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  flex: 0 0 var(--gantt-nom);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: var(--gantt-nom);
+  padding: 0 10px;
+  box-sizing: border-box;
+  background: var(--dir-surface);
+  border-right: 1px solid var(--dir-hairline);
+  font-size: 12.5px;
+  overflow: hidden;
+}
+
+.gantt-head .gantt-nom {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--dir-ink-3);
+  background: var(--dir-surface-muted);
+}
+
+.task-key {
+  flex-shrink: 0;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--dir-accent);
+  text-decoration: none;
+}
+
+a.task-key:hover {
+  text-decoration: underline;
+}
+
+.task-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--dir-ink);
+}
+
+.task-retard {
+  flex-shrink: 0;
+  font-size: 11px;
+  color: var(--dir-critical-text);
+}
+
+/* ═══ AXE DU TEMPS ═══ */
+.gantt-head {
+  background: var(--dir-surface-muted);
+}
+
+.gantt-axe {
+  flex: 0 0 auto;
+}
+
+.axe-rang {
+  position: relative;
+  height: 22px;
+}
+
+.axe-mois,
+.axe-grad {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  white-space: nowrap;
+  line-height: 22px;
+  font-size: 11px;
+  color: var(--dir-ink-3);
+}
+
+.axe-mois {
+  padding-left: 6px;
+  font-weight: 600;
+  color: var(--dir-ink-2);
+  text-transform: capitalize;
+}
+
+.axe-grad {
+  text-align: center;
+  border-left: 1px solid var(--dir-hairline);
+}
+
+/* Traits sur toute la hauteur, sous la colonne figée. */
+.sep-mois,
+.trait-jour {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 1;
+  width: 0;
+  pointer-events: none;
+}
+
+.sep-mois {
+  border-left: 1px solid var(--dir-hairline);
+}
+
+.trait-jour {
+  z-index: 2;
+  border-left: 2px solid var(--dir-accent);
+  opacity: .55;
+}
+
+/* ═══ DÉPENDANCES ═══ */
+/* Calque posé sur les pistes, à droite de la colonne des tâches. Discret :
+   il relie, les barres restent le sujet. */
+.fleches {
+  position: absolute;
+  left: var(--gantt-nom);
+  z-index: 1;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.fleches path {
+  fill: none;
+  stroke: var(--dir-ink-3);
+  stroke-width: 1.25;
+  stroke-linejoin: round;
+  /* Le calque laisse passer la souris, sauf sur le trait : son infobulle. */
+  pointer-events: stroke;
+}
+
+.fleches marker path {
+  fill: var(--dir-ink-3);
+  stroke: none;
+}
+
+/* ═══ PISTE D'UNE TÂCHE ═══ */
+.gantt-piste {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+/* Étendue : filet discret sous les barres, de la première séance à la dernière. */
+.etendue {
+  position: absolute;
+  top: 50%;
+  height: 4px;
+  margin-top: -2px;
+  border-radius: 2px;
+  background: var(--dir-hairline);
+}
+
+/* Prévu : cadre clair derrière les séances, de la date de démarrage à la deadline. */
+.prevu {
+  position: absolute;
+  top: 5px;
+  height: 24px;
+  box-sizing: border-box;
+  border: 1px solid var(--gantt-planifiee);
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--gantt-planifiee) 12%, transparent);
+}
+
+.pastille.prevu {
+  position: static;
+  height: 10px;
+  border-radius: 3px;
+}
+
+/* Deadline : losange posé sur la date ; plein et rouge quand elle est dépassée. */
+.losange {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 9px;
+  height: 9px;
+  box-sizing: border-box;
+  border: 2px solid var(--dir-ink-2);
+  background: var(--dir-surface);
+  transform: rotate(45deg);
+}
+
+.losange.echeance {
+  position: absolute;
+  top: 50%;
+  z-index: 3;
+  margin: -4.5px 0 0 -4.5px;
+}
+
+.losange.depassee {
+  border-color: var(--gantt-bloquee);
+  background: var(--gantt-bloquee);
+}
+
+/* Retard : pointillé rouge de la fin prévue à aujourd'hui. */
+.retard {
+  position: absolute;
+  top: 50%;
+  height: 0;
+  border-top: 2px dashed var(--gantt-bloquee);
+  margin-top: -1px;
+}
+
+.barre {
+  position: absolute;
+  top: 9px;
+  z-index: 2;
+  height: 16px;
+  box-sizing: border-box;
+  border-radius: 4px;
+  /* Liseré de la couleur du fond : deux séances qui se touchent restent distinctes. */
+  box-shadow: 0 0 0 1px var(--dir-surface);
+  cursor: pointer;
+}
+
+.barre:hover {
+  filter: brightness(.92);
+}
+
+.etiquette {
+  position: absolute;
+  top: 0;
+  z-index: 2;
+  line-height: var(--gantt-rang);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--dir-ink-2);
+  white-space: nowrap;
+  /* Lisible même posée sur le trait du jour ou un séparateur. */
+  text-shadow: 0 0 3px var(--dir-surface), 0 0 3px var(--dir-surface);
+}
+
+/* ═══ ÉTATS : barres et pastilles de légende partagent ces règles ═══ */
+.pastille {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 14px;
+  height: 10px;
+  box-sizing: border-box;
+  border-radius: 3px;
+}
+
+.realisee { background: var(--gantt-realisee); }
+.en-cours { background: var(--gantt-en-cours); }
+.bloquee { background: var(--gantt-bloquee); }
+
+.prolongee {
+  background: repeating-linear-gradient(45deg,
+    var(--gantt-en-cours) 0 4px, #7fb0ea 4px 7px);
+}
+
+.reportee {
+  background: repeating-linear-gradient(135deg,
+    var(--gantt-reportee) 0 4px, #f0cf7a 4px 7px);
+}
+
+.planifiee {
+  background: var(--dir-surface);
+  border: 1.5px dashed var(--gantt-planifiee);
+}
+
+.pastille.retard {
+  position: static;
+  height: 0;
+  margin: 0;
+  border-radius: 0;
+  border-top: 2px dashed var(--gantt-bloquee);
+}
+
+/* ═══ TÂCHES SANS PLANNING ═══ */
+.gantt-sans {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 11.5px;
+  color: var(--dir-ink-3);
+}
+
+.gantt-sans-tache {
+  padding: 1px 7px;
+  border: 1px solid var(--dir-hairline);
+  border-radius: 999px;
+  background: var(--dir-surface-muted);
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 11px;
+  color: var(--dir-ink-2);
+}
+
+/* ═══ INFOBULLE ═══ */
+.gantt-bulle {
+  position: fixed;
+  z-index: 1100;
+  max-width: 300px;
+  padding: 8px 10px;
+  border: 1px solid var(--dir-hairline);
+  border-radius: 8px;
+  background: var(--dir-surface);
+  box-shadow: 0 6px 20px rgba(16, 24, 40, 0.14);
+  font-size: 12px;
+  color: var(--dir-ink-2);
+  pointer-events: none;
+}
+
+.bulle-titre {
+  margin-bottom: 4px;
+  font-weight: 600;
+  color: var(--dir-ink);
+}
+
+.bulle-etat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+  color: var(--dir-ink);
+}
+
+.bulle-ligne {
+  line-height: 1.5;
+}
+
+.bulle-muted {
+  color: var(--dir-ink-3);
+}
+
+.bulle-planning {
+  margin-bottom: 4px;
+  color: var(--dir-ink);
+}
+
+.bulle-planning i {
+  color: var(--dir-ink-3);
+}
+
+.bulle-aide {
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--dir-ink-3);
+}

@@ -20,6 +20,12 @@ export class AssigneeFilterComponent implements OnChanges {
   /** identifiants retenus ; `UNASSIGNED_ID` pour les issues sans assigné */
   @Input() selectedIds: string[] = [];
   @Output() selectedIdsChange = new EventEmitter<string[]>();
+  /**
+   * Personnes à proposer même sans tâche dans `issues` (les membres d'un espace
+   * de travail, par exemple) : elles suivent les assignés, avec un compte nul.
+   * Vide par défaut : seuls les assignés sont alors proposés.
+   */
+  @Input() users: User[] = [];
 
   readonly UNASSIGNED_ID = UNASSIGNED_ID;
   assignees: AssigneeCount[] = [];
@@ -29,9 +35,12 @@ export class AssigneeFilterComponent implements OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['issues']) {
+    if (changes['issues'] || changes['users']) {
       const counts = countAssignees(this.issues);
-      this.assignees = counts.assignees;
+      const sansTache = (this.users || [])
+        .filter(user => user?.id && !counts.assignees.some(entry => entry.user.id == user.id))
+        .map(user => ({user, count: 0}));
+      this.assignees = [...counts.assignees, ...sansTache];
       this.unassigned = counts.unassigned;
     }
   }

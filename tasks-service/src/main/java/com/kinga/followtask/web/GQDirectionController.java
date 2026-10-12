@@ -1,6 +1,9 @@
 package com.kinga.followtask.web;
 
+import com.kinga.followtask.dto.DependanceTacheDTO;
+import com.kinga.followtask.dto.RealisationTacheDTO;
 import com.kinga.followtask.dto.rapport.RapportProjetDTO;
+import com.kinga.followtask.entity.CustomField;
 import com.kinga.followtask.entity.Issue;
 import com.kinga.followtask.service.DirectionService;
 import graphql.GraphQLContext;
@@ -58,6 +61,26 @@ public class GQDirectionController {
     @SchemaMapping(typeName = "Issue", field = "dateDebutTraitement")
     public LocalDateTime dateDebutTraitement(Issue issue) {
         return directionService.dateDebutTraitement(issue);
+    }
+
+    @SchemaMapping(typeName = "Issue", field = "dateDemarrage")
+    public LocalDateTime dateDemarrage(Issue issue) {
+        return directionService.dateChamp(issue, CustomField.CODE_DATE_DEMARRAGE);
+    }
+
+    @SchemaMapping(typeName = "Issue", field = "deadline")
+    public LocalDateTime deadline(Issue issue) {
+        return directionService.dateChamp(issue, CustomField.CODE_DEADLINE);
+    }
+
+    @SchemaMapping(typeName = "Issue", field = "realisations")
+    public List<RealisationTacheDTO> realisations(Issue issue) {
+        return directionService.realisations(issue);
+    }
+
+    @SchemaMapping(typeName = "Issue", field = "dependances")
+    public List<DependanceTacheDTO> dependances(Issue issue) {
+        return directionService.dependances(issue);
     }
 
     @SchemaMapping(typeName = "Issue", field = "nombreCommentaires")

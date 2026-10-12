@@ -26,6 +26,47 @@ extend type Issue {
     nombrePiecesJointes: Int
     # Chiffres du rapport de projet (RapportService.genererRapport).
     rapportProjet: RapportProjet
+    # Valeur du champ « Date Démarrage » fourni par l'application ; null si non saisie.
+    dateDemarrage: String
+    # Valeur du champ « Deadline » fourni par l'application ; null si non saisie.
+    deadline: String
+    # Séances de planning de la tâche, de la plus ancienne à la plus récente :
+    # les barres du diagramme de Gantt.
+    realisations: [RealisationTache]
+    # Liens de dépendance actifs partant de la tâche (bloque, précède,
+    # déclenche) : les flèches du diagramme de Gantt.
+    dependances: [DependanceTache]
+}
+
+# Dépendance d'une tâche vers une autre (lien IssueLink de type dépendance).
+type DependanceTache {
+    id: Int
+    # BLOCKS, PRECEDES, TRIGGERS.
+    type: String
+    # Libellé lu depuis la source : « bloque », « précède », « déclenche ».
+    libelle: String
+    # Tâche qui dépend de celle-ci ; elle peut être d'un autre projet.
+    destinationId: Int
+}
+
+# Une séance de travail sur une tâche (événement de planning).
+type RealisationTache {
+    id: Int
+    titre: String
+    debut: String
+    # null si la fin n'a pas été renseignée.
+    fin: String
+    # Avancement de la tâche déclaré à l'issue de la séance.
+    avancement: Int
+    # PENDING, IN_PROGRESS, COMPLETED, BLOCKED, POSTPONED, EXTENDED.
+    etat: String
+    intervenant: UserApp
+}
+
+extend type Event {
+    # État d'exécution de la séance : PENDING, IN_PROGRESS, COMPLETED, BLOCKED,
+    # POSTPONED, EXTENDED. Le Gantt de direction en tire le réalisé du planifié.
+    executionStatus: String
 }
 
 type RapportProjet {

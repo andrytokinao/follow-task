@@ -1,0 +1,797 @@
+/*
+ * Gantt de direction. Page à part entière : elle redéclare les jetons du
+ * cockpit (direction.component.css), qu'elle n'hérite pas.
+ */
+:host {
+  display: block;
+  min-height: 100vh;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  letter-spacing: normal;
+  line-height: 1.45;
+}
+
+.gp-shell,
+.gp-bulle {
+  --dir-plane: #f4f5f7;
+  --dir-surface: #ffffff;
+  --dir-surface-muted: #f8f9fb;
+  --dir-ink: #101828;
+  --dir-ink-2: #475467;
+  --dir-ink-3: #8a94a6;
+  --dir-hairline: #eaecf0;
+  --dir-accent: #185FA5;
+  --dir-accent-soft: #eef4fc;
+  --dir-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.06);
+  --dir-critical-text: #b42318;
+
+  --gp-nom: 300px;
+  --gp-reel: #2a78d6;
+  --gp-retard: #d03b3b;
+  --gp-pastille: #0f6e6a;
+}
+
+.gp-shell {
+  min-height: 100vh;
+  padding: 16px 24px 24px;
+  box-sizing: border-box;
+  background: var(--dir-plane);
+  color: var(--dir-ink);
+}
+
+/* ═══ BARRE DU HAUT ═══ */
+.gp-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.gp-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.gp-title h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.gp-brand {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--dir-accent);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+}
+
+.gp-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.gp-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--dir-ink-2);
+  text-decoration: none;
+}
+
+.gp-link:hover {
+  color: var(--dir-accent);
+}
+
+.gp-state {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 24px 4px;
+  font-size: 13px;
+  color: var(--dir-ink-3);
+}
+
+.gp-state.error {
+  color: var(--dir-critical-text);
+}
+
+/* ═══ FILTRES ═══ */
+.gp-filtres {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px 24px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--dir-hairline);
+}
+
+.gp-tabs {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+}
+
+.gp-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  margin-bottom: -1px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--dir-ink-2);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.gp-tab:hover {
+  color: var(--dir-ink);
+}
+
+.gp-tab.active {
+  color: var(--dir-accent);
+  border-bottom-color: var(--dir-accent);
+}
+
+.gp-count {
+  min-width: 20px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--dir-surface-muted);
+  border: 1px solid var(--dir-hairline);
+  font-size: 11px;
+  text-align: center;
+  color: var(--dir-ink-3);
+}
+
+.gp-periode {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-bottom: 6px;
+}
+
+.gp-btn,
+.gp-echelles button {
+  padding: 5px 10px;
+  border: 1px solid var(--dir-hairline);
+  border-radius: 8px;
+  background: var(--dir-surface);
+  font: inherit;
+  font-size: 12px;
+  color: var(--dir-ink-2);
+  cursor: pointer;
+}
+
+.gp-btn:hover,
+.gp-echelles button:hover {
+  background: var(--dir-surface-muted);
+}
+
+.gp-dates {
+  margin: 0 6px;
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--dir-ink-2);
+}
+
+.gp-recherche {
+  font-size: 12px;
+  color: var(--dir-ink-3);
+}
+
+.gp-echelles {
+  display: inline-flex;
+  margin-left: 8px;
+}
+
+.gp-echelles button {
+  border-radius: 0;
+  border-left-width: 0;
+}
+
+.gp-echelles button:first-child {
+  border-left-width: 1px;
+  border-radius: 8px 0 0 8px;
+}
+
+.gp-echelles button:last-child {
+  border-radius: 0 8px 8px 0;
+}
+
+.gp-echelles button.active {
+  background: var(--dir-accent-soft);
+  color: var(--dir-accent);
+  font-weight: 600;
+}
+
+/* ═══ PERSONNES ═══ */
+.gp-personnes {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.gp-label {
+  margin-right: 4px;
+  font-size: 12px;
+  color: var(--dir-ink-3);
+}
+
+/* ═══ LÉGENDE ═══ */
+.gp-legende {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 16px;
+  margin: 0 0 10px;
+  padding: 0;
+  list-style: none;
+  font-size: 11.5px;
+  color: var(--dir-ink-2);
+}
+
+.gp-legende li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lg {
+  display: inline-block;
+  width: 22px;
+  height: 10px;
+  box-sizing: border-box;
+  border-radius: 3px;
+}
+
+.lg-cadre {
+  border: 1px solid var(--dir-ink-3);
+  border-right: 3px solid var(--dir-ink);
+  background: var(--dir-surface-muted);
+}
+
+.lg-reel {
+  background: var(--gp-reel);
+}
+
+.lg-plan {
+  border: 1.5px dashed var(--dir-ink-2);
+}
+
+.lg-retard {
+  background: var(--gp-retard);
+}
+
+.lg-champ {
+  width: 5px;
+  height: 14px;
+}
+
+/* ═══ DIAGRAMME ═══ */
+.gp-scroll {
+  max-height: calc(100vh - 230px);
+  min-height: 240px;
+  overflow: auto;
+  border: 1px solid var(--dir-hairline);
+  border-radius: 14px;
+  background: var(--dir-surface);
+  box-shadow: var(--dir-shadow);
+}
+
+.gp-inner {
+  position: relative;
+  padding-bottom: 12px;
+}
+
+.gp-fond {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--gp-nom);
+  pointer-events: none;
+}
+
+.fond-weekend {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: rgba(16, 24, 40, 0.035);
+}
+
+.fond-sep {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--dir-hairline);
+}
+
+/* Aujourd'hui : trait pointillé vertical, par-dessus les barres. */
+.gp-jour {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 2;
+  border-left: 2px dashed var(--dir-ink);
+  pointer-events: none;
+}
+
+.gp-row {
+  display: flex;
+  position: relative;
+}
+
+.gp-nom {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  flex: 0 0 var(--gp-nom);
+  width: var(--gp-nom);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+  background: var(--dir-surface);
+  border-right: 1px solid var(--dir-hairline);
+  min-width: 0;
+}
+
+.gp-piste {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.gp-texte {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* ═══ AXE DU TEMPS ═══ */
+.gp-head {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  height: 62px;
+  background: var(--dir-surface);
+  border-bottom: 1px solid var(--dir-hairline);
+}
+
+.gp-head .gp-nom {
+  z-index: 6;
+  align-items: flex-end;
+  padding-bottom: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--dir-ink-3);
+}
+
+.gp-axe {
+  position: relative;
+}
+
+.axe-rang {
+  position: relative;
+  height: 26px;
+}
+
+.axe-groupes {
+  height: 36px;
+}
+
+.axe-groupe {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 8px;
+  border-left: 1px solid var(--dir-hairline);
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: 12px;
+  color: var(--dir-ink);
+}
+
+.axe-groupe small {
+  font-size: 10.5px;
+  color: var(--dir-ink-3);
+}
+
+.axe-grad {
+  position: absolute;
+  top: 2px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--dir-ink-2);
+}
+
+.axe-grad.aujourdhui {
+  border-radius: 6px;
+  background: var(--dir-ink);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* ═══ BLOC D'UN PROJET ═══ */
+.gp-bloc {
+  position: relative;
+  margin-top: 12px;
+  border: 1.5px solid var(--dir-accent);
+  border-left-width: 4px;
+  border-radius: 0 12px 12px 0;
+  /* clip, et non hidden : hidden ferait du bloc un conteneur de défilement et
+     la colonne des noms ne resterait plus collée à gauche. */
+  overflow: clip;
+  width: fit-content;
+}
+
+/* Bord gauche (4 px) compensé : les pistes restent calées sur l'axe. */
+.gp-bloc .gp-nom {
+  flex-basis: calc(var(--gp-nom) - 4px);
+  width: calc(var(--gp-nom) - 4px);
+}
+
+.gp-bloc .repere-projet {
+  margin-left: -5px;
+}
+
+.gp-projet {
+  height: 64px;
+  background: rgba(24, 95, 165, 0.07);
+  border-bottom: 1px solid var(--dir-accent);
+}
+
+.gp-projet .gp-nom {
+  background: #edf3f9;
+}
+
+.gp-plier {
+  flex: 0 0 26px;
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--dir-ink-2);
+  cursor: pointer;
+}
+
+.gp-plier:hover {
+  background: rgba(16, 24, 40, 0.06);
+}
+
+.projet-nom {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--dir-ink);
+  text-decoration: none;
+}
+
+a.projet-nom:hover,
+a.tache-nom:hover {
+  color: var(--dir-accent);
+  text-decoration: underline;
+}
+
+.projet-meta,
+.tache-meta {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11.5px;
+  color: var(--dir-ink-2);
+}
+
+.en-retard {
+  color: var(--dir-critical-text);
+  font-weight: 600;
+}
+
+.projet-cadre,
+.projet-rempli {
+  position: absolute;
+  top: 16px;
+  height: 14px;
+  box-sizing: border-box;
+  border-radius: 7px;
+}
+
+.projet-cadre {
+  border: 2px solid var(--dir-accent);
+  background: var(--dir-surface);
+}
+
+.projet-rempli {
+  background: var(--dir-accent);
+}
+
+.projet-cadre.sans-echeance {
+  border-right-style: dotted;
+}
+
+.coupe-gauche {
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  border-left-color: transparent !important;
+}
+
+.coupe-droite {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  border-right-color: transparent !important;
+}
+
+/* ═══ LIGNE D'UNE TÂCHE ═══ */
+.gp-tache + .gp-tache,
+.gp-vide {
+  border-top: 1px solid var(--dir-hairline);
+}
+
+.gp-vide {
+  height: 36px;
+  font-size: 12px;
+  color: var(--dir-ink-3);
+}
+
+.tache-avatar {
+  --avatar-size: 30px;
+  flex: 0 0 30px;
+}
+
+.tache-avatar.vide {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px dashed var(--dir-ink-3);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: var(--dir-ink-3);
+}
+
+.tache-nom {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--dir-ink);
+  text-decoration: none;
+}
+
+/* Le cadre : son bord droit épais est la deadline. */
+.cadre {
+  position: absolute;
+  top: 8px;
+  box-sizing: border-box;
+  border: 1px solid var(--dir-ink-3);
+  border-right: 3px solid var(--dir-ink);
+  border-radius: 5px;
+  background: rgba(16, 24, 40, 0.05);
+}
+
+/* Pas de deadline saisie : le bord droit redevient un simple filet pointé. */
+.cadre.sans-echeance {
+  border-right: 1px dotted var(--dir-ink-3);
+}
+
+.retard {
+  position: absolute;
+  top: 8px;
+  height: 26px;
+  box-sizing: border-box;
+  border-radius: 0 5px 5px 0;
+  background: var(--gp-retard);
+}
+
+.retard-jours {
+  position: absolute;
+  top: 5px;
+  left: calc(100% + 4px);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  color: var(--dir-critical-text);
+}
+
+.reel {
+  position: absolute;
+  top: 11px;
+  height: 20px;
+  box-sizing: border-box;
+  border-radius: 4px;
+  background: var(--gp-reel);
+  /* Liseré de surface : deux parties voisines restent distinctes. */
+  box-shadow: 0 0 0 1px var(--dir-surface);
+  overflow: hidden;
+}
+
+.reel:hover {
+  filter: brightness(0.9);
+}
+
+.reel-pct {
+  padding-left: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  line-height: 20px;
+  color: #fff;
+}
+
+.plan {
+  position: absolute;
+  box-sizing: border-box;
+  border: 1.5px dashed var(--dir-ink-2);
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.55);
+  overflow: hidden;
+}
+
+.plan:hover {
+  border-color: var(--dir-ink);
+  background: var(--dir-surface);
+}
+
+.plan-qui {
+  display: block;
+  padding-left: 3px;
+  font-size: 8.5px;
+  font-weight: 700;
+  line-height: 11px;
+  color: var(--dir-ink-2);
+}
+
+.cliquable {
+  cursor: pointer;
+}
+
+/* Nombre de personnes au travail en même temps. */
+.pastille {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 34px;
+  height: 18px;
+  padding: 0 6px;
+  box-sizing: border-box;
+  border-radius: 999px;
+  border: 1.5px solid var(--dir-surface);
+  background: var(--gp-pastille);
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #fff;
+  box-shadow: var(--dir-shadow);
+}
+
+.pastille i {
+  font-size: 8.5px;
+}
+
+.pastille-partie,
+.pastille-projet {
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.pastille-projet {
+  top: 38px;
+  pointer-events: auto;
+}
+
+/* Champs personnalisés de type Date : barres verticales. */
+.repere {
+  position: absolute;
+  width: 5px;
+  margin-left: -2px;
+  border-radius: 3px;
+  box-shadow: 0 0 0 1px var(--dir-surface);
+  cursor: help;
+}
+
+.repere-tache {
+  top: 3px;
+  bottom: 3px;
+  z-index: 1;
+}
+
+.repere-projet {
+  top: 0;
+  bottom: 0;
+  z-index: 2;
+  width: 3px;
+  border-radius: 0;
+}
+
+.repere:hover {
+  filter: brightness(0.8);
+}
+
+/* ═══ INFOBULLE ═══ */
+.gp-bulle {
+  position: fixed;
+  z-index: 1100;
+  width: 360px;
+  max-width: calc(100vw - 24px);
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 1px solid var(--dir-hairline);
+  border-radius: 10px;
+  background: var(--dir-surface);
+  box-shadow: 0 6px 20px rgba(16, 24, 40, 0.16);
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 12px;
+  color: var(--dir-ink-2);
+  pointer-events: none;
+}
+
+.bulle-titre {
+  font-weight: 600;
+  color: var(--dir-ink);
+}
+
+.bulle-sous {
+  margin-bottom: 2px;
+}
+
+.bulle-seance {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--dir-hairline);
+}
+
+.bulle-qui strong {
+  color: var(--dir-ink);
+}
+
+.bulle-quand {
+  margin-left: 4px;
+  font-variant-numeric: tabular-nums;
+  color: var(--dir-ink-3);
+}
+
+.bulle-quoi {
+  color: var(--dir-ink);
+}
+
+.bulle-etat,
+.bulle-aide {
+  font-size: 11px;
+  color: var(--dir-ink-3);
+}
+
+.bulle-aide {
+  margin-top: 6px;
+}

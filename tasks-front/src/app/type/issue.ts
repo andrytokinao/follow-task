@@ -147,6 +147,11 @@ export interface CustomField {
   configDisplay?:String[];
   issueTypes?:UsingCustomField[],
   project?:Project
+  // Vide : types choisis un par un. 'PROJET' : tous les types de l'espace de
+  // travail. 'APPLICATION' : tous les types de tous les espaces.
+  portee?: 'PROJET' | 'APPLICATION' | null;
+  // Code d'un champ fourni par l'application ('DATE_DEMARRAGE', 'DEADLINE').
+  code?: string;
 }
 
 
@@ -338,6 +343,8 @@ export interface EventApp {
   dateValue?:CustomFieldValue;
   project?:Project;
   completionPercentage?:number
+  /** PENDING, IN_PROGRESS, COMPLETED, BLOCKED, POSTPONED, EXTENDED. */
+  executionStatus?:string
 }
 export interface EventSearchCriteria {
   userIds?:String[]

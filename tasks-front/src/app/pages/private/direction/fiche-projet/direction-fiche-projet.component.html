@@ -78,8 +78,20 @@
 
 <!-- ═══ TÂCHES ═══ -->
 <section class="el-section">
-  <h3><i class="fas fa-tasks"></i> Tâches <span class="el-count">{{ projet.nombreTaches }}</span></h3>
-  <app-direction-projet-detail [projet]="projet"></app-direction-projet-detail>
+  <h3>
+    <i class="fas fa-tasks"></i> Tâches <span class="el-count">{{ projet.nombreTaches }}</span>
+    <!-- Mode de vue : le tableau des tâches, ou leur réalisation dans le temps. -->
+    <span class="el-vues" role="group" aria-label="Mode de vue">
+      <button type="button" [class.active]="vueTaches === 'detail'" (click)="vueTaches = 'detail'">
+        <i class="fas fa-list"></i> Détail
+      </button>
+      <button type="button" [class.active]="vueTaches === 'gantt'" (click)="vueTaches = 'gantt'">
+        <i class="fas fa-stream"></i> Diagramme
+      </button>
+    </span>
+  </h3>
+  <app-direction-projet-detail *ngIf="vueTaches === 'detail'" [projet]="projet"></app-direction-projet-detail>
+  <app-direction-gantt *ngIf="vueTaches === 'gantt'" [projet]="projet"></app-direction-gantt>
 </section>
 
 <!-- ═══ COMMENTAIRES DU PROJET ═══ -->

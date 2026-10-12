@@ -2,8 +2,8 @@ import {Injectable} from '@angular/core';
 import {Apollo} from 'apollo-angular';
 import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
-import {DetailProjet, ProjetDirection, TacheProjet} from './direction.model';
-import {DIRECTION_PROJETS, DIRECTION_TACHES_PROJET} from './direction.operations';
+import {DetailProjet, ProjetDirection, ProjetGantt, TacheGantt, TacheProjet} from './direction.model';
+import {DIRECTION_GANTT_PROJET, DIRECTION_GANTT_PROJETS, DIRECTION_PROJETS, DIRECTION_TACHES_PROJET} from './direction.operations';
 
 /** Projets de la société, et les tâches d'un projet. Lecture seule, en GraphQL. */
 @Injectable({providedIn: 'root'})
@@ -39,6 +39,26 @@ export class DirectionService {
       map(res => ({
         taches: (res.data?.loadSubtask ?? []).map((t: TacheProjet) => ({...t}))
       })));
+  }
+
+  /** Tâches d'un projet avec leurs séances de planning, pour le diagramme de Gantt. */
+  ganttProjet(projetId: number): Observable<TacheGantt[]> {
+    return this.apollo.query<any>({
+      query: DIRECTION_GANTT_PROJET,
+      variables: {projetId},
+      fetchPolicy: 'network-only'
+    }).pipe(map(res => res.data?.loadSubtask ?? []));
+  }
+
+  /** Projets en cours avec leurs tâches et leurs dates, pour le Gantt de direction. */
+  ganttProjets(): Observable<{ departements: string[]; projets: ProjetGantt[] }> {
+    return this.apollo.query<any>({
+      query: DIRECTION_GANTT_PROJETS,
+      fetchPolicy: 'network-only'
+    }).pipe(map(res => ({
+      departements: res.data?.directionDepartements ?? [],
+      projets: res.data?.directionProjets ?? []
+    })));
   }
 }
 

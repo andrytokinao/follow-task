@@ -1,7 +1,11 @@
 package com.kinga.followtask.service;
 
 import com.kinga.followtask.config.StatutsFinaux;
+import com.kinga.followtask.dto.DependanceTacheDTO;
+import com.kinga.followtask.dto.RealisationTacheDTO;
 import com.kinga.followtask.dto.rapport.RapportProjetDTO;
+import com.kinga.followtask.entity.CustomField;
+import com.kinga.followtask.entity.CustomFieldValue;
 import com.kinga.followtask.entity.Issue;
 import com.kinga.followtask.entity.IssueType;
 import com.kinga.followtask.entity.PlanningEvent;
@@ -9,6 +13,7 @@ import com.kinga.followtask.entity.Project;
 import com.kinga.followtask.entity.TypeDocument;
 import com.kinga.followtask.entity.enumapp.Niveau;
 import com.kinga.followtask.repository.DocumentRepository;
+import com.kinga.followtask.repository.IssueLinkRepository;
 import com.kinga.followtask.repository.IssueRepository;
 import com.kinga.followtask.repository.IssueTypeRepository;
 import com.kinga.followtask.repository.ProjectRepository;
@@ -23,7 +28,9 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -50,6 +57,7 @@ public class DirectionService {
     private final IssueRepository issueRepository;
     private final ProjectRepository projectRepository;
     private final DocumentRepository documentRepository;
+    private final IssueLinkRepository issueLinkRepository;
     private final IssueTypeRepository issueTypeRepository;
     private final StatutsFinaux statutsFinaux;
 
@@ -123,6 +131,76 @@ public class DirectionService {
                 .filter(debut -> !debut.isAfter(maintenant))
                 .min(Comparator.naturalOrder())
                 .orElse(null);
+    }
+
+    /**
+     * Date portée par un champ fourni par l'application
+     * ({@link CustomField#CODE_DATE_DEMARRAGE}, {@link CustomField#CODE_DEADLINE}).
+     * Le champ est retrouvé par son code : il peut avoir été renommé.
+     *
+     * @return null si la tâche n'a pas de valeur pour ce champ
+     */
+    @Transactional(readOnly = true)
+    public LocalDateTime dateChamp(Issue issue, String code) {
+        if (issue == null || CollectionUtils.isEmpty(issue.getValues())) {
+            return null;
+        }
+        return issue.getValues().stream()
+                .filter(valeur -> valeur.getCustomField() != null && code.equals(valeur.getCustomField().getCode()))
+                .map(CustomFieldValue::getDate)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .map(date -> LocalDateTime.ofInstant(Instant.ofEpochMilli(date.getTime()), ZoneId.systemDefault()))
+                .orElse(null);
+    }
+
+    /**
+     * Réalisation d'une tâche : ses événements de planning, du plus ancien au
+     * plus récent. Ce sont les séances de travail prévues ou faites, avec
+     * l'avancement déclaré à chacune : la matière du diagramme de Gantt.
+     *
+     * <p>Les événements {@code CUSTOM_FIELD} sont écartés, comme dans le
+     * planning : ce sont des dates de champ personnalisé, pas du travail.</p>
+     */
+    @Transactional(readOnly = true)
+    public List<RealisationTacheDTO> realisations(Issue issue) {
+        if (issue == null || CollectionUtils.isEmpty(issue.getEvents())) {
+            return List.of();
+        }
+        return issue.getEvents().stream()
+                .filter(event -> event.getStartTime() != null)
+                .filter(event -> event.getEventType() == null
+                        || !"CUSTOM_FIELD".equalsIgnoreCase(event.getEventType().getName()))
+                .sorted(Comparator.comparing(PlanningEvent::getStartTime))
+                .map(event -> new RealisationTacheDTO(
+                        event.getId(),
+                        event.getTitle(),
+                        event.getStartTime(),
+                        event.getEndTime(),
+                        event.getCompletionPercentage(),
+                        event.getExecutionStatus() == null ? null : event.getExecutionStatus().name(),
+                        event.getUser()))
+                .toList();
+    }
+
+    /**
+     * Dépendances partant d'une tâche : les liens actifs qui ordonnent deux
+     * tâches dans le temps ({@link com.kinga.followtask.entity.LinkType#isDependency()}).
+     * Une simple référence ne dit rien du planning, elle n'est pas reprise.
+     */
+    @Transactional(readOnly = true)
+    public List<DependanceTacheDTO> dependances(Issue issue) {
+        if (issue == null || issue.getId() == null) {
+            return List.of();
+        }
+        return issueLinkRepository.findBySourceIdAndRemovedAtIsNull(issue.getId()).stream()
+                .filter(lien -> lien.getType() != null && lien.getType().isDependency())
+                .map(lien -> new DependanceTacheDTO(
+                        lien.getId(),
+                        lien.getType().name(),
+                        lien.getType().getOutwardLabel(),
+                        lien.getDestination().getId()))
+                .toList();
     }
 
     /**

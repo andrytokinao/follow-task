@@ -67,11 +67,11 @@
             <i class="cfm-item-icon" [ngClass]="icon(field)"></i>
             <span class="cfm-item-name">{{ field.name }}</span>
           </button>
-          <label class="cfm-use" [title]="useHint(used)">
+          <label class="cfm-use" [title]="useHint(used, field)">
             <input
               type="checkbox"
               [checked]="used"
-              [disabled]="saving || !canConfig"
+              [disabled]="saving || !canConfig || isCommon(field)"
               (change)="toggleUse(field, $event)"
             />
             <span class="cfm-use-box"><i class="fas fa-check"></i></span>

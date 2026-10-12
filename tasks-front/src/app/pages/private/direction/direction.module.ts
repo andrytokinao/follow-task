@@ -5,6 +5,8 @@ import {DirectionComponent} from './direction.component';
 import {DirectionProjetDetailComponent} from './projet-detail/direction-projet-detail.component';
 import {DirectionFicheProjetComponent} from './fiche-projet/direction-fiche-projet.component';
 import {DirectionCommentairesComponent} from './commentaires/direction-commentaires.component';
+import {DirectionGanttComponent} from './gantt/direction-gantt.component';
+import {DirectionGanttProjetsComponent} from './gantt-projets/direction-gantt-projets.component';
 import {UserMenuComponent} from '../../../common/user-menu/user-menu.component';
 import {AvatarComponent} from '../../../common/avatar/avatar.component';
 import {CustomFieldComponent} from '../../../common/custom-field/custom-field.component';
@@ -21,7 +23,9 @@ import {MatMenuModule} from '@angular/material/menu';
     DirectionComponent,
     DirectionFicheProjetComponent,
     DirectionProjetDetailComponent,
-    DirectionCommentairesComponent
+    DirectionCommentairesComponent,
+    DirectionGanttComponent,
+    DirectionGanttProjetsComponent
   ],
   imports: [
     CommonModule,

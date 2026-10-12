@@ -1,0 +1,145 @@
+<div class="gantt-state" *ngIf="chargement">
+  <i class="fas fa-circle-notch fa-spin"></i> Chargement du diagramme…
+</div>
+
+<div class="gantt-state error" *ngIf="erreur">
+  <i class="fas fa-plug"></i> Impossible de charger la réalisation de ce projet.
+</div>
+
+<ng-container *ngIf="!chargement && !erreur">
+
+  <div class="gantt-state" *ngIf="!lignes.length">
+    <i class="far fa-calendar-times"></i> Aucune séance de planning, ni date de démarrage ou deadline, sur les tâches de ce projet.
+  </div>
+
+  <ng-container *ngIf="lignes.length">
+
+    <!-- Légende et échelle, sur une ligne au-dessus du diagramme. L'état d'une
+         barre n'est jamais porté par la couleur seule : icône et libellé ici,
+         libellé dans l'infobulle, hachures pour « prolongée » et « reportée ». -->
+    <div class="gantt-outils">
+      <ul class="gantt-legende" aria-label="Légende">
+        <li *ngFor="let l of legende">
+          <span class="pastille" [ngClass]="l.aspect"></span>
+          <i class="fas" [ngClass]="l.icone"></i> {{ l.libelle }}
+        </li>
+        <li><span class="pastille retard"></span> <i class="fas fa-exclamation-triangle"></i> Retard</li>
+        <li><span class="pastille prevu"></span> Prévu (démarrage → deadline)</li>
+        <li><span class="losange"></span> Deadline</li>
+        <li *ngIf="fleches.length"><i class="fas fa-long-arrow-alt-right"></i> Dépendance</li>
+      </ul>
+      <div class="gantt-echelles" role="group" aria-label="Échelle du temps">
+        <button type="button" *ngFor="let e of echelles" [class.active]="echelle === e.valeur"
+                (click)="choisirEchelle(e.valeur)">{{ e.libelle }}</button>
+      </div>
+    </div>
+
+    <div class="gantt-scroll">
+      <div class="gantt-inner" [style.width.px]="largeur + 260">
+
+        <!-- Séparateurs de mois et trait « aujourd'hui », sur toute la hauteur. -->
+        <span class="sep-mois" *ngFor="let m of mois" [style.left.px]="260 + m.gauche"></span>
+        <span class="trait-jour" *ngIf="aujourdhui !== null" [style.left.px]="260 + aujourdhui"
+              title="Aujourd'hui"></span>
+
+        <!-- Dépendances entre tâches (« A bloque B »), sous les barres. -->
+        <svg class="fleches" *ngIf="fleches.length" [style.top.px]="hautEntete"
+             [attr.width]="largeur" [attr.height]="lignes.length * 35" aria-hidden="true">
+          <defs>
+            <marker id="gantt-pointe" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7"
+                    orient="auto-start-reverse">
+              <path d="M0 0 L8 4 L0 8 Z"></path>
+            </marker>
+          </defs>
+          <path *ngFor="let f of fleches" [attr.d]="f.chemin" marker-end="url(#gantt-pointe)">
+            <title>{{ f.titre }}</title>
+          </path>
+        </svg>
+
+        <!-- ═══ AXE DU TEMPS ═══ -->
+        <div class="gantt-row gantt-head">
+          <div class="gantt-nom">Tâche</div>
+          <div class="gantt-axe" [style.width.px]="largeur">
+            <div class="axe-rang">
+              <span class="axe-mois" *ngFor="let m of mois" [style.left.px]="m.gauche" [style.width.px]="m.largeur"
+                    [title]="m.libelle">{{ m.libelle }}</span>
+            </div>
+            <div class="axe-rang" *ngIf="graduations.length">
+              <span class="axe-grad" *ngFor="let g of graduations" [style.left.px]="g.gauche"
+                    [style.width.px]="g.largeur">{{ g.libelle }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ UNE LIGNE PAR TÂCHE ═══ -->
+        <div class="gantt-row" *ngFor="let ligne of lignes; trackBy: parId">
+          <div class="gantt-nom">
+            <a class="task-key" *ngIf="lienTache(ligne.tache) as lien; else cleSeule" [routerLink]="lien">{{ ligne.tache.issueKey }}</a>
+            <ng-template #cleSeule><span class="task-key">{{ ligne.tache.issueKey }}</span></ng-template>
+            <span class="task-name" [title]="ligne.tache.summary">{{ ligne.tache.summary }}</span>
+            <i class="fas fa-exclamation-triangle task-retard" *ngIf="ligne.retard"
+               [title]="'En retard de ' + ligne.retard.jours + ' jour(s)'"></i>
+          </div>
+
+          <div class="gantt-piste" [style.width.px]="largeur">
+            <!-- Période prévue : de la date de démarrage à la deadline, derrière les séances. -->
+            <span class="prevu" *ngIf="ligne.prevu" [style.left.px]="ligne.prevu.gauche"
+                  [style.width.px]="ligne.prevu.largeur"></span>
+            <!-- Étendue de la tâche, de sa première à sa dernière séance. -->
+            <span class="etendue" *ngIf="ligne.etendue" [style.left.px]="ligne.etendue.gauche"
+                  [style.width.px]="ligne.etendue.largeur"></span>
+            <!-- Retard : de la deadline (à défaut, de la fin de la dernière séance) à aujourd'hui. -->
+            <span class="retard" *ngIf="ligne.retard" [style.left.px]="ligne.retard.gauche"
+                  [style.width.px]="ligne.retard.largeur"></span>
+            <!-- Deadline : un losange, plein quand elle est dépassée. -->
+            <span class="losange echeance" *ngIf="ligne.echeance as e" [class.depassee]="e.depassee"
+                  [style.left.px]="e.gauche"
+                  [title]="(e.depassee ? 'Deadline dépassée : ' : 'Deadline : ') + (e.date | date:'dd/MM/yyyy')"></span>
+
+            <span class="barre" *ngFor="let b of ligne.barres" [ngClass]="b.aspect"
+                  [style.left.px]="b.gauche" [style.width.px]="b.largeur"
+                  (mouseenter)="survoler(b, ligne, $event)" (mousemove)="survoler(b, ligne, $event)"
+                  (mouseleave)="quitter()" (click)="ouvrirSeance(b, $event)"></span>
+
+            <!-- Avancement actuel de la tâche, à droite de tout ce que sa ligne
+                 dessine : barres, deadline, retard. -->
+            <span class="etiquette" [style.left.px]="ligne.finEtiquette + 6">
+              {{ ligne.avancement }} %
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- Tâches sans séance ni date prévue : rien à dessiner, mais elles ne doivent pas disparaître. -->
+  <div class="gantt-sans" *ngIf="sansPlanning.length">
+    <span class="gantt-sans-titre"><i class="far fa-calendar-times"></i> Sans planning ({{ sansPlanning.length }}) :</span>
+    <span class="gantt-sans-tache" *ngFor="let t of sansPlanning" [title]="t.summary">{{ t.issueKey }}</span>
+  </div>
+</ng-container>
+
+<!-- ═══ INFOBULLE D'UNE SÉANCE ═══ -->
+<div class="gantt-bulle" *ngIf="survol as s" [style.left.px]="s.x + 14" [style.top.px]="s.y + 14">
+  <div class="bulle-titre">{{ s.ligne.tache.issueKey }} · {{ s.ligne.tache.summary }}</div>
+  <!-- Titre du planning : ce qui était prévu pendant cette séance. -->
+  <div class="bulle-planning" *ngIf="s.barre.realisation.titre as titre">
+    <i class="far fa-calendar-alt"></i> {{ titre }}
+  </div>
+  <div class="bulle-etat"><span class="pastille" [ngClass]="s.barre.aspect"></span> {{ s.barre.libelle }}</div>
+  <div class="bulle-ligne">
+    {{ s.barre.debut | date:'dd/MM/yy HH:mm' }} → {{ s.barre.fin | date:'dd/MM/yy HH:mm' }}
+    <span class="bulle-muted">({{ duree(s.barre) }})</span>
+  </div>
+  <div class="bulle-ligne" *ngIf="s.barre.realisation.avancement !== null">
+    Avancement déclaré : <strong>{{ s.barre.realisation.avancement }} %</strong>
+  </div>
+  <div class="bulle-ligne" *ngIf="nomDe(s.barre.realisation) as nom">
+    <i class="far fa-user"></i> {{ nom }}
+  </div>
+  <div class="bulle-aide">Cliquer pour ouvrir la séance</div>
+</div>
+
+<!-- Fiche d'une séance : le même menu que dans les plannings de l'espace de
+     travail, ouvert à côté de la barre cliquée. -->
+<app-event-menu (saved)="recharger()"></app-event-menu>

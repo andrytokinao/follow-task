@@ -27,4 +27,27 @@ public class CustomField {
     private String type;
     @ManyToOne
     private Project project;
+    /**
+     * Portee du champ. Vide : le champ n'est utilise que par les types de tache
+     * auxquels il est rattache un par un. {@link #PORTEE_PROJET} : tous les types
+     * de son espace de travail. {@link #PORTEE_APPLICATION} : tous les types de
+     * tous les espaces de travail.
+     */
+    private String portee;
+    /**
+     * Code stable d'un champ cree par l'application (date de demarrage,
+     * deadline). Le nom reste modifiable : c'est par ce code que le reste de
+     * l'application (diagramme de Gantt...) retrouve le champ.
+     */
+    private String code;
+
+    public static final String PORTEE_PROJET = "PROJET";
+    public static final String PORTEE_APPLICATION = "APPLICATION";
+    public static final String CODE_DATE_DEMARRAGE = "DATE_DEMARRAGE";
+    public static final String CODE_DEADLINE = "DEADLINE";
+
+    /** Le champ s'applique-t-il d'office a tous les types, sans rattachement choisi ? */
+    public boolean isCommun() {
+        return PORTEE_PROJET.equals(portee) || PORTEE_APPLICATION.equals(portee);
+    }
 }

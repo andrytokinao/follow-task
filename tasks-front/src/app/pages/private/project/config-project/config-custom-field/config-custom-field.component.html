@@ -31,14 +31,18 @@
         <span class="field-name">{{ field.name }}</span>
         <span class="field-type">{{ typeLabel(field) }}</span>
       </div>
-      <span class="count-badge" [title]="usageCount(field) + ' type(s) de tâche'">
+      <span class="count-badge" *ngIf="!isCommun(field)" [title]="usageCount(field) + ' type(s) de tâche'">
         {{ usageCount(field) }}
+      </span>
+      <span class="count-badge commun" *ngIf="isCommun(field)" title="Champ commun à toutes les tâches">
+        <i class="fas" [ngClass]="field.portee === 'APPLICATION' ? 'fa-globe' : 'fa-layer-group'"></i>
+        {{ porteeLabel(field) }}
       </span>
       <span class="item-actions">
         <button class="icon-btn" title="Modifier" (click)="editCustomField(field, $event)">
           <i class="fas fa-pen"></i>
         </button>
-        <button class="icon-btn danger" title="Supprimer" (click)="deleteCustomField(field, $event)">
+        <button class="icon-btn danger" title="Supprimer" *ngIf="!isSysteme(field)" (click)="deleteCustomField(field, $event)">
           <i class="fas fa-trash-alt"></i>
         </button>
       </span>
@@ -74,6 +78,26 @@
       </div>
 
       <div class="detail-section">
+        <h4>Portée</h4>
+        <p class="section-hint" *ngIf="isSysteme(selected)">
+          Champ fourni par l'application : il peut être renommé, pas supprimé.
+        </p>
+        <div class="portee-list">
+          <label class="portee-row" *ngFor="let portee of portees"
+                 [class.used]="(selected.portee || null) === portee.value">
+            <input type="radio" name="portee"
+                   [checked]="(selected.portee || null) === portee.value"
+                   [disabled]="saving"
+                   (change)="changePortee(portee.value)"/>
+            <span class="portee-text">
+              <span class="type-name">{{ portee.label }}</span>
+              <span class="portee-hint">{{ portee.hint }}</span>
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <div class="detail-section">
         <div class="section-head">
           <h4>Types de tâche utilisant ce champ</h4>
           <span class="saved-flag" *ngIf="savedMessage">
@@ -83,9 +107,13 @@
             <i class="fas fa-circle-notch fa-spin"></i> Enregistrement...
           </span>
         </div>
-        <p class="section-hint">
+        <p class="section-hint" *ngIf="!isCommun(selected)">
           Cochez un type pour y rendre le champ disponible, décochez pour l'en retirer.
           Chaque changement est enregistré immédiatement.
+        </p>
+        <p class="section-hint" *ngIf="isCommun(selected)">
+          Ce champ est commun à toutes les tâches : il est rattaché d'office à chaque type,
+          y compris ceux créés plus tard. Repassez la portée sur « Types choisis » pour décocher un type.
         </p>
 
         <div class="type-list">
@@ -93,7 +121,7 @@
                  [class.used]="isUsedByType(selected, issueType)"
                  [class.child]="issueType.level === 'SUB_TASK'">
             <input type="checkbox" [checked]="isUsedByType(selected, issueType)"
-                   [disabled]="saving"
+                   [disabled]="saving || isCommun(selected)"
                    (change)="toggleIssueType(issueType, $event)"/>
             <i class="fas" [ngClass]="issueType.level === 'SUB_TASK' ? 'fa-file' : 'fa-folder'"></i>
             <span class="type-name">{{ issueType.name }}</span>

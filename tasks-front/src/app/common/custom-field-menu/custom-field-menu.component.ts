@@ -222,7 +222,17 @@ export class CustomFieldMenuComponent implements OnInit {
     }
   }
 
-  useHint(used: boolean): string {
+  /** Champ commun à toutes les tâches : son rattachement ne se décide pas ici,
+   *  le serveur refuse de le retirer d'un type. */
+  isCommon(field: CustomField): boolean {
+    const portee = this.enrich(field).portee;
+    return portee === 'PROJET' || portee === 'APPLICATION';
+  }
+
+  useHint(used: boolean, field?: CustomField): string {
+    if (field && this.isCommon(field)) {
+      return "Champ commun à toutes les tâches — sa portée se règle dans la configuration des champs";
+    }
     if (!this.canConfig) {
       return "Vous n'avez pas le droit de modifier les champs de ce type de tâche.";
     }

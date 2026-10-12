@@ -286,6 +286,52 @@
   border: 0.5px solid var(--color-border-info, #bfdbfe);
 }
 
+/* ---------- PORTEE ---------- */
+.count-badge.commun {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  color: var(--color-text-info, #185FA5);
+  background: var(--color-background-info, #eff6ff);
+  border-color: var(--color-border-info, #bfdbfe);
+}
+
+.portee-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.portee-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  flex: 1 1 180px;
+  margin: 0;
+  padding: 7px 9px;
+  border-radius: 8px;
+  border: 0.5px solid var(--color-border-tertiary, #e5e7eb);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.portee-row:hover { background: var(--color-background-secondary, #f9fafb); }
+
+.portee-row.used {
+  border-color: var(--color-border-info, #93c5fd);
+  background: var(--color-background-info, #eff6ff);
+}
+
+.portee-row input[type="radio"] { margin-top: 2px; cursor: pointer; }
+
+.portee-text { display: flex; flex-direction: column; min-width: 0; }
+
+.portee-hint {
+  font-size: 11px;
+  color: var(--color-text-tertiary, #9ca3af);
+}
+
 /* ---------- AFFECTATION AUX TYPES ---------- */
 .type-list {
   display: flex;

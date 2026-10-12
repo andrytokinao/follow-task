@@ -1,4 +1,4 @@
-import {Issue} from '../../../type/issue';
+import {Issue, User} from '../../../type/issue';
 
 /**
  * Modèle d'affichage du cockpit de direction. Les données viennent de
@@ -38,3 +38,56 @@ export type TacheProjet = Issue & {
 export interface DetailProjet {
   taches: TacheProjet[];
 }
+
+/** État d'une séance de planning (`ExecutionStatus` côté serveur). */
+export type EtatRealisation = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'BLOCKED' | 'POSTPONED' | 'EXTENDED';
+
+/** Une séance de travail sur une tâche : une barre du diagramme de Gantt. */
+export interface RealisationTache {
+  id: number;
+  titre: string | null;
+  debut: string;
+  /** null si la fin n'a pas été renseignée. */
+  fin: string | null;
+  /** Avancement de la tâche déclaré à l'issue de la séance. */
+  avancement: number | null;
+  etat: EtatRealisation | null;
+  intervenant: User | null;
+}
+
+/** Dépendance d'une tâche vers une autre : une flèche du diagramme de Gantt. */
+export interface DependanceTache {
+  id: number;
+  /** BLOCKS, PRECEDES ou TRIGGERS. */
+  type: string;
+  /** Libellé lu depuis la source : « bloque », « précède », « déclenche ». */
+  libelle: string;
+  /** Tâche qui dépend de celle-ci ; elle peut être d'un autre projet. */
+  destinationId: number;
+}
+
+/** Tâche du diagramme de Gantt : le type Issue, plus ses séances et ses dépendances. */
+export type TacheGantt = Issue & {
+  /** Champ « Date Démarrage » de la tâche ; null s'il n'est pas saisi. */
+  dateDemarrage?: string | null;
+  /** Champ « Deadline » de la tâche ; null s'il n'est pas saisi. */
+  deadline?: string | null;
+  realisations?: RealisationTache[];
+  dependances?: DependanceTache[];
+};
+
+/**
+ * Projet du Gantt de direction (`/direction/gantt`) : la demande racine avec
+ * ses dates, ses champs personnalisés et ses tâches. Les séances de travail ne
+ * sont pas ici : elles viennent de la recherche d'événements (`searchEvents`),
+ * ce qui laisse filtrer par personne et par période.
+ */
+export type ProjetGantt = TacheGantt & {
+  children?: TacheGantt[];
+  rapportProjet?: {
+    departement?: string;
+    prefixeDepartement?: string | null;
+    avancementGlobal?: number;
+    synthese?: { nombreTaches?: number; nombreEnRetard?: number };
+  };
+};

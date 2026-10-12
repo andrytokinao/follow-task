@@ -80,3 +80,85 @@ export const DIRECTION_TACHES_PROJET = gql`
     }
   }
 `;
+
+/**
+ * Diagramme de Gantt d'un projet : pour chaque tâche, ses séances de planning
+ * (`realisations`) et son avancement. Les assignés ne sont pas chargés : la
+ * barre porte l'intervenant de chaque séance.
+ */
+export const DIRECTION_GANTT_PROJET = gql`
+  query directionGanttProjet($projetId: Int) {
+    loadSubtask(parentId: $projetId) {
+      id
+      issueKey
+      summary
+      currentCompletionPercent
+      elapsedDurationMinutes
+      status { id displayName color }
+      dateDemarrage
+      deadline
+      realisations {
+        id
+        titre
+        debut
+        fin
+        avancement
+        etat
+        intervenant { ${UTILISATEUR} }
+      }
+      dependances {
+        id
+        type
+        libelle
+        destinationId
+      }
+    }
+  }
+`;
+
+/** Ce que le Gantt lit d'une demande, projet ou tâche : son cadre (démarrage → deadline) et ses champs. */
+const CADRE_GANTT = `
+  id
+  issueKey
+  summary
+  currentCompletionPercent
+  status { id displayName color }
+  dateDemarrage
+  deadline
+  assigne { ${UTILISATEUR} }
+  activeMemberships {
+    id
+    role
+    user { ${UTILISATEUR} }
+  }
+  values {
+    id
+    date
+    customField { id name type code }
+  }
+`;
+
+/**
+ * Gantt de direction : tous les projets en cours et leurs tâches, avec leurs
+ * dates. Les séances de planning sont chargées à part par `searchEvents`.
+ */
+export const DIRECTION_GANTT_PROJETS = gql`
+  query directionGanttProjets {
+    directionDepartements
+    directionProjets {
+      ${CADRE_GANTT}
+      rapportProjet {
+        departement
+        prefixeDepartement
+        avancementGlobal
+        synthese {
+          nombreTaches
+          nombreEnRetard
+        }
+      }
+      children {
+        ${CADRE_GANTT}
+      }
+    }
+  }
+`;

@@ -136,6 +136,59 @@ export class ConfigCustomFieldComponent implements OnInit, OnDestroy {
   }
 
   // -----------------------------------------------------------------
+  // Portee : types choisis, tout l'espace de travail, tous les espaces
+  // -----------------------------------------------------------------
+
+  readonly portees: { value: 'PROJET' | 'APPLICATION' | null, label: string, hint: string }[] = [
+    {value: null, label: 'Types choisis', hint: 'Seulement les types de tâche cochés ci-dessous'},
+    {value: 'PROJET', label: 'Tout cet espace de travail', hint: 'Toutes les tâches de cet espace, types futurs compris'},
+    {value: 'APPLICATION', label: 'Tous les espaces de travail', hint: "Toutes les tâches de l'application"}
+  ];
+
+  /** Le champ s'applique d'office a tous les types : plus rien a cocher. */
+  isCommun(field: CustomField | null): boolean {
+    return field?.portee == 'PROJET' || field?.portee == 'APPLICATION';
+  }
+
+  /** Champ fourni par l'application (date de demarrage, deadline) : non supprimable. */
+  isSysteme(field: CustomField | null): boolean {
+    return !!field?.code;
+  }
+
+  porteeLabel(field: CustomField): string {
+    return field.portee == 'APPLICATION' ? 'Tous les espaces' : 'Tout l\'espace';
+  }
+
+  changePortee(portee: 'PROJET' | 'APPLICATION' | null) {
+    if (!this.selected || this.saving || (this.selected.portee || null) == portee) {
+      return;
+    }
+    const field = this.selected;
+    // seuls les attributs du champ partent : `issueTypes` n'a pas la forme
+    // attendue par la mutation et `code` n'est pas saisissable.
+    const payload: any = {
+      id: field.id,
+      name: field.name,
+      type: field.type,
+      options: field.options,
+      configDisplay: field.configDisplay,
+      portee: portee
+    };
+    this.errorMessage = '';
+    this.saving = true;
+    this.issueService.saveCustomField(payload).subscribe({
+      next: () => {
+        this.saving = false;
+        this.issueService.loadAllCustomField();
+      },
+      error: (error) => {
+        this.saving = false;
+        this.errorMessage = this.extractMessage(error);
+      }
+    });
+  }
+
+  // -----------------------------------------------------------------
   // Affectation aux types de tache
   // -----------------------------------------------------------------
 
@@ -143,7 +196,7 @@ export class ConfigCustomFieldComponent implements OnInit, OnDestroy {
     if (event) {
       event.stopPropagation();
     }
-    if (!this.selected || this.selected.id == null || issueType.id == null || this.saving) {
+    if (!this.selected || this.selected.id == null || issueType.id == null || this.saving || this.isCommun(this.selected)) {
       return;
     }
     const field = this.selected;

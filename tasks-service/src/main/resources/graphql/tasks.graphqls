@@ -6,6 +6,11 @@ type CustomField {
     project:Project
     configDisplay:[String]
     issueTypes:[UsingCustomField]
+    # Vide : types choisis un par un. PROJET : tous les types de l'espace de
+    # travail. APPLICATION : tous les types de tous les espaces.
+    portee:String
+    # Code d'un champ fourni par l'application (DATE_DEMARRAGE, DEADLINE).
+    code:String
 }
 type Comment {
     id:Int
@@ -281,6 +286,7 @@ input CustomFieldImput {
     options:[String]
     configDisplay:[String]
     issueTypes:[CustomFieldImput]
+    portee:String
 }
 input CredentialInput{
     id:Int
