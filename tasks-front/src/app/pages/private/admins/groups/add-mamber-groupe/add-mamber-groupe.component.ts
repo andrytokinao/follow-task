@@ -3,7 +3,7 @@ import {GroupeUser, MemberGroupe, Permission, User} from "../../../../../type/is
 import {stripTypename} from "@apollo/client/utilities";
 import {NgbActiveModal, NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {UserService} from "../../../../../services/user.service";
-import {map, Observable, startWith} from "rxjs";
+import {catchError, forkJoin, map, Observable, of, startWith} from "rxjs";
 import {FormControl} from "@angular/forms";
 import {MatCheckboxChange} from "@angular/material/checkbox";
 
@@ -29,6 +29,10 @@ export class AddMamberGroupeComponent implements OnInit {
     {value:'EXTERNAL_USER', affichage:"Utilisateur exterieur , qui peut voire et commenter certaine projet "},
   ];
   selectedUser: User;
+  /** Ajout : personnes choisies, qui recevront toutes les memes roles. */
+  selectedUsers: User[] = [];
+  enregistrement = false;
+  erreur = '';
   selectedRoles: string[] = [];
   members
   memberGroupe: MemberGroupe
@@ -51,7 +55,8 @@ export class AddMamberGroupeComponent implements OnInit {
     this.userService.users$.subscribe((users: any) => {
       this.users = users;
       this.filteredUsers = this.userControl.valueChanges.pipe(
-        map(value => this.filterUsers(value || '')));
+        startWith(''),
+        map(value => this.filterUsers(typeof value === 'string' ? value : '')));
     });
     this.userService.permissionTask$.subscribe(permission=> {
       this.permission = permission;
@@ -68,6 +73,10 @@ export class AddMamberGroupeComponent implements OnInit {
   }
 
   register() {
+    if (!this.isEdition()) {
+      this.registerSelection();
+      return;
+    }
     this.user = this.user || this.memberGroupe.user;
     if (this.user == undefined) {
       return;
@@ -76,6 +85,47 @@ export class AddMamberGroupeComponent implements OnInit {
       this.activeModal.close({memberGroupe: res});
       this.memberGroupe = res;
     })
+  }
+
+  isEdition(): boolean {
+    return this.memberGroupe != undefined && this.memberGroupe.id != undefined;
+  }
+
+  /**
+   * Le serveur n'ajoute qu'une personne a la fois : un appel par personne.
+   * Les reussites restent acquises ; seules les personnes en echec restent
+   * selectionnees pour pouvoir reessayer.
+   */
+  private registerSelection() {
+    if (this.selectedUsers.length === 0 || this.enregistrement) {
+      return;
+    }
+    this.enregistrement = true;
+    this.erreur = '';
+    const ajouts = this.selectedUsers.map(user =>
+      this.userService.addUserInGroupe(user.username, this.groupeUser.id, this.selectedRoles).pipe(
+        catchError(error => {
+          console.error("addUserInGroupe ==> ", error);
+          return of(null);
+        })));
+    forkJoin(ajouts).subscribe(resultats => {
+      const echecs = this.selectedUsers.filter((_, index) => resultats[index] == null);
+      if (echecs.length === 0) {
+        this.activeModal.close({memberGroupes: resultats});
+        return;
+      }
+      this.selectedUsers = echecs;
+      this.erreur = 'Ajout impossible pour : ' + echecs.map(user => user.firstName + ' ' + user.lastName).join(', ');
+      this.enregistrement = false;
+    });
+  }
+
+  removeSelected(user: User) {
+    this.selectedUsers = this.selectedUsers.filter(selected => selected.username !== user.username);
+  }
+
+  isMember(user: User): boolean {
+    return !!this.groupeUser?.members?.some(member => member.user?.username === user.username);
   }
 
   onFocus() {
@@ -104,11 +154,18 @@ export class AddMamberGroupeComponent implements OnInit {
 
   selectUsert(user: User) {
     this.user = user;
+    if (!this.selectedUsers.some(selected => selected.username === user.username)) {
+      this.selectedUsers = [...this.selectedUsers, user];
+    }
+    // Champ vide apres chaque choix : on enchaine directement la personne suivante.
+    this.userControl.setValue('');
   }
 
   filterUsers(value: string): User[] {
     const filterValue = value.toLowerCase();
-    let fileted= this.users.filter( user =>
+    // Ni les membres du groupe ni les personnes deja choisies ne sont reproposes.
+    let fileted= this.users.filter(user => !this.isMember(user)
+      && !this.selectedUsers.some(selected => selected.username === user.username)).filter( user =>
       user.firstName.toLowerCase().includes(filterValue) ||
       user.lastName.toLowerCase().includes(filterValue) ||
       user.username.toLowerCase().includes(filterValue));

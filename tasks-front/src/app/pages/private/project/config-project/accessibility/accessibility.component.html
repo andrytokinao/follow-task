@@ -1,20 +1,51 @@
-<div class="accessibility" *ngFor="let groupe of groupeUsers">
-  <h1> {{groupe.name}}  </h1>
-  <div class="user-card" *ngFor="let  member of groupe.members">
-    <img [src]="userService.getUrlPhoto(member.user)" alt="Proto" class="user-photo">
-    <div class="user-info">
-      <h2>{{member.user.firstName+' '+member.user.firstName}} </h2>
-      <p> Rôle: <span *ngFor="let role of member.roles"> {{role}} </span></p>
+<div class="team-page">
+  <div class="team-toolbar">
+    <div>
+      <h1>Équipe</h1>
+      <p>Membres de l'espace de travail, regroupés par groupe, et leurs rôles.</p>
     </div>
-    <div class="actions">
-      <button (click)="editMamberForGroupe(member,groupe)" class="edit-btn">Éditer</button>
-      <button class="delete-btn"  (click)="deleteMember(member.id)" >Supprimer</button>
+    <div class="team-search">
+      <i class="fas fa-search"></i>
+      <input type="text" [(ngModel)]="search" placeholder="Rechercher un membre">
     </div>
   </div>
-  <div class="add-user">
-    <button class="add-btn"  (click)= "addMembrerForGroupe(groupe)"> <i class="fa fa-plus-square"></i>   Ajouter un membre </button>
-  </div>
+
+  <p class="team-empty" *ngIf="groupeUsers.length === 0">Aucun groupe n'est défini sur cet espace de travail.</p>
+
+  <section class="accessibility" *ngFor="let groupe of groupeUsers">
+    <header class="group-header">
+      <div class="group-title">
+        <i class="fas fa-people-group"></i>
+        <h2>{{groupe.name}}</h2>
+        <span class="group-count">{{groupe.members?.length || 0}} membre{{(groupe.members?.length || 0) > 1 ? 's' : ''}}</span>
+      </div>
+      <button class="add-btn" (click)="addMembrerForGroupe(groupe)">
+        <i class="fas fa-user-plus"></i> Ajouter des membres
+      </button>
+    </header>
+
+    <div class="user-card" *ngFor="let member of visibleMembers(groupe)">
+      <img [src]="userService.getUrlPhoto(member.user)" alt="Proto" class="user-photo">
+      <div class="user-info">
+        <span class="user-name">{{member.user?.firstName+' '+member.user?.lastName}}</span>
+        <span class="user-login">{{member.user?.username}}</span>
+      </div>
+      <div class="user-roles">
+        <span class="role-badge" *ngFor="let role of member.roles" [title]="role">{{roleLabel(role)}}</span>
+        <span class="role-badge role-badge--none" *ngIf="!member.roles?.length">Aucun rôle</span>
+      </div>
+      <div class="actions">
+        <button (click)="editMamberForGroupe(member,groupe)" class="edit-btn" title="Éditer les rôles">
+          <i class="fas fa-pen"></i>
+        </button>
+        <button class="delete-btn" (click)="confirmDeleteMember(member, groupe)" title="Retirer du groupe">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    </div>
+
+    <p class="group-empty" *ngIf="visibleMembers(groupe).length === 0">
+      {{ search ? 'Aucun membre ne correspond à la recherche.' : 'Aucun membre dans ce groupe.' }}
+    </p>
+  </section>
 </div>
-
-
-

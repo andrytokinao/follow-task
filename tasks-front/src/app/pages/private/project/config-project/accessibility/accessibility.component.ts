@@ -1,5 +1,6 @@
 import {Component, OnInit} from '@angular/core';
-import {ConfigProject, GroupeUser, MemberGroupe, Project} from "../../../../../type/issue";
+import {ConfigProject, GroupeUser, MemberGroupe, Permission, Project} from "../../../../../type/issue";
+import {ConfirmationDialogService} from "../../../../../services/confirmation-dialog.service";
 import {IssueService} from "../../../../../services/issue.service";
 import {HttpClient} from "@angular/common/http";
 import {ConfigService} from "../../../../../services/config.service";
@@ -21,7 +22,10 @@ export class AccessibilityComponent implements OnInit{
   configProjects : ConfigProject[]=[];
   project:Project;
   groupeUsers:GroupeUser[]=[]
+  permission: Permission;
+  search = '';
   constructor(
+    private confirmationDialogService: ConfirmationDialogService,
     private http:HttpClient,
     private configService:ConfigService,
     private issueService:IssueService,
@@ -54,6 +58,8 @@ export class AccessibilityComponent implements OnInit{
       this.userService.groupeUsers$.subscribe(groupeUsers => {
         this.groupeUsers = groupeUsers;
       })
+      this.userService.permissionTask$.subscribe(permission => this.permission = permission);
+      this.userService.loadPermissiontTask();
 
     });
   }
@@ -66,7 +72,7 @@ export class AccessibilityComponent implements OnInit{
     dialogRef.componentInstance.groupeUser = groupe;
     dialogRef.result.then((res) => {
       this.getGroupeUserForProject();
-    })
+    }, () => {})
   }
   editMamberForGroupe(member:MemberGroupe,groupe:GroupeUser){
     const dialogRef = this.modalService.open(AddMamberGroupeComponent, { windowClass: 'centerModal'});
@@ -74,12 +80,41 @@ export class AccessibilityComponent implements OnInit{
     dialogRef.componentInstance.setMember( member);
     dialogRef.result.then((res) => {
       this.getGroupeUserForProject();
-    })
+    }, () => {})
+  }
+
+  confirmDeleteMember(member: MemberGroupe, groupe: GroupeUser) {
+    this.confirmationDialogService.confirm('Retirer le membre',
+      `Retirer ${member.user?.firstName} ${member.user?.lastName} du groupe ${groupe.name} ?`,
+      'Retirer', 'Annuler')
+      .then(confirmed => {
+        if (confirmed) {
+          this.deleteMember(member.id);
+        }
+      }, () => {});
   }
 
     deleteMember(memberId: Number) {
       this.userService.deleteMember(memberId).subscribe(res => {
         this.getGroupeUserForProject();
       })
+  }
+
+  /** Libelle d'un role, a defaut son code. */
+  roleLabel(role: string): String {
+    return this.permission?.roles?.find(r => r.name === role)?.description || role;
+  }
+
+  matchesSearch(member: MemberGroupe): boolean {
+    const filtre = this.search.trim().toLowerCase();
+    if (!filtre || !member.user) {
+      return true;
+    }
+    return [member.user.firstName, member.user.lastName, member.user.username]
+      .some(value => value?.toLowerCase().includes(filtre));
+  }
+
+  visibleMembers(groupe: GroupeUser): MemberGroupe[] {
+    return (groupe.members || []).filter(member => this.matchesSearch(member));
   }
 }

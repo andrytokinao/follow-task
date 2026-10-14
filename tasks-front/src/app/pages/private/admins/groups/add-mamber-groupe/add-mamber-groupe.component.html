@@ -1,46 +1,88 @@
 <div class="user-role-dialog">
-  <h1> {{(memberGroupe == undefined || memberGroupe.id === undefined)? 'Ajout ':' Edition des rôle'}} d'utilisateur au groupe {{groupeUser.name}}</h1>
+  <div class="dialog-header">
+    <div class="dialog-icon"><i class="fas" [ngClass]="isEdition() ? 'fa-user-pen' : 'fa-user-plus'"></i></div>
+    <div>
+      <span class="dialog-title">{{ isEdition() ? 'Édition des rôles' : 'Ajout de membres' }}</span>
+      <span class="dialog-subtitle">Groupe {{groupeUser.name}}</span>
+    </div>
+    <button type="button" class="dialog-close" (click)="activeModal.dismiss()" title="Fermer">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
 
+  <div class="dialog-body">
+    <div class="dialog-error" *ngIf="erreur">
+      <i class="fas fa-exclamation-circle"></i> {{ erreur }}
+    </div>
 
+    <section class="dialog-section">
+      <h3>{{ isEdition() ? 'Membre' : 'Utilisateurs' }}</h3>
 
-  <mat-grid-list cols="2" >
-    <mat-grid-tile>
-      <mat-form-field class="example-full-width" *ngIf="(memberGroupe == undefined || memberGroupe.id === undefined)">
-        <input
-          [disabled]="roUser"
-          type="text"
-          matInput
-          [formControl]="userControl"
-          [matAutocomplete]="auto"
-          placeholder="Rechercher un utilisateur"
-          (focus)="onFocus()"
-        >
-        <mat-autocomplete #auto="matAutocomplete">
-          <mat-option *ngFor="let user of filteredUsers | async" [value]="user.username" (onSelectionChange)= "selectUsert(user)"  >
-            <img [src]="userService.getUrlPhoto(user)" alt=" " width="30" height="30" style="margin-right: 10px;">
-            {{ user.firstName }} {{ user.lastName }} ({{ user.username }})
-          </mat-option>
-        </mat-autocomplete>
-      </mat-form-field>
-      <div class="user-card" *ngIf="memberGroupe != undefined && memberGroupe.user != undefined">
+      <ng-container *ngIf="!isEdition()">
+        <mat-form-field class="example-full-width" subscriptSizing="dynamic">
+          <mat-icon matPrefix>search</mat-icon>
+          <input
+            [disabled]="roUser"
+            type="text"
+            matInput
+            [formControl]="userControl"
+            [matAutocomplete]="auto"
+            placeholder="Rechercher et ajouter des utilisateurs"
+            (focus)="onFocus()"
+          >
+          <mat-autocomplete #auto="matAutocomplete">
+            <mat-option *ngFor="let user of filteredUsers | async" [value]="user.username" (onSelectionChange)= "selectUsert(user)"  >
+              <img [src]="userService.getUrlPhoto(user)" alt=" " width="30" height="30" style="margin-right: 10px;">
+              {{ user.firstName }} {{ user.lastName }} ({{ user.username }})
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
+
+        <div class="selected-users" *ngIf="selectedUsers.length > 0; else aucuneSelection">
+          <span class="selected-user" *ngFor="let user of selectedUsers">
+            <img [src]="userService.getUrlPhoto(user)" alt=" ">
+            {{ user.firstName }} {{ user.lastName }}
+            <button type="button" (click)="removeSelected(user)" title="Retirer">
+              <i class="fas fa-times"></i>
+            </button>
+          </span>
+        </div>
+        <ng-template #aucuneSelection>
+          <p class="dialog-hint">Choisissez une ou plusieurs personnes : elles recevront les mêmes rôles.</p>
+        </ng-template>
+      </ng-container>
+
+      <div class="user-card" *ngIf="isEdition() && memberGroupe.user != undefined">
         <img [src]="userService.getUrlPhoto(memberGroupe.user)" alt="Proto" class="user-photo">
         <div class="user-info">
-          <h2>{{memberGroupe.user.firstName+' '+memberGroupe.user.firstName}} </h2>
+          <span class="user-name">{{memberGroupe.user.firstName+' '+memberGroupe.user.lastName}}</span>
+          <span class="user-login">{{memberGroupe.user.username}}</span>
         </div>
       </div>
-    </mat-grid-tile>
+    </section>
 
-    <mat-grid-tile>
+    <section class="dialog-section">
+      <h3>Rôles</h3>
       <div class="role-checkboxes">
-        <h3>Rôles</h3>
-        <mat-checkbox *ngFor="let role of permission?.roles" [checked]="idChecked(role)" (change)="onRoleChange($event, role.name)">
-          {{ role.description }}
+        <mat-checkbox class="role-option" *ngFor="let role of permission?.roles"
+                      [class.checked]="idChecked(role)"
+                      [checked]="idChecked(role)" (change)="onRoleChange($event, role.name)">
+          <span class="role-text">
+            <span class="role-label">{{ role.description || role.name }}</span>
+            <span class="role-code">{{ role.name }}</span>
+          </span>
         </mat-checkbox>
       </div>
-    </mat-grid-tile>
-  </mat-grid-list>
+    </section>
+  </div>
 
   <div class="register-button">
-    <button mat-raised-button color="primary" (click)="register()">Ajouter</button>
+    <button type="button" class="dialog-btn" (click)="activeModal.dismiss()">Annuler</button>
+    <button type="button" class="dialog-btn dialog-btn--primary"
+            [disabled]="enregistrement || (!isEdition() && selectedUsers.length === 0)"
+            (click)="register()">
+      <i class="fas fa-circle-notch fa-spin" *ngIf="enregistrement"></i>
+      {{ isEdition() ? 'Enregistrer' : (selectedUsers.length > 1 ? 'Ajouter ' + selectedUsers.length + ' membres' : 'Ajouter') }}
+    </button>
   </div>
 </div>

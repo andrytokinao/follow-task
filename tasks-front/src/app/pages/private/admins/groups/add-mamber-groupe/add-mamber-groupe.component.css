@@ -1,28 +1,257 @@
-.user-role-dialog {
-  padding: 20px;
-}
-.user-photo {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  border: 2px solid #007bff;
+:host {
+  --c-primary: #1565c0;
+  --c-primary-bg: #eaf1fb;
+  --c-text: #111827;
+  --c-text-muted: #6b7280;
+  --c-text-faint: #9ca3af;
+  --c-border: #e5e7eb;
+  --c-surface: #ffffff;
+  --c-surface-muted: #f9fafb;
+  --c-error: #c62828;
+  --c-error-bg: #fdecea;
+
+  display: block;
+  font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: var(--c-text);
 }
 
-.role-checkboxes {
+.user-role-dialog {
+  min-width: 480px;
+}
+
+/* ---- En-tête ---- */
+.dialog-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--c-border);
+}
+
+.dialog-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--c-primary);
+  color: #fff;
+  font-size: 15px;
+}
+
+.dialog-title {
+  display: block;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.dialog-subtitle {
+  display: block;
+  font-size: 12px;
+  color: var(--c-text-muted);
+}
+
+.dialog-close {
+  margin-left: auto;
+  border: none;
+  background: none;
+  color: var(--c-text-faint);
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.dialog-close:hover {
+  color: var(--c-text);
+}
+
+/* ---- Corps ---- */
+.dialog-body {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 16px;
+  max-height: 65vh;
+  overflow-y: auto;
+}
+
+.dialog-section h3 {
+  margin: 0 0 8px 0;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--c-text-muted);
+}
+
+.dialog-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border-radius: 6px;
+  background: var(--c-error-bg);
+  color: var(--c-error);
+  font-size: 13px;
+}
+
+.dialog-hint {
+  margin: 6px 0 0 0;
+  font-size: 12px;
+  color: var(--c-text-faint);
+}
+
+.example-full-width {
+  width: 100%;
+}
+
+.mat-mdc-option img {
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* ---- Personnes choisies ---- */
+.selected-users {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.selected-user {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 6px 3px 3px;
+  border: 1px solid var(--c-primary);
+  border-radius: 999px;
+  background: var(--c-primary-bg);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.selected-user img {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.selected-user button {
+  border: none;
+  background: none;
+  padding: 0 2px;
+  color: var(--c-text-muted);
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.selected-user button:hover {
+  color: var(--c-error);
+}
+
+/* ---- Membre édité ---- */
+.user-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  background: var(--c-surface-muted);
+}
+
+.user-photo {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.user-info {
   display: flex;
   flex-direction: column;
 }
 
-.register-button {
-  margin-top: 20px;
-  display: flex;
-  justify-content: flex-end; /* Aligne le bouton à droite */
-}
-.example-full-width {
-  width: 100%;
-  min-height: 100px;
+.user-name {
+  font-size: 14px;
+  font-weight: 600;
 }
 
-.mat-option img {
-  border-radius: 50%;
+.user-login {
+  font-size: 12px;
+  color: var(--c-text-muted);
+}
+
+/* ---- Rôles ---- */
+.role-checkboxes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.role-option {
+  border: 1px solid var(--c-border);
+  border-radius: 6px;
+  padding: 2px 8px 2px 0;
+}
+
+.role-option:hover {
+  background: var(--c-surface-muted);
+}
+
+.role-option.checked {
+  border-color: var(--c-primary);
+  background: var(--c-primary-bg);
+}
+
+.role-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.role-label {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.role-code {
+  font-size: 11px;
+  color: var(--c-text-faint);
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+}
+
+/* ---- Actions ---- */
+.register-button {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--c-border);
+}
+
+.dialog-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1px solid var(--c-border);
+  border-radius: 6px;
+  background: var(--c-surface);
+  color: var(--c-text);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.dialog-btn--primary {
+  border-color: var(--c-primary);
+  background: var(--c-primary);
+  color: #fff;
+}
+
+.dialog-btn:disabled {
+  opacity: .5;
+  cursor: default;
 }
