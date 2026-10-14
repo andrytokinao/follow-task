@@ -27,7 +27,7 @@
     <!-- L'import en masse demande CAN_CREATE_USER, que seul SYSTEM_ADMIN porte :
          le serveur refuse la route aux autres, inutile de leur proposer. -->
     <span class="btn controle" *ngIf="adminSysteme" (click)="importer()"
-          title="Créer plusieurs comptes depuis un classeur Excel">
+          title="Créer plusieurs comptes depuis un classeur Excel ou l'annuaire du personnel">
       <i class="fa fa-file-excel" style="font-size:16px"></i> Importer
     </span>
     <span class="btn controle primary" (click)="create()">

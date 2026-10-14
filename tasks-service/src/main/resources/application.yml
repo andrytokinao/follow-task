@@ -195,6 +195,11 @@ configuration-system:
   - profileDirectories : "${user.home}/.taskManager/profile"
   - defaultTaskDirectories : "${user.home}/task_manager/"
 
+# Annuaires externes d'où importer des utilisateurs (voir SourceAnnuaire).
+annuaire:
+  staff:
+    url: "http://si.thebest.mg/staff/api/admin/personnels/"
+
 application-menue:
   installations:
      route  : "installation"

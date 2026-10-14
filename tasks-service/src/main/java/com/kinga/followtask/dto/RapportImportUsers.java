@@ -14,9 +14,16 @@ import java.util.List;
  * @param total    lignes de données lues (en-tête exclu)
  * @param crees    utilisateurs effectivement enregistrés
  * @param rejetes  lignes refusées, aucun utilisateur créé pour elles
+ * @param ignores  personnes écartées parce qu'elles ont déjà un compte (import
+ *                 depuis un annuaire) ; toujours 0 pour un tableur
  * @param lignes   détail, dans l'ordre du fichier
  */
-public record RapportImportUsers(int total, int crees, int rejetes, List<LigneImport> lignes) {
+public record RapportImportUsers(int total, int crees, int rejetes, int ignores, List<LigneImport> lignes) {
+
+    /** Import par tableur : rien n'y est ignoré. */
+    public RapportImportUsers(int total, int crees, int rejetes, List<LigneImport> lignes) {
+        this(total, crees, rejetes, 0, lignes);
+    }
 
     /** Sort d'une ligne du tableur. */
     public enum Statut {
@@ -25,7 +32,9 @@ public record RapportImportUsers(int total, int crees, int rejetes, List<LigneIm
         /** Utilisateur créé, mais sa photo n'a pas pu être récupérée. */
         CREE_SANS_PHOTO,
         /** Rien n'a été créé : voir le message. */
-        REJETE
+        REJETE,
+        /** Déjà présent, ou homonyme non confirmé : volontairement pas créé. */
+        IGNORE
     }
 
     /**

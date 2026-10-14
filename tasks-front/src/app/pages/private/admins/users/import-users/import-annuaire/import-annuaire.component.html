@@ -1,0 +1,105 @@
+<div class="ann">
+
+  <p class="ann__aide">
+    Collez l'adresse de la fiche de chaque personne dans l'annuaire du personnel,
+    une par ligne. L'identifiant seul suffit aussi.
+  </p>
+
+  <textarea class="ann__saisie mono" rows="4"
+            placeholder="http://si.thebest.mg/staff/api/admin/personnels/…"
+            [(ngModel)]="saisie" (ngModelChange)="saisieModifiee()"
+            [disabled]="recherche || import"></textarea>
+
+  <div class="ann__ligne">
+    <span class="ann__compte">
+      {{ references.length }} {{ references.length > 1 ? 'adresses' : 'adresse' }}
+    </span>
+    <button type="button" class="ann__bouton"
+            [disabled]="!references.length || recherche || import"
+            (click)="rechercher()">
+      <i class="fas" [class.fa-search]="!recherche" [class.fa-circle-notch]="recherche"
+         [class.fa-spin]="recherche"></i>
+      {{ recherche ? 'Recherche…' : 'Rechercher' }}
+    </button>
+  </div>
+
+  <div class="ann__bandeau ann__bandeau--erreur" *ngIf="erreur">
+    <i class="fas fa-exclamation-circle"></i> {{ erreur }}
+  </div>
+
+  <!-- ================= Aperçu ================= -->
+  <div class="ann__liste" *ngIf="apercus">
+    <div class="ann__fiche" *ngFor="let apercu of apercus"
+         [ngClass]="'ann__fiche--' + apercu.verdict">
+
+      <div class="ann__avatar">
+        <img *ngIf="photoVisible(apercu); else initialesTpl"
+             [src]="apercu.profil?.photoUrl" alt="" (error)="photoEnErreur(apercu)"/>
+        <ng-template #initialesTpl>{{ initiales(apercu) }}</ng-template>
+      </div>
+
+      <div class="ann__infos">
+        <ng-container *ngIf="apercu.profil as profil; else illisible">
+          <span class="ann__nom">{{ profil.nom }} {{ profil.prenoms }}</span>
+          <span class="ann__detail" *ngIf="profil.poste">{{ profil.poste }}</span>
+          <span class="ann__detail">
+            {{ profil.email || 'sans email' }}<ng-container *ngIf="profil.telephone"> · {{ profil.telephone }}</ng-container>
+          </span>
+        </ng-container>
+        <ng-template #illisible>
+          <span class="ann__nom mono">{{ apercu.reference }}</span>
+          <span class="ann__detail ann__detail--erreur">{{ apercu.erreur }}</span>
+        </ng-template>
+
+        <!-- Les comptes existants qui lui ressemblent, et pourquoi. -->
+        <span class="ann__correspondance" *ngFor="let c of apercu.correspondances">
+          <i class="fas fa-user"></i>
+          <strong>{{ c.username }}</strong> — {{ c.nomComplet }}
+          <em>({{ c.critere }}<ng-container *ngIf="!c.actif">, compte désactivé</ng-container>)</em>
+        </span>
+
+        <label class="ann__confirmer" *ngIf="apercu.verdict === 'A_CONFIRMER'">
+          <input type="checkbox" [ngModel]="estConfirmee(apercu)"
+                 (ngModelChange)="basculerConfirmation(apercu, $event)" [disabled]="import"/>
+          Ce n'est pas la même personne : créer quand même
+        </label>
+      </div>
+
+      <span class="ann__verdict">{{ libelleVerdict(apercu) }}</span>
+    </div>
+  </div>
+
+  <!-- ================= Mot de passe et validation ================= -->
+  <ng-container *ngIf="apercus">
+    <label class="ann__champ">
+      <span>Mot de passe par défaut</span>
+      <span class="ann__mdp">
+        <input [type]="motDePasseVisible ? 'text' : 'password'" [(ngModel)]="motDePasse"
+               autocomplete="new-password" placeholder="Donné à tous les comptes créés"
+               [disabled]="import"/>
+        <button type="button" class="ann__oeil" (click)="motDePasseVisible = !motDePasseVisible"
+                [title]="motDePasseVisible ? 'Masquer' : 'Afficher'">
+          <i class="fas" [class.fa-eye]="!motDePasseVisible" [class.fa-eye-slash]="motDePasseVisible"></i>
+        </button>
+      </span>
+    </label>
+
+    <p class="ann__resume">
+      <ng-container *ngIf="aCreer; else rien">
+        {{ aCreer }} {{ aCreer > 1 ? 'comptes seront créés' : 'compte sera créé' }}.
+      </ng-container>
+      <ng-template #rien>Aucun compte à créer.</ng-template>
+      Les personnes déjà présentes sont ignorées.
+    </p>
+  </ng-container>
+
+  <div class="ann__actions">
+    <button type="button" class="ann__bouton" (click)="annuler.emit()">Annuler</button>
+    <button type="button" class="ann__bouton ann__bouton--principal"
+            [disabled]="!peutImporter" (click)="importer()">
+      <i class="fas fa-circle-notch fa-spin" *ngIf="import"></i>
+      {{ import ? 'Import en cours…' : 'Importer' }}
+    </button>
+  </div>
+
+</div>

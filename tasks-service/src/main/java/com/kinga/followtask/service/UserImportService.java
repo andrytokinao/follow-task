@@ -170,8 +170,10 @@ public class UserImportService {
      * l'import est ainsi rejouable sans refaire des centaines d'allers-retours
      * réseau, et une photo déposée à la main par un administrateur fait
      * autorité sur celle du tableur.</p>
+     *
+     * <p>Publique : l'import depuis un annuaire range ses photos de la même façon.</p>
      */
-    private void rattacherPhoto(UserApp utilisateur, String urlPhoto) throws IOException {
+    public void rattacherPhoto(UserApp utilisateur, String urlPhoto) throws IOException {
         Path dossier = Paths.get(repertoirePhotos());
         Files.createDirectories(dossier);
 

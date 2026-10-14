@@ -2,10 +2,10 @@
 
   <div class="imp__entete">
     <div class="imp__entete-gauche">
-      <div class="imp__icone"><i class="fas fa-file-excel"></i></div>
+      <div class="imp__icone"><i class="fas" [class.fa-file-excel]="mode === 'excel'" [class.fa-link]="mode === 'url'"></i></div>
       <div>
         <span class="imp__titre">Importer des utilisateurs</span>
-        <span class="imp__sous-titre">Depuis un classeur Excel</span>
+        <span class="imp__sous-titre">{{ mode === 'excel' ? 'Depuis un classeur Excel' : "Depuis l'annuaire du personnel" }}</span>
       </div>
     </div>
     <button type="button" class="imp__fermer" (click)="fermer()" title="Fermer">
@@ -25,9 +25,13 @@
         <strong>{{ rapport.rejetes }}</strong>
         <span>{{ rapport.rejetes > 1 ? 'rejetés' : 'rejeté' }}</span>
       </div>
+      <div class="imp__chiffre imp__chiffre--neutre" *ngIf="rapport.ignores > 0">
+        <strong>{{ rapport.ignores }}</strong>
+        <span>{{ rapport.ignores > 1 ? 'déjà présents' : 'déjà présent' }}</span>
+      </div>
       <div class="imp__chiffre imp__chiffre--neutre">
         <strong>{{ rapport.total }}</strong>
-        <span>{{ rapport.total > 1 ? 'lignes lues' : 'ligne lue' }}</span>
+        <span>{{ mode === 'url' ? (rapport.total > 1 ? 'fiches lues' : 'fiche lue') : (rapport.total > 1 ? 'lignes lues' : 'ligne lue') }}</span>
       </div>
     </div>
 
@@ -47,13 +51,13 @@
 
     <!-- Le détail ne porte que sur ce qui demande une action : les lignes
          passées sans encombre n'ont rien à dire. -->
-    <div class="imp__detail" *ngIf="rejets.length || sansPhoto.length">
+    <div class="imp__detail" *ngIf="rejets.length || sansPhoto.length || ignores.length">
       <span class="imp__detail-titre">Lignes à corriger</span>
       <table class="imp__table">
         <thead>
         <tr>
           <th>Ligne</th>
-          <th>Identifiant</th>
+          <th>{{ mode === 'url' ? 'Personne' : 'Identifiant' }}</th>
           <th>Motif</th>
         </tr>
         </thead>
@@ -67,6 +71,11 @@
           <td class="mono">{{ ligne.ligne }}</td>
           <td class="mono">{{ ligne.username || '—' }}</td>
           <td class="imp__motif">{{ ligne.message }}</td>
+        </tr>
+        <tr *ngFor="let ligne of ignores">
+          <td class="mono">{{ ligne.ligne }}</td>
+          <td class="mono">{{ ligne.username || '—' }}</td>
+          <td class="imp__motif imp__motif--neutre">{{ ligne.message }}</td>
         </tr>
         </tbody>
       </table>
@@ -82,7 +91,23 @@
 
   <!-- ================= Choix du fichier ================= -->
   <ng-template #choix>
-    <div class="imp__corps">
+    <!-- Deux sources, un même rapport : l'onglet ne change que la saisie. -->
+    <div class="imp__onglets">
+      <button type="button" class="imp__onglet" [class.imp__onglet--actif]="mode === 'excel'"
+              (click)="mode = 'excel'" [disabled]="import">
+        <i class="fas fa-file-excel"></i> Classeur Excel
+      </button>
+      <button type="button" class="imp__onglet" [class.imp__onglet--actif]="mode === 'url'"
+              (click)="mode = 'url'" [disabled]="import">
+        <i class="fas fa-link"></i> Depuis une URL
+      </button>
+    </div>
+
+    <div class="imp__corps" *ngIf="mode === 'url'">
+      <app-import-annuaire (termine)="recevoirRapport($event)" (annuler)="fermer()"></app-import-annuaire>
+    </div>
+
+    <div class="imp__corps" *ngIf="mode === 'excel'">
 
       <p class="imp__aide">
         Une ligne par personne, les intitulés en première ligne :

@@ -15,6 +15,9 @@ public interface UserRepository extends JpaRepository<UserApp,String> {
     UserApp findByContact(String contact);
     UserApp findByCin(String cin);
 
+    /** Homonymes possibles, pour la détection des doublons à l'import. */
+    List<UserApp> findByLastNameIgnoreCase(String lastName);
+
     /**
      * Recherche paginee sur les champs d'identite.
      *

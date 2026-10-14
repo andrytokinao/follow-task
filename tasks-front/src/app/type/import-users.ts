@@ -3,8 +3,11 @@
  * renvoie (RapportImportUsers côté Java).
  */
 
-/** Sort d'une ligne du tableur. */
-export type StatutLigneImport = 'CREE' | 'CREE_SANS_PHOTO' | 'REJETE';
+/**
+ * Sort d'une ligne du tableur. IGNORE n'apparaît qu'à l'import depuis un
+ * annuaire : la personne avait déjà un compte.
+ */
+export type StatutLigneImport = 'CREE' | 'CREE_SANS_PHOTO' | 'REJETE' | 'IGNORE';
 
 export interface LigneImportUser {
   /** Numéro de ligne dans le fichier, en-tête compris : les données commencent à 2. */
@@ -20,5 +23,7 @@ export interface RapportImportUsers {
   total: number;
   crees: number;
   rejetes: number;
+  /** Personnes écartées car déjà présentes ; toujours 0 pour un tableur. */
+  ignores: number;
   lignes: LigneImportUser[];
 }

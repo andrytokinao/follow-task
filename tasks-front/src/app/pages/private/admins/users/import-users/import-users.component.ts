@@ -13,6 +13,10 @@ import {LigneImportUser, RapportImportUsers} from '../../../../../type/import-us
  *
  * <p>Le modèle est proposé avant même de choisir un fichier : deviner les
  * intitulés attendus est la première cause d'import raté.</p>
+ *
+ * <p>Un second onglet importe depuis l'annuaire du personnel, à partir de
+ * l'adresse des fiches (voir ImportAnnuaireComponent). Son rapport s'affiche
+ * ici, comme celui d'un tableur.</p>
  */
 @Component({
   standalone: false,
@@ -21,6 +25,9 @@ import {LigneImportUser, RapportImportUsers} from '../../../../../type/import-us
   styleUrl: './import-users.component.css'
 })
 export class ImportUsersComponent {
+
+  /** Onglet affiché : tableur Excel ou adresses d'annuaire. */
+  mode: 'excel' | 'url' = 'excel';
 
   fichier?: File;
   import = false;
@@ -112,8 +119,7 @@ export class ImportUsersComponent {
 
     this.userService.importerUtilisateurs(this.fichier).subscribe({
       next: rapport => {
-        this.rapport = rapport;
-        this.quelqueChoseCree = this.quelqueChoseCree || rapport.crees > 0;
+        this.recevoirRapport(rapport);
         this.import = false;
       },
       error: erreur => {
@@ -126,6 +132,12 @@ export class ImportUsersComponent {
         this.import = false;
       }
     });
+  }
+
+  /** Rapport d'un import, qu'il vienne du tableur ou de l'annuaire. */
+  recevoirRapport(rapport: RapportImportUsers): void {
+    this.rapport = rapport;
+    this.quelqueChoseCree = this.quelqueChoseCree || rapport.crees > 0;
   }
 
   /** Reprendre avec un fichier corrigé sans rouvrir la fenêtre. */
@@ -146,6 +158,11 @@ export class ImportUsersComponent {
   /** Créés, mais dont la photo n'a pas suivi : à signaler sans alarmer. */
   get sansPhoto(): LigneImportUser[] {
     return (this.rapport?.lignes ?? []).filter(ligne => ligne.statut === 'CREE_SANS_PHOTO');
+  }
+
+  /** Déjà présents, ou homonymes non confirmés : écartés volontairement. */
+  get ignores(): LigneImportUser[] {
+    return (this.rapport?.lignes ?? []).filter(ligne => ligne.statut === 'IGNORE');
   }
 
   fermer(): void {

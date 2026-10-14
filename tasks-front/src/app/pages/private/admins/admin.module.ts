@@ -22,12 +22,13 @@ import {MatCheckbox} from "@angular/material/checkbox";
 import {EditUserComponent} from "./edit-user/edit-user.component";
 import {SetPasswordComponent} from "./users/set-password/set-password.component";
 import {ImportUsersComponent} from "./users/import-users/import-users.component";
+import {ImportAnnuaireComponent} from "./users/import-users/import-annuaire/import-annuaire.component";
 import {RolesSystemeComponent} from "./users/roles-systeme/roles-systeme.component";
 
 
 
 @NgModule({
-  declarations: [AdminComponent,GroupsComponent,UsersComponent,AddMamberGroupeComponent,EditUserComponent,SetPasswordComponent,ImportUsersComponent,RolesSystemeComponent],
+  declarations: [AdminComponent,GroupsComponent,UsersComponent,AddMamberGroupeComponent,EditUserComponent,SetPasswordComponent,ImportUsersComponent,ImportAnnuaireComponent,RolesSystemeComponent],
   imports: [
     AdminRoutingModule,
     MatTabsModule,

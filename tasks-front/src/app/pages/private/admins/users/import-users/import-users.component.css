@@ -321,6 +321,47 @@
   color: var(--c-error);
 }
 
+.imp__motif--neutre {
+  color: var(--c-text-muted);
+}
+
+/* ---- Onglets : tableur ou annuaire ---- */
+.imp__onglets {
+  display: flex;
+  gap: 4px;
+  padding: 10px 16px 0;
+  border-bottom: 1px solid var(--c-border);
+}
+
+.imp__onglet {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--c-text-muted);
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 8px 12px;
+  margin-bottom: -1px;
+  cursor: pointer;
+}
+
+.imp__onglet:hover:not(:disabled) {
+  color: var(--c-text);
+}
+
+.imp__onglet--actif {
+  color: var(--c-primary);
+  border-bottom-color: var(--c-primary);
+}
+
+.imp__onglet:disabled {
+  opacity: .55;
+  cursor: default;
+}
+
 /* ---- Actions ---- */
 .imp__actions {
   display: flex;
