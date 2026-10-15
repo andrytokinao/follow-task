@@ -25,6 +25,7 @@ import {MatSelectModule} from "@angular/material/select";
 import {MyCommonModule} from "../../../../common/common.module";
 import {CustomFieldComponent} from "../../../../common/custom-field/custom-field.component";
 import {CustomFieldMenuComponent} from "../../../../common/custom-field-menu/custom-field-menu.component";
+import {PhaseFieldComponent} from "../../../../common/phase-field/phase-field.component";
 import {IssueMasterRoutingModule} from "./issue-master-routing.module";
 import {ShowMasterComponent} from "./show-master.component";
 import {SubtaskComponent} from "./subtask/subtask.component";
@@ -113,6 +114,7 @@ import {IssueHistoryComponent} from "../../../../common/action-history/issue-his
         MatRow,
         CustomFieldComponent,
         CustomFieldMenuComponent,
+        PhaseFieldComponent,
         MatCardModule,
         MatIconModule,
         MatButtonModule,

@@ -52,9 +52,10 @@ export const PAR_TYPE: Regroupement = {
 const SANS_PHASE: GroupeGantt = {cle: 'phase:aucune', nom: 'Sans phase'};
 
 /**
- * Phase : un groupe de types de tâche (« Étude », « Contrôle »…), choisi sur
- * le type. Les tâches dont le type n'est rangé dans aucune phase forment le
- * groupe « Sans phase ».
+ * Phase du projet dans laquelle la tâche est traitée (« APS », « APD »…).
+ * C'est celle de la tâche et non de son type : une correction d'APS faite
+ * pendant l'APD reste en APS. Les tâches sans phase forment le groupe
+ * « Sans phase ».
  */
 export const PAR_PHASE: Regroupement = {
   id: 'phase',
@@ -62,7 +63,7 @@ export const PAR_PHASE: Regroupement = {
   disponible: true,
   parTache: false,
   groupeDe: tache => {
-    const phase = tache.issueType?.phase;
+    const phase = tache.phase;
     return phase?.id != null ? {cle: `phase:${phase.id}`, nom: String(phase.name ?? '')} : SANS_PHASE;
   }
 };

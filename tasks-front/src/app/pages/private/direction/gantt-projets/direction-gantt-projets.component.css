@@ -496,6 +496,19 @@
   text-decoration: none;
 }
 
+/* Phase en cours du projet (APS, APD…), lue sur son statut. */
+.projet-phase {
+  align-self: flex-start;
+  margin: 1px 0;
+  padding: 0 7px;
+  border-radius: 20px;
+  font-size: 10.5px;
+  font-weight: 600;
+  line-height: 16px;
+  color: #185FA5;
+  background: #eff6ff;
+}
+
 .projet-meta,
 .tache-meta {
   overflow: hidden;

@@ -1,0 +1,44 @@
+:host {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.phase-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 1px 8px;
+  border-radius: 20px;
+  border: 1px solid #e5e7eb;
+  background: #f3f4f6;
+  color: #374151;
+  font-size: 12px;
+  font-family: inherit;
+  line-height: 18px;
+}
+
+.phase-badge.courante {
+  border-color: #bfdbfe;
+  background: #eff6ff;
+  color: #185FA5;
+  font-weight: 600;
+}
+
+.phase-badge:disabled { cursor: default; }
+.phase-badge.modifiable { cursor: pointer; }
+.phase-badge.modifiable:hover { border-color: #93c5fd; }
+
+.phase-badge mat-icon {
+  font-size: 15px;
+  height: 15px;
+  width: 15px;
+}
+
+.hors-phase {
+  font-size: 11px;
+  color: #b45309;
+}
+
+.actuelle { font-weight: 600; }

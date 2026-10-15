@@ -1,0 +1,25 @@
+<ng-container *ngIf="detail">
+  <!-- Projet : phase en cours, suit le statut -->
+  <span class="phase-badge courante" *ngIf="estProjet" title="Phase en cours : elle suit le statut du projet">
+    {{ detail.phaseCourante?.name || 'Aucune phase en cours' }}
+  </span>
+
+  <!-- Tâche : phase où elle est classée -->
+  <ng-container *ngIf="!estProjet">
+    <button type="button" class="phase-badge" [class.modifiable]="modifiable" [disabled]="!modifiable"
+            [matMenuTriggerFor]="menuPhases"
+            [title]="modifiable ? 'Changer de phase' : 'Phase de la tâche'">
+      {{ detail.phase?.name || 'Sans phase' }}
+      <mat-icon *ngIf="modifiable">expand_more</mat-icon>
+    </button>
+    <span class="hors-phase" *ngIf="horsPhaseCourante">
+      hors phase en cours ({{ detail.phaseCourante?.name }})
+    </span>
+  </ng-container>
+</ng-container>
+
+<mat-menu #menuPhases="matMenu">
+  <button mat-menu-item *ngFor="let phase of phasesPossibles" (click)="choisir(phase)">
+    <span [class.actuelle]="phase.id === detail?.phase?.id">{{ phase.name }}</span>
+  </button>
+</mat-menu>

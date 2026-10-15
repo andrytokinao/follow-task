@@ -251,6 +251,12 @@
           <div class="sidebar-value"><span class="type-badge">{{ issueType?.name }}</span></div>
         </div>
         <div class="sidebar-field">
+          <label class="sidebar-label"><i class="fas fa-layer-group"></i> Phase</label>
+          <div class="sidebar-value">
+            <app-phase-field [issue]="parentIssue" [statusId]="parentIssue?.status?.id"></app-phase-field>
+          </div>
+        </div>
+        <div class="sidebar-field">
           <label class="sidebar-label"><i class="fas fa-calendar-alt"></i> Créé le</label>
           <div class="sidebar-value"><span class="meta-text">{{ parentIssue?.createdAt | date:'dd MMM yyyy' }}</span></div>
         </div>

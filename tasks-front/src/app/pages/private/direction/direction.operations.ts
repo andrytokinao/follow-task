@@ -121,7 +121,8 @@ const CADRE_GANTT = `
   id
   issueKey
   summary
-  issueType { id name phase { id name } }
+  issueType { id name }
+  phase { id name position }
   currentCompletionPercent
   status { id displayName color }
   dateDemarrage
@@ -148,6 +149,7 @@ export const DIRECTION_GANTT_PROJETS = gql`
     directionDepartements
     directionProjets {
       ${CADRE_GANTT}
+      phaseCourante { id name }
       rapportProjet {
         departement
         prefixeDepartement

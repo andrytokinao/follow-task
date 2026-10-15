@@ -131,6 +131,7 @@
               <span class="gp-texte">
                 <!-- Pas de lien vers l'espace de travail pour le moment : ni projet, ni tâche. -->
                 <span class="projet-nom" [title]="bloc.projet.summary">{{ bloc.projet.summary }}</span>
+                <span class="projet-phase" *ngIf="bloc.projet.phaseCourante as phase" title="Phase en cours">{{ phase.name }}</span>
                 <span class="projet-meta">
                   {{ bloc.projet.issueKey }} · {{ bloc.nombreTaches }} tâche(s) · {{ bloc.avancement }} % avancé
                   <span class="en-retard" *ngIf="bloc.enRetard">
