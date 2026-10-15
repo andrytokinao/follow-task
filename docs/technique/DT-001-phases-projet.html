@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DT-001 — Phases de projet</title>
+  <link rel="stylesheet" href="assets/doc.css">
+</head>
+<body>
+<div class="page">
+
+  <header class="doc-header">
+    <span class="doc-ref">DT-001</span>
+    <h1>Phases de projet</h1>
+    <p class="subtitle">Phase courante lue sur le statut du projet, phases des types de tâche, phase de chaque tâche.</p>
+    <table class="meta">
+      <tr><td>Référence</td><td>DT-001 (Document Technique n° 001)</td></tr>
+      <tr><td>Version de l'application</td><td>2.0.8</td></tr>
+      <tr><td>Date</td><td>15 octobre 2026</td></tr>
+      <tr><td>Domaine</td><td>Bureau d'études en génie civil ; réutilisable dans tout domaine organisé en étapes</td></tr>
+      <tr><td>Commits liés</td><td>
+        <code>2bde14c</code> Phases 1/5 (DT-001) : modèle, règles, GraphQL, reprise des données<br>
+        <code>aecba6e</code> Phases 2/5 (DT-001) : paramétrage des phases et phases d'un type<br>
+        <code>f061683</code> Phases 3/5 (DT-001) : création d'une sous-tâche selon la phase en cours<br>
+        <code>a197fb3</code> Phases 4/5 (DT-001) : phase dans le détail d'une tâche et dans le Gantt<br>
+        <code>docs</code> Phases 5/5 (DT-001) : ce document
+      </td></tr>
+      <tr><td>Précédent</td><td><code>153797a</code> Phases : groupes de types de tâche (un type, une phase)</td></tr>
+    </table>
+  </header>
+
+  <nav class="toc">
+    <strong>Sommaire</strong>
+    <ol>
+      <li><a href="#besoin">Besoin</a></li>
+      <li><a href="#principes">Principes retenus</a></li>
+      <li><a href="#modele">Modèle de données</a></li>
+      <li><a href="#phase-courante">Phase courante d'un projet</a></li>
+      <li><a href="#affectation">Phase d'une tâche</a></li>
+      <li><a href="#creation">Création d'une sous-tâche</a></li>
+      <li><a href="#architecture">Architecture du code</a></li>
+      <li><a href="#graphql">API GraphQL</a></li>
+      <li><a href="#ecrans">Écrans</a></li>
+      <li><a href="#migration">Migration des données</a></li>
+      <li><a href="#parametrage">Paramétrage pas à pas</a></li>
+      <li><a href="#tests">Tests</a></li>
+      <li><a href="#evolutions">Limites et évolutions</a></li>
+    </ol>
+  </nav>
+
+  <!-- ================================================================== -->
+  <h2 id="besoin">1. Besoin</h2>
+  <p>Dans un bureau d'études, un projet passe par des phases successives :</p>
+  <ol>
+    <li><strong>Préliminaire</strong> — diagnostic de l'existant, relevés…</li>
+    <li><strong>APS</strong> — avant-projet sommaire</li>
+    <li><strong>APD</strong> — avant-projet détaillé</li>
+    <li><strong>DAO</strong> — dossier d'appel d'offres</li>
+    <li><strong>Contrôle et surveillance</strong> des travaux</li>
+  </ol>
+  <p>Les sous-tâches traitées dépendent de la phase : certains types de tâche n'existent que dans une phase
+    (un relevé en Préliminaire), d'autres servent dans plusieurs (une note de calcul en APS et en APD).
+    À la création d'une sous-tâche, la liste des types doit <em>cadrer</em> les équipes sur la phase en cours,
+    tout en restant <em>flexible</em> pour deux exceptions courantes :</p>
+  <ul>
+    <li>pendant l'APD, une <strong>correction</strong> d'un livrable d'APS ;</li>
+    <li>pendant l'APS, un <strong>travail en avance</strong> sur l'APD.</li>
+  </ul>
+  <p>Le statut du projet (la demande racine) n'était pas exploité : il devient le porteur de la phase en cours.</p>
+
+  <!-- ================================================================== -->
+  <h2 id="principes">2. Principes retenus</h2>
+  <div class="decision">
+    <strong>Décision (option B, « flexible à long terme »).</strong>
+    Un type de tâche peut appartenir à <strong>plusieurs</strong> phases, et chaque tâche enregistre <strong>sa</strong> phase.
+    L'option A (un type, une phase, phase de la tâche déduite du type) obligeait à dupliquer les types communs
+    (« Note de calcul APS », « Note de calcul APD ») et ne savait pas classer une correction d'APS faite pendant l'APD.
+  </div>
+  <table class="data">
+    <tr><th>Principe</th><th>Conséquence</th></tr>
+    <tr><td>La phase en cours se lit sur le <strong>statut</strong> du projet</td>
+      <td>Pas de champ en double : le flux de travail du type « Projet » (Préliminaire → APS → APD → DAO → Contrôle)
+        donne l'ordre des phases, et ses transitions autorisent les retours en arrière.</td></tr>
+    <tr><td>Lien <strong>explicite</strong> phase ↔ statut</td>
+      <td>Aucune reconnaissance par le libellé : renommer un statut, changer de langue ou de domaine ne casse rien.</td></tr>
+    <tr><td>Un statut désigne <strong>une seule</strong> phase</td>
+      <td>La phase en cours est toujours unique. Une phase peut avoir plusieurs statuts (un par flux de travail).</td></tr>
+    <tr><td>Portée : phase <strong>d'un espace</strong> ou <strong>commune</strong></td>
+      <td>Les mêmes phases (APS, APD…) se définissent une fois pour tous les espaces de travail ; un espace peut
+        ajouter les siennes. Même logique que la portée des champs personnalisés.</td></tr>
+    <tr><td>La phase d'une tâche est <strong>fixée à la création</strong> et gardée</td>
+      <td>Une correction d'APS faite pendant l'APD reste comptée en APS, dans le Gantt comme dans les rapports.</td></tr>
+    <tr><td>Proposer, ne pas interdire</td>
+      <td>La liste des types montre d'office la phase en cours ; les autres phases restent accessibles d'un clic.</td></tr>
+  </table>
+
+  <!-- ================================================================== -->
+  <h2 id="modele">3. Modèle de données</h2>
+  <figure>
+    <svg viewBox="0 0 900 470" width="900" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Modèle de données des phases">
+      <defs>
+        <marker id="fl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="#4b5563"/>
+        </marker>
+      </defs>
+      <style>
+        .box { fill: #fff; stroke: #185FA5; stroke-width: 1.5; }
+        .new { fill: #eff6ff; }
+        .hd { fill: #185FA5; }
+        .ht { fill: #fff; font-size: 14px; font-weight: 700; }
+        .at { fill: #111827; font-size: 12px; }
+        .nw { fill: #185FA5; font-size: 12px; font-weight: 600; }
+        .ln { stroke: #4b5563; stroke-width: 1.4; fill: none; }
+        .lb { fill: #4b5563; font-size: 11.5px; }
+        .jt { fill: #b45309; font-size: 11px; font-style: italic; }
+      </style>
+
+      <!-- Project -->
+      <rect class="box" x="20" y="20" width="190" height="80" rx="6"/>
+      <rect class="hd" x="20" y="20" width="190" height="26" rx="6"/>
+      <text class="ht" x="32" y="38">Project (espace)</text>
+      <text class="at" x="32" y="64">id, name, prefix</text>
+      <text class="at" x="32" y="84">…</text>
+
+      <!-- Phase -->
+      <rect class="box new" x="340" y="20" width="230" height="150" rx="6"/>
+      <rect class="hd" x="340" y="20" width="230" height="26" rx="6"/>
+      <text class="ht" x="352" y="38">Phase</text>
+      <text class="at" x="352" y="64">id, name</text>
+      <text class="nw" x="352" y="84">project_id  (null = commune)</text>
+      <text class="nw" x="352" y="104">position  (ordre du projet)</text>
+      <text class="nw" x="352" y="124">statuses  ⟶ phase_status</text>
+      <text class="at" x="352" y="144">isCommune(), estVisibleDans()</text>
+
+      <!-- Status -->
+      <rect class="box" x="690" y="20" width="190" height="80" rx="6"/>
+      <rect class="hd" x="690" y="20" width="190" height="26" rx="6"/>
+      <text class="ht" x="702" y="38">Status</text>
+      <text class="at" x="702" y="64">id, displayName, color</text>
+      <text class="at" x="702" y="84">(un par flux de travail)</text>
+
+      <!-- IssueType -->
+      <rect class="box" x="340" y="270" width="230" height="110" rx="6"/>
+      <rect class="hd" x="340" y="270" width="230" height="26" rx="6"/>
+      <text class="ht" x="352" y="288">IssueType</text>
+      <text class="at" x="352" y="314">id, name, prefix, level</text>
+      <text class="nw" x="352" y="334">phases  ⟶ issue_type_phase</text>
+      <text class="at" x="352" y="354">parents / children</text>
+      <text class="jt" x="352" y="372">legacyPhase (phase_id, reprise)</text>
+
+      <!-- Issue -->
+      <rect class="box" x="690" y="270" width="190" height="130" rx="6"/>
+      <rect class="hd" x="690" y="270" width="190" height="26" rx="6"/>
+      <text class="ht" x="702" y="288">Issue (tâche)</text>
+      <text class="at" x="702" y="314">id, issueKey, summary</text>
+      <text class="at" x="702" y="334">status, issueType</text>
+      <text class="at" x="702" y="354">parent (racine = projet)</text>
+      <text class="nw" x="702" y="374">phase_id</text>
+      <text class="at" x="702" y="394">project</text>
+
+      <!-- Liens -->
+      <path class="ln" d="M210,60 L340,60" marker-start="url(#fl)"/>
+      <text class="lb" x="222" y="52">0..1</text>
+      <text class="lb" x="318" y="52">*</text>
+
+      <path class="ln" d="M570,70 L690,70" marker-end="url(#fl)"/>
+      <text class="lb" x="582" y="62">*</text>
+      <text class="lb" x="660" y="62">*</text>
+      <text class="lb" x="590" y="88">phase_status</text>
+
+      <path class="ln" d="M455,270 L455,170" marker-end="url(#fl)"/>
+      <text class="lb" x="462" y="262">*</text>
+      <text class="lb" x="462" y="186">*</text>
+      <text class="lb" x="462" y="225">issue_type_phase</text>
+
+      <path class="ln" d="M690,320 L570,320" marker-end="url(#fl)"/>
+      <text class="lb" x="600" y="312">issueType</text>
+
+      <path class="ln" d="M760,270 C760,200 640,170 570,140" marker-end="url(#fl)"/>
+      <text class="lb" x="690" y="200">phase (0..1)</text>
+
+      <path class="ln" d="M820,270 L820,100" marker-end="url(#fl)"/>
+      <text class="lb" x="826" y="190">status</text>
+
+      <text class="lb" x="20" y="440">En bleu : ajouts de DT-001. En italique : colonne gardée pour la reprise des données.</text>
+    </svg>
+    <figcaption>Figure 1 — Entités et tables. Les deux tables de jointure sont créées par Hibernate (ddl-auto=update).</figcaption>
+  </figure>
+
+  <table class="data">
+    <tr><th>Élément</th><th>Table / colonne</th><th>Rôle</th></tr>
+    <tr><td><code>Phase.project</code></td><td><code>phase.project_id</code> (désormais NULL possible)</td><td>Espace de la phase ; vide pour une phase commune.</td></tr>
+    <tr><td><code>Phase.position</code></td><td><code>phase.position</code></td><td>Rang dans le déroulement du projet.</td></tr>
+    <tr><td><code>Phase.statuses</code></td><td><code>phase_status(phase_id, status_id)</code></td><td>Statuts du projet pendant lesquels la phase est en cours.</td></tr>
+    <tr><td><code>IssueType.phases</code></td><td><code>issue_type_phase(issue_type_id, phase_id)</code></td><td>Phases où le type est proposé.</td></tr>
+    <tr><td><code>Issue.phase</code></td><td><code>issue.phase_id</code></td><td>Phase où la tâche est classée.</td></tr>
+    <tr><td><code>IssueType.legacyPhase</code></td><td><code>issuetype.phase_id</code></td><td>Ancienne phase unique, lue une fois par la reprise puis vidée.</td></tr>
+  </table>
+
+  <!-- ================================================================== -->
+  <h2 id="phase-courante">4. Phase courante d'un projet</h2>
+  <p>La phase courante est celle liée au <strong>statut de la demande racine</strong>, parmi les phases visibles dans son
+    espace (les siennes et les communes), dans l'ordre du projet. Une tâche de n'importe quel niveau lit le statut de sa racine.</p>
+  <figure>
+    <svg viewBox="0 0 900 230" width="900" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Cycle des phases">
+      <defs>
+        <marker id="fl2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="#185FA5"/>
+        </marker>
+        <marker id="fl3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="#b45309"/>
+        </marker>
+      </defs>
+      <style>
+        .st { fill: #eff6ff; stroke: #185FA5; stroke-width: 1.5; }
+        .so { fill: #f3f4f6; stroke: #9ca3af; stroke-width: 1.2; stroke-dasharray: 4 3; }
+        .sl { fill: #111827; font-size: 13px; font-weight: 600; text-anchor: middle; }
+        .sp { fill: #185FA5; font-size: 11px; text-anchor: middle; }
+        .av { stroke: #185FA5; stroke-width: 1.6; fill: none; }
+        .re { stroke: #b45309; stroke-width: 1.3; fill: none; stroke-dasharray: 5 3; }
+        .lr { fill: #b45309; font-size: 11px; text-anchor: middle; }
+        .lg { fill: #4b5563; font-size: 11.5px; }
+      </style>
+      <rect class="st" x="20" y="60" width="130" height="54" rx="27"/>
+      <text class="sl" x="85" y="84">Préliminaire</text><text class="sp" x="85" y="102">phase Préliminaire</text>
+      <rect class="st" x="200" y="60" width="130" height="54" rx="27"/>
+      <text class="sl" x="265" y="84">APS</text><text class="sp" x="265" y="102">phase APS</text>
+      <rect class="st" x="380" y="60" width="130" height="54" rx="27"/>
+      <text class="sl" x="445" y="84">APD</text><text class="sp" x="445" y="102">phase APD</text>
+      <rect class="st" x="560" y="60" width="130" height="54" rx="27"/>
+      <text class="sl" x="625" y="84">DAO</text><text class="sp" x="625" y="102">phase DAO</text>
+      <rect class="st" x="740" y="60" width="140" height="54" rx="27"/>
+      <text class="sl" x="810" y="84">Contrôle</text><text class="sp" x="810" y="102">phase Contrôle</text>
+
+      <path class="av" d="M150,87 L200,87" marker-end="url(#fl2)"/>
+      <path class="av" d="M330,87 L380,87" marker-end="url(#fl2)"/>
+      <path class="av" d="M510,87 L560,87" marker-end="url(#fl2)"/>
+      <path class="av" d="M690,87 L740,87" marker-end="url(#fl2)"/>
+
+      <path class="re" d="M445,60 C420,15 290,15 265,60" marker-end="url(#fl3)"/>
+      <text class="lr" x="355" y="26">retour possible (transition du flux)</text>
+
+      <rect class="so" x="380" y="160" width="130" height="44" rx="22"/>
+      <text class="sl" x="445" y="180">Suspendu</text><text class="sp" x="445" y="196" style="fill:#6b7280">aucune phase</text>
+      <path class="re" d="M445,114 L445,160" marker-end="url(#fl3)"/>
+
+      <text class="lg" x="20" y="222">Chaque statut du flux « Projet » est lié à une phase dans l'écran des phases ; un statut non lié (Suspendu, Clôturé) ne donne aucune phase en cours.</text>
+    </svg>
+    <figcaption>Figure 2 — Statuts du projet et phases en cours. L'ordre et les retours viennent des transitions du flux de travail.</figcaption>
+  </figure>
+  <div class="note">Sans phase en cours, rien n'est caché : toutes les entrées sont proposées à la création d'une sous-tâche.</div>
+
+  <!-- ================================================================== -->
+  <h2 id="affectation">5. Phase d'une tâche</h2>
+  <h3>5.1 À la création</h3>
+  <figure>
+    <svg viewBox="0 0 900 300" width="900" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Choix de la phase d'une nouvelle tâche">
+      <defs>
+        <marker id="fl4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="#4b5563"/>
+        </marker>
+      </defs>
+      <style>
+        .q { fill: #fff; stroke: #4b5563; stroke-width: 1.3; }
+        .r { fill: #f0fdf4; stroke: #15803d; stroke-width: 1.3; }
+        .x { fill: #fef2f2; stroke: #ef4444; stroke-width: 1.3; }
+        .t { fill: #111827; font-size: 12.5px; text-anchor: middle; }
+        .o { fill: #15803d; font-size: 11.5px; font-weight: 600; }
+        .n { fill: #b91c1c; font-size: 11.5px; font-weight: 600; }
+        .l { stroke: #4b5563; stroke-width: 1.3; fill: none; }
+      </style>
+      <rect class="q" x="20" y="20" width="200" height="56" rx="8"/>
+      <text class="t" x="120" y="44">Phase demandée</text><text class="t" x="120" y="62">par le formulaire ?</text>
+      <rect class="q" x="260" y="20" width="200" height="56" rx="8"/>
+      <text class="t" x="360" y="44">Le type a-t-il</text><text class="t" x="360" y="62">des phases ?</text>
+      <rect class="q" x="500" y="20" width="200" height="56" rx="8"/>
+      <text class="t" x="600" y="44">Le type sert-il dans</text><text class="t" x="600" y="62">la phase en cours ?</text>
+      <rect class="q" x="500" y="130" width="200" height="56" rx="8"/>
+      <text class="t" x="600" y="154">Le type a-t-il une</text><text class="t" x="600" y="172">seule phase ?</text>
+
+      <rect class="r" x="20" y="130" width="200" height="56" rx="8"/>
+      <text class="t" x="120" y="154">Phase demandée,</text><text class="t" x="120" y="172">si elle est au type</text>
+      <rect class="x" x="20" y="226" width="200" height="44" rx="8"/>
+      <text class="t" x="120" y="253">sinon : refus</text>
+      <rect class="r" x="260" y="130" width="200" height="56" rx="8"/>
+      <text class="t" x="360" y="163">Aucune phase</text>
+      <rect class="r" x="740" y="20" width="140" height="56" rx="8"/>
+      <text class="t" x="810" y="53">Phase en cours</text>
+      <rect class="r" x="740" y="130" width="140" height="56" rx="8"/>
+      <text class="t" x="810" y="163">Cette phase</text>
+      <rect class="r" x="500" y="226" width="200" height="44" rx="8"/>
+      <text class="t" x="600" y="253">Aucune (à classer à la main)</text>
+
+      <path class="l" d="M220,48 L260,48" marker-end="url(#fl4)"/><text class="n" x="226" y="42">non</text>
+      <path class="l" d="M120,76 L120,130" marker-end="url(#fl4)"/><text class="o" x="126" y="106">oui</text>
+      <path class="l" d="M120,186 L120,226" marker-end="url(#fl4)"/>
+      <path class="l" d="M460,48 L500,48" marker-end="url(#fl4)"/><text class="o" x="466" y="42">oui</text>
+      <path class="l" d="M360,76 L360,130" marker-end="url(#fl4)"/><text class="n" x="366" y="106">non</text>
+      <path class="l" d="M700,48 L740,48" marker-end="url(#fl4)"/><text class="o" x="706" y="42">oui</text>
+      <path class="l" d="M600,76 L600,130" marker-end="url(#fl4)"/><text class="n" x="606" y="106">non</text>
+      <path class="l" d="M700,158 L740,158" marker-end="url(#fl4)"/><text class="o" x="706" y="152">oui</text>
+      <path class="l" d="M600,186 L600,226" marker-end="url(#fl4)"/><text class="n" x="606" y="210">non</text>
+    </svg>
+    <figcaption>Figure 3 — <code>AffectationPhase.phaseInitiale</code>. Le formulaire envoie toujours la phase de l'entrée choisie ; les règles suivantes servent aux autres clients (ancienne fenêtre, application mobile).</figcaption>
+  </figure>
+
+  <h3>5.2 Ensuite</h3>
+  <ul>
+    <li><strong>Modification de la tâche</strong> (formulaires) : la phase n'est pas lue, elle est conservée.</li>
+    <li><strong>Correction</strong> : <code>setIssuePhase</code> classe la tâche dans une autre phase <em>de son type</em>.
+      Un type à phases exige une phase ; un type sans phase n'en accepte aucune.</li>
+    <li><strong>Changement de type</strong> : la tâche garde sa phase si le nouveau type l'utilise, sinon la règle 5.1 s'applique.</li>
+    <li><strong>Phases d'un type modifiées</strong> : les tâches existantes gardent leur phase (historique).</li>
+    <li><strong>Phase supprimée</strong> : ses types et ses tâches sont conservés, sans cette phase.</li>
+  </ul>
+
+  <!-- ================================================================== -->
+  <h2 id="creation">6. Création d'une sous-tâche</h2>
+  <p>La requête <code>typesSousTacheParPhase(parentIssueId)</code> renvoie une entrée par couple <em>(type, phase)</em> :
+    un type utilisé dans deux phases donne deux entrées. Choisir une entrée fixe le type <strong>et</strong> la phase.</p>
+  <figure>
+    <svg viewBox="0 0 900 290" width="900" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Menu des types d'une sous-tâche">
+      <style>
+        .mn { fill: #fff; stroke: #d1d5db; stroke-width: 1.2; }
+        .gt { fill: #9ca3af; font-size: 10.5px; font-weight: 700; letter-spacing: .05em; }
+        .gc { fill: #185FA5; font-size: 10.5px; font-weight: 700; letter-spacing: .05em; }
+        .it { fill: #111827; font-size: 12.5px; }
+        .dim { fill: #6b7280; font-size: 12.5px; }
+        .cap { fill: #4b5563; font-size: 12px; }
+        .tg { fill: #185FA5; font-size: 12px; }
+        .sel { fill: #f1f5f9; }
+      </style>
+      <text class="cap" x="20" y="22">Projet au statut « APD » — par défaut</text>
+      <rect class="mn" x="20" y="32" width="300" height="150" rx="8"/>
+      <text class="gc" x="34" y="56">APD · EN COURS</text>
+      <rect class="sel" x="21" y="64" width="298" height="26"/>
+      <text class="it" x="34" y="82">● Note de calcul</text>
+      <text class="it" x="34" y="108">● Plans d'exécution</text>
+      <text class="gt" x="34" y="134">SANS PHASE</text>
+      <text class="it" x="34" y="156">● Réunion</text>
+      <text class="tg" x="34" y="176">⟲ Autres phases (3)</text>
+
+      <text class="cap" x="400" y="22">… après « Autres phases »</text>
+      <rect class="mn" x="400" y="32" width="300" height="240" rx="8"/>
+      <text class="gt" x="414" y="56">PRÉLIMINAIRE</text>
+      <text class="dim" x="414" y="78">● Relevé</text>
+      <text class="gt" x="414" y="102">APS</text>
+      <text class="dim" x="414" y="124">● Note de calcul</text>
+      <text class="dim" x="414" y="146">● Esquisse</text>
+      <text class="gc" x="414" y="170">APD · EN COURS</text>
+      <text class="it" x="414" y="192">● Note de calcul</text>
+      <text class="it" x="414" y="214">● Plans d'exécution</text>
+      <text class="gt" x="414" y="238">SANS PHASE</text>
+      <text class="it" x="414" y="260">● Réunion</text>
+
+      <text class="cap" x="720" y="110">Choisir « APS / Note</text>
+      <text class="cap" x="720" y="128">de calcul » : correction</text>
+      <text class="cap" x="720" y="146">d'APS, la tâche est</text>
+      <text class="cap" x="720" y="164">classée en APS et le</text>
+      <text class="cap" x="720" y="182">formulaire signale</text>
+      <text class="cap" x="720" y="200">« Hors phase en cours ».</text>
+    </svg>
+    <figcaption>Figure 4 — Menu « Type de demande » d'une nouvelle sous-tâche : cadré par défaut, flexible à la demande.</figcaption>
+  </figure>
+
+  <!-- ================================================================== -->
+  <h2 id="architecture">7. Architecture du code</h2>
+  <h3>7.1 Backend (<code>tasks-service</code>)</h3>
+  <figure>
+    <svg viewBox="0 0 900 360" width="900" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Classes backend">
+      <defs>
+        <marker id="fl5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="#4b5563"/>
+        </marker>
+        <marker id="tri" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="10" markerHeight="10" orient="auto">
+          <path d="M0,0 L12,6 L0,12 z" fill="#fff" stroke="#4b5563"/>
+        </marker>
+      </defs>
+      <style>
+        .c { fill: #fff; stroke: #185FA5; stroke-width: 1.4; }
+        .i { fill: #eff6ff; stroke: #185FA5; stroke-width: 1.4; stroke-dasharray: 5 3; }
+        .e { fill: #f8fafc; stroke: #9ca3af; stroke-width: 1.2; }
+        .cn { fill: #111827; font-size: 12.5px; font-weight: 700; text-anchor: middle; }
+        .cd { fill: #4b5563; font-size: 11px; text-anchor: middle; }
+        .d { stroke: #4b5563; stroke-width: 1.2; fill: none; }
+        .r { stroke: #4b5563; stroke-width: 1.2; fill: none; stroke-dasharray: 5 3; }
+      </style>
+      <rect class="c" x="330" y="10" width="240" height="46" rx="6"/>
+      <text class="cn" x="450" y="30">GQPhaseController</text><text class="cd" x="450" y="46">phases.graphqls</text>
+
+      <rect class="c" x="20" y="100" width="200" height="56" rx="6"/>
+      <text class="cn" x="120" y="122">PhaseService</text><text class="cd" x="120" y="140">phases, portée, ordre, phases d'un type</text>
+      <rect class="c" x="240" y="100" width="200" height="56" rx="6"/>
+      <text class="cn" x="340" y="122">PhaseStatutService</text><text class="cd" x="340" y="140">lien phase ↔ statut</text>
+      <rect class="c" x="460" y="100" width="200" height="56" rx="6"/>
+      <text class="cn" x="560" y="122">PhaseTacheService</text><text class="cd" x="560" y="140">types proposés, phase d'une tâche</text>
+      <rect class="c" x="680" y="100" width="200" height="56" rx="6"/>
+      <text class="cn" x="780" y="122">IssueService / IssueTypeChange</text><text class="cd" x="780" y="140">création, changement de type</text>
+
+      <rect class="c" x="560" y="200" width="200" height="56" rx="6"/>
+      <text class="cn" x="660" y="222">AffectationPhase</text><text class="cd" x="660" y="240">règles (sans persistance)</text>
+      <rect class="i" x="300" y="200" width="220" height="56" rx="6"/>
+      <text class="cn" x="410" y="222">«interface» ResolveurPhaseCourante</text><text class="cd" x="410" y="240">phaseCourante(tâche)</text>
+      <rect class="c" x="300" y="296" width="220" height="50" rx="6"/>
+      <text class="cn" x="410" y="317">PhaseCouranteParStatut</text><text class="cd" x="410" y="333">statut de la racine → phase</text>
+
+      <rect class="e" x="20" y="210" width="230" height="46" rx="6"/>
+      <text class="cn" x="135" y="230">PhaseReprise</text><text class="cd" x="135" y="246">reprise unique (Initializer)</text>
+      <rect class="e" x="20" y="296" width="230" height="50" rx="6"/>
+      <text class="cn" x="135" y="317">PhaseProjetFacultatif</text><text class="cd" x="135" y="333">phase.project_id → NULL possible</text>
+
+      <path class="d" d="M380,56 L140,100" marker-end="url(#fl5)"/>
+      <path class="d" d="M430,56 L350,100" marker-end="url(#fl5)"/>
+      <path class="d" d="M480,56 L550,100" marker-end="url(#fl5)"/>
+      <path class="d" d="M780,156 L700,200" marker-end="url(#fl5)"/>
+      <path class="d" d="M600,156 L640,200" marker-end="url(#fl5)"/>
+      <path class="d" d="M530,156 L440,200" marker-end="url(#fl5)"/>
+      <path class="d" d="M560,230 L520,230" marker-end="url(#fl5)"/>
+      <path class="r" d="M410,296 L410,256" marker-end="url(#tri)"/>
+    </svg>
+    <figcaption>Figure 5 — Une responsabilité par classe ; les règles dépendent d'une interface (inversion de dépendance).</figcaption>
+  </figure>
+  <table class="data">
+    <tr><th>Classe</th><th>Responsabilité</th></tr>
+    <tr><td><code>service/phase/ResolveurPhaseCourante</code></td><td>Contrat : dans quelle phase est un projet. Une autre règle (champ personnalisé, dates du planning) se branche sans toucher aux appelants.</td></tr>
+    <tr><td><code>service/phase/PhaseCouranteParStatut</code></td><td>Implémentation : statut de la racine → phase liée, parmi les phases visibles de l'espace.</td></tr>
+    <tr><td><code>service/phase/AffectationPhase</code></td><td>Règles pures : phase initiale, phase après changement de type, contrôle d'un choix.</td></tr>
+    <tr><td><code>service/phase/PhaseTacheService</code></td><td>Transactions autour des règles : liste des types proposés, phase initiale/actuelle, <code>setIssuePhase</code>.</td></tr>
+    <tr><td><code>service/phase/PhaseStatutService</code></td><td>Statuts candidats d'un espace, lier / délier (un statut, une phase).</td></tr>
+    <tr><td><code>service/PhaseService</code></td><td>Phases : création, renommage, portée, ordre, suppression, phases d'un type.</td></tr>
+    <tr><td><code>service/phase/PhaseReprise</code></td><td>Reprise des données de la première version, au démarrage.</td></tr>
+    <tr><td><code>config/PhaseProjetFacultatif</code></td><td>Assouplit <code>phase.project_id</code> au démarrage (Hibernate ne le fait pas).</td></tr>
+    <tr><td><code>dto/ChoixTypeSousTache</code>, <code>TypesSousTacheParPhase</code>, <code>PhaseSaisie</code></td><td>Échanges GraphQL.</td></tr>
+  </table>
+
+  <h3>7.2 Frontend (<code>tasks-front</code>)</h3>
+  <table class="data">
+    <tr><th>Fichier</th><th>Responsabilité</th></tr>
+    <tr><td><code>services/phase.service.ts</code></td><td>Seul accès GraphQL aux phases (remplace les méthodes de phase d'<code>IssueService</code>).</td></tr>
+    <tr><td><code>type/phase.operations.ts</code></td><td>Requêtes et mutations GraphQL des phases.</td></tr>
+    <tr><td><code>type/phase.util.ts</code></td><td>Calculs purs : noms des phases d'un type, ordre, statuts libres, comptages.</td></tr>
+    <tr><td><code>type/choix-type-sous-tache.util.ts</code></td><td>Calculs purs du menu de création : groupes par phase, entrées masquées, choix par défaut.</td></tr>
+    <tr><td><code>config-project/issue-type2/phase-manager/</code></td><td>Écran de paramétrage des phases.</td></tr>
+    <tr><td><code>common/issutype-form2/</code></td><td>Formulaire d'un type : choix multiple des phases.</td></tr>
+    <tr><td><code>common/new-issue-form/</code></td><td>Création : menu des types groupé par phase, « Autres phases ».</td></tr>
+    <tr><td><code>common/phase-field/</code></td><td>Phase dans le détail d'une demande (projet : en cours ; tâche : modifiable).</td></tr>
+    <tr><td><code>direction/gantt-projets/gantt-regroupement.ts</code></td><td>« Grouper par phase » lit la phase de la tâche.</td></tr>
+  </table>
+
+  <!-- ================================================================== -->
+  <h2 id="graphql">8. API GraphQL</h2>
+  <pre><code>type Phase { id name project commune position statuses issueTypes }
+type ChoixTypeSousTache { issueType phase proposee }
+type TypesSousTacheParPhase { phaseCourante choix }
+extend type IssueType { phases  phase @deprecated }
+extend type Issue { phase phaseCourante }
+extend input IssueInput { phase }          # à la création seulement
+
+phasesByProject(projectId)                 # phases de l'espace + communes, dans l'ordre
+statutsProjetPourPhases(projectId)         # statuts des flux des types « projet »
+typesSousTacheParPhase(parentIssueId)
+
+savePhase(phase: {id name project commune})
+deletePhase(phaseId)
+ordonnerPhases(phaseIds)
+lierStatutPhase(phaseId, statusId) / delierStatutPhase(phaseId, statusId)
+setIssueTypePhases(issueTypeId, phaseIds)
+setIssuePhase(issueId, phaseId)
+setIssueTypePhase(issueTypeId, phaseId)    # @deprecated, applications mobiles déjà installées</code></pre>
+
+  <!-- ================================================================== -->
+  <h2 id="ecrans">9. Écrans</h2>
+  <table class="data">
+    <tr><th>Écran</th><th>Changement</th></tr>
+    <tr><td>Configuration → Types de tâche → <strong>Phases</strong></td><td>Liste ordonnée (monter/descendre), renommage, portée « Cet espace » / « Commune », statuts du projet liés à chaque phase, suppression, ajout.</td></tr>
+    <tr><td>Formulaire d'un type</td><td>Sous-type : sélection multiple des phases, création d'une phase à la volée. Type de projet : pas de phase.</td></tr>
+    <tr><td>Nouvelle sous-tâche</td><td>Menu groupé par phase, phase en cours d'abord ; « Autres phases (n) » ; phase affichée sur le bouton ; avertissement « Hors phase en cours ».</td></tr>
+    <tr><td>Détail d'une demande</td><td>Champ « Phase » : phase en cours (projet) ou phase de la tâche, modifiable parmi celles de son type.</td></tr>
+    <tr><td>Gantt de direction</td><td>Phase en cours sous le nom du projet ; « Grouper par phase » selon la phase de chaque tâche.</td></tr>
+  </table>
+
+  <h3>Captures (base de développement, projet au statut lié à la phase APS)</h3>
+  <figure>
+    <img src="assets/DT-001/ecran-phases.png" alt="Écran des phases" style="max-width:100%">
+    <figcaption>Figure 6 — Configuration → Types de tâche → Phases : ordre, portée, statuts liés.</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/DT-001/creation-sous-tache.png" alt="Menu des types d'une sous-tâche" style="max-width:100%">
+    <figcaption>Figure 7 — Nouvelle sous-tâche : phase en cours (APS) proposée d'office, « Autres phases (1) ».</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/DT-001/autres-phases.png" alt="Autres phases affichées" style="max-width:100%">
+    <figcaption>Figure 8 — Autres phases affichées : le même type apparaît sous chaque phase où il sert.</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/DT-001/hors-phase.png" alt="Sous-tâche hors phase en cours" style="max-width:100%">
+    <figcaption>Figure 9 — Exception choisie : « Tâche · Etude », signalée « Hors phase en cours (APS) ».</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/DT-001/detail-tache.png" alt="Phase dans le détail d'une tâche" style="max-width:100%">
+    <figcaption>Figure 10 — Détail d'une tâche : phase modifiable parmi celles de son type.</figcaption>
+  </figure>
+
+  <!-- ================================================================== -->
+  <h2 id="migration">10. Migration des données</h2>
+  <div class="note"><strong>Automatique</strong> au premier démarrage de la version 2.0.8 :
+    Hibernate crée <code>phase.position</code>, <code>phase_status</code>, <code>issue_type_phase</code>, <code>issue.phase_id</code> ;
+    <code>PhaseProjetFacultatif</code> rend <code>phase.project_id</code> facultative ;
+    <code>PhaseReprise</code> recopie <code>issuetype.phase_id</code> dans <code>issue_type_phase</code> (sous-types seulement),
+    classe les tâches existantes de ces types, vide la colonne, numérote les phases.</div>
+  <div class="warn"><strong>Manuelle</strong> (facultative, MySQL) : <code>tasks-service/src/main/resources/db/manual/2026-10-15-phases-projet.sql</code>,
+    à jouer <em>avant</em> le démarrage. Elle contient les vérifications et le retour arrière.</div>
+  <p>Vérifié sur une copie de la base de développement : 2 types repris, 3 tâches classées, colonne assouplie.</p>
+
+  <!-- ================================================================== -->
+  <h2 id="parametrage">11. Paramétrage pas à pas (bureau d'études)</h2>
+  <ol>
+    <li>Dans le <strong>flux de travail</strong> du type « Projet », créer les statuts Préliminaire, APS, APD, DAO, Contrôle (et Suspendu, Clôturé) et leurs transitions, retours compris.</li>
+    <li>Écran <strong>Phases</strong> : créer les phases dans l'ordre, cochées « Commune » si tous les espaces les partagent.</li>
+    <li>Pour chaque phase, lier le statut du projet correspondant (« + statut… »).</li>
+    <li>Pour chaque sous-type, choisir ses phases (Relevé : Préliminaire ; Note de calcul : APS et APD ; Réunion : aucune).</li>
+    <li>Faire avancer un projet en changeant son statut : la création de sous-tâches suit.</li>
+  </ol>
+
+  <!-- ================================================================== -->
+  <h2 id="tests">12. Tests</h2>
+  <p><code>tasks-service/src/test/java/com/kinga/tasksservice/service/PhasesProjetTest.java</code> — 13 tests :</p>
+  <ul>
+    <li>phase courante lue sur le statut de la racine, y compris pour une sous-tâche de sous-tâche ; statut sans phase ;</li>
+    <li>phase initiale : phase en cours, correction d'APS pendant l'APD, phase hors type refusée, phase unique, type à plusieurs phases hors phase en cours, type sans phase ;</li>
+    <li>changement de type, correction manuelle ;</li>
+    <li>types proposés : ordre par phase, entrées proposées d'office, tout proposé sans phase en cours.</li>
+  </ul>
+  <p>Vérification de bout en bout (GraphQL authentifié, base copiée) : lecture des phases et des statuts, lien statut déjà pris refusé,
+    sous-tâche créée par défaut dans la phase en cours, correction acceptée, phase hors type refusée, portée commune et retour, ordre.</p>
+  <p>Vérification à l'écran (Edge sans affichage, protocole DevTools) : écran des phases, menu de création, autres phases,
+    exception hors phase, détail d'une tâche et d'un projet (figures 6 à 10). Elle a révélé un gel de la page à l'ouverture
+    du menu, corrigé avant livraison : les groupes du menu étaient rendus par un getter, recalculé à chaque détection de changement.</p>
+
+  <!-- ================================================================== -->
+  <h2 id="evolutions">13. Limites et évolutions</h2>
+  <ul>
+    <li>Les phases communes sont ordonnées globalement : les réordonner depuis un espace change leur ordre partout.</li>
+    <li>Rendre commune une phase dont le nom existe dans un autre espace est refusé (pas de fusion automatique).</li>
+    <li>Les rapports par phase (avancement, temps passé par phase) peuvent s'appuyer directement sur <code>issue.phase_id</code>.</li>
+    <li>Autre source de phase courante : implémenter <code>ResolveurPhaseCourante</code>.</li>
+  </ul>
+
+  <footer>DT-001 · Phases de projet · follow-task 2.0.8 · documents techniques : <a href="index.html">index</a></footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Documents techniques — follow-task</title>
+  <link rel="stylesheet" href="assets/doc.css">
+</head>
+<body>
+<div class="page">
+  <header class="doc-header">
+    <span class="doc-ref">DT</span>
+    <h1>Documents techniques</h1>
+    <p class="subtitle">follow-task — conception et réalisation, un document par évolution.</p>
+  </header>
+
+  <h2>Convention</h2>
+  <ul>
+    <li>Chaque document porte un numéro <strong>DT-xxx</strong>, repris dans son nom de fichier
+      (<code>DT-001-phases-projet.html</code>) et dans le titre de chaque commit qui le réalise
+      (« Phases 1/5 (DT-001) : … »).</li>
+    <li><code>git log --grep "DT-001"</code> retrouve tous les commits d'un document.</li>
+    <li>Un document s'ouvre hors ligne : HTML, feuille <code>assets/doc.css</code>, diagrammes SVG intégrés.</li>
+    <li>Un script de migration manuelle, s'il y en a un, est cité dans le document (<code>db/manual/</code>).</li>
+  </ul>
+
+  <h2>Documents</h2>
+  <table class="data doc-list">
+    <tr><th>N°</th><th>Titre</th><th>Version</th><th>Date</th><th>Commits</th></tr>
+    <tr>
+      <td>DT-001</td>
+      <td><a href="DT-001-phases-projet.html">Phases de projet</a><br>
+        <small>Phase courante lue sur le statut du projet, phases des types, phase de chaque tâche.</small></td>
+      <td>2.0.8</td>
+      <td>15/10/2026</td>
+      <td><code>2bde14c</code> <code>aecba6e</code> <code>f061683</code> <code>a197fb3</code></td>
+    </tr>
+  </table>
+
+  <footer>follow-task · documents techniques</footer>
+</div>
+</body>
+</html>
