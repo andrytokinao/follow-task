@@ -10,6 +10,7 @@ import com.kinga.followtask.entity.enumapp.Niveau;
 import com.kinga.followtask.repository.IssueRepository;
 import com.kinga.followtask.repository.IssueTypeRepository;
 import com.kinga.followtask.repository.UploadedRepository;
+import com.kinga.followtask.service.phase.AffectationPhase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -34,7 +35,7 @@ import java.util.Objects;
  * <p>Deux chemins y menent : le bouton « changer le type » d'une tache et la
  * suppression d'un type, qui rattache d'abord les taches concernees. Les deux
  * passent par {@link #applyIssueType(Issue, IssueType, boolean)} pour que la
- * regle (type autorise, statut, cle, dossier) reste ecrite une seule fois.</p>
+ * regle (type autorise, phase, statut, cle, dossier) reste ecrite une seule fois.</p>
  */
 @Slf4j
 @Service
@@ -45,6 +46,7 @@ public class IssueTypeChangeService {
     private final IssueTypeRepository issueTypeRepository;
     private final UploadedRepository uploadedRepository;
     private final IssueKeyService issueKeyService;
+    private final AffectationPhase affectationPhase;
 
     // -----------------------------------------------------------------
     // Lecture : ce que le formulaire propose
@@ -95,6 +97,7 @@ public class IssueTypeChangeService {
      */
     @Transactional
     public Issue applyIssueType(Issue issue, IssueType target, boolean renameKey) {
+        issue.setPhase(affectationPhase.phaseApresChangementDeType(issue, target));
         issue.setIssueType(target);
         alignerStatut(issue, target);
         if (renameKey) {

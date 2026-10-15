@@ -9,6 +9,7 @@ import com.kinga.followtask.repository.*;
 import com.kinga.followtask.repository.DocumentMemberRepository;
 import com.kinga.followtask.repository.criteria.IssueSearchCriteria;
 import com.kinga.followtask.repository.criteria.IssueSpecification;
+import com.kinga.followtask.service.phase.PhaseTacheService;
 import com.kinga.utils.KingaUtils;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -72,6 +73,9 @@ public class IssueService {
     /** Regle d'alignement du statut sur le flux de travail du type. */
     @Autowired
     private IssueTypeChangeService issueTypeChangeService;
+    /** Phase de la tache : choisie a la creation, conservee ensuite. */
+    @Autowired
+    private PhaseTacheService phaseTacheService;
     @Autowired
     public ConfigRepository configRepository;
     @Autowired
@@ -172,9 +176,11 @@ public class IssueService {
             // d'un autre type : dans les deux cas on retombe sur le statut
             // initial du flux du type choisi.
             issueTypeChangeService.alignerStatut(issue, issueType);
+            Long parentId = issue.getParent() == null ? null : issue.getParent().getId();
+            issue.setPhase(phaseTacheService.phaseInitiale(parentId, issueType.getId(), issue.getPhase()));
         } else {
             issue.setUpdateDate(((new Date()).toInstant()).atZone(ZoneId.systemDefault()).toLocalDateTime());
-
+            issue.setPhase(phaseTacheService.phaseActuelle(issue.getId()));
         }
         issue = createDirectoryIfEmpty(issue,project);
         return issueRepository.save(issue);

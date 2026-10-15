@@ -13,6 +13,8 @@ public interface IssueTypeRepository extends JpaRepository<IssueType,Long> {
     List<IssueType> findByParents_Id(Long parentId);
     List<IssueType> findByLegacyParentIsNotNull();
     List<IssueType> findByName(String name);
-    List<IssueType> findByPhaseId(Long phaseId);
+    /** Types utilises dans la phase (table issue_type_phase). */
+    List<IssueType> findByPhases_Id(Long phaseId);
+    List<IssueType> findByLegacyPhaseIsNotNull();
 
 }

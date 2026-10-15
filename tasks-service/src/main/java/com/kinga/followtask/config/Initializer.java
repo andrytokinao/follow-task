@@ -6,6 +6,7 @@ import com.kinga.followtask.repository.EventTypeRepository;
 import com.kinga.followtask.repository.GroupeUserRepository;
 import com.kinga.followtask.repository.IssueTypeRepository;
 import com.kinga.followtask.service.ProjectService;
+import com.kinga.followtask.service.phase.PhaseReprise;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -22,6 +23,8 @@ public class Initializer implements CommandLineRunner {
     private GroupeUserRepository groupeUserRepository;
     @Autowired
     private ProjectService projectService;
+    @Autowired
+    private PhaseReprise phaseReprise;
 
     @Override
     public void run(String... args) throws Exception {
@@ -48,6 +51,11 @@ public class Initializer implements CommandLineRunner {
              projectService.migrateLegacyIssueTypeParents();
          } catch (Exception e) {
              LoggerFactory.getLogger(Initializer.class).error("Migration des parents de types impossible", e);
+         }
+         try {
+             phaseReprise.reprendre();
+         } catch (Exception e) {
+             LoggerFactory.getLogger(Initializer.class).error("Reprise des phases impossible", e);
          }
          try {
              projectService.initDefaultSubtaskTypes();

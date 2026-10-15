@@ -1,41 +1,103 @@
-# Phases : groupes de types de tâche d'un espace de travail (« Étude »,
-# « Contrôle »...).
+# Phases d'un projet : « Préliminaire », « APS », « APD », « DAO »...
 #
-# Un type appartient à une phase au plus, et peut n'en avoir aucune.
+# Une phase appartient à un espace de travail, ou à tous (commune). Un type de
+# tâche peut être utilisé dans plusieurs phases ; chaque tâche porte la sienne.
+# La phase courante d'un projet se lit sur son statut : chaque phase est liée
+# aux statuts du projet pendant lesquels elle est en cours.
 
 type Phase {
     id: Int
     name: String
     project: Project
+    # Partagée par tous les espaces de travail (pas d'espace).
+    commune: Boolean
+    # Rang dans le déroulement du projet.
+    position: Int
+    # Statuts du projet pendant lesquels cette phase est la phase courante.
+    statuses: [Status]
     issueTypes: [IssueType]
 }
 
+# Lu par saveIssue (phase demandée à la création d'une sous-tâche, seul l'id
+# compte) et par savePhase. commune absent : la portée ne change pas ; ne
+# l'envoyer qu'à savePhase. position est accepté pour qu'une phase relue
+# puisse être renvoyée telle quelle ; l'ordre ne change que par ordonnerPhases.
 input PhaseInput {
     id: Int
     name: String
     project: ProjectInput
+    commune: Boolean
+    position: Int
+}
+
+# Une entrée de la liste des types à la création d'une sous-tâche : un type
+# dans une phase. Choisir l'entrée fixe le type et la phase de la tâche.
+type ChoixTypeSousTache {
+    issueType: IssueType
+    # null si le type n'est rangé dans aucune phase.
+    phase: Phase
+    # Affichée d'office (phase courante, type sans phase) ; sinon seulement
+    # à la demande, pour les exceptions.
+    proposee: Boolean
+}
+
+type TypesSousTacheParPhase {
+    # null si le statut du projet ne désigne aucune phase.
+    phaseCourante: Phase
+    choix: [ChoixTypeSousTache]
 }
 
 extend type IssueType {
-    phase: Phase
+    phases: [Phase]
+    # Première des phases du type. Conservé pour les clients de la première
+    # version des phases.
+    phase: Phase @deprecated(reason: "Un type peut avoir plusieurs phases : utiliser phases")
 }
 
 # Accepté pour qu'un type relu puisse être renvoyé tel quel, mais sans effet :
-# saveIssueType conserve la phase du type, seule setIssueTypePhase la change.
+# saveIssueType conserve les phases du type, seule setIssueTypePhases les change.
 extend input IssueTypeInput {
+    phase: PhaseInput
+    phases: [PhaseInput]
+}
+
+extend type Issue {
+    # Phase dans laquelle la tâche est traitée.
+    phase: Phase
+    # Phase en cours du projet de la tâche (lue sur le statut de la racine).
+    phaseCourante: Phase
+}
+
+extend input IssueInput {
+    # À la création seulement : phase choisie (exception). Ignorée ensuite,
+    # setIssuePhase seule la change.
     phase: PhaseInput
 }
 
 extend type Query {
+    # Phases de l'espace de travail et phases communes, dans l'ordre du projet.
     phasesByProject(projectId: Int!): [Phase]
+    # Statuts que peut prendre un projet de l'espace : à lier aux phases.
+    statutsProjetPourPhases(projectId: Int!): [Status]
+    # Types proposables pour une nouvelle sous-tâche, selon la phase courante.
+    typesSousTacheParPhase(parentIssueId: Int!): TypesSousTacheParPhase
 }
 
 extend type Mutation {
-    # Crée une phase, ou renomme celle dont l'id est donné. Le nom est unique
-    # dans l'espace de travail.
+    # Crée une phase, la renomme ou change sa portée. Le nom est unique parmi
+    # les phases visibles d'un même espace.
     savePhase(phase: PhaseInput!): Phase
-    # Les types de la phase sont conservés et se retrouvent sans phase.
+    # Les types et les tâches de la phase sont conservés, sans cette phase.
     deletePhase(phaseId: Int!): ResponseApp
+    # Range les phases dans l'ordre donné.
+    ordonnerPhases(phaseIds: [Int!]!): [Phase]
+    # La phase devient la phase courante des projets qui ont ce statut.
+    lierStatutPhase(phaseId: Int!, statusId: Int!): Phase
+    delierStatutPhase(phaseId: Int!, statusId: Int!): Phase
+    # Phases dans lesquelles le type est utilisé ; liste vide : aucune.
+    setIssueTypePhases(issueTypeId: Int!, phaseIds: [Int!]!): IssueType
     # Sans phaseId, le type n'appartient plus à aucune phase.
-    setIssueTypePhase(issueTypeId: Int!, phaseId: Int): IssueType
+    setIssueTypePhase(issueTypeId: Int!, phaseId: Int): IssueType @deprecated(reason: "Utiliser setIssueTypePhases")
+    # Reclasse une tâche dans une autre phase de son type.
+    setIssuePhase(issueId: Int!, phaseId: Int): Issue
 }

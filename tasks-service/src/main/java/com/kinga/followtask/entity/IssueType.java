@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -36,12 +37,29 @@ public class IssueType {
     @ManyToOne
     private WorkFlow curentWorkFlow;
 
-    /** Phase dans laquelle le type est range ; aucune tant qu'il n'a pas ete range. */
+    /**
+     * Phases dans lesquelles le type est utilise ; aucune tant qu'il n'a pas
+     * ete range. Une tache de ce type prend l'une d'elles.
+     */
+    @ManyToMany
+    @JoinTable(name = "issue_type_phase",
+            joinColumns = @JoinColumn(name = "issue_type_id"),
+            inverseJoinColumns = @JoinColumn(name = "phase_id"),
+            uniqueConstraints = @UniqueConstraint(columnNames = {"issue_type_id", "phase_id"}))
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private List<Phase> phases = new ArrayList<>();
+
+    /**
+     * Ancienne phase unique (colonne phase_id). Conservee uniquement pour
+     * migrer les donnees existantes vers {@link #phases} au demarrage.
+     */
+    @Deprecated
     @ManyToOne
     @JoinColumn(name = "phase_id")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private Phase phase;
+    private Phase legacyPhase;
 
     /** Types principaux sous lesquels ce type peut etre utilise comme sous-tache. */
     @ManyToMany

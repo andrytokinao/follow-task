@@ -38,6 +38,14 @@ public class Issue {
     @ManyToOne
     @JoinColumn(name = "type")
     private IssueType issueType;
+    /**
+     * Phase du projet dans laquelle la tache est traitee : l'une des phases de
+     * son type, ou aucune si le type n'en a pas. Fixee a la creation et gardee
+     * ensuite : une correction d'APS faite pendant l'APD reste en APS.
+     */
+    @ManyToOne
+    @JoinColumn(name = "phase_id")
+    private Phase phase;
     @OneToMany(mappedBy = "issues")
     private List<Document>  documents;
     @ManyToOne

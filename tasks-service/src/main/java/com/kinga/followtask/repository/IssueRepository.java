@@ -25,6 +25,12 @@ public interface IssueRepository extends JpaRepository<Issue,Long>, JpaSpecifica
     public List<Issue> findByParentId(Long parentId);
     public List<Issue> findByIssueTypeProjectPrefix(String prefix);
     public List<Issue> findByIssueTypeIn(List<IssueType> issueTypes);
+    /** Taches classees dans la phase. */
+    List<Issue> findByPhaseId(Long phaseId);
+    /** Taches d'un type qui n'ont pas encore de phase : reprise des donnees. */
+    List<Issue> findByIssueTypeIdAndPhaseIsNull(Long issueTypeId);
+    /** Une tache d'un autre espace de travail est-elle classee dans la phase ? */
+    boolean existsByPhaseIdAndProjectIdNot(Long phaseId, Long projectId);
 
     /**
      * Demandes d'un espace de travail actuellement assignées à l'une des
