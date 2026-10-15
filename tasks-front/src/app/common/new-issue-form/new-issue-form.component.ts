@@ -10,8 +10,16 @@ import {
   ViewChild
 } from '@angular/core';
 import { CdkTextareaAutosize } from '@angular/cdk/text-field';
-import { Issue, IssueType, Project, Status } from '../../type/issue';
+import { ChoixTypeSousTache, Issue, IssueType, Phase, Project, Status } from '../../type/issue';
 import { IssueService } from '../../services/issue.service';
+import { PhaseService } from '../../services/phase.service';
+import {
+  choixParDefaut,
+  estHorsPhaseCourante,
+  GroupeChoix,
+  grouperChoix,
+  nombreDeChoixMasques
+} from '../../type/choix-type-sous-tache.util';
 import {MessagesService} from "../../services/messages.service";
 import {MatMenuTrigger} from "@angular/material/menu";
 import {ALL_EVENT_TYPE} from "../../type/graphql.operations";
@@ -41,6 +49,19 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
   project: Project | undefined;
   allIssueTypes: IssueType[] = [];
   useIssueType: IssueType[] = [];
+  // ---- sous-tâche : types selon la phase du projet ----
+  /** Entrées du menu : un type dans une phase. */
+  choixSousTache: ChoixTypeSousTache[] = [];
+  /** Phase en cours du projet ; null si son statut n'en désigne aucune. */
+  phaseCourante: Phase | null = null;
+  /** Phase dans laquelle la sous-tâche sera classée. */
+  phaseChoisie: Phase | null = null;
+  /** Les types des autres phases sont affichés (exceptions). */
+  autresPhases = false;
+  /** Groupes du menu des types, par phase. */
+  groupesChoix: GroupeChoix[] = [];
+  /** Entrées des autres phases, cachées tant qu'on ne les demande pas. */
+  nombreChoixMasques = 0;
   projects:Project [] = [];
   /**
    * Demande parente d'une sous-tâche.
@@ -115,6 +136,7 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
   assignerMoi = false;
 
   constructor(public issueService: IssueService,
+    private phaseService: PhaseService,
     protected messageService :MessagesService,
     private projectGuard: ProjectGuard,
     private toastr: ToastrService
@@ -195,6 +217,10 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
 
     if (this.parentIssue && !this.isMaster) {
       issue.parent = { id: this.parentIssue.id };
+      // Phase de l'entrée choisie ; sans elle, le serveur prend la phase en cours.
+      if (this.phaseChoisie?.id != null) {
+        issue.phase = { id: this.phaseChoisie.id };
+      }
     }
 
     const estTache = this.isSubtask();
@@ -278,19 +304,73 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
     this.isDesable = true;
   }
 
-  loadIssueTypeSubtask() {
+  /**
+   * Types proposés pour une sous-tâche : ceux de la phase en cours du projet
+   * et les types sans phase ; les autres phases restent accessibles à la
+   * demande (correction d'une phase passée, travail en avance).
+   *
+   * @param issueTypeId type à présélectionner (type tout juste créé) ; à
+   *                    défaut, la première entrée proposée
+   */
+  loadIssueTypeSubtask(issueTypeId?: number) {
     this.isDesable = true;
     this.useIssueType = [];
     this.issueType = undefined;
+    this.phaseChoisie = null;
     this.issueKey = '';
 
-    this.issueService.listIssueTypeSubtasks(this.parentIssue.issueType.id).subscribe(types => {
-      this.useIssueType = types;
-      if (this.useIssueType.length) {
-        this.issueType = this.useIssueType[0];
-        this.loadNextKey();
+    this.phaseService.typesSousTache(this.parentIssue.id).subscribe(types => {
+      this.choixSousTache = types?.choix || [];
+      this.phaseCourante = types?.phaseCourante || null;
+      this.autresPhases = false;
+      this.nombreChoixMasques = nombreDeChoixMasques(this.choixSousTache);
+      this.regrouperChoix();
+      // Un type present dans plusieurs phases n'y figure qu'une fois.
+      this.useIssueType = this.choixSousTache
+        .map(choix => choix.issueType)
+        .filter((type, i, types) => types.findIndex(t => t.id === type.id) === i);
+      const defaut = choixParDefaut(this.choixSousTache, issueTypeId);
+      if (defaut) {
+        this.appliquerChoix(defaut);
       }
     });
+  }
+
+  /** La sous-tâche sera classée hors de la phase en cours : on le montre. */
+  get horsPhaseCourante(): boolean {
+    return estHorsPhaseCourante(this.phaseChoisie, this.phaseCourante);
+  }
+
+  basculerAutresPhases(event: Event) {
+    event.stopPropagation();
+    this.autresPhases = !this.autresPhases;
+    this.regrouperChoix();
+  }
+
+  /**
+   * Recalcule les groupes du menu. Un champ et non un getter : le menu
+   * reconstruirait sinon ses entrées à chaque détection de changement.
+   */
+  private regrouperChoix() {
+    this.groupesChoix = grouperChoix(this.choixSousTache, this.phaseCourante, this.autresPhases);
+  }
+
+  selectChoix(event: Event, trigger: MatMenuTrigger, choix: ChoixTypeSousTache) {
+    if (event)
+      event.stopPropagation();
+    this.appliquerChoix(choix);
+    if (trigger)
+      trigger.closeMenu();
+  }
+
+  estChoisi(choix: ChoixTypeSousTache): boolean {
+    return choix.issueType.id === this.issueType?.id && (choix.phase?.id ?? null) === (this.phaseChoisie?.id ?? null);
+  }
+
+  private appliquerChoix(choix: ChoixTypeSousTache) {
+    this.issueType = choix.issueType;
+    this.phaseChoisie = choix.phase || null;
+    this.loadNextKey();
   }
   useIssueTypeMaster(defaultType:IssueType | undefined) {
     this.useIssueType = [];
@@ -399,6 +479,11 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
     // Le declencheur vit sous un *ngIf de droits : il peut ne pas exister.
     this.newIssueTypeTrigger?.closeMenu();
     this.menuTrigger.closeMenu();
+    if (this.isSubtask()) {
+      // Ses phases decident ou il apparait : la liste est relue.
+      this.loadIssueTypeSubtask(issueType.id);
+      return;
+    }
     this.pushIssueType(issueType);
     this.issueType = issueType;
     this.loadNextKey();

@@ -36,9 +36,14 @@
             [style.--type-color]="issueType?.color || null">
             <span class="type-dot" [style.background]="getIssueTypeColor(issueType)"></span>
             <span class="btn-label">{{ issueType?.name || 'Sélectionner…' }}</span>
+            <span class="btn-phase" *ngIf="isSubtask() && phaseChoisie">· {{ phaseChoisie.name }}</span>
             <mat-icon class="arrow-icon">expand_more</mat-icon>
           </button>
         </div>
+        <span class="hors-phase" *ngIf="isSubtask() && horsPhaseCourante">
+          <mat-icon>info_outline</mat-icon>
+          Hors phase en cours ({{ phaseCourante?.name }})
+        </span>
       </div>
 
       <!-- Colonne droite : Clé -->
@@ -131,14 +136,43 @@
 
 <!-- ── Menu type de demande ── -->
 <mat-menu #typeMenu="matMenu" class="compact-menu">
-  <button
-    mat-menu-item
-    *ngFor="let type of useIssueType"
-    (click)="selectIssueType($event, subMenuIssueType, type)"
-    class="type-menu-item">
-    <span class="type-dot-sm" [style.background]="getIssueTypeColor(type)"></span>
-    <span>{{ type.name }}</span>
-  </button>
+  <!-- Projet : ses types principaux -->
+  <ng-container *ngIf="!isSubtask()">
+    <button
+      mat-menu-item
+      *ngFor="let type of useIssueType"
+      (click)="selectIssueType($event, subMenuIssueType, type)"
+      class="type-menu-item">
+      <span class="type-dot-sm" [style.background]="getIssueTypeColor(type)"></span>
+      <span>{{ type.name }}</span>
+    </button>
+  </ng-container>
+
+  <!-- Sous-tâche : un type dans une phase, la phase en cours d'abord proposée -->
+  <ng-container *ngIf="isSubtask()">
+    <ng-container *ngFor="let groupe of groupesChoix">
+      <div class="menu-group-title" [class.courante]="groupe.courante" (click)="$event.stopPropagation()">
+        {{ groupe.titre }}<span *ngIf="groupe.courante"> · en cours</span>
+      </div>
+      <button
+        mat-menu-item
+        *ngFor="let choix of groupe.choix"
+        (click)="selectChoix($event, subMenuIssueType, choix)"
+        [class.selected]="estChoisi(choix)"
+        class="type-menu-item">
+        <span class="type-dot-sm" [style.background]="getIssueTypeColor(choix.issueType)"></span>
+        <span>{{ choix.issueType.name }}</span>
+      </button>
+    </ng-container>
+    <div class="menu-empty" *ngIf="!groupesChoix.length" (click)="$event.stopPropagation()">
+      Aucun type pour la phase en cours
+    </div>
+    <button mat-menu-item class="autres-phases-btn" *ngIf="nombreChoixMasques"
+            (click)="basculerAutresPhases($event)">
+      <mat-icon>{{ autresPhases ? 'visibility_off' : 'history' }}</mat-icon>
+      <span>{{ autresPhases ? 'Masquer les autres phases' : 'Autres phases (' + nombreChoixMasques + ')' }}</span>
+    </button>
+  </ng-container>
   <!-- Creation d'un type : reservee au gestionnaire de projet et a l'admin. -->
   <ng-container *ngIf="peutCreerType$ | async">
     <mat-divider></mat-divider>

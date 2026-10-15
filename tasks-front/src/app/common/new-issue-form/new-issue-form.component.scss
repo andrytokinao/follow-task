@@ -397,3 +397,54 @@ $shadow-form:    0 4px 32px rgba(0,0,0,.09), 0 1px 4px rgba(0,0,0,.05);
     border:        1px solid $border-default !important;
   }
 }
+
+// ─────────────────────────────────────────────
+// Sous-tâche : phase du type choisi
+// ─────────────────────────────────────────────
+.btn-phase {
+  font-size:   $fs-base;
+  color:       $text-secondary;
+  white-space: nowrap;
+  margin-left: 4px;
+}
+
+.hors-phase {
+  display:     inline-flex;
+  align-items: center;
+  gap:         3px;
+  margin-top:  3px;
+  font-size:   10.5px;
+  color:       #b45309;
+
+  mat-icon { font-size: 13px; height: 13px; width: 13px; }
+}
+
+::ng-deep {
+  .compact-menu .menu-group-title {
+    padding:        6px 12px 2px;
+    font-family:    $font;
+    font-size:      10px;
+    font-weight:    600;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color:          $text-tertiary;
+    cursor:         default;
+
+    &.courante { color: $accent; }
+  }
+
+  .compact-menu .mat-mdc-menu-item.selected { background: $bg-secondary; font-weight: 500; }
+
+  .compact-menu .menu-empty {
+    padding:     6px 12px;
+    font-family: $font;
+    font-size:   $fs-base;
+    color:       $text-tertiary;
+  }
+
+  .compact-menu .autres-phases-btn {
+    color: $text-secondary;
+
+    mat-icon { font-size: 15px; height: 15px; width: 15px; }
+  }
+}
