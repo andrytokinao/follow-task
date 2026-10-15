@@ -21,6 +21,8 @@ import { TextFieldModule } from '@angular/cdk/text-field';
 import { NgxColorsModule } from 'ngx-colors';
 import { IssueType, Project, Icone, Phase } from '../../type/issue';
 import { IssueService } from '../../services/issue.service';
+import { PhaseService } from '../../services/phase.service';
+import { memesIds } from '../../type/phase.util';
 import { ChooseDialogComponent } from '../icone-field/choose-dialog/choose-dialog.component';
 import {IconeViewComponent} from "../icone-view/icone-view.component";
 import {forkJoin, Observable, of, Subject} from "rxjs";
@@ -80,13 +82,12 @@ export class IssutypeForm2Component {
   saving = false;
   errorMessage: string | undefined;
 
-  // ---- phase : groupe de types, facultatif ----
-  /** Choix « Aucune phase » de la liste ; les phases y sont designees par leur id. */
-  readonly noPhase = 0;
-  /** Choix « Nouvelle phase » : son nom est saisi dans le champ qui apparait. */
-  readonly newPhase = -1;
+  // ---- phases du projet ou le sous-type est utilise, facultatives ----
   phases: Phase[] = [];
-  phaseChoice: number = this.noPhase;
+  /** Phases choisies, par id ; un sous-type peut servir dans plusieurs phases. */
+  phaseIds: number[] = [];
+  /** Champ « nouvelle phase » ouvert : la phase est creee a l'enregistrement du type. */
+  addingPhase = false;
   newPhaseName = '';
 
   /** Creation d'un sous-type : en creer un nouveau ou reutiliser un existant. */
@@ -125,7 +126,8 @@ export class IssutypeForm2Component {
 
   constructor(
     private fb: FormBuilder,
-    private issueService: IssueService
+    private issueService: IssueService,
+    private phaseService: PhaseService
   ) {
     this.form = this.fb.group({
       name:        ['', Validators.required],
@@ -218,48 +220,54 @@ export class IssutypeForm2Component {
       this.phases = [];
       return;
     }
-    this.issueService.phasesByProject(projectId).subscribe({
+    this.phaseService.phasesByProject(projectId).subscribe({
       next: phases => this.phases = phases,
       error: () => this.phases = []
     });
   }
 
-  onPhaseChoice(choice: number): void {
-    this.phaseChoice = choice;
-    if (choice !== this.newPhase) {
-      this.newPhaseName = '';
-    }
+  /**
+   * Seuls les sous-types se rangent dans des phases : la phase d'un projet se
+   * lit sur son statut.
+   */
+  get usesPhases(): boolean {
+    return this.level === 'SUB_TASK';
   }
 
   /**
-   * Id de la phase choisie, null pour aucune. Une nouvelle phase est creee ici,
-   * avant l'enregistrement du type : si son nom est refuse, rien n'est enregistre.
+   * Ids des phases choisies. Une nouvelle phase est creee ici, avant
+   * l'enregistrement du type : si son nom est refuse, rien n'est enregistre.
    */
-  private resolvePhaseId(): Observable<number | null> {
-    if (this.phaseChoice !== this.newPhase) {
-      return of(this.phaseChoice === this.noPhase ? null : this.phaseChoice);
+  private resolvePhaseIds(): Observable<number[]> {
+    if (!this.usesPhases) {
+      return of([]);
     }
-    return this.issueService
-      .savePhase({name: this.newPhaseName.trim(), project: {id: this.currentProjectId}})
+    const name = this.newPhaseName.trim();
+    if (!this.addingPhase || !name) {
+      return of([...this.phaseIds]);
+    }
+    return this.phaseService
+      .savePhase({name, project: {id: this.currentProjectId}})
       .pipe(
         tap(phase => {
           // Devient un choix ordinaire : un nouvel essai ne la recree pas.
           this.phases = [...this.phases, phase];
-          this.phaseChoice = phase.id;
+          this.phaseIds = [...this.phaseIds, phase.id];
           this.newPhaseName = '';
+          this.addingPhase = false;
         }),
-        map(phase => phase.id)
+        map(() => [...this.phaseIds])
       );
   }
 
-  /** Range le type enregistre dans la phase choisie, si elle a change. */
-  private applyPhase(saved: IssueType, phaseId: number | null): Observable<IssueType> {
-    const current = this.isEdit ? (this.edited.phase?.id ?? null) : null;
-    if (phaseId == current) {
-      return of({...saved, phase: this.edited?.phase ?? null});
+  /** Range le type enregistre dans les phases choisies, si elles ont change. */
+  private applyPhases(saved: IssueType, phaseIds: number[]): Observable<IssueType> {
+    const current = this.isEdit ? (this.edited.phases || []).map(phase => phase.id) : [];
+    if (memesIds(current, phaseIds)) {
+      return of({...saved, phases: this.edited?.phases ?? []});
     }
-    return this.issueService.setIssueTypePhase(saved.id, phaseId)
-      .pipe(map(updated => ({...saved, phase: updated.phase ?? null})));
+    return this.phaseService.setIssueTypePhases(saved.id, phaseIds)
+      .pipe(map(updated => ({...saved, phases: updated.phases ?? []})));
   }
 
   /** Espace de travail dans lequel le prefixe doit etre unique. */
@@ -428,7 +436,8 @@ export class IssutypeForm2Component {
       color: this.edited.color || '#6C63FF'
     });
     this.subMode = 'new';
-    this.phaseChoice = this.edited.phase?.id ?? this.noPhase;
+    this.phaseIds = (this.edited.phases || []).map(phase => phase.id);
+    this.addingPhase = false;
     this.newPhaseName = '';
     this.selectedIcone = this.edited.icone;
     this.level = (this.edited.level as 'PARENT' | 'SUB_TASK') || 'PARENT';
@@ -470,7 +479,8 @@ export class IssutypeForm2Component {
     this.originalPrefix = this.edited ? normalizePrefix(this.edited.prefix as string) : '';
     this.selectedExisting = [];
     this.existingSearch = '';
-    this.phaseChoice = this.edited?.phase?.id ?? this.noPhase;
+    this.phaseIds = (this.edited?.phases || []).map(phase => phase.id);
+    this.addingPhase = false;
     this.newPhaseName = '';
     this.selectedIcone = this.edited ? this.edited.icone : undefined;
     this.errorMessage = undefined;
@@ -490,7 +500,7 @@ export class IssutypeForm2Component {
       this.errorMessage = 'Ce préfixe est déjà utilisé dans cet espace de travail.';
       return;
     }
-    if (this.phaseChoice === this.newPhase && !this.newPhaseName.trim()) {
+    if (this.usesPhases && this.addingPhase && !this.newPhaseName.trim()) {
       this.errorMessage = 'Saisissez le nom de la nouvelle phase.';
       return;
     }
@@ -532,9 +542,9 @@ export class IssutypeForm2Component {
       issueType.parents = [];
     }
 
-    this.resolvePhaseId().pipe(
-      switchMap(phaseId => this.issueService.saveIssueType(issueType).pipe(
-        switchMap(saved => this.applyPhase(saved, phaseId))
+    this.resolvePhaseIds().pipe(
+      switchMap(phaseIds => this.issueService.saveIssueType(issueType).pipe(
+        switchMap(saved => this.applyPhases(saved, phaseIds))
       ))
     ).subscribe({
       next: (saved) => {

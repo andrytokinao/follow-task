@@ -1202,9 +1202,10 @@ const ALL_ISSUE_TYPE =gql`
         prefix
       }
       level
-      phase {
+      phases {
         id
         name
+        position
       }
       usingCustomFields {
         id
@@ -1260,9 +1261,10 @@ const ALL_ISSUE_TYPE =gql`
           name
         }
         level
-        phase {
+        phases {
           id
           name
+          position
         }
         usingCustomFields {
           id
@@ -1818,43 +1820,6 @@ const CUSTOM_FIELD_BY_ISSUE_TYPE = gql`
        }
      }
    }
-`
-export const PHASES_BY_PROJECT = gql`
-  query phasesByProject($projectId:Int!){
-    phasesByProject(projectId:$projectId){
-      id
-      name
-    }
-  }
-`
-export const SAVE_PHASE = gql`
-  mutation savePhase($phase:PhaseInput!){
-    savePhase(phase:$phase){
-      id
-      name
-    }
-  }
-`
-export const DELETE_PHASE = gql`
-  mutation deletePhase($phaseId:Int!){
-    deletePhase(phaseId:$phaseId){
-      status
-      message
-      code
-    }
-  }
-`
-export const SET_ISSUE_TYPE_PHASE = gql`
-  mutation setIssueTypePhase($issueTypeId:Int!,$phaseId:Int){
-    setIssueTypePhase(issueTypeId:$issueTypeId,phaseId:$phaseId){
-      id
-      name
-      phase {
-        id
-        name
-      }
-    }
-  }
 `
 const AFFECT_ISSUE_TYPE_FOR_PARENT=gql`
   mutation affectIssueTypeForParent($childId:Int,$parrentId:Int){

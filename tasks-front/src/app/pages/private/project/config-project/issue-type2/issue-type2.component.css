@@ -292,24 +292,6 @@
   border: 1px solid var(--color-border-tertiary, #e5e7eb);
 }
 
-/* gestion des phases */
-.phase-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.phase-row input {
-  flex: 1;
-  min-width: 0;
-  padding: 6px 10px;
-  font-size: 13px;
-  border: 1px solid var(--color-border-tertiary, #e5e7eb);
-  border-radius: 6px;
-  background: transparent;
-  color: inherit;
-}
-
 .icon-btn:disabled { opacity: 0.35; cursor: default; }
 
 /* actions revelees au survol */

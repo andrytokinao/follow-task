@@ -35,6 +35,7 @@ import {MatRadioButton, MatRadioGroup} from "@angular/material/radio";
 import {StepperWorkflowComponent} from "./work-flow/stepper-workflow/stepper-workflow.component";
 import {IssueType2Component} from "./issue-type2/issue-type2.component";
 import {DeleteIssueTypeModalComponent} from "./issue-type2/delete-issue-type-modal/delete-issue-type-modal.component";
+import {PhaseManagerComponent} from "./issue-type2/phase-manager/phase-manager.component";
 import {IssutypeForm2Component} from "../../../../common/issutype-form2/issutype-form2.component";
 import {IconeViewComponent} from "../../../../common/icone-view/icone-view.component";
 
@@ -54,7 +55,8 @@ import {IconeViewComponent} from "../../../../common/icone-view/icone-view.compo
     IssueTypeStepperComponent,
     StepperWorkflowComponent,
     IssueType2Component,
-    DeleteIssueTypeModalComponent
+    DeleteIssueTypeModalComponent,
+    PhaseManagerComponent
 
   ],
   imports: [

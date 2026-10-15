@@ -124,22 +124,28 @@
                   placeholder="Rôle et usage de ce type…"></textarea>
       </mat-form-field>
 
-      <!-- Phase : groupe de types, facultatif -->
-      <mat-form-field appearance="outline" class="fw">
-        <mat-label>Phase</mat-label>
-        <mat-select [value]="phaseChoice" (selectionChange)="onPhaseChoice($event.value)">
-          <mat-option [value]="noPhase">Aucune phase</mat-option>
-          <mat-option *ngFor="let phase of phases" [value]="phase.id">{{ phase.name }}</mat-option>
-          <mat-option [value]="newPhase">+ Nouvelle phase…</mat-option>
-        </mat-select>
-        <mat-hint>Facultatif : regroupe des types (Étude, Contrôle…)</mat-hint>
-      </mat-form-field>
+      <!-- Phases du projet où le sous-type sert, facultatives -->
+      <ng-container *ngIf="usesPhases">
+        <mat-form-field appearance="outline" class="fw">
+          <mat-label>Phases</mat-label>
+          <mat-select multiple [value]="phaseIds" (selectionChange)="phaseIds = $event.value"
+                      placeholder="Aucune phase">
+            <mat-option *ngFor="let phase of phases" [value]="phase.id">
+              {{ phase.name }}<span class="phase-commune" *ngIf="phase.commune"> · commune</span>
+            </mat-option>
+          </mat-select>
+          <mat-hint>Facultatif : phases du projet où ce type est proposé (APS, APD…)</mat-hint>
+        </mat-form-field>
 
-      <mat-form-field appearance="outline" class="fw" *ngIf="phaseChoice === newPhase">
-        <mat-label>Nom de la nouvelle phase</mat-label>
-        <input matInput placeholder="Ex: Étude" maxlength="100"
-               [value]="newPhaseName" (input)="newPhaseName = $any($event.target).value">
-      </mat-form-field>
+        <button type="button" class="link-btn" *ngIf="!addingPhase" (click)="addingPhase = true">
+          + Nouvelle phase
+        </button>
+        <mat-form-field appearance="outline" class="fw" *ngIf="addingPhase">
+          <mat-label>Nom de la nouvelle phase</mat-label>
+          <input matInput placeholder="Ex: APS" maxlength="100"
+                 [value]="newPhaseName" (input)="newPhaseName = $any($event.target).value">
+        </mat-form-field>
+      </ng-container>
 
       <!-- Couleur + Icône -->
       <div class="row-pair">

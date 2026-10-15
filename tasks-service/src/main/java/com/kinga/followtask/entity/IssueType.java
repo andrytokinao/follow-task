@@ -46,6 +46,7 @@ public class IssueType {
             joinColumns = @JoinColumn(name = "issue_type_id"),
             inverseJoinColumns = @JoinColumn(name = "phase_id"),
             uniqueConstraints = @UniqueConstraint(columnNames = {"issue_type_id", "phase_id"}))
+    @OrderBy("position ASC, id ASC")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<Phase> phases = new ArrayList<>();

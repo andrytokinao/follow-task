@@ -50,6 +50,10 @@ export class Issue {
   memberships?:IssueMembership[];
   activeMemberships?:IssueMembership[];
   assignes?:User[];
+  /** Phase du projet dans laquelle la tâche est traitée ; absente si son type n'en a pas. */
+  phase?:Phase | null;
+  /** Phase en cours du projet de la tâche, lue sur le statut de la racine. */
+  phaseCourante?:Phase | null;
 }
 /** Nature d'un lien, lu de la source vers la destination : « A bloque B ». */
 export type LinkType = 'BLOCKS' | 'PRECEDES' | 'TRIGGERS' | 'RELATES_TO';
@@ -229,15 +233,36 @@ export interface IssueType{
   icone? :Icone | undefined;
   parents?:IssueType[];
   children?:IssueType[]
-  /** Phase dans laquelle le type est range ; absente tant qu'il ne l'a pas ete. */
-  phase?:Phase | null
+  /** Phases dans lesquelles le type est utilisé ; aucune tant qu'il n'a pas été rangé. */
+  phases?:Phase[]
 
 }
-/** Groupe de types de tache d'un espace de travail : « Etude », « Controle »... */
+/**
+ * Étape d'un projet : « Préliminaire », « APS », « APD »… Propre à un espace de
+ * travail, ou commune à tous. Voir docs/technique/DT-001-phases-projet.html.
+ */
 export interface Phase{
   id?:number
   name?:string
   project?:Project
+  /** Partagée par tous les espaces de travail. */
+  commune?:boolean
+  /** Rang dans le déroulement du projet. */
+  position?:number
+  /** Statuts du projet pendant lesquels cette phase est la phase courante. */
+  statuses?:Status[]
+}
+/** Une entrée de la liste des types à la création d'une sous-tâche : un type, dans une phase. */
+export interface ChoixTypeSousTache{
+  issueType:IssueType
+  /** null si le type n'est rangé dans aucune phase. */
+  phase?:Phase | null
+  /** Affichée d'office ; sinon seulement à la demande (exceptions). */
+  proposee:boolean
+}
+export interface TypesSousTacheParPhase{
+  phaseCourante?:Phase | null
+  choix:ChoixTypeSousTache[]
 }
 export interface WorkFlow {
   id:Number,

@@ -1,0 +1,84 @@
+<div class="details-card">
+  <div class="details-header">
+    <i class="fas fa-layer-group big-icon"></i>
+    <div class="details-title">
+      <h3>Phases du projet</h3>
+      <span class="details-subtitle">Étapes successives d'un projet : Préliminaire, APS, APD, DAO…</span>
+    </div>
+    <button class="btn-secondary" (click)="closed.emit()">
+      <i class="fas fa-times"></i> Fermer
+    </button>
+  </div>
+
+  <div class="banner error" *ngIf="errorMessage">
+    <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+    <i class="fas fa-times close" (click)="errorMessage = ''"></i>
+  </div>
+
+  <div class="phase-item" *ngFor="let phase of phases; let i = index; let premier = first; let dernier = last; trackBy: trackByPhase">
+    <div class="phase-row">
+      <span class="phase-rang">{{ i + 1 }}</span>
+      <input type="text" maxlength="100" [(ngModel)]="noms[phase.id!]" (keyup.enter)="renommer(phase)"/>
+      <span class="portee" [class.commune]="phase.commune"
+            [title]="phase.commune ? 'Partagée par tous les espaces de travail' : 'Propre à cet espace de travail'">
+        <i class="fas" [ngClass]="phase.commune ? 'fa-globe' : 'fa-building'"></i>
+        {{ phase.commune ? 'Commune' : 'Cet espace' }}
+      </span>
+      <span class="child-count" title="Types rangés dans cette phase">{{ nombreDeTypes(phase) }}</span>
+      <button class="icon-btn" title="Monter" [disabled]="premier || enCours" (click)="deplacer(i, -1)">
+        <i class="fas fa-arrow-up"></i>
+      </button>
+      <button class="icon-btn" title="Descendre" [disabled]="dernier || enCours" (click)="deplacer(i, 1)">
+        <i class="fas fa-arrow-down"></i>
+      </button>
+      <button class="icon-btn" title="Renommer" [disabled]="!estRenommee(phase) || enCours" (click)="renommer(phase)">
+        <i class="fas fa-check"></i>
+      </button>
+      <button class="icon-btn" [disabled]="enCours" (click)="changerPortee(phase)"
+              [title]="phase.commune ? 'Réserver à cet espace' : 'Rendre commune à tous les espaces'">
+        <i class="fas" [ngClass]="phase.commune ? 'fa-building' : 'fa-globe'"></i>
+      </button>
+      <button class="icon-btn danger" title="Supprimer" [disabled]="enCours" (click)="supprimer(phase)">
+        <i class="fas fa-trash-alt"></i>
+      </button>
+    </div>
+
+    <!-- statuts du projet pendant lesquels la phase est en cours -->
+    <div class="phase-statuts">
+      <span class="statuts-label">Phase courante quand le projet est</span>
+      <span class="statut-chip" *ngFor="let status of statutsParPhase[phase.id!]"
+            [style.border-color]="status.color || null">
+        {{ status.displayName }}
+        <i class="fas fa-times" title="Retirer" (click)="delier(phase, status)"></i>
+      </span>
+      <select class="statut-select" *ngIf="statutsDisponibles.length" [disabled]="enCours"
+              (change)="lier(phase, $any($event.target).value); $any($event.target).value = ''">
+        <option value="">+ statut…</option>
+        <option *ngFor="let status of statutsDisponibles" [value]="status.id">{{ status.displayName }}</option>
+      </select>
+      <span class="empty-inline" *ngIf="!statutsParPhase[phase.id!].length && !statutsDisponibles.length">
+        aucun statut libre
+      </span>
+    </div>
+  </div>
+
+  <div class="empty-inline" *ngIf="!phases.length">
+    Aucune phase : les types restent utilisables sans phase.
+  </div>
+
+  <div class="phase-row nouvelle">
+    <input type="text" maxlength="100" placeholder="Nouvelle phase (ex : APS)"
+           [(ngModel)]="nouveauNom" (keyup.enter)="ajouter()"/>
+    <label class="commune-check" title="Partagée par tous les espaces de travail">
+      <input type="checkbox" [(ngModel)]="nouvelleCommune"/> Commune
+    </label>
+    <button class="btn-primary" [disabled]="!nouveauNom.trim() || enCours" (click)="ajouter()">
+      <i class="fas fa-plus"></i> Ajouter
+    </button>
+  </div>
+
+  <span class="details-subtitle">
+    La phase courante d'un projet suit son statut : liez chaque phase aux statuts correspondants
+    du flux de travail des projets. Les phases d'un type se choisissent en modifiant le type.
+  </span>
+</div>
