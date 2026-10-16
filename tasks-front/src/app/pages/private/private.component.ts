@@ -14,6 +14,7 @@ import {environment} from "../../../environments/environment";
 import {MessagesService} from "../../services/messages.service";
 import {ActionService} from "../../services/action.service";
 import {ImageModalContentComponent} from "../../common/image-modal-content/image-modal-content.component";
+import {RappelPlanningService} from "../../services/rappel-planning.service";
 
 @Component({
   selector: 'private-root',
@@ -70,7 +71,8 @@ export class PrivateComponent implements  OnInit{
               protected authGuard: AuthGuard,
               protected systemGuerd :AuthGuard,
               protected messageService:MessagesService,
-              protected actionService:ActionService
+              protected actionService:ActionService,
+              private rappelPlanningService: RappelPlanningService
   ) {
   }
 
@@ -202,8 +204,10 @@ export class PrivateComponent implements  OnInit{
         // websocket. Les demander ici de plus ajoutait une requete identique
         // a chaque montage du shell prive.
         this.messageService.connectWs(this.connectedUser.id);
+        this.rappelPlanningService.suivre(this.connectedUser.id);
       } else {
         this.messageService.disconnectWs();
+        this.rappelPlanningService.arreter();
       }
     });
     this.issueService.projects$.subscribe(projectes => {
