@@ -272,6 +272,8 @@ export interface WorkFlow {
   statuses? :Status[],
   issueTypes? :IssueType[],
   project?:Project
+  /** propose a tous les espaces de travail (pas d'espace) */
+  commun?:boolean,
   crossingStates? :CrossingState[],
   /** positions des noeuds du diagramme, JSON : {"<statusId>":{"x":0,"y":0}} */
   layout?:String,

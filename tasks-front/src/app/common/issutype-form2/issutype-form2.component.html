@@ -124,6 +124,18 @@
                   placeholder="Rôle et usage de ce type…"></textarea>
       </mat-form-field>
 
+      <!-- Flux de travail : statuts que suivront les tâches de ce type -->
+      <mat-form-field appearance="outline" class="fw">
+        <mat-label>Flux de travail</mat-label>
+        <mat-select [value]="workFlowId" (selectionChange)="workFlowId = $event.value"
+                    placeholder="Flux du type parent, ou flux par défaut">
+          <mat-option *ngFor="let workFlow of workFlows" [value]="workFlow.id">
+            {{ workFlow.name }}<span class="phase-commune" *ngIf="workFlow.commun"> · commun</span>
+          </mat-option>
+        </mat-select>
+        <mat-hint>Flux de cet espace ou flux communs à tous les espaces</mat-hint>
+      </mat-form-field>
+
       <!-- Phases du projet où le sous-type sert, facultatives -->
       <ng-container *ngIf="usesPhases">
         <mat-form-field appearance="outline" class="fw">

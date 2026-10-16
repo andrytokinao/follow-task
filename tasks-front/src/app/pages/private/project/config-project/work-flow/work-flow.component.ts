@@ -5,7 +5,7 @@ import {ActivatedRoute} from "@angular/router";
 import {IssueService} from "../../../../../services/issue.service";
 import {ConfigService} from "../../../../../services/config.service";
 import {ConfirmationDialogService} from "../../../../../services/confirmation-dialog.service";
-import {CrossingState, NodePosition, Project, Status, WorkFlow} from "../../../../../type/issue";
+import {CrossingState, IssueType, NodePosition, Project, Status, WorkFlow} from "../../../../../type/issue";
 
 /** Un statut place sur le diagramme. */
 export interface DiagramNode {
@@ -60,7 +60,19 @@ export class WorkFlowComponent implements OnInit, OnDestroy {
   newStatusColor: string = '#185FA5';
   showWorkFlowForm: boolean = false;
   newWorkFlowName: string = '';
+  /** Le nouveau flux est propose a tous les espaces de travail. */
+  newWorkFlowCommun: boolean = false;
   renaming: boolean = false;
+
+  // ---- types de tache du flux ----
+  /** Types de l'espace (parents et sous-types), a plat. */
+  private projectTypes: IssueType[] = [];
+  /** Types de cet espace qui utilisent le flux selectionne. */
+  typesDuFlux: IssueType[] = [];
+  /** Types d'autres espaces qui l'utilisent (flux commun). */
+  typesAilleurs: number = 0;
+  /** Types de cet espace auxquels le flux peut etre affecte. */
+  typesAffectables: IssueType[] = [];
   workFlowName: string = '';
 
   private draggedNode: DiagramNode | null = null;
@@ -86,7 +98,12 @@ export class WorkFlowComponent implements OnInit, OnDestroy {
         this.project = project;
         if (changed && project?.id) {
           this.issueService.workFlowsByProject(project.id).subscribe();
+          this.issueService.allIssueType(project.id);
         }
+      }),
+      this.issueService.issueType$.subscribe(issueTypes => {
+        this.projectTypes = this.flatten(issueTypes || []);
+        this.buildTypes();
       }),
       this.issueService.workFlows$.subscribe(workFlows => {
         this.workFlows = workFlows || [];
@@ -136,6 +153,7 @@ export class WorkFlowComponent implements OnInit, OnDestroy {
     this.selected = workFlow;
     this.workFlowName = '' + (workFlow?.name || '');
     this.buildNodes();
+    this.buildTypes();
   }
 
   isSelectedWorkFlow(workFlow: WorkFlow): boolean {
@@ -545,16 +563,105 @@ export class WorkFlowComponent implements OnInit, OnDestroy {
   toggleWorkFlowForm() {
     this.showWorkFlowForm = !this.showWorkFlowForm;
     this.newWorkFlowName = '';
+    this.newWorkFlowCommun = false;
   }
 
   createWorkFlow() {
     if (!this.newWorkFlowName.trim()) {
       return;
     }
-    this.saveWorkFlow({name: this.newWorkFlowName.trim()}, () => {
+    // un flux commun est cree sans espace de travail
+    const payload: any = {name: this.newWorkFlowName.trim()};
+    if (this.newWorkFlowCommun) {
+      payload.project = null;
+    }
+    this.saveWorkFlow(payload, () => {
       this.showWorkFlowForm = false;
       this.newWorkFlowName = '';
+      this.newWorkFlowCommun = false;
     });
+  }
+
+  /** Rend le flux selectionne commun, ou le rattache a cet espace. */
+  toggleCommun() {
+    if (this.selected?.id == null) {
+      return;
+    }
+    const commun = !this.selected.commun;
+    const message = commun
+      ? `« ${this.selected.name} » sera proposé à tous les espaces de travail. Ses statuts et transitions seront modifiables depuis chacun d'eux.`
+      : `« ${this.selected.name} » ne sera plus proposé qu'à cet espace de travail.`;
+    this.confirmationDialog.confirm(
+      commun ? 'Rendre le flux commun' : 'Rattacher le flux à cet espace',
+      message, 'Confirmer', 'Annuler'
+    ).then((confirmed) => {
+      if (!confirmed) {
+        return;
+      }
+      this.errorMessage = '';
+      this.saving = true;
+      this.issueService.changerPorteeWorkFlow(<number>this.selected!.id, commun, this.project?.id ?? null).subscribe({
+        next: (workFlow) => {
+          this.saving = false;
+          this.applyWorkFlow(workFlow);
+          this.reloadList(null);
+        },
+        error: (error) => {
+          this.saving = false;
+          this.errorMessage = this.extractMessage(error);
+        }
+      });
+    }).catch(() => {
+    });
+  }
+
+  // -----------------------------------------------------------------
+  // Types de tache utilisant le flux
+  // -----------------------------------------------------------------
+
+  /** Affecte le flux selectionne au type : ses taches suivront ces statuts. */
+  affecterType(issueType: IssueType) {
+    if (this.selected?.id == null || issueType?.id == null) {
+      return;
+    }
+    const projectRef: any = {id: this.project?.id};
+    const input: any = {
+      id: issueType.id,
+      project: projectRef,
+      curentWorkFlow: {id: this.selected.id, project: projectRef}
+    };
+    this.errorMessage = '';
+    this.saving = true;
+    this.issueService.affectWorkFlow(input).subscribe({
+      next: () => {
+        this.saving = false;
+        this.selectWorkFlow(<WorkFlow>this.selected);
+        this.issueService.allIssueType(this.project.id);
+      },
+      error: (error) => {
+        this.saving = false;
+        this.errorMessage = this.extractMessage(error);
+      }
+    });
+  }
+
+  private buildTypes() {
+    const users = this.selected?.issueTypes || [];
+    const projectId = this.project?.id;
+    this.typesDuFlux = users.filter(type => type.project?.id == projectId);
+    this.typesAilleurs = users.length - this.typesDuFlux.length;
+    const usedIds = new Set(this.typesDuFlux.map(type => type.id));
+    this.typesAffectables = this.projectTypes.filter(type => !usedIds.has(type.id));
+  }
+
+  private flatten(issueTypes: IssueType[]): IssueType[] {
+    const byId = new Map<number, IssueType>();
+    issueTypes.forEach(parent => {
+      [parent, ...(parent.children || [])]
+        .filter(type => type?.id != null)
+        .forEach(type => byId.set(<number>type.id, type));
+    });
+    return Array.from(byId.values());
   }
 
   startRename() {
@@ -573,7 +680,7 @@ export class WorkFlowComponent implements OnInit, OnDestroy {
   private saveWorkFlow(payload: any, done: () => void) {
     this.errorMessage = '';
     this.saving = true;
-    const workFlow: any = {...payload, project: {id: this.project?.id}};
+    const workFlow: any = {project: {id: this.project?.id}, ...payload};
     this.issueService.saveWorkFlow(workFlow).subscribe({
       next: (saved: WorkFlow) => {
         this.saving = false;

@@ -1339,11 +1339,16 @@ const WORK_FLOW_FIELDS = `
   issueTypes {
     id
     name
+    project {
+      id
+      name
+    }
   }
   project {
     id
     name
   }
+  commun
 `
 const SAVE_WORK_FLOW = gql`
     mutation saveWorkFlow($workFlow:WorkFlowInput) {
@@ -1417,6 +1422,15 @@ const WORK_FLOWS_BY_PROJECT = gql`
         id
         name
       }
+      commun
+    }
+  }
+`
+
+const CHANGER_PORTEE_WORK_FLOW = gql`
+  mutation changerPorteeWorkFlow($workFlowId:Int!,$commun:Boolean!,$projectId:Int) {
+    changerPorteeWorkFlow(workFlowId: $workFlowId, commun: $commun, projectId: $projectId) {
+      ${WORK_FLOW_FIELDS}
     }
   }
 `
@@ -4076,6 +4090,7 @@ export {
   SAVE_WORK_FLOW,
   GET_WORK_FLOW,
   WORK_FLOWS_BY_PROJECT,
+  CHANGER_PORTEE_WORK_FLOW,
   SAVE_WORK_FLOW_LAYOUT,
   SAVE_CROSSING_STATE,
   DELETE_CROSSING_STATE,

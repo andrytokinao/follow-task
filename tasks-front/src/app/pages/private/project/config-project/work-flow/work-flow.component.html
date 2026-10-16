@@ -15,6 +15,10 @@
     <div class="inline-form" *ngIf="showWorkFlowForm">
       <input type="text" placeholder="Nom du flux" [(ngModel)]="newWorkFlowName"
              (keyup.enter)="createWorkFlow()"/>
+      <label class="check-line">
+        <input type="checkbox" [(ngModel)]="newWorkFlowCommun"/>
+        Commun à tous les espaces de travail
+      </label>
       <div class="inline-actions">
         <button class="btn-ghost" (click)="toggleWorkFlowForm()">Annuler</button>
         <button class="btn-primary" [disabled]="!newWorkFlowName.trim() || saving" (click)="createWorkFlow()">
@@ -28,6 +32,7 @@
          (click)="selectWorkFlow(flow)">
       <i class="fas fa-diagram-project"></i>
       <span class="flow-name">{{ flow.name }}</span>
+      <span class="commun-tag" *ngIf="flow.commun" title="Proposé à tous les espaces de travail">commun</span>
       <span class="count-badge">{{ statusCount(flow) }}</span>
       <button class="icon-btn danger" title="Supprimer" (click)="deleteWorkFlow(flow, $event)">
         <i class="fas fa-trash-alt"></i>
@@ -60,6 +65,11 @@
       </div>
 
       <div class="toolbar-right">
+        <button class="btn-ghost" [disabled]="saving" (click)="toggleCommun()"
+                [title]="selected.commun ? 'Ne le proposer qu\'à cet espace' : 'Le proposer à tous les espaces'">
+          <i class="fas" [class.fa-globe]="!selected.commun" [class.fa-folder]="selected.commun"></i>
+          {{ selected.commun ? 'Rattacher à cet espace' : 'Rendre commun' }}
+        </button>
         <button class="btn-ghost" (click)="toggleStatusForm()">
           <i class="fas fa-plus"></i> Statut
         </button>
@@ -84,6 +94,26 @@
           Ajouter
         </button>
       </div>
+    </div>
+
+    <div class="banner info" *ngIf="selected?.commun">
+      <i class="fas fa-globe"></i>
+      Flux commun : les statuts et transitions modifiés ici changent dans tous les espaces de travail.
+    </div>
+
+    <!-- Types de tache qui suivent ce flux -->
+    <div class="types-bar" *ngIf="selected && !loading">
+      <span class="types-label"><i class="fas fa-tags"></i> Types utilisant ce flux :</span>
+      <span class="type-chip" *ngFor="let type of typesDuFlux">{{ type.name }}</span>
+      <span class="types-empty" *ngIf="!typesDuFlux.length">aucun dans cet espace</span>
+      <span class="types-ailleurs" *ngIf="typesAilleurs">
+        et {{ typesAilleurs }} dans d'autres espaces
+      </span>
+      <select class="type-select" *ngIf="typesAffectables.length" [disabled]="saving"
+              #typeSelect (change)="affecterType(typesAffectables[+typeSelect.value]); typeSelect.value = ''">
+        <option value="" selected>+ Affecter à un type…</option>
+        <option *ngFor="let type of typesAffectables; let i = index" [value]="i">{{ type.name }}</option>
+      </select>
     </div>
 
     <div class="banner error" *ngIf="errorMessage">

@@ -19,7 +19,7 @@ import {MatMenuModule, MatMenuTrigger} from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
 import { TextFieldModule } from '@angular/cdk/text-field';
 import { NgxColorsModule } from 'ngx-colors';
-import { IssueType, Project, Icone, Phase } from '../../type/issue';
+import { IssueType, Project, Icone, Phase, WorkFlow } from '../../type/issue';
 import { IssueService } from '../../services/issue.service';
 import { PhaseService } from '../../services/phase.service';
 import { memesIds } from '../../type/phase.util';
@@ -90,6 +90,11 @@ export class IssutypeForm2Component {
   addingPhase = false;
   newPhaseName = '';
 
+  // ---- flux de travail du type : ceux de l'espace et les flux communs ----
+  workFlows: WorkFlow[] = [];
+  /** Flux choisi, par id ; null a la creation = flux du parent ou flux par defaut. */
+  workFlowId: number | null = null;
+
   /** Creation d'un sous-type : en creer un nouveau ou reutiliser un existant. */
   subMode: 'new' | 'existing' = 'new';
   parentSearch = '';
@@ -139,6 +144,7 @@ export class IssutypeForm2Component {
     this.issueService.project$.subscribe(p => {
       this.project = p;
       this.loadPhases();
+      this.loadWorkFlows();
     });
     this.issueService.issueType$.subscribe(types => this.projectParents = types || []);
 
@@ -212,6 +218,19 @@ export class IssutypeForm2Component {
         this.prefixChecking = false;
         this.prefixAvailable = available;
       });
+  }
+
+  /** Flux de l'espace et flux communs, proposes pour le type. */
+  private loadWorkFlows(): void {
+    const projectId = this.currentProjectId;
+    if (projectId == null) {
+      this.workFlows = [];
+      return;
+    }
+    this.issueService.workFlowsByProject(projectId).subscribe({
+      next: workFlows => this.workFlows = workFlows || [],
+      error: () => this.workFlows = []
+    });
   }
 
   private loadPhases(): void {
@@ -439,6 +458,7 @@ export class IssutypeForm2Component {
     this.phaseIds = (this.edited.phases || []).map(phase => phase.id);
     this.addingPhase = false;
     this.newPhaseName = '';
+    this.workFlowId = this.edited.curentWorkFlow?.id != null ? +this.edited.curentWorkFlow.id : null;
     this.selectedIcone = this.edited.icone;
     this.level = (this.edited.level as 'PARENT' | 'SUB_TASK') || 'PARENT';
     this.selectedParents = [...(this.edited.parents || [])];
@@ -482,6 +502,7 @@ export class IssutypeForm2Component {
     this.phaseIds = (this.edited?.phases || []).map(phase => phase.id);
     this.addingPhase = false;
     this.newPhaseName = '';
+    this.workFlowId = this.edited?.curentWorkFlow?.id != null ? +this.edited.curentWorkFlow.id : null;
     this.selectedIcone = this.edited ? this.edited.icone : undefined;
     this.errorMessage = undefined;
     this.applyParentDefaults();
@@ -525,9 +546,10 @@ export class IssutypeForm2Component {
       // pour ne pas etre ecrasees cote serveur.
       issueType.id = this.edited.id;
       issueType.style = this.edited.style;
-      if (this.edited.curentWorkFlow) {
-        issueType.curentWorkFlow = {id: this.edited.curentWorkFlow.id};
-      }
+    }
+    // aucun flux choisi a la creation : le serveur reprend celui du parent, ou le flux par defaut
+    if (this.workFlowId != null) {
+      issueType.curentWorkFlow = {id: this.workFlowId};
     }
 
     if (this.level === 'SUB_TASK') {

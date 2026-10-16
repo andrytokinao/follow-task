@@ -1135,6 +1135,11 @@ export class IssueService implements OnInit {
     return this.workFlowMutation(operation.REMOVE_STATUS_FROM_WORK_FLOW, {workFlowId, statusId}, 'removeStatusFromWorkFlow');
   }
 
+  /** Rend le flux commun a tous les espaces, ou le rattache a l'espace projectId. */
+  changerPorteeWorkFlow(workFlowId: number, commun: boolean, projectId: number | null) {
+    return this.workFlowMutation(operation.CHANGER_PORTEE_WORK_FLOW, {workFlowId, commun, projectId}, 'changerPorteeWorkFlow');
+  }
+
   deleteWorkFlow(workFlowId: number) {
     return new Observable<ResponseApp>(observer => {
       this.apollo.mutate({
