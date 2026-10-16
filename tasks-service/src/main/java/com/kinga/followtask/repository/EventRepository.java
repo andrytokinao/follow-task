@@ -38,4 +38,13 @@ public interface EventRepository extends JpaRepository<PlanningEvent,Long> {
     );
 
     public PlanningEvent findByDateValueId(Long valueId);
+
+    /** Activites d'une personne qui touchent la periode [debut, fin[ ; une fin absente ne borne rien. */
+    @Query("SELECT e FROM PlanningEvent e " +
+            "WHERE e.user.id = :userId " +
+            "AND e.start < :fin " +
+            "AND (e.end IS NULL OR e.end > :debut)")
+    List<PlanningEvent> findByUserIdChevauchant(@Param("userId") String userId,
+                                                @Param("debut") LocalDateTime debut,
+                                                @Param("fin") LocalDateTime fin);
 }
