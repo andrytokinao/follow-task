@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -71,6 +72,20 @@ public class HorairesTravail {
         return horaires.stream()
                 .map(h -> new Plage(jour.atTime(h.debut()), jour.atTime(h.fin())))
                 .toList();
+    }
+
+    /** Part des plages du jour deja ecoulee : on ne reproche pas a 10 h l'apres-midi vide. */
+    public List<Plage> plagesEcoulees(LocalDate jour, LocalDateTime maintenant) {
+        Plage passe = new Plage(LocalDateTime.MIN, maintenant);
+        return plages(jour).stream()
+                .map(p -> p.intersection(passe))
+                .flatMap(Optional::stream)
+                .toList();
+    }
+
+    /** Vrai si l'instant tombe dans une plage de travail. */
+    public boolean enHoraires(LocalDateTime instant) {
+        return plages(instant.toLocalDate()).stream().anyMatch(p -> p.contient(instant));
     }
 
     /** Une plage du reglage, sans date : « 08:00-12:00 ». */

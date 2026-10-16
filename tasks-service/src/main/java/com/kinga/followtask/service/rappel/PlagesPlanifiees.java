@@ -5,7 +5,7 @@ import com.kinga.followtask.entity.enumapp.ExecutionStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Plages de temps occupees par des activites du planning.
@@ -23,20 +23,22 @@ public final class PlagesPlanifiees {
 
     public static List<Plage> de(List<PlanningEvent> evenements) {
         return evenements.stream()
-                .filter(e -> e.getStartTime() != null)
-                .filter(e -> e.getExecutionStatus() != ExecutionStatus.POSTPONED)
-                .map(PlagesPlanifiees::plage)
-                .filter(Objects::nonNull)
+                .map(PlagesPlanifiees::plageDe)
+                .flatMap(Optional::stream)
                 .toList();
     }
 
-    private static Plage plage(PlanningEvent e) {
+    /** Plage occupee par une activite ; vide si elle ne compte pas (reportee, sans debut). */
+    public static Optional<Plage> plageDe(PlanningEvent e) {
+        if (e.getStartTime() == null || e.getExecutionStatus() == ExecutionStatus.POSTPONED) {
+            return Optional.empty();
+        }
         LocalDateTime debut = e.getStartTime();
         LocalDateTime fin = e.getEndTime() != null ? e.getEndTime() : debut.plusHours(1);
         if (e.isAllDay()) {
             debut = debut.toLocalDate().atStartOfDay();
             fin = fin.toLocalDate().plusDays(1).atStartOfDay();
         }
-        return fin.isAfter(debut) ? new Plage(debut, fin) : null;
+        return fin.isAfter(debut) ? Optional.of(new Plage(debut, fin)) : Optional.empty();
     }
 }

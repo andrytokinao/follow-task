@@ -8,6 +8,7 @@ import com.kinga.followtask.service.AuthorizationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -34,22 +35,41 @@ public class PopulationOuvriers {
     private final AuthorizationService authorizationService;
 
     public boolean estOuvrier(UserApp user) {
+        return !espacesAssignables(user).isEmpty();
+    }
+
+    /**
+     * Prefixes des espaces de travail ou l'ouvrier est assignable ; vide s'il
+     * n'est pas ouvrier. Ce sont ses departements dans l'ecran de direction.
+     */
+    public List<String> espacesAssignables(UserApp user) {
         if (user == null || !user.estActif()) {
-            return false;
+            return List.of();
         }
         if (PILOTAGE_SYSTEME.stream().anyMatch(a -> authorizationService.hasSystemAccessibility(user, a))) {
-            return false;
+            return List.of();
         }
-        boolean assignable = false;
+        List<String> espaces = new ArrayList<>();
         for (MemberGroupe membre : memberGroupeRepository.findByUserIdAndGroupeType(user.getId(), GroupeUser.PROJECT_GROUPE)) {
+            boolean assignable = false;
             for (String role : membre.getRoles() == null ? List.<String>of() : membre.getRoles()) {
                 Set<String> accessibilites = authorizationService.resolveTaskAccessibilities(role);
                 if (accessibilites.contains(AGENDA_EQUIPE)) {
-                    return false;
+                    return List.of();
                 }
                 assignable |= accessibilites.contains(ASSIGNABLE);
             }
+            if (assignable) {
+                espaces.add(prefixeEspace(membre.getGroupe()));
+            }
         }
-        return assignable;
+        return espaces;
+    }
+
+    /** Le groupe d'un espace porte son prefixe suivi de « _GROUPE » ({@link GroupeUser#projectGroupePrefix}). */
+    private static String prefixeEspace(GroupeUser groupe) {
+        String suffixe = GroupeUser.projectGroupePrefix("");
+        String prefixe = groupe.getPrefix();
+        return prefixe.endsWith(suffixe) ? prefixe.substring(0, prefixe.length() - suffixe.length()) : prefixe;
     }
 }

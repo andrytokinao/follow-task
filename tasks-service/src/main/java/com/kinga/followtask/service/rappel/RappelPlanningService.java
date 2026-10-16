@@ -57,7 +57,7 @@ public class RappelPlanningService {
         List<RappelPlanning> rappels = new ArrayList<>();
         veille.flatMap(jour -> redaction.veille(couverture(horaires.plages(jour), planifiees), jour))
                 .ifPresent(rappels::add);
-        List<Plage> ecoulees = jusqua(horaires.plages(aujourdhui), maintenant);
+        List<Plage> ecoulees = horaires.plagesEcoulees(aujourdhui, maintenant);
         if (!ecoulees.isEmpty()) {
             redaction.aujourdhui(couverture(ecoulees, planifiees), maintenant).ifPresent(rappels::add);
         }
@@ -66,14 +66,5 @@ public class RappelPlanningService {
 
     private Couverture couverture(List<Plage> attendues, List<Plage> planifiees) {
         return Couverture.calculer(attendues, planifiees, seuil);
-    }
-
-    /** Part des plages deja ecoulee : on ne reproche pas a 10 h l'apres-midi vide. */
-    private static List<Plage> jusqua(List<Plage> plages, LocalDateTime maintenant) {
-        Plage passe = new Plage(LocalDateTime.MIN, maintenant);
-        return plages.stream()
-                .map(p -> p.intersection(passe))
-                .flatMap(Optional::stream)
-                .toList();
     }
 }
