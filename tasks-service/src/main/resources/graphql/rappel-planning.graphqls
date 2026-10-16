@@ -16,6 +16,9 @@ type RappelPlanning {
     gravite: GraviteRappel
     titre: String
     message: String
+    # Vrai : affiché en bandeau, sans fermeture, tant que le serveur le
+    # renvoie (journée sans aucune activité). Faux : un toast.
+    persistant: Boolean
 }
 
 extend type Query {

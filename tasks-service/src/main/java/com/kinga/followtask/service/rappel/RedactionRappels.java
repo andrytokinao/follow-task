@@ -33,10 +33,13 @@ public class RedactionRappels {
         }
         String cle = "JOUR:" + maintenant.toLocalDate();
         if (couverture.vide()) {
+            // Persistant : un toast se ferme d'un clic et l'ouvrier passait la
+            // journee sans planning. Le bandeau reste jusqu'a la premiere activite.
             return Optional.of(new RappelPlanning(cle, Gravite.ALERTE,
                     "Aucune activité planifiée aujourd'hui",
                     "Votre supérieur ne sait pas ce que vous faites aujourd'hui. "
-                            + "Sans planning, vous apparaissez absent : renseignez vos activités."));
+                            + "Sans planning, vous apparaissez absent : renseignez vos activités.",
+                    true));
         }
         Optional<Plage> enCours = couverture.manqueA(maintenant);
         if (enCours.isPresent()) {

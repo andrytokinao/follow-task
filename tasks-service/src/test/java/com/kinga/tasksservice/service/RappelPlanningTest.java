@@ -88,6 +88,8 @@ class RappelPlanningTest {
 
         assertThat(rappel.gravite()).isEqualTo(Gravite.ALERTE);
         assertThat(rappel.message()).contains("absent");
+        // Seule la journee en cours vide reste en bandeau ; la veille est un toast.
+        assertThat(rappel.persistant()).isFalse();
     }
 
     @Test
@@ -107,6 +109,7 @@ class RappelPlanningTest {
         assertThat(rappel.cle()).isEqualTo("JOUR:2026-10-16");
         assertThat(rappel.gravite()).isEqualTo(Gravite.ALERTE);
         assertThat(rappel.message()).contains("Votre supérieur ne sait pas");
+        assertThat(rappel.persistant()).isTrue();
     }
 
     @Test
