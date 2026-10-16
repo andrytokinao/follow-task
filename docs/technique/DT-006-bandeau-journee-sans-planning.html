@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DT-006 — Bandeau « aucune activité planifiée aujourd'hui »</title>
+  <link rel="stylesheet" href="assets/doc.css">
+  <style>
+    /* Maquette : reprend bandeau-rappel.component.css. */
+    .mq-ecran { position: relative; height: 170px; background: #f4f5f7; border-radius: 12px; overflow: hidden; font-size: 13px; }
+    .mq-ecran .page { position: absolute; inset: 12px 12px 0; background: #fff; border-radius: 8px 8px 0 0; color: #8a94a6; padding: 10px; }
+    .mq-bandeau { position: absolute; left: 14px; bottom: 14px; display: flex; align-items: center; gap: 10px; max-width: 70%;
+                  padding: 10px 12px; border-left: 4px solid #b42318; border-radius: 10px; background: #fdeeee;
+                  box-shadow: 0 4px 16px rgba(16,24,40,.16); color: #101828; line-height: 1.35; }
+    .mq-bandeau strong { color: #b42318; display: block; }
+    .mq-bandeau .btn { flex-shrink: 0; padding: 6px 10px; border-radius: 8px; background: #b42318; color: #fff; font-weight: 600; }
+    .mq-chrono { position: absolute; right: 14px; bottom: 14px; padding: 8px 12px; border-radius: 999px; background: #185FA5; color: #fff; }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <header class="doc-header">
+    <span class="doc-ref">DT-006</span>
+    <h1>Bandeau « aucune activité planifiée aujourd'hui »</h1>
+    <p class="subtitle">Suite de DT-004 : un ouvrier sans aucune activité dans la journée ne peut plus faire disparaître
+      le rappel d'un clic.</p>
+    <table class="meta">
+      <tr><td>Référence</td><td>DT-006 (Document Technique n° 006)</td></tr>
+      <tr><td>Statut</td><td><strong>Réalisé</strong></td></tr>
+      <tr><td>Version de l'application</td><td>2.0.13</td></tr>
+      <tr><td>Date</td><td>16 octobre 2026</td></tr>
+      <tr><td>Commits liés</td><td>titres contenant « (DT-006) » : <code>git log --grep "DT-006"</code></td></tr>
+    </table>
+  </header>
+
+  <!-- ================================================================== -->
+  <h2 id="besoin">1. Besoin</h2>
+  <p>Avec DT-004, la journée sans aucune activité était signalée par un toast rouge sans délai d'effacement. Mais un
+    simple clic le fermait, et sa clé (<code>JOUR:2026-10-16</code>) étant retenue pour la session, il ne revenait
+    plus : l'ouvrier pouvait passer la journée sans planning après un seul clic.</p>
+
+  <!-- ================================================================== -->
+  <h2 id="comportement">2. Comportement</h2>
+  <ul>
+    <li>La journée en cours sans aucune activité (en horaires, seuil dépassé) s'affiche dans un <strong>bandeau</strong>,
+      en bas à gauche de tout <code>/working</code> ; le chrono garde le bas à droite.</li>
+    <li><strong>Pas de fermeture</strong> : le bandeau disparaît de lui-même dès que le serveur ne renvoie plus le rappel.</li>
+    <li>Revérifié toutes les 30 minutes (comme DT-004) <strong>et juste après l'enregistrement d'une activité</strong> :
+      le bandeau disparaît aussitôt la première activité saisie.</li>
+    <li>Bouton « Planifier maintenant » : planning de l'espace en cours, à défaut du premier espace de l'ouvrier.</li>
+    <li>Les autres rappels restent des toasts : trou en cours, planning incomplet, veille vide ou incomplète.</li>
+  </ul>
+  <div class="mq-ecran">
+    <div class="page">Page en cours…</div>
+    <div class="mq-bandeau">
+      <div><strong>Aucune activité planifiée aujourd'hui</strong>
+        Votre supérieur ne sait pas ce que vous faites aujourd'hui. Sans planning, vous apparaissez absent : renseignez vos activités.</div>
+      <span class="btn">Planifier maintenant</span>
+    </div>
+    <span class="mq-chrono">⏱ 00:42</span>
+  </div>
+
+  <!-- ================================================================== -->
+  <h2 id="architecture">3. Architecture du code</h2>
+  <p>Le serveur décide de ce qui est persistant ; l'écran ne devine rien à partir de la clé ou de la gravité.</p>
+  <table class="data">
+    <tr><th>Fichier</th><th>Changement</th></tr>
+    <tr><td><code>dto/RappelPlanning</code></td><td>Champ <code>persistant</code> ; l'ancien constructeur reste (persistant = faux)</td></tr>
+    <tr><td><code>rappel/RedactionRappels</code></td><td>Journée en cours vide → <code>persistant = true</code></td></tr>
+    <tr><td><code>graphql/rappel-planning.graphqls</code></td><td>Champ <code>persistant: Boolean</code></td></tr>
+    <tr><td><code>RappelPlanningTest</code></td><td>Journée vide persistante, veille vide non persistante</td></tr>
+    <tr><td><code>services/rappel-planning.service.ts</code></td><td><code>bandeau$</code> (rappel persistant ou rien) et <code>actualiser()</code></td></tr>
+    <tr><td><code>services/events.service.ts</code></td><td><code>saveEvent</code> appelle <code>actualiser()</code> après succès</td></tr>
+    <tr><td><code>common/bandeau-rappel/*</code></td><td>Composant autonome, ancré dans <code>private.component.html</code> à côté du chrono</td></tr>
+  </table>
+
+  <!-- ================================================================== -->
+  <h2 id="limites">4. Limites</h2>
+  <ul>
+    <li>Supprimer sa seule activité ne fait réapparaître le bandeau qu'à la vérification suivante (30 minutes au plus).</li>
+    <li>Congés et jours fériés toujours inconnus (voir DT-004) : un ouvrier en congé qui se connecte voit le bandeau.</li>
+  </ul>
+
+  <footer>follow-task · DT-006 · bandeau journée sans planning</footer>
+</div>
+</body>
+</html>
