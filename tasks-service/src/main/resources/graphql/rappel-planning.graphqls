@@ -1,0 +1,25 @@
+# Rappels de planning : un ouvrier dont le planning a des trous (dernier jour
+# ouvrable, ou aujourd'hui jusqu'à maintenant) est prévenu par un toast.
+# Calculés à chaque demande, jamais enregistrés : ce ne sont pas des
+# notifications. Les chefs de projet et la direction n'en reçoivent pas.
+
+enum GraviteRappel {
+    INFO
+    ATTENTION
+    ALERTE
+}
+
+type RappelPlanning {
+    # Stable tant que le trou est le même : l'écran ne répète pas un rappel
+    # déjà affiché.
+    cle: String
+    gravite: GraviteRappel
+    titre: String
+    message: String
+}
+
+extend type Query {
+    # Rappels de l'utilisateur connecté ; liste vide s'il n'est pas ouvrier ou
+    # si son planning est complet.
+    mesRappelsPlanning: [RappelPlanning]
+}
