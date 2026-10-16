@@ -10,6 +10,7 @@ import com.kinga.followtask.dto.UserDetailsDeto;
 import com.kinga.followtask.entity.*;
 import com.kinga.followtask.entity.enumapp.Niveau;
 import com.kinga.followtask.repository.*;
+import com.kinga.followtask.service.workflow.WorkFlowPorteeService;
 import com.kinga.utils.KingaUtils;
 import com.nimbusds.jose.shaded.gson.Gson;
 import lombok.RequiredArgsConstructor;
@@ -74,6 +75,7 @@ public class ProjectService {
     private final CurrentUserProvider currentUserProvider;
     /** Seul endroit ou le type d'une tache change : voir IssueTypeChangeService. */
     private final IssueTypeChangeService issueTypeChangeService;
+    private final WorkFlowPorteeService workFlowPorteeService;
     private IssueService issueService;
 
     public Status saveStatus(Status status) {
@@ -128,12 +130,12 @@ public class ProjectService {
     }
 
     public WorkFlow getDefaultWorkFlow() {
-        WorkFlow workFlow = workFlowRepository.findWorkFlowByName("Default workflow");
+        WorkFlow workFlow = workFlowRepository.findWorkFlowByName(WorkFlow.NOM_PAR_DEFAUT);
         if (workFlow != null) {
             return workFlow;
         }
         workFlow = new WorkFlow();
-        workFlow.setName("Default workflow");
+        workFlow.setName(WorkFlow.NOM_PAR_DEFAUT);
         workFlow.setActive(true);
         workFlow.setStatuses(defalutStatusList());
         return workFlowRepository.save(workFlow);
@@ -378,6 +380,11 @@ public class ProjectService {
         }
         if (issueType.getCurentWorkFlow() == null) {
             issueType.setCurentWorkFlow(getDefaultWorkFlow());
+        } else if (issueType.getCurentWorkFlow().getId() != null) {
+            // le formulaire n'envoie que l'id : relire le flux pour verifier sa portee
+            WorkFlow choisi = loadWorkFlow(issueType.getCurentWorkFlow().getId());
+            workFlowPorteeService.verifierDisponible(choisi, issueType);
+            issueType.setCurentWorkFlow(choisi);
         }
 
         if (issueType.getProject() == null)
@@ -579,6 +586,7 @@ public class ProjectService {
         }
         issueType = issueTypeRepository.getById(issueType.getId());
         workFlow = workFlowRepository.getById(workFlow.getId());
+        workFlowPorteeService.verifierDisponible(workFlow, issueType);
         if (!"complete".equalsIgnoreCase(installation)) {
             configEntry.setInstalationState("create-project/work-flow-status?work-flow=" + workFlow.getId());
         }
@@ -607,7 +615,9 @@ public class ProjectService {
         String statusIds = StringUtils.hasText(workFlow.getStatesIds()) ? workFlow.getStatesIds() : "";
         statusIds += (StringUtils.isEmpty(statusIds) ? "" : ",") + status.getId();
         workFlow.setStatesIds(statusIds);
-        logger.debug("add status " + status.toString() + " " + workFlow.toString() + " " + workFlow.getProject().toString());
+        // un flux commun n'a pas d'espace ; ids seulement : toString parcourt les relations
+        logger.debug("add status {} au flux {} (espace {})", status.getId(), workFlow.getId(),
+                workFlow.isCommun() ? "commun" : workFlow.getProject().getId());
         return workFlowRepository.save(workFlow);
     }
 
@@ -619,8 +629,20 @@ public class ProjectService {
         return this.issueTypeRepository.getReferenceById(issueTypeId);
     }
 
+    /**
+     * Cree un flux (sans espace de travail : commun a tous), ou le renomme.
+     *
+     * <p>Un flux existant ne change ici que de nom : ses statuts et ses
+     * transitions, absents du formulaire, seraient effaces, et sa portee ne
+     * change que par {@link WorkFlowPorteeService#changerPortee}.</p>
+     */
     public WorkFlow saveWorkFlow(WorkFlow workFlow) {
-        return workFlowRepository.save(workFlow);
+        if (workFlow.getId() == null)
+            return workFlowRepository.save(workFlow);
+        WorkFlow existant = loadWorkFlow(workFlow.getId());
+        if (StringUtils.hasText(workFlow.getName()))
+            existant.setName(workFlow.getName().trim());
+        return workFlowRepository.save(existant);
     }
 
     // -----------------------------------------------------------------
@@ -1176,11 +1198,10 @@ public class ProjectService {
         return workFlowRepository.getById(workFlowId);
     }
 
+    /** Flux de l'espace de travail, puis flux communs (dont le flux par defaut). */
     public List<WorkFlow> workFlowsByProject(Long projectId) {
-        WorkFlow defaultWf = this.getDefaultWorkFlow();
-        List<WorkFlow> wfs = workFlowRepository.findByProjectId(projectId);
-        wfs.add(defaultWf);
-        return wfs;
+        this.getDefaultWorkFlow();
+        return workFlowRepository.findVisibles(projectId);
     }
 
 

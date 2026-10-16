@@ -1,0 +1,11 @@
+# Portée des flux de travail.
+#
+# Un flux appartient à un espace de travail, ou à tous (commun). Un flux est
+# créé commun par saveWorkFlow lorsqu'il est envoyé sans espace ; saveWorkFlow
+# ne change ensuite que son nom.
+
+extend type Mutation {
+    # Rend le flux commun, ou le rattache à l'espace projectId. Refusé si un
+    # type d'un autre espace l'utilise, et pour le flux par défaut.
+    changerPorteeWorkFlow(workFlowId: Int!, commun: Boolean!, projectId: Int): WorkFlow
+}

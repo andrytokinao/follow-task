@@ -249,6 +249,8 @@ type WorkFlow {
     statuses :[Status],
     issueTypes :[IssueType],
     project:Project
+    # Propose a tous les espaces de travail (pas d'espace).
+    commun:Boolean
     crossingStates :[CrossingState],
 }
 type ConfigEntry{
