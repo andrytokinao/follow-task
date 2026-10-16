@@ -597,8 +597,14 @@
    Photo systématique, nom escamotable : c'est le nom qui saute quand la
    colonne devient étroite, la photo restant le repère le plus lisible.
    ========================================================================= */
+/* `width: 100%` est indispensable : l'en-tête DayPilot est un conteneur flex
+   en ligne, et un élément `container-type: inline-size` n'a plus de largeur
+   propre (son contenu ne compte plus). Sans largeur explicite il se réduisait
+   à son seul padding et la photo n'apparaissait plus qu'en fine bande. */
 :host ::ng-deep .resource-head {
   container-type: inline-size;
+  box-sizing: border-box;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
