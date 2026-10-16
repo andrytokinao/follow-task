@@ -41,6 +41,14 @@ export function grouperChoix(choix: ChoixTypeSousTache[], phaseCourante: Phase |
   return groupes;
 }
 
+/**
+ * Légende d'un type dans le menu : la phase où la tâche sera classée
+ * (« Phase APS »), « Toutes phases » si le type n'est rangé dans aucune.
+ */
+export function legendeType(choix: ChoixTypeSousTache): string {
+  return choix.phase?.name ? 'Phase ' + choix.phase.name : 'Toutes phases';
+}
+
 /** Entrées cachées tant que les autres phases ne sont pas affichées. */
 export function nombreDeChoixMasques(choix: ChoixTypeSousTache[]): number {
   return choix.filter(entree => !entree.proposee).length;

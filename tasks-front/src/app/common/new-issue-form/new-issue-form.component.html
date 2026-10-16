@@ -161,7 +161,10 @@
         [class.selected]="estChoisi(choix)"
         class="type-menu-item">
         <span class="type-dot-sm" [style.background]="getIssueTypeColor(choix.issueType)"></span>
-        <span>{{ choix.issueType.name }}</span>
+        <span class="type-texte">
+          <span class="type-nom">{{ choix.issueType.name }}</span>
+          <span class="type-legende">{{ legende(choix) }}</span>
+        </span>
       </button>
     </ng-container>
     <div class="menu-empty" *ngIf="!groupesChoix.length" (click)="$event.stopPropagation()">

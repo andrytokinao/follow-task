@@ -448,3 +448,19 @@ $shadow-form:    0 4px 32px rgba(0,0,0,.09), 0 1px 4px rgba(0,0,0,.05);
     mat-icon { font-size: 15px; height: 15px; width: 15px; }
   }
 }
+
+// Type d'une sous-tâche : nom, et sa phase en légende
+::ng-deep {
+  .compact-menu .type-texte {
+    display:        inline-flex;
+    flex-direction: column;
+    line-height:    1.25;
+    padding:        4px 0;
+  }
+
+  .compact-menu .type-legende {
+    font-family: $font;
+    font-size:   10px;
+    color:       $text-tertiary;
+  }
+}

@@ -18,6 +18,7 @@ import {
   estHorsPhaseCourante,
   GroupeChoix,
   grouperChoix,
+  legendeType,
   nombreDeChoixMasques
 } from '../../type/choix-type-sous-tache.util';
 import {MessagesService} from "../../services/messages.service";
@@ -361,6 +362,11 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
     this.appliquerChoix(choix);
     if (trigger)
       trigger.closeMenu();
+  }
+
+  /** Légende sous le nom du type : sa phase, ou « Toutes phases ». */
+  legende(choix: ChoixTypeSousTache): string {
+    return legendeType(choix);
   }
 
   estChoisi(choix: ChoixTypeSousTache): boolean {
