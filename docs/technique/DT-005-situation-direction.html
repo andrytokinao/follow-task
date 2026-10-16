@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DT-005 — Situation du jour (Direction)</title>
+  <link rel="stylesheet" href="assets/doc.css">
+  <style>
+    /* Maquette de l'écran : reprend les jetons du cockpit (direction.component.css). */
+    .mq { --plane: #f4f5f7; --surface: #fff; --hair: #e5e7eb; --accent: #185FA5;
+          --ok: #15803d; --ok-soft: #dcfce7; --warn: #b45309; --warn-soft: #fef3c7;
+          --crit: #b42318; --crit-soft: #fde2e1; --mute: #6b7280;
+          background: var(--plane); border-radius: 14px; padding: 14px; font-size: 13px; color: #111827; }
+    .mq-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .mq-top h4 { margin: 0; font-size: 16px; }
+    .mq-top .maj { color: var(--mute); font-size: 12px; }
+    .mq-tabs { display: flex; gap: 6px; margin-bottom: 10px; }
+    .mq-tab { padding: 3px 10px; border-radius: 999px; background: var(--surface); border: 1px solid var(--hair); font-size: 12px; }
+    .mq-tab.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .mq-card { background: var(--surface); border-radius: 12px; padding: 12px 14px; box-shadow: 0 1px 2px rgba(0,0,0,.06); margin-bottom: 10px; }
+    .mq-fiab { display: flex; align-items: center; gap: 14px; border-left: 4px solid var(--warn); }
+    .mq-fiab .big { font-size: 26px; font-weight: 700; }
+    .mq-fiab .txt { flex: 1; }
+    .mq-fiab .txt small { color: var(--mute); display: block; }
+    .mq-tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 10px; }
+    .mq-tile { background: var(--surface); border-radius: 12px; padding: 10px 12px; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+    .mq-tile .lbl { color: var(--mute); font-size: 12px; }
+    .mq-tile .val { font-size: 24px; font-weight: 700; line-height: 1.2; }
+    .mq-tile .sub { font-size: 11.5px; color: var(--mute); }
+    .mq-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; }
+    .mq h5 { margin: 0 0 8px; font-size: 13.5px; }
+    .mq table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    .mq th { text-align: left; color: var(--mute); font-weight: 600; padding: 4px 6px; border-bottom: 1px solid var(--hair); }
+    .mq td { padding: 6px; border-bottom: 1px solid var(--hair); vertical-align: middle; }
+    .mq tr.grp td { background: #f8fafc; font-weight: 600; color: var(--mute); font-size: 11.5px; padding: 3px 6px; }
+    .etat { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 11.5px; font-weight: 600; white-space: nowrap; }
+    .etat.ok { background: var(--ok-soft); color: var(--ok); }
+    .etat.warn { background: var(--warn-soft); color: var(--warn); }
+    .etat.crit { background: var(--crit-soft); color: var(--crit); }
+    .etat.mute { background: #f3f4f6; color: var(--mute); }
+    .bar { display: inline-block; width: 70px; height: 6px; background: #eef0f3; border-radius: 3px; vertical-align: middle; overflow: hidden; }
+    .bar i { display: block; height: 100%; background: var(--accent); border-radius: 3px; }
+    .mq .who { font-weight: 600; }
+    .mq .muted { color: var(--mute); }
+    .mq ul.ex { list-style: none; margin: 0; padding: 0; }
+    .mq ul.ex li { padding: 6px 0; border-bottom: 1px solid var(--hair); }
+    .mq ul.ex li:last-child { border-bottom: none; }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <header class="doc-header">
+    <span class="doc-ref">DT-005</span>
+    <h1>Situation du jour — écran de la Direction</h1>
+    <p class="subtitle">Un seul écran qui répond à trois questions : où en est-on, qui fait quoi maintenant,
+      et peut-on croire ce qu'on lit.</p>
+    <table class="meta">
+      <tr><td>Référence</td><td>DT-005 (Document Technique n° 005)</td></tr>
+      <tr><td>Statut</td><td><strong>Réalisé</strong> — écran <code>/direction/situation</code></td></tr>
+      <tr><td>Version de l'application</td><td>2.0.13</td></tr>
+      <tr><td>Date</td><td>16 octobre 2026</td></tr>
+      <tr><td>Commits liés</td><td>titres contenant « (DT-005) » : <code>git log --grep "DT-005"</code></td></tr>
+    </table>
+  </header>
+
+  <nav class="toc">
+    <strong>Sommaire</strong>
+    <ol>
+      <li><a href="#besoin">Besoin</a></li>
+      <li><a href="#existant">Ce qui existe, ce qui manque</a></li>
+      <li><a href="#maquette">L'écran</a></li>
+      <li><a href="#clarte">Règles de clarté</a></li>
+      <li><a href="#fiabilite">Règles de fiabilité</a></li>
+      <li><a href="#etats">État d'une personne</a></li>
+      <li><a href="#architecture">Architecture du code</a></li>
+      <li><a href="#graphql">API GraphQL</a></li>
+      <li><a href="#decoupage">Découpage en commits</a></li>
+      <li><a href="#decisions">Décisions retenues</a></li>
+      <li><a href="#evolutions">Limites et évolutions</a></li>
+    </ol>
+  </nav>
+
+  <!-- ================================================================== -->
+  <h2 id="besoin">1. Besoin</h2>
+  <p>La direction ouvre l'application et doit savoir <strong>en dix secondes</strong> :</p>
+  <ol>
+    <li><strong>Où en est-on ?</strong> — les projets avancent-ils, lesquels posent problème ;</li>
+    <li><strong>Qui fait quoi ?</strong> — sur quoi chaque personne travaille en ce moment ;</li>
+    <li><strong>Est-ce fiable ?</strong> — la réponse aux deux premières questions ne vaut que si chacun a renseigné
+      son planning (objectif de DT-004).</li>
+  </ol>
+  <p>L'écran ne demande aucune saisie : il est en lecture seule, comme le rôle DIRECTION.</p>
+
+  <!-- ================================================================== -->
+  <h2 id="existant">2. Ce qui existe, ce qui manque</h2>
+  <table class="data">
+    <tr><th>Écran</th><th>Répond à</th><th>Ne répond pas à</th></tr>
+    <tr><td><code>/direction</code> (cockpit)</td><td>Avancement, retards et fiche de chaque projet, par département</td>
+      <td>Il faut ouvrir les projets un par un ; aucune vue par personne</td></tr>
+    <tr><td><code>/direction/gantt</code></td><td>Calendrier de tous les projets, filtre par personne</td>
+      <td>Lecture longue ; pas de « maintenant » ; pas d'indication de fiabilité</td></tr>
+    <tr><td>Rapport composite (<code>/api/rapports/composite</code>)</td><td>Heures et tâches par personne</td>
+      <td>Document à générer, pas une vue en direct</td></tr>
+  </table>
+  <div class="note">Manquent donc : la <strong>vue par personne en temps réel</strong> et la <strong>mesure de
+    fiabilité</strong>. Le calcul de couverture du planning existe déjà (DT-004) : on le réutilise, on ne le réécrit pas.</div>
+
+  <!-- ================================================================== -->
+  <h2 id="maquette">3. L'écran</h2>
+  <p>Nouvel écran <code>/direction/situation</code>, accessible depuis la barre du cockpit (« Situation du jour »),
+    à côté de « Gantt des projets ». Trois bandes, lues de haut en bas, dans l'ordre des questions.</p>
+
+  <figure>
+    <div class="mq" role="img" aria-label="Maquette de l'écran Situation du jour">
+      <div class="mq-top">
+        <h4>🧭 Situation du jour — vendredi 16 octobre</h4>
+        <span class="maj">Mis à jour à 10:42 · actualisé toutes les 5 min</span>
+      </div>
+      <div class="mq-tabs">
+        <span class="mq-tab on">Tous · 14</span><span class="mq-tab">Bâtiment · 8</span><span class="mq-tab">Études · 6</span>
+      </div>
+
+      <!-- Bande 1 : fiabilité -->
+      <div class="mq-card mq-fiab">
+        <span class="big">11 / 14</span>
+        <span class="txt"><strong>ouvriers ont un planning à jour</strong> — situation fiable à 79 %
+          <small>3 personnes sans planning en ce moment : leur activité est inconnue, pas forcément absente.
+            Hier : planning rempli à 92 %.</small></span>
+        <span class="etat warn">⚠ Partielle</span>
+      </div>
+
+      <!-- Bande 2 : où en est-on -->
+      <div class="mq-tiles">
+        <div class="mq-tile"><div class="lbl">Projets en cours</div><div class="val">9</div></div>
+        <div class="mq-tile"><div class="lbl">Avancement moyen</div><div class="val">54 %</div><div class="sub"><span class="bar"><i style="width:54%"></i></span></div></div>
+        <div class="mq-tile"><div class="lbl"><span style="color:#b42318">●</span> Tâches en retard</div><div class="val">6</div></div>
+        <div class="mq-tile"><div class="lbl"><span style="color:#b45309">■</span> Tâches bloquées</div><div class="val">2</div></div>
+      </div>
+
+      <div class="mq-grid">
+        <div class="mq-card">
+          <h5>À traiter</h5>
+          <ul class="ex">
+            <li><span class="etat crit">● En retard</span> <strong>BAT-12</strong> Réhabilitation école<br>
+              <span class="muted">4 tâches en retard · deadline 30/10</span></li>
+            <li><span class="etat warn">■ Bloquée</span> <strong>ETU-7</strong> Plan de charpente<br>
+              <span class="muted">1 bloquée · 70 %</span></li>
+            <li><span class="etat crit">● En retard</span> <strong>BAT-9</strong> Clôture dépôt<br>
+              <span class="muted">2 tâches en retard</span></li>
+          </ul>
+        </div>
+
+        <!-- Bande 3 : qui fait quoi -->
+        <div class="mq-card">
+          <h5>Qui fait quoi maintenant</h5>
+          <table>
+            <tr><th>Personne</th><th>Maintenant</th><th>État</th><th>Planning du jour</th></tr>
+            <tr class="grp"><td colspan="4">À regarder d'abord</td></tr>
+            <tr><td class="who">Jean R.</td><td class="muted">—</td><td><span class="etat crit">○ Non renseigné</span></td>
+              <td><span class="bar"><i style="width:0%"></i></span> 0 h / 2 h 40</td></tr>
+            <tr><td class="who">Rivo H.</td><td>ETU-7 · Plan de charpente</td><td><span class="etat warn">■ Bloqué</span></td>
+              <td><span class="bar"><i style="width:100%"></i></span> 2 h 40 / 2 h 40</td></tr>
+            <tr><td class="who">Lova M.</td><td class="muted">rien depuis 09:30</td><td><span class="etat warn">◐ Trou en cours</span></td>
+              <td><span class="bar"><i style="width:56%"></i></span> 1 h 30 / 2 h 40</td></tr>
+            <tr class="grp"><td colspan="4">En activité</td></tr>
+            <tr><td class="who">Paul A.</td><td>BAT-12 · Maçonnerie bloc B <span class="muted">→ 12:00</span></td><td><span class="etat ok">✓ En activité</span></td>
+              <td><span class="bar"><i style="width:100%"></i></span> 2 h 40 / 2 h 40</td></tr>
+            <tr><td class="who">Sitraka N.</td><td>BAT-9 · Pose grillage <span class="muted">→ 11:30</span></td><td><span class="etat ok">✓ En activité</span></td>
+              <td><span class="bar"><i style="width:100%"></i></span> 2 h 40 / 2 h 40</td></tr>
+            <tr><td colspan="4" class="muted">… 9 autres personnes en activité</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <figcaption>Maquette (données fictives). Bande 1 : peut-on croire l'écran. Bande 2 : où en est-on, avec seulement
+      les exceptions. Bande 3 : qui fait quoi, les problèmes en premier.</figcaption>
+  </figure>
+
+  <h3>Ce que fait chaque bande</h3>
+  <table class="data">
+    <tr><th>Bande</th><th>Contenu</th><th>Au clic</th></tr>
+    <tr><td>1. Fiabilité</td><td>Ouvriers dont le planning couvre « maintenant » / total ; taux de remplissage
+        aujourd'hui et la veille ; niveau Fiable / Partielle / Non fiable</td>
+      <td>Filtre la bande 3 sur les personnes sans planning</td></tr>
+    <tr><td>2. Où en est-on</td><td>4 chiffres (projets en cours, avancement moyen, tâches en retard, tâches bloquées)
+        et la liste « À traiter » : 5 projets au plus, retards et blocages seulement</td>
+      <td>La clé du projet ouvre le projet dans son espace de travail</td></tr>
+    <tr><td>3. Qui fait quoi</td><td>Une ligne par ouvrier : activité en cours (tâche, projet, heure de fin, avancement), état,
+        planning du jour jusqu'à maintenant</td>
+      <td>La clé de la tâche ouvre la tâche dans son espace de travail</td></tr>
+  </table>
+
+  <!-- ================================================================== -->
+  <h2 id="clarte">4. Règles de clarté</h2>
+  <ul>
+    <li><strong>Exceptions d'abord.</strong> Ce qui va bien est résumé (« 9 autres personnes en activité ») ; ce qui
+      demande une action est en tête, toujours dans le même ordre : non renseigné, bloqué, trou en cours, pause courte,
+      en activité, hors horaires.</li>
+    <li><strong>Un écran, sans défilement</strong> jusqu'à une vingtaine de personnes ; au-delà, les groupes « En activité »
+      et « Hors horaires » se replient (bouton « Afficher »).</li>
+    <li><strong>Un état = une icône + un mot + une couleur</strong>, jamais la couleur seule (lisible en impression et
+      par un daltonien). Rouge, orange, vert sont réservés aux états, jamais décoratifs.</li>
+    <li><strong>Chaque chiffre mène à sa liste</strong> : rien n'est affiché qu'on ne puisse vérifier en un clic.</li>
+    <li><strong>Mêmes onglets de départements</strong> que le cockpit, mêmes jetons visuels (<code>.dir-card</code>,
+      <code>.dir-tabs</code>, <code>.state</code>) : la direction n'apprend rien de nouveau.</li>
+    <li>Pas de compteur en pastille sur les boutons de la barre (ressemble à une notification non lue).</li>
+  </ul>
+
+  <!-- ================================================================== -->
+  <h2 id="fiabilite">5. Règles de fiabilité</h2>
+  <table class="data">
+    <tr><th>Règle</th><th>Conséquence</th></tr>
+    <tr><td>Une seule source : le planning (<code>PlanningEvent</code>) et les tâches</td>
+      <td>L'écran ne devine rien ; une case sans donnée affiche « — » et l'état « Non renseigné ».</td></tr>
+    <tr><td><strong>« Non renseigné » n'est pas « absent »</strong></td>
+      <td>Les absences ne sont pas modélisées ; le mot « absent » n'apparaît pas tant qu'elles ne le sont pas.</td></tr>
+    <tr><td>Mêmes calculs que les rappels (DT-004)</td>
+      <td><code>HorairesTravail</code>, <code>Couverture</code>, <code>PlagesPlanifiees</code>, <code>PopulationOuvriers</code> :
+        l'ouvrier rappelé à l'ordre et la direction voient le même trou.</td></tr>
+    <tr><td>Calculé à la demande par le serveur, jamais enregistré</td>
+      <td>Pas de chiffre périmé en base ; un planning complété corrige l'écran à l'actualisation suivante.</td></tr>
+    <tr><td>Heure de mise à jour toujours visible</td>
+      <td>« Mis à jour à 10:42 » ; actualisation toutes les 5 minutes et au retour sur l'onglet du navigateur.</td></tr>
+    <tr><td>Fiabilité affichée avant les chiffres</td>
+      <td>La direction sait si elle lit une situation complète ou partielle.</td></tr>
+    <tr><td>Hors horaires (soir, week-end)</td>
+      <td>La bande 1 affiche la dernière journée ouvrable ; aucune personne n'est « non renseignée » à 20 h.</td></tr>
+  </table>
+
+  <h3>Niveau de fiabilité</h3>
+  <p>Part des ouvriers dont le planning couvre l'instant présent (aux horaires de travail) :</p>
+  <table class="data">
+    <tr><th>Part</th><th>Niveau</th><th>Affichage</th></tr>
+    <tr><td>≥ 90 %</td><td>Fiable</td><td>✓ vert</td></tr>
+    <tr><td>60 – 89 %</td><td>Partielle</td><td>⚠ orange</td></tr>
+    <tr><td>&lt; 60 %</td><td>Non fiable</td><td>✕ rouge</td></tr>
+  </table>
+  <p>Seuils réglables : <code>situation-direction.seuil-fiable=90</code>, <code>situation-direction.seuil-partielle=60</code>.</p>
+
+  <!-- ================================================================== -->
+  <h2 id="etats">6. État d'une personne</h2>
+  <p>Calculé pour chaque ouvrier à l'instant présent par <code>EtatDuJour.calculer</code>, dans cet ordre (le premier
+    qui s'applique gagne). L'ordre d'affichage est celui de l'énumération <code>EtatPersonne</code>.</p>
+  <table class="data">
+    <tr><th>Ordre</th><th>État</th><th>Condition</th><th>Planning à jour ?</th></tr>
+    <tr><td>1</td><td>Hors horaires</td><td>Maintenant n'est dans aucune plage de <code>rappel-planning.plages</code> (midi, soir, week-end)</td><td>oui</td></tr>
+    <tr><td>2</td><td>Bloqué</td><td>L'activité qui couvre maintenant est <code>BLOCKED</code></td><td>oui</td></tr>
+    <tr><td>3</td><td>En activité</td><td>Une activité couvre maintenant (la plus récemment commencée si plusieurs) ;
+      une activité <code>POSTPONED</code> ne compte pas</td><td>oui</td></tr>
+    <tr><td>4</td><td>Pause courte</td><td>Rien en ce moment, depuis moins que <code>seuil-minutes</code></td><td>oui</td></tr>
+    <tr><td>5</td><td>Non renseigné</td><td>Rien en ce moment, et rien de la journée</td><td><strong>non</strong></td></tr>
+    <tr><td>6</td><td>Trou en cours</td><td>Rien en ce moment, des activités plus tôt : « rien depuis HH:MM »</td><td><strong>non</strong></td></tr>
+  </table>
+  <p>Population : les ouvriers de <code>PopulationOuvriers</code>. Leur département est l'espace de l'activité en cours,
+    à défaut le premier espace où ils sont assignables (<code>PopulationOuvriers.espacesAssignables</code>). Un onglet de
+    département montre les ouvriers assignables dans cet espace. Les chefs de projet et la direction n'y figurent pas.</p>
+
+  <!-- ================================================================== -->
+  <h2 id="architecture">7. Architecture du code</h2>
+  <h3>Serveur — paquet <code>service/situation</code></h3>
+  <table class="data">
+    <tr><th>Fichier</th><th>Rôle</th></tr>
+    <tr><td><code>EtatPersonne</code></td><td>Les six états, dans l'ordre d'affichage ; chacun dit si le planning est à jour</td></tr>
+    <tr><td><code>EtatDuJour</code></td><td>Calcul pur : activités + plages écoulées + instant → état, activité en cours, début du trou, couverture</td></tr>
+    <tr><td><code>NiveauFiabilite</code></td><td>FIABLE / PARTIELLE / NON_FIABLE à partir des seuils</td></tr>
+    <tr><td><code>MesureFiabilite</code></td><td>Part des plannings à jour (en horaires) ou remplissage de la journée (hors horaires)</td></tr>
+    <tr><td><code>ChiffresDirection</code></td><td>Quatre chiffres et « À traiter », tirés des rapports du cockpit (<code>DirectionService.projets</code>)</td></tr>
+    <tr><td><code>ActivitesSituation</code></td><td>Activité → ligne « Maintenant » (tâche, projet racine, espace)</td></tr>
+    <tr><td><code>SituationDirectionService</code></td><td>Orchestration : ouvriers, activités de tous en <strong>une</strong> requête, tri</td></tr>
+    <tr><td><code>dto/situation/*</code></td><td><code>SituationDirectionDTO</code>, <code>SituationPersonneDTO</code>, <code>ActiviteSituationDTO</code>,
+      <code>FiabiliteDTO</code>, <code>ChiffresProjetsDTO</code>, <code>ProjetATraiterDTO</code></td></tr>
+  </table>
+  <h3>Serveur — code existant étendu</h3>
+  <table class="data">
+    <tr><th>Fichier</th><th>Ajout</th></tr>
+    <tr><td><code>rappel/HorairesTravail</code></td><td><code>plagesEcoulees(jour, maintenant)</code> (sorti de <code>RappelPlanningService</code>) et <code>enHoraires(instant)</code></td></tr>
+    <tr><td><code>rappel/PlagesPlanifiees</code></td><td><code>plageDe(activite)</code> public : la même règle sert à trouver l'activité en cours</td></tr>
+    <tr><td><code>rappel/PopulationOuvriers</code></td><td><code>espacesAssignables(user)</code> ; <code>estOuvrier</code> s'appuie dessus, règle inchangée</td></tr>
+    <tr><td><code>repository/EventRepository</code></td><td><code>findByUserIdInChevauchant(ids, debut, fin)</code> : une requête pour toute l'équipe</td></tr>
+    <tr><td><code>DirectionService</code></td><td><code>nomDepartement</code> devient public statique, partagé</td></tr>
+    <tr><td><code>web/GQDirectionController</code></td><td>Requête <code>situationDirection</code>, même <code>@PreAuthorize</code> que le cockpit</td></tr>
+  </table>
+  <p>Tests : <code>SituationDirectionTest</code> (11 cas : chaque état, report, midi, seuils, fiabilité en et hors
+    horaires, sans ouvrier). <code>RappelPlanningTest</code> (DT-004) passe toujours.</p>
+
+  <h3>Écran — <code>pages/private/direction/situation/</code></h3>
+  <table class="data">
+    <tr><th>Fichier</th><th>Rôle</th></tr>
+    <tr><td><code>situation.component.*</code></td><td>Page, onglets départements, actualisation 5 min et au retour sur l'onglet</td></tr>
+    <tr><td><code>fiabilite/situation-fiabilite.component.*</code></td><td>Bande 1 ; filtre « Voir ces personnes »</td></tr>
+    <tr><td><code>chiffres/situation-chiffres.component.*</code></td><td>Bande 2 : 4 chiffres + « À traiter »</td></tr>
+    <tr><td><code>personnes/situation-personnes.component.*</code></td><td>Bande 3 : lignes groupées, repli au-delà de 20 personnes</td></tr>
+    <tr><td><code>badge/situation-badge.component.*</code></td><td>Pastille icône + mot + couleur, partagée par les trois bandes</td></tr>
+    <tr><td><code>situation.model.ts</code></td><td>Types, apparence des états et niveaux, formats d'heure et de durée</td></tr>
+    <tr><td><code>direction.operations.ts</code>, <code>direction.service.ts</code></td><td><code>SITUATION_DIRECTION</code> et <code>situation()</code></td></tr>
+    <tr><td><code>direction.routing.module.ts</code>, <code>direction.module.ts</code></td><td>Route <code>situation</code>, déclarations</td></tr>
+    <tr><td><code>direction.component.html</code></td><td>Lien « Situation du jour » dans la barre (seul ajout au cockpit)</td></tr>
+  </table>
+  <p>Réutilisés : <code>app-avatar</code>, <code>app-user-menu</code>, <code>userDisplayName</code>,
+    <code>UserService.getUrlPhoto</code>, jetons visuels du cockpit. Les lignes sont calculées à la réception
+    (<code>ngOnChanges</code>), aucun getter ne recrée de tableau dans les gabarits.</p>
+
+  <!-- ================================================================== -->
+  <h2 id="graphql">8. API GraphQL</h2>
+  <p>Schéma <code>situation-direction.graphqls</code> (extrait) :</p>
+  <pre><code>enum EtatPersonne { NON_RENSEIGNE BLOQUE TROU_EN_COURS PAUSE_COURTE EN_ACTIVITE HORS_HORAIRES }
+enum NiveauFiabilite { FIABLE PARTIELLE NON_FIABLE }
+
+type Fiabilite { ouvriers planningAJour enHoraires remplissageJour remplissageVeille part niveau }
+type ChiffresProjets { enCours avancementMoyen tachesEnRetard tachesBloquees }
+type ProjetATraiter { id cle titre departement prefixeDepartement avancement tachesEnRetard tachesBloquees }
+type ActiviteSituation { id titre debut fin etat avancement cleTache tache cleProjet projet prefixeDepartement }
+type SituationPersonne { personne: UserApp departement etat activite rienDepuis minutesAttendues minutesCouvertes }
+type SituationDirection { instant fiabilite chiffres aTraiter: [ProjetATraiter] personnes: [SituationPersonne] }
+
+extend type Query {
+    situationDirection(departement: String): SituationDirection
+}</code></pre>
+
+  <!-- ================================================================== -->
+  <h2 id="decoupage">9. Découpage en commits</h2>
+  <table class="data">
+    <tr><th>Commit</th><th>Contenu</th></tr>
+    <tr><td>Situation du jour 1/4 (DT-005)</td><td>État d'un ouvrier et fiabilité : calcul pur + tests</td></tr>
+    <tr><td>Situation du jour 2/4 (DT-005)</td><td>Requête <code>situationDirection</code> (service, requête groupée, DTO, schéma)</td></tr>
+    <tr><td>Situation du jour 3/4 (DT-005)</td><td>Écran <code>/direction/situation</code> et lien dans le cockpit</td></tr>
+    <tr><td>Situation du jour 4/4 (DT-005)</td><td>Document technique et index</td></tr>
+  </table>
+
+  <!-- ================================================================== -->
+  <h2 id="decisions">10. Décisions retenues</h2>
+  <div class="decision">
+    <ol>
+      <li><strong>Page d'arrivée</strong> : la Situation est un écran à côté du cockpit ; <code>/direction</code> reste le cockpit.</li>
+      <li><strong>Seuils de fiabilité</strong> : 90 % / 60 %, réglables.</li>
+      <li><strong>Ouvrier présent dans plusieurs espaces</strong> : une seule ligne, dans l'espace de l'activité en cours.</li>
+      <li><strong>« Terminées cette semaine »</strong> remplacé par l'avancement moyen : la date de fin d'une tâche n'est
+        pas enregistrée, le chiffre aurait été deviné.</li>
+      <li><strong>Motif de blocage</strong> pas encore affiché : il est dans l'historique de l'activité
+        (<code>PlanningEventHistory.blockReason</code>) ; le reprendre est une évolution simple.</li>
+    </ol>
+  </div>
+
+  <!-- ================================================================== -->
+  <h2 id="evolutions">11. Limites et évolutions</h2>
+  <ul>
+    <li>Congés et jours fériés ne sont pas connus : un ouvrier en congé apparaît « Non renseigné » et fait baisser la
+      fiabilité. L'absence provisoire confirmée par le supérieur (étape suivante de DT-004) la corrigera :
+      un état ABSENT s'ajoutera alors en tête de la liste.</li>
+    <li>Le « supérieur » n'est pas modélisé ; la vue par équipe d'un chef de projet pourra réutiliser le même service
+      filtré sur ses espaces.</li>
+    <li>Mêmes horaires pour tous, comme DT-004.</li>
+  </ul>
+
+  <footer>follow-task · DT-005 · situation du jour (direction)</footer>
+</div>
+</body>
+</html>
