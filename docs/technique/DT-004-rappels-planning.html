@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DT-004 — Rappels de planning</title>
+  <link rel="stylesheet" href="assets/doc.css">
+</head>
+<body>
+<div class="page">
+
+  <header class="doc-header">
+    <span class="doc-ref">DT-004</span>
+    <h1>Rappels de planning</h1>
+    <p class="subtitle">Un ouvrier dont le planning a des trous, la veille ou aujourd'hui, est prévenu par un toast.</p>
+    <table class="meta">
+      <tr><td>Référence</td><td>DT-004 (Document Technique n° 004)</td></tr>
+      <tr><td>Version de l'application</td><td>2.0.12</td></tr>
+      <tr><td>Date</td><td>16 octobre 2026</td></tr>
+      <tr><td>Commits liés</td><td>titres contenant « (DT-004) » : <code>git log --grep "DT-004"</code></td></tr>
+    </table>
+  </header>
+
+  <nav class="toc">
+    <strong>Sommaire</strong>
+    <ol>
+      <li><a href="#besoin">Besoin</a></li>
+      <li><a href="#principes">Principes retenus</a></li>
+      <li><a href="#population">Qui reçoit les rappels</a></li>
+      <li><a href="#calcul">Calcul des trous</a></li>
+      <li><a href="#messages">Messages</a></li>
+      <li><a href="#architecture">Architecture du code</a></li>
+      <li><a href="#graphql">API GraphQL</a></li>
+      <li><a href="#reglage">Réglage</a></li>
+      <li><a href="#evolutions">Limites et évolutions</a></li>
+    </ol>
+  </nav>
+
+  <!-- ================================================================== -->
+  <h2 id="besoin">1. Besoin</h2>
+  <p>Chacun doit renseigner son planning pour que son supérieur sache ce qu'il fait. Un planning vide ou
+    incomplet doit être signalé tout de suite à l'intéressé, sur un ton direct : sans planning, il apparaît absent.</p>
+  <p>Première étape : une simple <strong>notification à la volée</strong> (toast), sans enregistrement en base,
+    sans marquer d'absence et sans prévenir le supérieur.</p>
+
+  <!-- ================================================================== -->
+  <h2 id="principes">2. Principes retenus</h2>
+  <table class="data">
+    <tr><th>Principe</th><th>Conséquence</th></tr>
+    <tr><td>Calculé à chaque demande, <strong>jamais enregistré</strong></td>
+      <td>Aucune table, aucune migration. Un planning complété fait disparaître le rappel de lui-même.</td></tr>
+    <tr><td>Le serveur calcule, l'écran affiche</td>
+      <td>La règle (horaires, ouvriers, seuil) est au même endroit pour le web et le mobile.</td></tr>
+    <tr><td>Deux journées : le <strong>dernier jour ouvrable</strong>, et <strong>aujourd'hui jusqu'à maintenant</strong></td>
+      <td>Le lundi, la veille est le vendredi. À 10 h, l'après-midi vide n'est pas reproché.</td></tr>
+    <tr><td>Un rappel par journée, le plus grave</td>
+      <td>Deux toasts au plus à chaque vérification.</td></tr>
+    <tr><td>Une clé par rappel</td>
+      <td>L'écran ne répète pas un rappel déjà montré pendant la session ; la clé change quand le trou change.</td></tr>
+  </table>
+
+  <!-- ================================================================== -->
+  <h2 id="population">3. Qui reçoit les rappels</h2>
+  <p>Seulement les <strong>ouvriers</strong> (<code>PopulationOuvriers</code>). La règle porte sur les accessibilités
+    d'<code>application.yml</code>, pas sur les noms de rôles : un rôle ajouté plus tard se range seul du bon côté.</p>
+  <table class="data">
+    <tr><th>Condition</th><th>Rôles concernés aujourd'hui</th></tr>
+    <tr><td>Assignable dans au moins un espace (<code>CAN_ASSIGNABLE</code>)</td><td>TEAM_MEMBER, TEAM_MEMBER_ASSIGN</td></tr>
+    <tr><td>Exclu s'il voit l'agenda d'équipe dans un espace (<code>CAN_VIEW_TEAM_AGENDA</code>)</td><td>PROJECT_MANAGER, ADMIN (qui l'inclut)</td></tr>
+    <tr><td>Exclu s'il a un rôle système de pilotage (<code>CAN_VIEW_DIRECTION</code>, <code>CAN_CREATE_PROJECT</code>)</td><td>SYSTEM_ADMIN, PROJECT_ADMIN, DIRECTION</td></tr>
+    <tr><td>Exclu si le compte est désactivé</td><td>—</td></tr>
+  </table>
+
+  <!-- ================================================================== -->
+  <h2 id="calcul">4. Calcul des trous</h2>
+  <figure>
+    <svg viewBox="0 0 760 200" width="760" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Couverture d'une journée par le planning">
+      <style>
+        .ax { stroke: #9ca3af; stroke-width: 1; }
+        .pl { fill: #e5edf6; stroke: #185FA5; stroke-width: 1; }
+        .ac { fill: #185FA5; }
+        .mq { fill: #fde2e1; stroke: #b42318; stroke-width: 1; stroke-dasharray: 4 3; }
+        .tx { fill: #111827; font-size: 12px; }
+        .lb { fill: #4b5563; font-size: 11.5px; }
+        .now { stroke: #b42318; stroke-width: 2; }
+      </style>
+      <!-- 08:00 = x 40, 1 h = 70 px -->
+      <text class="tx" x="40" y="22">Plages attendues</text>
+      <rect class="pl" x="40" y="30" width="280" height="24"/>
+      <rect class="pl" x="390" y="30" width="280" height="24"/>
+      <text class="tx" x="40" y="82">Activités planifiées</text>
+      <rect class="ac" x="40" y="90" width="70" height="24"/>
+      <rect class="ac" x="145" y="90" width="80" height="24" opacity="0.75"/>
+      <rect class="ac" x="180" y="90" width="70" height="24" opacity="0.75"/>
+      <text class="tx" x="40" y="142">Manques (≥ 15 min)</text>
+      <rect class="mq" x="110" y="150" width="35" height="24"/>
+      <rect class="mq" x="250" y="150" width="70" height="24"/>
+      <rect class="mq" x="390" y="150" width="35" height="24"/>
+      <line class="now" x1="425" y1="24" x2="425" y2="180"/>
+      <text class="lb" x="431" y="190">maintenant</text>
+      <line class="ax" x1="40" y1="186" x2="670" y2="186"/>
+      <text class="lb" x="30" y="198">08:00</text>
+      <text class="lb" x="305" y="198">12:00</text>
+      <text class="lb" x="375" y="198">13:00</text>
+      <text class="lb" x="655" y="198">17:00</text>
+    </svg>
+    <figcaption>Journée en cours : les plages sont coupées à maintenant ; deux activités qui se chevauchent comptent une fois.</figcaption>
+  </figure>
+  <ul>
+    <li>Plages attendues : <code>rappel-planning.plages</code> les jours de <code>rappel-planning.jours</code> ; pause de midi exclue.</li>
+    <li>Activités : <code>PlanningEvent</code> de la personne qui touchent la période (<code>EventRepository.findByUserIdChevauchant</code>).
+      Une activité <strong>reportée</strong> (<code>POSTPONED</code>) ne compte pas, sa copie la remplace ;
+      « toute la journée » couvre la journée ; sans fin, une activité dure une heure.</li>
+    <li>Un vide plus court que <code>rappel-planning.seuil-minutes</code> n'est pas un manque : à 08:10, rien n'est encore reproché.</li>
+  </ul>
+
+  <!-- ================================================================== -->
+  <h2 id="messages">5. Messages</h2>
+  <table class="data">
+    <tr><th>Situation</th><th>Gravité (toast)</th><th>Texte</th></tr>
+    <tr><td>Veille : rien</td><td>ALERTE (rouge, reste affiché)</td>
+      <td>« Jeudi 15 octobre : aucune activité » — vous apparaissez absent.</td></tr>
+    <tr><td>Veille : incomplète</td><td>ATTENTION (orange)</td>
+      <td>« Vous n'avez renseigné que 2 h sur 8 h. Périodes manquantes : 10:00–12:00, 13:00–17:00. »</td></tr>
+    <tr><td>Aujourd'hui : rien</td><td>ALERTE</td>
+      <td>« Votre supérieur ne sait pas ce que vous faites aujourd'hui. Sans planning, vous apparaissez absent. »</td></tr>
+    <tr><td>Aujourd'hui : rien en ce moment</td><td>ATTENTION</td>
+      <td>« Rien n'est planifié depuis 09:30. Votre supérieur ne sait pas ce que vous faites maintenant. »</td></tr>
+    <tr><td>Aujourd'hui : un trou passé</td><td>INFO (bleu)</td>
+      <td>« Périodes non renseignées : 09:00–10:00. »</td></tr>
+  </table>
+  <p>L'écran vérifie à l'ouverture de la session puis toutes les 30 minutes (<code>RappelPlanningService</code> côté front).
+    Clés : <code>VEILLE:2026-10-15</code>, <code>JOUR:2026-10-16</code>, <code>JOUR:2026-10-16:09:30</code> (l'heure de
+    début du trou en cours : un nouveau trou dans la journée donne un nouveau rappel).</p>
+
+  <!-- ================================================================== -->
+  <h2 id="architecture">6. Architecture du code</h2>
+  <table class="data">
+    <tr><th>Fichier</th><th>Rôle</th></tr>
+    <tr><td><code>service/rappel/Plage</code></td><td>Intervalle [début, fin[ : durée, intersection</td></tr>
+    <tr><td><code>service/rappel/Couverture</code></td><td>Calcul pur : minutes attendues, couvertes, manques</td></tr>
+    <tr><td><code>service/rappel/HorairesTravail</code></td><td>Jours ouvrables, plages d'un jour, dernier jour ouvrable</td></tr>
+    <tr><td><code>service/rappel/PlagesPlanifiees</code></td><td>Activités du planning → plages occupées</td></tr>
+    <tr><td><code>service/rappel/PopulationOuvriers</code></td><td>Qui est ouvrier</td></tr>
+    <tr><td><code>service/rappel/RedactionRappels</code></td><td>Textes et gravité</td></tr>
+    <tr><td><code>service/rappel/RappelPlanningService</code></td><td>Orchestration pour une personne et un instant</td></tr>
+    <tr><td><code>web/GQRappelPlanningController</code></td><td>Requête <code>mesRappelsPlanning</code> (utilisateur connecté)</td></tr>
+    <tr><td><code>dto/RappelPlanning</code></td><td>Clé, gravité, titre, message</td></tr>
+    <tr><td>front <code>services/rappel-planning.service</code></td><td>Vérification périodique, toasts, anti-répétition</td></tr>
+    <tr><td>front <code>pages/private/private.component</code></td><td>Démarre le suivi à la connexion, l'arrête à la déconnexion</td></tr>
+  </table>
+  <p>Tests : <code>RappelPlanningTest</code> (12 cas : veille, lundi, seuil, chevauchement, report, journée entière, chef de projet).</p>
+
+  <!-- ================================================================== -->
+  <h2 id="graphql">7. API GraphQL</h2>
+  <pre><code># rappel-planning.graphqls
+enum GraviteRappel { INFO ATTENTION ALERTE }
+type RappelPlanning { cle: String gravite: GraviteRappel titre: String message: String }
+
+extend type Query {
+    mesRappelsPlanning: [RappelPlanning]
+}</code></pre>
+
+  <!-- ================================================================== -->
+  <h2 id="reglage">8. Réglage</h2>
+  <pre><code># application.properties
+rappel-planning.actif=true
+rappel-planning.jours=MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY
+rappel-planning.plages=08:00-12:00,13:00-17:00
+rappel-planning.seuil-minutes=15</code></pre>
+  <p>Une plage mal écrite arrête le démarrage, avec la plage fautive dans le message. Heures du serveur : celles
+    dans lesquelles le planning est enregistré.</p>
+
+  <!-- ================================================================== -->
+  <h2 id="evolutions">9. Limites et évolutions</h2>
+  <ul>
+    <li>Jours fériés et congés ne sont pas connus : un ouvrier en congé reçoit les rappels.</li>
+    <li>Mêmes horaires pour tous ; un réglage par espace ou par personne pourra s'appuyer sur
+      <code>WorkspaceSettings</code> / <code>UserSettings</code>.</li>
+    <li>Étapes suivantes envisagées : prévenir le supérieur, absence provisoire à confirmer par le supérieur.</li>
+  </ul>
+
+  <footer>follow-task · DT-004 · rappels de planning</footer>
+</div>
+</body>
+</html>
