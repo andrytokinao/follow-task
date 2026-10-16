@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DT-002 — Flux de travail communs</title>
+  <link rel="stylesheet" href="assets/doc.css">
+</head>
+<body>
+<div class="page">
+
+  <header class="doc-header">
+    <span class="doc-ref">DT-002</span>
+    <h1>Flux de travail communs</h1>
+    <p class="subtitle">Un flux de travail partagé par tous les espaces de travail, et son affectation aux types de tâche.</p>
+    <table class="meta">
+      <tr><td>Référence</td><td>DT-002 (Document Technique n° 002)</td></tr>
+      <tr><td>Version de l'application</td><td>2.0.9 (en cours)</td></tr>
+      <tr><td>Date</td><td>15 octobre 2026</td></tr>
+      <tr><td>Commits liés</td><td>titres contenant « (DT-002) » : <code>git log --grep "DT-002"</code></td></tr>
+      <tr><td>Précédent</td><td>DT-001 Phases de projet (même principe de portée que les phases communes)</td></tr>
+    </table>
+  </header>
+
+  <nav class="toc">
+    <strong>Sommaire</strong>
+    <ol>
+      <li><a href="#besoin">Besoin</a></li>
+      <li><a href="#principes">Principes retenus</a></li>
+      <li><a href="#modele">Modèle de données</a></li>
+      <li><a href="#regles">Règles</a></li>
+      <li><a href="#affectation">Affectation à un type de tâche</a></li>
+      <li><a href="#architecture">Architecture du code</a></li>
+      <li><a href="#graphql">API GraphQL</a></li>
+      <li><a href="#migration">Migration des données</a></li>
+      <li><a href="#evolutions">Limites et évolutions</a></li>
+    </ol>
+  </nav>
+
+  <!-- ================================================================== -->
+  <h2 id="besoin">1. Besoin</h2>
+  <p>Un flux de travail (statuts et transitions) n'était visible que dans l'espace qui l'avait créé, à
+    l'exception du flux par défaut. Chaque espace devait donc refaire le même flux (« Projet » :
+    Préliminaire → APS → APD → DAO → Contrôle, par exemple).</p>
+  <p>On veut :</p>
+  <ul>
+    <li>créer un flux <strong>une fois</strong> et le proposer à <strong>tous</strong> les espaces de travail ;</li>
+    <li>affecter simplement un flux à un <strong>type de tâche</strong>, depuis le type comme depuis le flux.</li>
+  </ul>
+
+  <!-- ================================================================== -->
+  <h2 id="principes">2. Principes retenus</h2>
+  <table class="data">
+    <tr><th>Principe</th><th>Conséquence</th></tr>
+    <tr><td>Flux commun = flux <strong>sans espace</strong> (<code>project_id</code> NULL)</td>
+      <td>Aucune colonne nouvelle : le flux par défaut était déjà sans espace. Même logique que
+        <code>Phase.isCommune()</code> (DT-001).</td></tr>
+    <tr><td>Un flux commun se modifie <strong>depuis tout espace</strong></td>
+      <td>Statuts et transitions changent pour tous ; l'éditeur l'annonce par un bandeau.</td></tr>
+    <tr><td>Les statuts n'appartiennent à aucun espace</td>
+      <td>Partager un flux ne duplique rien.</td></tr>
+    <tr><td>Un type ne reçoit qu'un flux <strong>visible</strong> dans son espace</td>
+      <td>Flux de son espace ou flux commun ; contrôlé côté serveur à chaque affectation.</td></tr>
+  </table>
+
+  <!-- ================================================================== -->
+  <h2 id="modele">3. Modèle de données</h2>
+  <figure>
+    <svg viewBox="0 0 760 210" width="760" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Portée d'un flux de travail">
+      <defs>
+        <marker id="fl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="#4b5563"/>
+        </marker>
+      </defs>
+      <style>
+        .box { fill: #fff; stroke: #185FA5; stroke-width: 1.5; }
+        .hd { fill: #185FA5; }
+        .ht { fill: #fff; font-size: 14px; font-weight: 700; }
+        .at { fill: #111827; font-size: 12px; }
+        .nw { fill: #185FA5; font-size: 12px; font-weight: 600; }
+        .ln { stroke: #4b5563; stroke-width: 1.4; fill: none; }
+        .lb { fill: #4b5563; font-size: 11.5px; }
+      </style>
+
+      <rect class="box" x="20" y="20" width="200" height="90" rx="6"/>
+      <rect class="hd" x="20" y="20" width="200" height="26" rx="6"/>
+      <text class="ht" x="32" y="38">IssueType</text>
+      <text class="at" x="32" y="66">project_id</text>
+      <text class="at" x="32" y="86">curent_work_flow_id</text>
+
+      <rect class="box" x="290" y="20" width="200" height="110" rx="6"/>
+      <rect class="hd" x="290" y="20" width="200" height="26" rx="6"/>
+      <text class="ht" x="302" y="38">WorkFlow</text>
+      <text class="at" x="302" y="66">name, layout</text>
+      <text class="at" x="302" y="86">project_id (NULL = commun)</text>
+      <text class="nw" x="302" y="106">isCommun(), estVisibleDans()</text>
+
+      <rect class="box" x="560" y="20" width="180" height="70" rx="6"/>
+      <rect class="hd" x="560" y="20" width="180" height="26" rx="6"/>
+      <text class="ht" x="572" y="38">Project</text>
+      <text class="at" x="572" y="66">espace de travail</text>
+
+      <path class="ln" d="M220,80 L290,80" marker-end="url(#fl)"/>
+      <text class="lb" x="226" y="72">n → 1</text>
+      <path class="ln" d="M490,60 L560,60" marker-end="url(#fl)"/>
+      <text class="lb" x="496" y="52">0..1</text>
+
+      <text class="lb" x="20" y="160">Un type suit un flux ; le flux appartient à un espace, ou à aucun (commun).</text>
+      <text class="lb" x="20" y="180">Liste d'un espace : ses flux, puis les flux communs (WorkFlowRepository.findVisibles).</text>
+    </svg>
+    <figcaption>Portée d'un flux de travail.</figcaption>
+  </figure>
+
+  <!-- ================================================================== -->
+  <h2 id="regles">4. Règles</h2>
+  <table class="data">
+    <tr><th>Action</th><th>Règle</th></tr>
+    <tr><td>Créer un flux commun</td><td>Case « Commun à tous les espaces de travail » : le flux est enregistré sans espace.</td></tr>
+    <tr><td>Rendre un flux commun</td><td>Toujours permis.</td></tr>
+    <tr><td>Rattacher un flux commun à un espace</td><td>Refusé si un type d'un autre espace l'utilise, et pour le flux par défaut
+      (<code>WorkFlow.NOM_PAR_DEFAUT</code>), donné aux types de tous les espaces.</td></tr>
+    <tr><td>Renommer (<code>saveWorkFlow</code> avec id)</td><td>Ne change que le nom. Auparavant, le flux reçu du formulaire
+      (sans statuts ni transitions) remplaçait le flux enregistré et vidait ses statuts.</td></tr>
+    <tr><td>Supprimer</td><td>Inchangé : refusé tant qu'un type, de n'importe quel espace, l'utilise.</td></tr>
+  </table>
+
+  <!-- ================================================================== -->
+  <h2 id="affectation">5. Affectation à un type de tâche</h2>
+  <ul>
+    <li><strong>Depuis le type</strong> (formulaire <code>issutype-form2</code>) : liste « Flux de travail », flux de
+      l'espace puis flux communs. Laissée vide à la création, le serveur reprend le flux du premier parent,
+      sinon le flux par défaut.</li>
+    <li><strong>Depuis le flux</strong> (écran Flux de travail) : bandeau « Types utilisant ce flux » avec les types de
+      l'espace, le nombre de types d'autres espaces, et une liste « + Affecter à un type… ». Pour retirer un type,
+      lui choisir un autre flux : un type a toujours un flux.</li>
+  </ul>
+  <p>Les tâches existantes gardent leur statut lors d'un changement de flux, comme avant
+    (<code>affectWorkFlow</code>).</p>
+
+  <!-- ================================================================== -->
+  <h2 id="architecture">6. Architecture du code</h2>
+  <table class="data">
+    <tr><th>Fichier</th><th>Rôle</th></tr>
+    <tr><td><code>entity/WorkFlow</code></td><td><code>isCommun()</code>, <code>estVisibleDans(projectId)</code>, <code>NOM_PAR_DEFAUT</code></td></tr>
+    <tr><td><code>repository/WorkFlowRepository</code></td><td><code>findVisibles(projectId)</code></td></tr>
+    <tr><td><code>service/workflow/WorkFlowPorteeService</code></td><td>Changement de portée, contrôle de disponibilité pour un type</td></tr>
+    <tr><td><code>service/ProjectService</code></td><td><code>workFlowsByProject</code> (flux visibles), <code>saveWorkFlow</code> (nom seul),
+      contrôle dans <code>saveIssueType</code> et <code>affectWorkFlow</code></td></tr>
+    <tr><td><code>web/GQWorkFlowPorteeController</code></td><td>Mutation <code>changerPorteeWorkFlow</code></td></tr>
+    <tr><td>front <code>work-flow.component</code></td><td>Case « commun », bouton « Rendre commun / Rattacher à cet espace », types du flux</td></tr>
+    <tr><td>front <code>issutype-form2</code></td><td>Liste « Flux de travail »</td></tr>
+  </table>
+
+  <!-- ================================================================== -->
+  <h2 id="graphql">7. API GraphQL</h2>
+  <pre><code># tasks.graphqls
+type WorkFlow { … commun: Boolean … }
+
+# workflow.graphqls
+extend type Mutation {
+    changerPorteeWorkFlow(workFlowId: Int!, commun: Boolean!, projectId: Int): WorkFlow
+}</code></pre>
+  <p><code>workFlowsByProject(projectId)</code> renvoie maintenant les flux de l'espace puis tous les flux communs.</p>
+
+  <!-- ================================================================== -->
+  <h2 id="migration">8. Migration des données</h2>
+  <p>Aucune : pas de nouvelle colonne, aucun script <code>db/manual/</code>. À vérifier après mise à jour : tout flux
+    déjà enregistré sans espace devient visible partout. Requête de contrôle :</p>
+  <pre><code>SELECT id, name FROM work_flow WHERE project_id IS NULL;</code></pre>
+  <p>Normalement seuls « Default workflow » (et, sur d'anciennes bases, « Default WorkFlow ») apparaissent.
+    Un autre flux peut être rattaché à son espace depuis l'écran (« Rattacher à cet espace »).</p>
+
+  <!-- ================================================================== -->
+  <h2 id="evolutions">9. Limites et évolutions</h2>
+  <ul>
+    <li>Pas de droit particulier sur un flux commun : tout espace peut le modifier (choix retenu).
+      Une évolution possible : lecture seule hors administration, ou copie pour modifier.</li>
+    <li>Changer le flux d'un type ne recale pas le statut des tâches existantes sur le nouveau flux.</li>
+  </ul>
+
+  <footer>follow-task · DT-002 · flux de travail communs</footer>
+</div>
+</body>
+</html>

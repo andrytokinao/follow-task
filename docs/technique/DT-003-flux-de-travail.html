@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DT-003 — Flux de travail : fonctionnement, règles et guides</title>
+  <link rel="stylesheet" href="assets/doc.css">
+</head>
+<body>
+<div class="page">
+
+  <header class="doc-header">
+    <span class="doc-ref">DT-003</span>
+    <h1>Flux de travail : fonctionnement, règles et guides</h1>
+    <p class="subtitle">Document de référence pour comprendre les flux de travail de follow-task sans lire le code :
+      notions, règles, cycle de vie d'un statut, écrans, pièges connus et guides pas à pas.</p>
+    <table class="meta">
+      <tr><td>Référence</td><td>DT-003 (Document Technique n° 003)</td></tr>
+      <tr><td>Version de l'application</td><td>2.0.9 (en cours)</td></tr>
+      <tr><td>Date</td><td>15 octobre 2026</td></tr>
+      <tr><td>Public</td><td>Développeurs qui arrivent sur le projet, administrateurs fonctionnels</td></tr>
+      <tr><td>Documents liés</td><td>
+        <a href="DT-001-phases-projet.html">DT-001</a> Phases de projet (la phase se lit sur le statut du projet)<br>
+        <a href="DT-002-flux-travail-communs.html">DT-002</a> Flux de travail communs (portée d'un flux)
+      </td></tr>
+      <tr><td>Commits liés</td><td>titres contenant « (DT-003) » : <code>git log --grep "DT-003"</code></td></tr>
+    </table>
+  </header>
+
+  <nav class="toc">
+    <strong>Sommaire</strong>
+    <ol>
+      <li><a href="#notions">Les notions en une page</a></li>
+      <li><a href="#vue">Vue d'ensemble</a></li>
+      <li><a href="#modele">Modèle de données</a></li>
+      <li><a href="#flux">Cycle de vie d'un flux</a></li>
+      <li><a href="#type">Comment un type reçoit son flux</a></li>
+      <li><a href="#statut">Vie du statut d'une tâche</a></li>
+      <li><a href="#transitions">Transitions</a></li>
+      <li><a href="#finaux">Statuts finaux</a></li>
+      <li><a href="#changements">Ce qui se passe quand on change quelque chose</a></li>
+      <li><a href="#phases">Lien avec les phases</a></li>
+      <li><a href="#ecrans">Écrans</a></li>
+      <li><a href="#api">API GraphQL</a></li>
+      <li><a href="#regles">Récapitulatif des règles</a></li>
+      <li><a href="#pieges">Pièges connus et dette technique</a></li>
+      <li><a href="#guides">Guides pas à pas</a></li>
+      <li><a href="#ou">Où intervenir dans le code</a></li>
+      <li><a href="#faq">Questions fréquentes</a></li>
+    </ol>
+  </nav>
+
+  <!-- ================================================================== -->
+  <h2 id="notions">1. Les notions en une page</h2>
+  <table class="data">
+    <tr><th>Notion</th><th>Définition</th></tr>
+    <tr><td>Espace de travail</td><td>Un « projet » au sens de l'application (entité <em>Project</em>). Il regroupe des types de tâche,
+      des tâches, des membres.</td></tr>
+    <tr><td>Type de tâche</td><td>Gabarit d'une tâche : « Projet », « Tâche », « Note de calcul »… Un type est <strong>principal</strong>
+      (une demande racine) ou <strong>sous-type</strong> (une sous-tâche). Chaque type suit <strong>un</strong> flux de travail.</td></tr>
+    <tr><td>Flux de travail</td><td>Ensemble des <strong>statuts</strong> qu'une tâche peut prendre, et des <strong>transitions</strong>
+      dessinées entre eux. Appelé <em>WorkFlow</em> dans le code.</td></tr>
+    <tr><td>Statut</td><td>Une étape : « En Attente », « En Cours », « Terminé »… Il a un libellé, une couleur, une icône.
+      Un statut n'appartient à aucun espace et peut figurer dans plusieurs flux.</td></tr>
+    <tr><td>Transition</td><td>Flèche d'un statut vers un autre, avec un libellé (« Vers Terminé »). Appelée <em>CrossingStatus</em>.
+      <strong>Aujourd'hui purement indicative</strong> : elle n'interdit aucun changement (voir <a href="#transitions">§7</a>).</td></tr>
+    <tr><td>Flux d'un espace / flux commun</td><td>Un flux rattaché à un espace n'est proposé qu'à lui. Un flux <strong>sans espace</strong>
+      est commun : proposé à tous (voir DT-002).</td></tr>
+    <tr><td>Flux par défaut</td><td>Flux commun nommé « Default workflow », créé automatiquement, donné à tout type qui n'en a pas.</td></tr>
+    <tr><td>Statut final</td><td>Statut qui signifie « c'est fini » (Corrigé, Terminé…). Reconnu <strong>par son libellé</strong>, d'après un paramètre
+      de configuration. Sert aux notifications et à la vue de direction.</td></tr>
+    <tr><td>Historique de statut</td><td>Chaque changement fait par le chemin normal est enregistré comme une <em>action</em> (ancien statut,
+      nouveau statut, auteur, date).</td></tr>
+  </table>
+
+  <!-- ================================================================== -->
+  <h2 id="vue">2. Vue d'ensemble</h2>
+  <figure>
+    <svg viewBox="0 0 900 330" width="900" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Vue d'ensemble des flux de travail">
+      <defs>
+        <marker id="fl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="#4b5563"/>
+        </marker>
+      </defs>
+      <style>
+        .box { fill: #fff; stroke: #185FA5; stroke-width: 1.5; }
+        .soft { fill: #eff6ff; }
+        .t { fill: #111827; font-size: 13px; font-weight: 700; }
+        .s { fill: #4b5563; font-size: 11.5px; }
+        .ln { stroke: #4b5563; stroke-width: 1.4; fill: none; }
+        .dash { stroke-dasharray: 5 4; }
+        .st { fill: #fff; stroke: #16a34a; stroke-width: 1.4; }
+        .stt { fill: #166534; font-size: 12px; font-weight: 600; }
+      </style>
+
+      <rect class="box" x="20" y="30" width="170" height="60" rx="8"/>
+      <text class="t" x="36" y="56">Espace de travail</text>
+      <text class="s" x="36" y="75">(Project)</text>
+
+      <rect class="box" x="250" y="30" width="170" height="60" rx="8"/>
+      <text class="t" x="266" y="56">Type de tâche</text>
+      <text class="s" x="266" y="75">principal ou sous-type</text>
+
+      <rect class="box soft" x="480" y="30" width="200" height="60" rx="8"/>
+      <text class="t" x="496" y="56">Flux de travail</text>
+      <text class="s" x="496" y="75">de l'espace, ou commun</text>
+
+      <rect class="box" x="250" y="190" width="170" height="60" rx="8"/>
+      <text class="t" x="266" y="216">Tâche</text>
+      <text class="s" x="266" y="235">(Issue)</text>
+
+      <path class="ln" d="M190,60 L250,60" marker-end="url(#fl)"/>
+      <text class="s" x="196" y="52">contient</text>
+      <path class="ln" d="M420,60 L480,60" marker-end="url(#fl)"/>
+      <text class="s" x="428" y="52">suit 1</text>
+      <path class="ln" d="M335,190 L335,90" marker-end="url(#fl)"/>
+      <text class="s" x="342" y="145">est de type</text>
+      <path class="ln dash" d="M580,90 L580,120 L130,120 L130,60" />
+      <text class="s" x="140" y="114">0..1 espace (aucun = commun)</text>
+
+      <!-- statuts du flux -->
+      <rect class="st" x="480" y="160" width="110" height="34" rx="6"/>
+      <text class="stt" x="494" y="182">En Attente</text>
+      <rect class="st" x="620" y="160" width="100" height="34" rx="6"/>
+      <text class="stt" x="634" y="182">En Cours</text>
+      <rect class="st" x="750" y="160" width="100" height="34" rx="6"/>
+      <text class="stt" x="768" y="182">Terminé</text>
+      <path class="ln" d="M590,177 L620,177" marker-end="url(#fl)"/>
+      <path class="ln" d="M720,177 L750,177" marker-end="url(#fl)"/>
+      <text class="s" x="560" y="215">statuts du flux, reliés par des transitions (indicatives)</text>
+      <path class="ln dash" d="M580,90 L580,160"/>
+
+      <path class="ln" d="M420,220 L670,220 L670,194" marker-end="url(#fl)"/>
+      <text class="s" x="440" y="238">a 1 statut courant (normalement un statut du flux de son type)</text>
+
+      <text class="s" x="20" y="290">Lecture : un espace contient des types ; chaque type suit un flux ; chaque tâche a un type et un statut.</text>
+      <text class="s" x="20" y="308">Les statuts proposés pour une tâche sont ceux du flux de son type.</text>
+    </svg>
+    <figcaption>Qui est relié à quoi.</figcaption>
+  </figure>
+
+  <!-- ================================================================== -->
+  <h2 id="modele">3. Modèle de données</h2>
+  <p>Les tables sont créées par Hibernate (mise à jour automatique du schéma) : il n'y a pas de script de création
+    dédié. Les noms ci-dessous suivent la convention de nommage par défaut ; vérifiez-les sur votre base.</p>
+  <table class="data">
+    <tr><th>Élément</th><th>Contenu utile</th><th>Remarques</th></tr>
+    <tr><td>Flux (<code>work_flow</code>)</td>
+      <td>nom, espace (facultatif), positions du diagramme</td>
+      <td>Espace vide = flux commun. Les positions des statuts sur le diagramme sont stockées en texte JSON
+        (<em>layout</em>), uniquement pour l'affichage. Les colonnes <em>active</em> et <em>statesIds</em> sont remplies
+        mais ne servent à rien.</td></tr>
+    <tr><td>Statuts d'un flux (<code>work_flow_statuses</code>)</td>
+      <td>lien flux ↔ statut</td>
+      <td>Plusieurs-à-plusieurs : un même statut peut être dans plusieurs flux. <strong>Pas d'ordre enregistré.</strong></td></tr>
+    <tr><td>Statut (<code>status</code>)</td>
+      <td>libellé, couleur, style, icône</td>
+      <td>Aucun espace : un statut est global. Chaque ajout depuis l'éditeur crée une <strong>nouvelle</strong> ligne,
+        même si le libellé existe déjà.</td></tr>
+    <tr><td>Transitions d'un flux (<code>work_flow_crossing_states</code>) et transition (<code>crossing_status</code>)</td>
+      <td>libellé, description, statut de départ, statut d'arrivée</td>
+      <td>Une transition appartient en pratique à un seul flux.</td></tr>
+    <tr><td>Type de tâche (<code>issue_type</code>)</td>
+      <td>flux courant (<em>curentWorkFlow</em>, orthographe d'origine)</td>
+      <td>Toujours renseigné après enregistrement d'un type.</td></tr>
+    <tr><td>Tâche (<code>issue</code>)</td>
+      <td>statut courant</td>
+      <td>Le statut n'est pas contraint par la base à appartenir au flux du type.</td></tr>
+    <tr><td>Historique (<em>ActionStatus</em>)</td>
+      <td>nouveau statut, ancien statut, libellés, auteur, date</td>
+      <td>Écrit uniquement par le chemin normal de changement de statut (§6.2).</td></tr>
+    <tr><td>Phase ↔ statut (<code>phase_status</code>)</td>
+      <td>phases liées aux statuts du projet</td>
+      <td>Voir DT-001 et <a href="#phases">§10</a>.</td></tr>
+  </table>
+
+  <!-- ================================================================== -->
+  <h2 id="flux">4. Cycle de vie d'un flux</h2>
+  <h3>4.1 Création</h3>
+  <ul>
+    <li><strong>Par l'écran « Flux de travail »</strong> : un nom, et la case « Commun à tous les espaces de travail ».
+      Le flux est créé vide : on y ajoute ensuite les statuts et les transitions.</li>
+    <li><strong>Automatiquement</strong> : le flux par défaut est créé la première fois qu'on en a besoin (création d'un espace,
+      enregistrement d'un type sans flux, affichage de la liste des flux). Il contient 7 statuts, dans cet ordre de création :
+      En Attente, Ouvert, En Cours, Corrigé, Résolue, Terminé, Abandonné. <strong>Il n'a aucune transition.</strong></li>
+  </ul>
+  <h3>4.2 Visibilité</h3>
+  <p>La liste des flux d'un espace contient d'abord <strong>ses</strong> flux, puis <strong>tous les flux communs</strong>,
+    chacun dans l'ordre de création. Un flux rattaché à un autre espace n'apparaît jamais.</p>
+  <h3>4.3 Modification</h3>
+  <ul>
+    <li><strong>Renommer</strong> ne change que le nom (statuts, transitions et portée sont conservés).</li>
+    <li><strong>Ajouter un statut</strong> crée un nouveau statut et l'ajoute au flux.</li>
+    <li><strong>Retirer un statut</strong> le retire du flux et supprime toutes les transitions qui le touchent. Le statut lui-même
+      n'est pas supprimé, et les tâches qui l'ont gardent ce statut (voir <a href="#changements">§9</a>).</li>
+    <li><strong>Déplacer un statut</strong> sur le diagramme enregistre sa position (affichage seulement).</li>
+    <li><strong>Changer la portée</strong> : commun ↔ espace (règles en DT-002 et <a href="#regles">§13</a>).</li>
+  </ul>
+  <div class="warn">Un flux commun est partagé : toute modification (statut ajouté ou retiré, transition) s'applique
+    immédiatement à <strong>tous</strong> les espaces qui l'utilisent. L'éditeur affiche un bandeau pour le rappeler.</div>
+  <h3>4.4 Suppression</h3>
+  <p>Refusée tant qu'au moins un type, de n'importe quel espace, utilise le flux. Sinon le flux et ses transitions sont
+    supprimés ; les statuts sont conservés.</p>
+
+  <!-- ================================================================== -->
+  <h2 id="type">5. Comment un type reçoit son flux</h2>
+  <figure>
+    <svg viewBox="0 0 860 300" width="860" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Choix du flux d'un type">
+      <defs>
+        <marker id="fl2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="#4b5563"/>
+        </marker>
+      </defs>
+      <style>
+        .q { fill: #fff7ed; stroke: #b45309; stroke-width: 1.4; }
+        .r { fill: #f0fdf4; stroke: #16a34a; stroke-width: 1.4; }
+        .x { fill: #fef2f2; stroke: #dc2626; stroke-width: 1.4; }
+        .t { fill: #111827; font-size: 12.5px; }
+        .ln { stroke: #4b5563; stroke-width: 1.4; fill: none; }
+        .lb { fill: #4b5563; font-size: 11.5px; font-weight: 600; }
+      </style>
+      <rect class="q" x="20" y="20" width="230" height="50" rx="8"/>
+      <text class="t" x="34" y="42">Un flux est choisi dans</text>
+      <text class="t" x="34" y="60">le formulaire du type ?</text>
+
+      <rect class="q" x="320" y="20" width="230" height="50" rx="8"/>
+      <text class="t" x="334" y="42">Le flux est de l'espace du type,</text>
+      <text class="t" x="334" y="60">ou commun ?</text>
+
+      <rect class="r" x="620" y="20" width="220" height="50" rx="8"/>
+      <text class="t" x="634" y="50">Le type suit ce flux</text>
+
+      <rect class="x" x="320" y="110" width="230" height="40" rx="8"/>
+      <text class="t" x="334" y="135">Refus : flux non disponible</text>
+
+      <rect class="q" x="20" y="130" width="230" height="50" rx="8"/>
+      <text class="t" x="34" y="152">C'est un sous-type dont</text>
+      <text class="t" x="34" y="170">un parent a un flux ?</text>
+
+      <rect class="r" x="320" y="190" width="230" height="40" rx="8"/>
+      <text class="t" x="334" y="215">Flux du premier parent</text>
+
+      <rect class="r" x="20" y="240" width="230" height="40" rx="8"/>
+      <text class="t" x="34" y="265">Flux par défaut (commun)</text>
+
+      <path class="ln" d="M250,45 L320,45" marker-end="url(#fl2)"/><text class="lb" x="272" y="38">oui</text>
+      <path class="ln" d="M550,45 L620,45" marker-end="url(#fl2)"/><text class="lb" x="572" y="38">oui</text>
+      <path class="ln" d="M435,70 L435,110" marker-end="url(#fl2)"/><text class="lb" x="442" y="94">non</text>
+      <path class="ln" d="M135,70 L135,130" marker-end="url(#fl2)"/><text class="lb" x="142" y="104">non</text>
+      <path class="ln" d="M250,175 L285,175 L285,210 L320,210" marker-end="url(#fl2)"/><text class="lb" x="258" y="168">oui</text>
+      <path class="ln" d="M135,180 L135,240" marker-end="url(#fl2)"/><text class="lb" x="142" y="214">non</text>
+    </svg>
+    <figcaption>Enregistrement d'un type : d'où vient son flux.</figcaption>
+  </figure>
+  <ul>
+    <li>À la <strong>création d'un espace</strong>, ses deux types initiaux (« Projet » et « Tâche ») reçoivent le flux par défaut.</li>
+    <li>À la <strong>création d'un type principal</strong>, un sous-type « Tâche » est créé avec le flux du type principal.</li>
+    <li>Le flux d'un type existant se change depuis le <strong>formulaire du type</strong> ou depuis l'<strong>écran du flux</strong>
+      (« + Affecter à un type… »). Dans les deux cas, le serveur vérifie que le flux est disponible pour l'espace du type.</li>
+    <li>Un type a <strong>toujours</strong> un flux : on ne « retire » pas un flux, on en choisit un autre.</li>
+  </ul>
+
+  <!-- ================================================================== -->
+  <h2 id="statut">6. Vie du statut d'une tâche</h2>
+  <h3>6.1 Statut initial</h3>
+  <p>À la création d'une tâche, le statut demandé est gardé s'il appartient au flux du type. Sinon la tâche prend le
+    <strong>premier statut du flux</strong>. Attention : l'ordre des statuts d'un flux n'est pas enregistré, « premier » dépend
+    de l'ordre renvoyé par la base (en pratique, l'ordre d'ajout ; pour le flux par défaut, « En Attente »).</p>
+
+  <h3>6.2 Changer le statut : le chemin normal</h3>
+  <p>Le menu de statut d'une tâche, le tableau des sous-tâches et la liste « Tâches » passent par une <strong>action de
+    changement de statut</strong>. Dans l'ordre :</p>
+  <ol>
+    <li>si le nouveau statut est le même que l'actuel, rien ne se passe ;</li>
+    <li>le statut de la tâche est mis à jour ;</li>
+    <li>une ligne d'<strong>historique</strong> est écrite (ancien et nouveau statut, auteur, date) ;</li>
+    <li>si le nouveau statut est <strong>final</strong>, les observateurs de la tâche sont <strong>notifiés</strong> ;</li>
+    <li>l'écran des utilisateurs concernés est rafraîchi en temps réel (websocket).</li>
+  </ol>
+  <h3>6.3 Le chemin direct (à éviter)</h3>
+  <div class="warn">Trois tableaux (le tableau « Board » de l'espace, la vue tableau de la liste des demandes, et la vue tableau
+    des sous-tâches) changent le statut en <strong>réenregistrant la tâche</strong> lors d'un glisser-déposer.
+    Ce chemin n'écrit <strong>pas d'historique</strong> et n'envoie <strong>pas de notification</strong>.
+    Tout nouvel écran doit utiliser le chemin normal (§6.2).</div>
+  <h3>6.4 Quels statuts sont proposés ?</h3>
+  <ul>
+    <li><strong>Menu de statut d'une tâche</strong> : tous les statuts du flux de son type, sans tenir compte des transitions.</li>
+    <li><strong>Tableaux (colonnes)</strong> : les statuts du flux, plus les statuts que portent des tâches mais qui ne sont plus
+      dans le flux (pour ne pas « perdre » ces tâches).</li>
+    <li><strong>Liste « Tâches »</strong> (plusieurs types mélangés) : les statuts sont regroupés <strong>par libellé</strong>.
+      Déposer une tâche dans la colonne « En Cours » lui donne le statut « En Cours » <strong>de son propre flux</strong>.</li>
+    <li><strong>Filtres</strong> : tous les statuts de l'application, tous flux confondus.</li>
+  </ul>
+
+  <!-- ================================================================== -->
+  <h2 id="transitions">7. Transitions</h2>
+  <p>Les transitions se dessinent dans l'éditeur (flèche d'un statut vers un autre, libellé modifiable). Règles à
+    l'enregistrement : départ et arrivée obligatoires et différents, statuts existants, pas deux fois la même flèche
+    dans un flux.</p>
+  <div class="decision"><strong>État actuel : les transitions sont documentaires.</strong> Aucun écran ni aucun service ne
+    refuse un changement de statut qui ne suit pas une flèche. Le flux par défaut n'a d'ailleurs aucune transition.
+    Les rendre obligatoires est une évolution possible (voir <a href="#guides">guide G8</a>), à condition de donner
+    d'abord des transitions au flux par défaut.</div>
+
+  <!-- ================================================================== -->
+  <h2 id="finaux">8. Statuts finaux</h2>
+  <ul>
+    <li>Un statut est final si son <strong>libellé</strong> figure dans le paramètre <code>notification.statuts-finaux</code>
+      du fichier de configuration de l'application. Valeur livrée : <em>Corrige, Resolu, Termine</em>.</li>
+    <li>La comparaison ignore les majuscules, les accents et les espaces autour : « Terminé » et « termine » sont équivalents.</li>
+    <li>Ce choix (le libellé plutôt que l'identifiant) vient de ce que chaque flux a ses propres lignes de statut : un même
+      « Terminé » existe en plusieurs exemplaires.</li>
+    <li>Utilisations : déclenchement des notifications de changement de statut, et exclusion des projets terminés dans la
+      vue de direction. Les rapports n'en dépendent pas (ils s'appuient sur l'avancement et le planning).</li>
+    <li>Paramètre vide : plus aucune notification de changement de statut (un avertissement est écrit dans les journaux).</li>
+  </ul>
+  <div class="warn">Le flux par défaut contient « Résolue » (avec un <em>e</em>) alors que le paramètre contient « Resolu » :
+    « Résolue » n'est donc <strong>pas</strong> reconnu comme final. « Abandonné » non plus. Voir <a href="#guides">guide G5</a>.</div>
+
+  <!-- ================================================================== -->
+  <h2 id="changements">9. Ce qui se passe quand on change quelque chose</h2>
+  <table class="data">
+    <tr><th>Changement</th><th>Effet sur les tâches existantes</th></tr>
+    <tr><td>On change le <strong>type</strong> d'une tâche</td>
+      <td>Si son statut (le même statut, pas un statut de même libellé) existe dans le flux du nouveau type, il est gardé ;
+        sinon la tâche prend le premier statut du nouveau flux.</td></tr>
+    <tr><td>On change le <strong>flux</strong> d'un type</td>
+      <td><strong>Aucun</strong> : les tâches gardent leur statut, même s'il n'est pas dans le nouveau flux. Elles restent
+        visibles dans les tableaux (colonne supplémentaire).</td></tr>
+    <tr><td>On <strong>retire un statut</strong> d'un flux</td>
+      <td><strong>Aucun</strong> : les tâches dans ce statut le gardent. Il faut les déplacer à la main si besoin.</td></tr>
+    <tr><td>On <strong>supprime</strong> un type</td>
+      <td>Ses tâches sont réaffectées à un autre type ; leur statut est recalé comme pour un changement de type.</td></tr>
+    <tr><td>On rend un flux <strong>commun</strong> ou on le rattache à un espace</td>
+      <td>Aucun sur les tâches ; seule la liste des flux proposés change.</td></tr>
+    <tr><td>On <strong>renomme</strong> ou recolore un statut</td>
+      <td>Visible dans <strong>tous</strong> les flux qui contiennent ce statut. Attention au statut final (reconnu par libellé)
+        et aux phases liées.</td></tr>
+  </table>
+
+  <!-- ================================================================== -->
+  <h2 id="phases">10. Lien avec les phases</h2>
+  <p>La phase en cours d'un projet se lit sur le <strong>statut de la demande racine</strong> (DT-001). Une phase est liée
+    explicitement à un ou plusieurs statuts ; les statuts proposés pour ce lien sont ceux des flux des <strong>types
+    principaux</strong> de l'espace.</p>
+  <ul>
+    <li>Un statut ne peut désigner qu'<strong>une</strong> phase. Cette unicité est vérifiée pour toute l'application : comme
+      les statuts du flux par défaut sont partagés, lier « En Cours » du flux par défaut à une phase d'un espace empêche
+      un autre espace de le lier à une autre phase.</li>
+    <li>Conseil : pour les projets organisés en phases, créez un flux dédié au type « Projet » avec un statut par phase
+      (Préliminaire, APS, APD…), plutôt que d'utiliser le flux par défaut.</li>
+  </ul>
+
+  <!-- ================================================================== -->
+  <h2 id="ecrans">11. Écrans</h2>
+  <table class="data">
+    <tr><th>Écran</th><th>État</th><th>Rôle</th></tr>
+    <tr><td>Configuration › Flux de travail</td><td>Actuel</td>
+      <td>Liste des flux (de l'espace et communs), diagramme : statuts, transitions, positions, renommage, suppression,
+        portée, types utilisant le flux et affectation.</td></tr>
+    <tr><td>Configuration › Types de tâche</td><td>Actuel</td>
+      <td>Fiche du type (flux affiché) et formulaire avec la liste « Flux de travail ».</td></tr>
+    <tr><td>Fenêtre « Configurer workflow et champs » (depuis la fiche du type)</td><td>Ancien, encore ouvert</td>
+      <td>Ne propose que les flux propres à l'espace (pas les flux communs). Préférer le formulaire du type.</td></tr>
+    <tr><td>Assistants de création (stepper, popup de flux, « work-flow-status », écrans d'administration)</td><td>Anciens</td>
+      <td>Déclarés mais plus atteignables par la navigation. Ne pas les faire évoluer ; à supprimer à terme.</td></tr>
+    <tr><td>Menu de statut d'une tâche, tableau des sous-tâches, liste « Tâches »</td><td>Actuel</td>
+      <td>Changement de statut par le chemin normal (§6.2).</td></tr>
+    <tr><td>Board de l'espace, vues tableau des listes</td><td>Actuel, à corriger</td>
+      <td>Changement de statut par le chemin direct (§6.3).</td></tr>
+  </table>
+
+  <!-- ================================================================== -->
+  <h2 id="api">12. API GraphQL</h2>
+  <table class="data">
+    <tr><th>Opération</th><th>Nature</th><th>Effet</th></tr>
+    <tr><td><code>workFlowsByProject</code></td><td>lecture</td><td>Flux de l'espace puis flux communs (crée le flux par défaut s'il manque).</td></tr>
+    <tr><td><code>getWorkFlow</code></td><td>lecture</td><td>Un flux complet : statuts, transitions, types qui l'utilisent, portée.</td></tr>
+    <tr><td><code>allWorkFlow</code></td><td>lecture</td><td>Tous les flux de l'application, sans filtre.</td></tr>
+    <tr><td><code>findAllStatus</code></td><td>lecture</td><td>Tous les statuts de l'application (utilisé par les filtres).</td></tr>
+    <tr><td><code>saveWorkFlow</code></td><td>écriture</td><td>Sans identifiant : crée (sans espace = commun). Avec : renomme seulement.</td></tr>
+    <tr><td><code>changerPorteeWorkFlow</code></td><td>écriture</td><td>Rend commun, ou rattache à un espace.</td></tr>
+    <tr><td><code>addStatus</code></td><td>écriture</td><td>Crée un statut et l'ajoute au flux.</td></tr>
+    <tr><td><code>removeStatusFromWorkFlow</code></td><td>écriture</td><td>Retire un statut et ses transitions.</td></tr>
+    <tr><td><code>saveCrossingState</code> / <code>deleteCrossingState</code></td><td>écriture</td><td>Crée, renomme ou supprime une transition.</td></tr>
+    <tr><td><code>saveWorkFlowLayout</code></td><td>écriture</td><td>Positions du diagramme.</td></tr>
+    <tr><td><code>deleteWorkFlow</code></td><td>écriture</td><td>Supprime un flux inutilisé.</td></tr>
+    <tr><td><code>affectWorkFlow</code></td><td>écriture</td><td>Donne un flux à un type (avec contrôle de disponibilité).</td></tr>
+    <tr><td><code>saveIssueType</code></td><td>écriture</td><td>Enregistre un type ; choisit son flux selon le §5.</td></tr>
+    <tr><td><code>saveAction</code></td><td>écriture</td><td>Chemin normal de changement de statut d'une tâche (§6.2).</td></tr>
+    <tr><td><code>changeIssueType</code></td><td>écriture</td><td>Change le type d'une tâche et recale son statut (§9).</td></tr>
+    <tr><td><code>statutsProjetPourPhases</code>, <code>lierStatutPhase</code>, <code>delierStatutPhase</code></td><td>lecture / écriture</td>
+      <td>Lien statut ↔ phase (DT-001).</td></tr>
+  </table>
+
+  <!-- ================================================================== -->
+  <h2 id="regles">13. Récapitulatif des règles</h2>
+  <table class="data">
+    <tr><th>N°</th><th>Règle</th></tr>
+    <tr><td>R1</td><td>Tout type de tâche a exactement un flux.</td></tr>
+    <tr><td>R2</td><td>Un type ne peut suivre qu'un flux de son espace ou un flux commun.</td></tr>
+    <tr><td>R3</td><td>Un sous-type créé sans flux prend celui de son premier parent, sinon le flux par défaut.</td></tr>
+    <tr><td>R4</td><td>Le flux par défaut est commun, reconnu par son nom « Default workflow », et le reste.</td></tr>
+    <tr><td>R5</td><td>Un flux devient commun sans condition ; il ne redevient propre à un espace que si aucun type d'un autre espace ne l'utilise.</td></tr>
+    <tr><td>R6</td><td>Un flux utilisé par au moins un type ne peut pas être supprimé.</td></tr>
+    <tr><td>R7</td><td>Renommer un flux ne modifie ni ses statuts, ni ses transitions, ni sa portée.</td></tr>
+    <tr><td>R8</td><td>Une transition relie deux statuts différents ; pas de doublon de flèche dans un flux.</td></tr>
+    <tr><td>R9</td><td>Retirer un statut d'un flux supprime les transitions qui le touchent, pas le statut ni les tâches.</td></tr>
+    <tr><td>R10</td><td>Une nouvelle tâche prend le statut demandé s'il est dans le flux de son type, sinon le premier statut du flux.</td></tr>
+    <tr><td>R11</td><td>Un changement de statut vers le même statut est ignoré.</td></tr>
+    <tr><td>R12</td><td>Le chemin normal de changement de statut écrit l'historique et notifie les observateurs si le statut est final.</td></tr>
+    <tr><td>R13</td><td>Un statut est final selon son libellé, comparé sans accents ni majuscules à la liste configurée.</td></tr>
+    <tr><td>R14</td><td>Au changement de type d'une tâche, son statut est gardé s'il est dans le nouveau flux (même statut), sinon premier statut.</td></tr>
+    <tr><td>R15</td><td>Changer le flux d'un type ne modifie pas le statut des tâches existantes.</td></tr>
+    <tr><td>R16</td><td>Un statut ne peut être lié qu'à une seule phase, pour toute l'application.</td></tr>
+    <tr><td>R17</td><td>Les transitions n'empêchent aucun changement de statut (état actuel).</td></tr>
+  </table>
+
+  <!-- ================================================================== -->
+  <h2 id="pieges">14. Pièges connus et dette technique</h2>
+  <table class="data">
+    <tr><th>Piège</th><th>Conséquence</th><th>Piste</th></tr>
+    <tr><td>Statuts globaux et partagés</td><td>Renommer un statut du flux par défaut le renomme pour tous les espaces.</td>
+      <td>Créer des flux dédiés plutôt que modifier le flux par défaut.</td></tr>
+    <tr><td>Un ajout = un nouveau statut</td><td>« Ouvert » peut exister en dizaines d'exemplaires ; d'où les comparaisons par libellé
+      (statuts finaux, liste « Tâches »).</td><td>Proposer de réutiliser un statut existant dans l'éditeur.</td></tr>
+    <tr><td>Ordre des statuts non enregistré</td><td>Le « premier statut » (statut initial, repli) n'est pas garanti.</td>
+      <td>Ajouter un rang aux statuts d'un flux, ou un statut initial explicite.</td></tr>
+    <tr><td>Flux par défaut reconnu par son nom</td><td>Le renommer fait recréer un nouveau flux par défaut au prochain affichage.</td>
+      <td>Ne pas le renommer ; à terme, un indicateur en base.</td></tr>
+    <tr><td>Chemin direct dans trois tableaux</td><td>Pas d'historique ni de notification.</td><td>Passer ces écrans sur le chemin normal.</td></tr>
+    <tr><td>« Résolue » non final</td><td>Pas de notification quand une tâche passe à « Résolue ».</td><td>Guide G5.</td></tr>
+    <tr><td>Tâches orphelines de statut</td><td>Après retrait d'un statut ou changement de flux, des tâches ont un statut hors flux.</td>
+      <td>Proposer un recalage (comme au changement de type).</td></tr>
+    <tr><td>Fenêtre « Configurer workflow et champs »</td><td>Ne montre pas les flux communs.</td><td>Utiliser le formulaire du type ; retirer la fenêtre.</td></tr>
+    <tr><td>Contrôle des transitions incomplet</td><td>Une transition peut relier des statuts qui ne sont pas dans le flux (par l'API).</td>
+      <td>Vérifier l'appartenance au flux à l'enregistrement.</td></tr>
+    <tr><td>Écrans et code anciens</td><td>Assistants inaccessibles, ancien « Default WorkFlow » dans un service non utilisé, colonnes inutiles.</td>
+      <td>Nettoyage dans un lot dédié.</td></tr>
+    <tr><td>Corrigé le 15/10/2026</td><td>Ajouter un statut à un flux commun échouait (journal qui lisait l'espace du flux).
+      Renommer un flux vidait ses statuts.</td><td>Réglé (DT-002, DT-003).</td></tr>
+  </table>
+
+  <!-- ================================================================== -->
+  <h2 id="guides">15. Guides pas à pas</h2>
+
+  <h3>G1. Créer un flux pour un espace</h3>
+  <ol>
+    <li>Configuration de l'espace › <strong>Flux de travail</strong> › bouton <strong>+</strong>.</li>
+    <li>Saisir le nom, laisser la case « Commun » décochée, <strong>Créer</strong>.</li>
+    <li>Bouton <strong>+ Statut</strong> : ajouter les statuts <strong>dans l'ordre du déroulement</strong>, le premier étant
+      le statut des nouvelles tâches (R10).</li>
+    <li>Sur un statut, flèche <strong>→</strong> puis clic sur le statut d'arrivée : crée une transition. Renommer la transition
+      en cliquant dessus.</li>
+    <li><strong>Réorganiser</strong> pour une mise en page automatique, ou déplacer les statuts à la souris.</li>
+  </ol>
+
+  <h3>G2. Partager un flux avec tous les espaces</h3>
+  <ol>
+    <li>Pour un nouveau flux : cocher « Commun à tous les espaces de travail » à la création.</li>
+    <li>Pour un flux existant : le sélectionner, bouton <strong>Rendre commun</strong>, confirmer.</li>
+    <li>Le flux porte la mention « commun » et apparaît dans la liste de chaque espace.</li>
+    <li>Pour revenir en arrière : <strong>Rattacher à cet espace</strong> (refusé si d'autres espaces l'utilisent : changer
+      d'abord le flux de leurs types).</li>
+  </ol>
+
+  <h3>G3. Affecter un flux à un type de tâche</h3>
+  <ol>
+    <li><strong>Depuis le type</strong> : Configuration › Types de tâche › le type › <strong>Modifier</strong> › liste
+      « Flux de travail » › <strong>Enregistrer</strong>.</li>
+    <li><strong>Depuis le flux</strong> : Flux de travail › le flux › bandeau « Types utilisant ce flux » ›
+      « + Affecter à un type… » › choisir le type.</li>
+    <li>Les tâches existantes de ce type gardent leur statut (R15) : vérifier qu'aucune n'est dans un statut absent
+      du nouveau flux, sinon les déplacer.</li>
+  </ol>
+
+  <h3>G4. Retirer un statut d'un flux</h3>
+  <ol>
+    <li>Avant : filtrer les tâches sur ce statut et les passer dans un autre statut (sinon elles restent dans un statut
+      hors flux, R9).</li>
+    <li>Sur le diagramme, icône corbeille du statut › confirmer.</li>
+    <li>Si le flux est commun, prévenir les autres espaces : le retrait vaut pour eux aussi.</li>
+  </ol>
+
+  <h3>G5. Rendre un statut « final » (notifications)</h3>
+  <ol>
+    <li>Ouvrir le fichier de configuration de l'application (côté serveur).</li>
+    <li>Compléter <code>notification.statuts-finaux</code> avec le libellé du statut, séparé par des virgules
+      (accents et majuscules indifférents). Exemple pour le flux par défaut : ajouter <em>Resolue</em>.</li>
+    <li>Redémarrer le serveur.</li>
+  </ol>
+
+  <h3>G6. Organiser un projet en phases avec un flux</h3>
+  <ol>
+    <li>Créer un flux (G1) avec un statut par phase : Préliminaire, APS, APD, DAO, Contrôle, puis Terminé.</li>
+    <li>L'affecter au type <strong>principal</strong> « Projet » (G3).</li>
+    <li>Dans l'écran des phases (DT-001), lier chaque phase au statut correspondant.</li>
+    <li>Le statut du projet donne alors la phase en cours, et la création de sous-tâches propose les types de cette phase.</li>
+  </ol>
+
+  <h3>G7. Ajouter un écran qui change le statut d'une tâche (développeur)</h3>
+  <ol>
+    <li>Proposer les statuts du flux du type de la tâche.</li>
+    <li>Passer par l'action de changement de statut (opération <code>saveAction</code>, via le service front qui crée l'action
+      de statut), <strong>jamais</strong> par le réenregistrement de la tâche : c'est ce qui garantit historique et notifications.</li>
+    <li>Pour des tâches de types différents dans une même vue, regrouper par libellé et retrouver le statut de même libellé
+      dans le flux de chaque tâche (modèle : liste « Tâches »).</li>
+  </ol>
+
+  <h3>G8. Rendre les transitions obligatoires (évolution, développeur)</h3>
+  <ol>
+    <li>Donner d'abord des transitions au flux par défaut et aux flux existants, sinon plus aucun changement ne sera possible.</li>
+    <li>Ajouter le contrôle côté serveur dans le chemin normal de changement de statut (statut d'arrivée appartenant au flux,
+      et transition existante depuis le statut actuel).</li>
+    <li>Côté front, filtrer le menu de statut sur les transitions possibles.</li>
+    <li>Décider du sort du chemin direct (§6.3) : le supprimer ou y appliquer le même contrôle.</li>
+  </ol>
+
+  <!-- ================================================================== -->
+  <h2 id="ou">16. Où intervenir dans le code</h2>
+  <p>Repères pour les développeurs (back-end <code>tasks-service</code>, front <code>tasks-front</code>).</p>
+  <table class="data">
+    <tr><th>Besoin</th><th>Où regarder</th></tr>
+    <tr><td>Données d'un flux, portée</td><td>Entités <em>WorkFlow</em>, <em>Status</em>, <em>CrossingStatus</em> ; recherche des flux visibles dans le dépôt des flux</td></tr>
+    <tr><td>Créer, renommer, éditer un flux ; flux par défaut ; flux d'un type</td><td><em>ProjectService</em> (sections « workFlow » et « saveIssueType »)</td></tr>
+    <tr><td>Portée commun / espace, contrôle de disponibilité</td><td><em>WorkFlowPorteeService</em> (paquet <em>service/workflow</em>)</td></tr>
+    <tr><td>Changement de statut, historique, notifications</td><td><em>ActionService</em>, <em>NotificationService</em>, <em>ActionStatus</em></td></tr>
+    <tr><td>Statuts finaux</td><td><em>StatutsFinaux</em> (paquet <em>config</em>) et le paramètre <code>notification.statuts-finaux</code></td></tr>
+    <tr><td>Statut au changement de type, statut initial</td><td><em>IssueTypeChangeService</em></td></tr>
+    <tr><td>Phases ↔ statuts</td><td><em>PhaseStatutService</em>, <em>PhaseCouranteParStatut</em> (paquet <em>service/phase</em>)</td></tr>
+    <tr><td>Schéma GraphQL</td><td><code>tasks.graphqls</code>, <code>query.graphqls</code>, <code>mutation.graphqls</code>, <code>workflow.graphqls</code></td></tr>
+    <tr><td>Éditeur de flux (front)</td><td>Composant <em>work-flow</em> de la configuration de l'espace</td></tr>
+    <tr><td>Choix du flux d'un type (front)</td><td>Composant <em>issutype-form2</em></td></tr>
+    <tr><td>Menu de statut, colonnes des tableaux (front)</td><td>Composant <em>status-field</em> ; utilitaire de regroupement des tâches</td></tr>
+  </table>
+
+  <!-- ================================================================== -->
+  <h2 id="faq">17. Questions fréquentes</h2>
+  <h3>Pourquoi ma tâche est-elle dans une colonne qui n'est pas dans le flux ?</h3>
+  <p>Son statut a été retiré du flux, ou le flux de son type a changé (R9, R15). Les tableaux ajoutent une colonne pour
+    ne pas la cacher ; déplacez-la vers un statut du flux.</p>
+  <h3>J'ai modifié un statut et un autre espace s'en plaint.</h3>
+  <p>Le statut ou le flux est partagé (flux commun, ou flux par défaut). Créez un flux propre à votre espace pour vos
+    besoins particuliers.</p>
+  <h3>Pourquoi personne n'est notifié quand je passe une tâche à « Résolue » ?</h3>
+  <p>« Résolue » n'est pas dans la liste des statuts finaux (§8, guide G5). Vérifiez aussi que la tâche a des observateurs
+    et que le changement a été fait par le menu de statut, pas par glisser-déposer dans un des trois tableaux du §6.3.</p>
+  <h3>Je ne vois pas un flux dans la liste d'un type.</h3>
+  <p>Il appartient à un autre espace. Rendez-le commun (G2), ou utilisez le formulaire du type plutôt que l'ancienne
+    fenêtre « Configurer workflow et champs ».</p>
+  <h3>Puis-je supprimer le flux par défaut ?</h3>
+  <p>Non tant qu'un type l'utilise, ce qui est presque toujours le cas. Et s'il disparaît, il est recréé automatiquement.</p>
+
+  <footer>follow-task · DT-003 · flux de travail</footer>
+</div>
+</body>
+</html>
