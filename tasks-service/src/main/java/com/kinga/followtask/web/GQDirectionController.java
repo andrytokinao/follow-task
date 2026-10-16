@@ -3,9 +3,11 @@ package com.kinga.followtask.web;
 import com.kinga.followtask.dto.DependanceTacheDTO;
 import com.kinga.followtask.dto.RealisationTacheDTO;
 import com.kinga.followtask.dto.rapport.RapportProjetDTO;
+import com.kinga.followtask.dto.situation.SituationDirectionDTO;
 import com.kinga.followtask.entity.CustomField;
 import com.kinga.followtask.entity.Issue;
 import com.kinga.followtask.service.DirectionService;
+import com.kinga.followtask.service.situation.SituationDirectionService;
 import graphql.GraphQLContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -42,6 +44,7 @@ public class GQDirectionController {
     private static final String RAPPORTS = "direction.rapports";
 
     private final DirectionService directionService;
+    private final SituationDirectionService situationDirectionService;
 
     @QueryMapping
     public List<String> directionDepartements() {
@@ -51,6 +54,12 @@ public class GQDirectionController {
     @QueryMapping
     public List<Issue> directionProjets(@Argument String departement, GraphQLContext contexte) {
         return directionService.projets(departement, rapports(contexte));
+    }
+
+    /** Situation du jour (DT-005), à l'heure du serveur : celle du planning. */
+    @QueryMapping
+    public SituationDirectionDTO situationDirection(@Argument String departement) {
+        return situationDirectionService.situation(departement, LocalDateTime.now());
     }
 
     @SchemaMapping(typeName = "Issue", field = "rapportProjet")

@@ -1,0 +1,95 @@
+# Situation du jour de la direction (DT-005) : ou en est-on, qui fait quoi
+# maintenant, et ce que vaut ce qu'on lit. Calculee a chaque demande, jamais
+# enregistree, avec les regles des rappels de planning (DT-004).
+
+# Dans l'ordre d'affichage : ce qui demande l'attention d'abord.
+enum EtatPersonne {
+    NON_RENSEIGNE
+    BLOQUE
+    TROU_EN_COURS
+    PAUSE_COURTE
+    EN_ACTIVITE
+    HORS_HORAIRES
+}
+
+enum NiveauFiabilite {
+    FIABLE
+    PARTIELLE
+    NON_FIABLE
+}
+
+type Fiabilite {
+    ouvriers: Int
+    # Ouvriers dont le planning dit ce qu'ils font maintenant.
+    planningAJour: Int
+    # Faux a midi, le soir et le week-end : la part se lit alors sur le remplissage.
+    enHoraires: Boolean
+    # Minutes couvertes / attendues, en %, aujourd'hui jusqu'a maintenant ; null avant la journee.
+    remplissageJour: Int
+    # Idem pour le dernier jour ouvrable entier.
+    remplissageVeille: Int
+    # Pourcentage qui donne le niveau ; null sans rien a mesurer.
+    part: Int
+    niveau: NiveauFiabilite
+}
+
+type ChiffresProjets {
+    enCours: Int
+    avancementMoyen: Int
+    tachesEnRetard: Int
+    tachesBloquees: Int
+}
+
+type ProjetATraiter {
+    id: Int
+    cle: String
+    titre: String
+    departement: String
+    prefixeDepartement: String
+    avancement: Int
+    tachesEnRetard: Int
+    tachesBloquees: Int
+}
+
+type ActiviteSituation {
+    id: Int
+    titre: String
+    debut: String
+    fin: String
+    # PENDING, IN_PROGRESS, BLOCKED, EXTENDED...
+    etat: String
+    avancement: Int
+    cleTache: String
+    tache: String
+    # Projet de la tache ; null si la tache est elle-meme le projet.
+    cleProjet: String
+    projet: String
+    prefixeDepartement: String
+}
+
+type SituationPersonne {
+    personne: UserApp
+    departement: String
+    etat: EtatPersonne
+    # Activite en cours ; null s'il n'y en a pas.
+    activite: ActiviteSituation
+    # Debut du trou en cours (date-heure ISO) ; null s'il n'y en a pas.
+    rienDepuis: String
+    minutesAttendues: Int
+    minutesCouvertes: Int
+}
+
+type SituationDirection {
+    # Heure du serveur du calcul.
+    instant: String
+    fiabilite: Fiabilite
+    chiffres: ChiffresProjets
+    # Projets en retard ou bloques, cinq au plus.
+    aTraiter: [ProjetATraiter]
+    personnes: [SituationPersonne]
+}
+
+extend type Query {
+    # Toute la societe si departement est null.
+    situationDirection(departement: String): SituationDirection
+}

@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 public interface EventRepository extends JpaRepository<PlanningEvent,Long> {
@@ -47,4 +48,13 @@ public interface EventRepository extends JpaRepository<PlanningEvent,Long> {
     List<PlanningEvent> findByUserIdChevauchant(@Param("userId") String userId,
                                                 @Param("debut") LocalDateTime debut,
                                                 @Param("fin") LocalDateTime fin);
+
+    /** Meme recherche pour plusieurs personnes a la fois : une requete pour toute l'equipe. */
+    @Query("SELECT e FROM PlanningEvent e " +
+            "WHERE e.user.id IN :userIds " +
+            "AND e.start < :fin " +
+            "AND (e.end IS NULL OR e.end > :debut)")
+    List<PlanningEvent> findByUserIdInChevauchant(@Param("userIds") Collection<String> userIds,
+                                                  @Param("debut") LocalDateTime debut,
+                                                  @Param("fin") LocalDateTime fin);
 }

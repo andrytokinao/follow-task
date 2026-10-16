@@ -65,7 +65,7 @@ public class DirectionService {
     @Transactional(readOnly = true)
     public List<String> departements() {
         return projectRepository.findAll().stream()
-                .map(this::nomDepartement)
+                .map(DirectionService::nomDepartement)
                 .filter(Objects::nonNull)
                 .distinct()
                 .sorted()
@@ -232,7 +232,7 @@ public class DirectionService {
     }
 
     /** Même règle que {@code RapportService} : le nom, à défaut le préfixe. */
-    private String nomDepartement(Project espace) {
+    public static String nomDepartement(Project espace) {
         if (espace == null) {
             return null;
         }
