@@ -34,6 +34,7 @@ import {query} from "@angular/animations";
 import {IssueService} from "./issue.service";
 import {error} from "@angular/compiler-cli/src/transformers/util";
 import {AuthService} from "./auth.service";
+import {RappelPlanningService} from "./rappel-planning.service";
 
 @Injectable({
   providedIn:"root"
@@ -70,7 +71,8 @@ export class EventsService {
     private modalService: NgbModal,
     private userService:UserService,
     private issueService:IssueService,
-    private authService:AuthService
+    private authService:AuthService,
+    private rappelPlanningService:RappelPlanningService
   ){
     this.loadEventTypes();
     this.authService.connectedUser$.pipe().subscribe(user => {
@@ -108,6 +110,8 @@ export class EventsService {
       }).subscribe((res:any)=>{
         observer.next(supprimerTypename(res.data.saveEvent));
         observer.complete();
+        // Une activité de plus peut lever le bandeau « aucune activité ».
+        this.rappelPlanningService.actualiser();
       }, error => {
         observer.error(error);
         console.error(error);

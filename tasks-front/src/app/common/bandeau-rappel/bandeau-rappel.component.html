@@ -1,0 +1,8 @@
+<aside class="bandeau" role="alert" *ngIf="bandeau$ | async as b">
+  <i class="fas fa-calendar-times icone" aria-hidden="true"></i>
+  <div class="texte">
+    <strong>{{ b.rappel.titre }}</strong>
+    <span>{{ b.rappel.message }}</span>
+  </div>
+  <a class="action" [routerLink]="b.lien">Planifier maintenant</a>
+</aside>

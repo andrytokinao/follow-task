@@ -15,6 +15,8 @@ export interface RappelPlanning {
   gravite: GraviteRappel;
   titre: string;
   message: string;
+  /** Vrai : bandeau sans fermeture tant que le serveur le renvoie, au lieu d'un toast. */
+  persistant: boolean;
 }
 
 export const MES_RAPPELS_PLANNING = gql`
@@ -24,6 +26,7 @@ export const MES_RAPPELS_PLANNING = gql`
       gravite
       titre
       message
+      persistant
     }
   }
 `;

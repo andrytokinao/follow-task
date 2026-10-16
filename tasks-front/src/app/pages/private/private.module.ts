@@ -30,6 +30,7 @@ import {MatChipsModule} from "@angular/material/chips";
 import {MatListModule} from "@angular/material/list";
 import {MatProgressBarModule} from "@angular/material/progress-bar";
 import {TimerWidgetComponent} from "../../common/timer-widget/timer-widget.component";
+import {BandeauRappelComponent} from "../../common/bandeau-rappel/bandeau-rappel.component";
 import {UserMenuComponent} from "../../common/user-menu/user-menu.component";
 
 
@@ -67,6 +68,7 @@ import {UserMenuComponent} from "../../common/user-menu/user-menu.component";
     MatChipsModule,
     MatProgressBarModule,MatIconModule,
     TimerWidgetComponent,
+    BandeauRappelComponent,
     UserMenuComponent
 
   ],

@@ -1,0 +1,60 @@
+.bandeau {
+  position: fixed;
+  left: 18px;
+  bottom: 18px;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  /* Laisse la place au chrono, en bas à droite. */
+  max-width: min(560px, calc(100vw - 340px));
+  padding: 12px 14px;
+  border-left: 4px solid #b42318;
+  border-radius: 10px;
+  background: #fdeeee;
+  box-shadow: 0 4px 16px rgba(16, 24, 40, 0.16);
+  font-size: 13px;
+  line-height: 1.4;
+  color: #101828;
+}
+
+.icone {
+  flex-shrink: 0;
+  font-size: 20px;
+  color: #b42318;
+}
+
+.texte {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.texte strong {
+  color: #b42318;
+}
+
+.action {
+  flex-shrink: 0;
+  padding: 7px 12px;
+  border-radius: 8px;
+  background: #b42318;
+  font-weight: 600;
+  color: #fff;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.action:hover {
+  background: #912018;
+  color: #fff;
+}
+
+@media (max-width: 700px) {
+  .bandeau {
+    right: 18px;
+    bottom: 84px;
+    max-width: none;
+  }
+}

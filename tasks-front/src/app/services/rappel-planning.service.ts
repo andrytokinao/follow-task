@@ -1,6 +1,7 @@
 import {Injectable, NgZone} from '@angular/core';
 import {Apollo} from 'apollo-angular';
 import {IndividualConfig, ToastrService} from 'ngx-toastr';
+import {BehaviorSubject} from 'rxjs';
 import {GraviteRappel, MES_RAPPELS_PLANNING, RappelPlanning} from '../type/rappel-planning';
 
 /** Intervalle entre deux vérifications du planning. */
@@ -23,12 +24,17 @@ const AFFICHAGE: Record<GraviteRappel, Partial<IndividualConfig>> = {
  * connexion puis toutes les 30 minutes. Un rappel déjà montré (même clé) ne
  * revient pas pendant la session : la clé change dès que le trou change.
  * Les chefs de projet reçoivent une liste vide.
+ *
+ * Un rappel persistant (journée sans aucune activité) n'est pas un toast : il
+ * est publié dans `bandeau$` et reste affiché tant que le serveur le renvoie.
  */
 @Injectable({providedIn: 'root'})
 export class RappelPlanningService {
   private userId?: string;
   private minuterie?: ReturnType<typeof setInterval>;
   private readonly affiches = new Set<string>();
+  private readonly bandeauSubject = new BehaviorSubject<RappelPlanning | null>(null);
+  readonly bandeau$ = this.bandeauSubject.asObservable();
 
   constructor(private apollo: Apollo,
               private toastr: ToastrService,
@@ -57,6 +63,17 @@ export class RappelPlanningService {
     }
     this.userId = undefined;
     this.affiches.clear();
+    this.bandeauSubject.next(null);
+  }
+
+  /**
+   * Revérifie sans attendre le prochain tour : appelé après l'enregistrement
+   * d'une activité, pour que le bandeau disparaisse aussitôt.
+   */
+  actualiser(): void {
+    if (this.userId) {
+      this.verifier();
+    }
   }
 
   private verifier(): void {
@@ -64,7 +81,11 @@ export class RappelPlanningService {
       query: MES_RAPPELS_PLANNING,
       fetchPolicy: 'network-only'
     }).subscribe({
-      next: res => (res.data?.mesRappelsPlanning ?? []).forEach(r => this.afficher(r)),
+      next: res => {
+        const rappels = res.data?.mesRappelsPlanning ?? [];
+        this.bandeauSubject.next(rappels.find(r => r.persistant) ?? null);
+        rappels.filter(r => !r.persistant).forEach(r => this.afficher(r));
+      },
       // Un rappel manqué n'empêche pas de travailler : on réessaiera au prochain tour.
       error: err => console.warn('[RAPPEL PLANNING] vérification impossible', err)
     });
