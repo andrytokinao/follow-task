@@ -1,0 +1,130 @@
+/* ═══ QUATRE CHIFFRES ═══ */
+.tuiles {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.tuile {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  border: 1px solid var(--dir-hairline);
+  border-radius: 10px;
+  background: var(--dir-surface-muted);
+}
+
+.libelle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--dir-ink-2);
+}
+
+.libelle i {
+  color: var(--dir-ink-3);
+}
+
+/* La couleur va à l'icône, le chiffre reste à l'encre du texte. */
+.libelle.critique i {
+  color: var(--dir-critical-text);
+}
+
+.libelle.attention i {
+  color: var(--sit-attention-text);
+}
+
+.valeur {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+  color: var(--dir-ink);
+}
+
+.meter-track {
+  display: block;
+  height: 6px;
+  margin-top: 4px;
+  border-radius: 999px;
+  background: #eef0f3;
+}
+
+.meter-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--dir-series-1);
+}
+
+/* ═══ À TRAITER ═══ */
+.titre-bande {
+  margin: 16px 0 6px;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.vide {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 8px 0;
+  font-size: 13px;
+  color: var(--dir-ink-3);
+}
+
+.a-traiter {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.a-traiter li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--dir-hairline);
+}
+
+.a-traiter li:last-child {
+  border-bottom: 0;
+}
+
+.cle {
+  flex-shrink: 0;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: var(--dir-accent-soft);
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--dir-ink-2);
+  text-decoration: none;
+}
+
+a.cle:hover {
+  color: var(--dir-accent);
+}
+
+.contenu {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.nom {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.detail {
+  font-size: 12px;
+  color: var(--dir-ink-2);
+}

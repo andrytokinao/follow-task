@@ -1,0 +1,58 @@
+<div class="sit-shell">
+
+  <header class="sit-topbar">
+    <div class="sit-title">
+      <span class="sit-brand"><i class="fas fa-binoculars"></i></span>
+      <h1>Situation du jour<span class="jour" *ngIf="jour"> · {{ jour }}</span></h1>
+    </div>
+    <div class="sit-actions">
+      <span class="maj" *ngIf="miseAJour">
+        <i class="fas fa-sync-alt" aria-hidden="true"></i> Mis à jour à {{ miseAJour }}
+      </span>
+      <a class="sit-link" routerLink="/direction"><i class="fas fa-compass"></i> Fiches projets</a>
+      <a class="sit-link" routerLink="/direction/gantt"><i class="fas fa-stream"></i> Gantt des projets</a>
+      <a class="sit-link" routerLink="/working"><i class="fas fa-th-large"></i> Espaces de travail</a>
+      <app-user-menu variante="avatar"></app-user-menu>
+    </div>
+  </header>
+
+  <!-- ═══ DÉPARTEMENTS ═══ -->
+  <nav class="sit-tabs" aria-label="Départements">
+    <button type="button" class="sit-tab" [class.active]="departement === null" (click)="choisir(null)">Tous</button>
+    <button type="button" class="sit-tab" *ngFor="let dep of departements"
+            [class.active]="departement === dep" (click)="choisir(dep)">{{ dep }}</button>
+  </nav>
+
+  <div class="sit-state" *ngIf="chargement">
+    <i class="fas fa-circle-notch fa-spin"></i> Calcul de la situation…
+  </div>
+
+  <div class="sit-state error" *ngIf="erreur">
+    <i class="fas fa-plug"></i>
+    {{ situation ? 'Actualisation impossible : la situation affichée date de ' + miseAJour + '.' : 'Impossible de calculer la situation. Rechargez la page.' }}
+  </div>
+
+  <ng-container *ngIf="situation && !chargement">
+
+    <!-- ═══ 1. PEUT-ON CROIRE CE QU'ON LIT ═══ -->
+    <section class="sit-card" aria-label="Fiabilité">
+      <app-situation-fiabilite [fiabilite]="situation.fiabilite" [filtreActif]="seulementSansPlanning"
+                               (basculerFiltre)="basculerFiltre()"></app-situation-fiabilite>
+    </section>
+
+    <div class="sit-layout">
+      <!-- ═══ 2. OÙ EN EST-ON ═══ -->
+      <section class="sit-card" aria-labelledby="titre-projets">
+        <h2 id="titre-projets" class="sit-card-title">Où en est-on</h2>
+        <app-situation-chiffres [chiffres]="situation.chiffres" [aTraiter]="situation.aTraiter"></app-situation-chiffres>
+      </section>
+
+      <!-- ═══ 3. QUI FAIT QUOI ═══ -->
+      <section class="sit-card" aria-labelledby="titre-personnes">
+        <h2 id="titre-personnes" class="sit-card-title">Qui fait quoi maintenant</h2>
+        <app-situation-personnes [personnes]="situation.personnes"
+                                 [seulementSansPlanning]="seulementSansPlanning"></app-situation-personnes>
+      </section>
+    </div>
+  </ng-container>
+</div>

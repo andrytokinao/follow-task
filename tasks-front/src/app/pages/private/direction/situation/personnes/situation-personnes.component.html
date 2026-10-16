@@ -1,0 +1,58 @@
+<p class="vide" *ngIf="!groupes.length">
+  <i class="fas fa-user-slash" aria-hidden="true"></i>
+  {{ seulementSansPlanning ? 'Tout le monde a renseigné son planning.' : 'Aucun ouvrier suivi dans ce département.' }}
+</p>
+
+<table class="personnes" *ngIf="groupes.length">
+  <thead>
+    <tr>
+      <th>Personne</th>
+      <th>Maintenant</th>
+      <th>État</th>
+      <th>Planning du jour</th>
+    </tr>
+  </thead>
+  <tbody *ngFor="let g of groupes; trackBy: parCle">
+    <tr class="groupe">
+      <td colspan="4">
+        {{ g.titre }} <span class="compte">{{ g.lignes.length }}</span>
+        <button type="button" class="repli" *ngIf="replier && g.repliable" (click)="basculer(g)">
+          {{ estReplie(g) ? 'Afficher' : 'Replier' }}
+        </button>
+      </td>
+    </tr>
+    <ng-container *ngIf="!estReplie(g)">
+      <tr *ngFor="let l of g.lignes; trackBy: parId">
+        <td>
+          <span class="qui">
+            <app-avatar class="avatar" [url]="l.photo" [displayName]="l.nom"></app-avatar>
+            <span class="nom-bloc">
+              <span class="nom">{{ l.nom }}</span>
+              <span class="sous" *ngIf="l.departement">{{ l.departement }}</span>
+            </span>
+          </span>
+        </td>
+        <td class="maintenant">
+          <ng-container *ngIf="l.activite as a; else sansActivite">
+            <span class="tache">
+              <a class="cle" *ngIf="l.lienTache as lien; else cleSeule" [routerLink]="lien">{{ a.cleTache }}</a>
+              <ng-template #cleSeule><span class="cle" *ngIf="a.cleTache">{{ a.cleTache }}</span></ng-template>
+              <span class="intitule" [title]="a.tache || a.titre || ''">{{ a.tache || a.titre }}</span>
+            </span>
+            <span class="sous" *ngIf="l.contexte">{{ l.contexte }}</span>
+          </ng-container>
+          <ng-template #sansActivite>
+            <span class="sous">{{ l.rienDepuis || '—' }}</span>
+          </ng-template>
+        </td>
+        <td><app-situation-badge [apparence]="l.etat"></app-situation-badge></td>
+        <td class="couverture">
+          <span class="meter-track" *ngIf="l.couverture != null">
+            <span class="meter-fill" [style.width.%]="l.couverture"></span>
+          </span>
+          <span class="sous">{{ l.couvertureTexte }}</span>
+        </td>
+      </tr>
+    </ng-container>
+  </tbody>
+</table>

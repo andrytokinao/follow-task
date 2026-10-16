@@ -8,6 +8,11 @@ import {DirectionFicheProjetComponent} from './fiche-projet/direction-fiche-proj
 import {DirectionCommentairesComponent} from './commentaires/direction-commentaires.component';
 import {DirectionGanttComponent} from './gantt/direction-gantt.component';
 import {DirectionGanttProjetsComponent} from './gantt-projets/direction-gantt-projets.component';
+import {SituationComponent} from './situation/situation.component';
+import {SituationFiabiliteComponent} from './situation/fiabilite/situation-fiabilite.component';
+import {SituationChiffresComponent} from './situation/chiffres/situation-chiffres.component';
+import {SituationPersonnesComponent} from './situation/personnes/situation-personnes.component';
+import {SituationBadgeComponent} from './situation/badge/situation-badge.component';
 import {UserMenuComponent} from '../../../common/user-menu/user-menu.component';
 import {AvatarComponent} from '../../../common/avatar/avatar.component';
 import {CustomFieldComponent} from '../../../common/custom-field/custom-field.component';
@@ -26,7 +31,12 @@ import {MatMenuModule} from '@angular/material/menu';
     DirectionProjetDetailComponent,
     DirectionCommentairesComponent,
     DirectionGanttComponent,
-    DirectionGanttProjetsComponent
+    DirectionGanttProjetsComponent,
+    SituationComponent,
+    SituationFiabiliteComponent,
+    SituationChiffresComponent,
+    SituationPersonnesComponent,
+    SituationBadgeComponent
   ],
   imports: [
     CommonModule,

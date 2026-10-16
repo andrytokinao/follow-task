@@ -165,3 +165,62 @@ export const DIRECTION_GANTT_PROJETS = gql`
     }
   }
 `;
+
+/**
+ * Situation du jour (DT-005) : fiabilité, chiffres des projets, et ce que fait
+ * chaque ouvrier maintenant. Les départements servent aux onglets.
+ */
+export const SITUATION_DIRECTION = gql`
+  query situationDirection($departement: String) {
+    directionDepartements
+    situationDirection(departement: $departement) {
+      instant
+      fiabilite {
+        ouvriers
+        planningAJour
+        enHoraires
+        remplissageJour
+        remplissageVeille
+        part
+        niveau
+      }
+      chiffres {
+        enCours
+        avancementMoyen
+        tachesEnRetard
+        tachesBloquees
+      }
+      aTraiter {
+        id
+        cle
+        titre
+        departement
+        prefixeDepartement
+        avancement
+        tachesEnRetard
+        tachesBloquees
+      }
+      personnes {
+        personne { ${UTILISATEUR} }
+        departement
+        etat
+        activite {
+          id
+          titre
+          debut
+          fin
+          etat
+          avancement
+          cleTache
+          tache
+          cleProjet
+          projet
+          prefixeDepartement
+        }
+        rienDepuis
+        minutesAttendues
+        minutesCouvertes
+      }
+    }
+  }
+`;

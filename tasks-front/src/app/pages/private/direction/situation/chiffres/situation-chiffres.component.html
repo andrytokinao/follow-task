@@ -1,0 +1,38 @@
+<div class="tuiles">
+  <div class="tuile">
+    <span class="libelle"><i class="fas fa-folder-open" aria-hidden="true"></i> Projets en cours</span>
+    <span class="valeur">{{ chiffres.enCours }}</span>
+  </div>
+  <div class="tuile">
+    <span class="libelle"><i class="fas fa-tasks" aria-hidden="true"></i> Avancement moyen</span>
+    <span class="valeur">{{ chiffres.avancementMoyen }} %</span>
+    <span class="meter-track"><span class="meter-fill" [style.width.%]="chiffres.avancementMoyen"></span></span>
+  </div>
+  <div class="tuile">
+    <span class="libelle" [class.critique]="chiffres.tachesEnRetard">
+      <i class="fas fa-clock" aria-hidden="true"></i> Tâches en retard
+    </span>
+    <span class="valeur">{{ chiffres.tachesEnRetard }}</span>
+  </div>
+  <div class="tuile">
+    <span class="libelle" [class.attention]="chiffres.tachesBloquees">
+      <i class="fas fa-hand-paper" aria-hidden="true"></i> Tâches bloquées
+    </span>
+    <span class="valeur">{{ chiffres.tachesBloquees }}</span>
+  </div>
+</div>
+
+<h2 class="titre-bande">À traiter</h2>
+<p class="vide" *ngIf="!lignes.length">
+  <i class="fas fa-check" aria-hidden="true"></i> Aucun projet en retard ni bloqué.
+</p>
+<ul class="a-traiter" *ngIf="lignes.length">
+  <li *ngFor="let l of lignes; trackBy: parId">
+    <a class="cle" *ngIf="l.lien as lien; else cleSeule" [routerLink]="lien">{{ l.projet.cle }}</a>
+    <ng-template #cleSeule><span class="cle">{{ l.projet.cle }}</span></ng-template>
+    <span class="contenu">
+      <span class="nom" [title]="l.projet.titre">{{ l.projet.titre }}</span>
+      <span class="detail">{{ l.detail }}<ng-container *ngIf="l.projet.departement"> · {{ l.projet.departement }}</ng-container></span>
+    </span>
+  </li>
+</ul>

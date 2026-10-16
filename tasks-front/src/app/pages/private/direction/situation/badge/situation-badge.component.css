@@ -1,0 +1,36 @@
+/* Couleurs réservées aux états : jetons déclarés par la page (situation.component.css). */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.badge i {
+  font-size: 10.5px;
+}
+
+.ton-ok {
+  background: var(--sit-ok-soft);
+  color: var(--sit-ok-text);
+}
+
+.ton-attention {
+  background: var(--sit-attention-soft);
+  color: var(--sit-attention-text);
+}
+
+.ton-critique {
+  background: var(--dir-critical-soft);
+  color: var(--dir-critical-text);
+}
+
+.ton-neutre {
+  background: var(--dir-surface-muted);
+  color: var(--dir-ink-2);
+  border: 1px solid var(--dir-hairline);
+}

@@ -1,0 +1,189 @@
+/*
+ * Situation du jour (DT-005). Page à part entière : elle redéclare les jetons
+ * du cockpit (direction.component.css), qu'elle n'hérite pas. Ses bandes les
+ * lisent par héritage des propriétés personnalisées.
+ */
+:host {
+  display: block;
+  min-height: 100vh;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  letter-spacing: normal;
+  line-height: 1.45;
+}
+
+.sit-shell {
+  --dir-plane: #f4f5f7;
+  --dir-surface: #ffffff;
+  --dir-surface-muted: #f8f9fb;
+  --dir-ink: #101828;
+  --dir-ink-2: #475467;
+  --dir-ink-3: #8a94a6;
+  --dir-hairline: #eaecf0;
+  --dir-border: rgba(16, 24, 40, 0.08);
+  --dir-accent: #185FA5;
+  --dir-accent-soft: #eef4fc;
+  --dir-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.06);
+  --dir-radius: 14px;
+  --dir-series-1: #2a78d6;
+  --dir-critical-text: #b42318;
+  --dir-critical-soft: #fdeeee;
+
+  /* États propres à la situation : réservés, jamais décoratifs. */
+  --sit-ok-text: #15803d;
+  --sit-ok-soft: #e7f6ec;
+  --sit-attention-text: #a15c07;
+  --sit-attention-soft: #fdf3e2;
+
+  min-height: 100vh;
+  padding: 16px 24px 32px;
+  box-sizing: border-box;
+  background: var(--dir-plane);
+  color: var(--dir-ink);
+}
+
+/* ═══ BARRE DU HAUT ═══ */
+.sit-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.sit-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sit-title h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.jour {
+  font-weight: 400;
+  color: var(--dir-ink-2);
+}
+
+.sit-brand {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--dir-accent);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+}
+
+.sit-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.maj {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--dir-ink-3);
+}
+
+.sit-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--dir-ink-2);
+  text-decoration: none;
+}
+
+.sit-link:hover {
+  color: var(--dir-accent);
+}
+
+/* ═══ ONGLETS DÉPARTEMENTS ═══ */
+.sit-tabs {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--dir-hairline);
+}
+
+.sit-tab {
+  padding: 10px 14px;
+  margin-bottom: -1px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--dir-ink-2);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.sit-tab:hover {
+  color: var(--dir-ink);
+}
+
+.sit-tab.active {
+  color: var(--dir-accent);
+  border-bottom-color: var(--dir-accent);
+}
+
+/* ═══ ÉTATS DE CHARGEMENT ═══ */
+.sit-state {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 24px 4px;
+  font-size: 13px;
+  color: var(--dir-ink-3);
+}
+
+.sit-state.error {
+  padding: 10px 4px;
+  color: var(--dir-critical-text);
+}
+
+/* ═══ BANDES ═══ */
+.sit-card {
+  margin-bottom: 16px;
+  padding: 16px 20px;
+  background: var(--dir-surface);
+  border: 1px solid var(--dir-border);
+  border-radius: var(--dir-radius);
+  box-shadow: var(--dir-shadow);
+}
+
+.sit-card-title {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.sit-layout {
+  display: grid;
+  grid-template-columns: minmax(300px, 380px) 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.sit-layout .sit-card {
+  margin-bottom: 0;
+  min-width: 0;
+}
+
+@media (max-width: 1000px) {
+  .sit-layout {
+    grid-template-columns: 1fr;
+  }
+}

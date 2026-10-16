@@ -1,0 +1,13 @@
+<div class="fiabilite" [ngClass]="'ton-' + ton">
+  <span class="valeur">{{ valeur }}</span>
+  <span class="texte">
+    <strong>{{ titre }}</strong>
+    <small>{{ detail }}</small>
+  </span>
+  <button type="button" class="filtre" *ngIf="sansPlanning || filtreActif"
+          [class.actif]="filtreActif" (click)="basculerFiltre.emit()">
+    <i class="fas" [ngClass]="filtreActif ? 'fa-times' : 'fa-filter'" aria-hidden="true"></i>
+    {{ filtreActif ? 'Voir tout le monde' : 'Voir ces personnes' }}
+  </button>
+  <app-situation-badge *ngIf="niveau" [apparence]="niveau"></app-situation-badge>
+</div>

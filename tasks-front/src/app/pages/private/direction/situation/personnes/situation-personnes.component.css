@@ -1,0 +1,143 @@
+.vide {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 16px 0;
+  font-size: 13px;
+  color: var(--dir-ink-3);
+}
+
+.personnes {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.personnes th {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--dir-hairline);
+  font-size: 12px;
+  font-weight: 600;
+  text-align: left;
+  color: var(--dir-ink-3);
+}
+
+.personnes td {
+  padding: 8px;
+  border-bottom: 1px solid var(--dir-hairline);
+  vertical-align: middle;
+}
+
+/* ═══ EN-TÊTE DE GROUPE ═══ */
+.groupe td {
+  padding: 6px 8px;
+  background: var(--dir-surface-muted);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--dir-ink-2);
+}
+
+.compte {
+  margin-left: 4px;
+  font-weight: 500;
+  color: var(--dir-ink-3);
+}
+
+.repli {
+  float: right;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--dir-accent);
+  cursor: pointer;
+}
+
+/* ═══ PERSONNE ═══ */
+.qui {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar {
+  --avatar-size: 28px;
+}
+
+.nom-bloc {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.nom {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.sous {
+  display: block;
+  font-size: 11.5px;
+  color: var(--dir-ink-3);
+}
+
+/* ═══ MAINTENANT ═══ */
+.tache {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 380px;
+}
+
+.cle {
+  flex-shrink: 0;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: var(--dir-accent-soft);
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--dir-ink-2);
+  text-decoration: none;
+}
+
+a.cle:hover {
+  color: var(--dir-accent);
+}
+
+.intitule {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ═══ PLANNING DU JOUR ═══ */
+.couverture {
+  white-space: nowrap;
+}
+
+.meter-track {
+  display: inline-block;
+  width: 72px;
+  height: 6px;
+  margin-right: 8px;
+  vertical-align: middle;
+  border-radius: 999px;
+  background: #eef0f3;
+}
+
+.meter-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--dir-series-1);
+}
+
+.couverture .sous {
+  display: inline;
+  font-size: 12px;
+  color: var(--dir-ink-2);
+}
