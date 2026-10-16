@@ -7,3 +7,5 @@
 /tasks-service/package-lock.json
 /.idea/
 /tasks-front/src/assets/cmaps/
+# Claude Code (reglages personnels)
+.claude/settings.local.json
