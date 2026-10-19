@@ -136,6 +136,7 @@ const CADRE_GANTT = `
   status { id displayName color }
   dateDemarrage
   deadline
+  debutExecution
   assigne { ${UTILISATEUR} }
   activeMemberships {
     id

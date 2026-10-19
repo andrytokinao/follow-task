@@ -23,6 +23,9 @@ extend type Mutation {
 extend type Issue {
     # Début du premier événement de planning déjà commencé ; null si jamais traitée.
     dateDebutTraitement: String
+    # Début du plus ancien événement de planning, passé ou à venir ; null sans
+    # événement. Ordre des tâches du Gantt de direction.
+    debutExecution: String
     # Nombre de commentaires (documents COMMENT_FILES non supprimés).
     nombreCommentaires: Int
     # Nombre de fichiers du répertoire de la demande, sous-dossiers compris.

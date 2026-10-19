@@ -82,6 +82,8 @@ export type TacheGantt = Issue & {
   dateDemarrage?: string | null;
   /** Champ « Deadline » de la tâche ; null s'il n'est pas saisi. */
   deadline?: string | null;
+  /** Début de sa première séance de planning, passée ou à venir ; null sans séance. */
+  debutExecution?: string | null;
   realisations?: RealisationTache[];
   dependances?: DependanceTache[];
 };

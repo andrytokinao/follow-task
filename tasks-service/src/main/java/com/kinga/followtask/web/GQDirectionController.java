@@ -78,6 +78,11 @@ public class GQDirectionController {
         return directionService.dateDebutTraitement(issue);
     }
 
+    @SchemaMapping(typeName = "Issue", field = "debutExecution")
+    public LocalDateTime debutExecution(Issue issue) {
+        return directionService.debutExecution(issue);
+    }
+
     @SchemaMapping(typeName = "Issue", field = "dateDemarrage")
     public LocalDateTime dateDemarrage(Issue issue) {
         return directionService.dateChamp(issue, CustomField.CODE_DATE_DEMARRAGE);

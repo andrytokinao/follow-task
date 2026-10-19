@@ -50,6 +50,12 @@ export interface LigneGantt {
   responsable: User | null;
   /** null sans date de démarrage ni deadline ; pour un groupe, l'étendue de ses tâches. */
   cadre: CadreGantt | null;
+  /**
+   * Rang dans le projet : le début d'exécution (première séance de planning),
+   * à défaut le démarrage. null sans l'un ni l'autre : la ligne va en bas.
+   * Groupe : le plus tôt de ses tâches.
+   */
+  debut: number | null;
   /** Tâche non finie après sa deadline : de la deadline à aujourd'hui. Groupe : son plus long retard. */
   retard: (Segment & { jours: number }) | null;
   reperes: RepereGantt[];

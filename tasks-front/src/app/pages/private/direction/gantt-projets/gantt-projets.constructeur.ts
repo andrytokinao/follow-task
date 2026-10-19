@@ -1,7 +1,7 @@
 import {CustomFieldValue} from '../../../../type/issue';
 import {issueAssignees} from '../../../../type/issue-grouping.util';
 import {ProjetGantt, TacheGantt} from '../direction.model';
-import {JOUR, jourDe, plusJours} from './gantt-dates.util';
+import {instantDe, JOUR, jourDe, plusJours} from './gantt-dates.util';
 import {FenetreGantt} from './gantt-fenetre';
 import {BlocGantt, CadreGantt, ChampGantt, LigneGantt, RepereGantt} from './gantt-projets.model';
 import {Regroupement} from './gantt-regroupement';
@@ -52,17 +52,44 @@ export function indexerChamps(projets: ProjetGantt[]): ChampGantt[] {
   return [...champs.values()];
 }
 
+/**
+ * Projets dans l'ordre de leur première tâche commencée ou prévue ; ceux dont
+ * aucune tâche n'a de date, puis ceux sans tâche, en bas.
+ */
 export function construireBlocs(entrees: EntreesStructure): BlocGantt[] {
-  return entrees.projets.map(projet => bloc(projet, entrees));
+  return entrees.projets
+    .map(projet => bloc(projet, entrees))
+    .sort((a, b) => rangProjet(a) - rangProjet(b)
+      || (debutDe(a) ?? Infinity) - (debutDe(b) ?? Infinity));
+}
+
+/** 0 : des tâches datées ; 1 : des tâches sans date ; 2 : aucune tâche. */
+function rangProjet(bloc: BlocGantt): number {
+  if (!bloc.lignes.length) {
+    return 2;
+  }
+  return debutDe(bloc) === null ? 1 : 0;
+}
+
+/** Début de la première ligne : les lignes sont déjà rangées. */
+function debutDe(bloc: BlocGantt): number | null {
+  return bloc.lignes[0]?.debut ?? null;
+}
+
+/**
+ * Dans l'ordre d'exécution : le diagramme se lit en escalier. À début égal, la
+ * deadline la plus proche d'abord ; sans date, en bas.
+ */
+function parDebut(a: LigneGantt, b: LigneGantt): number {
+  return (a.debut ?? Infinity) - (b.debut ?? Infinity)
+    || (a.cadre?.fin ?? Infinity) - (b.cadre?.fin ?? Infinity);
 }
 
 // ------------------------------------------------------------------ projet
 
 function bloc(projet: ProjetGantt, entrees: EntreesStructure): BlocGantt {
   const taches = projet.children ?? [];
-  const lignes = regrouper(taches.map(tache => ligne(tache, projet, entrees)), entrees)
-    // Dans l'ordre où le travail est prévu : le diagramme se lit en escalier.
-    .sort((a, b) => (a.cadre?.debut ?? Infinity) - (b.cadre?.debut ?? Infinity));
+  const lignes = regrouper(taches.map(tache => ligne(tache, projet, entrees)), entrees).sort(parDebut);
   const avancement = borner(projet.rapportProjet?.avancementGlobal ?? projet.currentCompletionPercent ?? 0);
   // Sans dates sur le projet, son cadre est celui qui englobe ses tâches.
   const cadres = lignes.map(l => l.cadre).filter((c): c is CadreGantt => c !== null);
@@ -105,6 +132,7 @@ function ligne(tache: TacheGantt, projet: ProjetGantt, entrees: EntreesStructure
     avancement,
     responsable: issueAssignees(tache)[0] ?? null,
     cadre: cadreTache,
+    debut: instantDe(tache.debutExecution) ?? cadreTache?.debut ?? null,
     retard: retard(cadreTache, avancement, entrees),
     reperes: reperes(tache, entrees)
   };
@@ -129,6 +157,7 @@ function regrouper(lignes: LigneGantt[], entrees: EntreesStructure): LigneGantt[
 function fondre(lignes: LigneGantt[], fenetre: FenetreGantt): LigneGantt {
   const cadres = lignes.map(l => l.cadre).filter((c): c is CadreGantt => c !== null);
   const retards = lignes.map(l => l.retard).filter((r): r is NonNullable<LigneGantt['retard']> => r !== null);
+  const debuts = lignes.map(l => l.debut).filter((d): d is number => d !== null);
   return {
     cle: lignes[0].cle,
     nom: lignes[0].nom,
@@ -137,6 +166,7 @@ function fondre(lignes: LigneGantt[], fenetre: FenetreGantt): LigneGantt {
     avancement: borner(lignes.reduce((somme, l) => somme + l.avancement, 0) / lignes.length),
     responsable: null,
     cadre: cadres.length ? englobant(cadres, fenetre) : null,
+    debut: debuts.length ? Math.min(...debuts) : null,
     retard: retards.length ? retards.reduce((pire, r) => r.jours > pire.jours ? r : pire) : null,
     reperes: lignes.flatMap(l => l.reperes)
   };

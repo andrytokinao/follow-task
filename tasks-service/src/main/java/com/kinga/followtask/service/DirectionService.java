@@ -148,6 +148,22 @@ public class DirectionService {
     }
 
     /**
+     * Début d'exécution prévu ou réel : le début du plus ancien événement de
+     * planning, passé ou à venir. Le Gantt de direction range les tâches dans
+     * cet ordre ; null si la tâche n'a aucun événement.
+     */
+    public LocalDateTime debutExecution(Issue issue) {
+        if (issue == null || CollectionUtils.isEmpty(issue.getEvents())) {
+            return null;
+        }
+        return issue.getEvents().stream()
+                .map(PlanningEvent::getStartTime)
+                .filter(Objects::nonNull)
+                .min(Comparator.naturalOrder())
+                .orElse(null);
+    }
+
+    /**
      * Date portée par un champ fourni par l'application
      * ({@link CustomField#CODE_DATE_DEMARRAGE}, {@link CustomField#CODE_DEADLINE}).
      * Le champ est retrouvé par son code : il peut avoir été renommé.
