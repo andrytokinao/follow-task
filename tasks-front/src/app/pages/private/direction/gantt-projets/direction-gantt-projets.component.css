@@ -60,8 +60,9 @@
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 6px 12px;
+  /* Une seule ligne : ce sont les personnes qui cèdent la place. */
+  flex-wrap: nowrap;
+  gap: 12px;
   margin-bottom: 6px;
 }
 
@@ -73,6 +74,7 @@
   font-size: 14px;
   font-weight: 600;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .gp-espace {
@@ -165,8 +167,21 @@
   display: flex;
   align-items: center;
   gap: 6px;
+  /* Toute la place restante, jamais plus : le filtre y loge ce qui tient. */
+  flex: 1 1 0;
   min-width: 0;
-  margin-left: auto;
+}
+
+.gp-personnes app-assignee-filter {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* Les commandes gardent leur taille ; seule la rangée des personnes rétrécit. */
+.gp-periode,
+.gp-echelles,
+.gp-barre > .gp-btn {
+  flex-shrink: 0;
 }
 
 .gp-label {

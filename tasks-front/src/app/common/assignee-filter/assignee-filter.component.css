@@ -19,6 +19,10 @@
 .af::-webkit-scrollbar {
   display: none;
 }
+/* Classe posée par le parent : rangée calée à droite de sa place. */
+:host(.af-droite) .af {
+  justify-content: flex-end;
+}
 
 .af-item {
   position: relative;

@@ -32,12 +32,14 @@
         <i class="fas fa-circle-info"></i> Légende
       </button>
 
-      <!-- Personnes, à l'extrémité droite : quelques avatars, les autres dans
-           le menu « +N » (plusieurs choix). En choisir relance la recherche
-           des séances pour elles seules. -->
+      <!-- Personnes, à l'extrémité droite et sur la même ligne : autant
+           d'avatars que la place en laisse (au moins un), les autres dans le
+           menu « +N » (plusieurs choix). En choisir relance la recherche des
+           séances pour elles seules. -->
       <div class="gp-personnes" title="Personnes">
         <i class="fas fa-users gp-label" aria-label="Personnes"></i>
-        <app-assignee-filter [issues]="taches" [users]="membres" [selectedIds]="selection" [maxVisible]="5"
+        <app-assignee-filter class="af-droite" [adapterALaLargeur]="true"
+                             [issues]="taches" [users]="membres" [selectedIds]="selection"
                              (selectedIdsChange)="choisirPersonnes($event)"></app-assignee-filter>
       </div>
     </ng-container>
