@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DT-011 — Icône et couleur du type, couleur du statut sur toutes les tâches</title>
+  <link rel="stylesheet" href="assets/doc.css">
+  <style>
+    .mq-liste { max-width: 520px; border: 1px solid #e4e7ec; border-radius: 10px; background: #fff; font-size: 13px; }
+    .mq-ligne { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-bottom: 1px solid #f2f4f7; }
+    .mq-ligne:last-child { border-bottom: 0; }
+    .mq-ico { width: 16px; height: 16px; border-radius: 4px; }
+    .mq-cle { font-weight: 600; color: #475467; }
+    .mq-titre { flex: 1; }
+    .mq-statut { display: inline-flex; align-items: center; gap: 5px; padding: 1px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+    .mq-statut::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <header class="doc-header">
+    <span class="doc-ref">DT-011</span>
+    <h1>Icône et couleur du type, couleur du statut sur toutes les tâches</h1>
+    <p class="subtitle">Une tâche se reconnaît partout à l'icône de son type, dans la couleur du type, et à la couleur de
+      son statut.</p>
+    <table class="meta">
+      <tr><td>Référence</td><td>DT-011 (Document Technique n° 011)</td></tr>
+      <tr><td>Statut</td><td><strong>Réalisé</strong> (hors écrans Direction)</td></tr>
+      <tr><td>Version de l'application</td><td>à venir</td></tr>
+      <tr><td>Date</td><td>19 octobre 2026</td></tr>
+      <tr><td>Commits liés</td><td>titres contenant « (DT-011) » : <code>git log --grep "DT-011"</code></td></tr>
+    </table>
+  </header>
+
+  <!-- ================================================================== -->
+  <h2 id="besoin">1. Besoin</h2>
+  <p>L'icône et la couleur choisies pour un type (DT-010) et la couleur d'un statut n'apparaissaient presque nulle part :
+    icônes non teintées, icônes codées en dur (dossier, fiche, <code>fa-tasks</code>), couleurs devinées d'après le nom
+    (« bug », « story », « done »…). Surtout, les requêtes ne demandaient pas <code>issueType.color</code>, ni la couleur
+    des statuts d'un flux.</p>
+
+  <!-- ================================================================== -->
+  <h2 id="comportement">2. Comportement</h2>
+  <div class="mq-liste">
+    <div class="mq-ligne"><span class="mq-ico" style="background:#2980b9"></span><span class="mq-cle">TOPO-12</span>
+      <span class="mq-titre">Levé du terrain</span><span class="mq-statut" style="color:#d97706;background:#fef3c7">En cours</span></div>
+    <div class="mq-ligne"><span class="mq-ico" style="background:#e74c3c"></span><span class="mq-cle">TOPO-13</span>
+      <span class="mq-titre">Reprise des cotes</span><span class="mq-statut" style="color:#16a34a;background:#dcfce7">Terminé</span></div>
+  </div>
+  <ul>
+    <li>Icône du type dans la couleur du type ; nom du type en info-bulle.</li>
+    <li>Type sans icône : dossier pour une demande (niveau <code>PARENT</code>), fiche pour une tâche. Sans couleur : gris.</li>
+    <li>Statut : pastille dans sa couleur ; colonnes de board, onglets et menu de statut teintés.</li>
+    <li>Écrans concernés : liste des tâches, tableaux et boards, sous-tâches, détail, fil d'Ariane, sélecteur de tâche,
+      liens, messagerie, événements, documents, notifications, calendrier, création et changement de type.</li>
+  </ul>
+
+  <!-- ================================================================== -->
+  <h2 id="architecture">3. Architecture du code</h2>
+  <table class="data">
+    <tr><th>Fichier</th><th>Rôle</th></tr>
+    <tr><td><code>common/type-tache/type-tache.util.ts</code></td><td>Règle unique : <code>iconeDuType</code>,
+      <code>couleurDuType</code>, <code>couleurDuStatut</code>, replis</td></tr>
+    <tr><td><code>common/type-tache/*</code></td><td><code>&lt;app-type-tache [type]&gt;</code> : icône teintée</td></tr>
+    <tr><td><code>common/statut-tache/*</code></td><td><code>&lt;app-statut-tache [status]&gt;</code> : pastille en lecture seule
+      (pour changer le statut : <code>app-status-field</code>)</td></tr>
+    <tr><td><code>type/graphql.operations.ts</code>, <code>issue-link.operations.ts</code>, <code>phase.operations.ts</code></td>
+      <td><code>issueType { level color icone { id value typeIcone } }</code>, <code>status { color }</code>,
+      <code>statuses { color }</code> ajoutés là où ils manquaient</td></tr>
+    <tr><td><code>common/icone-view</code></td><td>Inchangé, reçoit <code>[color]</code> ; <code>console.log</code> retiré</td></tr>
+  </table>
+  <p>Les composants sont autonomes (standalone), importés dans les modules qui importaient déjà
+    <code>IconeViewComponent</code>. <code>common.module</code> utilise <code>CUSTOM_ELEMENTS_SCHEMA</code> : un composant
+    non importé ne casse pas la compilation, il ne s'affiche simplement pas.</p>
+
+  <!-- ================================================================== -->
+  <h2 id="limites">4. Limites</h2>
+  <ul>
+    <li>Écrans Direction (<code>pages/private/direction</code>) non traités : modifiés en parallèle par un autre chantier.</li>
+    <li>Planning (DayPilot) : texte des événements construit dans <code>events.service.ts</code>, sans icône.</li>
+  </ul>
+
+  <footer>follow-task · DT-011 · apparence des tâches</footer>
+</div>
+</body>
+</html>

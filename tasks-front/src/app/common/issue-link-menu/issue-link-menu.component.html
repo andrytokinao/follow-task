@@ -21,6 +21,7 @@
         <ng-container *ngFor="let affiche of liens; let i = index; trackBy: parId">
           <div class="liens-groupe" *ngIf="debutGroupe(i)">{{ affiche.libelle }}</div>
           <div class="lien" [title]="affiche.autre?.summary" (click)="ouvrir(affiche)">
+            <app-type-tache [type]="affiche.autre?.issueType"></app-type-tache>
             <span class="lien-cle">{{ affiche.autre?.issueKey }}</span>
             <span class="lien-titre">{{ affiche.autre?.summary }}</span>
             <span class="lien-statut" *ngIf="affiche.autre?.status"

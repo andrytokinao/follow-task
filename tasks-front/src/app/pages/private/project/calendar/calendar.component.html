@@ -83,7 +83,7 @@
       >
         <span class="cal-row-dot" [style.background]="eventColor(value)"></span>
         <span class="cal-row-field">{{ fieldNameOf(value) }}</span>
-        <span class="cal-row-title">{{ value.issue?.issueKey }}</span>
+        <span class="cal-row-title"><app-type-tache [type]="value.issue?.issueType"></app-type-tache> {{ value.issue?.issueKey }}</span>
         <span class="cal-row-issue" *ngIf="value.issue?.summary">{{ value.issue.summary }}</span>
       </button>
     </div>

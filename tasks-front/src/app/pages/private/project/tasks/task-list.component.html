@@ -99,13 +99,14 @@
         <td class="col-key">
           <span class="tl-key">
             <i class="fas fa-turn-up fa-rotate-90 tl-branch" *ngIf="row.nested"></i>
-            <app-icone-view class="tl-type" *ngIf="row.issue.issueType?.icone" [icon]="row.issue.issueType.icone"></app-icone-view>
+            <app-type-tache class="tl-type" [type]="row.issue.issueType"></app-type-tache>
             {{ row.issue.issueKey }}
           </span>
         </td>
         <td class="col-title">
           <span class="tl-parent" *ngIf="!row.master && !row.nested && row.issue.parent" [title]="row.issue.parent.summary">
-            <i class="fas fa-folder"></i>{{ row.issue.parent.issueKey }} · {{ row.issue.parent.summary }}
+            <app-type-tache *ngIf="row.issue.parent.issueType?.icone; else dossierParent" [type]="row.issue.parent.issueType"></app-type-tache>
+            <ng-template #dossierParent><i class="fas fa-folder"></i></ng-template>{{ row.issue.parent.issueKey }} · {{ row.issue.parent.summary }}
           </span>
           <!-- L'info-bulle native du titre s'efface quand la ligne porte des
                nouveautés : les deux s'afficheraient sinon l'une sur l'autre. -->

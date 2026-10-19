@@ -639,6 +639,7 @@ const SAVE_ISSUE = gql`
           value
         }
         color
+        level
       }
     }
   }
@@ -847,6 +848,7 @@ const  GET_ISSUE_BY_ASSIGN = gql`
            typeIcone
          }
          color
+         level
        }
       assigne {
         id
@@ -1538,6 +1540,7 @@ const GET_PROJECT = gql`
             id
             color
             icone { id value typeIcone }
+            level
           }
           customField {
             id
@@ -1595,6 +1598,8 @@ const GET_ISSUE_TYPE_BY_ID = gql`
      name
      level
      prefix
+     color
+     icone { id value typeIcone }
      usingCustomFields {
        id
        customField {
@@ -1607,6 +1612,7 @@ const GET_ISSUE_TYPE_BY_ID = gql`
          name
          color
          icone { id value typeIcone }
+         level
        }
      }
      curentWorkFlow {
@@ -1701,6 +1707,7 @@ const GET_ISSUE_TYPE_BY_ID = gql`
            typeIcone
          }
          color
+         level
        }
        reporter {
          id
@@ -1737,6 +1744,7 @@ const SEVE_CUSTOM_FIELD = gql`
             id
             color
             icone { id value typeIcone }
+            level
           }
           customField {
             id
@@ -1804,6 +1812,7 @@ const USE_CUSTOM_FIELD = gql`
             value
           }
           color
+          level
         }
       }
     }`
@@ -1823,6 +1832,7 @@ const GET_CUSTOM_FIELD = gql `
            name
            color
            icone { id value typeIcone }
+           level
          }
          customField {
            id
@@ -1849,6 +1859,7 @@ const UN_USE_CUSTOM_FIELD = gql`
             value
           }
           color
+          level
         }
       }
     }`
@@ -1867,6 +1878,7 @@ const CUSTOM_FIELD_BY_ISSUE_TYPE = gql`
          name
          color
          icone { id value typeIcone }
+         level
        }
      }
    }
@@ -1965,6 +1977,7 @@ const ASSIGNE_TO_USER =  gql `
             typeIcone
           }
           color
+          level
         }
         reporter {
           id
@@ -2258,7 +2271,7 @@ export const LOAD_SUBTASK_RESUME = gql`
         summary
         currentCompletionPercent
         elapsedDurationMinutes
-        issueType { id name color icone { id value typeIcone } }
+        issueType { id name color icone { id value typeIcone } level }
         status { id displayName color }
         assigne {
           id
@@ -2310,6 +2323,7 @@ const LOAD_SUBTASK = gql`
             typeIcone
           }
           color
+          level
         }
         reporter {
           id
@@ -2397,6 +2411,7 @@ const LOAD_ISSUE_MASTER_BY_PROJECT = gql`
           typeIcone
         }
         color
+        level
       }
       reporter {
         id
@@ -2596,6 +2611,7 @@ const SEARCH_ISSUES = gql`
             typeIcone
           }
           color
+          level
         }
       }
     }
@@ -2825,6 +2841,7 @@ const EVENT_BY_ID=gql`
             name
             color
             icone { id value typeIcone }
+            level
           }
           status {
             id
@@ -2846,6 +2863,7 @@ const EVENT_BY_ID=gql`
               name
               color
               icone { id value typeIcone }
+              level
             }
           }
         }
@@ -3400,6 +3418,7 @@ export const GET_ISSUE_BY_ID = gql`
             typeIcone
           }
           color
+          level
         }
       }
     }
@@ -3526,7 +3545,7 @@ export let GET_NOTIFICATIONS_BY_USER_ID = gql`
           id
           issueKey
           summary
-          issueType { id name color icone { id value typeIcone } }
+          issueType { id name color icone { id value typeIcone } level }
           parent {
             id
             issueKey
@@ -3739,6 +3758,8 @@ export const GET_CANAL = gql`
           summary
           elapsedDurationMinutes
           currentCompletionPercent
+          issueType { id name level color icone { id value typeIcone } }
+          status { id displayName color }
           assigne {
             id
             username
@@ -3773,7 +3794,7 @@ export const LIST_MESSAGES = gql`
           id
           issueKey
           summary
-          issueType { id name color icone { id value typeIcone } }
+          issueType { id name color icone { id value typeIcone } level }
           status { id displayName color }
           assigne {
             id
@@ -3821,7 +3842,7 @@ export const LIST_MESSAGES = gql`
           summary
           elapsedDurationMinutes
           currentCompletionPercent
-          issueType { id name color icone { id value typeIcone } }
+          issueType { id name color icone { id value typeIcone } level }
           status { id displayName color }
           parent {
             project {
@@ -3876,7 +3897,7 @@ export const GET_MESSAGE = gql`
           id
           summary
           issueKey
-          issueType { id name color icone { id value typeIcone } }
+          issueType { id name color icone { id value typeIcone } level }
           status { id displayName color }
           assigne {
             id
@@ -4058,6 +4079,7 @@ export const LINK_ISSUE_TO_CANAL = gql`
         id
         issueKey
         summary
+        issueType { id name level color icone { id value typeIcone } }
         status {
           id
           displayName
@@ -4094,6 +4116,7 @@ export const LINK_ISSUES_TO_CANAL = gql`
         summary
         currentCompletionPercent
         elapsedDurationMinutes
+        issueType { id name level color icone { id value typeIcone } }
         project {
           id
           prefix

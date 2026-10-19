@@ -301,10 +301,10 @@
                 *ngIf="issueUrl(link) as url; else plainKey"
                 class="issue-key"
                 [routerLink]="url"
-              >{{ link.issue.issueKey }}</a>
+              ><app-type-tache [type]="link.issue.issueType"></app-type-tache> {{ link.issue.issueKey }}</a>
               <ng-template #plainKey>
                 <span class="issue-key not-clickable" title="Issue d'un autre projet">
-                  {{ link.issue.issueKey }}
+                  <app-type-tache [type]="link.issue.issueType"></app-type-tache> {{ link.issue.issueKey }}
                 </span>
               </ng-template>
               <button class="issue-unlink" (click)="unlinkCanalLink(link)" title="Retirer le lien">
@@ -312,6 +312,7 @@
               </button>
             </div>
             <p class="issue-summary">{{ link.issue.summary }}</p>
+            <app-statut-tache [status]="link.issue.status"></app-statut-tache>
             <p class="issue-meta-row" *ngIf="link.issue.assigne || link.issue.elapsedDurationMinutes">
               <span *ngIf="link.issue.assigne">
                 <i class="fas fa-user"></i> {{ link.issue.assigne.username }}
@@ -454,8 +455,9 @@
         [disabled]="linkingIssueKey === issue.issueKey"
       >
         <div class="issue-result-main">
-          <span class="issue-key">{{ issue.issueKey }}</span>
+          <span class="issue-key"><app-type-tache [type]="issue.issueType"></app-type-tache> {{ issue.issueKey }}</span>
           <span class="issue-result-summary">{{ issue.summary }}</span>
+          <app-statut-tache [status]="issue.status"></app-statut-tache>
           <span class="issue-result-assignee" *ngIf="issue.assigne">
             <i class="fas fa-user"></i> {{ issue.assigne.username }}
           </span>

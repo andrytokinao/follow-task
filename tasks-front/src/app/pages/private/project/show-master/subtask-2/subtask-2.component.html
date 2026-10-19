@@ -16,6 +16,7 @@
              [class.rail-dot--done]="getStatusKey(task) === 'done'"
              [class.rail-dot--review]="getStatusKey(task) === 'review'"
              [class.rail-dot--unread]="nonLues(task) > 0"
+             [style.background]="task.status?.color || null"
              (click)="selectTask(task)"
              [attr.title]="nonLues(task) > 0 ? task.issueKey + ' · ' + task.summary + '\n' + resumeNonLues(task) : task.issueKey + ' · ' + task.summary">
         </div>
@@ -109,9 +110,11 @@
                [attr.title]="resumeNonLues(task) || null"
                (click)="selectTask(task)"
                [@taskRowIn]>
-            <div class="task-row__status" [ngClass]="'task-row__status--' + getStatusKey(task)"></div>
+            <div class="task-row__status" [ngClass]="'task-row__status--' + getStatusKey(task)"
+                 [style.background]="task.status?.color || null"
+                 [style.border-color]="task.status?.color || null"></div>
             <div class="task-row__body">
-              <div class="task-row__key">{{ task.issueKey }}</div>
+              <div class="task-row__key"><app-type-tache [type]="task.issueType"></app-type-tache> {{ task.issueKey }}</div>
               <div class="task-row__title">
                 <div class="task-row__sum">{{ task.summary }}</div>
                 <span class="task-row__notif" *ngIf="nonLues(task) > 0">
@@ -175,7 +178,7 @@
       </button>
 
       <div class="detail-header__title">
-        <span class="issue-key">{{ selectedTask?.issueKey }}</span>
+        <span class="issue-key"><app-type-tache [type]="selectedTask?.issueType"></app-type-tache> {{ selectedTask?.issueKey }}</span>
 
         <ng-container *ngIf="!editingSummary; else editSummaryTpl">
           <span class="issue-summary editable" (click)="startEditSummary()" title="Modifier">

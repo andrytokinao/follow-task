@@ -2,6 +2,7 @@
   <div class="breadcrumb-item" [matMenuTriggerFor]="master_list">
     <a>
       <span class="breadcrumb-desktop">
+        <app-type-tache [type]="issue?.issueType"></app-type-tache>
         <span class="issue-key">{{ issue?.issueKey }}</span>
         <span class="separator-dot">·</span>
         <span class="issue-summary">{{ issue?.summary }}</span>
@@ -31,7 +32,7 @@
   <ul class="navigation-list">
     <li *ngFor="let im of issueMasters" (click)="issueService.browsIssueMaster(im)">
       <a>
-        <app-icone-view [icon]="im.issueType.icone"></app-icone-view>
+        <app-icone-view [icon]="im.issueType.icone" [color]="im.issueType?.color"></app-icone-view>
         <span class="key-badge">{{ im.issueKey }}</span>
         <span class="issue-summary">{{ im.summary }}</span>
       </a>

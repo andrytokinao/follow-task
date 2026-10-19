@@ -467,14 +467,19 @@ export class IssueDetailsComponent implements OnInit, OnDestroy {
   // ── Statistics Helpers ────────────────────────
   buildSubtaskStatusData(): void {
     const map = new Map<string, number>();
+    // Couleur du statut quand elle est définie ; sinon la table par nom.
+    const couleurs = new Map<string, string>();
     for (const sub of this.subtasks) {
       const key = sub?.status?.displayName?.toString() || 'Inconnu';
       map.set(key, (map.get(key) ?? 0) + 1);
+      if (sub?.status?.color && !couleurs.has(key)) {
+        couleurs.set(key, String(sub.status.color));
+      }
     }
     this.subtaskStatusData = Array.from(map.entries()).map(([label, count]) => ({
       label,
       count,
-      color: this.STATUS_COLORS[label.toLowerCase()] || '#CBD5E1',
+      color: couleurs.get(label) || this.STATUS_COLORS[label.toLowerCase()] || '#CBD5E1',
     }));
   }
 

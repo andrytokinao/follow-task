@@ -4,7 +4,7 @@
     <div class="issue-breadcrumb">
       <span class="breadcrumb-project">{{ parentIssue?.issueKey?.split('-')[0] }}</span>
       <i class="fas fa-chevron-right breadcrumb-sep"></i>
-      <span class="breadcrumb-key">{{ parentIssue?.issueKey }}</span>
+      <span class="breadcrumb-key"><app-type-tache [type]="parentIssue?.issueType"></app-type-tache> {{ parentIssue?.issueKey }}</span>
     </div>
     <div class="issue-header-actions">
       <button class="btn-icon" title="Partager"><i class="fas fa-share-alt"></i></button>
@@ -23,7 +23,7 @@
       <div class="card title-card">
         <div class="issue-type-line" *ngIf="issueType">
           <div class="issue-type-badge">
-            <i class="fas fa-tasks"></i> {{ issueType?.name }}
+            <app-type-tache [type]="parentIssue?.issueType"></app-type-tache> {{ issueType?.name }}
           </div>
           <!-- Changement de type : formulaire commun, ouvert depuis le service. -->
           <button class="btn-edit-inline"
@@ -94,12 +94,15 @@
                [routerLink]="['../subtask', sub.issueKey]"
                [ngClass]="'status-' + sub?.status?.displayName?.toLowerCase()?.replace(' ', '-')">
             <div class="subtask-left">
-              <span class="subtask-type-icon"><i class="fas fa-circle-dot"></i></span>
+              <span class="subtask-type-icon"><app-type-tache [type]="sub.issueType"></app-type-tache></span>
               <span class="subtask-key">{{ sub.issueKey }}</span>
               <span class="subtask-name">{{ sub.summary }}</span>
             </div>
             <div class="subtask-right">
-              <span class="status-chip" [ngClass]="'chip-' + sub?.status?.displayName?.toLowerCase()?.replace(' ', '-')">{{ sub?.status?.displayName }}</span>
+              <!-- Couleur du statut si définie ; sinon les classes par nom. -->
+              <span class="status-chip" [ngClass]="'chip-' + sub?.status?.displayName?.toLowerCase()?.replace(' ', '-')"
+                    [style.color]="sub?.status?.color || null"
+                    [style.background]="sub?.status?.color ? 'color-mix(in srgb, ' + sub.status.color + ' 14%, transparent)' : null">{{ sub?.status?.displayName }}</span>
               <!-- app-avatar et non <img onerror> : le repli visait
                    assets/default-avatar.png, qui n'existe pas. Une photo
                    introuvable relançait onerror sans fin et l'avatar
@@ -248,7 +251,7 @@
         </div>
         <div class="sidebar-field" *ngIf="issueType">
           <label class="sidebar-label"><i class="fas fa-tag"></i> Type</label>
-          <div class="sidebar-value"><span class="type-badge">{{ issueType?.name }}</span></div>
+          <div class="sidebar-value"><span class="type-badge"><app-type-tache [type]="parentIssue?.issueType"></app-type-tache> {{ issueType?.name }}</span></div>
         </div>
         <div class="sidebar-field">
           <label class="sidebar-label"><i class="fas fa-layer-group"></i> Phase</label>

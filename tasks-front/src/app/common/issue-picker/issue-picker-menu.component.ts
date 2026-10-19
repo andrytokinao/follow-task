@@ -20,6 +20,7 @@ import { PanneauDansEcran } from '../../utils/panneau-dans-ecran';
 import { RenderedDirective } from './rendered.directive';
 import { ContenuMenuDirective } from '../contenu-menu/contenu-menu.directive';
 import { AvatarComponent } from '../avatar/avatar.component';
+import { TypeTacheComponent } from '../type-tache/type-tache.component';
 import { ProjectGuard } from '../../services/ProjectGuard';
 import { IssueService } from '../../services/issue.service';
 import { UserService } from '../../services/user.service';
@@ -68,7 +69,7 @@ export interface IssueChoisie {
 @Component({
   selector: 'app-issue-picker-menu',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatMenuModule, RenderedDirective, ContenuMenuDirective, AvatarComponent],
+  imports: [CommonModule, FormsModule, MatMenuModule, RenderedDirective, ContenuMenuDirective, AvatarComponent, TypeTacheComponent],
   templateUrl: './issue-picker-menu.component.html',
   styleUrls: ['./issue-picker-menu.component.scss'],
   animations: [

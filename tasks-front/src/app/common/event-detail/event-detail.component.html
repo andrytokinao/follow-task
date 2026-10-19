@@ -49,7 +49,7 @@
         <div class="ed-liens">
           <div class="ed-lien-ligne">
             <span class="pt-niveau">Projet</span>
-            <i class="fas fa-folder pt-dossier"></i>
+            <app-type-tache class="pt-dossier" [type]="projet.issueType"></app-type-tache>
             <a *ngIf="lienProjet; else projetTexte" class="ed-lien" [routerLink]="lienProjet" (click)="fermer()"
                title="Ouvrir le projet">
               <span class="pt-cle">{{ projet.issueKey }}</span>
@@ -64,7 +64,7 @@
 
           <div class="ed-lien-ligne" *ngIf="tache">
             <span class="pt-niveau">Tâche</span>
-            <i class="fas fa-file-lines pt-fichier"></i>
+            <app-type-tache class="pt-fichier" [type]="tache.issueType"></app-type-tache>
             <a *ngIf="lienTache; else tacheTexte" class="ed-lien" [routerLink]="lienTache" (click)="fermer()"
                title="Ouvrir la tâche">
               <span class="pt-cle">{{ tache.issueKey }}</span>

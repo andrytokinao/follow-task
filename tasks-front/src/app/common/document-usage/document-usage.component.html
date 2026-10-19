@@ -122,8 +122,9 @@
           <!-- Meta -->
           <div class="du-issue-meta">
             <div class="du-issue-top">
+              <app-type-tache [type]="issue.issueType"></app-type-tache>
               <span class="du-issue-key">{{ issue.issueKey }}</span>
-              <span class="du-issue-status" *ngIf="issue.status">{{ issue.status?.displayName }}</span>
+              <app-statut-tache class="du-issue-status" *ngIf="issue.status" [status]="issue.status"></app-statut-tache>
             </div>
             <span class="du-issue-summary">{{ issue.summary }}</span>
           </div>

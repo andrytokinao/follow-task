@@ -14,7 +14,7 @@
           [attr.aria-selected]="selectedId === tab.status.id"
           [title]="tab.status.displayName"
           (click)="toggle(tab.status.id)">
-    <app-icone-view class="st-icon" *ngIf="tab.status.icone" [icon]="tab.status.icone"></app-icone-view>
+    <app-icone-view class="st-icon" *ngIf="tab.status.icone" [icon]="tab.status.icone" [color]="tab.status.color"></app-icone-view>
     <span class="st-label">{{ tab.status.displayName }}</span>
     <span class="st-count">{{ tab.count }}</span>
   </button>

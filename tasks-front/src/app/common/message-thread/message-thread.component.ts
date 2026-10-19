@@ -22,6 +22,8 @@ import {MessagingService} from "../../services/messaging.service";
 import {IssuePickerMenuComponent} from "../issue-picker/issue-picker-menu.component";
 import {IssueCreationMenuComponent, IssueCreee} from "../issue-creation-menu/issue-creation-menu.component";
 import {MyCommonModule} from "../common.module";
+import {TypeTacheComponent} from "../type-tache/type-tache.component";
+import {StatutTacheComponent} from "../statut-tache/statut-tache.component";
 
 const LONG_PRESS_MS = 450;
 
@@ -30,7 +32,7 @@ const LONG_PRESS_MS = 450;
   standalone: true,
   // MyCommonModule pour app-issue-creation-menu : il embarque
   // app-new-issue-form, déclaré dans ce module et non autonome.
-  imports: [CommonModule, AvatarComponent, MatMenuModule, RouterLink, IssuePickerMenuComponent, MyCommonModule],
+  imports: [CommonModule, AvatarComponent, MatMenuModule, RouterLink, IssuePickerMenuComponent, MyCommonModule, TypeTacheComponent, StatutTacheComponent],
   templateUrl: './message-thread.component.html',
   styleUrls: ['./message-thread.component.scss'],
 })

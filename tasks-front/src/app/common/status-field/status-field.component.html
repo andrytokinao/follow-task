@@ -1,5 +1,5 @@
 <span class="controle" [matMenuTriggerFor]="menu2" mat-icon-button [ngStyle]="statusStyle()">
-  <span  *ngIf="issue.status != null "><app-icone-view [icon]="issue.status.icone" ></app-icone-view> {{issue.status.displayName}} </span>
+  <span  *ngIf="issue.status != null "><app-icone-view [icon]="issue.status.icone" [color]="issue.status.color"></app-icone-view> {{issue.status.displayName}} </span>
 <span *ngIf="issue.status == null " >No status </span>
 <i class="fas fa-chevron-down"></i>
 </span>
@@ -10,7 +10,7 @@
     <span  *ngIf="issueType != null && issueType.curentWorkFlow != null && issueType.curentWorkFlow.statuses != null && issueType.curentWorkFlow.statuses.length !=0 ">
        <button  mat-menu-item *ngFor="let status of issueType.curentWorkFlow.statuses" (click)="changeStatus(status)"
                 [ngClass]="{'active': isActive(status)}">
-      <span ><app-icone-view [icon]="status.icone" ></app-icone-view> {{status.displayName}} </span>
+      <span [style.color]="status.color"><app-icone-view [icon]="status.icone" [color]="status.color"></app-icone-view> {{status.displayName}} </span>
 
     </button>
     </span>

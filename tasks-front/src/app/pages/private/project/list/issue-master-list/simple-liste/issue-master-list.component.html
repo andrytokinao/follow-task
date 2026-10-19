@@ -67,7 +67,7 @@
       <!-- En-tête : identité de la demande + statut modifiable -->
       <header class="card-head">
         <span class="card-key">
-          <app-icone-view [icon]="master.issueType?.icone"></app-icone-view>
+          <app-type-tache [type]="master.issueType"></app-type-tache>
           {{ master.issueKey }}
         </span>
         <app-status-field [issue]="master"></app-status-field>

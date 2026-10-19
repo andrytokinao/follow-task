@@ -31,7 +31,9 @@
       <a class="notification-link" *ngIf="notification.issueLinks?.length"
          [routerLink]="notification.issueLinks" (click)="ouvrir(notification)">
         <i class="fas fa-arrow-right"></i>
-        {{ notification.project?.prefix }} / {{ tache(notification) }}
+        {{ notification.project?.prefix }} /
+        <app-type-tache [type]="notification.issue?.issueType ?? notification.action?.issue?.issueType"></app-type-tache>
+        {{ tache(notification) }}
       </a>
     </div>
 

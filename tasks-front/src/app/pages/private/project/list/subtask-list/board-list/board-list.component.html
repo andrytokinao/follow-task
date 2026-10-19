@@ -1,11 +1,11 @@
 
 <div class="board" >
   <div class="column" *ngFor='let status of currentWorkflow?.statuses' (dragover)="onDragOver($event)" (drop)= "onDrop($event, status)" >
-    <div class="entete"> <app-icone-view [icon]="status.icone"></app-icone-view>{{ status.displayName }} </div>
+    <div class="entete"> <app-icone-view [icon]="status.icone" [color]="status.color"></app-icone-view>{{ status.displayName }} </div>
     <div class="issie-board" *ngFor="let issue of filterByStatus(status)" draggable="true" (dragstart)="onDragStart($event,issue)"  >
       <div class="myCard"  >
         <div class="content details" >
-          <app-icone-view [icon] = issue.issueType.icone></app-icone-view>
+          <app-icone-view [icon] = issue.issueType.icone [color]="issue.issueType.color"></app-icone-view>
           <b><show-issue-option [issue] = "issue" [label]="issue.issueKey+' '+issue.summary" ></show-issue-option></b>
           <p>{{issue.description}}</p>
         </div>

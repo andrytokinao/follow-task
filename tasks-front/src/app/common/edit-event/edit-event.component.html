@@ -36,13 +36,13 @@
           <ng-container *ngIf="selectedMaster; else ptVide">
             <span class="pt-ligne">
               <span class="pt-niveau">Projet</span>
-              <i class="fas fa-folder pt-dossier"></i>
+              <app-type-tache class="pt-dossier" [type]="selectedMaster.issueType"></app-type-tache>
               <span class="pt-cle">{{ selectedMaster.issueKey }}</span>
               <span class="pt-titre">{{ selectedMaster.summary }}</span>
             </span>
             <span class="pt-ligne" *ngIf="selectedSubtask">
               <span class="pt-niveau">Tâche</span>
-              <i class="fas fa-file-lines pt-fichier"></i>
+              <app-type-tache class="pt-fichier" [type]="selectedSubtask.issueType"></app-type-tache>
               <span class="pt-cle">{{ selectedSubtask.issueKey }}</span>
               <span class="pt-titre">{{ selectedSubtask.summary }}</span>
             </span>

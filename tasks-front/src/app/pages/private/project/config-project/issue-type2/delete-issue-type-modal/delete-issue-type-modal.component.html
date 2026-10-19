@@ -82,12 +82,16 @@
              [class.missing]="targets[issue.id!] == null">
           <input type="checkbox" [checked]="isSelected(issue)" (change)="toggle(issue)"
                  [disabled]="!candidates.length"/>
-          <code class="col-key">{{ issue.issueKey }}</code>
+          <!-- Toutes ces tâches sont du type supprimé. -->
+          <code class="col-key"><app-type-tache [type]="issueType"></app-type-tache> {{ issue.issueKey }}</code>
           <span class="col-summary" [title]="issue.summary">
             {{ issue.summary }}
             <small *ngIf="issue.parent" class="parent-ref">dans {{ issue.parent.issueKey }}</small>
           </span>
-          <span class="col-status">{{ issue.status?.displayName || '—' }}</span>
+          <span class="col-status">
+            <app-statut-tache *ngIf="issue.status?.displayName; else sansStatut" [status]="issue.status"></app-statut-tache>
+            <ng-template #sansStatut>—</ng-template>
+          </span>
           <select class="type-select col-target" [(ngModel)]="targets[issue.id!]" (ngModelChange)="onTargetChange()"
                   [disabled]="!candidates.length">
             <option [ngValue]="null">Choisir...</option>

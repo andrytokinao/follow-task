@@ -11,7 +11,7 @@
     >
       <header class="column-head">
         <span class="column-icon">
-          <app-icone-view [icon]="status.icone"></app-icone-view>
+          <app-icone-view [icon]="status.icone" [color]="status.color"></app-icone-view>
         </span>
         <span class="column-title" [title]="status.displayName">{{ status.displayName }}</span>
         <span class="column-count">{{ issuesFor(status).length }}</span>
@@ -29,7 +29,7 @@
         >
           <div class="card-top">
             <span class="card-type">
-              <app-icone-view [icon]="issue.issueType?.icone"></app-icone-view>
+              <app-type-tache [type]="issue.issueType"></app-type-tache>
             </span>
             <a
               class="card-key"

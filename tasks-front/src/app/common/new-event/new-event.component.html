@@ -26,11 +26,11 @@
       <h1>Tache: </h1>
       <div class="issue-choose-list">
         <div class="master" [matMenuTriggerFor]="master_list">
-           <span *ngIf="selectedMaster != undefined"> {{selectedMaster.issueKey+':'+selectedMaster.summary}}</span>
+           <span *ngIf="selectedMaster != undefined"><app-type-tache [type]="selectedMaster.issueType"></app-type-tache> {{selectedMaster.issueKey+':'+selectedMaster.summary}}</span>
            <span *ngIf="selectedMaster == undefined"> Choisir projet </span>
         </div>
         <div class="sub-task" *ngIf="selectedMaster != undefined">
-          <span *ngIf="selectedSubtask != undefined"> {{selectedSubtask.issueKey+':'+selectedSubtask.summary}}</span>
+          <span *ngIf="selectedSubtask != undefined"><app-type-tache [type]="selectedSubtask.issueType"></app-type-tache> {{selectedSubtask.issueKey+':'+selectedSubtask.summary}}</span>
           <span *ngIf="selectedSubtask == undefined"> Choisir tache  </span>
         </div>
         </div>
@@ -39,13 +39,13 @@
   </form>
   <mat-menu #master_list ="matMenu"  yPosition="below" #parentMenu="matMenu" xPosition="after" class="master-breadcrumb">
     <ul class="navigation-list" >
-      <li *ngFor="let im of masters" (click)="selectMaster(im)"><a > <app-icone-view [icon]="im.issueType.icone"></app-icone-view> {{im.issueKey+':'+im.summary}}</a></li>
+      <li *ngFor="let im of masters" (click)="selectMaster(im)"><a > <app-icone-view [icon]="im.issueType.icone" [color]="im.issueType?.color"></app-icone-view> {{im.issueKey+':'+im.summary}}</a></li>
 
     </ul>
   </mat-menu>
   <mat-menu #master_list ="matMenu"  yPosition="below" #parentMenu="matMenu" xPosition="after" class="master-breadcrumb">
     <ul class="navigation-list" >
-      <li *ngFor="let im of subtasksList" (click)="selectSubtask(im)"><a > <app-icone-view [icon]="im.issueType.icone"></app-icone-view> {{im.issueKey+':'+im.summary}}</a></li>
+      <li *ngFor="let im of subtasksList" (click)="selectSubtask(im)"><a > <app-icone-view [icon]="im.issueType.icone" [color]="im.issueType?.color"></app-icone-view> {{im.issueKey+':'+im.summary}}</a></li>
 
     </ul>
   </mat-menu>

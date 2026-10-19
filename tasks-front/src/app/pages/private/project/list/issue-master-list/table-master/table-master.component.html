@@ -36,8 +36,7 @@
           <span class="issue-type-badge"
                 [style.background]="issue.issueType?.color ? issue.issueType.color + '1f' : '#f3f4f6'"
                 [style.color]="issue.issueType?.color ?? '#6b7280'">
-            <span class="issue-type-dot"
-                  [style.background]="issue.issueType?.color ?? '#9ca3af'"></span>
+            <app-type-tache [type]="issue.issueType"></app-type-tache>
             {{ issue.issueType?.name ?? 'Tâche' }}
           </span>
         </td>

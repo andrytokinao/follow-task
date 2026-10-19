@@ -14,6 +14,8 @@ import { IssueService } from "../../services/issue.service";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { SpinnerButtonComponent } from "../spinner-button/spinner-button.component";
+import { TypeTacheComponent } from "../type-tache/type-tache.component";
+import { StatutTacheComponent } from "../statut-tache/statut-tache.component";
 
 interface BreadcrumbEntry {
   issue: Issue | null; // null = root
@@ -22,7 +24,7 @@ interface BreadcrumbEntry {
 
 @Component({
   selector: 'app-document-usage',
-  imports: [CommonModule, FormsModule, SpinnerButtonComponent],
+  imports: [CommonModule, FormsModule, SpinnerButtonComponent, TypeTacheComponent, StatutTacheComponent],
   templateUrl: './document-usage.component.html',
   styleUrl: './document-usage.component.css',
   encapsulation: ViewEncapsulation.None

@@ -63,9 +63,8 @@
               <span class="issue-tree-checkbox" *ngIf="mode === 'multiple'" [class.checked]="isSelected(issue)">
                 <i class="fas fa-check" *ngIf="isSelected(issue)" @checkPop></i>
               </span>
-              <!-- Mode simple : un projet se lit comme un dossier, une tâche comme son contenu. -->
-              <i *ngIf="mode === 'simple'" class="fas issue-tree-icon"
-                 [ngClass]="depth === 0 ? (estDeplie(issue) ? 'fa-folder-open' : 'fa-folder') : 'fa-file-lines'"></i>
+              <!-- Icône du type, dans sa couleur (repli : dossier pour un projet, fiche pour une tâche). -->
+              <app-type-tache class="issue-tree-icon" [type]="issue.issueType"></app-type-tache>
 
               <span class="issue-picker-key">{{ issue.issueKey }}</span>
               <span class="issue-picker-summary" [title]="issue.summary">{{ issue.summary }}</span>

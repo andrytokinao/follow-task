@@ -34,7 +34,8 @@
             class="type-btn"
             [ngClass]="getIssueTypeClass(issueType)"
             [style.--type-color]="issueType?.color || null">
-            <span class="type-dot" [style.background]="getIssueTypeColor(issueType)"></span>
+            <app-type-tache *ngIf="issueType; else pointType" [type]="issueType"></app-type-tache>
+            <ng-template #pointType><span class="type-dot" [style.background]="getIssueTypeColor(issueType)"></span></ng-template>
             <span class="btn-label">{{ issueType?.name || 'Sélectionner…' }}</span>
             <span class="btn-phase" *ngIf="isSubtask() && phaseChoisie">· {{ phaseChoisie.name }}</span>
             <mat-icon class="arrow-icon">expand_more</mat-icon>
@@ -143,7 +144,7 @@
       *ngFor="let type of useIssueType"
       (click)="selectIssueType($event, subMenuIssueType, type)"
       class="type-menu-item">
-      <span class="type-dot-sm" [style.background]="getIssueTypeColor(type)"></span>
+      <app-type-tache [type]="type"></app-type-tache>
       <span>{{ type.name }}</span>
     </button>
   </ng-container>
@@ -160,7 +161,7 @@
         (click)="selectChoix($event, subMenuIssueType, choix)"
         [class.selected]="estChoisi(choix)"
         class="type-menu-item">
-        <span class="type-dot-sm" [style.background]="getIssueTypeColor(choix.issueType)"></span>
+        <app-type-tache [type]="choix.issueType"></app-type-tache>
         <span class="type-texte">
           <span class="type-nom">{{ choix.issueType.name }}</span>
           <span class="type-legende">{{ legende(choix) }}</span>

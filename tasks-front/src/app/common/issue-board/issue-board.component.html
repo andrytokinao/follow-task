@@ -8,7 +8,7 @@
              (dragleave)="onDragLeave(status)"
              (drop)="onDrop($event, status)">
       <header class="ib-col__head">
-        <app-icone-view class="ib-col__icon" *ngIf="status.icone" [icon]="status.icone"></app-icone-view>
+        <app-icone-view class="ib-col__icon" *ngIf="status.icone" [icon]="status.icone" [color]="status.color"></app-icone-view>
         <span class="ib-col__title" [title]="status.displayName">{{ status.displayName }}</span>
         <span class="ib-col__count">{{ issuesFor(status).length }}</span>
         <!-- Création dans cette colonne : le menu vient de l'hôte, ancré ici
@@ -40,7 +40,7 @@
                  [class.ib-card--unread]="nonLues(issue) > 0"
                  (click)="issueClick.emit(issue)">
           <div class="ib-card__top">
-            <app-icone-view class="ib-card__type" *ngIf="issue.issueType?.icone" [icon]="issue.issueType.icone"></app-icone-view>
+            <app-type-tache class="ib-card__type" [type]="issue.issueType"></app-type-tache>
             <span class="ib-card__key">{{ issue.issueKey }}</span>
             <span class="ib-card__notif" *ngIf="nonLues(issue) > 0" [title]="resumeNonLues(issue)">
               <i class="fas fa-bell"></i>{{ nonLues(issue) }}

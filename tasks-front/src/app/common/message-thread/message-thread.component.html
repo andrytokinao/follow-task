@@ -94,6 +94,7 @@
                 (click)="toggleIssuePopover(msg, $event)"
               >
                 <i class="fas fa-check" *ngIf="isCompleted(link)"></i>
+                <app-type-tache class="issue-chip-key" [type]="link.issue.issueType"></app-type-tache>
                 <span class="issue-chip-key">{{ link.issue.issueKey }}</span>
                 <div class="issue-chip-progress" *ngIf="!isCompleted(link) && link.issue.currentCompletionPercent !== undefined && link.issue.currentCompletionPercent !== null">
                   <div class="progress-track tiny">
@@ -126,12 +127,12 @@
                       class="issue-key"
                       [routerLink]="url"
                       (click)="closeIssuePopover()"
-                    >{{ link.issue.issueKey }}</a>
+                    ><app-type-tache [type]="link.issue.issueType"></app-type-tache> {{ link.issue.issueKey }}</a>
                     <ng-template #plainKey>
                       <span
                         class="issue-key not-clickable"
                         title="Issue d'un autre projet"
-                      >{{ link.issue.issueKey }}</span>
+                      ><app-type-tache [type]="link.issue.issueType"></app-type-tache> {{ link.issue.issueKey }}</span>
                     </ng-template>
                     <div class="issue-popover-actions">
                       <button class="issue-action-btn delete" (click)="onUnlinkIssue(link, $event)" title="Retirer le lien">
@@ -143,6 +144,7 @@
                     </div>
                   </div>
                   <p class="issue-summary">{{ link.issue.summary }}</p>
+                  <app-statut-tache [status]="link.issue.status"></app-statut-tache>
                   <p class="issue-assignee-row" *ngIf="link.issue.assigne">
                     <i class="fas fa-user"></i> {{ link.issue.assigne.username }}
                   </p>

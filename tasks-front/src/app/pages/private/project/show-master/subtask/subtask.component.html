@@ -5,7 +5,7 @@
     <div class="list-group"  *ngFor="let subtask of subtasks" class="project-card">
       <a class="list-group-item list-group-item-action">
         <div class="d-flex w-100 justify-content-between">
-          <h5 class="mb-1"(click)="editIssue(subtask)" style="cursor: pointer">  <app-icone-view [icon]="subtask.issueType.icone"  ></app-icone-view> {{subtask.issueKey}}  {{subtask.summary}}</h5>
+          <h5 class="mb-1"(click)="editIssue(subtask)" style="cursor: pointer">  <app-icone-view [icon]="subtask.issueType.icone" [color]="subtask.issueType?.color"></app-icone-view> {{subtask.issueKey}}  {{subtask.summary}}</h5>
           <small class="text-body-primary" >
             <b >  <app-assign-field [issue]="subtask" ></app-assign-field> </b>
             <span *ngIf="subtask.creationDate">{{subtask.creationDate | date}}</span>

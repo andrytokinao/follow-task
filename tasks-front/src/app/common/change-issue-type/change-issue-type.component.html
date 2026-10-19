@@ -46,7 +46,7 @@
                [class.selected]="targetId == type.id">
           <input type="radio" name="issueType" [value]="type.id"
                  [(ngModel)]="targetId" (ngModelChange)="onTargetChange()"/>
-          <span class="type-dot" [style.background]="type.color || '#8993a4'"></span>
+          <app-type-tache [type]="type"></app-type-tache>
           <span class="type-name">{{ type.name }}</span>
           <code class="type-prefix">{{ type.prefix }}</code>
           <span class="type-current" *ngIf="issue?.issueType?.id == type.id">actuel</span>
