@@ -24,6 +24,7 @@ import {CdkDrag, CdkDropList} from "@angular/cdk/drag-drop";
 import {PopupCustomFieldComponent} from "./config-custom-field/popup-custom-field/popup-custom-field.component";
 import {PopupWorkFlowComponent} from "./work-flow/popup-work-flow/popup-work-flow.component";
 import {WorkFlowComponent} from "./work-flow/work-flow.component";
+import {EtapeStatutComponent} from "./work-flow/etape-statut/etape-statut.component";
 import {AccessibilityComponent} from "./accessibility/accessibility.component";
 import {MatCheckbox} from "@angular/material/checkbox";
 import {CustomFieldStepperComponent} from "./config-custom-field/custom-field-stepper/custom-field-stepper.component";
@@ -56,7 +57,8 @@ import {IconeViewComponent} from "../../../../common/icone-view/icone-view.compo
     StepperWorkflowComponent,
     IssueType2Component,
     DeleteIssueTypeModalComponent,
-    PhaseManagerComponent
+    PhaseManagerComponent,
+    EtapeStatutComponent
 
   ],
   imports: [

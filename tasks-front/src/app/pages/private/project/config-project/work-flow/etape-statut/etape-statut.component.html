@@ -1,0 +1,14 @@
+<div class="etape-bar">
+  <i class="fas fa-gauge-high"></i>
+  <span class="statut">{{ status.displayName }}</span>
+  <label class="libelle" for="etape-statut">Étape d'avancement</label>
+  <select id="etape-statut" [disabled]="enregistrement" #choix (change)="choisir(choix.value)">
+    <option value="" [selected]="!etape">Aucune — le planning n'y touche pas</option>
+    <option *ngFor="let item of etapes" [value]="item.etape" [selected]="item.etape === etape">
+      {{ item.libelle }}
+    </option>
+  </select>
+  <span class="aide" *ngIf="description">{{ description.aide }}</span>
+  <span class="erreur" *ngIf="erreur"><i class="fas fa-exclamation-circle"></i> {{ erreur }}</span>
+  <i class="fas fa-times close" title="Fermer" (click)="fermer.emit()"></i>
+</div>

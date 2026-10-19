@@ -470,6 +470,18 @@
 
 .node-icon { font-size: 13px; flex-shrink: 0; }
 
+/* etape d'avancement (DT-007) */
+.node.etape-source {
+  border-color: #185FA5;
+  box-shadow: 0 0 0 3px var(--color-background-info, #eff6ff);
+}
+
+.node-etape {
+  font-size: 11px;
+  flex-shrink: 0;
+  color: var(--color-text-secondary, #6b7280);
+}
+
 .node-name {
   flex: 1;
   min-width: 0;

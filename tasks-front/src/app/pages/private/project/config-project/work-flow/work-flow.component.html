@@ -143,6 +143,14 @@
       <i class="fas fa-times close" (click)="selectedEdge = null"></i>
     </div>
 
+    <!-- Etape d'avancement du statut selectionne (DT-007) -->
+    <app-etape-statut *ngIf="selectedStatus"
+                      [status]="selectedStatus"
+                      [etape]="etapeDe(selectedStatus)"
+                      (etapeChange)="onEtapeChange(selectedStatus, $event)"
+                      (fermer)="selectedStatus = null">
+    </app-etape-statut>
+
     <div class="state-block tall" *ngIf="!selected && !loading">
       <i class="fas fa-diagram-project"></i>
       <span>Sélectionnez un flux pour afficher son diagramme</span>
@@ -193,6 +201,7 @@
         <div class="node" *ngFor="let node of nodes; trackBy: trackByNode"
              [class.connect-source]="isConnectSource(node)"
              [class.connect-mode]="connectFrom && !isConnectSource(node)"
+             [class.etape-source]="selectedStatus?.id == node.status.id"
              [style.left.px]="node.x"
              [style.top.px]="node.y"
              [style.border-left-color]="colorOf(node.status, '#185FA5')"
@@ -202,6 +211,9 @@
           <i class="{{ node.status.icone?.value || 'fas fa-circle' }} node-icon"
              [style.color]="colorOf(node.status, '#185FA5')"></i>
           <span class="node-name">{{ node.status.displayName }}</span>
+          <i *ngIf="descriptionEtapeDe(node.status) as description"
+             class="{{ description.icone }} node-etape"
+             [title]="'Étape d\'avancement : ' + description.libelle"></i>
 
           <span class="node-actions">
             <button class="icon-btn" title="Créer une transition depuis ce statut"
@@ -219,7 +231,8 @@
       </div>
 
       <div class="canvas-hint">
-        <i class="fas fa-hand"></i> Glissez le fond pour déplacer la vue, un statut pour le repositionner
+        <i class="fas fa-hand"></i> Glissez le fond pour déplacer la vue, un statut pour le repositionner ;
+        cliquez un statut pour régler son étape d'avancement
       </div>
     </div>
   </section>

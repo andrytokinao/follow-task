@@ -6,6 +6,8 @@ import {IssueService} from "../../../../../services/issue.service";
 import {ConfigService} from "../../../../../services/config.service";
 import {ConfirmationDialogService} from "../../../../../services/confirmation-dialog.service";
 import {CrossingState, IssueType, NodePosition, Project, Status, WorkFlow} from "../../../../../type/issue";
+import {AvancementService} from "../../../../../services/avancement.service";
+import {DescriptionEtape, descriptionEtape, EtapeAvancement} from "../../../../../type/etape-avancement";
 
 /** Un statut place sur le diagramme. */
 export interface DiagramNode {
@@ -54,6 +56,12 @@ export class WorkFlowComponent implements OnInit, OnDestroy {
   connectFrom: Status | null = null;
   selectedEdge: CrossingState | null = null;
 
+  // ---- etape d'avancement des statuts (DT-007) ----
+  /** Etape de chaque statut du flux, par identifiant ; absent : aucune. */
+  etapes: { [statusId: number]: EtapeAvancement } = {};
+  /** Statut dont on regle l'etape. */
+  selectedStatus: Status | null = null;
+
   // ---- formulaires ----
   showStatusForm: boolean = false;
   newStatusName: string = '';
@@ -88,7 +96,8 @@ export class WorkFlowComponent implements OnInit, OnDestroy {
               private issueService: IssueService,
               private route: ActivatedRoute,
               private modalService: NgbModal,
-              private confirmationDialog: ConfirmationDialogService) {
+              private confirmationDialog: ConfirmationDialogService,
+              private avancementService: AvancementService) {
   }
 
   ngOnInit(): void {
@@ -137,6 +146,8 @@ export class WorkFlowComponent implements OnInit, OnDestroy {
     this.errorMessage = '';
     this.connectFrom = null;
     this.selectedEdge = null;
+    this.selectedStatus = null;
+    this.chargerEtapes(<number>workFlow.id);
     this.issueService.getWorkFlow(workFlow.id).subscribe({
       next: (loaded: WorkFlow) => {
         this.applyWorkFlow(loaded);
@@ -396,6 +407,8 @@ export class WorkFlowComponent implements OnInit, OnDestroy {
   onNodeClick(node: DiagramNode, event: Event) {
     event.stopPropagation();
     if (!this.connectFrom) {
+      this.selectedEdge = null;
+      this.selectedStatus = this.selectedStatus?.id == node.status.id ? null : node.status;
       return;
     }
     if (this.connectFrom.id == node.status.id) {
@@ -435,6 +448,7 @@ export class WorkFlowComponent implements OnInit, OnDestroy {
 
   selectEdge(edge: DiagramEdge, event: Event) {
     event.stopPropagation();
+    this.selectedStatus = null;
     this.selectedEdge = this.selectedEdge?.id == edge.crossing.id ? null : edge.crossing;
   }
 
@@ -545,6 +559,9 @@ export class WorkFlowComponent implements OnInit, OnDestroy {
       this.issueService.removeStatusFromWorkFlow(<number>this.selected!.id, <number>status.id).subscribe({
         next: (workFlow) => {
           this.saving = false;
+          if (this.selectedStatus?.id == status.id) {
+            this.selectedStatus = null;
+          }
           this.applyWorkFlow(workFlow);
         },
         error: (error) => {
@@ -554,6 +571,36 @@ export class WorkFlowComponent implements OnInit, OnDestroy {
       });
     }).catch(() => {
     });
+  }
+
+  // -----------------------------------------------------------------
+  // Etape d'avancement des statuts (DT-007)
+  // -----------------------------------------------------------------
+
+  private chargerEtapes(workFlowId: number) {
+    this.etapes = {};
+    this.avancementService.etapesDuFlux(workFlowId).subscribe({
+      next: (etapes) => this.etapes = etapes,
+      error: (error) => this.errorMessage = this.extractMessage(error)
+    });
+  }
+
+  etapeDe(status: Status | null): EtapeAvancement | null {
+    return status?.id == null ? null : (this.etapes[status.id] ?? null);
+  }
+
+  descriptionEtapeDe(status: Status): DescriptionEtape | undefined {
+    return descriptionEtape(this.etapeDe(status));
+  }
+
+  onEtapeChange(status: Status, etape: EtapeAvancement | null) {
+    const etapes = {...this.etapes};
+    if (etape) {
+      etapes[status.id] = etape;
+    } else {
+      delete etapes[status.id];
+    }
+    this.etapes = etapes;
   }
 
   // -----------------------------------------------------------------
