@@ -1,34 +1,9 @@
 <div class="dir-shell">
 
-  <header class="dir-topbar">
-    <div class="topbar-title">
-      <span class="brand-icon"><i class="fas fa-compass"></i></span>
-      <h1>Direction</h1>
-    </div>
-    <div class="topbar-actions">
-      <a class="back-link" routerLink="/direction/situation">
-        <i class="fas fa-binoculars"></i> Situation du jour
-      </a>
-      <a class="back-link" routerLink="/direction/gantt">
-        <i class="fas fa-stream"></i> Gantt des projets
-      </a>
-      <a class="back-link" routerLink="/working">
-        <i class="fas fa-th-large"></i> Espaces de travail
-      </a>
-      <app-user-menu variante="avatar"></app-user-menu>
-    </div>
+  <header class="dir-entete">
+    <h1>Fiches projets<span class="dir-espace" *ngIf="espace"> · {{ espace.nom }}</span></h1>
+    <span class="tab-count" *ngIf="!chargement && !erreur">{{ projets.length }} projet(s) en cours</span>
   </header>
-
-  <!-- ═══ DÉPARTEMENTS ═══ -->
-  <nav class="dir-tabs" aria-label="Départements">
-    <button type="button" class="dir-tab" [class.active]="departement === null" (click)="choisir(null)">
-      Tous <span class="tab-count">{{ nombreProjets(null) }}</span>
-    </button>
-    <button type="button" class="dir-tab" *ngFor="let dep of departements"
-            [class.active]="departement === dep" (click)="choisir(dep)">
-      {{ dep }} <span class="tab-count">{{ nombreProjets(dep) }}</span>
-    </button>
-  </nav>
 
   <div class="state" *ngIf="chargement">
     <i class="fas fa-circle-notch fa-spin"></i> Chargement des projets…
@@ -40,14 +15,14 @@
 
   <div class="dir-layout" *ngIf="!chargement && !erreur">
 
-    <!-- ═══ MENU : PROJETS ═══ -->
+    <!-- ═══ PROJETS DE L'ESPACE ═══ -->
     <aside class="dir-card dir-menu" aria-label="Projets">
-      <div class="state" *ngIf="!projetsAffiches.length">
-        <i class="fas fa-folder-open"></i> Aucun projet en cours dans ce département.
+      <div class="state" *ngIf="!projets.length">
+        <i class="fas fa-folder-open"></i> Aucun projet en cours dans cet espace.
       </div>
 
       <ul class="menu-list">
-        <li *ngFor="let p of projetsAffiches; trackBy: parId">
+        <li *ngFor="let p of projets; trackBy: parId">
           <button type="button" class="menu-projet" [class.active]="selection === p" (click)="choisirProjet(p)">
             <i class="fas fa-folder project-icon"></i>
             <span class="menu-text">

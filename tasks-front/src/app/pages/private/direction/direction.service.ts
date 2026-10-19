@@ -2,8 +2,9 @@ import {Injectable} from '@angular/core';
 import {Apollo} from 'apollo-angular';
 import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
-import {DetailProjet, ProjetDirection, ProjetGantt, TacheGantt, TacheProjet} from './direction.model';
+import {DetailProjet, EspaceDirection, ProjetDirection, ProjetGantt, TacheGantt, TacheProjet} from './direction.model';
 import {
+  DIRECTION_ESPACES,
   DIRECTION_GANTT_PROJET,
   DIRECTION_GANTT_PROJETS,
   DIRECTION_PROJETS,
@@ -19,19 +20,21 @@ export class DirectionService {
   constructor(private apollo: Apollo) {
   }
 
-  /**
-   * Départements et projets en cours de toute la société, en un seul appel :
-   * changer d'onglet filtre la liste sans recharger.
-   */
-  projets(): Observable<{ departements: string[]; projets: ProjetDirection[] }> {
+  /** Espaces de travail, triés par nom : le cockpit en affiche toujours un. */
+  espaces(): Observable<EspaceDirection[]> {
+    return this.apollo.query<any>({
+      query: DIRECTION_ESPACES,
+      fetchPolicy: 'network-only'
+    }).pipe(map(res => res.data?.directionEspaces ?? []));
+  }
+
+  /** Projets en cours du département (espace de travail) ; toute la société si null. */
+  projets(departement: string | null): Observable<ProjetDirection[]> {
     return this.apollo.query<any>({
       query: DIRECTION_PROJETS,
+      variables: {departement},
       fetchPolicy: 'network-only'
-    }).pipe(
-      map(res => ({
-        departements: res.data?.directionDepartements ?? [],
-        projets: (res.data?.directionProjets ?? []).map(versProjet)
-      })));
+    }).pipe(map(res => (res.data?.directionProjets ?? []).map(versProjet)));
   }
 
   /** Tâches d'un projet, avec leurs assignés et leur nombre de commentaires. */
@@ -57,27 +60,22 @@ export class DirectionService {
     }).pipe(map(res => res.data?.loadSubtask ?? []));
   }
 
-  /** Situation du jour (DT-005) ; toute la société si le département est null. */
-  situation(departement: string | null): Observable<{ departements: string[]; situation: SituationDirection | null }> {
+  /** Situation du jour (DT-005) du département ; toute la société si null. */
+  situation(departement: string | null): Observable<SituationDirection | null> {
     return this.apollo.query<any>({
       query: SITUATION_DIRECTION,
       variables: {departement},
       fetchPolicy: 'network-only'
-    }).pipe(map(res => ({
-      departements: res.data?.directionDepartements ?? [],
-      situation: res.data?.situationDirection ?? null
-    })));
+    }).pipe(map(res => res.data?.situationDirection ?? null));
   }
 
-  /** Projets en cours avec leurs tâches et leurs dates, pour le Gantt de direction. */
-  ganttProjets(): Observable<{ departements: string[]; projets: ProjetGantt[] }> {
+  /** Projets en cours du département avec leurs tâches et leurs dates, pour le Gantt de direction. */
+  ganttProjets(departement: string): Observable<ProjetGantt[]> {
     return this.apollo.query<any>({
       query: DIRECTION_GANTT_PROJETS,
+      variables: {departement},
       fetchPolicy: 'network-only'
-    }).pipe(map(res => ({
-      departements: res.data?.directionDepartements ?? [],
-      projets: res.data?.directionProjets ?? []
-    })));
+    }).pipe(map(res => res.data?.directionProjets ?? []));
   }
 }
 

@@ -2,9 +2,12 @@ import {Component, HostListener, OnDestroy, OnInit} from '@angular/core';
 import {Subscription} from 'rxjs';
 import {DirectionService} from '../direction.service';
 import {heureDe, SituationDirection} from './situation.model';
+import {EspaceDirection} from '../direction.model';
+import {EspaceDirectionService} from '../espace/espace-direction.service';
 
 /**
- * Situation du jour de la direction (DT-005), sur /direction/situation.
+ * Situation du jour de la direction (DT-005), sur /direction/TOPO/situation :
+ * celle de l'espace de travail choisi dans le menu.
  *
  * Trois bandes, dans l'ordre des questions : peut-on croire ce qu'on lit
  * (fiabilité), où en est-on (projets), qui fait quoi maintenant (personnes).
@@ -21,9 +24,8 @@ export class SituationComponent implements OnInit, OnDestroy {
 
   static readonly ACTUALISATION_MS = 5 * 60 * 1000;
 
-  departements: string[] = [];
-  /** null : toute la société. */
-  departement: string | null = null;
+  /** Espace de travail du menu ; la situation est la sienne. */
+  espace: EspaceDirection | null = null;
   situation: SituationDirection | null = null;
 
   chargement = true;
@@ -35,19 +37,22 @@ export class SituationComponent implements OnInit, OnDestroy {
   miseAJour = '';
 
   private requete?: Subscription;
+  private abonnementEspace?: Subscription;
   private minuterie?: ReturnType<typeof setInterval>;
 
-  constructor(private directionService: DirectionService) {
+  constructor(private directionService: DirectionService,
+              private espaceService: EspaceDirectionService) {
   }
 
   ngOnInit(): void {
-    this.charger();
+    this.abonnementEspace = this.espaceService.espace$.subscribe(espace => this.choisir(espace));
     this.minuterie = setInterval(() => this.charger(), SituationComponent.ACTUALISATION_MS);
   }
 
   ngOnDestroy(): void {
     clearInterval(this.minuterie);
     this.requete?.unsubscribe();
+    this.abonnementEspace?.unsubscribe();
   }
 
   /** Au retour sur l'onglet, la situation a pu changer : on la redemande. */
@@ -58,11 +63,8 @@ export class SituationComponent implements OnInit, OnDestroy {
     }
   }
 
-  choisir(departement: string | null): void {
-    if (departement === this.departement) {
-      return;
-    }
-    this.departement = departement;
+  private choisir(espace: EspaceDirection): void {
+    this.espace = espace;
     this.seulementSansPlanning = false;
     this.situation = null;
     this.chargement = true;
@@ -74,10 +76,12 @@ export class SituationComponent implements OnInit, OnDestroy {
   }
 
   charger(): void {
+    if (!this.espace) {
+      return;
+    }
     this.requete?.unsubscribe();
-    this.requete = this.directionService.situation(this.departement).subscribe({
-      next: ({departements, situation}) => {
-        this.departements = departements;
+    this.requete = this.directionService.situation(this.espace.nom).subscribe({
+      next: situation => {
         this.situation = situation;
         this.jour = situation ? jourDe(situation.instant) : '';
         this.miseAJour = situation ? heureDe(situation.instant) : '';

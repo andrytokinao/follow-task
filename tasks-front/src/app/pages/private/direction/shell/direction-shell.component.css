@@ -1,0 +1,240 @@
+/* Repris du cadre d'un espace de travail (project.component.css), en bleu direction. */
+:host {
+  --menu-w: 210px;
+  --menu-reduit-w: 52px;
+  --menu-bg: #ffffff;
+  --menu-border: #e8eaed;
+  --accent: #185FA5;
+  --accent-dim: rgba(24, 95, 165, 0.08);
+  --text-primary: #1a1d23;
+  --text-muted: #6b7280;
+  --text-dim: #c4c9d4;
+  --content-bg: #f4f5f7;
+  --radius: 6px;
+  --nav-h: 34px;
+  --t: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  display: block;
+}
+
+.dshell {
+  display: grid;
+  grid-template-columns: var(--menu-w) minmax(0, 1fr);
+  min-height: 100vh;
+  background: var(--content-bg);
+  transition: grid-template-columns var(--t);
+}
+
+.dshell.reduite { grid-template-columns: var(--menu-reduit-w) minmax(0, 1fr); }
+
+/* ── Menu ── */
+.dmenu {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  padding: 10px 0 8px;
+  background: var(--menu-bg);
+  border-right: 1px solid var(--menu-border);
+  overflow: hidden;
+  z-index: 5;
+}
+
+.toggle-btn {
+  position: absolute;
+  right: 4px;
+  top: 14px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid var(--menu-border);
+  background: var(--menu-bg);
+  color: var(--text-muted);
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.toggle-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+.dshell.reduite .toggle-btn { position: static; margin: 0 auto 8px; }
+
+.dbrand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 16px 10px;
+  white-space: nowrap;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.dbrand-icon { color: var(--accent); width: 20px; text-align: center; flex-shrink: 0; }
+
+/* ── Espace ── */
+.ws-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: calc(100% - 16px);
+  margin: 0 8px 4px;
+  padding: 6px 8px;
+  border: none;
+  border-radius: var(--radius);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.ws-trigger:hover { background: rgba(0, 0, 0, 0.04); }
+
+/* Sur l'accueil : l'espace des liens n'est pas celui affiché. */
+.ws-inactif .ws-avatar { background: #8a94a6; }
+.ws-inactif .ws-prefix { color: var(--text-muted); }
+
+/* L'entrée « Accueil » ne prend que sa hauteur. */
+.nav.nav-haut { flex: 0 0 auto; overflow: visible; }
+
+.ws-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.ws-avatar--sm { width: 24px; height: 24px; border-radius: 4px; font-size: 11px; }
+
+.ws-info { display: flex; flex-direction: column; flex: 1; min-width: 0; line-height: 1.25; }
+
+.ws-prefix {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ws-name { font-size: 11px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; }
+
+.ws-chev { font-size: 9px; color: var(--text-dim); flex-shrink: 0; }
+
+.divider { height: 1px; background: var(--menu-border); margin: 6px 10px; }
+
+/* ── Navigation ── */
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 0 8px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.nav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  height: var(--nav-h);
+  padding: 0 10px;
+  border-radius: var(--radius);
+  text-decoration: none;
+  white-space: nowrap;
+  color: var(--text-muted);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.nav-item .icon { font-size: 13px; width: 16px; text-align: center; flex-shrink: 0; }
+.nav-item:hover { background: rgba(0, 0, 0, 0.04); color: var(--text-primary); }
+.nav-item.active { background: var(--accent-dim); color: var(--accent); }
+
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 16px;
+  border-radius: 0 3px 3px 0;
+  background: var(--accent);
+}
+
+.nav-bottom { padding: 0 8px 4px; flex-shrink: 0; }
+
+.compte { padding: 2px 0; }
+
+/* ── Menu replié : icônes seules, libellé au survol ── */
+.dshell.reduite .dbrand-text,
+.dshell.reduite .ws-info,
+.dshell.reduite .ws-chev,
+.dshell.reduite .nav-item span { display: none; }
+
+.dshell.reduite .dbrand { justify-content: center; padding: 2px 0 10px; }
+.dshell.reduite .ws-trigger { justify-content: center; padding: 6px 0; }
+.dshell.reduite .nav-item { justify-content: center; padding: 0; }
+.dshell.reduite .compte { display: flex; justify-content: center; }
+
+.dshell.reduite .dmenu { overflow: visible; }
+
+.dshell.reduite .nav-item:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 44px;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 4px 9px;
+  border-radius: 5px;
+  background: #1a1d23;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 200;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* ── Page ── */
+.dcontent {
+  min-width: 0;
+  min-height: 100vh;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ── Liste des espaces ── */
+.ws-item { display: flex; align-items: center; gap: 8px; width: 100%; }
+.ws-check { margin-left: auto; font-size: 10px; color: var(--accent); }
+::ng-deep .dshell-espaces .mat-mdc-menu-item.selected { background: rgba(24, 95, 165, 0.08); }
+
+/* ── Petits écrans : le menu reste replié ── */
+@media (max-width: 768px) {
+  .dshell, .dshell.reduite { grid-template-columns: var(--menu-reduit-w) minmax(0, 1fr); }
+  .dbrand-text, .ws-info, .ws-chev, .nav-item span { display: none; }
+  .nav-item, .ws-trigger { justify-content: center; padding: 0; }
+  .toggle-btn { display: none; }
+  .dcontent { padding: 0; }
+}

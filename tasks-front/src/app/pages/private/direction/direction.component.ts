@@ -1,12 +1,16 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
+import {of, Subscription} from 'rxjs';
+import {catchError, switchMap, tap} from 'rxjs/operators';
 import {DirectionService} from './direction.service';
-import {ProjetDirection} from './direction.model';
+import {EspaceDirection, ProjetDirection} from './direction.model';
+import {EspaceDirectionService} from './espace/espace-direction.service';
 
 /**
- * Cockpit de direction : les projets en cours de la société, rangés par
- * département (onglets en haut).
+ * Fiches projets du cockpit de direction : les projets en cours de l'espace
+ * de travail choisi dans le menu (`/direction/TOPO`).
  *
- * À gauche, le menu des projets ; à droite, la fiche du projet choisi
+ * À gauche, la liste des projets ; à droite, la fiche du projet choisi
  * (avancement, tâches, commentaires, pièces livrables, champs personnalisés).
  *
  * Lecture seule, sauf les commentaires : la direction peut commenter le projet
@@ -18,53 +22,45 @@ import {ProjetDirection} from './direction.model';
   templateUrl: './direction.component.html',
   styleUrl: './direction.component.css'
 })
-export class DirectionComponent implements OnInit {
+export class DirectionComponent implements OnInit, OnDestroy {
 
-  departements: string[] = [];
+  espace: EspaceDirection | null = null;
   projets: ProjetDirection[] = [];
-  /** null : tous les départements. */
-  departement: string | null = null;
 
   chargement = true;
   erreur = false;
 
   selection: ProjetDirection | null = null;
 
-  constructor(private directionService: DirectionService) {
+  private abonnement?: Subscription;
+
+  constructor(private directionService: DirectionService,
+              private espaceService: EspaceDirectionService,
+              private route: ActivatedRoute) {
   }
 
   ngOnInit(): void {
-    this.directionService.projets().subscribe({
-      next: ({departements, projets}) => {
-        this.departements = departements;
-        this.projets = projets;
-        this.chargement = false;
-        this.choisirPremier();
-      },
-      error: () => {
-        this.chargement = false;
-        this.erreur = true;
-      }
+    this.abonnement = this.espaceService.espace$.pipe(
+      tap(espace => {
+        this.espace = espace;
+        this.chargement = true;
+        this.erreur = false;
+        this.selection = null;
+      }),
+      // L'échec reste dans l'espace en cause : changer d'espace recharge encore.
+      switchMap(espace => this.directionService.projets(espace.nom).pipe(catchError(() => of(null))))
+    ).subscribe(projets => {
+      this.chargement = false;
+      this.erreur = projets == null;
+      this.projets = projets ?? [];
+      // ?projet=12 : le projet choisi sur l'accueil.
+      const demande = Number(this.route.snapshot.queryParamMap.get('projet'));
+      this.selection = this.projets.find(p => p.id === demande) ?? this.projets[0] ?? null;
     });
   }
 
-  choisir(departement: string | null): void {
-    this.departement = departement;
-    if (!this.selection || !this.projetsAffiches.includes(this.selection)) {
-      this.choisirPremier();
-    }
-  }
-
-  get projetsAffiches(): ProjetDirection[] {
-    return this.departement == null
-      ? this.projets
-      : this.projets.filter(p => p.departement === this.departement);
-  }
-
-  nombreProjets(departement: string | null): number {
-    return departement == null
-      ? this.projets.length
-      : this.projets.filter(p => p.departement === departement).length;
+  ngOnDestroy(): void {
+    this.abonnement?.unsubscribe();
   }
 
   choisirProjet(p: ProjetDirection): void {
@@ -73,9 +69,5 @@ export class DirectionComponent implements OnInit {
 
   parId(_: number, p: ProjetDirection): number {
     return p.id;
-  }
-
-  private choisirPremier(): void {
-    this.selection = this.projetsAffiches[0] ?? null;
   }
 }

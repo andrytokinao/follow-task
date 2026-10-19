@@ -3,6 +3,8 @@ import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {DirectionRoutingModule} from './direction.routing.module';
 import {DirectionComponent} from './direction.component';
+import {DirectionShellComponent} from './shell/direction-shell.component';
+import {DirectionAccueilComponent} from './accueil/direction-accueil.component';
 import {DirectionProjetDetailComponent} from './projet-detail/direction-projet-detail.component';
 import {DirectionFicheProjetComponent} from './fiche-projet/direction-fiche-projet.component';
 import {DirectionCommentairesComponent} from './commentaires/direction-commentaires.component';
@@ -20,12 +22,14 @@ import {MyCommonModule} from '../../../common/common.module';
 import {MatMenuModule} from '@angular/material/menu';
 
 /**
- * Cockpit de direction : projets en cours de la société et leurs tâches, par
- * département. Lecture seule, sauf les commentaires. Chargé à la demande sur
- * /direction.
+ * Cockpit de direction : projets en cours d'un espace de travail et leurs
+ * tâches, sous un menu à gauche (`DirectionShellComponent`). Lecture seule,
+ * sauf les commentaires. Chargé à la demande sur /direction/:espace.
  */
 @NgModule({
   declarations: [
+    DirectionShellComponent,
+    DirectionAccueilComponent,
     DirectionComponent,
     DirectionFicheProjetComponent,
     DirectionProjetDetailComponent,

@@ -6,6 +6,16 @@ import {Issue, User} from '../../../type/issue';
  * `DirectionService`.
  */
 
+/**
+ * Espace de travail : le « département » du cockpit. Toujours un seul affiché,
+ * désigné dans l'adresse par son préfixe (`/direction/TOPO`).
+ */
+export interface EspaceDirection {
+  /** Nom affiché, et valeur des filtres `departement` du serveur. */
+  nom: string;
+  prefixe: string;
+}
+
 /** Un projet : demande racine en cours, avec les chiffres de son rapport. */
 export interface ProjetDirection {
   id: number;

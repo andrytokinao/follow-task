@@ -1,13 +1,14 @@
 import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {forkJoin, Observable, of, Subscription} from 'rxjs';
-import {catchError, tap} from 'rxjs/operators';
+import {catchError, switchMap, tap} from 'rxjs/operators';
 import {EventMenuComponent} from '../../../../common/event-menu/event-menu.component';
 import {EventsService} from '../../../../services/events.service';
 import {UserService} from '../../../../services/user.service';
 import {EventApp, Issue, User} from '../../../../type/issue';
 import {UNASSIGNED_ID, userDisplayName} from '../../../../type/issue-grouping.util';
 import {DirectionService} from '../direction.service';
-import {ProjetGantt, TacheGantt} from '../direction.model';
+import {EspaceDirection, ProjetGantt, TacheGantt} from '../direction.model';
+import {EspaceDirectionService} from '../espace/espace-direction.service';
 import {bulleDeSerie, bulleSimple, ContenuBulle, periode} from './gantt-bulle';
 import {versIso} from './gantt-dates.util';
 import {AxeGantt, EchelleGantt, FenetreGantt} from './gantt-fenetre';
@@ -33,7 +34,7 @@ type Bulle = ContenuBulle & {
 };
 
 /**
- * Gantt de direction (`/direction/gantt`) : tous les projets en cours, chacun
+ * Gantt de direction (`/direction/TOPO/gantt`) : les projets en cours de l'espace du menu, chacun
  * avec le diagramme de ses tâches.
  *
  * Une tâche est un cadre, du démarrage à la deadline. Dedans, une seule bande :
@@ -71,9 +72,8 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
   /** Recherche d'événements en cours : le diagramme reste affiché. */
   recherche = false;
 
-  departements: string[] = [];
-  /** null : tous les départements. */
-  departement: string | null = null;
+  /** Espace de travail du menu : ses projets seuls sont affichés. */
+  espace: EspaceDirection | null = null;
   fenetre = FenetreGantt.autour('jour', Date.now());
   /** Ce que liste chaque projet : ses tâches, ou des groupes de tâches. */
   regroupement: Regroupement = PAR_TACHE;
@@ -98,48 +98,50 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
 
   bulle: Bulle | null = null;
 
-  private projets: ProjetGantt[] = [];
+  projets: ProjetGantt[] = [];
   /** Derniers événements reçus : reposés tels quels quand seul le regroupement change. */
   private evenements: EventApp[] = [];
   private ligneDeTache = new Map<number, string>();
   private readonly intervenants = new IntervenantsGantt();
   private abonnement?: Subscription;
   private abonnementMembres?: Subscription;
+  private abonnementEspace?: Subscription;
   /** Membres déjà chargés, par préfixe d'espace de travail. */
   private readonly membresParEspace = new Map<string, User[]>();
 
   constructor(private directionService: DirectionService,
               private eventsService: EventsService,
-              private userService: UserService) {
+              private userService: UserService,
+              private espaceService: EspaceDirectionService) {
   }
 
+  /** Les projets sont ceux de l'espace du menu : en changer recharge la page. */
   ngOnInit(): void {
-    this.directionService.ganttProjets().subscribe({
-      next: ({departements, projets}) => {
-        this.departements = departements;
-        this.projets = projets;
-        this.champs = indexerChamps(projets);
-        this.chargement = false;
-        this.structurer();
-      },
-      error: () => {
-        this.chargement = false;
-        this.erreur = true;
-      }
+    this.abonnementEspace = this.espaceService.espace$.pipe(
+      tap(espace => {
+        this.espace = espace;
+        this.chargement = true;
+        this.erreur = false;
+        this.replies.clear();
+      }),
+      // L'échec reste dans l'espace en cause : changer d'espace recharge encore.
+      switchMap(espace => this.directionService.ganttProjets(espace.nom).pipe(catchError(() => of(null))))
+    ).subscribe(projets => {
+      this.chargement = false;
+      this.erreur = projets == null;
+      this.projets = projets ?? [];
+      this.champs = indexerChamps(this.projets);
+      this.structurer();
     });
   }
 
   ngOnDestroy(): void {
     this.abonnement?.unsubscribe();
     this.abonnementMembres?.unsubscribe();
+    this.abonnementEspace?.unsubscribe();
   }
 
   // ---------------------------------------------------------------- commandes
-
-  choisirDepartement(departement: string | null): void {
-    this.departement = departement;
-    this.structurer();
-  }
 
   choisirEchelle(echelle: EchelleGantt): void {
     this.fenetre = FenetreGantt.autour(echelle, Date.now());
@@ -177,17 +179,7 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
     }
   }
 
-  nombreProjets(departement: string | null): number {
-    return this.projetsDe(departement).length;
-  }
-
   // ---------------------------------------------------------------- données
-
-  private projetsDe(departement: string | null): ProjetGantt[] {
-    return departement == null
-      ? this.projets
-      : this.projets.filter(p => p.rapportProjet?.departement === departement);
-  }
 
   /**
    * Membres des espaces de travail des projets affichés, ceux que
@@ -196,7 +188,7 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
    */
   private chargerMembres(): void {
     this.abonnementMembres?.unsubscribe();
-    const prefixes = [...new Set(this.projetsDe(this.departement)
+    const prefixes = [...new Set(this.projets
       .map(p => p.rapportProjet?.prefixeDepartement)
       .filter((prefixe): prefixe is string => !!prefixe))];
     if (!prefixes.length) {
@@ -234,7 +226,7 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
     this.axe = this.fenetre.axe(maintenant);
     this.aujourdhui = this.fenetre.contient(maintenant) ? this.fenetre.x(maintenant) : null;
     this.blocs = construireBlocs({
-      projets: this.projetsDe(this.departement),
+      projets: this.projets,
       fenetre: this.fenetre,
       maintenant,
       champs: this.champs,

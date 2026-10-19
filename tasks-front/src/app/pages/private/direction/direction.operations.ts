@@ -16,15 +16,24 @@ const UTILISATEUR = `
   photo
 `;
 
+/** Espaces de travail du cockpit : le menu de gauche, et l'espace de l'adresse. */
+export const DIRECTION_ESPACES = gql`
+  query directionEspaces {
+    directionEspaces {
+      nom
+      prefixe
+    }
+  }
+`;
+
 /**
- * Départements (onglets) et projets en cours de toute la société. Statut et
- * assignés du projet ; `project`, `parent` et `reporter` servent, comme pour les
- * tâches, au composant des assignés (`app-assign-field`).
+ * Projets en cours d'un département (espace de travail). Statut et assignés du
+ * projet ; `project`, `parent` et `reporter` servent, comme pour les tâches, au
+ * composant des assignés (`app-assign-field`).
  */
 export const DIRECTION_PROJETS = gql`
-  query directionProjets {
-    directionDepartements
-    directionProjets {
+  query directionProjets($departement: String) {
+    directionProjets(departement: $departement) {
       id
       issueKey
       summary
@@ -141,13 +150,13 @@ const CADRE_GANTT = `
 `;
 
 /**
- * Gantt de direction : tous les projets en cours et leurs tâches, avec leurs
- * dates. Les séances de planning sont chargées à part par `searchEvents`.
+ * Gantt de direction : les projets en cours d'un département et leurs tâches,
+ * avec leurs dates. Les séances de planning sont chargées à part par
+ * `searchEvents`.
  */
 export const DIRECTION_GANTT_PROJETS = gql`
-  query directionGanttProjets {
-    directionDepartements
-    directionProjets {
+  query directionGanttProjets($departement: String) {
+    directionProjets(departement: $departement) {
       ${CADRE_GANTT}
       phaseCourante { id name }
       rapportProjet {
@@ -168,11 +177,10 @@ export const DIRECTION_GANTT_PROJETS = gql`
 
 /**
  * Situation du jour (DT-005) : fiabilité, chiffres des projets, et ce que fait
- * chaque ouvrier maintenant. Les départements servent aux onglets.
+ * chaque ouvrier maintenant, pour un département.
  */
 export const SITUATION_DIRECTION = gql`
   query situationDirection($departement: String) {
-    directionDepartements
     situationDirection(departement: $departement) {
       instant
       fiabilite {

@@ -35,7 +35,7 @@
   --sit-attention-soft: #fdf3e2;
 
   min-height: 100vh;
-  padding: 16px 24px 32px;
+  padding: 12px 16px 24px;
   box-sizing: border-box;
   background: var(--dir-plane);
   color: var(--dir-ink);
@@ -58,7 +58,7 @@
 
 .sit-title h1 {
   margin: 0;
-  font-size: 20px;
+  font-size: 17px;
   font-weight: 600;
 }
 

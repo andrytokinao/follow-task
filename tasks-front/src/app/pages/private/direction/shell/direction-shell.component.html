@@ -1,0 +1,78 @@
+<div class="dshell" [class.reduite]="reduite">
+
+  <!-- ═══ MENU ═══ -->
+  <aside class="dmenu" aria-label="Direction">
+    <button type="button" class="toggle-btn" (click)="layout.basculerSidebar()"
+            [title]="reduite ? 'Déplier le menu' : 'Replier le menu'">
+      <i class="fas" [ngClass]="reduite ? 'fa-chevron-right' : 'fa-chevron-left'"></i>
+    </button>
+
+    <div class="dbrand">
+      <span class="dbrand-icon"><i class="fas fa-compass"></i></span>
+      <span class="dbrand-text">Direction</span>
+    </div>
+
+    <nav class="nav nav-haut">
+      <a class="nav-item" routerLink="/direction" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"
+         data-tooltip="Accueil · tous les projets">
+        <i class="fas fa-chart-pie icon"></i><span>Accueil</span>
+      </a>
+    </nav>
+
+    <div class="divider"></div>
+
+    <!-- Espace des pages ci-dessous : celui de l'adresse, sinon le dernier consulté. -->
+    <button type="button" class="ws-trigger" [class.ws-inactif]="!espace" [matMenuTriggerFor]="menuEspaces"
+            [title]="espaceDesLiens ? espaceDesLiens.nom : 'Choisir un espace de travail'">
+      <span class="ws-avatar">{{ initiale(espaceDesLiens) }}</span>
+      <span class="ws-info">
+        <span class="ws-prefix">{{ espaceDesLiens?.prefixe || 'Espace' }}</span>
+        <span class="ws-name">{{ espaceDesLiens?.nom || 'Choisir un espace' }}</span>
+      </span>
+      <i class="fas fa-chevron-down ws-chev"></i>
+    </button>
+
+    <nav class="nav">
+      <a class="nav-item" [routerLink]="lienSituation" routerLinkActive="active" data-tooltip="Situation du jour">
+        <i class="fas fa-binoculars icon"></i><span>Situation du jour</span>
+      </a>
+      <a class="nav-item" [routerLink]="lienFiches" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"
+         data-tooltip="Fiches projets">
+        <i class="fas fa-folder-open icon"></i><span>Fiches projets</span>
+      </a>
+      <a class="nav-item" [routerLink]="lienGantt" routerLinkActive="active" data-tooltip="Gantt des projets">
+        <i class="fas fa-stream icon"></i><span>Gantt des projets</span>
+      </a>
+    </nav>
+
+    <div class="nav-bottom">
+      <div class="divider"></div>
+      <a class="nav-item" routerLink="/working" data-tooltip="Espaces de travail">
+        <i class="fas fa-th-large icon"></i><span>Espaces de travail</span>
+      </a>
+      <div class="divider"></div>
+      <div class="compte">
+        <app-user-menu [variante]="reduite ? 'avatar' : 'ligne'"></app-user-menu>
+      </div>
+    </div>
+  </aside>
+
+  <mat-menu #menuEspaces="matMenu" xPosition="after" yPosition="below" class="dshell-espaces">
+    <button mat-menu-item *ngFor="let e of espaces" (click)="choisirEspace(e)"
+            [class.selected]="e.prefixe === espace?.prefixe">
+      <span class="ws-item">
+        <span class="ws-avatar ws-avatar--sm">{{ initiale(e) }}</span>
+        <span class="ws-info">
+          <span class="ws-prefix">{{ e.prefixe }}</span>
+          <span class="ws-name">{{ e.nom }}</span>
+        </span>
+        <i class="fas fa-check ws-check" *ngIf="e.prefixe === espace?.prefixe"></i>
+      </span>
+    </button>
+  </mat-menu>
+
+  <!-- ═══ PAGE ═══ -->
+  <main class="dcontent">
+    <router-outlet></router-outlet>
+  </main>
+</div>

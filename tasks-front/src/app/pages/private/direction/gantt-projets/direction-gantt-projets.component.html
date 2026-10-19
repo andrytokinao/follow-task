@@ -2,13 +2,8 @@
 
   <header class="gp-topbar">
     <div class="gp-title">
-      <span class="gp-brand"><i class="fas fa-stream"></i></span>
-      <h1>Direction · Gantt des projets</h1>
-    </div>
-    <div class="gp-actions">
-      <a class="gp-link" routerLink="/direction"><i class="fas fa-compass"></i> Fiches projets</a>
-      <a class="gp-link" routerLink="/working"><i class="fas fa-th-large"></i> Espaces de travail</a>
-      <app-user-menu variante="avatar"></app-user-menu>
+      <h1>Gantt des projets<span class="gp-espace" *ngIf="espace"> · {{ espace.nom }}</span></h1>
+      <span class="gp-count" *ngIf="!chargement && !erreur">{{ projets.length }} projet(s) en cours</span>
     </div>
   </header>
 
@@ -24,16 +19,6 @@
 
     <!-- ═══ FILTRES : une rangée au-dessus du diagramme ═══ -->
     <div class="gp-filtres">
-      <nav class="gp-tabs" aria-label="Départements">
-        <button type="button" class="gp-tab" [class.active]="departement === null" (click)="choisirDepartement(null)">
-          Tous <span class="gp-count">{{ nombreProjets(null) }}</span>
-        </button>
-        <button type="button" class="gp-tab" *ngFor="let dep of departements"
-                [class.active]="departement === dep" (click)="choisirDepartement(dep)">
-          {{ dep }} <span class="gp-count">{{ nombreProjets(dep) }}</span>
-        </button>
-      </nav>
-
       <div class="gp-periode">
         <button type="button" class="gp-btn" (click)="deplacer(-1)" title="Période précédente" aria-label="Période précédente">
           <i class="fas fa-chevron-left"></i>
@@ -71,7 +56,7 @@
 
     <div class="gp-state" *ngIf="!blocs.length">
       <i class="fas fa-folder-open"></i>
-      Aucun projet en cours dans ce département.
+      Aucun projet en cours dans cet espace.
     </div>
 
     <div class="gp-scroll" *ngIf="blocs.length" (scroll)="quitter()">
