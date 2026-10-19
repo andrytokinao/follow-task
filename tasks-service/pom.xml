@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.kinga</groupId>
     <artifactId>follow-task</artifactId>
-    <version>2.0-SNAPSHOT</version>
+    <version>2.0.18</version>
     <name>paikady</name>
     <description>paikady</description>
 
@@ -255,20 +255,20 @@
                         <phase>generate-resources</phase>
                     </execution>
 
-                    <!-- 4d. Capacitor sync Android : à faire manuellement en local
+                    <!-- 4d. Capacitor sync Android : Ã  faire manuellement en local
                          avant chaque release Android (npx cap sync android) -->
 
                 </executions>
             </plugin>
 
-            <!-- 5. Antrun : zipper le build Angular pour OTA + générer l'APK Android -->
+            <!-- 5. Antrun : zipper le build Angular pour OTA + gÃ©nÃ©rer l'APK Android -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>3.1.0</version>
                 <executions>
 
-                    <!-- 5a. Créer le ZIP OTA pour les mises à jour mobiles -->
+                    <!-- 5a. CrÃ©er le ZIP OTA pour les mises Ã  jour mobiles -->
                     <execution>
                         <id>zip-angular-for-ota</id>
                         <phase>prepare-package</phase>
@@ -283,7 +283,7 @@
                         </configuration>
                     </execution>
 
-                    <!-- 5b. Générer l'APK Android debug via Gradle (commenté) -->
+                    <!-- 5b. GÃ©nÃ©rer l'APK Android debug via Gradle (commentÃ©) -->
                     <!--<execution>
                         <id>build-android-apk</id>
                         <phase>package</phase>
@@ -334,7 +334,7 @@
         </profile>
 
         <!--
-            Profile pour générer uniquement le JAR sans APK ni Capacitor sync (CI/CD serveur).
+            Profile pour gÃ©nÃ©rer uniquement le JAR sans APK ni Capacitor sync (CI/CD serveur).
             Usage : mvn package -P server-only
         -->
         <profile>
@@ -342,7 +342,7 @@
             <build>
                 <plugins>
 
-                    <!-- Désactive le cap sync Android -->
+                    <!-- DÃ©sactive le cap sync Android -->
                     <plugin>
                         <groupId>com.github.eirslett</groupId>
                         <artifactId>frontend-maven-plugin</artifactId>
@@ -354,7 +354,7 @@
                         </executions>
                     </plugin>
 
-                    <!-- Désactive la génération de l'APK Android -->
+                    <!-- DÃ©sactive la gÃ©nÃ©ration de l'APK Android -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-antrun-plugin</artifactId>
