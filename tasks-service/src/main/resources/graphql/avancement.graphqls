@@ -1,0 +1,25 @@
+# Avancement automatique (DT-007) : le statut d'une tâche suit son planning.
+#
+# Chaque statut de flux peut être rattaché à une étape. Quand un créneau d'une
+# tâche est enregistré, la tâche passe au statut de son flux qui porte l'étape
+# indiquée par le planning : EN_COURS dès le premier pourcentage, A_VALIDER à
+# 100 %. Seulement en avançant, et jamais depuis BLOQUE, A_VALIDER ou TERMINE.
+
+enum EtapeAvancement {
+    A_FAIRE
+    EN_COURS
+    BLOQUE
+    A_VALIDER
+    TERMINE
+}
+
+extend type Status {
+    # Null : le statut n'a pas d'étape, la synchronisation ne le choisit
+    # jamais et ne touche pas aux tâches qui l'ont.
+    etapeAvancement: EtapeAvancement
+}
+
+extend type Mutation {
+    # etape null : détache le statut de son étape.
+    definirEtapeAvancement(statusId: Int!, etape: EtapeAvancement): Status
+}
