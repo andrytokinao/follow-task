@@ -94,6 +94,32 @@ export class FenetreGantt {
     }
   }
 
+  /** Fin (exclue) de la case qui commence à `seau`. */
+  finDeCase(seau: number): number {
+    switch (this.echelle) {
+      case 'jour': return plusJours(seau, 1);
+      case 'semaine': return plusJours(seau, 7);
+      case 'mois': return plusMois(seau, 1);
+    }
+  }
+
+  /** « lun. 13 oct. », « S42 · 12 oct. – 18 oct. » ou « octobre 2026 ». */
+  libelleCase(seau: number): string {
+    const date = (d: number, options: Intl.DateTimeFormatOptions) => new Date(d).toLocaleDateString('fr-FR', options);
+    switch (this.echelle) {
+      case 'jour': return date(seau, {weekday: 'short', day: 'numeric', month: 'short'});
+      case 'semaine':
+        return `S${numeroSemaine(seau)} · ${date(seau, {day: 'numeric', month: 'short'})} – `
+          + date(plusJours(seau, 6), {day: 'numeric', month: 'short'});
+      case 'mois': return date(seau, {month: 'long', year: 'numeric'});
+    }
+  }
+
+  /** Case de l'axe à l'écran, rognée à la fenêtre. */
+  segmentDeCase(seau: number): Segment | null {
+    return this.segment(seau, this.finDeCase(seau));
+  }
+
   /** Deux cases se suivent-elles ? Au jour près, un week-end entre les deux ne compte pas. */
   seSuivent(seau: number, suivant: number): boolean {
     switch (this.echelle) {

@@ -17,6 +17,8 @@ import {ActivitesGantt, placerEvenements} from './gantt-evenements';
 import {construireBlocs, indexerChamps} from './gantt-projets.constructeur';
 import {BlocGantt, ChampGantt, LigneGantt, PartieGantt, PlanGantt, RepereGantt, Serie} from './gantt-projets.model';
 import {PAR_TACHE, Regroupement, REGROUPEMENTS} from './gantt-regroupement';
+import {CaseEffectif, effectifsParProjet} from './gantt-effectifs';
+import {CasePresence, presencesParCase} from './gantt-presences';
 
 /** Géométrie d'une ligne de tâche, en pixels : voir la feuille de styles. */
 const HAUT_CADRE = 8;
@@ -87,6 +89,10 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
   activites = ActivitesGantt.AUCUNE;
   /** Nombre de personnes au travail sur la période, par projet. */
   effectifs = new Map<number, number>();
+  /** Personnes au travail case par case (jour, semaine, mois), par projet. */
+  effectifsParCase = new Map<number, CaseEffectif[]>();
+  /** Rangée « Sans planning » de l'en-tête. */
+  presences: CasePresence[] = [];
   axe: AxeGantt = {groupes: [], graduations: [], weekends: []};
   /** Position du trait « aujourd'hui » ; null hors de la fenêtre. */
   aujourdhui: number | null = null;
@@ -106,6 +112,8 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
   /** Derniers événements reçus : reposés tels quels quand seul le regroupement change. */
   private evenements: EventApp[] = [];
   private ligneDeTache = new Map<number, string>();
+  private projetDeTache = new Map<number, number>();
+  private abonnementPresences?: Subscription;
   private readonly intervenants = new IntervenantsGantt();
   private abonnement?: Subscription;
   private abonnementMembres?: Subscription;
@@ -143,6 +151,7 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
     this.abonnement?.unsubscribe();
     this.abonnementMembres?.unsubscribe();
     this.abonnementEspace?.unsubscribe();
+    this.abonnementPresences?.unsubscribe();
   }
 
   // ---------------------------------------------------------------- commandes
@@ -228,6 +237,25 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
     this.construire();
     this.chargerMembres();
     this.chercher();
+    this.chargerPresences();
+  }
+
+  /**
+   * Ouvriers de l'espace sans planning sur la fenêtre. Ne dépend ni des
+   * personnes choisies ni du regroupement : c'est toute l'équipe.
+   */
+  private chargerPresences(): void {
+    this.abonnementPresences?.unsubscribe();
+    this.presences = [];
+    if (!this.espace) {
+      return;
+    }
+    const fenetre = this.fenetre;
+    this.abonnementPresences = this.directionService.presences(this.espace.nom,
+      versIso(fenetre.debut).substring(0, 10), versIso(fenetre.fin).substring(0, 10))
+      // Sans elle, le diagramme reste utile.
+      .pipe(catchError(() => of([])))
+      .subscribe(jours => this.presences = presencesParCase(jours, fenetre));
   }
 
   private construire(): void {
@@ -244,6 +272,9 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
     // Chaque tâche mène à sa ligne : c'est par là que ses événements la rejoignent.
     this.ligneDeTache = new Map(this.blocs.flatMap(bloc =>
       bloc.lignes.flatMap(l => l.taches.map(tache => [tache.id as number, l.cle] as [number, string]))));
+    // Et à son projet : l'effectif par jour se compte par projet.
+    this.projetDeTache = new Map(this.blocs.flatMap(bloc =>
+      bloc.lignes.flatMap(l => l.taches.map(tache => [tache.id as number, bloc.projet.id as number] as [number, number]))));
   }
 
   /**
@@ -282,6 +313,7 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
     this.activites = placerEvenements(evenements, this.fenetre, Date.now(), tacheId => this.ligneDeTache.get(tacheId));
     this.effectifs = new Map(this.blocs.map(bloc =>
       [bloc.projet.id as number, this.activites.personnes(bloc.lignes.map(l => l.cle)).length]));
+    this.effectifsParCase = effectifsParProjet(evenements, this.fenetre, tacheId => this.projetDeTache.get(tacheId));
     this.intervenants.retenir(evenements);
     this.taches = this.intervenants.completer(this.blocs.flatMap(bloc => bloc.projet.children ?? []));
   }
@@ -310,6 +342,11 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
       + (cadre.sansEcheance ? 'sans deadline : étendue des séances' : 'démarrage → deadline')
       + ` · ${ligne.avancement} % avancé`
       + (ligne.retard ? ` · ${ligne.retard.jours} j de retard` : '')));
+  }
+
+  /** Une case d'effectif ou de présence : qui, ce jour-là. */
+  survolerCase(cellule: CaseEffectif | CasePresence, event: MouseEvent): void {
+    this.montrer(event, bulleSimple(cellule.titre, cellule.detail));
   }
 
   survolerRepere(repere: RepereGantt, event: MouseEvent): void {

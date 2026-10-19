@@ -63,6 +63,9 @@
       <li><span class="lg lg-plan"></span> Planifié (séances à venir), par personne</li>
       <li><span class="lg lg-retard"></span> Retard</li>
       <li><span class="pastille"><i class="fas fa-user"></i> 2</span> Personnes en même temps</li>
+      <li><span class="lg-effectif">3</span> Personnes au travail sur le projet, par case</li>
+      <li><span class="lg-presence presence-absents">2</span><span class="lg-presence presence-incomplets">1</span>
+        Sans planning : aucune activité, ou planning incomplet (en-tête)</li>
       <li *ngFor="let c of champs"><span class="lg lg-champ" [style.background]="c.couleur"></span> {{ c.nom }}</li>
     </ul>
 
@@ -94,6 +97,10 @@
                 </option>
               </select>
             </label>
+            <!-- En face de la rangée du bas de l'axe. -->
+            <span class="presence-libelle" title="Ouvriers de l'espace sans activité renseignée (rouge), ou au planning incomplet (orange)">
+              <i class="fas fa-user-slash" aria-hidden="true"></i> Sans planning
+            </span>
           </div>
           <div class="gp-axe" [style.width.px]="fenetre.largeur">
             <div class="axe-rang axe-groupes">
@@ -105,6 +112,21 @@
             <div class="axe-rang">
               <span class="axe-grad" *ngFor="let g of axe.graduations" [class.aujourdhui]="g.aujourdhui"
                     [style.left.px]="g.gauche" [style.width.px]="g.largeur">{{ g.libelle }}</span>
+            </div>
+            <!-- Sans planning : absents en rouge, sinon incomplets en orange, sinon ✓.
+                 Le détail (qui) au survol. Jours à venir et non ouvrables : vides. -->
+            <div class="axe-rang axe-presences">
+              <span class="presence" *ngFor="let c of presences"
+                    [class.presence-absents]="c.absents" [class.presence-incomplets]="!c.absents && c.incomplets"
+                    [class.presence-ok]="!c.absents && !c.incomplets"
+                    [style.left.px]="c.gauche" [style.width.px]="c.largeur"
+                    (mouseenter)="survolerCase(c, $event)" (mousemove)="suivre($event)" (mouseleave)="quitter()">
+                <ng-container *ngIf="c.absents; else sansAbsent">{{ c.absents }}</ng-container>
+                <ng-template #sansAbsent>
+                  <ng-container *ngIf="c.incomplets; else complet">{{ c.incomplets }}</ng-container>
+                </ng-template>
+                <ng-template #complet><i class="fas fa-check" aria-label="Planning complet"></i></ng-template>
+              </span>
             </div>
           </div>
         </div>
@@ -131,6 +153,9 @@
                 <span class="projet-phase" *ngIf="bloc.projet.phaseCourante as phase" title="Phase en cours">{{ phase.name }}</span>
                 <span class="projet-meta">
                   {{ bloc.projet.issueKey }} · {{ bloc.nombreTaches }} tâche(s) · {{ bloc.avancement }} % avancé
+                  <ng-container *ngIf="effectifs.get(bloc.projet.id!) as effectif">
+                    · <i class="fas fa-user" title="Personnes sur la période"></i> {{ effectif }}
+                  </ng-container>
                   <span class="en-retard" *ngIf="bloc.enRetard">
                     · <i class="fas fa-exclamation-triangle"></i> {{ bloc.enRetard }} en retard
                   </span>
@@ -143,10 +168,11 @@
                     [class.sans-echeance]="bloc.cadre?.sansEcheance"></span>
               <span class="projet-rempli" *ngIf="bloc.rempli as r" [style.left.px]="r.gauche" [style.width.px]="r.largeur"
                     [class.coupe-gauche]="r.coupeGauche"></span>
-              <span class="pastille pastille-projet" *ngIf="effectifs.get(bloc.projet.id!) as effectif"
-                    [style.left.px]="aujourdhui !== null ? aujourdhui - 18 : 8"
-                    [title]="effectif + ' personne(s) sur la période'">
-                <i class="fas fa-user"></i> {{ effectif }}
+              <!-- Personnes au travail sur le projet, case par case ; qui, au survol. -->
+              <span class="effectif" *ngFor="let c of effectifsParCase.get(bloc.projet.id!)"
+                    [style.left.px]="c.gauche" [style.width.px]="c.largeur"
+                    (mouseenter)="survolerCase(c, $event)" (mousemove)="suivre($event)" (mouseleave)="quitter()">
+                {{ c.nombre }}
               </span>
             </div>
           </div>

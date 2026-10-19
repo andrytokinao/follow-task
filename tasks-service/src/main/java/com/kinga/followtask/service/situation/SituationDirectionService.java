@@ -7,17 +7,14 @@ import com.kinga.followtask.entity.PlanningEvent;
 import com.kinga.followtask.entity.Project;
 import com.kinga.followtask.entity.UserApp;
 import com.kinga.followtask.repository.EventRepository;
-import com.kinga.followtask.repository.ProjectRepository;
-import com.kinga.followtask.repository.UserRepository;
 import com.kinga.followtask.service.DirectionService;
+import com.kinga.followtask.service.situation.OuvriersSuivis.Ouvrier;
 import com.kinga.followtask.service.rappel.Couverture;
 import com.kinga.followtask.service.rappel.HorairesTravail;
 import com.kinga.followtask.service.rappel.PlagesPlanifiees;
-import com.kinga.followtask.service.rappel.PopulationOuvriers;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -26,9 +23,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -42,27 +37,21 @@ import java.util.stream.Collectors;
 @Service
 public class SituationDirectionService {
 
-    private final UserRepository userRepository;
-    private final ProjectRepository projectRepository;
+    private final OuvriersSuivis ouvriersSuivis;
     private final EventRepository eventRepository;
-    private final PopulationOuvriers population;
     private final HorairesTravail horaires;
     private final MesureFiabilite mesureFiabilite;
     private final ChiffresDirection chiffresDirection;
     private final Duration seuil;
 
-    public SituationDirectionService(UserRepository userRepository,
-                                     ProjectRepository projectRepository,
+    public SituationDirectionService(OuvriersSuivis ouvriersSuivis,
                                      EventRepository eventRepository,
-                                     PopulationOuvriers population,
                                      HorairesTravail horaires,
                                      MesureFiabilite mesureFiabilite,
                                      ChiffresDirection chiffresDirection,
                                      @Value("${rappel-planning.seuil-minutes:15}") long seuilMinutes) {
-        this.userRepository = userRepository;
-        this.projectRepository = projectRepository;
+        this.ouvriersSuivis = ouvriersSuivis;
         this.eventRepository = eventRepository;
-        this.population = population;
         this.horaires = horaires;
         this.mesureFiabilite = mesureFiabilite;
         this.chiffresDirection = chiffresDirection;
@@ -76,7 +65,7 @@ public class SituationDirectionService {
         Optional<LocalDate> veille = horaires.jourOuvrablePrecedent(aujourdhui);
         boolean enHoraires = horaires.enHoraires(maintenant);
 
-        List<Ouvrier> ouvriers = ouvriers(departement);
+        List<Ouvrier> ouvriers = ouvriersSuivis.de(departement);
         Map<String, List<PlanningEvent>> plannings = plannings(ouvriers,
                 veille.orElse(aujourdhui).atStartOfDay(), aujourdhui.plusDays(1).atStartOfDay());
 
@@ -98,29 +87,6 @@ public class SituationDirectionService {
         FiabiliteDTO fiabilite = mesureFiabilite.mesurer(etats, veilles, enHoraires);
         ChiffresDirection.Resultat projets = chiffresDirection.calculer(departement);
         return new SituationDirectionDTO(maintenant, fiabilite, projets.chiffres(), projets.aTraiter(), personnes);
-    }
-
-    /** Un ouvrier suivi et les espaces ou il est assignable. */
-    private record Ouvrier(UserApp user, List<Project> espaces) {
-    }
-
-    private List<Ouvrier> ouvriers(String departement) {
-        Map<String, Project> espacesParPrefixe = projectRepository.findAll().stream()
-                .filter(p -> p.getPrefix() != null)
-                .collect(Collectors.toMap(Project::getPrefix, Function.identity(), (a, b) -> a));
-        List<Ouvrier> ouvriers = new ArrayList<>();
-        for (UserApp user : userRepository.findAllActifs()) {
-            List<Project> espaces = population.espacesAssignables(user).stream()
-                    .map(espacesParPrefixe::get)
-                    .filter(Objects::nonNull)
-                    .toList();
-            boolean suivi = !espaces.isEmpty() && (!StringUtils.hasText(departement)
-                    || espaces.stream().anyMatch(e -> departement.equals(DirectionService.nomDepartement(e))));
-            if (suivi) {
-                ouvriers.add(new Ouvrier(user, espaces));
-            }
-        }
-        return ouvriers;
     }
 
     /** Activites de tous les ouvriers en une requete, rangees par personne. */

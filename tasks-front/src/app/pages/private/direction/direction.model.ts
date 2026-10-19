@@ -16,6 +16,25 @@ export interface EspaceDirection {
   prefixe: string;
 }
 
+/** Un ouvrier dont le planning du jour est vide ou incomplet. */
+export interface PresencePersonne {
+  personne: User;
+  minutesAttendues: number;
+  minutesCouvertes: number;
+}
+
+/**
+ * Planning des ouvriers d'un espace un jour ouvrable passé, ou aujourd'hui
+ * jusqu'à maintenant. « Absent » : aucune activité renseignée.
+ */
+export interface PresenceJour {
+  /** yyyy-MM-dd */
+  jour: string;
+  ouvriers: number;
+  absents: PresencePersonne[];
+  incomplets: PresencePersonne[];
+}
+
 /** Un projet : demande racine en cours, avec les chiffres de son rapport. */
 export interface ProjetDirection {
   id: number;

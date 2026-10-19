@@ -16,6 +16,18 @@ const UTILISATEUR = `
   photo
 `;
 
+/** Ouvriers sans planning, jour par jour : la rangée « Sans planning » du Gantt. */
+export const PRESENCES_DIRECTION = gql`
+  query presencesDirection($departement: String!, $debut: String!, $fin: String!) {
+    presencesDirection(departement: $departement, debut: $debut, fin: $fin) {
+      jour
+      ouvriers
+      absents { minutesAttendues minutesCouvertes personne { ${UTILISATEUR} } }
+      incomplets { minutesAttendues minutesCouvertes personne { ${UTILISATEUR} } }
+    }
+  }
+`;
+
 /** Espaces de travail du cockpit : le menu de gauche, et l'espace de l'adresse. */
 export const DIRECTION_ESPACES = gql`
   query directionEspaces {

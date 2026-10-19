@@ -2,13 +2,14 @@ import {Injectable} from '@angular/core';
 import {Apollo} from 'apollo-angular';
 import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
-import {DetailProjet, EspaceDirection, ProjetDirection, ProjetGantt, TacheGantt, TacheProjet} from './direction.model';
+import {DetailProjet, EspaceDirection, PresenceJour, ProjetDirection, ProjetGantt, TacheGantt, TacheProjet} from './direction.model';
 import {
   DIRECTION_ESPACES,
   DIRECTION_GANTT_PROJET,
   DIRECTION_GANTT_PROJETS,
   DIRECTION_PROJETS,
   DIRECTION_TACHES_PROJET,
+  PRESENCES_DIRECTION,
   SITUATION_DIRECTION
 } from './direction.operations';
 import {SituationDirection} from './situation/situation.model';
@@ -67,6 +68,18 @@ export class DirectionService {
       variables: {departement},
       fetchPolicy: 'network-only'
     }).pipe(map(res => res.data?.situationDirection ?? null));
+  }
+
+  /**
+   * Ouvriers du département sans planning, jour par jour, de `debut` (inclus)
+   * à `fin` (exclu), dates `yyyy-MM-dd`. Jours à venir et non ouvrables absents.
+   */
+  presences(departement: string, debut: string, fin: string): Observable<PresenceJour[]> {
+    return this.apollo.query<any>({
+      query: PRESENCES_DIRECTION,
+      variables: {departement, debut, fin},
+      fetchPolicy: 'network-only'
+    }).pipe(map(res => res.data?.presencesDirection ?? []));
   }
 
   /** Projets en cours du département avec leurs tâches et leurs dates, pour le Gantt de direction. */

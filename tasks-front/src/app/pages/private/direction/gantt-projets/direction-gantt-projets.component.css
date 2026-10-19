@@ -327,7 +327,8 @@
   position: sticky;
   top: 0;
   z-index: 5;
-  height: 62px;
+  /* groupes 36 + graduations 26 + sans planning 22 */
+  height: 84px;
   background: var(--dir-surface);
   border-bottom: 1px solid var(--dir-hairline);
 }
@@ -335,7 +336,7 @@
 .gp-head .gp-nom {
   z-index: 6;
   align-items: flex-end;
-  padding-bottom: 8px;
+  padding-bottom: 30px;
   font-size: 12px;
   font-weight: 600;
   color: var(--dir-ink-3);
@@ -796,5 +797,100 @@
   align-items: center;
   justify-content: center;
   font-size: 13px;
+  color: var(--dir-accent);
+}
+
+/* ═══ SANS PLANNING (en-tête) ═══
+   Statuts réservés : rouge = aucune activité, orange = incomplet, toujours avec
+   le nombre et le détail au survol ; jamais la couleur seule. */
+.presence-libelle {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 3px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--dir-ink-3);
+  cursor: help;
+}
+
+.axe-presences {
+  height: 22px;
+  border-top: 1px dashed var(--dir-hairline);
+}
+
+.presence {
+  position: absolute;
+  top: 3px;
+  height: 16px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  font-size: 10.5px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  cursor: help;
+}
+
+.presence-absents {
+  background: #fdeeee;
+  color: #b42318;
+}
+
+.presence-incomplets {
+  background: #fdf3e2;
+  color: #a15c07;
+}
+
+.presence-ok {
+  color: #15803d;
+  font-size: 9px;
+}
+
+.lg-presence {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 14px;
+  margin-right: 2px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+/* ═══ EFFECTIF PAR CASE (ligne du projet) ═══ */
+.effectif {
+  position: absolute;
+  top: 40px;
+  height: 16px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-left: 1px solid rgba(24, 95, 165, 0.15);
+  font-size: 10.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--dir-accent);
+  cursor: help;
+}
+
+.lg-effectif {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 14px;
+  border-left: 1px solid rgba(24, 95, 165, 0.3);
+  font-size: 10px;
+  font-weight: 600;
   color: var(--dir-accent);
 }
