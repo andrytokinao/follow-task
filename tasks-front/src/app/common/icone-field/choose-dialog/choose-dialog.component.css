@@ -1,14 +1,71 @@
-
+.recherche {
+  margin-bottom: 10px;
+}
+.chargement,
+.vide {
+  padding: 20px;
+  color: #888888;
+  text-align: center;
+}
+.vide {
+  width: 100%;
+}
+.selecteur {
+  display: flex;
+  gap: 10px;
+  height: 60vh;
+}
+.selecteur.en-menu {
+  height: 360px;
+}
+.selecteur.en-menu .categories {
+  flex-basis: 140px;
+}
+.categories {
+  flex: 0 0 190px;
+  overflow-y: auto;
+  border-right: 1px solid #eeeeee;
+  padding-right: 6px;
+}
+.categorie {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 8px;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #333333;
+  cursor: pointer;
+  text-decoration: none;
+}
+.categorie:hover {
+  background-color: #f1f1f1;
+}
+.categorie.active {
+  background-color: #e3ecfa;
+  color: #1a56db;
+  font-weight: 600;
+}
+.nombre {
+  font-size: 11px;
+  color: #999999;
+}
 .icon-list {
+  flex: 1;
   display: flex;
   flex-wrap: wrap;
-  max-width: 400px;
-  overflow-y: scroll;
+  align-content: flex-start;
+  overflow-y: auto;
 }
+
 .icon-item {
-  padding: 20px;
-  text-align: center;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin: 3px;
+  border-radius: 4px;
   color: #333333;
   cursor: pointer;
 }

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DT-010 — Sélecteur d'icônes complet, par catégorie</title>
+  <link rel="stylesheet" href="assets/doc.css">
+  <style>
+    .mq-dialog { max-width: 520px; border: 1px solid #e4e7ec; border-radius: 10px; background: #fff; font-size: 12px; overflow: hidden; }
+    .mq-dialog .tete { padding: 8px 12px; border-bottom: 1px solid #eef0f3; font-weight: 600; }
+    .mq-dialog .rech { margin: 8px 12px; height: 24px; border: 1px solid #d0d5dd; border-radius: 6px; color: #98a2b3; padding: 3px 8px; }
+    .mq-dialog .corps { display: flex; height: 130px; margin: 0 12px 12px; gap: 8px; }
+    .mq-dialog .cats { width: 130px; border-right: 1px solid #eef0f3; }
+    .mq-dialog .cats div { padding: 3px 6px; border-radius: 4px; display: flex; justify-content: space-between; }
+    .mq-dialog .cats .on { background: #e3ecfa; color: #1a56db; font-weight: 600; }
+    .mq-dialog .ico { flex: 1; display: flex; flex-wrap: wrap; align-content: flex-start; gap: 4px; }
+    .mq-dialog .ico span { width: 26px; height: 26px; border-radius: 4px; background: #f2f4f7; }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <header class="doc-header">
+    <span class="doc-ref">DT-010</span>
+    <h1>Sélecteur d'icônes complet, par catégorie</h1>
+    <p class="subtitle">Toutes les icônes gratuites de Font Awesome 6.7.2 (1 895), rangées en 70 catégories, avec recherche.</p>
+    <table class="meta">
+      <tr><td>Référence</td><td>DT-010 (Document Technique n° 010)</td></tr>
+      <tr><td>Statut</td><td><strong>Réalisé</strong></td></tr>
+      <tr><td>Version de l'application</td><td>2.0.19</td></tr>
+      <tr><td>Date</td><td>19 octobre 2026</td></tr>
+      <tr><td>Commits liés</td><td>titres contenant « (DT-010) » : <code>git log --grep "DT-010"</code></td></tr>
+    </table>
+  </header>
+
+  <!-- ================================================================== -->
+  <h2 id="besoin">1. Besoin</h2>
+  <p>Le sélecteur (<code>app-choose-dialog</code>) proposait 63 icônes écrites à la main, sans classement. Il fallait
+    toutes les icônes possibles, groupées par catégorie, sans changer de version de Font Awesome si possible.</p>
+
+  <!-- ================================================================== -->
+  <h2 id="comportement">2. Comportement</h2>
+  <ul>
+    <li>Catégories à gauche (libellés traduits, nombre d'icônes) ; <strong>« Courantes »</strong> en tête reprend
+      l'ancienne liste ; « Marques » en fin.</li>
+    <li>Recherche sur toutes les catégories, par nom et mots-clés Font Awesome (en anglais).</li>
+    <li>Ouvert en modale (<code>app-icone-field</code>, taille <code>lg</code>) ou dans un <code>mat-menu</code>
+      (<code>issutype-form2</code>, <code>[enMenu]="true"</code> : sans en-tête, menu élargi).</li>
+  </ul>
+  <div class="mq-dialog">
+    <div class="tete">Choisir une icône</div>
+    <div class="rech">Rechercher…</div>
+    <div class="corps">
+      <div class="cats">
+        <div class="on">Courantes <span>62</span></div><div>Accessibilité <span>23</span></div>
+        <div>Achats <span>61</span></div><div>Alertes <span>9</span></div><div>…</div>
+      </div>
+      <div class="ico"><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    </div>
+  </div>
+
+  <!-- ================================================================== -->
+  <h2 id="architecture">3. Architecture du code</h2>
+  <svg viewBox="0 0 640 110" width="100%" role="img" aria-label="Génération du catalogue">
+    <g font-size="12" font-family="sans-serif">
+      <rect x="5" y="30" width="170" height="50" rx="8" fill="#eef4fb" stroke="#185FA5"/>
+      <text x="90" y="52" text-anchor="middle">fontawesome-free</text>
+      <text x="90" y="68" text-anchor="middle">metadata/*.yml</text>
+      <rect x="235" y="30" width="170" height="50" rx="8" fill="#fff7e6" stroke="#b54708"/>
+      <text x="320" y="52" text-anchor="middle">generer-catalogue-</text>
+      <text x="320" y="68" text-anchor="middle">icones.cjs</text>
+      <rect x="465" y="30" width="170" height="50" rx="8" fill="#ecfdf3" stroke="#067647"/>
+      <text x="550" y="52" text-anchor="middle">catalogue-icones</text>
+      <text x="550" y="68" text-anchor="middle">.data.ts (chunk différé)</text>
+      <path d="M175 55 H230 M405 55 H460" stroke="#667085" stroke-width="1.5" marker-end="url(#f)"/>
+      <defs><marker id="f" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+        <path d="M0,0 L8,4 L0,8 z" fill="#667085"/></marker></defs>
+    </g>
+  </svg>
+  <table class="data">
+    <tr><th>Fichier</th><th>Rôle</th></tr>
+    <tr><td><code>tasks-front/scripts/generer-catalogue-icones.cjs</code></td><td>Lit <code>icons.yml</code> et
+      <code>categories.yml</code>, écrit le catalogue. À relancer après une mise à jour de Font Awesome :
+      <code>node scripts/generer-catalogue-icones.cjs</code></td></tr>
+    <tr><td><code>choose-dialog/catalogue-icones.data.ts</code></td><td>Généré, ne pas modifier : icônes
+      (code, style, mots-clés) et catégories</td></tr>
+    <tr><td><code>choose-dialog/catalogue-icones.util.ts</code></td><td>Construction des catégories, recherche</td></tr>
+    <tr><td><code>choose-dialog/choose-dialog.component.*</code></td><td>Catalogue chargé par <code>import()</code> à
+      l'ouverture (≈ 210 ko hors paquet principal) ; n'émet que <code>{typeIcone, value, id}</code></td></tr>
+  </table>
+
+  <!-- ================================================================== -->
+  <h2 id="regles">4. Règles</h2>
+  <ul>
+    <li><strong>Une icône par code Unicode</strong> : <code>Icone.id</code> (le caractère) est la clé primaire côté
+      serveur. Les variantes <em>regular</em> partagent le code de la <em>solid</em> et l'écraseraient : seules
+      <em>solid</em> et <em>brands</em> sont retenues.</li>
+    <li>Valeur enregistrée : <code>fa-solid fa-…</code> ou <code>fa-brands fa-…</code>. Les icônes déjà enregistrées
+      (<code>fa fa-…</code>) gardent le même glyphe.</li>
+    <li>Font Awesome 7 non installé : version majeure, risque pour les icônes existantes ; la 6.7.2 suffit.</li>
+  </ul>
+
+  <footer>follow-task · DT-010 · sélecteur d'icônes</footer>
+</div>
+</body>
+</html>

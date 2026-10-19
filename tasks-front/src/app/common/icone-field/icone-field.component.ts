@@ -35,7 +35,7 @@ export class IconeFieldComponent {
     this.openDialog();
   }
   openDialog() {
-      const dialogRef = this.modalService.open(ChooseDialogComponent, );
+      const dialogRef = this.modalService.open(ChooseDialogComponent, {size: 'lg'});
       dialogRef.result.then((res) => {
         this.selectedIcon = res.icone;
         this.iconSelected.emit(res.icone);

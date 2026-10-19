@@ -187,9 +187,9 @@
             <span>{{ selectedIcone?.value || 'Choisir' }}</span>
             <mat-icon class="arrow">expand_more</mat-icon>
           </button>
-          <mat-menu #iconMenu="matMenu">
+          <mat-menu #iconMenu="matMenu" class="icon-menu-panel">
             <div (click)="$event.stopPropagation()">
-              <app-choose-dialog (iconSelected)="onIconSelected($event)"></app-choose-dialog>
+              <app-choose-dialog [enMenu]="true" (iconSelected)="onIconSelected($event)"></app-choose-dialog>
             </div>
           </mat-menu>
         </div>

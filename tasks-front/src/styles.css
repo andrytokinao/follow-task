@@ -971,3 +971,9 @@ h3 {
   line-height: 1.45;
   padding: 8px 10px;
 }
+
+/* Sélecteur d'icônes (app-choose-dialog) ouvert dans un mat-menu. */
+.mat-mdc-menu-panel.icon-menu-panel {
+  max-width: 560px;
+  width: 560px;
+}

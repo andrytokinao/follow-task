@@ -1,8 +1,28 @@
+<div class="modal-header" *ngIf="!enMenu">
+  <h5 class="modal-title">Choisir une icône</h5>
+  <button type="button" class="btn-close" aria-label="Fermer" (click)="activeModal.dismiss()"></button>
+</div>
 <div class="modal-body">
-  <div class="icon-list" >
-    <a *ngFor="let icon of icons" (click)="selectIcon(icon)" class="icon-item" >
-      <i class="{{icon.value}} fa-2x" aria-hidden="true"></i>
-    </a>
+  <input type="search" class="form-control recherche" placeholder="Rechercher (en anglais : user, task, chart…)"
+         [(ngModel)]="saisie" (ngModelChange)="rechercher()" />
+
+  <div class="chargement" *ngIf="!categories.length">Chargement des icônes…</div>
+
+  <div class="selecteur" [class.en-menu]="enMenu" *ngIf="categories.length">
+    <nav class="categories">
+      <a *ngFor="let categorie of categories" class="categorie"
+         [class.active]="!saisie.trim() && categorie === categorieChoisie"
+         (click)="choisirCategorie(categorie)">
+        {{ categorie.libelle }}
+        <span class="nombre">{{ categorie.icones.length }}</span>
+      </a>
+    </nav>
+
+    <div class="icon-list">
+      <a *ngFor="let icon of iconesAffichees()" (click)="selectIcon(icon)" class="icon-item" [title]="icon.nom">
+        <i class="{{icon.value}} fa-lg" aria-hidden="true"></i>
+      </a>
+      <div class="vide" *ngIf="saisie.trim() && !resultats.length">Aucune icône pour « {{ saisie }} »</div>
+    </div>
   </div>
 </div>
-
