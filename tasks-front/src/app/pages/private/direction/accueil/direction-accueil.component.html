@@ -1,0 +1,133 @@
+<div class="acc-shell">
+
+  <header class="acc-entete">
+    <h1>Tableau de bord<span class="acc-sous-titre"> · tous les espaces de travail</span></h1>
+    <span class="acc-maj" *ngIf="miseAJour">
+      <i class="fas fa-sync-alt" aria-hidden="true"></i> Situation calculée à {{ miseAJour }}
+    </span>
+  </header>
+
+  <div class="acc-etat" *ngIf="chargement">
+    <i class="fas fa-circle-notch fa-spin"></i> Chargement des projets…
+  </div>
+
+  <div class="acc-etat erreur" *ngIf="erreur">
+    <i class="fas fa-plug"></i> Impossible de charger les projets. Rechargez la page.
+  </div>
+
+  <ng-container *ngIf="!chargement && !erreur">
+
+    <!-- ═══ OÙ EN EST-ON : mêmes chiffres que la situation du jour, toute la société ═══ -->
+    <section class="acc-carte" *ngIf="situation" aria-labelledby="acc-titre-chiffres">
+      <h2 id="acc-titre-chiffres" class="acc-titre">Où en est-on</h2>
+      <app-situation-chiffres [chiffres]="situation.chiffres" [aTraiter]="situation.aTraiter"></app-situation-chiffres>
+    </section>
+
+    <!-- ═══ PAR ESPACE DE TRAVAIL ═══ -->
+    <section class="acc-carte" aria-labelledby="acc-titre-espaces">
+      <h2 id="acc-titre-espaces" class="acc-titre">Par espace de travail</h2>
+      <p class="acc-vide" *ngIf="!espaces.length">Aucun espace de travail.</p>
+      <table class="acc-table" *ngIf="espaces.length">
+        <thead>
+        <tr>
+          <th scope="col">Espace</th>
+          <th scope="col" class="num">Projets en cours</th>
+          <th scope="col">Avancement moyen</th>
+          <th scope="col" class="num">Tâches en retard</th>
+          <th scope="col"><span class="sr-only">Ouvrir</span></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let s of espaces; trackBy: parEspace" [class.sans-projet]="!s.nombreProjets">
+          <td>
+            <a class="acc-espace" [routerLink]="s.lien">
+              <span class="acc-avatar">{{ initiale(s.espace.prefixe) }}</span>
+              <span class="acc-espace-texte">
+                <span class="acc-prefixe">{{ s.espace.prefixe }}</span>
+                <span class="acc-nom">{{ s.espace.nom }}</span>
+              </span>
+            </a>
+          </td>
+          <td class="num">{{ s.nombreProjets }}</td>
+          <td>
+            <span class="acc-jauge" *ngIf="s.nombreProjets; else tiret">
+              <span class="meter-track"><span class="meter-fill" [style.width.%]="s.avancementMoyen"></span></span>
+              <span class="acc-pct">{{ s.avancementMoyen }} %</span>
+            </span>
+          </td>
+          <td class="num">
+            <span class="acc-retard" *ngIf="s.tachesEnRetard; else zero">
+              <i class="fas fa-clock" aria-hidden="true"></i> {{ s.tachesEnRetard }}
+              <small>({{ s.projetsEnRetard }} projet(s))</small>
+            </span>
+          </td>
+          <td class="acc-ouvrir">
+            <a [routerLink]="s.lien" title="Fiches projets de {{ s.espace.nom }}">
+              Ouvrir <i class="fas fa-chevron-right" aria-hidden="true"></i>
+            </a>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ═══ TOUS LES PROJETS ═══ -->
+    <section class="acc-carte" aria-labelledby="acc-titre-projets">
+      <h2 id="acc-titre-projets" class="acc-titre">
+        Tous les projets en cours <span class="acc-compte">{{ projets.length }}</span>
+      </h2>
+      <p class="acc-vide" *ngIf="!projets.length">
+        <i class="fas fa-folder-open" aria-hidden="true"></i> Aucun projet en cours.
+      </p>
+      <table class="acc-table" *ngIf="projets.length">
+        <thead>
+        <tr>
+          <th scope="col">Projet</th>
+          <th scope="col">Espace</th>
+          <th scope="col">Statut</th>
+          <th scope="col">Avancement</th>
+          <th scope="col" class="num">Tâches</th>
+          <th scope="col" class="num">En retard</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let l of projets; trackBy: parProjet">
+          <td class="acc-projet">
+            <a *ngIf="l.lien as lien; else sansLien" [routerLink]="lien" [queryParams]="{projet: l.projet.id}"
+               title="Fiche du projet">
+              <span class="acc-cle">{{ l.projet.cle }}</span>
+              <span class="acc-titre-projet">{{ l.projet.nom }}</span>
+            </a>
+            <ng-template #sansLien>
+              <span class="acc-cle">{{ l.projet.cle }}</span>
+              <span class="acc-titre-projet">{{ l.projet.nom }}</span>
+            </ng-template>
+          </td>
+          <td class="acc-muted">{{ l.espace?.nom || l.projet.departement }}</td>
+          <td>
+            <span class="acc-statut" *ngIf="l.projet.statut; else tiret">
+              <span class="acc-puce" [style.background]="l.projet.statut.couleur || '#8a94a6'" aria-hidden="true"></span>
+              {{ l.projet.statut.libelle }}
+            </span>
+          </td>
+          <td>
+            <span class="acc-jauge">
+              <span class="meter-track"><span class="meter-fill" [style.width.%]="l.projet.avancement"></span></span>
+              <span class="acc-pct">{{ l.projet.avancement }} %</span>
+            </span>
+          </td>
+          <td class="num">{{ l.projet.nombreTaches }}</td>
+          <td class="num">
+            <span class="acc-retard" *ngIf="l.projet.tachesEnRetard; else zero">
+              <i class="fas fa-clock" aria-hidden="true"></i> {{ l.projet.tachesEnRetard }}
+            </span>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </section>
+  </ng-container>
+
+  <ng-template #tiret><span class="acc-muted">—</span></ng-template>
+  <ng-template #zero><span class="acc-muted">0</span></ng-template>
+</div>
