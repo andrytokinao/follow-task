@@ -1,11 +1,46 @@
 <div class="gp-shell">
 
-  <header class="gp-topbar">
-    <div class="gp-title">
-      <h1>Gantt des projets<span class="gp-espace" *ngIf="espace"> · {{ espace.nom }}</span></h1>
-      <span class="gp-count" *ngIf="!chargement && !erreur">{{ projets.length }} projet(s) en cours</span>
-    </div>
-  </header>
+  <!-- ═══ UNE SEULE LIGNE au-dessus du diagramme : titre, période, échelle,
+       personnes, légende. Le diagramme garde toute la hauteur restante. ═══ -->
+  <div class="gp-barre">
+    <h1 class="gp-titre" [title]="'Gantt des projets' + (espace ? ' · ' + espace.nom : '')">
+      Gantt<span class="gp-espace" *ngIf="espace"> · {{ espace.nom }}</span>
+      <span class="gp-count" *ngIf="!chargement && !erreur" title="Projets en cours">{{ projets.length }}</span>
+    </h1>
+
+    <ng-container *ngIf="!chargement && !erreur">
+      <div class="gp-periode">
+        <button type="button" class="gp-btn" (click)="deplacer(-1)" title="Période précédente" aria-label="Période précédente">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+        <button type="button" class="gp-btn" (click)="revenirAujourdhui()">Aujourd'hui</button>
+        <button type="button" class="gp-btn" (click)="deplacer(1)" title="Période suivante" aria-label="Période suivante">
+          <i class="fas fa-chevron-right"></i>
+        </button>
+        <span class="gp-dates">{{ fenetre.debut | date:'dd/MM/yy' }} – {{ fenetre.fin - 1 | date:'dd/MM/yy' }}</span>
+        <i class="fas fa-circle-notch fa-spin gp-recherche" *ngIf="recherche" title="Recherche des séances…"></i>
+      </div>
+
+      <div class="gp-echelles" role="group" aria-label="Échelle du temps">
+        <button type="button" *ngFor="let e of echelles" [class.active]="fenetre.echelle === e.valeur"
+                (click)="choisirEchelle(e.valeur)">{{ e.libelle }}</button>
+      </div>
+
+      <!-- Personnes : le filtre des listes de tâches. En choisir une relance la
+           recherche des séances pour elle seule. -->
+      <div class="gp-personnes" title="Personnes">
+        <i class="fas fa-users gp-label" aria-label="Personnes"></i>
+        <app-assignee-filter [issues]="taches" [users]="membres" [selectedIds]="selection"
+                             (selectedIdsChange)="choisirPersonnes($event)"></app-assignee-filter>
+      </div>
+
+      <button type="button" class="gp-btn gp-btn-legende" [class.active]="legendeVisible"
+              (click)="basculerLegende()" [attr.aria-expanded]="legendeVisible"
+              [title]="legendeVisible ? 'Masquer la légende' : 'Afficher la légende'">
+        <i class="fas fa-circle-info"></i> Légende
+      </button>
+    </ng-container>
+  </div>
 
   <div class="gp-state" *ngIf="chargement">
     <i class="fas fa-circle-notch fa-spin"></i> Chargement des projets…
@@ -17,35 +52,9 @@
 
   <ng-container *ngIf="!chargement && !erreur">
 
-    <!-- ═══ FILTRES : une rangée au-dessus du diagramme ═══ -->
-    <div class="gp-filtres">
-      <div class="gp-periode">
-        <button type="button" class="gp-btn" (click)="deplacer(-1)" title="Période précédente" aria-label="Période précédente">
-          <i class="fas fa-chevron-left"></i>
-        </button>
-        <button type="button" class="gp-btn" (click)="revenirAujourdhui()">Aujourd'hui</button>
-        <button type="button" class="gp-btn" (click)="deplacer(1)" title="Période suivante" aria-label="Période suivante">
-          <i class="fas fa-chevron-right"></i>
-        </button>
-        <span class="gp-dates">{{ fenetre.debut | date:'dd/MM/yyyy' }} – {{ fenetre.fin - 1 | date:'dd/MM/yyyy' }}</span>
-        <i class="fas fa-circle-notch fa-spin gp-recherche" *ngIf="recherche" title="Recherche des séances…"></i>
-        <div class="gp-echelles" role="group" aria-label="Échelle du temps">
-          <button type="button" *ngFor="let e of echelles" [class.active]="fenetre.echelle === e.valeur"
-                  (click)="choisirEchelle(e.valeur)">{{ e.libelle }}</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Personnes : le filtre des listes de tâches. En choisir une relance la
-         recherche des séances pour elle seule. -->
-    <div class="gp-personnes">
-      <span class="gp-label">Personnes</span>
-      <app-assignee-filter [issues]="taches" [users]="membres" [selectedIds]="selection"
-                           (selectedIdsChange)="choisirPersonnes($event)"></app-assignee-filter>
-    </div>
-
-    <!-- Légende : aucun état n'est porté par la couleur seule (plein, pointillé, bord épais, libellé). -->
-    <ul class="gp-legende" aria-label="Légende">
+    <!-- Légende, repliée par défaut : aucun état n'est porté par la couleur seule
+         (plein, pointillé, bord épais, libellé). -->
+    <ul class="gp-legende" *ngIf="legendeVisible" aria-label="Légende">
       <li><span class="lg lg-cadre"></span> Tâche : démarrage → deadline (bord épais)</li>
       <li><span class="lg lg-reel"></span> Réalisé (séances passées)</li>
       <li><span class="lg lg-plan"></span> Planifié (séances à venir), par personne</li>

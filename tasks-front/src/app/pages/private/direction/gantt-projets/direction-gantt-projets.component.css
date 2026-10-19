@@ -30,65 +30,16 @@
   --gp-pastille: #0f6e6a;
 }
 
+
+/* La page tient dans l'écran : la barre prend sa hauteur, le diagramme le reste. */
 .gp-shell {
-  min-height: 100vh;
-  padding: 12px 16px 16px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 8px 12px 10px;
   box-sizing: border-box;
   background: var(--dir-plane);
   color: var(--dir-ink);
-}
-
-/* ═══ BARRE DU HAUT ═══ */
-.gp-topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 12px;
-}
-
-.gp-title {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.gp-title h1 {
-  margin: 0;
-  font-size: 17px;
-  font-weight: 600;
-}
-
-.gp-brand {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  background: var(--dir-accent);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 15px;
-}
-
-.gp-actions {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.gp-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--dir-ink-2);
-  text-decoration: none;
-}
-
-.gp-link:hover {
-  color: var(--dir-accent);
 }
 
 .gp-state {
@@ -104,62 +55,39 @@
   color: var(--dir-critical-text);
 }
 
-/* ═══ FILTRES ═══ */
+/* ═══ BARRE : titre, période, échelle, personnes, légende — une seule ligne ═══ */
+.gp-barre {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  margin-bottom: 6px;
+}
+
+.gp-titre {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 .gp-espace {
   color: var(--dir-ink-3);
   font-weight: 500;
 }
 
-.gp-filtres {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 12px 24px;
-  flex-wrap: wrap;
-  margin-bottom: 10px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--dir-hairline);
-}
-
-.gp-tabs {
-  display: flex;
-  gap: 4px;
-  overflow-x: auto;
-}
-
-.gp-tab {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 14px;
-  margin-bottom: -1px;
-  border: 0;
-  border-bottom: 2px solid transparent;
-  background: none;
-  font: inherit;
-  font-size: 13.5px;
-  font-weight: 500;
-  color: var(--dir-ink-2);
-  white-space: nowrap;
-  cursor: pointer;
-}
-
-.gp-tab:hover {
-  color: var(--dir-ink);
-}
-
-.gp-tab.active {
-  color: var(--dir-accent);
-  border-bottom-color: var(--dir-accent);
-}
-
 .gp-count {
-  min-width: 20px;
-  padding: 1px 6px;
+  min-width: 18px;
+  padding: 0 6px;
   border-radius: 999px;
-  background: var(--dir-surface-muted);
+  background: var(--dir-surface);
   border: 1px solid var(--dir-hairline);
   font-size: 11px;
+  font-weight: 500;
   text-align: center;
   color: var(--dir-ink-3);
 }
@@ -167,20 +95,21 @@
 .gp-periode {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding-bottom: 6px;
+  gap: 4px;
 }
 
 .gp-btn,
 .gp-echelles button {
-  padding: 5px 10px;
+  height: 28px;
+  padding: 0 9px;
   border: 1px solid var(--dir-hairline);
-  border-radius: 8px;
+  border-radius: 7px;
   background: var(--dir-surface);
   font: inherit;
   font-size: 12px;
   color: var(--dir-ink-2);
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .gp-btn:hover,
@@ -188,11 +117,21 @@
   background: var(--dir-surface-muted);
 }
 
+.gp-btn.active {
+  background: var(--dir-accent-soft);
+  color: var(--dir-accent);
+}
+
+.gp-btn-legende {
+  margin-left: auto;
+}
+
 .gp-dates {
-  margin: 0 6px;
-  font-size: 12.5px;
+  margin: 0 4px;
+  font-size: 12px;
   font-variant-numeric: tabular-nums;
   color: var(--dir-ink-2);
+  white-space: nowrap;
 }
 
 .gp-recherche {
@@ -202,7 +141,6 @@
 
 .gp-echelles {
   display: inline-flex;
-  margin-left: 8px;
 }
 
 .gp-echelles button {
@@ -212,11 +150,11 @@
 
 .gp-echelles button:first-child {
   border-left-width: 1px;
-  border-radius: 8px 0 0 8px;
+  border-radius: 7px 0 0 7px;
 }
 
 .gp-echelles button:last-child {
-  border-radius: 0 8px 8px 0;
+  border-radius: 0 7px 7px 0;
 }
 
 .gp-echelles button.active {
@@ -229,13 +167,11 @@
 .gp-personnes {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
   gap: 6px;
-  margin-bottom: 8px;
+  min-width: 0;
 }
 
 .gp-label {
-  margin-right: 4px;
   font-size: 12px;
   color: var(--dir-ink-3);
 }
@@ -246,7 +182,8 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 4px 16px;
-  margin: 0 0 10px;
+  margin: 0 0 6px;
+  flex-shrink: 0;
   padding: 0;
   list-style: none;
   font-size: 11.5px;
@@ -292,8 +229,9 @@
 
 /* ═══ DIAGRAMME ═══ */
 .gp-scroll {
-  max-height: calc(100vh - 230px);
-  min-height: 240px;
+  /* Toute la hauteur restante sous la barre (gp-shell en colonne). */
+  flex: 1;
+  min-height: 200px;
   overflow: auto;
   border: 1px solid var(--dir-hairline);
   border-radius: 14px;

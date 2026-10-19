@@ -98,6 +98,10 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
 
   bulle: Bulle | null = null;
 
+  private static readonly CLE_LEGENDE = 'direction-gantt-legende';
+  /** Légende dépliée ; repliée par défaut pour laisser la hauteur au diagramme. */
+  legendeVisible = localStorage.getItem(DirectionGanttProjetsComponent.CLE_LEGENDE) === 'true';
+
   projets: ProjetGantt[] = [];
   /** Derniers événements reçus : reposés tels quels quand seul le regroupement change. */
   private evenements: EventApp[] = [];
@@ -170,6 +174,11 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
   choisirPersonnes(ids: string[]): void {
     this.selection = ids;
     this.chercher();
+  }
+
+  basculerLegende(): void {
+    this.legendeVisible = !this.legendeVisible;
+    localStorage.setItem(DirectionGanttProjetsComponent.CLE_LEGENDE, String(this.legendeVisible));
   }
 
   basculerProjet(bloc: BlocGantt): void {
