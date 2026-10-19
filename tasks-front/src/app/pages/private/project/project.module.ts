@@ -54,6 +54,8 @@ import {ProjectHomeComponent} from "./home/home.component";
 import {DashboardModule} from "../../../dashboard/dashboard.module";
 import {UserAvatarComponent} from "../../../common/user-avatar/user-avatar.component";
 import {IconeViewComponent} from "../../../common/icone-view/icone-view.component";
+import {TypeTacheComponent} from "../../../common/type-tache/type-tache.component";
+import {StatutTacheComponent} from "../../../common/statut-tache/statut-tache.component";
 import {DocumentExchangeComponent} from "./document-exchange/document-exchange.component";
 import {DocumentUsageComponent} from "../../../common/document-usage/document-usage.component";
 import {SpinnerButtonComponent} from "../../../common/spinner-button/spinner-button.component";
@@ -136,6 +138,8 @@ import {TaskListComponent} from "./tasks/task-list.component";
     DashboardModule,
     UserAvatarComponent,
     IconeViewComponent,
+    TypeTacheComponent,
+    StatutTacheComponent,
     DocumentUsageComponent,
     SpinnerButtonComponent,
     OverlayModule,

@@ -103,6 +103,7 @@ export const TYPES_SOUS_TACHE_PAR_PHASE = gql`
           level
           color
           project { id name prefix description }
+          icone { id value typeIcone }
         }
       }
     }
@@ -117,7 +118,7 @@ export const PHASE_DE_TACHE = gql`
       parent { id }
       phase { ${PHASE} }
       phaseCourante { ${PHASE} }
-      issueType { id level phases { ${PHASE} } }
+      issueType { id level phases { ${PHASE} } color icone { id value typeIcone } }
     }
   }
 `;

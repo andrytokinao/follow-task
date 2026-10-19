@@ -14,6 +14,7 @@ const ISSUE_LINK_FIELDS = `
     issueKey
     summary
     status { id displayName color style }
+    issueType { id name color icone { id value typeIcone } }
     project { id name prefix }
   }
   destination {
@@ -21,6 +22,7 @@ const ISSUE_LINK_FIELDS = `
     issueKey
     summary
     status { id displayName color style }
+    issueType { id name color icone { id value typeIcone } }
     project { id name prefix }
   }
 `;

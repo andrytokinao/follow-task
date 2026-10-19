@@ -62,6 +62,8 @@ import {
     IssueDocumentsViewerComponent
 } from "../../../../common/issue-documents-viewer/issue-documents-viewer.component";
 import {IconeViewComponent} from "../../../../common/icone-view/icone-view.component";
+import {TypeTacheComponent} from "../../../../common/type-tache/type-tache.component";
+import {StatutTacheComponent} from "../../../../common/statut-tache/statut-tache.component";
 import {AvatarComponent} from "../../../../common/avatar/avatar.component";
 import {IssueHistoryComponent} from "../../../../common/action-history/issue-history/issue-history.component";
 
@@ -136,6 +138,8 @@ import {IssueHistoryComponent} from "../../../../common/action-history/issue-his
         AddNewValueComponent,
         IssueDocumentsViewerComponent,
         IconeViewComponent,
+        TypeTacheComponent,
+        StatutTacheComponent,
         IssueHistoryComponent
     ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

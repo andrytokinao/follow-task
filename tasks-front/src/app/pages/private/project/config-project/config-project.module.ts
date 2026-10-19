@@ -39,6 +39,8 @@ import {DeleteIssueTypeModalComponent} from "./issue-type2/delete-issue-type-mod
 import {PhaseManagerComponent} from "./issue-type2/phase-manager/phase-manager.component";
 import {IssutypeForm2Component} from "../../../../common/issutype-form2/issutype-form2.component";
 import {IconeViewComponent} from "../../../../common/icone-view/icone-view.component";
+import {TypeTacheComponent} from "../../../../common/type-tache/type-tache.component";
+import {StatutTacheComponent} from "../../../../common/statut-tache/statut-tache.component";
 
 @NgModule({
   declarations: [
@@ -96,7 +98,9 @@ import {IconeViewComponent} from "../../../../common/icone-view/icone-view.compo
     MatRadioButton,
     MatRadioGroup,
     IssutypeForm2Component,
-    IconeViewComponent
+    IconeViewComponent,
+    TypeTacheComponent,
+    StatutTacheComponent
   ]
 })
 export class ConfigProjectModule { }

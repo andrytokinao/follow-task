@@ -20,7 +20,6 @@ export class IconeViewComponent {
 
   iconeStyle() {
     if (this.color) {
-      console.log('iconeStyle',this.color);
       return {['color']:this.color};
     }
     return undefined;

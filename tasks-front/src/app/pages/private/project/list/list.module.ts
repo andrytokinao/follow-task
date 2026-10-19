@@ -40,6 +40,8 @@ import {LabelFormComponent} from "../../../../common/label-form/label-form.compo
 import {TableMasterComponent} from "./issue-master-list/table-master/table-master.component";
 import {IssueBoaardComponent} from "./issue-boaard/issue-boaard.component";
 import {IconeViewComponent} from "../../../../common/icone-view/icone-view.component";
+import {TypeTacheComponent} from "../../../../common/type-tache/type-tache.component";
+import {StatutTacheComponent} from "../../../../common/statut-tache/statut-tache.component";
 import {ExportMenuComponent} from "../../../../common/export-menu/export-menu.component";
 
 @NgModule({
@@ -91,6 +93,8 @@ import {ExportMenuComponent} from "../../../../common/export-menu/export-menu.co
     ProjectModule,
     MatDividerModule,
     IconeViewComponent,
+    TypeTacheComponent,
+    StatutTacheComponent,
     ExportMenuComponent
 
   ]

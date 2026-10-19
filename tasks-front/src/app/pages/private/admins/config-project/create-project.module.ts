@@ -18,6 +18,8 @@ import {DialogOverviewComponent} from "./dialog-overview/dialog-overview.compone
 import {IssueTypeComponent} from "./issue-type/issue-type.component";
 import {IssuetypeFormComponent} from "../../../../common/issuetype-form/issuetype-form.component";
 import {IconeViewComponent} from "../../../../common/icone-view/icone-view.component";
+import {TypeTacheComponent} from "../../../../common/type-tache/type-tache.component";
+import {StatutTacheComponent} from "../../../../common/statut-tache/statut-tache.component";
 
 @NgModule({
   declarations: [
@@ -41,7 +43,9 @@ import {IconeViewComponent} from "../../../../common/icone-view/icone-view.compo
         CommonModule,
         MyCommonModule,
         CreateProjectRoutingModule,
-      IconeViewComponent
+      IconeViewComponent,
+      TypeTacheComponent,
+      StatutTacheComponent
     ]
 })
 export class CreateProjectModule { }
