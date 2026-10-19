@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DT-007 — Le statut des tâches suit le planning</title>
+  <link rel="stylesheet" href="assets/doc.css">
+</head>
+<body>
+<div class="page">
+
+  <header class="doc-header">
+    <span class="doc-ref">DT-007</span>
+    <h1>Le statut des tâches suit le planning</h1>
+    <p class="subtitle">Quand un ouvrier saisit l'avancement d'un créneau, la tâche passe d'elle-même « en cours », puis
+      « à valider » à 100 %. La clôture reste humaine.</p>
+    <table class="meta">
+      <tr><td>Référence</td><td>DT-007 (Document Technique n° 007)</td></tr>
+      <tr><td>Statut</td><td><strong>Réalisé</strong></td></tr>
+      <tr><td>Version de l'application</td><td>2.0.13</td></tr>
+      <tr><td>Date</td><td>19 octobre 2026</td></tr>
+      <tr><td>Commits liés</td><td>titres contenant « (DT-007) » : <code>git log --grep "DT-007"</code></td></tr>
+      <tr><td>Migration</td><td><code>db/manual/2026-10-19-status-etape.sql</code> (étapes des statuts par défaut)</td></tr>
+    </table>
+  </header>
+
+  <nav class="toc">
+    <ol>
+      <li><a href="#besoin">Besoin</a></li>
+      <li><a href="#etapes">Étape d'avancement des statuts</a></li>
+      <li><a href="#regles">Règles</a></li>
+      <li><a href="#flux">Déroulement</a></li>
+      <li><a href="#architecture">Architecture du code</a></li>
+      <li><a href="#miseenprod">Mise en production</a></li>
+      <li><a href="#limites">Limites</a></li>
+    </ol>
+  </nav>
+
+  <!-- ================================================================== -->
+  <h2 id="besoin">1. Besoin</h2>
+  <p>L'ouvrier renseigne l'avancement de sa tâche sur ses créneaux de planning (curseur de pourcentage), mais le statut
+    de la tâche ne bougeait pas : il fallait le changer à la main, et les listes affichaient « Ouvert » pour une tâche
+    à 80 %. Le point d'accroche existait (<code>EventService.updateIssueProgress</code>) mais était vide.</p>
+
+  <!-- ================================================================== -->
+  <h2 id="etapes">2. Étape d'avancement des statuts</h2>
+  <p>Les statuts sont propres à chaque flux (« Ouvert », « En Cours », « Corrigé », « A vérifier »…) : leur libellé ne dit
+    rien de fiable. Chaque statut peut donc être rattaché à une <strong>étape</strong> :</p>
+  <table class="data">
+    <tr><th>Étape</th><th>Sens</th><th>Posée automatiquement ?</th></tr>
+    <tr><td><code>A_FAIRE</code></td><td>Pas commencée</td><td>Non (point de départ)</td></tr>
+    <tr><td><code>EN_COURS</code></td><td>Travail commencé</td><td>Oui, au premier pourcentage</td></tr>
+    <tr><td><code>BLOQUE</code></td><td>Arrêtée par un obstacle</td><td>Oui, si le dernier créneau est bloqué</td></tr>
+    <tr><td><code>A_VALIDER</code></td><td>Travail fini, à contrôler</td><td>Oui, à 100 % et sous-tâches achevées</td></tr>
+    <tr><td><code>TERMINE</code></td><td>Close</td><td>Jamais</td></tr>
+  </table>
+  <p>Réglage : <strong>Configuration du projet → Flux de travail</strong>, clic sur un statut du diagramme, liste
+    « Étape d'avancement ». Une icône sur le nœud rappelle l'étape. Un statut sans étape n'est jamais choisi, et une
+    tâche qui l'a n'est jamais touchée.</p>
+  <div class="decision"><strong>Décision.</strong> L'étape vit dans une table à part (<code>status_etape</code>), pas
+    dans une colonne de <code>Status</code> : <code>addStatus</code> réenregistre le statut tel que l'envoie le client,
+    et une colonne absente des formulaires serait remise à null à chaque passage.</div>
+
+  <!-- ================================================================== -->
+  <h2 id="regles">3. Règles</h2>
+  <p>Le pourcentage d'un créneau est l'<strong>avancement cumulé</strong> de la tâche à ce moment (c'est ainsi que le
+    propose <code>PlanningEventProgressService</code>) : seul le <strong>dernier relevé</strong> compte, c'est-à-dire le
+    créneau le plus récent (par début) qui porte un pourcentage ou un état d'exécution. Les créneaux reportés sont
+    ignorés : leur copie les remplace.</p>
+  <table class="data">
+    <tr><th>Dernier relevé</th><th>Étape visée</th></tr>
+    <tr><td>Créneau <code>BLOCKED</code></td><td><code>BLOQUE</code></td></tr>
+    <tr><td>100 %, toutes les sous-tâches à valider ou terminées</td><td><code>A_VALIDER</code></td></tr>
+    <tr><td>100 %, une sous-tâche encore ouverte</td><td><code>EN_COURS</code></td></tr>
+    <tr><td>Plus de 0 %, ou exécution commencée</td><td><code>EN_COURS</code></td></tr>
+    <tr><td>Rien de tout cela</td><td>aucune : rien ne change</td></tr>
+  </table>
+  <p>L'étape visée n'est appliquée que si :</p>
+  <ul>
+    <li>la tâche est <strong>à faire ou en cours</strong> (ou sans statut) — une tâche bloquée, à valider ou terminée
+      n'est plus touchée : ce sont des décisions humaines ;</li>
+    <li>c'est un <strong>avancement</strong> (rang supérieur) — jamais de recul : baisser un pourcentage ne remet pas
+      la tâche « à faire » ;</li>
+    <li>ce n'est <strong>pas un projet</strong> (demande racine avec sous-tâches) — son statut porte la phase courante
+      (DT-001) ;</li>
+    <li>le flux du type de la tâche a un statut de cette étape — le premier dans l'ordre du flux est pris.</li>
+  </ul>
+  <div class="decision"><strong>Décision.</strong> 100 % mène à « à valider », pas à « terminé » : un créneau à 100 %
+    dit que l'ouvrier pense avoir fini, pas que le travail est accepté. Le responsable clôt la tâche.</div>
+
+  <!-- ================================================================== -->
+  <h2 id="flux">4. Déroulement</h2>
+  <figure>
+    <svg viewBox="0 0 760 250" width="760" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Du créneau enregistré au statut mis à jour">
+      <style>
+        .bx { fill: #e5edf6; stroke: #185FA5; stroke-width: 1.2; rx: 8; }
+        .bx2 { fill: #f0fdf4; stroke: #15803d; stroke-width: 1.2; rx: 8; }
+        .t { font-size: 12.5px; fill: #111827; }
+        .s { font-size: 11px; fill: #4b5563; }
+        .ar { stroke: #6b7280; stroke-width: 1.5; fill: none; marker-end: url(#fl); }
+      </style>
+      <defs>
+        <marker id="fl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0 0 L10 5 L0 10 z" fill="#6b7280"/>
+        </marker>
+      </defs>
+      <rect class="bx" x="10" y="20" width="170" height="60"/>
+      <text class="t" x="20" y="44">saveEvent (GraphQL)</text>
+      <text class="s" x="20" y="64">créneau + pourcentage</text>
+
+      <rect class="bx" x="220" y="20" width="200" height="60"/>
+      <text class="t" x="230" y="44">EventService.saveEvent</text>
+      <text class="s" x="230" y="64">publie PlanningTacheEnregistre</text>
+
+      <rect class="bx" x="460" y="20" width="290" height="60"/>
+      <text class="t" x="470" y="44">SynchroStatutParPlanning</text>
+      <text class="s" x="470" y="64">après commit ; une erreur est journalisée, pas renvoyée</text>
+
+      <rect class="bx" x="460" y="110" width="290" height="60"/>
+      <text class="t" x="470" y="134">AlignementStatutTache (transaction propre)</text>
+      <text class="s" x="470" y="154">RegleAvancementParPlanning + EtapeStatutService</text>
+
+      <rect class="bx2" x="220" y="110" width="200" height="60"/>
+      <text class="t" x="230" y="134">ActionService.saveAction</text>
+      <text class="s" x="230" y="154">comme un changement manuel</text>
+
+      <rect class="bx2" x="10" y="180" width="410" height="56"/>
+      <text class="t" x="20" y="202">historique de la tâche · notification · websocket PROCESS_ACTION</text>
+      <text class="s" x="20" y="222">les listes de tâches ouvertes se mettent à jour sans rechargement</text>
+
+      <path class="ar" d="M180 50 L218 50"/>
+      <path class="ar" d="M420 50 L458 50"/>
+      <path class="ar" d="M605 80 L605 108"/>
+      <path class="ar" d="M460 140 L422 140"/>
+      <path class="ar" d="M320 170 L320 178"/>
+    </svg>
+    <figcaption>Du créneau enregistré au statut mis à jour.</figcaption>
+  </figure>
+  <p>La tâche change de statut par le même chemin qu'un clic de l'utilisateur : la ligne d'historique, la notification
+    et la diffusion websocket sont celles d'un changement manuel, signées par l'auteur du créneau.</p>
+
+  <!-- ================================================================== -->
+  <h2 id="architecture">5. Architecture du code</h2>
+  <table class="data">
+    <tr><th>Fichier</th><th>Rôle</th></tr>
+    <tr><td><code>enumapp/EtapeAvancement</code></td><td>Étapes, rang, « peut avancer automatiquement vers »</td></tr>
+    <tr><td><code>entity/StatusEtape</code>, <code>StatusEtapeRepository</code></td><td>Table <code>status_etape</code> (un statut → une étape)</td></tr>
+    <tr><td><code>avancement/EtapeStatutService</code></td><td>Lecture, réglage, statut du flux pour une étape</td></tr>
+    <tr><td><code>avancement/RegleAvancementParPlanning</code></td><td>Règle pure : étape indiquée par les créneaux et les sous-tâches</td></tr>
+    <tr><td><code>avancement/AlignementStatutTache</code></td><td>Garde-fous, puis <code>ActionService.saveAction</code></td></tr>
+    <tr><td><code>avancement/SynchroStatutParPlanning</code></td><td>Écouteur <code>@TransactionalEventListener(fallbackExecution = true)</code></td></tr>
+    <tr><td><code>EventService</code></td><td><code>saveEvent</code> publie l'événement ; <code>updateIssueProgress</code> (resté vide jusqu'ici) aussi</td></tr>
+    <tr><td><code>web/GQAvancementController</code>, <code>graphql/avancement.graphqls</code></td><td><code>Status.etapeAvancement</code>, mutation <code>definirEtapeAvancement</code></td></tr>
+    <tr><td><code>AvancementParPlanningTest</code></td><td>Règle et garde-fous (13 cas)</td></tr>
+    <tr><td><code>services/avancement.service.ts</code>, <code>type/avancement.operations.ts</code>, <code>type/etape-avancement.ts</code></td><td>Front : lecture et réglage des étapes</td></tr>
+    <tr><td><code>work-flow/etape-statut/*</code></td><td>Barre de réglage de l'étape dans l'éditeur de flux</td></tr>
+  </table>
+
+  <!-- ================================================================== -->
+  <h2 id="miseenprod">6. Mise en production</h2>
+  <ol>
+    <li>Démarrer la 2.0.13 : Hibernate crée la table <code>status_etape</code>, <strong>vide</strong>. Tant qu'aucun
+      statut n'a d'étape, rien ne change pour les tâches.</li>
+    <li>Jouer <code>db/manual/2026-10-19-status-etape.sql</code> (section 2) pour rattacher les statuts par défaut :
+      « En Attente », « Ouvert », « A faire » → à faire ; « En Cours » → en cours ; « Corrigé », « A vérifier » → à
+      valider ; « Résolue », « Terminé », « Archivés », « Abandonné » → terminé. Le script se rejoue sans risque.</li>
+    <li>Compléter les statuts propres à chaque espace dans l'éditeur de flux.</li>
+  </ol>
+  <div class="warn">Dans le flux par défaut, le premier statut « à valider » est « Corrigé » : c'est lui que prendra une
+    tâche à 100 %. Si ce n'est pas souhaité, retirer l'étape de « Corrigé » dans l'éditeur.</div>
+
+  <!-- ================================================================== -->
+  <h2 id="limites">7. Limites</h2>
+  <ul>
+    <li>Le front ne sait pas encore marquer un créneau « bloqué » : <code>EventInput</code> n'a pas
+      d'<code>executionStatus</code>, et <code>EventService.updateStatus</code> n'est exposé par aucune mutation. La règle
+      <code>BLOQUE</code> est prête mais ne se déclenche pas encore.</li>
+    <li>Enregistrer un créneau par <code>saveEvent</code> remet probablement son <code>executionStatus</code> à
+      <code>PENDING</code> (l'entrée GraphQL ne le porte pas) : à corriger avant d'exposer le blocage.</li>
+    <li>Pas de remontée au parent : une tâche dont toutes les sous-tâches passent « à valider » ne bouge que lors d'un
+      créneau sur elle-même.</li>
+    <li>Supprimer un créneau ne fait jamais reculer le statut.</li>
+    <li>Les transitions du flux (<code>CrossingStatus</code>) ne sont pas vérifiées, comme pour les changements manuels.</li>
+  </ul>
+
+  <footer>follow-task · DT-007 · le statut des tâches suit le planning</footer>
+</div>
+</body>
+</html>
