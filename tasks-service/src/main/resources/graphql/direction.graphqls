@@ -10,6 +10,10 @@ extend type Query {
     # Espaces de travail avec leur préfixe : le cockpit en choisit toujours
     # un, désigné dans l'adresse (/direction/TOPO).
     directionEspaces: [EspaceDirection]
+    # Temps occupé par les séances de ces personnes qui chevauchent la période
+    # (date-heures ISO). Règle des rappels : sans fin = une heure, « toute la
+    # journée » = journées entières ; reportées et dates de champ exclues.
+    plagesMembres(userIds: [String]!, debut: String!, fin: String!): [PlageMembre]
     # Projets en cours (non terminés) ; tous les départements si null.
     directionProjets(departement: String): [Issue]
 }
@@ -42,6 +46,12 @@ extend type Issue {
     # Liens de dépendance actifs partant de la tâche (bloque, précède,
     # déclenche) : les flèches du diagramme de Gantt.
     dependances: [DependanceTache]
+}
+
+type PlageMembre {
+    userId: String
+    debut: String
+    fin: String
 }
 
 type EspaceDirection {

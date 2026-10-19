@@ -16,6 +16,17 @@ const UTILISATEUR = `
   photo
 `;
 
+/** Temps occupé par les séances de ces personnes : la rangée « Sans planning » du Gantt. */
+export const PLAGES_MEMBRES = gql`
+  query plagesMembres($userIds: [String]!, $debut: String!, $fin: String!) {
+    plagesMembres(userIds: $userIds, debut: $debut, fin: $fin) {
+      userId
+      debut
+      fin
+    }
+  }
+`;
+
 /** Espaces de travail du cockpit : le menu de gauche, et l'espace de l'adresse. */
 export const DIRECTION_ESPACES = gql`
   query directionEspaces {

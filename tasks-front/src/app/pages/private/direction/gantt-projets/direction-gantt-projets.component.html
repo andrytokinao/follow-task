@@ -122,6 +122,7 @@
                       [class.presence-absents]="c.joursAbsence" [class.presence-ok]="!c.joursAbsence"
                       [style.left.px]="c.gauche" [style.width.px]="c.largeur"
                       [matMenuTriggerFor]="menuPresence" [matMenuTriggerData]="{c: c}"
+                      (menuOpened)="ongletPresence = c.absents.length ? 'sans' : 'avec'"
                       [title]="c.titre + ' : ' + (c.joursAbsence ? c.absents.length + ' sans planning sur ' + c.membres + ' membre(s)' : 'tout le monde a un planning')">
                 <ng-container *ngIf="c.joursAbsence; else complet">{{ c.joursAbsence }}</ng-container>
                 <ng-template #complet><i class="fas fa-check" aria-label="Tout le monde a un planning"></i></ng-template>
@@ -295,16 +296,28 @@
         <ng-container *ngIf="c.jours > 1"> · {{ c.jours }} jours ouvrables</ng-container>
       </span>
     </div>
-    <div class="mp-groupe mp-absents" *ngIf="c.absents.length" (click)="$event.stopPropagation()">
-      <div class="mp-titre"><i class="fas fa-user-slash"></i> Sans planning</div>
+    <!-- Deux onglets en haut : qui n'a pas de planning, qui en a un. -->
+    <div class="mp-onglets" role="tablist" (click)="$event.stopPropagation()">
+      <button type="button" role="tab" class="mp-onglet mp-onglet-sans" [class.actif]="ongletPresence === 'sans'"
+              [attr.aria-selected]="ongletPresence === 'sans'" (click)="ongletPresence = 'sans'">
+        <i class="fas fa-user-slash"></i> Sans planning <span class="mp-compte">{{ c.absents.length }}</span>
+      </button>
+      <button type="button" role="tab" class="mp-onglet mp-onglet-avec" [class.actif]="ongletPresence === 'avec'"
+              [attr.aria-selected]="ongletPresence === 'avec'" (click)="ongletPresence = 'avec'">
+        <i class="fas fa-user-check"></i> Avec planning <span class="mp-compte">{{ c.presents.length }}</span>
+      </button>
+    </div>
+
+    <div class="mp-groupe" *ngIf="ongletPresence === 'sans'" (click)="$event.stopPropagation()">
+      <p class="mp-vide" *ngIf="!c.absents.length">Tout le monde a un planning.</p>
       <div class="mp-personne" *ngFor="let p of c.absents">
         <app-avatar class="mp-avatar" [url]="photoDe(p.personne)" [displayName]="p.nom"></app-avatar>
         <span class="mp-nom">{{ p.nom }}</span>
         <span class="mp-jours" *ngIf="c.jours > 1">{{ p.jours }} j / {{ c.jours }}</span>
       </div>
     </div>
-    <div class="mp-groupe" *ngIf="c.presents.length" (click)="$event.stopPropagation()">
-      <div class="mp-titre"><i class="fas fa-user-check"></i> Avec planning</div>
+    <div class="mp-groupe" *ngIf="ongletPresence === 'avec'" (click)="$event.stopPropagation()">
+      <p class="mp-vide" *ngIf="!c.presents.length">Personne n'a de planning.</p>
       <div class="mp-personne" *ngFor="let p of c.presents">
         <app-avatar class="mp-avatar" [url]="photoDe(p.personne)" [displayName]="p.nom"></app-avatar>
         <span class="mp-nom">{{ p.nom }}</span>

@@ -2,6 +2,7 @@ package com.kinga.followtask.web;
 
 import com.kinga.followtask.dto.DependanceTacheDTO;
 import com.kinga.followtask.dto.EspaceDirectionDTO;
+import com.kinga.followtask.dto.PlageMembreDTO;
 import com.kinga.followtask.dto.RealisationTacheDTO;
 import com.kinga.followtask.dto.rapport.RapportProjetDTO;
 import com.kinga.followtask.dto.situation.SituationDirectionDTO;
@@ -66,6 +67,14 @@ public class GQDirectionController {
     @QueryMapping
     public SituationDirectionDTO situationDirection(@Argument String departement) {
         return situationDirectionService.situation(departement, LocalDateTime.now());
+    }
+
+    /** Séances de ces personnes sur la période (absences du Gantt de direction). */
+    @QueryMapping
+    public List<PlageMembreDTO> plagesMembres(@Argument List<String> userIds,
+                                              @Argument String debut,
+                                              @Argument String fin) {
+        return directionService.plagesMembres(userIds, LocalDateTime.parse(debut), LocalDateTime.parse(fin));
     }
 
     @SchemaMapping(typeName = "Issue", field = "rapportProjet")

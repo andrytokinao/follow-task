@@ -7,7 +7,7 @@ import {UserService} from '../../../../services/user.service';
 import {EventApp, Issue, User} from '../../../../type/issue';
 import {UNASSIGNED_ID, userDisplayName} from '../../../../type/issue-grouping.util';
 import {DirectionService} from '../direction.service';
-import {EspaceDirection, ProjetGantt, TacheGantt} from '../direction.model';
+import {EspaceDirection, PlageMembre, ProjetGantt, TacheGantt} from '../direction.model';
 import {EspaceDirectionService} from '../espace/espace-direction.service';
 import {bulleDeSerie, bulleSimple, ContenuBulle, periode} from './gantt-bulle';
 import {versIso} from './gantt-dates.util';
@@ -94,6 +94,8 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
   effectifsParCase = new Map<number, CaseEffectif[]>();
   /** Rangée « Sans planning » de l'en-tête. */
   presences: CasePresence[] = [];
+  /** Onglet du menu d'une case : sans planning d'abord, s'il y a des absents. */
+  ongletPresence: 'sans' | 'avec' = 'sans';
   axe: AxeGantt = {groupes: [], graduations: [], weekends: []};
   /** Position du trait « aujourd'hui » ; null hors de la fenêtre. */
   aujourdhui: number | null = null;
@@ -243,9 +245,11 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
 
   /**
    * Membres de l'espace sans planning sur la fenêtre (`presencesParJour`) :
-   * d'abord tous les membres, puis toutes leurs séances, tous projets
-   * confondus. Ne dépend ni des personnes choisies ni du regroupement : c'est
-   * toute l'équipe.
+   * d'abord tous les membres, puis le temps occupé par toutes leurs séances,
+   * tous projets confondus. `plagesMembres` et non `searchEvents` : ce dernier
+   * écarte les séances sans fin ou à cheval sur la période, et leurs auteurs
+   * passaient pour absents. Ne dépend ni des personnes choisies ni du
+   * regroupement : c'est toute l'équipe.
    */
   private chargerPresences(): void {
     this.abonnementPresences?.unsubscribe();
@@ -256,16 +260,13 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
     const fenetre = this.fenetre;
     this.abonnementPresences = this.membresDe(this.espace.prefixe).pipe(
       switchMap(membres => !membres.length
-        ? of({membres, evenements: [] as EventApp[]})
-        : this.eventsService.searchEvents({
-          userIds: membres.map(m => m.id),
-          start: versIso(fenetre.debut),
-          end: versIso(fenetre.fin)
-        }).pipe(map(evenements => ({membres, evenements: evenements ?? []})))),
-      // Sans elles, le diagramme reste utile.
-      catchError(() => of({membres: [] as User[], evenements: [] as EventApp[]}))
-    ).subscribe(({membres, evenements}) => this.presences = presencesParCase(
-      presencesParJour(membres, evenements, fenetre.debut, fenetre.fin, Date.now()), fenetre));
+        ? of({membres, plages: [] as PlageMembre[]})
+        : this.directionService.plagesMembres(membres.map(m => m.id), versIso(fenetre.debut), versIso(fenetre.fin))
+          .pipe(map(plages => ({membres, plages})))),
+      // Sans elles, pas de rangée plutôt qu'une rangée fausse : le diagramme reste utile.
+      catchError(() => of(null))
+    ).subscribe(resultat => this.presences = !resultat ? [] : presencesParCase(
+      presencesParJour(resultat.membres, resultat.plages, fenetre.debut, fenetre.fin, Date.now()), fenetre));
   }
 
   private construire(): void {

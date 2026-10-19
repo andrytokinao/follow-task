@@ -3,6 +3,7 @@ package com.kinga.followtask.service;
 import com.kinga.followtask.config.StatutsFinaux;
 import com.kinga.followtask.dto.DependanceTacheDTO;
 import com.kinga.followtask.dto.EspaceDirectionDTO;
+import com.kinga.followtask.dto.PlageMembreDTO;
 import com.kinga.followtask.dto.RealisationTacheDTO;
 import com.kinga.followtask.dto.rapport.RapportProjetDTO;
 import com.kinga.followtask.entity.CustomField;
@@ -14,10 +15,12 @@ import com.kinga.followtask.entity.Project;
 import com.kinga.followtask.entity.TypeDocument;
 import com.kinga.followtask.entity.enumapp.Niveau;
 import com.kinga.followtask.repository.DocumentRepository;
+import com.kinga.followtask.repository.EventRepository;
 import com.kinga.followtask.repository.IssueLinkRepository;
 import com.kinga.followtask.repository.IssueRepository;
 import com.kinga.followtask.repository.IssueTypeRepository;
 import com.kinga.followtask.repository.ProjectRepository;
+import com.kinga.followtask.service.rappel.PlagesPlanifiees;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -61,6 +64,10 @@ public class DirectionService {
     private final IssueLinkRepository issueLinkRepository;
     private final IssueTypeRepository issueTypeRepository;
     private final StatutsFinaux statutsFinaux;
+    private final EventRepository eventRepository;
+
+    /** Type des événements qui portent une date de champ personnalisé : pas du travail. */
+    private static final String TYPE_CHAMP = "CUSTOM_FIELD";
 
     /** Noms des espaces de travail, triés. */
     @Transactional(readOnly = true)
@@ -145,6 +152,25 @@ public class DirectionService {
                 .filter(debut -> !debut.isAfter(maintenant))
                 .min(Comparator.naturalOrder())
                 .orElse(null);
+    }
+
+    /**
+     * Temps occupé par les séances de ces personnes qui chevauchent la période,
+     * avec la règle des rappels (DT-004) : une séance sans fin compte, celle
+     * qui déborde de la période aussi ; une séance reportée, ou une date de
+     * champ personnalisé, ne compte pas.
+     */
+    @Transactional(readOnly = true)
+    public List<PlageMembreDTO> plagesMembres(List<String> userIds, LocalDateTime debut, LocalDateTime fin) {
+        if (CollectionUtils.isEmpty(userIds)) {
+            return List.of();
+        }
+        return eventRepository.findByUserIdInChevauchant(userIds, debut, fin).stream()
+                .filter(e -> e.getUser() != null)
+                .filter(e -> e.getEventType() == null || !TYPE_CHAMP.equalsIgnoreCase(e.getEventType().getName()))
+                .flatMap(e -> PlagesPlanifiees.plageDe(e).stream()
+                        .map(plage -> new PlageMembreDTO(e.getUser().getId(), plage.debut(), plage.fin())))
+                .toList();
     }
 
     /**

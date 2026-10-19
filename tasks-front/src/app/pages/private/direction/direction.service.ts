@@ -2,13 +2,14 @@ import {Injectable} from '@angular/core';
 import {Apollo} from 'apollo-angular';
 import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
-import {DetailProjet, EspaceDirection, ProjetDirection, ProjetGantt, TacheGantt, TacheProjet} from './direction.model';
+import {DetailProjet, EspaceDirection, PlageMembre, ProjetDirection, ProjetGantt, TacheGantt, TacheProjet} from './direction.model';
 import {
   DIRECTION_ESPACES,
   DIRECTION_GANTT_PROJET,
   DIRECTION_GANTT_PROJETS,
   DIRECTION_PROJETS,
   DIRECTION_TACHES_PROJET,
+  PLAGES_MEMBRES,
   SITUATION_DIRECTION
 } from './direction.operations';
 import {SituationDirection} from './situation/situation.model';
@@ -67,6 +68,18 @@ export class DirectionService {
       variables: {departement},
       fetchPolicy: 'network-only'
     }).pipe(map(res => res.data?.situationDirection ?? null));
+  }
+
+  /**
+   * Temps occupé par les séances de ces personnes sur la période, tous projets
+   * confondus. `debut`, `fin` : date-heures `yyyy-MM-ddTHH:mm:ss`.
+   */
+  plagesMembres(userIds: string[], debut: string, fin: string): Observable<PlageMembre[]> {
+    return this.apollo.query<any>({
+      query: PLAGES_MEMBRES,
+      variables: {userIds, debut, fin},
+      fetchPolicy: 'network-only'
+    }).pipe(map(res => res.data?.plagesMembres ?? []));
   }
 
   /** Projets en cours du département avec leurs tâches et leurs dates, pour le Gantt de direction. */

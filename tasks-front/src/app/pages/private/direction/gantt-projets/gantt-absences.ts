@@ -1,18 +1,19 @@
-import {EventApp, User} from '../../../../type/issue';
-import {estWeekend, HEURE, instantDe, minuit, plusJours} from './gantt-dates.util';
+import {User} from '../../../../type/issue';
+import {PlageMembre} from '../direction.model';
+import {estWeekend, instantDe, minuit, plusJours} from './gantt-dates.util';
 
 /*
  * Absences du Gantt de direction, calculées dans le navigateur : pour chaque
  * jour ouvrable, quels membres de l'espace n'ont aucune séance de planning.
  *
- * Les membres sont chargés d'abord, puis toutes leurs séances sur la période,
- * tous projets confondus : on est présent dès qu'on a renseigné une activité,
- * où que ce soit. Ainsi absents + présents = membres, chaque jour.
+ * Les membres sont chargés d'abord, puis le temps occupé par toutes leurs
+ * séances sur la période, tous projets confondus (`plagesMembres`, règle des
+ * rappels : une séance sans fin ou à cheval sur la période compte). On est
+ * présent dès qu'on a renseigné une activité ce jour-là, où que ce soit.
+ * Ainsi absents + présents = membres, chaque jour.
  *
  * Fonction pure.
  */
-
-const TYPE_EVENEMENT_CHAMP = 'CUSTOM_FIELD';
 
 /** Un jour ouvrable passé, ou aujourd'hui : chaque membre est présent ou absent. */
 export interface JourPresence {
@@ -29,12 +30,14 @@ export interface JourPresence {
  * Jours ouvrables (lundi-vendredi) de `debut` à `fin` exclue, jusqu'à
  * aujourd'hui compris : un jour à venir n'a pas encore d'absent.
  *
- * @param membres    tous les membres de l'espace, chargés avant les séances
- * @param evenements séances de ces membres sur la période
+ * @param membres tous les membres de l'espace, chargés avant les plages
+ * @param plages  temps occupé par leurs séances sur la période
  */
-export function presencesParJour(membres: User[], evenements: EventApp[], debut: number, fin: number,
+export function presencesParJour(membres: User[], plages: PlageMembre[], debut: number, fin: number,
                                  maintenant: number): JourPresence[] {
-  const actifsParJour = joursDActivite(evenements);
+  // Les membres viennent groupe par groupe : une personne de deux groupes compterait deux fois.
+  const uniques = [...new Map(membres.filter(m => !!m?.id).map(m => [m.id, m])).values()];
+  const actifsParJour = joursDActivite(plages);
   const dernier = Math.min(fin, plusJours(minuit(maintenant), 1));
   const jours: JourPresence[] = [];
   for (let jour = minuit(debut); jour < dernier; jour = plusJours(jour, 1)) {
@@ -44,28 +47,27 @@ export function presencesParJour(membres: User[], evenements: EventApp[], debut:
     const actifs = actifsParJour.get(jour) ?? new Set<string>();
     jours.push({
       jour,
-      membres,
-      absents: membres.filter(m => !actifs.has(m.id)),
-      presents: membres.filter(m => actifs.has(m.id))
+      membres: uniques,
+      absents: uniques.filter(m => !actifs.has(m.id)),
+      presents: uniques.filter(m => actifs.has(m.id))
     });
   }
   return jours;
 }
 
 /** Pour chaque jour, les identifiants des personnes qui y ont une séance. */
-function joursDActivite(evenements: EventApp[]): Map<number, Set<string>> {
+function joursDActivite(plages: PlageMembre[]): Map<number, Set<string>> {
   const parJour = new Map<number, Set<string>>();
-  for (const evenement of evenements) {
-    const id = evenement.user?.id;
-    const debut = instantDe(evenement.start);
-    if (!id || debut === null || evenement.executionStatus === 'POSTPONED'
-      || evenement.eventType?.name?.toUpperCase() === TYPE_EVENEMENT_CHAMP) {
+  for (const plage of plages) {
+    const debut = instantDe(plage.debut);
+    const fin = instantDe(plage.fin);
+    if (!plage.userId || debut === null || fin === null || fin <= debut) {
       continue;
     }
-    const fin = Math.max(instantDe(evenement.end) ?? debut + HEURE, debut + 1);
+    // Fin exclue : une séance qui finit à minuit n'occupe pas le lendemain.
     for (let jour = minuit(debut); jour < fin; jour = plusJours(jour, 1)) {
       const actifs = parJour.get(jour) ?? new Set<string>();
-      actifs.add(id);
+      actifs.add(plage.userId);
       parJour.set(jour, actifs);
     }
   }

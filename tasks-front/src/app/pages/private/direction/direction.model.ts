@@ -16,6 +16,17 @@ export interface EspaceDirection {
   prefixe: string;
 }
 
+/**
+ * Temps occupé par une séance d'une personne (`plagesMembres`), déjà
+ * normalisé par le serveur : sans fin, une heure ; « toute la journée », des
+ * journées entières. Date-heures ISO.
+ */
+export interface PlageMembre {
+  userId: string;
+  debut: string;
+  fin: string;
+}
+
 /** Un projet : demande racine en cours, avec les chiffres de son rapport. */
 export interface ProjetDirection {
   id: number;

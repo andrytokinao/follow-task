@@ -974,3 +974,58 @@
   font-variant-numeric: tabular-nums;
   color: #b42318;
 }
+
+/* Onglets du menu : sans planning / avec planning. */
+.mp-onglets {
+  display: flex;
+  gap: 4px;
+  padding: 8px 10px;
+  border-bottom: 1px solid #eaecf0;
+}
+
+.mp-onglet {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid #eaecf0;
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: #475467;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.mp-onglet-sans.actif {
+  border-color: #b42318;
+  background: #fdeeee;
+  color: #b42318;
+}
+
+.mp-onglet-avec.actif {
+  border-color: #15803d;
+  background: #e7f6ec;
+  color: #15803d;
+}
+
+.mp-compte {
+  min-width: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: rgba(16, 24, 40, 0.08);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.mp-vide {
+  margin: 0;
+  padding: 6px 14px;
+  font-size: 12px;
+  color: #8a94a6;
+}
