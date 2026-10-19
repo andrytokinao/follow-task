@@ -98,8 +98,7 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
   @Output() saved = new EventEmitter<Issue>();
   /**
    * Le parcours de création est terminé : l'hôte peut refermer le menu ou le
-   * panneau. Pour une tâche, c'est après la réponse à « vous assigner ? » ;
-   * pour un projet, aussitôt après `saved`.
+   * panneau, aussitôt après `saved`.
    */
   @Output() termine = new EventEmitter<void>();
   /** « Annuler » : l'hôte referme le menu qui porte le formulaire. */
@@ -130,11 +129,12 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
   protected readonly peutCreerType$: Observable<boolean>;
 
   /**
-   * Case « M'assigner », pour un projet seulement. Une tâche pose la question
-   * après sa création (app-question-assignation) : la case ferait doublon.
+   * Case « M'assigner », cochée par défaut, pour un projet comme pour une
+   * tâche. Elle remplace la question posée après la création
+   * (app-question-assignation), désormais désactivée.
    * Aucun droit requis pour s'assigner (IssueAccessService.checkCanAssignSelf).
    */
-  assignerMoi = false;
+  assignerMoi = true;
 
   constructor(public issueService: IssueService,
     private phaseService: PhaseService,
@@ -224,13 +224,11 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
       }
     }
 
-    const estTache = this.isSubtask();
-
-    // Projet : la case « M'assigner » est traitée avant `saved`, pour que la
-    // liste rechargée par l'hôte le montre déjà assigné. Son échec ne défait
-    // pas la création : on le signale seulement.
+    // La case « M'assigner » est traitée avant `saved`, pour que la liste
+    // rechargée par l'hôte le montre déjà assigné. Son échec ne défait pas la
+    // création : on le signale seulement.
     this.issueService.saveIssue(issue).pipe(
-      switchMap(cree => estTache || !this.assignerMoi || !cree?.id
+      switchMap(cree => !this.assignerMoi || !cree?.id
         ? of(cree)
         : this.issueService.assignMe(cree).pipe(
           map(() => cree),
@@ -246,12 +244,7 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
         this.summary = '';
         this.description = '';
         this.loadNextKey();
-        // Toute création de tâche, quel que soit l'écran, demande si on se
-        // l'assigne. Le panneau reste ouvert sur la question.
-        if (estTache && res?.id) {
-          this.tacheCreee = res;
-          return;
-        }
+        // Plus de question « vous assigner ? » : la case l'a déjà traité.
         this.terminer();
       },
       error: (err:Error) => {

@@ -91,8 +91,8 @@
     </div>
 
     <!-- Ouvert a tous : le createur peut toujours se prendre la tache. -->
-    <!-- Projet seulement : une tâche pose la question après sa création. -->
-    <label class="assign-me" *ngIf="!isSubtask()">
+    <!-- Cochée par défaut ; remplace la question posée après la création. -->
+    <label class="assign-me">
       <input type="checkbox" name="assignerMoi"
              [(ngModel)]="assignerMoi"
              [ngModelOptions]="{standalone: true}" />

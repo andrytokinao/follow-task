@@ -9,3 +9,17 @@ h4{
 mat-form-field {
   margin-right: 12px;
 }
+.assign-me {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  user-select: none;
+}
+.assign-me input {
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  cursor: pointer;
+}

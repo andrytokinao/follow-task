@@ -6,6 +6,8 @@ import {Issue, IssueType, Project, Status} from "../../../../../type/issue";
 import {IssueService} from "../../../../../services/issue.service";
 import {CdkTextareaAutosize} from "@angular/cdk/text-field";
 import {JsonpInterceptor} from "@angular/common/http";
+import {catchError, map, of, switchMap} from "rxjs";
+import {ToastrService} from "ngx-toastr";
 @Component({
   standalone:false,
   selector: 'app-edit-issue',
@@ -37,6 +39,7 @@ export class NewIssueComponent implements OnInit{
   constructor(
     public activeModal: NgbActiveModal,
     public issueService:IssueService,
+    private toastr: ToastrService,
   ) {}
 
   save() {
@@ -57,16 +60,25 @@ export class NewIssueComponent implements OnInit{
       issue.parent = parent;
     }
     issue.status = this.status;
-      this.issueService.saveIssue(issue).subscribe((res:any)=>{
-        // Une tâche (issue rattachée à un parent) demande, comme partout, si
-        // on se l'assigne : la modale reste ouverte sur la question.
-        if (this.parent && res?.id) {
-          this.tacheCreee = res;
-          return;
-        }
+      // La case « M'assigner » remplace la question posée après la création.
+      // Son échec ne défait pas la création : on le signale seulement.
+      this.issueService.saveIssue(issue).pipe(
+        switchMap((cree: any) => !this.assignerMoi || !cree?.id
+          ? of(cree)
+          : this.issueService.assignMe(cree).pipe(
+            map(() => cree),
+            catchError(() => {
+              this.toastr.warning(`${cree.issueKey} créée, mais l'assignation a échoué`);
+              return of(cree);
+            })
+          ))
+      ).subscribe((res:any)=>{
         this.activeModal.close({ issue: res,step :this.step });
       });
     }
+
+  /** Case « M'assigner », cochée par défaut. */
+  assignerMoi = true;
 
   /** Tâche créée en attente de la réponse « vous l'assigner ? ». */
   tacheCreee?: Issue;

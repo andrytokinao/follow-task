@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DT-009 — Case « M'assigner » à la création d'une tâche</title>
+  <link rel="stylesheet" href="assets/doc.css">
+  <style>
+    .mq-form { max-width: 420px; padding: 14px; border: 1px solid #e4e7ec; border-radius: 10px; background: #fff; font-size: 13px; }
+    .mq-champ { height: 28px; margin-bottom: 8px; border: 1px solid #d0d5dd; border-radius: 6px; }
+    .mq-case { display: flex; align-items: center; gap: 8px; margin: 6px 0 12px; }
+    .mq-case .box { width: 14px; height: 14px; border-radius: 3px; background: #185FA5; color: #fff; font-size: 10px; text-align: center; line-height: 14px; }
+    .mq-actions { text-align: right; }
+    .mq-actions span { display: inline-block; padding: 6px 12px; border-radius: 6px; background: #185FA5; color: #fff; font-weight: 600; }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <header class="doc-header">
+    <span class="doc-ref">DT-009</span>
+    <h1>Case « M'assigner » à la création d'une tâche</h1>
+    <p class="subtitle">La question « Voulez-vous vous assigner cette tâche ? », posée après chaque création, est remplacée
+      par une case cochée par défaut dans le formulaire.</p>
+    <table class="meta">
+      <tr><td>Référence</td><td>DT-009 (Document Technique n° 009)</td></tr>
+      <tr><td>Statut</td><td><strong>Réalisé</strong></td></tr>
+      <tr><td>Version de l'application</td><td>2.0.19</td></tr>
+      <tr><td>Date</td><td>19 octobre 2026</td></tr>
+      <tr><td>Commits liés</td><td>titres contenant « (DT-009) » : <code>git log --grep "DT-009"</code></td></tr>
+    </table>
+  </header>
+
+  <!-- ================================================================== -->
+  <h2 id="besoin">1. Besoin</h2>
+  <p>Après chaque création de tâche, le panneau restait ouvert sur une question d'assignation : une étape de plus pour
+    une réponse presque toujours « oui ».</p>
+
+  <!-- ================================================================== -->
+  <h2 id="comportement">2. Comportement</h2>
+  <ul>
+    <li>Case <strong>« M'assigner cette tâche »</strong>, <strong>cochée par défaut</strong>, dans le formulaire de
+      création — pour une tâche comme pour une demande.</li>
+    <li>Cochée : la tâche est créée puis assignée au créateur, avant que l'hôte recharge sa liste.</li>
+    <li>Plus de question après la création : le formulaire se referme aussitôt.</li>
+    <li>Un échec de l'assignation ne défait pas la création : avertissement « … créée, mais l'assignation a échoué ».</li>
+    <li>S'assigner ne demande aucun droit (<code>IssueAccessService.checkCanAssignSelf</code>).</li>
+  </ul>
+  <div class="mq-form">
+    <div class="mq-champ"></div>
+    <div class="mq-champ"></div>
+    <div class="mq-case"><span class="box">✓</span> M'assigner cette tâche</div>
+    <div class="mq-actions"><span>Créer</span></div>
+  </div>
+
+  <!-- ================================================================== -->
+  <h2 id="architecture">3. Architecture du code</h2>
+  <table class="data">
+    <tr><th>Fichier</th><th>Changement</th></tr>
+    <tr><td><code>common/new-issue-form/*</code></td><td><code>assignerMoi = true</code> ; case affichée aussi pour une
+      tâche ; <code>assignMe</code> enchaîné après <code>saveIssue</code> ; plus de passage par <code>tacheCreee</code></td></tr>
+    <tr><td><code>project/modal/new-issue/*</code></td><td>Même case dans la modale « Ajouter tâche », question retirée</td></tr>
+    <tr><td><code>common/question-assignation/*</code></td><td>Conservé, plus utilisé</td></tr>
+  </table>
+
+  <!-- ================================================================== -->
+  <h2 id="limites">4. Limites</h2>
+  <ul>
+    <li>La case garde sa valeur d'une création à l'autre tant que le formulaire reste ouvert.</li>
+  </ul>
+
+  <footer>follow-task · DT-009 · case M'assigner</footer>
+</div>
+</body>
+</html>

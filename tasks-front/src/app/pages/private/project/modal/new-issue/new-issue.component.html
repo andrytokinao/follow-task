@@ -46,6 +46,12 @@
           [ngModelOptions]="{standalone: true}"
          ></textarea>
       </mat-form-field>
+      <label class="assign-me">
+        <input type="checkbox" name="assignerMoi"
+               [(ngModel)]="assignerMoi"
+               [ngModelOptions]="{standalone: true}" />
+        <span>M'assigner cette tâche</span>
+      </label>
 
 
     </div>-
