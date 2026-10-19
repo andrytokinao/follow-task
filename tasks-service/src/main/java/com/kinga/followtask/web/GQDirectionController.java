@@ -1,6 +1,7 @@
 package com.kinga.followtask.web;
 
 import com.kinga.followtask.dto.DependanceTacheDTO;
+import com.kinga.followtask.dto.EspaceDirectionDTO;
 import com.kinga.followtask.dto.RealisationTacheDTO;
 import com.kinga.followtask.dto.rapport.RapportProjetDTO;
 import com.kinga.followtask.dto.situation.SituationDirectionDTO;
@@ -49,6 +50,11 @@ public class GQDirectionController {
     @QueryMapping
     public List<String> directionDepartements() {
         return directionService.departements();
+    }
+
+    @QueryMapping
+    public List<EspaceDirectionDTO> directionEspaces() {
+        return directionService.espaces();
     }
 
     @QueryMapping

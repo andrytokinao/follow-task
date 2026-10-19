@@ -7,6 +7,9 @@
 extend type Query {
     # Noms des espaces de travail : les onglets du cockpit.
     directionDepartements: [String]
+    # Espaces de travail avec leur préfixe : le cockpit en choisit toujours
+    # un, désigné dans l'adresse (/direction/TOPO).
+    directionEspaces: [EspaceDirection]
     # Projets en cours (non terminés) ; tous les départements si null.
     directionProjets(departement: String): [Issue]
 }
@@ -36,6 +39,12 @@ extend type Issue {
     # Liens de dépendance actifs partant de la tâche (bloque, précède,
     # déclenche) : les flèches du diagramme de Gantt.
     dependances: [DependanceTache]
+}
+
+type EspaceDirection {
+    # Nom affiché, et valeur des filtres « departement ».
+    nom: String
+    prefixe: String
 }
 
 # Dépendance d'une tâche vers une autre (lien IssueLink de type dépendance).

@@ -2,6 +2,7 @@ package com.kinga.followtask.service;
 
 import com.kinga.followtask.config.StatutsFinaux;
 import com.kinga.followtask.dto.DependanceTacheDTO;
+import com.kinga.followtask.dto.EspaceDirectionDTO;
 import com.kinga.followtask.dto.RealisationTacheDTO;
 import com.kinga.followtask.dto.rapport.RapportProjetDTO;
 import com.kinga.followtask.entity.CustomField;
@@ -69,6 +70,19 @@ public class DirectionService {
                 .filter(Objects::nonNull)
                 .distinct()
                 .sorted()
+                .toList();
+    }
+
+    /**
+     * Espaces de travail avec leur préfixe, triés par nom : le cockpit en
+     * choisit toujours un, désigné dans l'adresse par son préfixe.
+     */
+    @Transactional(readOnly = true)
+    public List<EspaceDirectionDTO> espaces() {
+        return projectRepository.findAll().stream()
+                .filter(espace -> nomDepartement(espace) != null && StringUtils.hasText(espace.getPrefix()))
+                .map(espace -> new EspaceDirectionDTO(nomDepartement(espace), espace.getPrefix()))
+                .sorted(Comparator.comparing(EspaceDirectionDTO::nom, String.CASE_INSENSITIVE_ORDER))
                 .toList();
     }
 
