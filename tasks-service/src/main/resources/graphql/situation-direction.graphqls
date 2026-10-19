@@ -89,26 +89,7 @@ type SituationDirection {
     personnes: [SituationPersonne]
 }
 
-# Un ouvrier dont le planning du jour est vide ou incomplet.
-type PresencePersonne {
-    personne: UserApp
-    minutesAttendues: Int
-    minutesCouvertes: Int
-}
-
-# Planning des ouvriers un jour ouvrable passe, ou aujourd'hui jusqu'a
-# maintenant. Absent = aucune activite renseignee (conges inconnus).
-type PresenceJour {
-    jour: String
-    ouvriers: Int
-    absents: [PresencePersonne]
-    incomplets: [PresencePersonne]
-}
-
 extend type Query {
     # Toute la societe si departement est null.
     situationDirection(departement: String): SituationDirection
-    # Gantt de direction : jour par jour, de debut (inclus) a fin (exclu),
-    # dates yyyy-MM-dd. Jours a venir et non ouvrables absents de la liste.
-    presencesDirection(departement: String!, debut: String!, fin: String!): [PresenceJour]
 }

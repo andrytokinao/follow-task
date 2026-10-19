@@ -4,12 +4,10 @@ import com.kinga.followtask.dto.DependanceTacheDTO;
 import com.kinga.followtask.dto.EspaceDirectionDTO;
 import com.kinga.followtask.dto.RealisationTacheDTO;
 import com.kinga.followtask.dto.rapport.RapportProjetDTO;
-import com.kinga.followtask.dto.situation.PresenceJourDTO;
 import com.kinga.followtask.dto.situation.SituationDirectionDTO;
 import com.kinga.followtask.entity.CustomField;
 import com.kinga.followtask.entity.Issue;
 import com.kinga.followtask.service.DirectionService;
-import com.kinga.followtask.service.situation.PresencesDirectionService;
 import com.kinga.followtask.service.situation.SituationDirectionService;
 import graphql.GraphQLContext;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +17,6 @@ import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +46,6 @@ public class GQDirectionController {
 
     private final DirectionService directionService;
     private final SituationDirectionService situationDirectionService;
-    private final PresencesDirectionService presencesDirectionService;
 
     @QueryMapping
     public List<String> directionDepartements() {
@@ -70,15 +66,6 @@ public class GQDirectionController {
     @QueryMapping
     public SituationDirectionDTO situationDirection(@Argument String departement) {
         return situationDirectionService.situation(departement, LocalDateTime.now());
-    }
-
-    /** Qui n'a pas renseigné son planning, jour par jour, à l'heure du serveur. */
-    @QueryMapping
-    public List<PresenceJourDTO> presencesDirection(@Argument String departement,
-                                                    @Argument String debut,
-                                                    @Argument String fin) {
-        return presencesDirectionService.presences(departement, LocalDate.parse(debut), LocalDate.parse(fin),
-                LocalDateTime.now());
     }
 
     @SchemaMapping(typeName = "Issue", field = "rapportProjet")

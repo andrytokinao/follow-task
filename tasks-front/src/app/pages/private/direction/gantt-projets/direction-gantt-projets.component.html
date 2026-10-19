@@ -64,8 +64,8 @@
       <li><span class="lg lg-retard"></span> Retard</li>
       <li><span class="pastille"><i class="fas fa-user"></i> 2</span> Personnes en même temps</li>
       <li><span class="lg-effectif">3</span> Personnes au travail sur le projet, par case</li>
-      <li><span class="lg-presence presence-absents">2</span><span class="lg-presence presence-incomplets">1</span>
-        Sans planning : aucune activité, ou planning incomplet (en-tête)</li>
+      <li><span class="lg-presence presence-absents">2</span>
+        Sans planning : membres sans aucune séance ce jour-là (en-tête ; clic : la liste)</li>
       <li *ngFor="let c of champs"><span class="lg lg-champ" [style.background]="c.couleur"></span> {{ c.nom }}</li>
     </ul>
 
@@ -98,7 +98,7 @@
               </select>
             </label>
             <!-- En face de la rangée du bas de l'axe. -->
-            <span class="presence-libelle" title="Ouvriers de l'espace sans activité renseignée (rouge), ou au planning incomplet (orange)">
+            <span class="presence-libelle" title="Membres de l'espace sans aucune séance de planning ; cliquez une case pour la liste">
               <i class="fas fa-user-slash" aria-hidden="true"></i> Sans planning
             </span>
           </div>
@@ -113,20 +113,19 @@
               <span class="axe-grad" *ngFor="let g of axe.graduations" [class.aujourdhui]="g.aujourdhui"
                     [style.left.px]="g.gauche" [style.width.px]="g.largeur">{{ g.libelle }}</span>
             </div>
-            <!-- Sans planning : absents en rouge, sinon incomplets en orange, sinon ✓.
-                 Le détail (qui) au survol. Jours à venir et non ouvrables : vides. -->
+            <!-- Sans planning : membres de l'espace sans aucune séance ce jour-là
+                 (jours-personne à la semaine, au mois). Un clic ouvre la liste :
+                 absents puis présents, leur total fait le nombre de membres.
+                 Jours à venir et week-ends : vides. -->
             <div class="axe-rang axe-presences">
-              <span class="presence" *ngFor="let c of presences"
-                    [class.presence-absents]="c.absents" [class.presence-incomplets]="!c.absents && c.incomplets"
-                    [class.presence-ok]="!c.absents && !c.incomplets"
-                    [style.left.px]="c.gauche" [style.width.px]="c.largeur"
-                    (mouseenter)="survolerCase(c, $event)" (mousemove)="suivre($event)" (mouseleave)="quitter()">
-                <ng-container *ngIf="c.absents; else sansAbsent">{{ c.absents }}</ng-container>
-                <ng-template #sansAbsent>
-                  <ng-container *ngIf="c.incomplets; else complet">{{ c.incomplets }}</ng-container>
-                </ng-template>
-                <ng-template #complet><i class="fas fa-check" aria-label="Planning complet"></i></ng-template>
-              </span>
+              <button type="button" class="presence" *ngFor="let c of presences"
+                      [class.presence-absents]="c.joursAbsence" [class.presence-ok]="!c.joursAbsence"
+                      [style.left.px]="c.gauche" [style.width.px]="c.largeur"
+                      [matMenuTriggerFor]="menuPresence" [matMenuTriggerData]="{c: c}"
+                      [title]="c.titre + ' : ' + (c.joursAbsence ? c.absents.length + ' sans planning sur ' + c.membres + ' membre(s)' : 'tout le monde a un planning')">
+                <ng-container *ngIf="c.joursAbsence; else complet">{{ c.joursAbsence }}</ng-container>
+                <ng-template #complet><i class="fas fa-check" aria-label="Tout le monde a un planning"></i></ng-template>
+              </button>
             </div>
           </div>
         </div>
@@ -285,6 +284,34 @@
   <div class="bulle-aide" *ngIf="b.reste">+ {{ b.reste }} autre(s) séance(s)</div>
   <div class="bulle-aide" *ngIf="b.aide">{{ b.aide }}</div>
 </div>
+
+<!-- ═══ QUI N'A PAS DE PLANNING : une case de la rangée « Sans planning » ═══ -->
+<mat-menu #menuPresence="matMenu" class="gp-menu-presence">
+  <ng-template matMenuContent let-c="c">
+    <div class="mp-entete" (click)="$event.stopPropagation()">
+      <strong>{{ c.titre }}</strong>
+      <span>
+        {{ c.absents.length }} sans planning + {{ c.presents.length }} avec = {{ c.membres }} membre(s)
+        <ng-container *ngIf="c.jours > 1"> · {{ c.jours }} jours ouvrables</ng-container>
+      </span>
+    </div>
+    <div class="mp-groupe mp-absents" *ngIf="c.absents.length" (click)="$event.stopPropagation()">
+      <div class="mp-titre"><i class="fas fa-user-slash"></i> Sans planning</div>
+      <div class="mp-personne" *ngFor="let p of c.absents">
+        <app-avatar class="mp-avatar" [url]="photoDe(p.personne)" [displayName]="p.nom"></app-avatar>
+        <span class="mp-nom">{{ p.nom }}</span>
+        <span class="mp-jours" *ngIf="c.jours > 1">{{ p.jours }} j / {{ c.jours }}</span>
+      </div>
+    </div>
+    <div class="mp-groupe" *ngIf="c.presents.length" (click)="$event.stopPropagation()">
+      <div class="mp-titre"><i class="fas fa-user-check"></i> Avec planning</div>
+      <div class="mp-personne" *ngFor="let p of c.presents">
+        <app-avatar class="mp-avatar" [url]="photoDe(p.personne)" [displayName]="p.nom"></app-avatar>
+        <span class="mp-nom">{{ p.nom }}</span>
+      </div>
+    </div>
+  </ng-template>
+</mat-menu>
 
 <!-- Fiche d'une séance : le même menu que dans les plannings de l'espace de travail. -->
 <app-event-menu (saved)="chercher()"></app-event-menu>

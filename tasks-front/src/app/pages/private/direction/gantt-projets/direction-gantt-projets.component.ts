@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {forkJoin, Observable, of, Subscription} from 'rxjs';
-import {catchError, switchMap, tap} from 'rxjs/operators';
+import {catchError, map, switchMap, tap} from 'rxjs/operators';
 import {EventMenuComponent} from '../../../../common/event-menu/event-menu.component';
 import {EventsService} from '../../../../services/events.service';
 import {UserService} from '../../../../services/user.service';
@@ -19,6 +19,7 @@ import {BlocGantt, ChampGantt, LigneGantt, PartieGantt, PlanGantt, RepereGantt, 
 import {PAR_TACHE, Regroupement, REGROUPEMENTS} from './gantt-regroupement';
 import {CaseEffectif, effectifsParProjet} from './gantt-effectifs';
 import {CasePresence, presencesParCase} from './gantt-presences';
+import {presencesParJour} from './gantt-absences';
 
 /** Géométrie d'une ligne de tâche, en pixels : voir la feuille de styles. */
 const HAUT_CADRE = 8;
@@ -241,8 +242,10 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Ouvriers de l'espace sans planning sur la fenêtre. Ne dépend ni des
-   * personnes choisies ni du regroupement : c'est toute l'équipe.
+   * Membres de l'espace sans planning sur la fenêtre (`presencesParJour`) :
+   * d'abord tous les membres, puis toutes leurs séances, tous projets
+   * confondus. Ne dépend ni des personnes choisies ni du regroupement : c'est
+   * toute l'équipe.
    */
   private chargerPresences(): void {
     this.abonnementPresences?.unsubscribe();
@@ -251,11 +254,18 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
       return;
     }
     const fenetre = this.fenetre;
-    this.abonnementPresences = this.directionService.presences(this.espace.nom,
-      versIso(fenetre.debut).substring(0, 10), versIso(fenetre.fin).substring(0, 10))
-      // Sans elle, le diagramme reste utile.
-      .pipe(catchError(() => of([])))
-      .subscribe(jours => this.presences = presencesParCase(jours, fenetre));
+    this.abonnementPresences = this.membresDe(this.espace.prefixe).pipe(
+      switchMap(membres => !membres.length
+        ? of({membres, evenements: [] as EventApp[]})
+        : this.eventsService.searchEvents({
+          userIds: membres.map(m => m.id),
+          start: versIso(fenetre.debut),
+          end: versIso(fenetre.fin)
+        }).pipe(map(evenements => ({membres, evenements: evenements ?? []})))),
+      // Sans elles, le diagramme reste utile.
+      catchError(() => of({membres: [] as User[], evenements: [] as EventApp[]}))
+    ).subscribe(({membres, evenements}) => this.presences = presencesParCase(
+      presencesParJour(membres, evenements, fenetre.debut, fenetre.fin, Date.now()), fenetre));
   }
 
   private construire(): void {
@@ -344,8 +354,8 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
       + (ligne.retard ? ` · ${ligne.retard.jours} j de retard` : '')));
   }
 
-  /** Une case d'effectif ou de présence : qui, ce jour-là. */
-  survolerCase(cellule: CaseEffectif | CasePresence, event: MouseEvent): void {
+  /** Une case d'effectif : qui, ce jour-là. */
+  survolerCase(cellule: CaseEffectif, event: MouseEvent): void {
     this.montrer(event, bulleSimple(cellule.titre, cellule.detail));
   }
 
