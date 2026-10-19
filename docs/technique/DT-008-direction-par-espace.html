@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DT-008 — Direction : un espace de travail à la fois, menu à gauche</title>
+  <link rel="stylesheet" href="assets/doc.css">
+  <style>
+    .mq { display: grid; grid-template-columns: 150px 1fr; height: 220px; border-radius: 10px; overflow: hidden;
+          border: 1px solid #e5e7eb; font-size: 12px; background: #f4f5f7; }
+    .mq.reduit { grid-template-columns: 44px 1fr; }
+    .mq-menu { background: #fff; border-right: 1px solid #e8eaed; padding: 8px; display: flex; flex-direction: column; gap: 4px; }
+    .mq-menu .ws { display: flex; gap: 6px; align-items: center; padding: 4px; }
+    .mq-menu .av { width: 22px; height: 22px; border-radius: 5px; background: #185FA5; color: #fff; display: inline-flex;
+                   align-items: center; justify-content: center; font-weight: 600; flex-shrink: 0; }
+    .mq-menu .it { padding: 6px; border-radius: 5px; color: #6b7280; white-space: nowrap; overflow: hidden; }
+    .mq-menu .it.on { background: rgba(24,95,165,.08); color: #185FA5; font-weight: 600; }
+    .mq-page { padding: 10px; color: #8a94a6; }
+    .mq-page .bar { height: 14px; border-radius: 4px; background: #dbe6f3; margin: 8px 0; }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <header class="doc-header">
+    <span class="doc-ref">DT-008</span>
+    <h1>Direction : un espace de travail à la fois, menu à gauche</h1>
+    <p class="subtitle">Le cockpit de direction prend la forme d'un espace de travail : un accueil pour tous les projets, puis l'espace dans l'adresse
+      (<code>/direction/TOPO</code>), le menu est à gauche et se replie, la page garde toute la largeur.</p>
+    <table class="meta">
+      <tr><td>Référence</td><td>DT-008 (Document Technique n° 008)</td></tr>
+      <tr><td>Statut</td><td><strong>Réalisé</strong></td></tr>
+      <tr><td>Version de l'application</td><td>2.0.14</td></tr>
+      <tr><td>Date</td><td>19 octobre 2026</td></tr>
+      <tr><td>Commits liés</td><td>titres contenant « (DT-008) » : <code>git log --grep "DT-008"</code></td></tr>
+      <tr><td>Migration</td><td>aucune</td></tr>
+    </table>
+  </header>
+
+  <!-- ================================================================== -->
+  <h2 id="besoin">1. Besoin</h2>
+  <ul>
+    <li>Plus d'onglet « Tous » : la direction regarde <strong>un espace de travail à la fois</strong>, comme un
+      utilisateur dans <code>/working/TOPO</code>.</li>
+    <li>Les liens étaient en haut de chaque page, avec des onglets de départements : le diagramme de Gantt et les fiches
+      perdaient de la hauteur. Le menu passe <strong>à gauche, réductible</strong>.</li>
+  </ul>
+
+  <!-- ================================================================== -->
+  <h2 id="adresses">2. Adresses</h2>
+  <table class="data">
+    <tr><th>Adresse</th><th>Page</th></tr>
+    <tr><td><code>/direction/TOPO</code></td><td>Fiches projets de l'espace TOPO</td></tr>
+    <tr><td><code>/direction/TOPO/gantt</code></td><td>Gantt des projets de TOPO</td></tr>
+    <tr><td><code>/direction/TOPO/situation</code></td><td>Situation du jour de TOPO (DT-005)</td></tr>
+    <tr><td><code>/direction</code></td><td><strong>Accueil</strong> : tableau de bord de tous les projets, tous espaces confondus (section 3)</td></tr>
+    <tr><td><code>/direction/TOPO?projet=12</code></td><td>Fiches projets de TOPO, projet 12 choisi (lien depuis l'accueil)</td></tr>
+    <tr><td><code>/direction/gantt</code>, <code>/direction/situation</code></td><td>Anciennes adresses : même page, dans l'espace par défaut (dernier consulté, mémorisé dans le navigateur, à défaut le premier par nom)</td></tr>
+    <tr><td><code>/direction/INCONNU/…</code></td><td>Même page, dans l'espace par défaut</td></tr>
+  </table>
+  <p>Le préfixe se lit sans tenir compte de la casse : <code>/direction/topo</code> ouvre TOPO.</p>
+
+  <!-- ================================================================== -->
+  <h2 id="ecran">3. Écran</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+    <div class="mq">
+      <div class="mq-menu">
+        <div class="it"><b style="color:#185FA5">◎</b> Direction</div>
+        <div class="ws"><span class="av">T</span><span><b style="color:#185FA5">TOPO</b><br>Topographie</span></div>
+        <div class="it on">Situation du jour</div>
+        <div class="it">Fiches projets</div>
+        <div class="it">Gantt des projets</div>
+        <div style="flex:1"></div>
+        <div class="it">Espaces de travail</div>
+      </div>
+      <div class="mq-page">Situation du jour · Topographie<div class="bar"></div><div class="bar" style="width:70%"></div></div>
+    </div>
+    <div class="mq reduit">
+      <div class="mq-menu">
+        <div class="it" style="text-align:center">◎</div>
+        <div class="ws"><span class="av">T</span></div>
+        <div class="it on" style="text-align:center">◉</div>
+        <div class="it" style="text-align:center">▤</div>
+        <div class="it" style="text-align:center">≡</div>
+      </div>
+      <div class="mq-page">Gantt des projets · Topographie<div class="bar"></div><div class="bar" style="width:85%"></div><div class="bar" style="width:60%"></div></div>
+    </div>
+  </div>
+  <p>Le menu est le même sur <strong>tout</strong> le cockpit, accueil compris :</p>
+  <ul>
+    <li><strong>Accueil</strong> en tête : le tableau de bord de tous les projets.</li>
+    <li>Le bouton de l'espace ouvre la liste des espaces ; en choisir un garde la page en cours (depuis l'accueil :
+      ses fiches projets). Sur l'accueil, il montre en gris le dernier espace consulté, celui qu'ouvrent les trois
+      entrées en dessous.</li>
+    <li>Le repli est la <strong>même préférence</strong> que dans les espaces de travail (<code>LayoutService</code>,
+      clé <code>sidebar-reduite</code>). Replié, chaque entrée montre son libellé au survol.</li>
+    <li>Sous 768 px, le menu reste replié.</li>
+    <li>Les pages n'ont plus de barre du haut : un titre « Page · Espace » et leurs propres réglages (période, échelle,
+      personnes pour le Gantt).</li>
+  </ul>
+
+  <h3>Accueil : tableau de bord de tous les projets</h3>
+  <ol>
+    <li><strong>Où en est-on</strong> : les quatre chiffres (projets en cours, avancement moyen, tâches en retard,
+      tâches bloquées) et la liste « À traiter » de la situation du jour (DT-005), calculés pour toute la société —
+      mêmes composants, mêmes règles.</li>
+    <li><strong>Par espace de travail</strong> : tous les espaces, même sans projet en cours ; projets, avancement
+      moyen, tâches en retard. Un clic ouvre les fiches de l'espace.</li>
+    <li><strong>Tous les projets en cours</strong> : par espace, du plus en retard au moins en retard ; un clic ouvre la
+      fiche du projet (<code>?projet=</code>).</li>
+  </ol>
+  <p>Jauges d'une seule teinte avec la valeur écrite à côté ; un retard porte une icône et un nombre, jamais la
+    couleur seule.</p>
+
+  <!-- ================================================================== -->
+  <h2 id="architecture">4. Architecture du code</h2>
+  <table class="data">
+    <tr><th>Fichier</th><th>Rôle</th></tr>
+    <tr><td><code>DirectionService.espaces()</code>, <code>EspaceDirectionDTO</code></td><td>Serveur : espaces (nom, préfixe), triés par nom</td></tr>
+    <tr><td><code>direction.graphqls</code></td><td>Requête <code>directionEspaces</code>, type <code>EspaceDirection</code></td></tr>
+    <tr><td><code>direction.operations.ts</code></td><td><code>directionProjets</code> et le Gantt reçoivent le département : le serveur filtre, il ne calcule plus les rapports de toute la société</td></tr>
+    <tr><td><code>espace/espace-direction.service.ts</code></td><td>Espaces (une requête par session), espace courant <code>espace$</code>, dernier espace mémorisé</td></tr>
+    <tr><td><code>espace/espace-direction.guards.ts</code></td><td>Active l'espace de l'adresse ; renvoie vers l'espace par défaut</td></tr>
+    <tr><td><code>shell/direction-shell.component.*</code></td><td>Menu à gauche réductible et <code>&lt;router-outlet&gt;</code>, autour de toutes les pages</td></tr>
+    <tr><td><code>accueil/direction-accueil.component.*</code>, <code>accueil/accueil.model.ts</code></td><td>Tableau de bord ; synthèse par espace et liste des projets en fonctions pures</td></tr>
+    <tr><td><code>direction.component</code>, <code>situation</code>, <code>gantt-projets</code></td><td>Plus d'onglets ni de barre du haut ; rechargés sur <code>espace$</code></td></tr>
+  </table>
+  <div class="decision"><strong>Décision.</strong> L'espace est désigné par son <strong>préfixe</strong> dans l'adresse
+    (comme <code>/working/TOPO</code>), mais les filtres du serveur restent par <strong>nom</strong>
+    (<code>departement</code>) : on n'a pas touché aux requêtes existantes, seulement ajouté la liste des espaces.</div>
+
+  <!-- ================================================================== -->
+  <h2 id="limites">5. Limites</h2>
+  <ul>
+    <li>Deux espaces portant le même nom seraient confondus par les filtres du serveur (comportement déjà présent).</li>
+    <li>Le Gantt et la situation détaillée (personnes) n'existent que par espace ; la vue « toute la société » est
+      l'accueil.</li>
+    <li>L'accueil fait calculer les rapports de tous les projets deux fois (liste et situation) : à surveiller si le
+      nombre de projets grandit.</li>
+  </ul>
+
+  <footer>follow-task · DT-008 · direction par espace de travail</footer>
+</div>
+</body>
+</html>
