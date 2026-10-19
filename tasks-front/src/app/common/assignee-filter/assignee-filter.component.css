@@ -88,6 +88,64 @@
   background: var(--af-accent);
 }
 
+/* « +N » : les personnes au-delà de maxVisible. Même taille qu'un avatar. */
+.af-plus {
+  flex-shrink: 0;
+  width: var(--af-size);
+  height: var(--af-size);
+  padding: 0;
+  border: 1px solid #d1d5db;
+  border-radius: 50%;
+  background: #f3f4f6;
+  color: #4b5563;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.af-plus:hover {
+  border-color: var(--af-accent);
+  color: var(--af-accent);
+}
+.af-plus--selected {
+  border-color: var(--af-accent);
+  color: var(--af-accent);
+  box-shadow: 0 0 0 1.5px #fff, 0 0 0 3px var(--af-accent);
+}
+
+/* Lignes du menu (rendu dans l'overlay : ::ng-deep pour la largeur). */
+.af-ligne {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+.af-case {
+  width: 14px;
+  color: var(--af-accent);
+}
+.af-ligne-avatar {
+  --avatar-size: 24px;
+  display: block;
+  flex-shrink: 0;
+}
+.af-ligne-nom {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+}
+.af-ligne-compte {
+  font-size: 11px;
+  color: #6b7280;
+  font-variant-numeric: tabular-nums;
+}
+::ng-deep .af-menu .mat-mdc-menu-content {
+  max-height: 60vh;
+}
+
 /* "Tous" : même graisse et même bordure dans les deux états, seules les
    couleurs changent — sa largeur ne varie pas, la rangée ne bouge pas. */
 .af-all {

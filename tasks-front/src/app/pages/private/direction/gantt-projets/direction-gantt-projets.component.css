@@ -122,10 +122,6 @@
   color: var(--dir-accent);
 }
 
-.gp-btn-legende {
-  margin-left: auto;
-}
-
 .gp-dates {
   margin: 0 4px;
   font-size: 12px;
@@ -164,11 +160,13 @@
 }
 
 /* ═══ PERSONNES ═══ */
+/* Poussées à l'extrémité droite de la barre. */
 .gp-personnes {
   display: flex;
   align-items: center;
   gap: 6px;
   min-width: 0;
+  margin-left: auto;
 }
 
 .gp-label {

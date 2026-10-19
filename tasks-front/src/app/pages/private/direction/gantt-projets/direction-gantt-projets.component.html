@@ -26,19 +26,20 @@
                 (click)="choisirEchelle(e.valeur)">{{ e.libelle }}</button>
       </div>
 
-      <!-- Personnes : le filtre des listes de tâches. En choisir une relance la
-           recherche des séances pour elle seule. -->
-      <div class="gp-personnes" title="Personnes">
-        <i class="fas fa-users gp-label" aria-label="Personnes"></i>
-        <app-assignee-filter [issues]="taches" [users]="membres" [selectedIds]="selection"
-                             (selectedIdsChange)="choisirPersonnes($event)"></app-assignee-filter>
-      </div>
-
-      <button type="button" class="gp-btn gp-btn-legende" [class.active]="legendeVisible"
+      <button type="button" class="gp-btn" [class.active]="legendeVisible"
               (click)="basculerLegende()" [attr.aria-expanded]="legendeVisible"
               [title]="legendeVisible ? 'Masquer la légende' : 'Afficher la légende'">
         <i class="fas fa-circle-info"></i> Légende
       </button>
+
+      <!-- Personnes, à l'extrémité droite : quelques avatars, les autres dans
+           le menu « +N » (plusieurs choix). En choisir relance la recherche
+           des séances pour elles seules. -->
+      <div class="gp-personnes" title="Personnes">
+        <i class="fas fa-users gp-label" aria-label="Personnes"></i>
+        <app-assignee-filter [issues]="taches" [users]="membres" [selectedIds]="selection" [maxVisible]="5"
+                             (selectedIdsChange)="choisirPersonnes($event)"></app-assignee-filter>
+      </div>
     </ng-container>
   </div>
 

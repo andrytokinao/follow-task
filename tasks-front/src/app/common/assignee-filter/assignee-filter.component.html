@@ -8,7 +8,7 @@
           (click)="clear()">Tous</button>
 
   <button type="button" class="af-item"
-          *ngFor="let entry of assignees; trackBy: trackByAssignee"
+          *ngFor="let entry of visibles; trackBy: trackByAssignee"
           [class.af-item--selected]="isSelected(entry.user.id)"
           [class.af-item--dimmed]="hasSelection && !isSelected(entry.user.id)"
           [attr.aria-pressed]="isSelected(entry.user.id)"
@@ -16,6 +16,15 @@
           (click)="toggle(entry.user.id)">
     <app-avatar [url]="photoUrl(entry.user)" [displayName]="displayName(entry.user)"></app-avatar>
     <span class="af-count">{{ entry.count }}</span>
+  </button>
+
+  <!-- Au-delà de maxVisible : les autres personnes dans un menu, plusieurs
+       choix possibles sans le refermer. -->
+  <button type="button" class="af-plus" *ngIf="masques.length"
+          [class.af-plus--selected]="selectionMasquee"
+          [matMenuTriggerFor]="menuMasques"
+          [title]="masques.length + ' autre(s) personne(s)'">
+    +{{ masques.length }}
   </button>
 
   <button type="button" class="af-item" *ngIf="unassigned > 0"
@@ -28,3 +37,16 @@
     <span class="af-count">{{ unassigned }}</span>
   </button>
 </div>
+
+<mat-menu #menuMasques="matMenu" xPosition="before" class="af-menu">
+  <button mat-menu-item *ngFor="let entry of masques; trackBy: trackByAssignee"
+          [attr.aria-pressed]="isSelected(entry.user.id)"
+          (click)="$event.stopPropagation(); toggle(entry.user.id)">
+    <span class="af-ligne">
+      <i class="far af-case" [ngClass]="isSelected(entry.user.id) ? 'fa-check-square' : 'fa-square'" aria-hidden="true"></i>
+      <app-avatar class="af-ligne-avatar" [url]="photoUrl(entry.user)" [displayName]="displayName(entry.user)"></app-avatar>
+      <span class="af-ligne-nom">{{ displayName(entry.user) }}</span>
+      <span class="af-ligne-compte">{{ entry.count }}</span>
+    </span>
+  </button>
+</mat-menu>

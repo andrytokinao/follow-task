@@ -26,9 +26,18 @@ export class AssigneeFilterComponent implements OnChanges {
    * Vide par défaut : seuls les assignés sont alors proposés.
    */
   @Input() users: User[] = [];
+  /**
+   * Nombre d'avatars affichés en rangée ; les autres passent dans un menu
+   * « +N » à sélection multiple. Null par défaut : tout le monde en rangée.
+   */
+  @Input() maxVisible: number | null = null;
 
   readonly UNASSIGNED_ID = UNASSIGNED_ID;
   assignees: AssigneeCount[] = [];
+  /** Personnes de la rangée : toutes, ou les `maxVisible` premières. */
+  visibles: AssigneeCount[] = [];
+  /** Personnes du menu « +N ». */
+  masques: AssigneeCount[] = [];
   unassigned = 0;
 
   constructor(private userService: UserService) {
@@ -43,10 +52,21 @@ export class AssigneeFilterComponent implements OnChanges {
       this.assignees = [...counts.assignees, ...sansTache];
       this.unassigned = counts.unassigned;
     }
+    if (changes['issues'] || changes['users'] || changes['maxVisible']) {
+      // Plus d'une personne à masquer : sinon le « +1 » prendrait la place d'un avatar.
+      const coupe = this.maxVisible != null && this.assignees.length > this.maxVisible + 1;
+      this.visibles = coupe ? this.assignees.slice(0, this.maxVisible!) : this.assignees;
+      this.masques = coupe ? this.assignees.slice(this.maxVisible!) : [];
+    }
   }
 
   get hasSelection(): boolean {
     return (this.selectedIds || []).length > 0;
+  }
+
+  /** Une personne du menu « +N » est retenue : le bouton le montre. */
+  get selectionMasquee(): boolean {
+    return this.masques.some(entry => this.isSelected(entry.user.id));
   }
 
   isSelected(id: string): boolean {
