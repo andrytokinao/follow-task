@@ -6,7 +6,9 @@ import com.kinga.followtask.entity.enumapp.ExecutionStatus;
 import com.kinga.followtask.entity.enumapp.Niveau;
 import com.kinga.followtask.repository.*;
 import com.kinga.followtask.repository.criteria.IssueSearchCriteria;
+import com.kinga.followtask.service.avancement.PlanningTacheEnregistre;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -35,6 +37,7 @@ public class EventService {
   final IssueRepository issueRepository;
   final IssueService issueService;
   final ValueDaoRepository valueDaoRepository;
+  final ApplicationEventPublisher eventPublisher;
   private static final int DEFAULT_DURATION_MINUTES = 60;
   private static final LocalTime DAY_START = LocalTime.of(8, 0);
   private static final LocalTime DAY_END   = LocalTime.of(20, 0);
@@ -59,7 +62,18 @@ public class EventService {
     if (event.getUser() == null){
       event.setUser(userService.getConnected());
     }
-      return eventRepository.save(event);
+      PlanningEvent saved = eventRepository.save(event);
+      publierAvancement(saved, user);
+      return saved;
+  }
+
+  /** Le statut de la tache suit son planning (DT-007). */
+  private void publierAvancement(PlanningEvent event, UserApp auteur) {
+    if (event.getIssue() == null || event.getIssue().getId() == null)
+      return;
+    UserApp signataire = auteur != null ? auteur : event.getUser();
+    eventPublisher.publishEvent(new PlanningTacheEnregistre(
+            event.getIssue().getId(), signataire == null ? null : signataire.getId()));
   }
   public List<PlanningEvent> searchEvents(EventSearchCriteriaDTO criteria){
       List<PlanningEvent> events = new ArrayList<>();
@@ -390,12 +404,12 @@ public class EventService {
     eventRepository.save(event);
 
     if (event.getIssue() != null && completionPercentage != null) {
-      updateIssueProgress(event.getIssue(), completionPercentage, status);
+      updateIssueProgress(event, user);
     }
   }
 
-  private void updateIssueProgress(Issue issue, int percentage, ExecutionStatus status) {
-    // Votre logique selon le status
-    // ex : si COMPLETED et 100% → changer le Status de l'issue en "Done"
+  /** Regles d'alignement : RegleAvancementParPlanning (DT-007). */
+  private void updateIssueProgress(PlanningEvent event, UserApp user) {
+    publierAvancement(event, user);
   }
 }
