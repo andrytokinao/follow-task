@@ -146,8 +146,9 @@
                 <i class="fas" [ngClass]="replies.has(bloc.projet.id!) ? 'fa-chevron-right' : 'fa-chevron-down'"></i>
               </button>
               <span class="gp-texte">
-                <!-- Pas de lien vers l'espace de travail pour le moment : ni projet, ni tâche. -->
-                <span class="projet-nom" [title]="bloc.projet.summary"><app-type-tache [type]="bloc.projet.issueType"></app-type-tache> {{ bloc.projet.summary }}</span>
+                <!-- Clic sur le nom : l'aperçu du projet en popup (IssueApercuPopupService). -->
+                <span class="projet-nom apercu-lien" role="button" tabindex="0" [title]="bloc.projet.summary + ' — voir l\'aperçu'"
+                      (click)="apercu(bloc.projet)" (keydown.enter)="apercu(bloc.projet)"><app-type-tache [type]="bloc.projet.issueType"></app-type-tache> {{ bloc.projet.summary }}</span>
                 <span class="projet-phase" *ngIf="bloc.projet.phaseCourante as phase" title="Phase en cours">{{ phase.name }}</span>
                 <span class="projet-meta">
                   {{ bloc.projet.issueKey }} · {{ bloc.nombreTaches }} tâche(s) · {{ bloc.avancement }} % avancé
@@ -210,7 +211,9 @@
                             [url]="photoDe(r)" [displayName]="nomDe(r)" [title]="nomDe(r)"></app-avatar>
                 <ng-template #sansResponsable><span class="tache-avatar vide" title="Non assignée"><i class="far fa-user"></i></span></ng-template>
                 <span class="gp-texte">
-                  <span class="tache-nom" [title]="t.summary"><app-type-tache [type]="t.issueType"></app-type-tache> {{ t.summary }}</span>
+                  <!-- Clic sur le nom : l'aperçu de la tâche en popup. -->
+                  <span class="tache-nom apercu-lien" role="button" tabindex="0" [title]="t.summary + ' — voir l\'aperçu'"
+                        (click)="apercu(t)" (keydown.enter)="apercu(t)"><app-type-tache [type]="t.issueType"></app-type-tache> {{ t.summary }}</span>
                   <span class="tache-meta">
                     {{ t.issueKey }}
                     <ng-container *ngIf="t.status as s"> · <span class="tache-statut" [style.color]="s.color || null">{{ s.displayName }}</span></ng-container>

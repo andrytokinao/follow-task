@@ -897,6 +897,17 @@
 }
 
 /* Total des personnes du projet, dans sa ligne : clic, la liste. */
+/* Nom d'un projet ou d'une tâche : ouvre son aperçu en popup. */
+.apercu-lien {
+  cursor: pointer;
+}
+.apercu-lien:hover,
+.apercu-lien:focus-visible {
+  color: var(--dir-accent);
+  text-decoration: underline;
+  outline: none;
+}
+
 /* Filtre d'un projet : discret, teinté quand des types sont masqués ou l'ordre changé. */
 .gp-filtre {
   flex-shrink: 0;

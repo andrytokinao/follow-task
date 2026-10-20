@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DT-017 — Aperçu d'une issue en popup, réutilisable</title>
+  <link rel="stylesheet" href="assets/doc.css">
+</head>
+<body>
+<div class="page">
+
+  <header class="doc-header">
+    <span class="doc-ref">DT-017</span>
+    <h1>Aperçu d'une issue en popup, réutilisable</h1>
+    <p class="subtitle">Un projet ou une sous-tâche s'affiche en popup depuis n'importe quel écran, par un seul appel de
+      service. Premier usage hors du menu d'une tâche : le Gantt des projets, au clic sur le nom d'un projet ou d'une tâche.</p>
+    <table class="meta">
+      <tr><td>Référence</td><td>DT-017 (Document Technique n° 017)</td></tr>
+      <tr><td>Statut</td><td><strong>Réalisé</strong></td></tr>
+      <tr><td>Version de l'application</td><td>2.0.31</td></tr>
+      <tr><td>Date</td><td>20 octobre 2026</td></tr>
+      <tr><td>Commits liés</td><td>titres contenant « (DT-017) » : <code>git log --grep "DT-017"</code></td></tr>
+      <tr><td>Migration</td><td>aucune</td></tr>
+    </table>
+  </header>
+
+  <!-- ================================================================== -->
+  <h2 id="service">1. Ouvrir la popup</h2>
+  <p>La popup existait déjà (entrée « Aperçu » du menu d'une tâche) : on l'exploite telle quelle.</p>
+  <pre><code>constructor(private apercuPopup: IssueApercuPopupService) {}
+
+// L'issue ou son identifiant : la popup charge elle-même ses données.
+this.apercuPopup.ouvrir(issue);      // ou ouvrir(issueId)</code></pre>
+  <ul>
+    <li>Service <code>IssueApercuPopupService</code> (<code>common/issue-apercu/</code>), fourni à la racine : aucun module à importer.</li>
+    <li>Contenu : type, statut, étiquettes, avancement, assignés, rapporteur, dates, temps passé, description, sous-tâches.</li>
+    <li>Un clic sur une sous-tâche l'affiche dans la même popup ; « Retour » revient à la précédente ; « Ouvrir la page »
+      mène à la page complète.</li>
+  </ul>
+
+  <!-- ================================================================== -->
+  <h2 id="gantt">2. Premier usage : le Gantt</h2>
+  <ul>
+    <li>Le nom d'un projet et celui d'une tâche, dans la colonne de gauche, sont des liens (souligné au survol, Entrée au clavier) :
+      <code>apercu(demande)</code> ouvre la popup.</li>
+    <li>Les pistes gardent leurs clics : une case ouvre les champs dates (DT-013), une barre ses séances (DT-016).</li>
+  </ul>
+
+  <footer>follow-task · documents techniques</footer>
+</div>
+</body>
+</html>

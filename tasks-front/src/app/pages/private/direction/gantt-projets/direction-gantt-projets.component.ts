@@ -2,6 +2,7 @@ import {Component, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {forkJoin, Observable, of, Subscription} from 'rxjs';
 import {catchError, map, switchMap, tap} from 'rxjs/operators';
 import {EventMenuComponent} from '../../../../common/event-menu/event-menu.component';
+import {IssueApercuPopupService} from '../../../../common/issue-apercu/issue-apercu-popup.service';
 import {EventsService} from '../../../../services/events.service';
 import {UserService} from '../../../../services/user.service';
 import {EventApp, Issue, User} from '../../../../type/issue';
@@ -167,7 +168,8 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
   constructor(private directionService: DirectionService,
               private eventsService: EventsService,
               private userService: UserService,
-              private espaceService: EspaceDirectionService) {
+              private espaceService: EspaceDirectionService,
+              private apercuPopup: IssueApercuPopupService) {
   }
 
   /** Les projets sont ceux de l'espace suivi : en changer recharge la page. */
@@ -541,6 +543,15 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
     } else if (serie.seances.length) {
       this.seancesMenu.ouvrir(this.titre(ligne), serie, reel, event);
     }
+  }
+
+  /** Clic sur le nom d'un projet ou d'une tâche : son aperçu en popup, sans quitter le diagramme. */
+  apercu(demande: TacheGantt): void {
+    if (demande.id == null) {
+      return;
+    }
+    this.bulle = null;
+    this.apercuPopup.ouvrir(demande.id as number);
   }
 
   /** Une séance choisie dans le menu d'une barre : sa fiche, au même endroit. */
