@@ -112,7 +112,7 @@ function debutDe(bloc: BlocGantt): number | null {
  * Dans l'ordre d'exécution : le diagramme se lit en escalier. À début égal, la
  * deadline la plus proche d'abord ; sans date, en bas.
  */
-function parDebut(a: LigneGantt, b: LigneGantt): number {
+export function parDebut(a: LigneGantt, b: LigneGantt): number {
   return (a.debut ?? Infinity) - (b.debut ?? Infinity)
     || (a.cadre?.fin ?? Infinity) - (b.cadre?.fin ?? Infinity);
 }

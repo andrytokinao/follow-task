@@ -14,7 +14,8 @@ import {versIso} from './gantt-dates.util';
 import {AxeGantt, EchelleGantt, FenetreGantt} from './gantt-fenetre';
 import {IntervenantsGantt} from './gantt-personnes';
 import {ActivitesGantt, placerEvenements} from './gantt-evenements';
-import {cleRepere, construireBlocs, EntreesStructure, indexerChamps, rafraichirDemande} from './gantt-projets.constructeur';
+import {cleRepere, construireBlocs, EntreesStructure, indexerChamps, parDebut, rafraichirDemande} from './gantt-projets.constructeur';
+import {FiltreProjet, ordonner, OrdreLignes, SANS_FILTRE, TypeProjet, typesDuProjet} from './gantt-filtre-projet';
 import {BlocGantt, ChampGantt, LigneGantt, PartieGantt, PlanGantt, RepereGantt, Serie} from './gantt-projets.model';
 import {PAR_TACHE, Regroupement, REGROUPEMENTS} from './gantt-regroupement';
 import {annuaire, CaseEffectif, effectifsParProjet, PersonneEffectif} from './gantt-effectifs';
@@ -104,8 +105,12 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
   replies = new Set<number>();
   /** Lignes et projets qui ne concernent pas les personnes choisies : masqués. */
   visibles = TOUT_VISIBLE;
-  /** Replis animés une fois des personnes choisies, pas au chargement de la page. */
+  /** Replis animés une fois des personnes choisies ou un filtre touché, pas au chargement de la page. */
   animer = false;
+  /** Filtre de chaque projet qui en a un : types de tâche décochés, ordre des lignes. */
+  filtres = new Map<number, FiltreProjet>();
+  /** Types de tâche de chaque projet : les cases du menu de son filtre. */
+  typesParProjet = new Map<number, TypeProjet[]>();
 
   /** Structure : projets, tâches, cadres, champs datés. */
   blocs: BlocGantt[] = [];
@@ -216,6 +221,31 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
     this.bulle = null;
     this.construire();
     this.poser(this.evenements);
+  }
+
+  /** Coche ou décoche un type de tâche dans le filtre d'un projet : ses lignes se replient ou reviennent. */
+  basculerType(bloc: BlocGantt, typeId: number): void {
+    const filtre = this.filtreDe(bloc);
+    const typesMasques = new Set(filtre.typesMasques);
+    if (!typesMasques.delete(typeId)) {
+      typesMasques.add(typeId);
+    }
+    this.filtrer(bloc, {...filtre, typesMasques});
+  }
+
+  /** Tous les types du projet cochés. */
+  afficherTousLesTypes(bloc: BlocGantt): void {
+    this.filtrer(bloc, {...this.filtreDe(bloc), typesMasques: new Set()});
+  }
+
+  /** Lignes du projet dans l'ordre d'exécution, ou rangées par type. */
+  choisirOrdre(bloc: BlocGantt, ordre: OrdreLignes): void {
+    this.filtrer(bloc, {...this.filtreDe(bloc), ordre});
+    this.blocs = this.blocs.map(b => b.projet.id === bloc.projet.id ? this.ordonne(b) : b);
+  }
+
+  filtreDe(bloc: BlocGantt): FiltreProjet {
+    return this.filtres.get(bloc.projet.id as number) ?? SANS_FILTRE;
   }
 
   /** Seuls les événements changent : projets, tâches et cadres restent en place. */
@@ -339,13 +369,35 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
     const maintenant = Date.now();
     this.axe = this.fenetre.axe(maintenant);
     this.aujourdhui = this.fenetre.contient(maintenant) ? this.fenetre.x(maintenant) : null;
-    this.blocs = construireBlocs(this.entrees(maintenant));
+    const blocs = construireBlocs(this.entrees(maintenant));
+    this.typesParProjet = new Map(blocs.map(bloc => [bloc.projet.id as number, typesDuProjet(bloc)]));
+    this.blocs = blocs.map(bloc => this.ordonne(bloc));
     // Chaque tâche mène à sa ligne : c'est par là que ses événements la rejoignent.
     this.ligneDeTache = new Map(this.blocs.flatMap(bloc =>
       bloc.lignes.flatMap(l => l.taches.map(tache => [tache.id as number, l.cle] as [number, string]))));
     // Et à son projet : l'effectif par jour se compte par projet.
     this.projetDeTache = new Map(this.blocs.flatMap(bloc =>
       bloc.lignes.flatMap(l => l.taches.map(tache => [tache.id as number, bloc.projet.id as number] as [number, number]))));
+  }
+
+  /** Un projet sans filtre n'en garde pas : sans filtre ni personne choisie, rien n'est à calculer. */
+  private filtrer(bloc: BlocGantt, filtre: FiltreProjet): void {
+    const id = bloc.projet.id as number;
+    if (!filtre.typesMasques.size && filtre.ordre === SANS_FILTRE.ordre) {
+      this.filtres.delete(id);
+    } else {
+      this.filtres.set(id, filtre);
+    }
+    this.animer = true;
+    this.visibles = visibilite(this.blocs, this.selection, this.activites, this.filtres);
+  }
+
+  private ordonne(bloc: BlocGantt): BlocGantt {
+    const filtre = this.filtreDe(bloc);
+    return {
+      ...bloc,
+      lignes: ordonner(bloc.lignes, filtre.ordre, parDebut, this.typesParProjet.get(bloc.projet.id as number) ?? [])
+    };
   }
 
   private entrees(maintenant: number): EntreesStructure {
@@ -426,7 +478,7 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
     this.evenements = evenements;
     this.activites = placerEvenements(evenements, this.fenetre, Date.now(), tacheId => this.ligneDeTache.get(tacheId));
     // Après la recherche : les séances des personnes choisies disent aussi quelles tâches les concernent.
-    this.visibles = visibilite(this.blocs, this.selection, this.activites);
+    this.visibles = visibilite(this.blocs, this.selection, this.activites, this.filtres);
     this.intervenants.retenir(evenements);
     this.taches = this.intervenants.completer(this.blocs.flatMap(bloc => bloc.projet.children ?? []));
   }

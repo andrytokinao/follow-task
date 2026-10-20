@@ -164,6 +164,13 @@
                   </span>
                 </span>
               </span>
+              <!-- Filtre du projet : types de tâche affichés, ordre des lignes. Teinté s'il change l'affichage. -->
+              <button type="button" class="gp-filtre" *ngIf="typesParProjet.get(bloc.projet.id!)?.length"
+                      [class.actif]="filtres.has(bloc.projet.id!)" title="Types de tâche et ordre"
+                      aria-label="Filtrer les tâches du projet"
+                      [matMenuTriggerFor]="menuTypes" [matMenuTriggerData]="{bloc: bloc}" (click)="quitter()">
+                <i class="fas fa-filter"></i>
+              </button>
             </div>
             <!-- Clic sur une case : les champs datés du projet à cette date. -->
             <div class="gp-piste piste-champs" [style.width.px]="fenetre.largeur"
@@ -354,6 +361,41 @@
 </mat-menu>
 
 <!-- ═══ QUI TRAVAILLE SUR LE PROJET : une case d'effectif, ou le total de la période ═══ -->
+<!-- ═══ FILTRE D'UN PROJET : types de tâche cochables, ordre des lignes ═══ -->
+<mat-menu #menuTypes="matMenu" class="gp-menu-presence">
+  <ng-template matMenuContent let-bloc="bloc">
+    <!-- Cases et choix d'ordre : un clic ne referme pas le menu. -->
+    <div appContenuMenu *ngIf="filtreDe(bloc) as f">
+      <div class="mp-entete">
+        <strong>Types de tâche</strong>
+        <span>{{ bloc.projet.summary }}</span>
+      </div>
+      <div class="mp-groupe">
+        <label class="ft-type" *ngFor="let t of typesParProjet.get(bloc.projet.id)">
+          <input type="checkbox" [checked]="!f.typesMasques.has(t.id)" (change)="basculerType(bloc, t.id)">
+          <app-type-tache [type]="t.type"></app-type-tache>
+          <span class="mp-nom">{{ t.nom }}</span>
+          <span class="ft-nombre">{{ t.nombre }}</span>
+        </label>
+        <button type="button" class="ft-lien" *ngIf="f.typesMasques.size" (click)="afficherTousLesTypes(bloc)">
+          Tout afficher
+        </button>
+      </div>
+      <div class="mp-groupe">
+        <div class="ft-titre">Ordre des tâches</div>
+        <label class="ft-type">
+          <input type="radio" [name]="'ordre-' + bloc.projet.id" [checked]="f.ordre === 'execution'"
+                 (change)="choisirOrdre(bloc, 'execution')"> Ordre d'exécution
+        </label>
+        <label class="ft-type">
+          <input type="radio" [name]="'ordre-' + bloc.projet.id" [checked]="f.ordre === 'type'"
+                 (change)="choisirOrdre(bloc, 'type')"> Par type de tâche
+        </label>
+      </div>
+    </div>
+  </ng-template>
+</mat-menu>
+
 <mat-menu #menuEquipe="matMenu" class="gp-menu-presence">
   <ng-template matMenuContent let-titre="titre" let-source="source" let-personnes="personnes" let-jours="jours">
     <div class="mp-entete" (click)="$event.stopPropagation()">
