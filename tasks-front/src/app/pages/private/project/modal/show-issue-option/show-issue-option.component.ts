@@ -8,6 +8,7 @@ import {IssueService} from "../../../../../services/issue.service";
 import {UserService} from "../../../../../services/user.service";
 import {AuthService} from "../../../../../services/auth.service";
 import {ActivatedRoute, Router} from "@angular/router";
+import {IssueApercuPopupService} from "../../../../../common/issue-apercu/issue-apercu-popup.service";
 
 @Component({
   standalone:false,
@@ -29,9 +30,13 @@ export class ShowIssueOptionComponent {
     public userService: UserService,
     public authService: AuthService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private apercuPopup: IssueApercuPopupService
   ) {
 
+  }
+  showApercu() {
+     this.apercuPopup.ouvrir(this.issue);
   }
   showPlanning() {
      this.issueService.showPlanning(this.issue);

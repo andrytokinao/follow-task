@@ -1,0 +1,161 @@
+<div class="apercu">
+
+  <!-- Barre du haut : retour, fil d'ariane, fermeture -->
+  <div class="topbar">
+    <button type="button" class="icon-btn" *ngIf="historique.length > 0" (click)="retour()" title="Retour">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+    <span class="crumb" *ngIf="apercu">
+      <span *ngIf="apercu.projet">{{ apercu.projet }}</span>
+      <ng-container *ngIf="apercu.parent">
+        <i class="fas fa-chevron-right sep"></i>
+        <a class="crumb-link" (click)="afficher(apercu.parent)" [title]="apercu.parent.summary">
+          {{ apercu.parent.issueKey }}
+        </a>
+      </ng-container>
+    </span>
+    <span class="spacer"></span>
+    <button type="button" class="icon-btn" (click)="fermer()" title="Fermer">
+      <i class="fas fa-xmark"></i>
+    </button>
+  </div>
+
+  <!-- Chargement -->
+  <div class="state" *ngIf="chargement && !apercu">
+    <i class="fas fa-spinner fa-spin"></i> Chargement…
+  </div>
+
+  <!-- Erreur -->
+  <div class="state state-error" *ngIf="erreur">
+    <i class="fas fa-triangle-exclamation"></i> Impossible de charger cette issue.
+    <button type="button" class="btn btn-ghost" (click)="recharger()">Réessayer</button>
+  </div>
+
+  <ng-container *ngIf="apercu && !erreur">
+    <div class="content" [class.is-loading]="chargement">
+
+      <!-- En-tête -->
+      <header class="head">
+        <span class="badge"><app-type-tache [type]="apercu.type"></app-type-tache></span>
+        <div class="head-text">
+          <div class="meta-line">
+            <span class="key">{{ apercu.cle }}</span>
+            <span class="type" *ngIf="apercu.typeLibelle">{{ apercu.typeLibelle }}</span>
+            <app-statut-tache [status]="apercu.statut"></app-statut-tache>
+          </div>
+          <h2 class="title">{{ apercu.titre }}</h2>
+        </div>
+      </header>
+
+      <!-- Étiquettes -->
+      <div class="labels" *ngIf="apercu.etiquettes.length > 0">
+        <span class="label" *ngFor="let etiquette of apercu.etiquettes"
+              [style.--label-color]="etiquette.couleur">{{ etiquette.nom }}</span>
+      </div>
+
+      <!-- Avancement -->
+      <section class="progress-block">
+        <div class="progress-head">
+          <span>Avancement</span>
+          <b>{{ apercu.avancement }} %</b>
+        </div>
+        <div class="progress"><span class="progress-bar" [style.width.%]="apercu.avancement"></span></div>
+      </section>
+
+      <!-- Informations -->
+      <dl class="infos">
+        <div class="info">
+          <dt><i class="fas fa-users"></i> Assignés</dt>
+          <dd>
+            <span class="people" *ngIf="apercu.assignes.length > 0; else personne">
+              <app-avatar *ngFor="let user of apercu.assignes | slice:0:avatarsVisibles"
+                          [url]="user.photo" [displayName]="user.nom" [title]="user.nom"></app-avatar>
+              <span class="more" *ngIf="apercu.assignes.length > avatarsVisibles">
+                +{{ apercu.assignes.length - avatarsVisibles }}
+              </span>
+              <span class="people-name" *ngIf="apercu.assignes.length === 1">{{ apercu.assignes[0].nom }}</span>
+            </span>
+          </dd>
+        </div>
+        <div class="info">
+          <dt><i class="fas fa-user-pen"></i> Rapporteur</dt>
+          <dd>
+            <span class="people" *ngIf="apercu.rapporteur; else personne">
+              <app-avatar [url]="apercu.rapporteur.photo" [displayName]="apercu.rapporteur.nom"></app-avatar>
+              <span class="people-name">{{ apercu.rapporteur.nom }}</span>
+            </span>
+          </dd>
+        </div>
+        <div class="info">
+          <dt><i class="fas fa-play"></i> Démarrage</dt>
+          <dd>{{ apercu.demarrage ? (apercu.demarrage | date:'dd/MM/yyyy') : '—' }}</dd>
+        </div>
+        <div class="info">
+          <dt><i class="fas fa-flag-checkered"></i> Échéance</dt>
+          <dd [class.late]="apercu.enRetard">
+            {{ apercu.echeance ? (apercu.echeance | date:'dd/MM/yyyy') : '—' }}
+            <span class="late-tag" *ngIf="apercu.enRetard">En retard</span>
+          </dd>
+        </div>
+        <div class="info">
+          <dt><i class="fas fa-calendar-plus"></i> Créée le</dt>
+          <dd>{{ apercu.creation ? (apercu.creation | date:'dd/MM/yyyy') : '—' }}</dd>
+        </div>
+        <div class="info">
+          <dt><i class="fas fa-clock"></i> Temps passé</dt>
+          <dd>{{ apercu.tempsPasse || '—' }}</dd>
+        </div>
+      </dl>
+
+      <!-- Description -->
+      <section class="section" *ngIf="apercu.description">
+        <h3 class="section-title">Description</h3>
+        <div class="description" [innerHTML]="apercu.description"></div>
+      </section>
+
+      <!-- Sous-tâches -->
+      <section class="section" *ngIf="!apercu.estSousTache || apercu.sousTaches.length > 0">
+        <h3 class="section-title">
+          Sous-tâches
+          <span class="count" *ngIf="apercu.sousTaches.length > 0">
+            {{ apercu.sousTachesTerminees }}/{{ apercu.sousTaches.length }} terminées
+          </span>
+        </h3>
+
+        <p class="empty" *ngIf="apercu.sousTaches.length === 0">Aucune sous-tâche.</p>
+
+        <ul class="subtasks" *ngIf="apercu.sousTaches.length > 0">
+          <li class="subtask" *ngFor="let sousTache of apercu.sousTaches"
+              [class.done]="sousTache.terminee" (click)="afficher(sousTache.issue)">
+            <span class="subtask-icon"><app-type-tache [type]="sousTache.type"></app-type-tache></span>
+            <span class="subtask-main">
+              <span class="subtask-title">
+                <span class="key">{{ sousTache.cle }}</span> {{ sousTache.titre }}
+              </span>
+              <span class="progress progress-sm">
+                <span class="progress-bar" [style.width.%]="sousTache.avancement"></span>
+              </span>
+            </span>
+            <span class="subtask-percent">{{ sousTache.avancement }} %</span>
+            <app-statut-tache class="subtask-status" [status]="sousTache.statut"></app-statut-tache>
+            <span class="people people-sm">
+              <app-avatar *ngFor="let user of sousTache.assignes | slice:0:avatarsVisibles"
+                          [url]="user.photo" [displayName]="user.nom" [title]="user.nom"></app-avatar>
+              <span class="avatar-empty" *ngIf="sousTache.assignes.length === 0" title="Non assigné">?</span>
+            </span>
+          </li>
+        </ul>
+      </section>
+    </div>
+
+    <!-- Pied -->
+    <footer class="foot">
+      <button type="button" class="btn btn-ghost" (click)="fermer()">Fermer</button>
+      <button type="button" class="btn btn-primary" *ngIf="lienPage" (click)="ouvrirPage()">
+        <i class="fas fa-up-right-from-square"></i> Ouvrir la page
+      </button>
+    </footer>
+  </ng-container>
+
+  <ng-template #personne><span class="muted">—</span></ng-template>
+</div>
