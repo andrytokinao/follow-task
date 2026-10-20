@@ -16,10 +16,14 @@
     <label class="gcc-champ" *ngFor="let l of lignes; trackBy: parChamp"
            [class.bloque]="!l.coche && l.bloque"
            [title]="!l.coche && l.bloque ? 'Une seule date par demande, déjà au ' + ailleurs(l) : ''">
-      <!-- La case ne bascule qu'à la réponse du serveur : en cas d'échec, elle reste juste. -->
-      <input type="checkbox" [checked]="l.coche" [disabled]="enCours || (!l.coche && l.bloque)"
-             (click)="$event.preventDefault(); basculer(l)">
+      <!-- La case ne bascule qu'à la réponse du serveur : en cas d'échec, elle reste juste. En attendant, le chargement. -->
+      <i class="fas fa-circle-notch fa-spin gcc-attente" *ngIf="champEnCours === l.champ.id; else caseChamp"></i>
+      <ng-template #caseChamp>
+        <input type="checkbox" [checked]="l.coche" [disabled]="enCours || (!l.coche && l.bloque)"
+               (click)="$event.preventDefault(); basculer(l)">
+      </ng-template>
       <span class="gcc-nom">{{ l.champ.name }}</span>
+      <span class="gcc-ok" *ngIf="confirmation?.champId === l.champ.id"><i class="fas fa-check"></i> {{ confirmation!.texte }}</span>
       <span class="gcc-unique" *ngIf="l.unique" title="Une seule date par demande">unique</span>
       <small class="gcc-ailleurs" *ngIf="l.ailleurs.length">{{ ailleurs(l) }}</small>
     </label>

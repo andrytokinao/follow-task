@@ -71,6 +71,18 @@
   font-weight: 600;
   color: #475467;
 }
+/* À la place de la case pendant l'écriture : même largeur, la ligne ne bouge pas. */
+.gcc-attente {
+  width: 13px;
+  font-size: 12px;
+  color: #667085;
+}
+.gcc-ok {
+  font-size: 11px;
+  font-weight: 600;
+  color: #067647;
+  white-space: nowrap;
+}
 .gcc-ailleurs {
   font-size: 11px;
   color: #667085;

@@ -132,7 +132,7 @@
 
           <!-- Champs personnalisés du projet : sur toute la hauteur de son bloc. -->
           <span class="repere repere-projet" *ngFor="let r of bloc.reperes" [style.left.px]="300 + r.gauche"
-                [style.background]="r.couleur"
+                [style.background]="r.couleur" [class.recent]="r.cle === repereRecent"
                 (mouseenter)="survolerRepere(r, $event)"
                 (mousemove)="suivre($event)" (mouseleave)="quitter()"></span>
 
@@ -264,7 +264,7 @@
 
                 <!-- Champs personnalisés de la tâche. -->
                 <span class="repere repere-tache" *ngFor="let r of l.reperes" [style.left.px]="r.gauche"
-                      [style.background]="r.couleur"
+                      [style.background]="r.couleur" [class.recent]="r.cle === repereRecent"
                       (mouseenter)="survolerRepere(r, $event)"
                       (mousemove)="suivre($event)" (mouseleave)="quitter()"></span>
               </div>

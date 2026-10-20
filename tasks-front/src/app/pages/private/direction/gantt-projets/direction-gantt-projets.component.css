@@ -680,6 +680,16 @@
   filter: brightness(0.8);
 }
 
+/* Date tout juste posée depuis le menu d'une case : la barre pulse trois fois. */
+.repere.recent {
+  z-index: 3;
+  animation: repere-recent 0.8s ease-out 3;
+}
+@keyframes repere-recent {
+  0%   { box-shadow: 0 0 0 0 rgba(16, 24, 40, .45); transform: scaleX(1.8); }
+  100% { box-shadow: 0 0 0 8px rgba(16, 24, 40, 0); transform: scaleX(1); }
+}
+
 /* ═══ INFOBULLE ═══ */
 .gp-bulle {
   position: fixed;

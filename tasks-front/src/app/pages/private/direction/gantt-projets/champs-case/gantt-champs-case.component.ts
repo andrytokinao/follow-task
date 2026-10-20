@@ -11,7 +11,12 @@ import {GanttChampsService} from './gantt-champs.service';
 export interface ValeursModifiees {
   issueId: number;
   valeurs: CustomFieldValue[];
+  /** Date tout juste posée : l'hôte fait clignoter sa barre. */
+  posee?: { champId: number; jour: number };
 }
+
+/** Durée du message « Date posée » sous la case cochée. */
+const DUREE_CONFIRMATION = 2500;
 
 /**
  * Menu d'une case du Gantt, ouvert à l'endroit du clic : les champs datés de
@@ -40,18 +45,24 @@ export class GanttChampsCaseComponent implements OnDestroy {
   chargement = false;
   /** Écriture en cours : les cases restent figées jusqu'à la réponse. */
   enCours = false;
+  /** Champ dont l'écriture est en cours : sa case laisse place au chargement. */
+  champEnCours: unknown = null;
+  /** Après la réponse : « Date posée » ou « Date retirée », sur la ligne du champ. */
+  confirmation: { champId: unknown; texte: string } | null = null;
   erreur: string | null = null;
   peutCreer = false;
   nouveauNom = '';
   nouveauUnique = true;
 
   private abonnement?: Subscription;
+  private minuterieConfirmation?: ReturnType<typeof setTimeout>;
 
   constructor(private champsService: GanttChampsService, private cdr: ChangeDetectorRef) {
   }
 
   ngOnDestroy(): void {
     this.abonnement?.unsubscribe();
+    clearTimeout(this.minuterieConfirmation);
   }
 
   ouvrir(cellule: CaseChamps, event: MouseEvent): void {
@@ -64,6 +75,7 @@ export class GanttChampsCaseComponent implements OnDestroy {
       this.y = event.clientY;
       this.cellule = cellule;
       this.erreur = null;
+      this.confirmation = null;
       this.nouveauNom = '';
       this.charger();
       this.cdr.detectChanges();
@@ -77,10 +89,13 @@ export class GanttChampsCaseComponent implements OnDestroy {
       return;
     }
     // Décocher retire chaque date de la case ; la dernière réponse porte toutes les valeurs restantes.
-    const ecriture: Observable<CustomFieldValue[]> = ligne.coche
-      ? forkJoin(ligne.ici.map(v => this.champsService.retirer(v.id as number))).pipe(map(reponses => reponses[reponses.length - 1]))
-      : this.champsService.dater(cellule.issueId, ligne.champ, versJourIso(cellule.debut));
-    this.ecrire(ecriture);
+    if (ligne.coche) {
+      this.ecrire(ligne, forkJoin(ligne.ici.map(v => this.champsService.retirer(v.id as number)))
+        .pipe(map(reponses => reponses[reponses.length - 1])), 'Date retirée');
+    } else {
+      this.ecrire(ligne, this.champsService.dater(cellule.issueId, ligne.champ, versJourIso(cellule.debut)),
+        'Date posée', {champId: ligne.champ.id as number, jour: cellule.debut});
+    }
   }
 
   creer(): void {
@@ -134,24 +149,36 @@ export class GanttChampsCaseComponent implements OnDestroy {
     }
   }
 
-  private ecrire(ecriture: Observable<CustomFieldValue[]>): void {
+  private ecrire(ligne: LigneChamp, ecriture: Observable<CustomFieldValue[]>, texte: string,
+                 posee?: ValeursModifiees['posee']): void {
     const cellule = this.cellule!;
     this.enCours = true;
+    this.champEnCours = ligne.champ.id;
     this.erreur = null;
+    this.confirmation = null;
     ecriture.subscribe({
       next: reponse => {
         const valeurs = avecChamps(reponse, this.champs);
         this.enCours = false;
+        this.champEnCours = null;
         this.cellule = {...cellule, valeurs};
         this.lignes = lignesDeCase(this.champs, this.cellule);
-        this.modifie.emit({issueId: cellule.issueId, valeurs});
+        this.confirmer(ligne.champ.id, texte);
+        this.modifie.emit({issueId: cellule.issueId, valeurs, posee});
       },
       error: e => this.echouer(e)
     });
   }
 
+  private confirmer(champId: unknown, texte: string): void {
+    clearTimeout(this.minuterieConfirmation);
+    this.confirmation = {champId, texte};
+    this.minuterieConfirmation = setTimeout(() => this.confirmation = null, DUREE_CONFIRMATION);
+  }
+
   private echouer(e: any): void {
     this.enCours = false;
+    this.champEnCours = null;
     this.erreur = e?.graphQLErrors?.[0]?.message ?? e?.message ?? 'Enregistrement impossible.';
   }
 }

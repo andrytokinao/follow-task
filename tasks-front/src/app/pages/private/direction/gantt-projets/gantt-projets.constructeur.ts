@@ -238,6 +238,11 @@ function estRepere(valeur: CustomFieldValue): boolean {
   return !!champ && champ.type === TYPE_DATE && !!valeur.date;
 }
 
+/** Clé de la barre d'un champ daté sur une demande, à un jour. */
+export function cleRepere(issueId: number, champId: number, jour: number): string {
+  return `${issueId}/${champId}/${jour}`;
+}
+
 /** Champs personnalisés de type Date d'une demande qui tombent dans la fenêtre. */
 function reperes(demande: TacheGantt, entrees: EntreesStructure): RepereGantt[] {
   const resultat: RepereGantt[] = [];
@@ -247,6 +252,7 @@ function reperes(demande: TacheGantt, entrees: EntreesStructure): RepereGantt[] 
       continue;
     }
     resultat.push({
+      cle: cleRepere(demande.id as number, valeur.customField.id as number, jour),
       // Milieu du jour : la barre ne se confond pas avec un bord de cadre.
       gauche: entrees.fenetre.x(jour + JOUR / 2),
       source: `${demande.issueKey} · ${demande.summary}`,

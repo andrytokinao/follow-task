@@ -126,6 +126,16 @@
       le nom aussitôt. La case reste cochée et se décoche sans recharger.</li>
   </ul>
 
+  <!-- ================================================================== -->
+  <h2 id="indication">8. Complément : indication d'écriture</h2>
+  <ul>
+    <li>Pendant l'écriture, la case du champ cliqué laisse place à un chargement (<code>champEnCours</code>) ;
+      à la réponse, « ✓ Date posée » ou « ✓ Date retirée » s'affiche 2,5 s sur sa ligne (<code>confirmation</code>).</li>
+    <li><code>ValeursModifiees.posee</code> dit quelle date vient d'être posée. Chaque barre porte une clé
+      <code>demande/champ/jour</code> (<code>cleRepere</code>) : celle de la date posée prend la classe
+      <code>recent</code> et pulse trois fois (<code>repereRecent</code>, 2,4 s).</li>
+  </ul>
+
   <footer>follow-task · documents techniques</footer>
 </div>
 </body>

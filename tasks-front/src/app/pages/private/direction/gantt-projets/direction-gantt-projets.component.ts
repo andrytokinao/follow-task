@@ -14,7 +14,7 @@ import {versIso} from './gantt-dates.util';
 import {AxeGantt, EchelleGantt, FenetreGantt} from './gantt-fenetre';
 import {IntervenantsGantt} from './gantt-personnes';
 import {ActivitesGantt, placerEvenements} from './gantt-evenements';
-import {construireBlocs, EntreesStructure, indexerChamps, rafraichirDemande} from './gantt-projets.constructeur';
+import {cleRepere, construireBlocs, EntreesStructure, indexerChamps, rafraichirDemande} from './gantt-projets.constructeur';
 import {BlocGantt, ChampGantt, LigneGantt, PartieGantt, PlanGantt, RepereGantt, Serie} from './gantt-projets.model';
 import {PAR_TACHE, Regroupement, REGROUPEMENTS} from './gantt-regroupement';
 import {annuaire, CaseEffectif, effectifsParProjet, PersonneEffectif} from './gantt-effectifs';
@@ -29,6 +29,9 @@ const HAUT_REEL = 20;
 const HAUT_VOIE = 16;
 /** Sous le cadre : la rangée des pastilles. */
 const BAS_LIGNE = 30;
+
+/** Durée du clignotement de la barre d'une date tout juste posée : celle de l'animation. */
+const DUREE_REPERE_RECENT = 2400;
 
 /** Infobulle et sa place à l'écran. */
 type Bulle = ContenuBulle & {
@@ -121,6 +124,9 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
   membres: User[] = [];
 
   bulle: Bulle | null = null;
+  /** Clé de la barre d'une date tout juste posée (`cleRepere`) : elle clignote. */
+  repereRecent: string | null = null;
+  private minuterieRecent?: ReturnType<typeof setTimeout>;
 
   private static readonly CLE_LEGENDE = 'direction-gantt-legende';
   /** Légende dépliée ; repliée par défaut pour laisser la hauteur au diagramme. */
@@ -176,6 +182,7 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
     this.abonnementEspace?.unsubscribe();
     this.abonnementPresences?.unsubscribe();
     this.abonnementEffectifs?.unsubscribe();
+    clearTimeout(this.minuterieRecent);
   }
 
   // ---------------------------------------------------------------- commandes
@@ -489,6 +496,16 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
     this.projets = avecValeurs(this.projets, modif.issueId, modif.valeurs);
     this.champs = indexerChamps(this.projets, this.champs);
     this.blocs = rafraichirDemande(this.blocs, modif.issueId, this.entrees(Date.now()));
+    this.signaler(modif);
+  }
+
+  /** La barre d'une date tout juste posée clignote un instant : on la voit apparaître. */
+  private signaler(modif: ValeursModifiees): void {
+    clearTimeout(this.minuterieRecent);
+    this.repereRecent = modif.posee ? cleRepere(modif.issueId, modif.posee.champId, modif.posee.jour) : null;
+    if (this.repereRecent) {
+      this.minuterieRecent = setTimeout(() => this.repereRecent = null, DUREE_REPERE_RECENT);
+    }
   }
 
   private montrer(event: MouseEvent, contenu: ContenuBulle): void {

@@ -17,6 +17,8 @@ import {Segment} from './gantt-fenetre';
 
 /** Champ personnalisé de type Date : une barre verticale. */
 export interface RepereGantt {
+  /** « demande/champ/jour » : retrouve la barre d'une date tout juste posée. */
+  cle: string;
   gauche: number;
   /** Projet ou tâche qui porte la date : « PRJ-12 · Maquettes ». */
   source: string;
