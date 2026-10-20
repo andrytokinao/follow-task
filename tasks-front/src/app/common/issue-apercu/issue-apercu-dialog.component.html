@@ -122,10 +122,12 @@
           </span>
         </h3>
 
-        <p class="empty" *ngIf="apercu.sousTaches.length === 0">Aucune sous-tâche.</p>
+        <!-- Les sous-tâches arrivent après l'issue : l'aperçu ne les attend pas. -->
+        <p class="empty" *ngIf="apercu.sousTachesEnCours"><i class="fas fa-spinner fa-spin"></i> Chargement des sous-tâches…</p>
+        <p class="empty" *ngIf="!apercu.sousTachesEnCours && apercu.sousTaches.length === 0">Aucune sous-tâche.</p>
 
         <ul class="subtasks" *ngIf="apercu.sousTaches.length > 0">
-          <li class="subtask" *ngFor="let sousTache of apercu.sousTaches"
+          <li class="subtask" *ngFor="let sousTache of apercu.sousTaches; trackBy: parSousTache"
               [class.done]="sousTache.terminee" (click)="afficher(sousTache.issue)">
             <span class="subtask-icon"><app-type-tache [type]="sousTache.type"></app-type-tache></span>
             <span class="subtask-main">
@@ -145,6 +147,23 @@
             </span>
           </li>
         </ul>
+      </section>
+
+      <!-- Pièces jointes : chargées à la demande, pas avec l'issue. L'explorateur envoie, rafraîchit, supprime. -->
+      <section class="section">
+        <h3 class="section-title section-title-action">
+          Pièces jointes
+          <button type="button" class="btn btn-ghost btn-sm" *ngIf="!piecesJointes" (click)="afficherPiecesJointes()">
+            <i class="fas fa-paperclip"></i> Afficher
+          </button>
+          <button type="button" class="btn btn-ghost btn-sm" *ngIf="piecesJointes" (click)="masquerPiecesJointes()">
+            Masquer
+          </button>
+        </h3>
+        <ng-container *ngIf="piecesJointes">
+          <p class="empty" *ngIf="chargementPiecesJointes"><i class="fas fa-spinner fa-spin"></i> Chargement…</p>
+          <ng-container #hotePiecesJointes></ng-container>
+        </ng-container>
       </section>
     </div>
 

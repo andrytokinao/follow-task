@@ -56,6 +56,28 @@ this.apercuPopup.ouvrir(issue);      // ou ouvrir(issueId)</code></pre>
     <li>La même fiche sert au Gantt (barre d'une seule séance) : ses liens ouvrent aussi l'aperçu.</li>
   </ul>
 
+  <!-- ================================================================== -->
+  <h2 id="vitesse">4. Affichage plus rapide</h2>
+  <ul>
+    <li>Le serveur répond vite ; la lenteur venait du navigateur. Les deux requêtes (issue, sous-tâches) passent en
+      <code>fetchPolicy: 'no-cache'</code> : écrire leurs réponses dans le cache Apollo relançait les requêtes suivies par
+      la page sous la popup (planning, Gantt) et tout leur rendu.</li>
+    <li>Elles partent en même temps (<code>combineLatest</code>), et l'aperçu s'affiche dès que l'issue arrive :
+      « Chargement des sous-tâches… » jusqu'à leur réponse (<code>sousTachesEnCours</code>).</li>
+    <li>Liste des sous-tâches suivie par identifiant (<code>trackBy</code>) : passer d'une issue à l'autre ne recrée pas les lignes.</li>
+  </ul>
+
+  <!-- ================================================================== -->
+  <h2 id="pieces-jointes">5. Pièces jointes</h2>
+  <ul>
+    <li>Section « Pièces jointes » de la popup, chargée à la demande (bouton « Afficher ») : rien n'est demandé avec l'issue.</li>
+    <li>C'est l'explorateur de fichiers de l'issue (<code>app-explorateur-fichiers</code>, compact) : envoi de fichiers ou de
+      dossiers (bouton ou glisser-déposer), « Rafraîchir », suppression, aperçu d'un fichier.</li>
+    <li>Créé à la volée (<code>import()</code> puis <code>ViewContainerRef.createComponent</code>) : <code>MyCommonModule</code>,
+      qui le déclare, mène lui-même à la popup ; un import statique ferait une boucle.</li>
+    <li>Passer à une autre issue dans la popup referme la section : ses pièces jointes se demandent à nouveau.</li>
+  </ul>
+
   <footer>follow-task · documents techniques</footer>
 </div>
 </body>

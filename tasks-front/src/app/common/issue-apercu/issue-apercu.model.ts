@@ -51,6 +51,8 @@ export interface IssueApercu {
   tempsPasse: string | null;
   sousTaches: SousTacheApercu[];
   sousTachesTerminees: number;
+  /** Sous-tâches pas encore reçues : l'issue s'affiche sans les attendre. */
+  sousTachesEnCours: boolean;
 }
 
 const CODE_DEMARRAGE = 'DATE_DEMARRAGE';
@@ -59,12 +61,13 @@ const CODE_ECHEANCE = 'DEADLINE';
 /**
  * Construit la vue de la popup. photoDe vient du UserService : null quand
  * l'utilisateur n'a pas de photo, pour qu'app-avatar affiche ses initiales.
+ * sousTaches null : pas encore reçues.
  */
 export function construireApercu(issue: Issue,
-                                 sousTaches: Issue[],
+                                 sousTaches: Issue[] | null,
                                  photoDe: (user: User) => string | null): IssueApercu {
   const personne = (user: User): PersonneApercu => ({nom: userDisplayName(user), photo: photoDe(user)});
-  const lignes = sousTaches.map(sousTache => construireSousTache(sousTache, personne));
+  const lignes = (sousTaches ?? []).map(sousTache => construireSousTache(sousTache, personne));
   const echeance = dateDuChamp(issue, CODE_ECHEANCE);
   const avancement = pourcentage(issue.currentCompletionPercent);
 
@@ -92,6 +95,7 @@ export function construireApercu(issue: Issue,
     tempsPasse: issue.elapsedDurationMinutes ? duree(issue.elapsedDurationMinutes) : null,
     sousTaches: lignes,
     sousTachesTerminees: lignes.filter(ligne => ligne.terminee).length,
+    sousTachesEnCours: sousTaches === null,
   };
 }
 

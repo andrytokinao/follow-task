@@ -366,6 +366,21 @@
   color: var(--c-text-muted);
 }
 
+/* Titre de section avec son bouton (pièces jointes) : le bouton à droite. */
+.section-title-action {
+  align-items: center;
+
+  .btn {
+    margin-left: auto;
+  }
+}
+
+.btn.btn-sm {
+  height: 26px;
+  padding: 0 10px;
+  font-size: 12px;
+}
+
 /* =========================================================================
    Sous-tâches
    ========================================================================= */
