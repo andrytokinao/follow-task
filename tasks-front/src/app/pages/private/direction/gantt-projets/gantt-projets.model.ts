@@ -104,7 +104,7 @@ export interface Serie {
 /** Une partie du réalisé : mêmes personnes au travail d'un bout à l'autre. */
 export interface PartieGantt extends Segment {
   serie: Serie;
-  /** Pastille du nombre de personnes ; masquée si elle chevaucherait la précédente. */
+  /** Pastille du nombre de personnes, à partir de deux ; masquée si elle chevaucherait la précédente. */
   pastille: boolean;
   centre: number;
 }

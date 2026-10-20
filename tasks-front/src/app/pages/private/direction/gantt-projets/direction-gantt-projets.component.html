@@ -280,15 +280,13 @@
 <div class="gp-bulle" *ngIf="bulle as b" [style.left.px]="b.x"
      [style.top.px]="b.versLeHaut ? null : b.y" [style.bottom.px]="b.versLeHaut ? b.y : null">
   <div class="bulle-titre">{{ b.titre }}</div>
-  <div class="bulle-sous">{{ b.sousTitre }}</div>
+  <div class="bulle-sous" *ngIf="b.sousTitre">{{ b.sousTitre }}</div>
+  <!-- Une séance : qui (photo), son titre, ses heures et sa durée. -->
   <div class="bulle-seance" *ngFor="let s of b.seances">
-    <div class="bulle-qui">
-      <strong>{{ s.qui }}</strong> <span class="bulle-quand">{{ s.quand }}</span>
-    </div>
-    <div class="bulle-quoi" *ngIf="s.quoi">{{ s.quoi }}</div>
-    <div class="bulle-detail" *ngIf="s.detail">{{ s.detail }}</div>
-    <div class="bulle-etat">
-      {{ s.etat }}<ng-container *ngIf="s.avancement !== null"> · avancement déclaré : {{ s.avancement }} %</ng-container>
+    <app-avatar class="bulle-avatar" [url]="photoDe(s.personne)" [displayName]="s.qui" [title]="s.qui"></app-avatar>
+    <div class="bulle-corps">
+      <div class="bulle-quoi">{{ s.quoi || s.qui }}</div>
+      <div class="bulle-quand">{{ s.quand }} · <strong>{{ s.duree }}</strong></div>
     </div>
   </div>
   <div class="bulle-aide" *ngIf="b.reste">+ {{ b.reste }} autre(s) séance(s)</div>

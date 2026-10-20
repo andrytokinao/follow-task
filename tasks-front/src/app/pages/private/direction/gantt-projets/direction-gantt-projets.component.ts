@@ -9,7 +9,7 @@ import {UNASSIGNED_ID, userDisplayName} from '../../../../type/issue-grouping.ut
 import {DirectionService} from '../direction.service';
 import {EspaceDirection, PlageMembre, PlageTache, ProjetGantt, TacheGantt} from '../direction.model';
 import {EspaceDirectionService} from '../espace/espace-direction.service';
-import {bulleDeSerie, bulleSimple, ContenuBulle, periode} from './gantt-bulle';
+import {bulleDeSerie, bulleSimple, ContenuBulle} from './gantt-bulle';
 import {versIso} from './gantt-dates.util';
 import {AxeGantt, EchelleGantt, FenetreGantt} from './gantt-fenetre';
 import {IntervenantsGantt} from './gantt-personnes';
@@ -424,16 +424,11 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
 
   /** Ce qui a réellement été fait pendant cette partie, séance par séance. */
   survolerPartie(ligne: LigneGantt, partie: PartieGantt, event: MouseEvent): void {
-    const personnes = partie.serie.personnes;
-    this.montrer(event, bulleDeSerie(this.titre(ligne),
-      `Réalisé · ${periode(partie.serie)} — ${personnes.length} personne${personnes.length > 1 ? 's' : ''} au travail : `
-      + personnes.map(userDisplayName).join(', '),
-      partie.serie, true));
+    this.montrer(event, bulleDeSerie(this.titre(ligne), partie.serie));
   }
 
   survolerPlan(ligne: LigneGantt, plan: PlanGantt, event: MouseEvent): void {
-    this.montrer(event, bulleDeSerie(this.titre(ligne),
-      `Planifié · ${periode(plan.serie)} — ${userDisplayName(plan.personne)}`, plan.serie, false));
+    this.montrer(event, bulleDeSerie(this.titre(ligne), plan.serie));
   }
 
   survolerCadre(ligne: LigneGantt, event: MouseEvent): void {

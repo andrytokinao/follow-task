@@ -718,26 +718,41 @@
 }
 
 .bulle-seance {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   margin-top: 6px;
   padding-top: 6px;
   border-top: 1px solid var(--dir-hairline);
 }
 
-.bulle-qui strong {
+.bulle-avatar {
+  --avatar-size: 28px;
+  flex-shrink: 0;
+}
+
+.bulle-corps {
+  min-width: 0;
+}
+
+.bulle-quoi {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
   color: var(--dir-ink);
 }
 
 .bulle-quand {
-  margin-left: 4px;
+  font-size: 11px;
   font-variant-numeric: tabular-nums;
   color: var(--dir-ink-3);
 }
 
-.bulle-quoi {
-  color: var(--dir-ink);
+.bulle-quand strong {
+  color: var(--dir-ink-2);
 }
 
-.bulle-etat,
 .bulle-aide {
   font-size: 11px;
   color: var(--dir-ink-3);

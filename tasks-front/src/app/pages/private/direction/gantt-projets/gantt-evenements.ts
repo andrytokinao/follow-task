@@ -211,8 +211,9 @@ function realise(seances: Seance[], fenetre: FenetreGantt): PartieGantt[] {
       continue;
     }
     const centre = segment.gauche + segment.largeur / 2;
-    // Deux pastilles ne se recouvrent pas : la seconde cède, l'infobulle garde le compte.
-    const pastille = centre >= libre;
+    // Une seule personne : pas de pastille, l'infobulle la montre. Deux pastilles
+    // ne se recouvrent pas : la seconde cède, l'infobulle garde le compte.
+    const pastille = serie.personnes.length > 1 && centre >= libre;
     if (pastille) {
       libre = centre + LARGEUR_PASTILLE;
     }
