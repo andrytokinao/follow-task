@@ -1,0 +1,106 @@
+/* Ancre fixe et sans taille : elle ne sert qu'à situer le panneau. */
+.gsm-ancre {
+  position: fixed;
+  width: 0;
+  height: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+::ng-deep .gsm-menu.mat-mdc-menu-panel {
+  min-width: 300px;
+  max-width: 400px;
+  max-height: 70vh;
+}
+
+.gsm-entete {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 14px 10px;
+  border-bottom: 1px solid #eaecf0;
+  font-size: 12px;
+  color: #475467;
+}
+.gsm-entete strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  color: #101828;
+}
+
+/* Une séance sur plusieurs lignes : le mat-menu-item garde sa hauteur fixe sinon. */
+.gsm-seance.mat-mdc-menu-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  height: auto;
+  min-height: 0;
+  padding: 8px 14px;
+  border-bottom: 1px solid #f2f4f7;
+  white-space: normal;
+  line-height: 1.35;
+}
+.gsm-seance ::ng-deep .mat-mdc-menu-item-text {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+}
+
+.gsm-avatar {
+  --avatar-size: 30px;
+  flex-shrink: 0;
+}
+
+.gsm-corps {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.gsm-quoi {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 600;
+  color: #101828;
+}
+
+.gsm-ligne {
+  font-size: 12px;
+  color: #475467;
+}
+
+.gsm-quand {
+  font-variant-numeric: tabular-nums;
+}
+.gsm-quand strong {
+  color: #344054;
+}
+
+.gsm-etat {
+  font-weight: 600;
+  color: #475467;
+}
+.gsm-etat[data-etat="COMPLETED"] { color: #067647; }
+.gsm-etat[data-etat="IN_PROGRESS"] { color: #185FA5; }
+.gsm-etat[data-etat="BLOCKED"] { color: #b42318; }
+.gsm-etat[data-etat="POSTPONED"],
+.gsm-etat[data-etat="EXTENDED"] { color: #b54708; }
+
+.gsm-detail {
+  margin-top: 2px;
+  font-size: 11px;
+  color: #667085;
+}
+
+.gsm-ouvrir {
+  align-self: center;
+  font-size: 10px;
+  color: #98a2b3;
+}

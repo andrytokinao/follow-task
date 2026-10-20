@@ -24,6 +24,7 @@ import {presencesParJour} from './gantt-absences';
 import {GanttChampsCaseComponent, ValeursModifiees} from './champs-case/gantt-champs-case.component';
 import {avecValeurs, caseDe} from './champs-case/gantt-champs-case';
 import {REPLI_GANTT} from './gantt-animations';
+import {GanttSeancesMenuComponent, SeanceChoisie} from './seances-menu/gantt-seances-menu.component';
 import {TOUT_VISIBLE, visibilite} from './gantt-visibilite';
 
 /** Géométrie d'une ligne de tâche, en pixels : voir la feuille de styles. */
@@ -81,6 +82,7 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
 
   @ViewChild(EventMenuComponent) private eventMenu!: EventMenuComponent;
   @ViewChild(GanttChampsCaseComponent) private champsCase!: GanttChampsCaseComponent;
+  @ViewChild(GanttSeancesMenuComponent) private seancesMenu!: GanttSeancesMenuComponent;
 
   readonly echelles: { valeur: EchelleGantt; libelle: string }[] = [
     {valeur: 'jour', libelle: 'Jour'},
@@ -524,15 +526,26 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
     this.bulle = null;
   }
 
-  /** Clic sur une partie ou un plan d'une seule séance : sa fiche, comme dans les plannings. */
-  ouvrir(serie: Serie, event: MouseEvent): void {
+  /**
+   * Clic sur une partie ou un plan : d'une seule séance, sa fiche, comme dans
+   * les plannings ; de plusieurs, le détail de chacune, en menu.
+   * @param reel la barre est du réalisé (sinon, de la planification)
+   */
+  ouvrir(ligne: LigneGantt, serie: Serie, reel: boolean, event: MouseEvent): void {
+    // Les séances de la barre, pas le menu des champs de la case en dessous.
+    event.stopPropagation();
+    this.bulle = null;
     const id = serie.seances.length === 1 ? serie.seances[0].evenement.id : null;
     if (id != null) {
-      // La fiche de la séance, pas le menu des champs de la case en dessous.
-      event.stopPropagation();
-      this.bulle = null;
       this.eventMenu.ouvrirConsultation(id, event);
+    } else if (serie.seances.length) {
+      this.seancesMenu.ouvrir(this.titre(ligne), serie, reel, event);
     }
+  }
+
+  /** Une séance choisie dans le menu d'une barre : sa fiche, au même endroit. */
+  consulterSeance(choix: SeanceChoisie): void {
+    this.eventMenu.ouvrirConsultation(choix.id, choix.position);
   }
 
   /** Clic dans la piste d'un projet ou d'une tâche : les champs datés de la case sous le pointeur. */

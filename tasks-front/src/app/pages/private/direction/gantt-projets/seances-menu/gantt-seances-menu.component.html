@@ -1,0 +1,26 @@
+<!-- Déclencheur invisible, placé à l'endroit du clic : le menu s'ouvre à côté de la barre. -->
+<span class="gsm-ancre" [matMenuTriggerFor]="menuSeances" [style.left.px]="x" [style.top.px]="y"></span>
+
+<mat-menu #menuSeances="matMenu" class="gsm-menu" [overlapTrigger]="false">
+  <div class="gsm-entete" (click)="$event.stopPropagation()">
+    <strong [title]="titre">{{ titre }}</strong>
+    <small>{{ nature }} · {{ seances.length }} séance(s)</small>
+  </div>
+
+  <!-- Une séance : qui, quoi, quand ; puis état, avancement et description. Clic : sa fiche. -->
+  <button type="button" mat-menu-item class="gsm-seance" *ngFor="let s of seances; trackBy: parSeance"
+          [disabled]="s.id == null" (click)="choisir(s)">
+    <app-avatar class="gsm-avatar" [url]="photoDe(s.personne)" [displayName]="s.qui" [title]="s.qui"></app-avatar>
+    <span class="gsm-corps">
+      <span class="gsm-quoi">{{ s.quoi || 'Séance sans titre' }}</span>
+      <span class="gsm-ligne">{{ s.qui }}</span>
+      <span class="gsm-ligne gsm-quand">{{ s.quand }} · <strong>{{ s.duree }}</strong></span>
+      <span class="gsm-ligne">
+        <span class="gsm-etat" [attr.data-etat]="s.code">{{ s.etat }}</span>
+        <ng-container *ngIf="s.avancement !== null"> · {{ s.avancement }} % déclaré</ng-container>
+      </span>
+      <span class="gsm-detail" *ngIf="s.detail">{{ s.detail }}</span>
+    </span>
+    <i class="fas fa-chevron-right gsm-ouvrir"></i>
+  </button>
+</mat-menu>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DT-016 — Gantt : détail des séances d'une barre</title>
+  <link rel="stylesheet" href="assets/doc.css">
+</head>
+<body>
+<div class="page">
+
+  <header class="doc-header">
+    <span class="doc-ref">DT-016</span>
+    <h1>Gantt : détail des séances d'une barre</h1>
+    <p class="subtitle">Chaque barre du Gantt (réalisé ou planifié) est cliquable. D'une seule séance, le clic ouvre sa
+      fiche ; de plusieurs, un menu donne le détail de chacune, et un clic sur l'une ouvre sa fiche.</p>
+    <table class="meta">
+      <tr><td>Référence</td><td>DT-016 (Document Technique n° 016)</td></tr>
+      <tr><td>Statut</td><td><strong>Réalisé</strong></td></tr>
+      <tr><td>Version de l'application</td><td>2.0.29</td></tr>
+      <tr><td>Date</td><td>20 octobre 2026</td></tr>
+      <tr><td>Commits liés</td><td>titres contenant « (DT-016) » : <code>git log --grep "DT-016"</code></td></tr>
+      <tr><td>Migration</td><td>aucune</td></tr>
+    </table>
+  </header>
+
+  <!-- ================================================================== -->
+  <h2 id="parcours">1. Parcours</h2>
+  <svg viewBox="0 0 700 150" width="700" role="img" aria-label="Clic sur une barre : fiche ou menu des séances">
+    <defs><marker id="f" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#475467"/></marker></defs>
+    <rect x="10" y="55" width="140" height="40" rx="8" fill="#eef4fc" stroke="#185FA5"/>
+    <text x="80" y="80" text-anchor="middle" font-size="12" fill="#101828">Clic sur une barre</text>
+    <line x1="150" y1="68" x2="250" y2="30" stroke="#475467" marker-end="url(#f)"/>
+    <text x="200" y="38" text-anchor="middle" font-size="11" fill="#475467">1 séance</text>
+    <line x1="150" y1="82" x2="250" y2="118" stroke="#475467" marker-end="url(#f)"/>
+    <text x="200" y="122" text-anchor="middle" font-size="11" fill="#475467">plusieurs</text>
+    <rect x="255" y="10" width="200" height="40" rx="8" fill="#fff" stroke="#d0d5dd"/>
+    <text x="355" y="35" text-anchor="middle" font-size="12" fill="#101828">Fiche (app-event-menu)</text>
+    <rect x="255" y="98" width="200" height="40" rx="8" fill="#fff" stroke="#d0d5dd"/>
+    <text x="355" y="123" text-anchor="middle" font-size="12" fill="#101828">Menu des séances</text>
+    <line x1="455" y1="118" x2="540" y2="40" stroke="#475467" marker-end="url(#f)"/>
+    <text x="520" y="92" font-size="11" fill="#475467">clic sur une séance</text>
+    <rect x="545" y="10" width="150" height="40" rx="8" fill="#fff" stroke="#d0d5dd"/>
+    <text x="620" y="35" text-anchor="middle" font-size="12" fill="#101828">Sa fiche</text>
+  </svg>
+
+  <!-- ================================================================== -->
+  <h2 id="contenu">2. Contenu du menu</h2>
+  <ul>
+    <li>En-tête : la tâche (ou le groupe), « Réalisé » ou « Planifié », le nombre de séances.</li>
+    <li>Par séance, dans l'ordre : photo, titre, personne, jour et heures, durée, état (coloré), avancement déclaré,
+      description en texte simple abrégée (<code>detailsSeances</code>).</li>
+    <li>Sur le réalisé, une séance passée sans exécution déclarée est réputée « Réalisée », comme l'infobulle le faisait.</li>
+    <li>L'infobulle garde l'essentiel (photo, titre, heures, durée) et invite au clic.</li>
+  </ul>
+
+  <!-- ================================================================== -->
+  <h2 id="code">3. Fichiers</h2>
+  <table>
+    <tr><th>Fichier</th><th>Rôle</th></tr>
+    <tr><td><code>gantt-projets/seances-menu/gantt-seances.ts</code></td><td>Fonction pure <code>detailsSeances(serie, reel)</code></td></tr>
+    <tr><td><code>gantt-projets/seances-menu/gantt-seances-menu.component.*</code></td><td>Menu ancré au clic ; <code>(consulter)</code> rend la séance choisie</td></tr>
+    <tr><td><code>direction-gantt-projets.component.*</code></td><td><code>ouvrir(ligne, serie, reel, event)</code>, <code>consulterSeance</code></td></tr>
+  </table>
+
+  <footer>follow-task · documents techniques</footer>
+</div>
+</body>
+</html>

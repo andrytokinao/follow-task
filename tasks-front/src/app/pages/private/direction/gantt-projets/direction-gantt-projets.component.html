@@ -254,9 +254,9 @@
                      par groupe de personnes au travail. -->
                 <ng-container *ngFor="let p of a.parties; let premiere = first">
                   <span class="reel" [style.left.px]="p.gauche" [style.width.px]="p.largeur"
-                        [class.coupe-gauche]="p.coupeGauche" [class.cliquable]="p.serie.seances.length === 1"
+                        [class.coupe-gauche]="p.coupeGauche" [class.cliquable]="p.serie.seances.length"
                         (mouseenter)="survolerPartie(l, p, $event)" (mousemove)="suivre($event)" (mouseleave)="quitter()"
-                        (click)="ouvrir(p.serie, $event)">
+                        (click)="ouvrir(l, p.serie, true, $event)">
                     <span class="reel-pct" *ngIf="premiere && p.largeur >= 50">{{ l.avancement }} %</span>
                   </span>
                   <span class="pastille pastille-partie" *ngIf="p.pastille" [style.left.px]="p.centre - 17"
@@ -267,9 +267,9 @@
 
                 <!-- Planifié : ce qui reste à venir, en pointillé, par personne. -->
                 <span class="plan" *ngFor="let p of a.plans" [style.left.px]="p.gauche" [style.width.px]="p.largeur"
-                      [style.top.px]="hautVoie(p.voie)" [style.height.px]="hauteurPlan(a.voies)" [class.cliquable]="p.serie.seances.length === 1"
+                      [style.top.px]="hautVoie(p.voie)" [style.height.px]="hauteurPlan(a.voies)" [class.cliquable]="p.serie.seances.length"
                       (mouseenter)="survolerPlan(l, p, $event)" (mousemove)="suivre($event)" (mouseleave)="quitter()"
-                      (click)="ouvrir(p.serie, $event)">
+                      (click)="ouvrir(l, p.serie, false, $event)">
                   <span class="plan-qui" *ngIf="p.largeur >= 26">{{ initiales(p.personne) }}</span>
                 </span>
 
@@ -421,3 +421,5 @@
 
 <!-- Champs datés d'une case : cocher pose la date, décocher la retire. -->
 <app-gantt-champs-case (modifie)="champsModifies($event)"></app-gantt-champs-case>
+<!-- Clic sur une barre de plusieurs séances : le détail de chacune. -->
+<app-gantt-seances-menu (consulter)="consulterSeance($event)"></app-gantt-seances-menu>

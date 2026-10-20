@@ -40,7 +40,7 @@ export function bulleDeSerie(titre: string, serie: Serie): ContenuBulle {
     sousTitre: '',
     seances: seances.slice(0, SEANCES_AFFICHEES).map(seanceBulle),
     reste: Math.max(0, seances.length - SEANCES_AFFICHEES),
-    aide: seances.length === 1 ? 'Cliquer pour ouvrir la séance' : ''
+    aide: seances.length === 1 ? 'Cliquer pour ouvrir la séance' : 'Cliquer pour le détail des séances'
   };
 }
 
