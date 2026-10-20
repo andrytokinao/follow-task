@@ -16,6 +16,11 @@ const UTILISATEUR = `
   photo
 `;
 
+/** Type d'une demande : son icône et sa couleur (DT-011). */
+const TYPE_TACHE = `
+  issueType { id name level color icone { id value typeIcone } }
+`;
+
 /** Temps occupé par les séances de ces personnes : la rangée « Sans planning » du Gantt. */
 export const PLAGES_MEMBRES = gql`
   query plagesMembres($userIds: [String]!, $debut: String!, $fin: String!) {
@@ -48,6 +53,7 @@ export const DIRECTION_PROJETS = gql`
       id
       issueKey
       summary
+      ${TYPE_TACHE}
       status { id displayName color }
       project { id prefix }
       parent { id }
@@ -88,6 +94,8 @@ export const DIRECTION_TACHES_PROJET = gql`
       dateDebutTraitement
       nombreCommentaires
       nombrePiecesJointes
+      ${TYPE_TACHE}
+      status { id displayName color }
       project { id prefix }
       parent { id }
       reporter { id }
@@ -114,6 +122,7 @@ export const DIRECTION_GANTT_PROJET = gql`
       summary
       currentCompletionPercent
       elapsedDurationMinutes
+      ${TYPE_TACHE}
       status { id displayName color }
       dateDemarrage
       deadline
@@ -141,7 +150,7 @@ const CADRE_GANTT = `
   id
   issueKey
   summary
-  issueType { id name }
+  ${TYPE_TACHE}
   phase { id name position }
   currentCompletionPercent
   status { id displayName color }

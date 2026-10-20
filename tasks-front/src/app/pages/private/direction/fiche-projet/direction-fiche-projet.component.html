@@ -1,7 +1,7 @@
 <!-- ═══ EN-TÊTE ═══ -->
 <header class="el-head">
   <div class="el-title">
-    <span class="el-type"><i class="fas fa-folder"></i> Projet</span>
+    <span class="el-type"><app-type-tache [type]="projet.issue?.issueType"></app-type-tache> {{ projet.issue?.issueType?.name || 'Projet' }}</span>
     <span class="el-key">{{ projet.cle }}</span>
     <h2 [title]="projet.nom">{{ projet.nom }}</h2>
     <a class="el-link" *ngIf="lien" [routerLink]="lien">

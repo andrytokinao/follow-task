@@ -74,6 +74,7 @@
         <!-- ═══ UNE LIGNE PAR TÂCHE ═══ -->
         <div class="gantt-row" *ngFor="let ligne of lignes; trackBy: parId">
           <div class="gantt-nom">
+            <app-type-tache [type]="ligne.tache.issueType"></app-type-tache>
             <a class="task-key" *ngIf="lienTache(ligne.tache) as lien; else cleSeule" [routerLink]="lien">{{ ligne.tache.issueKey }}</a>
             <ng-template #cleSeule><span class="task-key">{{ ligne.tache.issueKey }}</span></ng-template>
             <span class="task-name" [title]="ligne.tache.summary">{{ ligne.tache.summary }}</span>

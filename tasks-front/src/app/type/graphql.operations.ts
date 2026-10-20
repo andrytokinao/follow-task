@@ -2693,6 +2693,7 @@ const SEARCH_EVENTS  = gql`
         id
         summary
         issueKey
+        issueType { id name level color icone { id value typeIcone } }
       }
       user {
         id

@@ -20,6 +20,8 @@ import {AvatarComponent} from '../../../common/avatar/avatar.component';
 import {CustomFieldComponent} from '../../../common/custom-field/custom-field.component';
 import {MyCommonModule} from '../../../common/common.module';
 import {MatMenuModule} from '@angular/material/menu';
+import {TypeTacheComponent} from '../../../common/type-tache/type-tache.component';
+import {StatutTacheComponent} from '../../../common/statut-tache/statut-tache.component';
 
 /**
  * Cockpit de direction : projets en cours d'un espace de travail et leurs
@@ -52,7 +54,9 @@ import {MatMenuModule} from '@angular/material/menu';
     CustomFieldComponent,
     // Composants communs de l'application, dont app-assign-field (assignés).
     MyCommonModule,
-    MatMenuModule
+    MatMenuModule,
+    TypeTacheComponent,
+    StatutTacheComponent
   ]
 })
 export class DirectionModule {

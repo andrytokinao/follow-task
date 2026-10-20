@@ -18,6 +18,7 @@ import {
 import * as operation from "../type/graphql.operations";
 import {stripTypename} from "@apollo/client/utilities";
 import {Apollo} from "apollo-angular";
+import {couleurDuType, iconeDuType} from "../common/type-tache/type-tache.util";
 import {
   ALL_CUSTOM_FIELD,
   NEXT_EVENT,
@@ -156,12 +157,21 @@ export class EventsService {
         reminderOffset: eventApp.reminderOffset,
       },
       html:  `<div>
-        <p style="font-size: 12px; "><b><i> ${(eventApp.issue ? eventApp.issue.issueKey + ': ' : '')} </i></b>${(eventApp.title)}</p>
+        <p style="font-size: 12px; ">${this.iconeTache(eventApp)}<b><i> ${(eventApp.issue ? eventApp.issue.issueKey + ': ' : '')} </i></b>${(eventApp.title)}</p>
         <p style="font-size: 12px; color: #555;">${eventApp.description || ''}</p>
       </div>
     `,
 
     };
+  }
+
+  /** Icône du type de la tâche, dans sa couleur (DT-011) ; rien sans tâche. */
+  private iconeTache(eventApp: EventApp): string {
+    if (!eventApp.issue) {
+      return '';
+    }
+    const type = eventApp.issue.issueType;
+    return `<i class="${iconeDuType(type)}" style="color: ${couleurDuType(type)}; margin-right: 4px;"></i>`;
   }
 
   public toEventAppList(eventDataList: EventData[]): EventApp[] {

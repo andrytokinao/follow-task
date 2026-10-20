@@ -95,10 +95,12 @@
           <td class="acc-projet">
             <a *ngIf="l.lien as lien; else sansLien" [routerLink]="lien" [queryParams]="{projet: l.projet.id}"
                title="Fiche du projet">
+              <app-type-tache [type]="l.projet.issue?.issueType"></app-type-tache>
               <span class="acc-cle">{{ l.projet.cle }}</span>
               <span class="acc-titre-projet">{{ l.projet.nom }}</span>
             </a>
             <ng-template #sansLien>
+              <app-type-tache [type]="l.projet.issue?.issueType"></app-type-tache>
               <span class="acc-cle">{{ l.projet.cle }}</span>
               <span class="acc-titre-projet">{{ l.projet.nom }}</span>
             </ng-template>

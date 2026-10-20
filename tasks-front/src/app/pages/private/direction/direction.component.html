@@ -27,6 +27,7 @@
             <i class="fas fa-folder project-icon"></i>
             <span class="menu-text">
               <span class="menu-line">
+                <app-type-tache [type]="p.issue?.issueType"></app-type-tache>
                 <span class="project-key">{{ p.cle }}</span>
                 <span class="menu-pct">{{ p.avancement }} %</span>
               </span>

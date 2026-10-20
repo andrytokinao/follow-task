@@ -37,10 +37,11 @@
     <tr *ngFor="let t of detail.taches; trackBy: parId">
       <td>
         <div class="task-cell">
-          <i class="far fa-check-square task-icon" title="Tâche"></i>
+          <app-type-tache class="task-icon" [type]="t.issueType"></app-type-tache>
           <a class="task-key" *ngIf="lienTache(t) as lien; else cleSeule" [routerLink]="lien">{{ t.issueKey }}</a>
           <ng-template #cleSeule><span class="task-key">{{ t.issueKey }}</span></ng-template>
           <span class="task-name" [title]="t.summary">{{ t.summary }}</span>
+          <app-statut-tache [status]="t.status"></app-statut-tache>
         </div>
       </td>
       <td>

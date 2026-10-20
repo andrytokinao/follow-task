@@ -149,7 +149,7 @@
               </button>
               <span class="gp-texte">
                 <!-- Pas de lien vers l'espace de travail pour le moment : ni projet, ni tâche. -->
-                <span class="projet-nom" [title]="bloc.projet.summary">{{ bloc.projet.summary }}</span>
+                <span class="projet-nom" [title]="bloc.projet.summary"><app-type-tache [type]="bloc.projet.issueType"></app-type-tache> {{ bloc.projet.summary }}</span>
                 <span class="projet-phase" *ngIf="bloc.projet.phaseCourante as phase" title="Phase en cours">{{ phase.name }}</span>
                 <span class="projet-meta">
                   {{ bloc.projet.issueKey }} · {{ bloc.nombreTaches }} tâche(s) · {{ bloc.avancement }} % avancé
@@ -192,10 +192,10 @@
                             [url]="photoDe(r)" [displayName]="nomDe(r)" [title]="nomDe(r)"></app-avatar>
                 <ng-template #sansResponsable><span class="tache-avatar vide" title="Non assignée"><i class="far fa-user"></i></span></ng-template>
                 <span class="gp-texte">
-                  <span class="tache-nom" [title]="t.summary">{{ t.summary }}</span>
+                  <span class="tache-nom" [title]="t.summary"><app-type-tache [type]="t.issueType"></app-type-tache> {{ t.summary }}</span>
                   <span class="tache-meta">
                     {{ t.issueKey }}
-                    <ng-container *ngIf="t.status as s"> · {{ s.displayName }}</ng-container>
+                    <ng-container *ngIf="t.status as s"> · <span class="tache-statut" [style.color]="s.color || null">{{ s.displayName }}</span></ng-container>
                     · {{ l.avancement }} %
                     <span class="en-retard" *ngIf="l.retard"> · <i class="fas fa-exclamation-triangle"></i> +{{ l.retard.jours }} j</span>
                     <ng-container *ngIf="!l.cadre"> · sans dates</ng-container>

@@ -26,8 +26,8 @@
       son statut.</p>
     <table class="meta">
       <tr><td>Référence</td><td>DT-011 (Document Technique n° 011)</td></tr>
-      <tr><td>Statut</td><td><strong>Réalisé</strong> (hors écrans Direction)</td></tr>
-      <tr><td>Version de l'application</td><td>à venir</td></tr>
+      <tr><td>Statut</td><td><strong>Réalisé</strong></td></tr>
+      <tr><td>Version de l'application</td><td>2.0.21</td></tr>
       <tr><td>Date</td><td>19 octobre 2026</td></tr>
       <tr><td>Commits liés</td><td>titres contenant « (DT-011) » : <code>git log --grep "DT-011"</code></td></tr>
     </table>
@@ -53,7 +53,8 @@
     <li>Type sans icône : dossier pour une demande (niveau <code>PARENT</code>), fiche pour une tâche. Sans couleur : gris.</li>
     <li>Statut : pastille dans sa couleur ; colonnes de board, onglets et menu de statut teintés.</li>
     <li>Écrans concernés : liste des tâches, tableaux et boards, sous-tâches, détail, fil d'Ariane, sélecteur de tâche,
-      liens, messagerie, événements, documents, notifications, calendrier, création et changement de type.</li>
+      liens, messagerie, événements, documents, notifications, calendrier, création et changement de type, écrans
+      Direction (accueil, fiche projet, tâches, Gantt), séances du planning (DayPilot).</li>
   </ul>
 
   <!-- ================================================================== -->
@@ -77,8 +78,9 @@
   <!-- ================================================================== -->
   <h2 id="limites">4. Limites</h2>
   <ul>
-    <li>Écrans Direction (<code>pages/private/direction</code>) non traités : modifiés en parallèle par un autre chantier.</li>
-    <li>Planning (DayPilot) : texte des événements construit dans <code>events.service.ts</code>, sans icône.</li>
+    <li>Planning (DayPilot) : le HTML des séances est construit dans <code>events.service.ts</code>
+      (<code>iconeTache</code>) avec les mêmes règles, pas avec le composant.</li>
+    <li>Direction, liste des projets : seuls les projets ont une icône ; la situation du jour (DT-005) a son propre modèle.</li>
   </ul>
 
   <footer>follow-task · DT-011 · apparence des tâches</footer>
