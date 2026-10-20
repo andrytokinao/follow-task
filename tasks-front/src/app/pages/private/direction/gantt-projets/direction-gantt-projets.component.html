@@ -293,10 +293,12 @@
       <strong>{{ c.titre }}</strong>
       <span>
         {{ c.absents.length }} sans planning + {{ c.presents.length }} avec = {{ c.membres }} membre(s)
+        <ng-container *ngIf="c.managers.length"> · {{ c.managers.length }} manager(s) à part</ng-container>
         <ng-container *ngIf="c.jours > 1"> · {{ c.jours }} jours ouvrables</ng-container>
       </span>
     </div>
-    <!-- Deux onglets en haut : qui n'a pas de planning, qui en a un. -->
+    <!-- Onglets en haut : qui n'a pas de planning, qui en a un ; les managers
+         de l'espace hors décompte, dans le leur. -->
     <div class="mp-onglets" role="tablist" (click)="$event.stopPropagation()">
       <button type="button" role="tab" class="mp-onglet mp-onglet-sans" [class.actif]="ongletPresence === 'sans'"
               [attr.aria-selected]="ongletPresence === 'sans'" (click)="ongletPresence = 'sans'">
@@ -305,6 +307,11 @@
       <button type="button" role="tab" class="mp-onglet mp-onglet-avec" [class.actif]="ongletPresence === 'avec'"
               [attr.aria-selected]="ongletPresence === 'avec'" (click)="ongletPresence = 'avec'">
         <i class="fas fa-user-check"></i> Avec planning <span class="mp-compte">{{ c.presents.length }}</span>
+      </button>
+      <button type="button" role="tab" class="mp-onglet mp-onglet-managers" *ngIf="c.managers.length"
+              [class.actif]="ongletPresence === 'managers'"
+              [attr.aria-selected]="ongletPresence === 'managers'" (click)="ongletPresence = 'managers'">
+        <i class="fas fa-user-tie"></i> Managers <span class="mp-compte">{{ c.managers.length }}</span>
       </button>
     </div>
 
@@ -321,6 +328,17 @@
       <div class="mp-personne" *ngFor="let p of c.presents">
         <app-avatar class="mp-avatar" [url]="photoDe(p.personne)" [displayName]="p.nom"></app-avatar>
         <span class="mp-nom">{{ p.nom }}</span>
+      </div>
+    </div>
+    <div class="mp-groupe" *ngIf="ongletPresence === 'managers'" (click)="$event.stopPropagation()">
+      <div class="mp-personne" *ngFor="let p of c.managers">
+        <app-avatar class="mp-avatar" [url]="photoDe(p.personne)" [displayName]="p.nom"></app-avatar>
+        <span class="mp-nom">{{ p.nom }}</span>
+        <span class="mp-jours" *ngIf="p.jours; else avecPlanning"
+              [title]="p.jours + ' jour(s) sans planning'">{{ c.jours > 1 ? p.jours + ' j / ' + c.jours : 'sans planning' }}</span>
+        <ng-template #avecPlanning>
+          <i class="fas fa-check mp-ok" title="Planning renseigné"></i>
+        </ng-template>
       </div>
     </div>
   </ng-template>

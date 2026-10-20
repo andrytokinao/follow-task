@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DT-012 — Gantt des projets réutilisable, dans l'espace de travail ; managers à part</title>
+  <link rel="stylesheet" href="assets/doc.css">
+</head>
+<body>
+<div class="page">
+
+  <header class="doc-header">
+    <span class="doc-ref">DT-012</span>
+    <h1>Gantt des projets réutilisable, dans l'espace de travail ; managers à part</h1>
+    <p class="subtitle">Le Gantt du cockpit de direction suit un flux d'espace fourni par son hôte : il s'ouvre aussi
+      depuis le menu de l'espace de travail. Dans la rangée « Sans planning », les managers ont leur propre onglet.</p>
+    <table class="meta">
+      <tr><td>Référence</td><td>DT-012 (Document Technique n° 012)</td></tr>
+      <tr><td>Statut</td><td><strong>Réalisé</strong></td></tr>
+      <tr><td>Version de l'application</td><td>2.0.23</td></tr>
+      <tr><td>Date</td><td>20 octobre 2026</td></tr>
+      <tr><td>Commits liés</td><td>titres contenant « (DT-012) » : <code>git log --grep "DT-012"</code></td></tr>
+    </table>
+  </header>
+
+  <!-- ================================================================== -->
+  <h2 id="besoin">1. Besoin</h2>
+  <ul>
+    <li>Le Gantt des projets (DT-008, <code>/direction/TOPO/gantt</code>) n'écoutait que l'espace du menu de direction.
+      Il doit pouvoir suivre n'importe quelle source, et apparaître dans le menu de l'espace de travail
+      (<code>/working/TOPO/gantt</code>), en suivant le sélecteur d'espace.</li>
+    <li>Le manager d'un espace ne renseigne pas forcément de planning : il ne doit pas gonfler le nombre « sans
+      planning » de l'équipe, mais rester visible à part.</li>
+  </ul>
+
+  <!-- ================================================================== -->
+  <h2 id="reutilisable">2. Un Gantt piloté par un observable</h2>
+  <svg viewBox="0 0 720 200" width="720" role="img" aria-label="Deux hôtes, un même Gantt">
+    <defs><marker id="f" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#475467"/></marker></defs>
+    <g font-family="sans-serif" font-size="12">
+      <rect x="10" y="20" width="230" height="56" rx="8" fill="#eef4fc" stroke="#185FA5"/>
+      <text x="125" y="44" text-anchor="middle" font-weight="bold">Cockpit de direction</text>
+      <text x="125" y="62" text-anchor="middle">EspaceDirectionService.espace$</text>
+      <rect x="10" y="120" width="230" height="56" rx="8" fill="#e7f6ec" stroke="#15803d"/>
+      <text x="125" y="144" text-anchor="middle" font-weight="bold">Espace de travail</text>
+      <text x="125" y="162" text-anchor="middle">IssueService.project$ → trouver(prefix)</text>
+      <rect x="430" y="70" width="280" height="56" rx="8" fill="#fff" stroke="#101828"/>
+      <text x="570" y="94" text-anchor="middle" font-weight="bold">app-direction-gantt-projets</text>
+      <text x="570" y="112" text-anchor="middle">[espace$] : Observable&lt;EspaceDirection&gt;</text>
+      <path d="M240 48 L430 90" stroke="#475467" fill="none" marker-end="url(#f)"/>
+      <path d="M240 148 L430 108" stroke="#475467" fill="none" marker-end="url(#f)"/>
+      <text x="300" y="58">défaut (sans entrée)</text>
+      <text x="300" y="150">ProjectGanttComponent</text>
+    </g>
+  </svg>
+  <ul>
+    <li><code>GanttProjetsModule</code> (<code>direction/gantt-projets/gantt-projets.module.ts</code>) déclare et
+      exporte le composant ; <code>DirectionModule</code> et <code>ProjectModule</code> l'importent.</li>
+    <li><code>@Input() espace$</code> : lu une fois à l'initialisation, c'est le flux qui porte les changements. Chaque
+      émission recharge le diagramme (<code>switchMap</code> : la requête précédente est annulée). Sans entrée, le
+      composant suit <code>EspaceDirectionService.espace$</code> : la route du cockpit est inchangée.</li>
+    <li><code>ProjectGanttComponent</code> (<code>project/gantt/</code>) traduit le projet ouvert en espace de direction
+      par son préfixe (<code>EspaceDirectionService.trouver</code>). Le diagramme reste en place d'un espace à l'autre ;
+      un espace sans équivalent affiche un message au lieu d'un chargement sans fin.</li>
+  </ul>
+  <p class="note">Droits : les requêtes du Gantt sont celles du cockpit (<code>GQDirectionController</code>,
+    <code>CAN_VIEW_DIRECTION</code>, <code>SYSTEM_ADMIN</code>, <code>CAN_ACCESS_ALL</code>). La route
+    <code>/working/:prefix/gantt</code> est donc gardée par <code>directionGuard</code>, et l'entrée « Gantt » du menu
+    n'apparaît qu'avec <code>peutVoirDirection</code>.</p>
+
+  <!-- ================================================================== -->
+  <h2 id="managers">3. Les managers à part dans « Sans planning »</h2>
+  <ul>
+    <li>Les managers sont les membres de rôle <code>PROJECT_MANAGER</code> dans les groupes de l'espace
+      (<code>UserService.getUserForProjectAndRole</code>), chargés une fois par espace.</li>
+    <li><code>presencesParJour</code> est appelé deux fois sur les mêmes plages : l'équipe sans les managers, puis les
+      managers. <code>presencesParCase(jours, fenetre, managers)</code> range les deux par case.</li>
+    <li>Le nombre de la case, les onglets « Sans planning » et « Avec planning » et le total des membres ne comptent que
+      l'équipe : absents + présents = membres, toujours.</li>
+    <li>Un troisième onglet « Managers » (affiché s'il y en a) liste chaque manager avec ses jours sans planning dans la
+      case, ou une coche s'il en a eu un chaque jour.</li>
+    <li>Si les managers ne peuvent pas être chargés, ils restent dans l'équipe, comme avant.</li>
+  </ul>
+
+  <footer>follow-task · documents techniques</footer>
+</div>
+</body>
+</html>

@@ -104,8 +104,8 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
   effectifsParCase = new Map<number, CaseEffectif[]>();
   /** Rangée « Sans planning » de l'en-tête. */
   presences: CasePresence[] = [];
-  /** Onglet du menu d'une case : sans planning d'abord, s'il y a des absents. */
-  ongletPresence: 'sans' | 'avec' = 'sans';
+  /** Onglet du menu d'une case : sans planning d'abord, s'il y a des absents ; les managers à part. */
+  ongletPresence: 'sans' | 'avec' | 'managers' = 'sans';
   axe: AxeGantt = {groupes: [], graduations: [], weekends: []};
   /** Position du trait « aujourd'hui » ; null hors de la fenêtre. */
   aujourdhui: number | null = null;
@@ -136,6 +136,8 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
   private abonnementEspace?: Subscription;
   /** Membres déjà chargés, par préfixe d'espace de travail. */
   private readonly membresParEspace = new Map<string, User[]>();
+  /** Managers déjà chargés, par préfixe d'espace de travail. */
+  private readonly managersParEspace = new Map<string, User[]>();
 
   constructor(private directionService: DirectionService,
               private eventsService: EventsService,
@@ -269,7 +271,8 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
    * tous projets confondus. `plagesMembres` et non `searchEvents` : ce dernier
    * écarte les séances sans fin ou à cheval sur la période, et leurs auteurs
    * passaient pour absents. Ne dépend ni des personnes choisies ni du
-   * regroupement : c'est toute l'équipe.
+   * regroupement : c'est toute l'équipe. Les managers de l'espace n'y comptent
+   * pas : ils ont leur liste à part dans le menu d'une case.
    */
   private chargerPresences(): void {
     this.abonnementPresences?.unsubscribe();
@@ -278,15 +281,37 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
       return;
     }
     const fenetre = this.fenetre;
-    this.abonnementPresences = this.membresDe(this.espace.prefixe).pipe(
-      switchMap(membres => !membres.length
-        ? of({membres, plages: [] as PlageMembre[]})
+    const prefixe = this.espace.prefixe;
+    this.abonnementPresences = forkJoin({membres: this.membresDe(prefixe), managers: this.managersDe(prefixe)}).pipe(
+      switchMap(({membres, managers}) => !membres.length
+        ? of({membres, managers, plages: [] as PlageMembre[]})
         : this.directionService.plagesMembres(membres.map(m => m.id), versIso(fenetre.debut), versIso(fenetre.fin))
-          .pipe(map(plages => ({membres, plages})))),
+          .pipe(map(plages => ({membres, managers, plages})))),
       // Sans elles, pas de rangée plutôt qu'une rangée fausse : le diagramme reste utile.
       catchError(() => of(null))
-    ).subscribe(resultat => this.presences = !resultat ? [] : presencesParCase(
-      presencesParJour(resultat.membres, resultat.plages, fenetre.debut, fenetre.fin, Date.now()), fenetre));
+    ).subscribe(resultat => {
+      if (!resultat) {
+        this.presences = [];
+        return;
+      }
+      const estManager = new Set(resultat.managers.map(m => m.id));
+      const jours = (personnes: User[]) => presencesParJour(personnes, resultat.plages, fenetre.debut, fenetre.fin, Date.now());
+      this.presences = presencesParCase(
+        jours(resultat.membres.filter(m => !estManager.has(m.id))), fenetre,
+        jours(resultat.membres.filter(m => estManager.has(m.id))));
+    });
+  }
+
+  /** Managers de l'espace (rôle PROJECT_MANAGER), demandés une fois par espace. */
+  private managersDe(prefixe: string): Observable<User[]> {
+    const connus = this.managersParEspace.get(prefixe);
+    if (connus) {
+      return of(connus);
+    }
+    return this.userService.getUserForProjectAndRole(prefixe, ['PROJECT_MANAGER']).pipe(
+      tap(managers => this.managersParEspace.set(prefixe, managers)),
+      // Sans eux, les managers restent dans l'équipe, comme avant.
+      catchError(() => of([] as User[])));
   }
 
   private construire(): void {

@@ -906,7 +906,8 @@
 /* ═══ MENU « QUI N'A PAS DE PLANNING » ═══ */
 ::ng-deep .gp-menu-presence.mat-mdc-menu-panel {
   min-width: 260px;
-  max-width: 340px;
+  /* Trois onglets quand l'espace a des managers. */
+  max-width: 420px;
   max-height: 70vh;
 }
 
@@ -1011,6 +1012,17 @@
 .mp-onglet-avec.actif {
   border-color: #15803d;
   background: #e7f6ec;
+  color: #15803d;
+}
+
+.mp-onglet-managers.actif {
+  border-color: #185FA5;
+  background: #eef4fc;
+  color: #185FA5;
+}
+
+.mp-ok {
+  font-size: 11px;
   color: #15803d;
 }
 
