@@ -66,34 +66,6 @@
   margin-bottom: 6px;
 }
 
-.gp-titre {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin: 0;
-  font-size: 14px;
-  font-weight: 600;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.gp-espace {
-  color: var(--dir-ink-3);
-  font-weight: 500;
-}
-
-.gp-count {
-  min-width: 18px;
-  padding: 0 6px;
-  border-radius: 999px;
-  background: var(--dir-surface);
-  border: 1px solid var(--dir-hairline);
-  font-size: 11px;
-  font-weight: 500;
-  text-align: center;
-  color: var(--dir-ink-3);
-}
-
 .gp-periode {
   display: flex;
   align-items: center;

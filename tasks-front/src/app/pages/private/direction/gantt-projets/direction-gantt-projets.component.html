@@ -1,13 +1,9 @@
 <div class="gp-shell">
 
-  <!-- ═══ UNE SEULE LIGNE au-dessus du diagramme : titre, période, échelle,
-       personnes, légende. Le diagramme garde toute la hauteur restante. ═══ -->
+  <!-- ═══ UNE SEULE LIGNE au-dessus du diagramme : période, échelle,
+       personnes, légende. Pas de titre : l'espace est déjà dans le menu de
+       l'hôte. Le diagramme garde toute la hauteur restante. ═══ -->
   <div class="gp-barre">
-    <h1 class="gp-titre" [title]="'Gantt des projets' + (espace ? ' · ' + espace.nom : '')">
-      Gantt<span class="gp-espace" *ngIf="espace"> · {{ espace.nom }}</span>
-      <span class="gp-count" *ngIf="!chargement && !erreur" title="Projets en cours">{{ projets.length }}</span>
-    </h1>
-
     <ng-container *ngIf="!chargement && !erreur">
       <div class="gp-periode">
         <button type="button" class="gp-btn" (click)="deplacer(-1)" title="Période précédente" aria-label="Période précédente">
@@ -290,12 +286,8 @@
 <mat-menu #menuPresence="matMenu" class="gp-menu-presence">
   <ng-template matMenuContent let-c="c">
     <div class="mp-entete" (click)="$event.stopPropagation()">
+      <!-- Les comptes sont sur les onglets : l'en-tête ne porte que la période. -->
       <strong>{{ c.titre }}</strong>
-      <span>
-        {{ c.absents.length }} sans planning + {{ c.presents.length }} avec = {{ c.membres }} membre(s)
-        <ng-container *ngIf="c.managers.length"> · {{ c.managers.length }} manager(s) à part</ng-container>
-        <ng-container *ngIf="c.jours > 1"> · {{ c.jours }} jours ouvrables</ng-container>
-      </span>
     </div>
     <!-- Onglets en haut : qui n'a pas de planning, qui en a un ; les managers
          de l'espace hors décompte, dans le leur. -->
