@@ -9,7 +9,7 @@ import {DirectionProjetDetailComponent} from './projet-detail/direction-projet-d
 import {DirectionFicheProjetComponent} from './fiche-projet/direction-fiche-projet.component';
 import {DirectionCommentairesComponent} from './commentaires/direction-commentaires.component';
 import {DirectionGanttComponent} from './gantt/direction-gantt.component';
-import {DirectionGanttProjetsComponent} from './gantt-projets/direction-gantt-projets.component';
+import {GanttProjetsModule} from './gantt-projets/gantt-projets.module';
 import {SituationComponent} from './situation/situation.component';
 import {SituationFiabiliteComponent} from './situation/fiabilite/situation-fiabilite.component';
 import {SituationChiffresComponent} from './situation/chiffres/situation-chiffres.component';
@@ -37,7 +37,6 @@ import {StatutTacheComponent} from '../../../common/statut-tache/statut-tache.co
     DirectionProjetDetailComponent,
     DirectionCommentairesComponent,
     DirectionGanttComponent,
-    DirectionGanttProjetsComponent,
     SituationComponent,
     SituationFiabiliteComponent,
     SituationChiffresComponent,
@@ -46,9 +45,10 @@ import {StatutTacheComponent} from '../../../common/statut-tache/statut-tache.co
   ],
   imports: [
     CommonModule,
-    // Sélecteur « Grouper par » du Gantt des projets.
     FormsModule,
     DirectionRoutingModule,
+    // Gantt des projets, partagé avec l'espace de travail.
+    GanttProjetsModule,
     UserMenuComponent,
     AvatarComponent,
     CustomFieldComponent,

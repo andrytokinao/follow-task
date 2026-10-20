@@ -16,6 +16,8 @@ import {ProjectHomeComponent} from "./home/home.component";
 import {DocumentExchangeComponent} from "./document-exchange/document-exchange.component";
 import {MessagingPageComponent} from "./messaging-page/messaging-page.component";
 import {TaskListComponent} from "./tasks/task-list.component";
+import {ProjectGanttComponent} from "./gantt/project-gantt.component";
+import {directionGuard} from "../direction/direction.guard";
 
 
 
@@ -37,6 +39,8 @@ const projectRoute: Routes = [
           // Toutes les tâches du projet, demandes et sous-tâches.
           { path: 'tasks', component: TaskListComponent, resolve: { breadcrumb: ProjectBreadcrumbResolverService }, data:{order:1, title:'Tâches'} },
 
+          // Gantt des projets de l'espace, celui du cockpit : mêmes droits que la direction.
+          { path: 'gantt', component: ProjectGanttComponent, canActivate: [directionGuard], data:{order:2, title:'Gantt'} },
           { path: 'gantt-chart', component: GanttChartComponent, resolve: { breadcrumb: ProjectBreadcrumbResolverService ,data:{order:2}  }, data:{title:'Gantt'}},
           { path: 'board', component: BoardComponent, resolve: { breadcrumb: ProjectBreadcrumbResolverService  } ,data:{order:3, title:'Tableau'} },
           { path: 'rapport', component: RapportComponent, resolve: { breadcrumb: ProjectBreadcrumbResolverService  } ,data:{order:4, title:'Rapports'} },

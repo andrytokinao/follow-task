@@ -65,6 +65,8 @@ import {MessageThreadComponent} from "../../../common/message-thread/message-thr
 import {MessagingPageComponent} from "./messaging-page/messaging-page.component";
 import {IssuePickerMenuComponent} from "../../../common/issue-picker/issue-picker-menu.component";
 import {TaskListComponent} from "./tasks/task-list.component";
+import {ProjectGanttComponent} from "./gantt/project-gantt.component";
+import {GanttProjetsModule} from "../direction/gantt-projets/gantt-projets.module";
 
 @NgModule({
   declarations: [
@@ -90,7 +92,8 @@ import {TaskListComponent} from "./tasks/task-list.component";
     ProjectHomeComponent,
     DocumentExchangeComponent,
     MessagingPageComponent,
-    TaskListComponent
+    TaskListComponent,
+    ProjectGanttComponent
   ],
     exports: [
         StatusComponent,
@@ -145,7 +148,9 @@ import {TaskListComponent} from "./tasks/task-list.component";
     OverlayModule,
     AvatarComponent,
     MessageThreadComponent,
-    IssuePickerMenuComponent
+    IssuePickerMenuComponent,
+    // Gantt des projets, partagé avec le cockpit de direction.
+    GanttProjetsModule
   ]
 })
 export class ProjectModule { }

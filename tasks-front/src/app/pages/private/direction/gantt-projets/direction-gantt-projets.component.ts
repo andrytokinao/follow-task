@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {forkJoin, Observable, of, Subscription} from 'rxjs';
 import {catchError, map, switchMap, tap} from 'rxjs/operators';
 import {EventMenuComponent} from '../../../../common/event-menu/event-menu.component';
@@ -51,6 +51,9 @@ type Bulle = ContenuBulle & {
  * indépendantes : la structure (`construireBlocs` : projets, tâches, cadres) et
  * l'activité (`placerEvenements` : les événements de planning rendus par
  * `EventsService.searchEvents`). Choisir une personne ne refait que la seconde.
+ *
+ * Réutilisable : l'hôte fournit l'espace à suivre (`[espace$]`), le diagramme
+ * se recharge à chaque émission. Sans lui, c'est l'espace du menu de direction.
  */
 @Component({
   standalone: false,
@@ -59,6 +62,13 @@ type Bulle = ContenuBulle & {
   styleUrls: ['./direction-gantt-projets.component.css']
 })
 export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
+
+  /**
+   * Espace dont les projets sont affichés, lu une fois à l'initialisation :
+   * c'est le flux, pas sa valeur, qui porte les changements d'espace.
+   * Par défaut, l'espace du menu de direction.
+   */
+  @Input() espace$?: Observable<EspaceDirection>;
 
   @ViewChild(EventMenuComponent) private eventMenu!: EventMenuComponent;
 
@@ -133,9 +143,9 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
               private espaceService: EspaceDirectionService) {
   }
 
-  /** Les projets sont ceux de l'espace du menu : en changer recharge la page. */
+  /** Les projets sont ceux de l'espace suivi : en changer recharge la page. */
   ngOnInit(): void {
-    this.abonnementEspace = this.espaceService.espace$.pipe(
+    this.abonnementEspace = (this.espace$ ?? this.espaceService.espace$).pipe(
       tap(espace => {
         this.espace = espace;
         this.chargement = true;

@@ -1,0 +1,12 @@
+<ng-container *ngIf="resolution$ | async as resolution">
+  <!-- Le diagramme reste en place d'un espace à l'autre : il se recharge seul sur espace$. -->
+  <app-direction-gantt-projets *ngIf="resolution.espace; else introuvable"
+                               [espace$]="espace$"></app-direction-gantt-projets>
+</ng-container>
+
+<ng-template #introuvable>
+  <div class="pg-vide">
+    <i class="fas fa-chart-gantt"></i>
+    <span>Aucun projet en cours à afficher pour cet espace de travail.</span>
+  </div>
+</ng-template>

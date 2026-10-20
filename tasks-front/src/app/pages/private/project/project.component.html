@@ -67,6 +67,9 @@
       <a class="nav-item" routerLinkActive="active" routerLink="planning" data-tooltip="Planning" (click)="closeDrawer()">
         <i class="fas fa-chart-gantt icon"></i><span>Planning</span>
       </a>
+      <a class="nav-item" *ngIf="accesDirection" routerLinkActive="active" routerLink="gantt" data-tooltip="Gantt" (click)="closeDrawer()">
+        <i class="fas fa-bars-progress icon"></i><span>Gantt</span>
+      </a>
       <a class="nav-item" routerLinkActive="active" routerLink="correspondants" data-tooltip="Demandes" (click)="closeDrawer()">
         <i class="fas fa-chart-gantt icon"></i><span>Correspondants</span>
       </a>
@@ -144,6 +147,8 @@
       </a>
       <a class="nav-item" routerLinkActive="active" routerLink="calendar" data-tooltip="Calendrier"><i class="fas fa-calendar-days icon"></i><span>Calendrier</span></a>
       <a class="nav-item" routerLinkActive="active" routerLink="planning" data-tooltip="Planning">  <i class="fas fa-chart-gantt icon"></i><span>Planning</span></a>
+      <!-- Gantt du cockpit, pour l'espace ouvert : réservé à qui voit la direction. -->
+      <a class="nav-item" *ngIf="accesDirection" routerLinkActive="active" routerLink="gantt" data-tooltip="Gantt"><i class="fas fa-bars-progress icon"></i><span>Gantt</span></a>
       <a class="nav-item" routerLinkActive="active" routerLink="correspondants" data-tooltip="Demandes"> <i class="fas fa-people-arrows icon"></i>    <span>Correspondants</span>
       </a>
       <a class="nav-item" routerLinkActive="active" routerLink="rapport" data-tooltip="Rapports"><i class="fas fa-file-lines icon"></i><span>Rapports</span></a>

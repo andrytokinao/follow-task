@@ -27,6 +27,7 @@ import {ProfileComponent} from "../profile/profile.component";
 import {AuthService} from "../../../services/auth.service";
 import {LayoutService} from "../../../services/layout.service";
 import {NotificationService} from "../../../services/notification.service";
+import {peutVoirDirection} from "../direction/direction.permissions";
 
 @Component({
   selector: 'app-project',
@@ -92,12 +93,15 @@ export class ProjectComponent implements OnInit{
   }  workSpace='';
   activeRouteName: string = '';
   connectedUser: User | undefined;
+  /** Menu Gantt : mêmes droits que le cockpit de direction, dont il reprend les données. */
+  accesDirection = false;
 
   private routeNames: Record<string, string> = {
     'list': 'Liste',
     'tasks': 'Tâches',
     'calendar': 'Calendrier',
     'planning': 'Planning',
+    'gantt': 'Gantt',
     'config': 'Config',
   };
   project:Project | undefined;
@@ -255,6 +259,9 @@ export class ProjectComponent implements OnInit{
     });
     this.authService.connectedUser$.subscribe(user => {
       this.connectedUser = user;
+    });
+    this.authService.profile$.subscribe(profil => {
+      this.accesDirection = peutVoirDirection(profil?.permissions);
     });
     this.route.data.subscribe(data => {
       console.debug(data);
