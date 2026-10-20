@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DT-013 — Champs dates depuis une case du Gantt</title>
+  <link rel="stylesheet" href="assets/doc.css">
+</head>
+<body>
+<div class="page">
+
+  <header class="doc-header">
+    <span class="doc-ref">DT-013</span>
+    <h1>Champs dates depuis une case du Gantt</h1>
+    <p class="subtitle">Un clic sur une case (jour, semaine ou mois) d'un projet ou d'une tâche ouvre un menu : les champs
+      personnalisés de type Date, une case à cocher chacun. Cocher pose la date, décocher la retire. Un champ à valeur
+      unique déjà daté ailleurs ne se coche pas. Administrateur ou chef de projet : créer un champ date.</p>
+    <table class="meta">
+      <tr><td>Référence</td><td>DT-013 (Document Technique n° 013)</td></tr>
+      <tr><td>Statut</td><td><strong>Réalisé</strong></td></tr>
+      <tr><td>Version de l'application</td><td>2.0.25</td></tr>
+      <tr><td>Date</td><td>20 octobre 2026</td></tr>
+      <tr><td>Commits liés</td><td>titres contenant « (DT-013) » : <code>git log --grep "DT-013"</code></td></tr>
+      <tr><td>Migration</td><td><code>tasks-service/src/main/resources/db/manual/2026-10-20-champ-valeur-unique.sql</code></td></tr>
+    </table>
+  </header>
+
+  <!-- ================================================================== -->
+  <h2 id="besoin">1. Besoin</h2>
+  <ul>
+    <li>Les champs Date sont des barres verticales du Gantt (DT-008) : on doit pouvoir les poser depuis le diagramme,
+      à la case voulue, sans ouvrir la tâche.</li>
+    <li>Certains champs n'ont qu'une date (une livraison, une recette) ; d'autres en ont plusieurs (des revues).</li>
+    <li>Seuls l'administrateur et le chef de projet de l'espace créent un nouveau champ.</li>
+  </ul>
+
+  <!-- ================================================================== -->
+  <h2 id="parcours">2. Parcours</h2>
+  <svg viewBox="0 0 720 210" width="720" role="img" aria-label="Clic sur une case, menu, écriture, diagramme refait">
+    <defs><marker id="f" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#475467"/></marker></defs>
+    <g font-family="sans-serif" font-size="12">
+      <rect x="10" y="20" width="200" height="60" rx="8" fill="#eef4fc" stroke="#185FA5"/>
+      <text x="110" y="44" text-anchor="middle" font-weight="bold">Clic dans une piste</text>
+      <text x="110" y="62" text-anchor="middle">x → jourA → seau (case)</text>
+      <rect x="260" y="20" width="200" height="60" rx="8" fill="#fff" stroke="#101828"/>
+      <text x="360" y="44" text-anchor="middle" font-weight="bold">app-gantt-champs-case</text>
+      <text x="360" y="62" text-anchor="middle">mat-menu au pointeur</text>
+      <rect x="510" y="20" width="200" height="60" rx="8" fill="#e7f6ec" stroke="#15803d"/>
+      <text x="610" y="44" text-anchor="middle" font-weight="bold">saveValue / deleteValue</text>
+      <text x="610" y="62" text-anchor="middle">rendent les valeurs de la demande</text>
+      <rect x="260" y="130" width="200" height="60" rx="8" fill="#fff8e6" stroke="#b7791f"/>
+      <text x="360" y="154" text-anchor="middle" font-weight="bold">(modifie) → hôte</text>
+      <text x="360" y="172" text-anchor="middle">avecValeurs + construire()</text>
+      <path d="M210 50 L260 50" stroke="#475467" marker-end="url(#f)"/>
+      <path d="M460 50 L510 50" stroke="#475467" marker-end="url(#f)"/>
+      <path d="M610 80 L460 150" stroke="#475467" fill="none" marker-end="url(#f)"/>
+    </g>
+  </svg>
+  <ul>
+    <li>Pistes cliquables : la ligne du projet (ses champs) et chaque ligne de tâche. Pas les lignes de groupe.
+      Un clic sur une séance unique ouvre toujours sa fiche (<code>stopPropagation</code>).</li>
+    <li>La case est celle de l'échelle : un jour, une semaine (lundi) ou un mois (le 1er). Cocher date le champ au
+      <strong>premier jour de la case</strong> ; décocher retire toutes ses dates comprises dans la case.</li>
+    <li>Après écriture, seule la structure est refaite (barres, légende) ; l'activité reste en place. Les réponses
+      Apollo étant figées, <code>avecValeurs</code> recopie la demande au lieu de la modifier.</li>
+  </ul>
+
+  <!-- ================================================================== -->
+  <h2 id="unique">3. Valeur unique</h2>
+  <table>
+    <tr><th>Champ</th><th>Date dans la case</th><th>Date ailleurs seulement</th><th>Aucune date</th></tr>
+    <tr><td>Valeur unique</td><td>coché, décochable</td><td>grisé (date affichée)</td><td>cochable</td></tr>
+    <tr><td>Plusieurs valeurs</td><td>coché, décochable</td><td>cochable (ajoute une date)</td><td>cochable</td></tr>
+  </table>
+  <ul>
+    <li><code>CustomField.valeurUnique</code> (colonne <code>valeur_unique</code>, nullable) ; <code>estValeurUnique()</code>
+      le vaut aussi pour les champs de l'application (code <code>DATE_DEMARRAGE</code>, <code>DEADLINE</code>).
+      Côté front : <code>estValeurUnique</code> dans <code>champs-case/gantt-champs-case.ts</code>.</li>
+    <li>Le serveur refuse une seconde valeur d'un champ unique (<code>IssueService.refuserSecondeValeur</code>).</li>
+    <li>Modifier un champ depuis un écran qui ignore le drapeau (null) le conserve (<code>ProjectService.saveCustomField</code>).</li>
+  </ul>
+
+  <!-- ================================================================== -->
+  <h2 id="creation">4. Créer un champ date</h2>
+  <ul>
+    <li>Proposé si l'utilisateur a le rôle <code>ADMIN</code> ou <code>PROJECT_MANAGER</code> dans l'espace de la
+      demande (<code>UserService.getUserForProjectAndRole</code>), ou la permission <code>CAN_ACCESS_ALL</code>.</li>
+    <li>Le champ est créé avec la portée <code>PROJET</code> : rattaché d'office à tous les types de l'espace, il est
+      aussitôt proposé dans toutes les cases. Case « Valeur unique » cochée par défaut.</li>
+  </ul>
+
+  <!-- ================================================================== -->
+  <h2 id="code">5. Fichiers</h2>
+  <table>
+    <tr><th>Fichier</th><th>Rôle</th></tr>
+    <tr><td><code>gantt-projets/champs-case/gantt-champs-case.component.*</code></td><td>Menu d'une case (ancre invisible au pointeur, <code>appContenuMenu</code>)</td></tr>
+    <tr><td><code>gantt-projets/champs-case/gantt-champs-case.ts</code></td><td>Fonctions pures : <code>caseDe</code>, <code>lignesDeCase</code>, <code>avecValeurs</code></td></tr>
+    <tr><td><code>gantt-projets/champs-case/gantt-champs.service.ts</code></td><td>Champs Date d'un type, dater, retirer, créer, droit de créer</td></tr>
+    <tr><td><code>gantt-projets/champs-case/gantt-champs.operations.ts</code></td><td>Requêtes GraphQL</td></tr>
+    <tr><td><code>gantt-fenetre.ts</code> · <code>gantt-dates.util.ts</code></td><td><code>jourA(x)</code> ; <code>versJourIso</code></td></tr>
+    <tr><td><code>mutation.graphqls</code> · <code>GQIssueController</code> · <code>IssueService</code></td><td><code>deleteValue(valueId)</code></td></tr>
+  </table>
+
+  <footer>follow-task · documents techniques</footer>
+</div>
+</body>
+</html>
