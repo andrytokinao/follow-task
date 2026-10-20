@@ -156,6 +156,8 @@ export interface CustomField {
   portee?: 'PROJET' | 'APPLICATION' | null;
   // Code d'un champ fourni par l'application ('DATE_DEMARRAGE', 'DEADLINE').
   code?: string;
+  // Une seule valeur par tâche (une seule date, par exemple).
+  valeurUnique?: boolean | null;
 }
 
 

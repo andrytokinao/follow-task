@@ -175,10 +175,11 @@ const CADRE_GANTT = `
     role
     user { ${UTILISATEUR} }
   }
+  project { id }
   values {
     id
     date
-    customField { id name type code }
+    customField { id name type code valeurUnique }
   }
 `;
 

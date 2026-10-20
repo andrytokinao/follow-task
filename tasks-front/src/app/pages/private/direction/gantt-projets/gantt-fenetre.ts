@@ -70,6 +70,11 @@ export class FenetreGantt {
     return (instant - this.debut) / JOUR * ECHELLES[this.echelle].pixels;
   }
 
+  /** Jour sous une position de l'axe : l'inverse de {@link x}, au jour près. */
+  jourA(x: number): number {
+    return plusJours(this.debut, Math.floor(x / ECHELLES[this.echelle].pixels));
+  }
+
   /** Partie visible d'un intervalle ; null s'il est tout entier hors de la fenêtre. */
   segment(debut: number, fin: number): Segment | null {
     if (fin <= this.debut || debut >= this.fin) {

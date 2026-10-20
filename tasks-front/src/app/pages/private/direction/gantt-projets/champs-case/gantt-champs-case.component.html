@@ -1,0 +1,40 @@
+<!-- Déclencheur invisible, placé à l'endroit du clic : le menu s'ouvre à côté de la case. -->
+<span class="gcc-ancre" [matMenuTriggerFor]="menuChamps" [style.left.px]="x" [style.top.px]="y"></span>
+
+<mat-menu #menuChamps="matMenu" class="gcc-menu" [overlapTrigger]="false">
+  <!-- Cases à cocher et saisie : un clic ne doit pas refermer le menu. -->
+  <div appContenuMenu *ngIf="cellule as c">
+    <div class="gcc-entete">
+      <strong>{{ c.periode }}</strong>
+      <small [title]="c.source">{{ c.source }}</small>
+    </div>
+
+    <p class="gcc-etat" *ngIf="chargement"><i class="fas fa-circle-notch fa-spin"></i> Chargement des champs…</p>
+    <p class="gcc-etat" *ngIf="!chargement && !lignes.length && !erreur">Aucun champ date pour ce type de demande.</p>
+
+    <!-- Coché : le champ a une date dans la case. Valeur unique déjà datée ailleurs : grisé. -->
+    <label class="gcc-champ" *ngFor="let l of lignes; trackBy: parChamp"
+           [class.bloque]="!l.coche && l.bloque"
+           [title]="!l.coche && l.bloque ? 'Une seule date par demande, déjà au ' + ailleurs(l) : ''">
+      <!-- La case ne bascule qu'à la réponse du serveur : en cas d'échec, elle reste juste. -->
+      <input type="checkbox" [checked]="l.coche" [disabled]="enCours || (!l.coche && l.bloque)"
+             (click)="$event.preventDefault(); basculer(l)">
+      <span class="gcc-nom">{{ l.champ.name }}</span>
+      <span class="gcc-unique" *ngIf="l.unique" title="Une seule date par demande">unique</span>
+      <small class="gcc-ailleurs" *ngIf="l.ailleurs.length">{{ ailleurs(l) }}</small>
+    </label>
+
+    <p class="gcc-erreur" *ngIf="erreur"><i class="fas fa-exclamation-triangle"></i> {{ erreur }}</p>
+
+    <!-- Nouveau champ date pour tout l'espace : administrateur ou chef de projet. -->
+    <form class="gcc-creer" *ngIf="peutCreer && !chargement" (ngSubmit)="creer()">
+      <input type="text" name="nom" [(ngModel)]="nouveauNom" placeholder="Nouveau champ date" aria-label="Nom du nouveau champ date">
+      <label class="gcc-option" title="Une seule date par demande">
+        <input type="checkbox" name="unique" [(ngModel)]="nouveauUnique"> Valeur unique
+      </label>
+      <button type="submit" class="gcc-btn" [disabled]="!nouveauNom.trim() || enCours">
+        <i class="fas fa-plus"></i> Créer
+      </button>
+    </form>
+  </div>
+</mat-menu>

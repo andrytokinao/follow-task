@@ -1,0 +1,127 @@
+/* Ancre fixe et sans taille : elle ne sert qu'à situer le panneau. */
+.gcc-ancre {
+  position: fixed;
+  width: 0;
+  height: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+::ng-deep .gcc-menu.mat-mdc-menu-panel {
+  min-width: 260px;
+  max-width: 360px;
+  max-height: 70vh;
+}
+
+.gcc-entete {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 14px 10px;
+  border-bottom: 1px solid #eaecf0;
+  font-size: 12px;
+  color: #475467;
+}
+.gcc-entete strong {
+  font-size: 13px;
+  color: #101828;
+  text-transform: capitalize;
+}
+.gcc-entete small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gcc-etat {
+  margin: 0;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: #667085;
+}
+
+.gcc-champ {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 6px 14px;
+  font-size: 13px;
+  color: #101828;
+  cursor: pointer;
+}
+.gcc-champ:hover {
+  background: #f9fafb;
+}
+.gcc-champ.bloque {
+  color: #98a2b3;
+  cursor: not-allowed;
+}
+.gcc-nom {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.gcc-unique {
+  padding: 0 6px;
+  border-radius: 8px;
+  background: #f2f4f7;
+  font-size: 10px;
+  font-weight: 600;
+  color: #475467;
+}
+.gcc-ailleurs {
+  font-size: 11px;
+  color: #667085;
+}
+
+.gcc-erreur {
+  margin: 0;
+  padding: 6px 14px;
+  font-size: 12px;
+  color: #b42318;
+}
+
+.gcc-creer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  border-top: 1px solid #eaecf0;
+}
+.gcc-creer input[type="text"] {
+  flex: 1 1 100%;
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 13px;
+}
+.gcc-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 12px;
+  color: #475467;
+}
+.gcc-btn {
+  margin-left: auto;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: #344054;
+  cursor: pointer;
+}
+.gcc-btn:disabled {
+  opacity: .5;
+  cursor: default;
+}

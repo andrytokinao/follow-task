@@ -287,6 +287,10 @@
   position: relative;
   flex: 0 0 auto;
 }
+/* Chaque case ouvre les champs datés de sa demande. */
+.piste-champs {
+  cursor: cell;
+}
 
 .gp-texte {
   display: flex;

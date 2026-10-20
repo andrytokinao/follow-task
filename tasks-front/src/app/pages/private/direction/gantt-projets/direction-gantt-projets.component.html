@@ -158,7 +158,9 @@
                 </span>
               </span>
             </div>
-            <div class="gp-piste" [style.width.px]="fenetre.largeur">
+            <!-- Clic sur une case : les champs datés du projet à cette date. -->
+            <div class="gp-piste piste-champs" [style.width.px]="fenetre.largeur"
+                 (click)="ouvrirChamps(bloc.projet, bloc, $event)">
               <span class="projet-cadre" *ngIf="bloc.cadre?.segment as c" [style.left.px]="c.gauche" [style.width.px]="c.largeur"
                     [class.coupe-gauche]="c.coupeGauche" [class.coupe-droite]="c.coupeDroite"
                     [class.sans-echeance]="bloc.cadre?.sansEcheance"></span>
@@ -213,7 +215,9 @@
                 </div>
               </ng-template>
 
-              <div class="gp-piste" [style.width.px]="fenetre.largeur" *ngIf="activites.de(l.cle) as a">
+              <!-- Ligne d'une tâche : un clic sur une case ouvre ses champs datés. Pas pour un groupe. -->
+              <div class="gp-piste" [style.width.px]="fenetre.largeur" *ngIf="activites.de(l.cle) as a"
+                   [class.piste-champs]="l.tache" (click)="l.tache && ouvrirChamps(l.tache, bloc, $event)">
                 <!-- Le cadre : du démarrage à la deadline, son bord droit épais. -->
                 <span class="cadre" *ngIf="l.cadre?.segment as c" [style.left.px]="c.gauche"
                       [style.width.px]="c.largeur" [style.height.px]="hauteurCadre(a.voies)"
@@ -338,3 +342,6 @@
 
 <!-- Fiche d'une séance : le même menu que dans les plannings de l'espace de travail. -->
 <app-event-menu (saved)="chercher()"></app-event-menu>
+
+<!-- Champs datés d'une case : cocher pose la date, décocher la retire. -->
+<app-gantt-champs-case (modifie)="champsModifies($event)"></app-gantt-champs-case>

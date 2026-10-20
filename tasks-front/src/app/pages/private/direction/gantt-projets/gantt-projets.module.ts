@@ -6,6 +6,7 @@ import {MyCommonModule} from '../../../../common/common.module';
 import {AvatarComponent} from '../../../../common/avatar/avatar.component';
 import {TypeTacheComponent} from '../../../../common/type-tache/type-tache.component';
 import {DirectionGanttProjetsComponent} from './direction-gantt-projets.component';
+import {GanttChampsCaseComponent} from './champs-case/gantt-champs-case.component';
 
 /**
  * Gantt des projets d'un espace de travail (`app-direction-gantt-projets`),
@@ -13,12 +14,12 @@ import {DirectionGanttProjetsComponent} from './direction-gantt-projets.componen
  * fournit l'espace à suivre (`[espace$]`).
  */
 @NgModule({
-  declarations: [DirectionGanttProjetsComponent],
+  declarations: [DirectionGanttProjetsComponent, GanttChampsCaseComponent],
   imports: [
     CommonModule,
-    // Sélecteur « Grouper par ».
+    // Sélecteur « Grouper par », création d'un champ daté.
     FormsModule,
-    // app-assignee-filter et app-event-menu.
+    // app-assignee-filter, app-event-menu et appContenuMenu.
     MyCommonModule,
     MatMenuModule,
     AvatarComponent,

@@ -29,6 +29,11 @@ export function versIso(instant: number): string {
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}:00`;
 }
 
+/** Format d'une valeur de champ Date (`saveValue`) : `yyyy-MM-dd`, en heure locale. */
+export function versJourIso(jour: number): string {
+  return versIso(jour).slice(0, 10);
+}
+
 export function minuit(instant: number): number {
   const d = new Date(instant);
   return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();

@@ -20,6 +20,8 @@ import {PAR_TACHE, Regroupement, REGROUPEMENTS} from './gantt-regroupement';
 import {CaseEffectif, effectifsParProjet, nommeur} from './gantt-effectifs';
 import {CasePresence, presencesParCase} from './gantt-presences';
 import {presencesParJour} from './gantt-absences';
+import {GanttChampsCaseComponent, ValeursModifiees} from './champs-case/gantt-champs-case.component';
+import {avecValeurs, caseDe} from './champs-case/gantt-champs-case';
 
 /** Géométrie d'une ligne de tâche, en pixels : voir la feuille de styles. */
 const HAUT_CADRE = 8;
@@ -71,6 +73,7 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
   @Input() espace$?: Observable<EspaceDirection>;
 
   @ViewChild(EventMenuComponent) private eventMenu!: EventMenuComponent;
+  @ViewChild(GanttChampsCaseComponent) private champsCase!: GanttChampsCaseComponent;
 
   readonly echelles: { valeur: EchelleGantt; libelle: string }[] = [
     {valeur: 'jour', libelle: 'Jour'},
@@ -453,9 +456,29 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
   ouvrir(serie: Serie, event: MouseEvent): void {
     const id = serie.seances.length === 1 ? serie.seances[0].evenement.id : null;
     if (id != null) {
+      // La fiche de la séance, pas le menu des champs de la case en dessous.
+      event.stopPropagation();
       this.bulle = null;
       this.eventMenu.ouvrirConsultation(id, event);
     }
+  }
+
+  /** Clic dans la piste d'un projet ou d'une tâche : les champs datés de la case sous le pointeur. */
+  ouvrirChamps(demande: TacheGantt, bloc: BlocGantt, event: MouseEvent): void {
+    if (!demande.issueType?.id) {
+      return;
+    }
+    const piste = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    const prefixe = bloc.projet.rapportProjet?.prefixeDepartement ?? this.espace?.prefixe ?? null;
+    this.bulle = null;
+    this.champsCase.ouvrir(caseDe(demande, prefixe, this.fenetre, event.clientX - piste.left), event);
+  }
+
+  /** Une date posée ou retirée : seule la structure est refaite, l'activité reste en place. */
+  champsModifies(modif: ValeursModifiees): void {
+    this.projets = avecValeurs(this.projets, modif.issueId, modif.valeurs);
+    this.champs = indexerChamps(this.projets);
+    this.construire();
   }
 
   private montrer(event: MouseEvent, contenu: ContenuBulle): void {
