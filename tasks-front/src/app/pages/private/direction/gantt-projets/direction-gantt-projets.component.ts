@@ -7,7 +7,7 @@ import {UserService} from '../../../../services/user.service';
 import {EventApp, Issue, User} from '../../../../type/issue';
 import {UNASSIGNED_ID, userDisplayName} from '../../../../type/issue-grouping.util';
 import {DirectionService} from '../direction.service';
-import {EspaceDirection, PlageMembre, ProjetGantt, TacheGantt} from '../direction.model';
+import {EspaceDirection, PlageMembre, PlageTache, ProjetGantt, TacheGantt} from '../direction.model';
 import {EspaceDirectionService} from '../espace/espace-direction.service';
 import {bulleDeSerie, bulleSimple, ContenuBulle, periode} from './gantt-bulle';
 import {versIso} from './gantt-dates.util';
@@ -17,7 +17,7 @@ import {ActivitesGantt, placerEvenements} from './gantt-evenements';
 import {construireBlocs, indexerChamps} from './gantt-projets.constructeur';
 import {BlocGantt, ChampGantt, LigneGantt, PartieGantt, PlanGantt, RepereGantt, Serie} from './gantt-projets.model';
 import {PAR_TACHE, Regroupement, REGROUPEMENTS} from './gantt-regroupement';
-import {CaseEffectif, effectifsParProjet} from './gantt-effectifs';
+import {CaseEffectif, effectifsParProjet, nommeur} from './gantt-effectifs';
 import {CasePresence, presencesParCase} from './gantt-presences';
 import {presencesParJour} from './gantt-absences';
 
@@ -116,6 +116,9 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
   private evenements: EventApp[] = [];
   private ligneDeTache = new Map<number, string>();
   private projetDeTache = new Map<number, number>();
+  /** Séances des projets affichés : la matière de l'effectif par jour. */
+  private plagesProjets: PlageTache[] = [];
+  private abonnementEffectifs?: Subscription;
   private abonnementPresences?: Subscription;
   private readonly intervenants = new IntervenantsGantt();
   private abonnement?: Subscription;
@@ -155,6 +158,7 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
     this.abonnementMembres?.unsubscribe();
     this.abonnementEspace?.unsubscribe();
     this.abonnementPresences?.unsubscribe();
+    this.abonnementEffectifs?.unsubscribe();
   }
 
   // ---------------------------------------------------------------- commandes
@@ -186,6 +190,7 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
   choisirPersonnes(ids: string[]): void {
     this.selection = ids;
     this.chercher();
+    this.calculerEffectifs();
   }
 
   basculerLegende(): void {
@@ -218,7 +223,11 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
     }
     this.abonnementMembres = forkJoin(prefixes.map(prefixe => this.membresDe(prefixe)))
       // Une personne membre de plusieurs groupes ou espaces n'est proposée qu'une fois.
-      .subscribe(parEspace => this.membres = [...new Map(parEspace.flat().map(m => [m.id, m])).values()]);
+      .subscribe(parEspace => {
+        this.membres = [...new Map(parEspace.flat().map(m => [m.id, m])).values()];
+        // Les noms des personnes de l'effectif viennent des membres.
+        this.calculerEffectifs();
+      });
   }
 
   private membresDe(prefixe: string): Observable<User[]> {
@@ -241,6 +250,7 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
     this.chargerMembres();
     this.chercher();
     this.chargerPresences();
+    this.chargerEffectifs();
   }
 
   /**
@@ -318,13 +328,42 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Séances des projets affichés sur la fenêtre, pour l'effectif par jour.
+   * `plagesProjets` et non les événements de l'activité : la recherche
+   * d'événements écarte les séances sans fin ou à cheval sur la période.
+   */
+  private chargerEffectifs(): void {
+    this.abonnementEffectifs?.unsubscribe();
+    this.plagesProjets = [];
+    this.calculerEffectifs();
+    if (!this.blocs.length) {
+      return;
+    }
+    this.abonnementEffectifs = this.directionService.plagesProjets(this.blocs.map(bloc => bloc.projet.id as number),
+      versIso(this.fenetre.debut), versIso(this.fenetre.fin))
+      // Sans elles, pas d'effectif plutôt qu'un effectif faux.
+      .pipe(catchError(() => of([] as PlageTache[])))
+      .subscribe(plages => {
+        this.plagesProjets = plages;
+        this.calculerEffectifs();
+      });
+  }
+
+  /** Effectif par jour et total sur la fenêtre, pour les personnes choisies. */
+  private calculerEffectifs(): void {
+    const effectifs = effectifsParProjet(this.plagesProjets, this.fenetre,
+      tacheId => this.projetDeTache.get(tacheId),
+      this.selection.filter(id => id !== UNASSIGNED_ID),
+      nommeur([...this.membres, ...this.taches.flatMap(t => t.assigne ? [t.assigne] : [])]));
+    this.effectifsParCase = effectifs.parCase;
+    this.effectifs = effectifs.totaux;
+  }
+
   /** Pose des événements sur le diagramme en place. */
   private poser(evenements: EventApp[]): void {
     this.evenements = evenements;
     this.activites = placerEvenements(evenements, this.fenetre, Date.now(), tacheId => this.ligneDeTache.get(tacheId));
-    this.effectifs = new Map(this.blocs.map(bloc =>
-      [bloc.projet.id as number, this.activites.personnes(bloc.lignes.map(l => l.cle)).length]));
-    this.effectifsParCase = effectifsParProjet(evenements, this.fenetre, tacheId => this.projetDeTache.get(tacheId));
     this.intervenants.retenir(evenements);
     this.taches = this.intervenants.completer(this.blocs.flatMap(bloc => bloc.projet.children ?? []));
   }

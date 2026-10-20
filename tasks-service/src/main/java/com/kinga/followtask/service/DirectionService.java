@@ -4,6 +4,7 @@ import com.kinga.followtask.config.StatutsFinaux;
 import com.kinga.followtask.dto.DependanceTacheDTO;
 import com.kinga.followtask.dto.EspaceDirectionDTO;
 import com.kinga.followtask.dto.PlageMembreDTO;
+import com.kinga.followtask.dto.PlageTacheDTO;
 import com.kinga.followtask.dto.RealisationTacheDTO;
 import com.kinga.followtask.dto.rapport.RapportProjetDTO;
 import com.kinga.followtask.entity.CustomField;
@@ -170,6 +171,23 @@ public class DirectionService {
                 .filter(e -> e.getEventType() == null || !TYPE_CHAMP.equalsIgnoreCase(e.getEventType().getName()))
                 .flatMap(e -> PlagesPlanifiees.plageDe(e).stream()
                         .map(plage -> new PlageMembreDTO(e.getUser().getId(), plage.debut(), plage.fin())))
+                .toList();
+    }
+
+    /**
+     * Temps occupé par les séances de ces projets et de leurs tâches qui
+     * chevauchent la période, même règle que {@link #plagesMembres}.
+     */
+    @Transactional(readOnly = true)
+    public List<PlageTacheDTO> plagesProjets(List<Long> projetIds, LocalDateTime debut, LocalDateTime fin) {
+        if (CollectionUtils.isEmpty(projetIds)) {
+            return List.of();
+        }
+        return eventRepository.findByIssueOuParentChevauchant(projetIds, debut, fin).stream()
+                .filter(e -> e.getUser() != null && e.getIssue() != null)
+                .filter(e -> e.getEventType() == null || !TYPE_CHAMP.equalsIgnoreCase(e.getEventType().getName()))
+                .flatMap(e -> PlagesPlanifiees.plageDe(e).stream()
+                        .map(plage -> new PlageTacheDTO(e.getUser().getId(), e.getIssue().getId(), plage.debut(), plage.fin())))
                 .toList();
     }
 

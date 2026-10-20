@@ -27,6 +27,14 @@ export interface PlageMembre {
   fin: string;
 }
 
+/** Même chose sur une tâche (`plagesProjets`) : l'effectif des projets du Gantt. */
+export interface PlageTache {
+  userId: string;
+  issueId: number;
+  debut: string;
+  fin: string;
+}
+
 /** Un projet : demande racine en cours, avec les chiffres de son rapport. */
 export interface ProjetDirection {
   id: number;

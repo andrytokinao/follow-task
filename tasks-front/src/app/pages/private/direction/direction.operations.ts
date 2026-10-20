@@ -32,6 +32,18 @@ export const PLAGES_MEMBRES = gql`
   }
 `;
 
+/** Temps occupé par les séances de ces projets et de leurs tâches : l'effectif par jour du Gantt. */
+export const PLAGES_PROJETS = gql`
+  query plagesProjets($projetIds: [Int]!, $debut: String!, $fin: String!) {
+    plagesProjets(projetIds: $projetIds, debut: $debut, fin: $fin) {
+      userId
+      issueId
+      debut
+      fin
+    }
+  }
+`;
+
 /** Espaces de travail du cockpit : le menu de gauche, et l'espace de l'adresse. */
 export const DIRECTION_ESPACES = gql`
   query directionEspaces {

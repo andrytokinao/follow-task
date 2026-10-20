@@ -57,4 +57,17 @@ public interface EventRepository extends JpaRepository<PlanningEvent,Long> {
     List<PlanningEvent> findByUserIdInChevauchant(@Param("userIds") Collection<String> userIds,
                                                   @Param("debut") LocalDateTime debut,
                                                   @Param("fin") LocalDateTime fin);
+
+    /**
+     * Seances de ces demandes ou de leurs sous-taches qui chevauchent la periode,
+     * fin vide comprise. Jointure externe sur le parent : une seance posee sur
+     * le projet lui-meme (sans parent) compte aussi.
+     */
+    @Query("SELECT e FROM PlanningEvent e JOIN e.issue i LEFT JOIN i.parent p " +
+            "WHERE (i.id IN :issueIds OR p.id IN :issueIds) " +
+            "AND e.start < :fin " +
+            "AND (e.end IS NULL OR e.end > :debut)")
+    List<PlanningEvent> findByIssueOuParentChevauchant(@Param("issueIds") Collection<Long> issueIds,
+                                                       @Param("debut") LocalDateTime debut,
+                                                       @Param("fin") LocalDateTime fin);
 }

@@ -14,6 +14,9 @@ extend type Query {
     # (date-heures ISO). Règle des rappels : sans fin = une heure, « toute la
     # journée » = journées entières ; reportées et dates de champ exclues.
     plagesMembres(userIds: [String]!, debut: String!, fin: String!): [PlageMembre]
+    # Même règle, pour les séances de ces projets et de leurs tâches :
+    # l'effectif de chaque projet, jour par jour.
+    plagesProjets(projetIds: [Int]!, debut: String!, fin: String!): [PlageTache]
     # Projets en cours (non terminés) ; tous les départements si null.
     directionProjets(departement: String): [Issue]
 }
@@ -50,6 +53,13 @@ extend type Issue {
 
 type PlageMembre {
     userId: String
+    debut: String
+    fin: String
+}
+
+type PlageTache {
+    userId: String
+    issueId: Int
     debut: String
     fin: String
 }
