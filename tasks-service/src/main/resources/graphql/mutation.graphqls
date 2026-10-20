@@ -14,6 +14,7 @@ type Mutation {
     saveIssue(issue:IssueInput) :Issue
     updateIssue(issue:IssueInput) : Issue
     saveValue(value:ValueInput):[CustomFieldValue]
+    deleteValue(valueId:Int):[CustomFieldValue]
     addComment(comment:CommentInput):[Comment]
     saveConfigWithQG(configEntry:ConfigEntryInput):[ConfigEntry]
     createProjectOrSave(project:ProjectInput):Project

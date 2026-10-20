@@ -812,7 +812,13 @@ public class ProjectService {
             // le code n'est pas saisissable : sans cette reprise, modifier un
             // champ cree par l'application lui ferait perdre son code.
             customFieldRepository.findById(customField.getId())
-                    .ifPresent(existing -> customField.setCode(existing.getCode()));
+                    .ifPresent(existing -> {
+                        customField.setCode(existing.getCode());
+                        // un ecran qui ignore le drapeau ne l'efface pas
+                        if (customField.getValeurUnique() == null) {
+                            customField.setValeurUnique(existing.getValeurUnique());
+                        }
+                    });
         }
         if (!customField.isCommun()) {
             customField.setPortee(null);

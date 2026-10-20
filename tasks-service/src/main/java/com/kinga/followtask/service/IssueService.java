@@ -258,6 +258,9 @@ public class IssueService {
     public List<CustomFieldValue> saveValue(ValueDto v) throws ClassNotFoundException, InstantiationException, IllegalAccessException, ParseException {
         if(v.getCustomField() == null || StringUtils.isEmpty(v.getCustomField().getType()))
             throw new RuntimeException("Invalid valueNew ");
+        if (v.getId() == null) {
+            refuserSecondeValeur(v);
+        }
         CustomFieldValue value = CustomFieldValue.getInstanceWith(v.getCustomField().getType());
         value.setId(v.getId());
         value.setIssue(v.getIssue());
@@ -280,6 +283,32 @@ public class IssueService {
 
         valueDaoRepository.save(value);
         return valueDaoRepository.findCustomFieldValueByIssueId(value.getIssue().getId());
+    }
+
+    /** Un champ à valeur unique déjà renseigné sur la tâche ne prend pas de seconde valeur. */
+    private void refuserSecondeValeur(ValueDto v) {
+        if (v.getCustomField().getId() == null || v.getIssue() == null || v.getIssue().getId() == null) {
+            return;
+        }
+        CustomField champ = customFieldRepository.findById(v.getCustomField().getId()).orElse(null);
+        if (champ == null || !champ.estValeurUnique()) {
+            return;
+        }
+        boolean dejaRenseigne = valueDaoRepository.findCustomFieldValueByIssueId(v.getIssue().getId()).stream()
+                .anyMatch(existante -> existante.getCustomField() != null
+                        && champ.getId().equals(existante.getCustomField().getId()));
+        if (dejaRenseigne) {
+            throw new RuntimeException("« " + champ.getName() + " » n'accepte qu'une valeur : elle est déjà renseignée.");
+        }
+    }
+
+    /** Retire une valeur de champ personnalisé ; rend celles qui restent à sa tâche. */
+    public List<CustomFieldValue> deleteValue(Long valueId) {
+        CustomFieldValue value = valueDaoRepository.findById(valueId)
+                .orElseThrow(() -> new RuntimeException("Valeur introuvable : " + valueId));
+        Long issueId = value.getIssue().getId();
+        valueDaoRepository.delete(value);
+        return valueDaoRepository.findCustomFieldValueByIssueId(issueId);
     }
 
     public Project getDefaultProject() throws IOException {

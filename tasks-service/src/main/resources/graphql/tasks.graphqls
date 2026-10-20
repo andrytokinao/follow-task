@@ -11,6 +11,8 @@ type CustomField {
     portee:String
     # Code d'un champ fourni par l'application (DATE_DEMARRAGE, DEADLINE).
     code:String
+    # Une seule valeur par tache (une seule date, par exemple).
+    valeurUnique:Boolean
 }
 type Comment {
     id:Int
@@ -289,6 +291,7 @@ input CustomFieldImput {
     configDisplay:[String]
     issueTypes:[CustomFieldImput]
     portee:String
+    valeurUnique:Boolean
 }
 input CredentialInput{
     id:Int

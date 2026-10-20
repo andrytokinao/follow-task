@@ -80,6 +80,10 @@ public class GQIssueController {
     public List<CustomFieldValue> saveValue(@Argument ValueDto value) throws ParseException, ClassNotFoundException, InstantiationException, IllegalAccessException {
         return issueService.saveValue(value);
     }
+    @MutationMapping
+    public List<CustomFieldValue> deleteValue(@Argument Long valueId) {
+        return issueService.deleteValue(valueId);
+    }
     @QueryMapping
     public List<CustomFieldValue> getValues(@Argument Long issueId) throws ParseException, ClassNotFoundException, InstantiationException, IllegalAccessException {
         return issueService.getValues(issueId);

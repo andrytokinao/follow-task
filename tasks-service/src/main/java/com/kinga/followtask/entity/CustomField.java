@@ -40,6 +40,8 @@ public class CustomField {
      * l'application (diagramme de Gantt...) retrouve le champ.
      */
     private String code;
+    @Column(name = "valeur_unique")
+    private Boolean valeurUnique;
 
     public static final String PORTEE_PROJET = "PROJET";
     public static final String PORTEE_APPLICATION = "APPLICATION";
@@ -49,5 +51,10 @@ public class CustomField {
     /** Le champ s'applique-t-il d'office a tous les types, sans rattachement choisi ? */
     public boolean isCommun() {
         return PORTEE_PROJET.equals(portee) || PORTEE_APPLICATION.equals(portee);
+    }
+
+    /** Une seule valeur par tache ? Les champs de l'application (demarrage, deadline) le sont toujours. */
+    public boolean estValeurUnique() {
+        return Boolean.TRUE.equals(valeurUnique) || (code != null && !code.isBlank());
     }
 }
