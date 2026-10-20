@@ -3,7 +3,7 @@ import {Subject} from 'rxjs';
 import {finalize, takeUntil} from 'rxjs/operators';
 import {EventApp, Issue} from '../../type/issue';
 import {EventsService} from '../../services/events.service';
-import {IssueService} from '../../services/issue.service';
+import {IssueApercuPopupService} from '../issue-apercu/issue-apercu-popup.service';
 import {UserService} from '../../services/user.service';
 
 /**
@@ -27,11 +27,9 @@ export class EventDetailComponent implements OnDestroy {
   event?: EventApp;
   loading = false;
 
-  /** Projet (demande) et tâche (sous-tâche) de l'événement, avec leur lien. */
+  /** Projet (demande) et tâche (sous-tâche) de l'événement : un clic montre leur aperçu. */
   projet?: Issue;
   tache?: Issue;
-  lienProjet: string | null = null;
-  lienTache: string | null = null;
 
   /** Jeton de la dernière demande : une réponse tardive ne doit pas écraser la suivante. */
   private demande = 0;
@@ -39,7 +37,7 @@ export class EventDetailComponent implements OnDestroy {
 
   constructor(
     private eventService: EventsService,
-    private issueService: IssueService,
+    private apercuPopup: IssueApercuPopupService,
     private userService: UserService
   ) {}
 
@@ -97,10 +95,17 @@ export class EventDetailComponent implements OnDestroy {
     this.onClose.emit();
   }
 
+  /** Aperçu du projet ou de la tâche en popup : le menu se ferme, le planning reste. */
+  apercu(issue: Issue): void {
+    if (issue?.id == null) return;
+    this.fermer();
+    this.apercuPopup.ouvrir(issue.id);
+  }
+
   /**
    * Le projet de l'événement est porté par l'événement, pas par l'issue que
-   * renvoie la requête : on le lui rattache pour que l'URL désigne le bon
-   * projet, et reste non cliquable s'il n'est pas le projet ouvert.
+   * renvoie la requête : on le lui rattache, pour que la popup (« Ouvrir la
+   * page ») désigne le bon projet.
    */
   private _resoudreLiens(event: EventApp): void {
     const issue = event.issue ? {...event.issue, project: event.issue.project ?? event.project} : undefined;
@@ -111,7 +116,5 @@ export class EventDetailComponent implements OnDestroy {
       this.projet = issue;
       this.tache = undefined;
     }
-    this.lienProjet = this.issueService.getIssueUrl(this.projet);
-    this.lienTache = this.issueService.getIssueUrl(this.tache);
   }
 }

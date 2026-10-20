@@ -46,6 +46,16 @@ this.apercuPopup.ouvrir(issue);      // ou ouvrir(issueId)</code></pre>
     <li>Les pistes gardent leurs clics : une case ouvre les champs dates (DT-013), une barre ses séances (DT-016).</li>
   </ul>
 
+  <!-- ================================================================== -->
+  <h2 id="planning">3. Second usage : le planning</h2>
+  <ul>
+    <li>Cliquer un créneau du planning ouvre sa fiche (<code>app-event-detail</code>, dans <code>app-event-menu</code>).
+      Ses lignes « Projet » et « Tâche » ouvraient la page de l'issue, et n'étaient cliquables que dans le projet ouvert.</li>
+    <li>Désormais, un clic (ou Entrée) ferme la fiche et ouvre l'aperçu en popup, pour tout projet : le planning reste
+      affiché ; « Ouvrir la page » de la popup mène à la page complète.</li>
+    <li>La même fiche sert au Gantt (barre d'une seule séance) : ses liens ouvrent aussi l'aperçu.</li>
+  </ul>
+
   <footer>follow-task · documents techniques</footer>
 </div>
 </body>

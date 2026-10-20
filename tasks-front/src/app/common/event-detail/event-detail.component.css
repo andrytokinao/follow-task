@@ -133,8 +133,11 @@
   border-radius: 5px;
   color: inherit;
   text-decoration: none;
+  /* Sans href : ouvre l'aperçu en popup. */
+  cursor: pointer;
 }
-.ed-lien:hover { background: #eff4ff; }
+.ed-lien:hover,
+.ed-lien:focus-visible { background: #eff4ff; outline: none; }
 .ed-lien:hover .pt-cle,
 .ed-lien:hover .pt-titre { color: #5b8cfa; }
 .ed-lien-icone { flex: none; font-size: 9px; color: #9ca3af; opacity: 0; transition: opacity 0.15s; }

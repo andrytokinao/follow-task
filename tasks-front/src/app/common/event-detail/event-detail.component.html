@@ -43,38 +43,31 @@
         </div>
       </div>
 
-      <!-- Projet et tâche : liens vers leur page -->
+      <!-- Projet et tâche : leur aperçu en popup (IssueApercuPopupService), sans quitter le planning.
+           La popup mène à la page complète. -->
       <ng-container *ngIf="projet">
         <div class="section-label"><span>Projet et tâche</span></div>
         <div class="ed-liens">
           <div class="ed-lien-ligne">
             <span class="pt-niveau">Projet</span>
             <app-type-tache class="pt-dossier" [type]="projet.issueType"></app-type-tache>
-            <a *ngIf="lienProjet; else projetTexte" class="ed-lien" [routerLink]="lienProjet" (click)="fermer()"
-               title="Ouvrir le projet">
+            <a class="ed-lien" role="button" tabindex="0" (click)="apercu(projet)" (keydown.enter)="apercu(projet)"
+               title="Voir l'aperçu du projet">
               <span class="pt-cle">{{ projet.issueKey }}</span>
               <span class="pt-titre">{{ projet.summary }}</span>
-              <i class="fas fa-arrow-up-right-from-square ed-lien-icone"></i>
+              <i class="fas fa-eye ed-lien-icone"></i>
             </a>
-            <ng-template #projetTexte>
-              <span class="pt-cle">{{ projet.issueKey }}</span>
-              <span class="pt-titre">{{ projet.summary }}</span>
-            </ng-template>
           </div>
 
           <div class="ed-lien-ligne" *ngIf="tache">
             <span class="pt-niveau">Tâche</span>
             <app-type-tache class="pt-fichier" [type]="tache.issueType"></app-type-tache>
-            <a *ngIf="lienTache; else tacheTexte" class="ed-lien" [routerLink]="lienTache" (click)="fermer()"
-               title="Ouvrir la tâche">
+            <a class="ed-lien" role="button" tabindex="0" (click)="apercu(tache)" (keydown.enter)="apercu(tache)"
+               title="Voir l'aperçu de la tâche">
               <span class="pt-cle">{{ tache.issueKey }}</span>
               <span class="pt-titre">{{ tache.summary }}</span>
-              <i class="fas fa-arrow-up-right-from-square ed-lien-icone"></i>
+              <i class="fas fa-eye ed-lien-icone"></i>
             </a>
-            <ng-template #tacheTexte>
-              <span class="pt-cle">{{ tache.issueKey }}</span>
-              <span class="pt-titre">{{ tache.summary }}</span>
-            </ng-template>
             <app-status-field class="ed-statut" [issue]="event.issue"></app-status-field>
           </div>
         </div>
