@@ -864,7 +864,26 @@
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   color: var(--dir-accent);
-  cursor: help;
+  /* Clic : la liste des personnes de la case. */
+  cursor: pointer;
+}
+.effectif:hover {
+  background: rgba(24, 95, 165, 0.08);
+}
+
+/* Total des personnes du projet, dans sa ligne : clic, la liste. */
+.effectif-total {
+  padding: 0 4px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+.effectif-total:hover {
+  background: rgba(24, 95, 165, 0.08);
+  color: var(--dir-accent);
 }
 
 .lg-effectif {
@@ -950,6 +969,13 @@
   font-size: 11px;
   font-variant-numeric: tabular-nums;
   color: #b42318;
+}
+
+/* Jours de séance d'une personne sur le projet : neutre, ce n'est pas une absence. */
+.mp-jours-travail {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: #475467;
 }
 
 /* Onglets du menu : sans planning / avec planning. */

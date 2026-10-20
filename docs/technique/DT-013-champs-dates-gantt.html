@@ -101,6 +101,18 @@
     <tr><td><code>mutation.graphqls</code> · <code>GQIssueController</code> · <code>IssueService</code></td><td><code>deleteValue(valueId)</code></td></tr>
   </table>
 
+  <!-- ================================================================== -->
+  <h2 id="personnes">6. Complément : liste des personnes du projet</h2>
+  <ul>
+    <li>Le total de la ligne du projet (<i>👤 4</i>) et chaque case d'effectif sont cliquables : un mat-menu
+      (<code>#menuEquipe</code>) liste les personnes, avatar et nom, avec leurs jours de séance (« 3 j / 7 » sur une
+      case de semaine, « 12 j » sur la période).</li>
+    <li><code>effectifsParProjet</code> (<code>gantt-effectifs.ts</code>) compte désormais les jours par personne :
+      <code>CaseEffectif.personnes</code>, <code>CaseEffectif.jours</code> et <code>EffectifsGantt.equipes</code>.
+      <code>annuaire</code> remplace <code>nommeur</code> : il rend le nom et la fiche (pour la photo).</li>
+    <li>Le clic sur une case d'effectif ne déclenche pas le menu des champs de la piste (<code>stopPropagation</code>).</li>
+  </ul>
+
   <footer>follow-task · documents techniques</footer>
 </div>
 </body>

@@ -59,7 +59,7 @@
       <li><span class="lg lg-plan"></span> Planifié (séances à venir), par personne</li>
       <li><span class="lg lg-retard"></span> Retard</li>
       <li><span class="pastille"><i class="fas fa-user"></i> 2</span> Personnes en même temps</li>
-      <li><span class="lg-effectif">3</span> Personnes au travail sur le projet, par case</li>
+      <li><span class="lg-effectif">3</span> Personnes au travail sur le projet, par case (clic : la liste)</li>
       <li><span class="lg-presence presence-absents">2</span>
         Sans planning : membres sans aucune séance ce jour-là (en-tête ; clic : la liste)</li>
       <li *ngFor="let c of champs"><span class="lg lg-champ" [style.background]="c.couleur"></span> {{ c.nom }}</li>
@@ -149,8 +149,13 @@
                 <span class="projet-phase" *ngIf="bloc.projet.phaseCourante as phase" title="Phase en cours">{{ phase.name }}</span>
                 <span class="projet-meta">
                   {{ bloc.projet.issueKey }} · {{ bloc.nombreTaches }} tâche(s) · {{ bloc.avancement }} % avancé
+                  <!-- Clic : qui, sur la période. -->
                   <ng-container *ngIf="effectifs.get(bloc.projet.id!) as effectif">
-                    · <i class="fas fa-user" title="Personnes sur la période"></i> {{ effectif }}
+                    · <button type="button" class="effectif-total" title="Personnes sur la période : voir la liste"
+                              [matMenuTriggerFor]="menuEquipe"
+                              [matMenuTriggerData]="{titre: 'Sur la période', source: bloc.projet.summary, personnes: equipes.get(bloc.projet.id!), jours: 0}">
+                      <i class="fas fa-user"></i> {{ effectif }}
+                    </button>
                   </ng-container>
                   <span class="en-retard" *ngIf="bloc.enRetard">
                     · <i class="fas fa-exclamation-triangle"></i> {{ bloc.enRetard }} en retard
@@ -166,9 +171,13 @@
                     [class.sans-echeance]="bloc.cadre?.sansEcheance"></span>
               <span class="projet-rempli" *ngIf="bloc.rempli as r" [style.left.px]="r.gauche" [style.width.px]="r.largeur"
                     [class.coupe-gauche]="r.coupeGauche"></span>
-              <!-- Personnes au travail sur le projet, case par case ; qui, au survol. -->
+              <!-- Personnes au travail sur le projet, case par case ; qui, au survol, et en liste au clic
+                   (pas le menu des champs de la piste). -->
               <span class="effectif" *ngFor="let c of effectifsParCase.get(bloc.projet.id!)"
                     [style.left.px]="c.gauche" [style.width.px]="c.largeur"
+                    [matMenuTriggerFor]="menuEquipe"
+                    [matMenuTriggerData]="{titre: c.titre, source: bloc.projet.summary, personnes: c.personnes, jours: c.jours}"
+                    (click)="$event.stopPropagation(); quitter()"
                     (mouseenter)="survolerCase(c, $event)" (mousemove)="suivre($event)" (mouseleave)="quitter()">
                 {{ c.nombre }}
               </span>
@@ -335,6 +344,27 @@
         <ng-template #avecPlanning>
           <i class="fas fa-check mp-ok" title="Planning renseigné"></i>
         </ng-template>
+      </div>
+    </div>
+  </ng-template>
+</mat-menu>
+
+<!-- ═══ QUI TRAVAILLE SUR LE PROJET : une case d'effectif, ou le total de la période ═══ -->
+<mat-menu #menuEquipe="matMenu" class="gp-menu-presence">
+  <ng-template matMenuContent let-titre="titre" let-source="source" let-personnes="personnes" let-jours="jours">
+    <div class="mp-entete" (click)="$event.stopPropagation()">
+      <strong>{{ titre }}</strong>
+      <span>{{ source }} · {{ personnes?.length || 0 }} personne(s)</span>
+    </div>
+    <div class="mp-groupe" (click)="$event.stopPropagation()">
+      <p class="mp-vide" *ngIf="!personnes?.length">Personne au travail sur le projet.</p>
+      <div class="mp-personne" *ngFor="let p of personnes">
+        <app-avatar class="mp-avatar" [url]="photoDe(p.personne)" [displayName]="p.nom"></app-avatar>
+        <span class="mp-nom">{{ p.nom }}</span>
+        <!-- Jours de séance : sur la case (« 3 j / 7 »), ou sur la période. -->
+        <span class="mp-jours-travail" *ngIf="jours !== 1" [title]="p.jours + ' jour(s) de séance'">
+          {{ p.jours }} j<ng-container *ngIf="jours"> / {{ jours }}</ng-container>
+        </span>
       </div>
     </div>
   </ng-template>

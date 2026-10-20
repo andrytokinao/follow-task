@@ -17,7 +17,7 @@ import {ActivitesGantt, placerEvenements} from './gantt-evenements';
 import {construireBlocs, indexerChamps} from './gantt-projets.constructeur';
 import {BlocGantt, ChampGantt, LigneGantt, PartieGantt, PlanGantt, RepereGantt, Serie} from './gantt-projets.model';
 import {PAR_TACHE, Regroupement, REGROUPEMENTS} from './gantt-regroupement';
-import {CaseEffectif, effectifsParProjet, nommeur} from './gantt-effectifs';
+import {annuaire, CaseEffectif, effectifsParProjet, PersonneEffectif} from './gantt-effectifs';
 import {CasePresence, presencesParCase} from './gantt-presences';
 import {presencesParJour} from './gantt-absences';
 import {GanttChampsCaseComponent, ValeursModifiees} from './champs-case/gantt-champs-case.component';
@@ -103,6 +103,8 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
   activites = ActivitesGantt.AUCUNE;
   /** Nombre de personnes au travail sur la période, par projet. */
   effectifs = new Map<number, number>();
+  /** Ces personnes, par projet : la liste du menu du total. */
+  equipes = new Map<number, PersonneEffectif[]>();
   /** Personnes au travail case par case (jour, semaine, mois), par projet. */
   effectifsParCase = new Map<number, CaseEffectif[]>();
   /** Rangée « Sans planning » de l'en-tête. */
@@ -393,9 +395,10 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
     const effectifs = effectifsParProjet(this.plagesProjets, this.fenetre,
       tacheId => this.projetDeTache.get(tacheId),
       this.selection.filter(id => id !== UNASSIGNED_ID),
-      nommeur([...this.membres, ...this.taches.flatMap(t => t.assigne ? [t.assigne] : [])]));
+      annuaire([...this.membres, ...this.taches.flatMap(t => t.assigne ? [t.assigne] : [])]));
     this.effectifsParCase = effectifs.parCase;
     this.effectifs = effectifs.totaux;
+    this.equipes = effectifs.equipes;
   }
 
   /** Pose des événements sur le diagramme en place. */
