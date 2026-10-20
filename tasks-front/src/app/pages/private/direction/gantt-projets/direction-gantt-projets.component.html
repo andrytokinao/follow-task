@@ -128,7 +128,9 @@
         </div>
 
         <!-- ═══ UN BLOC PAR PROJET ═══ -->
-        <section class="gp-bloc" *ngFor="let bloc of blocs; trackBy: parProjet">
+        <!-- Personnes choisies : un projet sans tâche qui les concerne se replie, puis revient. -->
+        <ng-container *ngFor="let bloc of blocs; trackBy: parProjet">
+        <section class="gp-bloc" *ngIf="!visibles.projets.has(bloc.projet.id!)" @repli [@.disabled]="!animer">
 
           <!-- Champs personnalisés du projet : sur toute la hauteur de son bloc. -->
           <span class="repere repere-projet" *ngFor="let r of bloc.reperes" [style.left.px]="300 + r.gauche"
@@ -191,7 +193,9 @@
             </div>
 
             <!-- ═══ UNE LIGNE PAR TÂCHE, OU PAR GROUPE DE TÂCHES ═══ -->
-            <div class="gp-row gp-tache" *ngFor="let l of bloc.lignes; trackBy: parLigne"
+            <!-- Une tâche qui ne concerne pas les personnes choisies se replie, puis revient. -->
+            <ng-container *ngFor="let l of bloc.lignes; trackBy: parLigne">
+            <div class="gp-row gp-tache" *ngIf="!visibles.lignes.has(l.cle)" @repli
                  [style.height.px]="hauteurLigne(activites.de(l.cle).voies)">
               <!-- La ligne est une tâche : son responsable, son lien, son statut. -->
               <div class="gp-nom" *ngIf="l.tache as t; else groupe">
@@ -269,8 +273,10 @@
                       (mousemove)="suivre($event)" (mouseleave)="quitter()"></span>
               </div>
             </div>
+            </ng-container>
           </ng-container>
         </section>
+        </ng-container>
       </div>
     </div>
   </ng-container>

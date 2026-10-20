@@ -22,6 +22,8 @@ import {CasePresence, presencesParCase} from './gantt-presences';
 import {presencesParJour} from './gantt-absences';
 import {GanttChampsCaseComponent, ValeursModifiees} from './champs-case/gantt-champs-case.component';
 import {avecValeurs, caseDe} from './champs-case/gantt-champs-case';
+import {REPLI_GANTT} from './gantt-animations';
+import {TOUT_VISIBLE, visibilite} from './gantt-visibilite';
 
 /** Géométrie d'une ligne de tâche, en pixels : voir la feuille de styles. */
 const HAUT_CADRE = 8;
@@ -64,7 +66,8 @@ type Bulle = ContenuBulle & {
   standalone: false,
   selector: 'app-direction-gantt-projets',
   templateUrl: './direction-gantt-projets.component.html',
-  styleUrls: ['./direction-gantt-projets.component.css']
+  styleUrls: ['./direction-gantt-projets.component.css'],
+  animations: [REPLI_GANTT]
 })
 export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
 
@@ -99,6 +102,10 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
   /** Identifiants des personnes choisies ; vide : tout le monde. */
   selection: string[] = [];
   replies = new Set<number>();
+  /** Lignes et projets qui ne concernent pas les personnes choisies : masqués. */
+  visibles = TOUT_VISIBLE;
+  /** Replis animés une fois des personnes choisies, pas au chargement de la page. */
+  animer = false;
 
   /** Structure : projets, tâches, cadres, champs datés. */
   blocs: BlocGantt[] = [];
@@ -164,6 +171,7 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
         this.chargement = true;
         this.erreur = false;
         this.replies.clear();
+        this.animer = false;
       }),
       // L'échec reste dans l'espace en cause : changer d'espace recharge encore.
       switchMap(espace => this.directionService.ganttProjets(espace.nom).pipe(catchError(() => of(null))))
@@ -213,6 +221,7 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
   /** Seuls les événements changent : projets, tâches et cadres restent en place. */
   choisirPersonnes(ids: string[]): void {
     this.selection = ids;
+    this.animer = true;
     this.chercher();
     this.calculerEffectifs();
   }
@@ -416,6 +425,8 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
   private poser(evenements: EventApp[]): void {
     this.evenements = evenements;
     this.activites = placerEvenements(evenements, this.fenetre, Date.now(), tacheId => this.ligneDeTache.get(tacheId));
+    // Après la recherche : les séances des personnes choisies disent aussi quelles tâches les concernent.
+    this.visibles = visibilite(this.blocs, this.selection, this.activites);
     this.intervenants.retenir(evenements);
     this.taches = this.intervenants.completer(this.blocs.flatMap(bloc => bloc.projet.children ?? []));
   }
