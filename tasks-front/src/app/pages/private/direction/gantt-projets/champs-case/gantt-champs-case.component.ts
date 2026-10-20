@@ -4,7 +4,7 @@ import {forkJoin, Observable, of, Subscription} from 'rxjs';
 import {catchError, map} from 'rxjs/operators';
 import {CustomField, CustomFieldValue} from '../../../../../type/issue';
 import {versJourIso} from '../gantt-dates.util';
-import {CaseChamps, LigneChamp, lignesDeCase} from './gantt-champs-case';
+import {avecChamps, CaseChamps, LigneChamp, lignesDeCase} from './gantt-champs-case';
 import {GanttChampsService} from './gantt-champs.service';
 
 /** Valeurs d'une demande après une écriture : l'hôte refait son diagramme. */
@@ -139,7 +139,8 @@ export class GanttChampsCaseComponent implements OnDestroy {
     this.enCours = true;
     this.erreur = null;
     ecriture.subscribe({
-      next: valeurs => {
+      next: reponse => {
+        const valeurs = avecChamps(reponse, this.champs);
         this.enCours = false;
         this.cellule = {...cellule, valeurs};
         this.lignes = lignesDeCase(this.champs, this.cellule);

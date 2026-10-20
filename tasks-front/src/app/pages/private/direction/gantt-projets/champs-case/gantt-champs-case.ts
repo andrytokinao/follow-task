@@ -63,7 +63,21 @@ export function caseDe(demande: TacheGantt, prefixe: string | null, fenetre: Fen
  */
 export function avecValeurs(projets: ProjetGantt[], issueId: number, valeurs: CustomFieldValue[]): ProjetGantt[] {
   const maj = <T extends TacheGantt>(demande: T): T => demande.id === issueId ? {...demande, values: valeurs} : demande;
-  return projets.map(projet => ({...maj(projet), children: (projet.children ?? []).map(maj)}));
+  // Seul le projet en cause est recopié : les autres gardent leurs objets.
+  return projets.map(projet => projet.id !== issueId && !(projet.children ?? []).some(t => t.id === issueId)
+    ? projet
+    : {...maj(projet), children: (projet.children ?? []).map(maj)});
+}
+
+/**
+ * Une valeur tout juste posée revient du serveur avec son champ tel qu'envoyé
+ * (id et type, sans nom) : on le complète avec le champ connu du menu.
+ */
+export function avecChamps(valeurs: CustomFieldValue[], champs: CustomField[]): CustomFieldValue[] {
+  return valeurs.map(v => {
+    const champ = champs.find(c => c.id === v.customField?.id);
+    return champ && !v.customField?.name ? {...v, customField: {...v.customField, ...champ}} : v;
+  });
 }
 
 export function lignesDeCase(champs: CustomField[], cellule: CaseChamps): LigneChamp[] {

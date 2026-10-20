@@ -34,9 +34,13 @@ export interface EntreesStructure {
   regroupement: Regroupement;
 }
 
-/** Une couleur par champ personnalisé de type Date, dans l'ordre où les projets les présentent. */
-export function indexerChamps(projets: ProjetGantt[]): ChampGantt[] {
-  const champs = new Map<number, ChampGantt>();
+/**
+ * Une couleur par champ personnalisé de type Date, dans l'ordre où les projets
+ * les présentent. Les champs `connus` gardent la leur : une date posée ne
+ * repeint pas les autres.
+ */
+export function indexerChamps(projets: ProjetGantt[], connus: ChampGantt[] = []): ChampGantt[] {
+  const champs = new Map<number, ChampGantt>(connus.map(c => [c.id, c]));
   for (const demande of projets.flatMap(projet => [projet, ...(projet.children ?? [])])) {
     for (const valeur of (demande.values ?? []).filter(estRepere)) {
       const id = valeur.customField.id as number;
@@ -61,6 +65,34 @@ export function construireBlocs(entrees: EntreesStructure): BlocGantt[] {
     .map(projet => bloc(projet, entrees))
     .sort((a, b) => rangProjet(a) - rangProjet(b)
       || (debutDe(a) ?? Infinity) - (debutDe(b) ?? Infinity));
+}
+
+/**
+ * Les valeurs d'une seule demande ont changé (`projets` les porte déjà) : on
+ * ne refait que ses repères, sur sa ligne ou sur l'en-tête de son projet.
+ * Les autres blocs et lignes gardent leurs objets : l'affichage ne bouge
+ * qu'à cet endroit.
+ */
+export function rafraichirDemande(blocs: BlocGantt[], issueId: number, entrees: EntreesStructure): BlocGantt[] {
+  return blocs.map(b => {
+    const projet = entrees.projets.find(p => p.id === b.projet.id);
+    if (!projet || projet === b.projet) {
+      return b;
+    }
+    const taches = new Map((projet.children ?? []).map(t => [t.id, t]));
+    return {
+      ...b,
+      projet,
+      reperes: projet.id === issueId ? reperes(projet, entrees) : b.reperes,
+      lignes: b.lignes.map(l => {
+        if (!l.taches.some(t => t.id === issueId)) {
+          return l;
+        }
+        const nouvelles = l.taches.map(t => taches.get(t.id) ?? t);
+        return {...l, taches: nouvelles, tache: l.tache ? nouvelles[0] : null, reperes: nouvelles.flatMap(t => reperes(t, entrees))};
+      })
+    };
+  });
 }
 
 /** 0 : des tâches datées ; 1 : des tâches sans date ; 2 : aucune tâche. */

@@ -14,7 +14,7 @@ import {versIso} from './gantt-dates.util';
 import {AxeGantt, EchelleGantt, FenetreGantt} from './gantt-fenetre';
 import {IntervenantsGantt} from './gantt-personnes';
 import {ActivitesGantt, placerEvenements} from './gantt-evenements';
-import {construireBlocs, indexerChamps} from './gantt-projets.constructeur';
+import {construireBlocs, EntreesStructure, indexerChamps, rafraichirDemande} from './gantt-projets.constructeur';
 import {BlocGantt, ChampGantt, LigneGantt, PartieGantt, PlanGantt, RepereGantt, Serie} from './gantt-projets.model';
 import {PAR_TACHE, Regroupement, REGROUPEMENTS} from './gantt-regroupement';
 import {annuaire, CaseEffectif, effectifsParProjet, PersonneEffectif} from './gantt-effectifs';
@@ -323,19 +323,23 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
     const maintenant = Date.now();
     this.axe = this.fenetre.axe(maintenant);
     this.aujourdhui = this.fenetre.contient(maintenant) ? this.fenetre.x(maintenant) : null;
-    this.blocs = construireBlocs({
-      projets: this.projets,
-      fenetre: this.fenetre,
-      maintenant,
-      champs: this.champs,
-      regroupement: this.regroupement
-    });
+    this.blocs = construireBlocs(this.entrees(maintenant));
     // Chaque tâche mène à sa ligne : c'est par là que ses événements la rejoignent.
     this.ligneDeTache = new Map(this.blocs.flatMap(bloc =>
       bloc.lignes.flatMap(l => l.taches.map(tache => [tache.id as number, l.cle] as [number, string]))));
     // Et à son projet : l'effectif par jour se compte par projet.
     this.projetDeTache = new Map(this.blocs.flatMap(bloc =>
       bloc.lignes.flatMap(l => l.taches.map(tache => [tache.id as number, bloc.projet.id as number] as [number, number]))));
+  }
+
+  private entrees(maintenant: number): EntreesStructure {
+    return {
+      projets: this.projets,
+      fenetre: this.fenetre,
+      maintenant,
+      champs: this.champs,
+      regroupement: this.regroupement
+    };
   }
 
   /**
@@ -477,11 +481,14 @@ export class DirectionGanttProjetsComponent implements OnInit, OnDestroy {
     this.champsCase.ouvrir(caseDe(demande, prefixe, this.fenetre, event.clientX - piste.left), event);
   }
 
-  /** Une date posée ou retirée : seule la structure est refaite, l'activité reste en place. */
+  /**
+   * Une date posée ou retirée : seuls les repères de la demande en cause sont
+   * refaits ; le reste du diagramme et l'activité restent en place.
+   */
   champsModifies(modif: ValeursModifiees): void {
     this.projets = avecValeurs(this.projets, modif.issueId, modif.valeurs);
-    this.champs = indexerChamps(this.projets);
-    this.construire();
+    this.champs = indexerChamps(this.projets, this.champs);
+    this.blocs = rafraichirDemande(this.blocs, modif.issueId, this.entrees(Date.now()));
   }
 
   private montrer(event: MouseEvent, contenu: ContenuBulle): void {

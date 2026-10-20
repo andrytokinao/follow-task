@@ -113,6 +113,19 @@
     <li>Le clic sur une case d'effectif ne déclenche pas le menu des champs de la piste (<code>stopPropagation</code>).</li>
   </ul>
 
+  <!-- ================================================================== -->
+  <h2 id="ciblee">7. Complément : mise à jour ciblée</h2>
+  <ul>
+    <li>Cocher ou décocher ne refait plus tout le diagramme : <code>rafraichirDemande</code>
+      (<code>gantt-projets.constructeur.ts</code>) ne refait que les repères de la demande en cause, sur sa ligne
+      ou sur l'en-tête de son projet. Les autres blocs et lignes gardent leurs objets.</li>
+    <li><code>avecValeurs</code> ne recopie que le projet de la demande ; <code>indexerChamps(projets, connus)</code>
+      garde les couleurs déjà attribuées : une date posée ne repeint pas les autres champs.</li>
+    <li>Une valeur tout juste posée revient du serveur avec son champ tel qu'envoyé (id et type, sans nom) :
+      <code>avecChamps</code> le complète avec le champ connu du menu, pour que la barre et son infobulle portent
+      le nom aussitôt. La case reste cochée et se décoche sans recharger.</li>
+  </ul>
+
   <footer>follow-task · documents techniques</footer>
 </div>
 </body>
