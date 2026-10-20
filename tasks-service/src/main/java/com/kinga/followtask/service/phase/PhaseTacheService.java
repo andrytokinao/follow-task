@@ -44,10 +44,10 @@ public class PhaseTacheService {
      * Types proposables pour une nouvelle sous-tache de {@code parentIssueId}.
      *
      * <p>Les sous-types autorises sous le type du parent, a raison d'une entree
-     * par phase du type. Sont proposees d'office les entrees de la phase
-     * courante et les types sans phase ; les autres restent disponibles pour
-     * les exceptions. Sans phase courante, tout est propose : on ne cache rien
-     * qu'on ne sache pas situer.</p>
+     * par phase du type. Seules les entrees de la phase courante sont
+     * proposees d'office ; celles des autres phases et les types sans phase
+     * restent disponibles pour les exceptions. Sans phase courante, tout est
+     * propose : on ne cache rien qu'on ne sache pas situer.</p>
      */
     @Transactional(readOnly = true)
     public TypesSousTacheParPhase typesSousTache(Long parentIssueId) {
@@ -61,7 +61,7 @@ public class PhaseTacheService {
         List<ChoixTypeSousTache> choix = new ArrayList<>();
         for (IssueType type : issueTypeRepository.findByParents_Id(parent.getIssueType().getId())) {
             if (type.getPhases() == null || type.getPhases().isEmpty()) {
-                choix.add(new ChoixTypeSousTache(type, null, true));
+                choix.add(new ChoixTypeSousTache(type, null, courante == null));
                 continue;
             }
             for (Phase phase : type.getPhases()) {

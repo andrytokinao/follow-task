@@ -17,7 +17,7 @@ export interface GroupeChoix {
 /**
  * Groupes du menu des types, dans l'ordre reçu du serveur (ordre des phases,
  * puis types sans phase). Sans `afficherTout`, seules les entrées proposées
- * d'office : celles de la phase courante et les types sans phase.
+ * d'office : celles de la phase courante (tout, si le projet n'en a pas).
  */
 export function grouperChoix(choix: ChoixTypeSousTache[], phaseCourante: Phase | null | undefined,
                              afficherTout: boolean): GroupeChoix[] {

@@ -172,7 +172,7 @@ class PhasesProjetTest {
                 "Préliminaire/Relevé", "APS/Note de calcul", "APD/Note de calcul", "-/Réunion");
         assertThat(types.choix().stream().filter(ChoixTypeSousTache::proposee))
                 .extracting(PhasesProjetTest::libelle)
-                .containsExactly("APS/Note de calcul", "-/Réunion");
+                .containsExactly("APS/Note de calcul");
     }
 
     @Test
