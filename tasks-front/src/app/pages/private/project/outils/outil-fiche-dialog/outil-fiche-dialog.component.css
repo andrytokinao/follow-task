@@ -1,0 +1,137 @@
+.of {
+  width: min(640px, calc(100vw - 48px));
+}
+.of.sur-zone {
+  outline: 2px dashed #185FA5;
+  outline-offset: -6px;
+  background: #f5f9ff;
+}
+.of-titre {
+  flex: 1;
+  min-width: 0;
+}
+.of-titre h2 {
+  overflow-wrap: anywhere;
+}
+.of-version {
+  margin-left: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #667085;
+}
+.of-portee {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #f2f4f7;
+  font-size: 11px;
+  font-weight: 600;
+  color: #475467;
+  white-space: nowrap;
+}
+.of-portee.partage {
+  background: #eff8ff;
+  color: #175cd3;
+}
+.of-auteur {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 12px;
+  color: #667085;
+}
+.of-avatar {
+  width: 22px;
+  height: 22px;
+  flex: none;
+}
+/* Texte brut : retours à la ligne gardés, aucun HTML interprété. */
+.of-description {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: #344054;
+}
+.of-lien {
+  overflow-wrap: anywhere;
+  color: #185FA5;
+}
+.of-lecteur video,
+.of-lecteur audio {
+  width: 100%;
+  max-height: 360px;
+  border-radius: 8px;
+  background: #000;
+}
+.of-lecteur audio {
+  background: none;
+}
+.of-fichiers {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.of-fichiers-entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.of-trombone {
+  width: 30px;
+  height: 30px;
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  background: #fff;
+  color: #344054;
+  cursor: pointer;
+}
+.of-trombone:hover {
+  background: #f9fafb;
+}
+.of-nom {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
+  color: #101828;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.of-nom:hover {
+  color: #185FA5;
+  text-decoration: underline;
+}
+.of-en-lecture {
+  border-color: #185FA5;
+  background: #f5f9ff;
+}
+.of-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: #475467;
+  cursor: pointer;
+}
+.of-action:hover {
+  background: #f2f4f7;
+}
+.of-danger:hover,
+.of-danger-btn:hover {
+  color: #b42318;
+}
+.of-espace {
+  flex: 1;
+}

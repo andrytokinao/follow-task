@@ -1,0 +1,87 @@
+<div class="od of" [class.sur-zone]="surZone"
+     (dragover)="survoler($event, true)" (dragleave)="survoler($event, false)" (drop)="deposer($event)">
+
+  <header class="od-entete">
+    <i [ngClass]="definition.icone" [style.color]="definition.couleur"></i>
+    <div class="of-titre">
+      <h2>{{ outil.titre }} <span class="of-version" *ngIf="outil.version">v{{ outil.version }}</span></h2>
+      <small>
+        {{ definition.libelle }}<ng-container *ngIf="outil.chemin"> › {{ outil.chemin }}</ng-container>
+      </small>
+    </div>
+    <span class="of-portee" [class.partage]="outil.portee === 'TOUS_LES_ESPACES'">
+      <i class="fas" [ngClass]="outil.portee === 'TOUS_LES_ESPACES' ? 'fa-globe' : 'fa-briefcase'"></i>
+      {{ outil.portee === 'TOUS_LES_ESPACES' ? 'Tous les espaces' : outil.espaceNom }}
+    </span>
+  </header>
+
+  <p class="of-auteur">
+    <app-avatar class="of-avatar" [url]="photo(outil.auteur)" [displayName]="nomDe(outil.auteur)"></app-avatar>
+    Ajouté par {{ nomDe(outil.auteur) }} le {{ outil.dateCreation | date:'dd/MM/yyyy' }}
+    <ng-container *ngIf="outil.dateModification"> · modifié le {{ outil.dateModification | date:'dd/MM/yyyy' }}</ng-container>
+  </p>
+
+  <p class="of-description" *ngIf="outil.description">{{ outil.description }}</p>
+
+  <a class="of-lien" *ngIf="outil.url" [href]="outil.url" target="_blank" rel="noopener noreferrer">
+    <i class="fas fa-arrow-up-right-from-square"></i> {{ outil.url }}
+  </a>
+
+  <!-- Lecture sur place d'une vidéo ou d'un son. -->
+  <div class="of-lecteur" *ngIf="lecture">
+    <video *ngIf="lisible(lecture) === 'video'" [src]="url(lecture, true)" controls autoplay preload="metadata"></video>
+    <audio *ngIf="lisible(lecture) === 'audio'" [src]="url(lecture, true)" controls autoplay></audio>
+  </div>
+
+  <section class="of-fichiers" *ngIf="definition.fichiers || outil.fichiers.length">
+    <div class="of-fichiers-entete">
+      <strong>Fichiers</strong>
+      <button type="button" class="of-trombone" title="Ajouter des fichiers" aria-label="Ajouter des fichiers"
+              (click)="choix.click()">
+        <i class="fas fa-paperclip"></i>
+      </button>
+      <input type="file" multiple hidden #choix [accept]="accept" (change)="choisir(choix)">
+    </div>
+
+    <p class="od-aide" *ngIf="!outil.fichiers.length && !envoi.envois.length">
+      Aucun fichier. Utilisez le trombone, ou glissez des fichiers sur cette fiche.
+    </p>
+
+    <ul class="od-fichiers">
+      <li class="od-fichier" *ngFor="let f of outil.fichiers" [class.of-en-lecture]="lecture?.id === f.id">
+        <i [ngClass]="icone(f)"></i>
+        <button type="button" class="of-nom" [title]="lisible(f) ? 'Lire ' + f.nom : 'Télécharger ' + f.nom" (click)="ouvrir(f)">
+          {{ f.nom }}
+        </button>
+        <small>{{ tailleLisible(f.taille) }}</small>
+        <app-avatar class="of-avatar" [url]="photo(f.auteur)" [displayName]="nomDe(f.auteur)"
+                    [title]="'Ajouté par ' + nomDe(f.auteur) + ' le ' + (f.dateAjout | date:'dd/MM/yyyy')"></app-avatar>
+        <a class="of-action" [href]="url(f)" title="Télécharger" aria-label="Télécharger"><i class="fas fa-download"></i></a>
+        <button type="button" class="of-action of-danger" *ngIf="f.supprimable" title="Supprimer" aria-label="Supprimer"
+                (click)="supprimerFichier(f)">
+          <i class="fas fa-trash-can"></i>
+        </button>
+      </li>
+      <li class="od-fichier" *ngFor="let e of envoi.envois" [class.erreur]="e.statut === 'erreur'">
+        <i class="fas" [ngClass]="e.statut === 'erreur' ? 'fa-times-circle' : 'fa-arrow-up'"></i>
+        <span class="od-nom">{{ e.file.name }}</span>
+        <small *ngIf="e.statut !== 'erreur'">{{ e.progression }} %</small>
+        <small *ngIf="e.statut === 'erreur'" [title]="e.message || ''">{{ e.message }}</small>
+        <button type="button" class="od-retirer" *ngIf="e.statut === 'erreur'" title="Retirer" (click)="envoi.retirer(e)">
+          <i class="fas fa-times"></i>
+        </button>
+      </li>
+    </ul>
+  </section>
+
+  <footer class="od-pied">
+    <button type="button" class="od-btn of-danger-btn" *ngIf="outil.modifiable" (click)="supprimerOutil()">
+      <i class="fas fa-trash-can"></i> Supprimer
+    </button>
+    <span class="of-espace"></span>
+    <button type="button" class="od-btn" *ngIf="outil.modifiable" (click)="modifier()">
+      <i class="fas fa-pen"></i> Modifier
+    </button>
+    <button type="button" class="od-btn od-principal" (click)="fermer()">Fermer</button>
+  </footer>
+</div>
