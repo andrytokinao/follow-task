@@ -1,0 +1,127 @@
+# Menu Outils (DT-019) : logiciels, modèles de document, tutoriels vidéo et
+# liens, rangés comme des dossiers.
+#
+# Chaque type est un dossier racine fixe. Sous un type, tout membre de
+# l'espace crée des dossiers (deux niveaux au plus) et des outils. Un élément
+# reste dans l'espace où il est créé, ou est partagé avec tous les espaces.
+# Modifier ou supprimer : son auteur ou l'administrateur. Un fichier : aussi
+# celui qui l'a ajouté.
+#
+# Les fichiers s'envoient et se téléchargent en REST :
+#   POST /api/outils/{outilId}/fichiers   (multipart, champ « file »)
+#   GET  /api/outils/fichiers/{id}[?apercu=true]
+
+enum TypeOutil {
+    LOGICIEL
+    MODELE_DOCUMENT
+    TUTORIEL_VIDEO
+    LIEN
+}
+
+enum PorteeOutil {
+    TOUS_LES_ESPACES
+    ESPACE
+}
+
+type DossierOutil {
+    id: Int
+    nom: String
+    typeOutil: TypeOutil
+    portee: PorteeOutil
+    parentId: Int
+    # Null si partagé avec tous les espaces.
+    espaceNom: String
+    auteur: UserApp
+    dateCreation: String
+    # L'utilisateur connecté peut le renommer ou le supprimer.
+    modifiable: Boolean
+}
+
+type FichierOutil {
+    id: Int
+    nom: String
+    typeMime: String
+    # En octets.
+    taille: Float
+    auteur: UserApp
+    dateAjout: String
+    supprimable: Boolean
+}
+
+type Outil {
+    id: Int
+    titre: String
+    description: String
+    typeOutil: TypeOutil
+    portee: PorteeOutil
+    # Null à la racine du type, ou si son dossier n'est pas visible d'ici.
+    dossierId: Int
+    # Dossiers où il est rangé : « Sécurité › Antivirus » ; vide à la racine.
+    chemin: String
+    url: String
+    version: String
+    espaceNom: String
+    auteur: UserApp
+    dateCreation: String
+    dateModification: String
+    fichiers: [FichierOutil]
+    modifiable: Boolean
+}
+
+type ContenuDossierOutil {
+    typeOutil: TypeOutil
+    # Null à la racine du type.
+    dossier: DossierOutil
+    # Du premier niveau jusqu'au dossier ouvert : le fil d'Ariane.
+    chemin: [DossierOutil]
+    dossiers: [DossierOutil]
+    outils: [Outil]
+    # Faux au niveau le plus profond.
+    peutCreerDossier: Boolean
+}
+
+# Fichiers acceptés pour un type : pour filtrer le sélecteur de fichiers.
+type RegleFichiersOutil {
+    typeOutil: TypeOutil
+    extensions: [String]
+    # En octets.
+    tailleMax: Float
+}
+
+input DossierOutilSaisie {
+    # Absent pour créer ; ensuite seul le nom change.
+    id: Int
+    nom: String!
+    typeOutil: TypeOutil
+    portee: PorteeOutil
+    parentId: Int
+}
+
+input OutilSaisie {
+    id: Int
+    titre: String!
+    description: String
+    # Obligatoire à la création, figé ensuite.
+    typeOutil: TypeOutil
+    portee: PorteeOutil
+    dossierId: Int
+    url: String
+    version: String
+}
+
+extend type Query {
+    # dossierId absent : racine du type.
+    contenuDossierOutil(espaceId: Int!, typeOutil: TypeOutil!, dossierId: Int): ContenuDossierOutil
+    # Deux caractères au moins ; tous types et dossiers confondus.
+    rechercherOutils(espaceId: Int!, texte: String!): [Outil]
+    outil(espaceId: Int!, id: Int!): Outil
+    reglesFichiersOutil: [RegleFichiersOutil]
+}
+
+extend type Mutation {
+    enregistrerDossierOutil(espaceId: Int!, saisie: DossierOutilSaisie!): DossierOutil
+    supprimerDossierOutil(espaceId: Int!, id: Int!): Boolean
+    enregistrerOutil(espaceId: Int!, saisie: OutilSaisie!): Outil
+    supprimerOutil(espaceId: Int!, id: Int!): Boolean
+    supprimerFichierOutil(espaceId: Int!, id: Int!): Boolean
+}
