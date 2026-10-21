@@ -8,7 +8,7 @@
     <button mat-menu-item  (click)="showPlanning()" > <span>Planning </span> </button>
     <button mat-menu-item  (click)="showDetails()" ><span>Details </span> </button>
     <div (click)="stopPropagation($event)" style="margin: 10px"> <app-status-field [issue]="issue"></app-status-field> </div>
-    <div (click)="stopPropagation($event)" style="margin: 10px"> <app-assign-field [issue]="issue"></app-assign-field> </div>
+    <div (click)="stopPropagation($event)" style="margin: 10px"> <app-assign-field [issue]="issue" [afficherLibelle]="true"></app-assign-field> </div>
   </div>
 </mat-menu>
 

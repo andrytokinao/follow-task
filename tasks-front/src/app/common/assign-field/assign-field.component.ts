@@ -54,6 +54,16 @@ export class AssignFieldComponent implements OnInit, OnChanges, OnDestroy {
   @Input() maxAvatars: number = 3;
   /** largeur maximale du libelle, en pixels ; 0 masque le libelle (avatars seuls) */
   @Input() maxLabelWidth: number = 140;
+  /**
+   * Libellé « Assigné à … » à côté des photos. Par défaut, les photos seules :
+   * à activer là où il y a la place, dans un détail par exemple.
+   */
+  @Input() afficherLibelle = false;
+  /**
+   * Faux : les photos seules, ni clic ni menu (aperçu, listes en lecture).
+   * Les droits d'assigner s'appliquent toujours quand c'est vrai.
+   */
+  @Input() editable = true;
   @Output() save = new EventEmitter<Issue>();
 
   constructor(
@@ -176,7 +186,7 @@ export class AssignFieldComponent implements OnInit, OnChanges, OnDestroy {
    * sur une issue parente donne le droit, et le menu ne s'ouvre que dans ce cas.
    */
   onTriggerClick() {
-    if (this.canAssign !== null || this.checkingCanAssign || this.issue == null) {
+    if (!this.editable || this.canAssign !== null || this.checkingCanAssign || this.issue == null) {
       return;
     }
     this.checkingCanAssign = true;

@@ -2300,6 +2300,7 @@ const LOAD_SUBTASK = gql`
         id
         issueKey
         summary
+        currentCompletionPercent
         creationDate
         description
         encodedPath

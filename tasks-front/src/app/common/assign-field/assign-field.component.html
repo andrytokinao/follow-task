@@ -1,10 +1,10 @@
-<span class="assigne" [class.assigne-lecture]="canAssign === false && !peutMAssigner">
+<span class="assigne" [class.assigne-lecture]="!editable || (canAssign === false && !peutMAssigner)">
   <!-- Sans droit, pas de menu, sauf pour le createur de la tache et pour qui
        peut etre assigne : ils gardent le menu reduit « M'assigner ». Tant que
        le droit n'est pas connu (null), onTriggerClick le verifie puis ouvre le
-       bon menu. -->
+       bon menu. Non editable : jamais de menu. -->
   <span #menuTrigger="matMenuTrigger"
-        [matMenuTriggerFor]="canAssign ? menu2 : (canAssign === false && peutMAssigner ? menuMoi : null)"
+        [matMenuTriggerFor]="!editable ? null : canAssign ? menu2 : (canAssign === false && peutMAssigner ? menuMoi : null)"
         (click)="onTriggerClick()" (menuClosed)="onMenuClosed()"
         class="assigne-trigger" [title]="assigneesTitle">
     <span class="avatar-stack" *ngIf="assignees.length > 0">
@@ -15,7 +15,7 @@
       <span class="avatar-more" *ngIf="hiddenCount > 0" [title]="assigneesTitle">+{{ hiddenCount }}</span>
     </span>
     <span *ngIf="assignees.length == 0" class="avatar-vide" title="Non assigné">?</span>
-    <b class="assigne-label" *ngIf="maxLabelWidth > 0" [style.max-width.px]="maxLabelWidth">{{ assigneesLabel }}</b>
+    <b class="assigne-label" *ngIf="afficherLibelle && maxLabelWidth > 0" [style.max-width.px]="maxLabelWidth">{{ assigneesLabel }}</b>
   </span>
 
   <mat-menu #menu2="matMenu" class="assigne-menu">
