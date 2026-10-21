@@ -43,9 +43,9 @@
   font-size: 12px;
   color: #667085;
 }
+/* La taille passe par --avatar-size : app-avatar dessine sinon un rond de 36 px dans une boîte de 22. */
 .of-avatar {
-  width: 22px;
-  height: 22px;
+  --avatar-size: 22px;
   flex: none;
 }
 /* Texte brut : retours à la ligne gardés, aucun HTML interprété. */

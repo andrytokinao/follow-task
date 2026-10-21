@@ -31,6 +31,18 @@
            [required]="definition.lien === 'obligatoire'" placeholder="https://…">
   </label>
 
+  <!-- Icône de l'outil : un logiciel reconnaissable d'un coup d'œil. Vide : celle du type. -->
+  <div class="od-champ">
+    <span>Icône <em>(facultatif)</em></span>
+    <div class="od-icone">
+      <button type="button" class="od-icone-apercu" title="Choisir une icône" (click)="choisirIcone()">
+        <i [ngClass]="iconeChoisie || definition.icone" [style.color]="definition.couleur"></i>
+      </button>
+      <button type="button" class="od-lien" (click)="choisirIcone()">{{ iconeChoisie ? 'Changer' : 'Choisir une icône' }}</button>
+      <button type="button" class="od-lien" *ngIf="iconeChoisie" (click)="retirerIcone()">Icône du type</button>
+    </div>
+  </div>
+
   <label class="od-champ">
     <span>Description <em>(facultatif)</em></span>
     <textarea name="description" [(ngModel)]="description" maxlength="10000"

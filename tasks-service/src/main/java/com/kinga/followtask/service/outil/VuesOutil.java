@@ -45,7 +45,7 @@ public class VuesOutil {
         boolean range = dossier != null && dossiersVisibles.contains(dossier.getId());
         return new OutilVue(outil.getId(), outil.getTitre(), outil.getDescription(), outil.getTypeOutil(),
                 outil.getPortee(), range ? dossier.getId() : null, range ? chemin(dossier) : "",
-                outil.getUrl(), outil.getVersion(), nomEspace(outil.getProject()), outil.getAuteur(),
+                outil.getUrl(), outil.getVersion(), outil.getIcone(), nomEspace(outil.getProject()), outil.getAuteur(),
                 texte(outil.getDateCreation()), texte(outil.getDateModification()),
                 fichiers.stream().map(f -> fichier(f, contexte)).collect(Collectors.toList()),
                 droits.peutModifier(outil, contexte));

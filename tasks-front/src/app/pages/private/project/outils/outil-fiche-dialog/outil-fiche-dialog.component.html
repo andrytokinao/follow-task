@@ -2,7 +2,8 @@
      (dragover)="survoler($event, true)" (dragleave)="survoler($event, false)" (drop)="deposer($event)">
 
   <header class="od-entete">
-    <i [ngClass]="definition.icone" [style.color]="definition.couleur"></i>
+    <!-- L'icône choisie pour l'outil, sinon celle de son type. -->
+    <i [ngClass]="outil.icone || definition.icone" [style.color]="definition.couleur"></i>
     <div class="of-titre">
       <h2>{{ outil.titre }} <span class="of-version" *ngIf="outil.version">v{{ outil.version }}</span></h2>
       <small>

@@ -9,6 +9,7 @@ import com.kinga.followtask.entity.enumapp.TypeOutil;
  *
  * @param id       null pour creer
  * @param dossierId null : a la racine du dossier de son type
+ * @param icone     classe Font Awesome ; null : l'icone du type
  */
 public record OutilSaisie(Long id,
                           String titre,
@@ -17,5 +18,6 @@ public record OutilSaisie(Long id,
                           PorteeOutil portee,
                           Long dossierId,
                           String url,
-                          String version) {
+                          String version,
+                          String icone) {
 }

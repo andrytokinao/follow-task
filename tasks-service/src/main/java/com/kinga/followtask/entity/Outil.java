@@ -31,6 +31,7 @@ public class Outil implements RattachementOutil {
     public static final int URL_MAX = 2000;
     public static final int VERSION_MAX = 50;
     public static final int DESCRIPTION_MAX = 10000;
+    public static final int ICONE_MAX = 100;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -67,6 +68,13 @@ public class Outil implements RattachementOutil {
 
     @Column(name = "version", length = VERSION_MAX)
     private String version;
+
+    /**
+     * Icone Font Awesome choisie pour l'outil (« fab fa-windows ») ; null :
+     * celle de son type.
+     */
+    @Column(name = "icone", length = ICONE_MAX)
+    private String icone;
 
     @ManyToOne
     @JoinColumn(name = "user_app_id", nullable = false, foreignKey = @ForeignKey(name = "fk_outil_auteur"))

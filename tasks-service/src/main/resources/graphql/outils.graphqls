@@ -60,6 +60,8 @@ type Outil {
     chemin: String
     url: String
     version: String
+    # Classe Font Awesome choisie ; null : l'icône du type.
+    icone: String
     espaceNom: String
     auteur: UserApp
     dateCreation: String
@@ -107,6 +109,8 @@ input OutilSaisie {
     dossierId: Int
     url: String
     version: String
+    # Classe Font Awesome (« fab fa-windows ») ; vide : l'icône du type.
+    icone: String
 }
 
 extend type Query {

@@ -166,8 +166,14 @@ export class OutilsPageComponent implements OnInit, OnDestroy {
     return definitionType(outil.typeOutil);
   }
 
-  /** Un seul fichier : son icône dit ce qu'on va télécharger. Sinon, celle du type. */
+  /**
+   * L'icône choisie pour l'outil, d'abord. Sinon, un seul fichier : son icône
+   * dit ce qu'on va télécharger. Sinon, celle du type.
+   */
   protected iconeOutil(outil: Outil): string {
+    if (outil.icone) {
+      return outil.icone;
+    }
     return outil.fichiers.length === 1
       ? iconeFichier(extensionFichier(outil.fichiers[0].nom))
       : definitionType(outil.typeOutil)?.icone ?? 'fas fa-toolbox';

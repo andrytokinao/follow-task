@@ -179,6 +179,23 @@
     <li>Historique des actions et statistiques de téléchargement.</li>
   </ul>
 
+  <!-- ================================================================== -->
+  <h2 id="icone">8. Complément : icône d'un outil (2.0.41)</h2>
+  <ul>
+    <li>Chaque outil, un logiciel surtout, peut avoir son icône : champ « Icône » du dialogue d'ajout et de
+      modification, qui ouvre le sélecteur d'icônes de l'application (DT-010, toutes les icônes Font Awesome).
+      « Icône du type » revient à celle de son type.</li>
+    <li>Colonne <code>outil.icone</code> (VARCHAR 100, nullable), ajoutée par Hibernate au démarrage ; script rejouable
+      <code>db/manual/2026-10-21-outil-icone.sql</code>. Champ <code>icone</code> de <code>Outil</code> et de
+      <code>OutilSaisie</code> (GraphQL).</li>
+    <li>Le serveur n'accepte que des classes Font Awesome (<code>ValidationOutil.icone</code>, <code>IconeOutilTest</code>) :
+      la valeur finit dans un attribut <code>class</code>.</li>
+    <li>Affichage : l'icône choisie d'abord (tuile, liste, fiche) ; sinon, un outil d'un seul fichier montre l'icône de
+      ce fichier ; sinon, celle du type.</li>
+    <li>Correctif : la photo de l'auteur, dans la fiche, était un rond de 36 px dans une boîte de 22 et paraissait
+      coupée ; sa taille passe par <code>--avatar-size</code>.</li>
+  </ul>
+
   <footer>follow-task · documents techniques</footer>
 </div>
 </body>

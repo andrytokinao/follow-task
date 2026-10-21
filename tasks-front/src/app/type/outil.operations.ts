@@ -10,7 +10,7 @@ const CHAMPS_DOSSIER = `
 `;
 
 const CHAMPS_OUTIL = `
-  id titre description typeOutil portee dossierId chemin url version espaceNom
+  id titre description typeOutil portee dossierId chemin url version icone espaceNom
   dateCreation dateModification modifiable
   ${AUTEUR}
   fichiers{ id nom typeMime taille dateAjout supprimable ${AUTEUR} }

@@ -83,6 +83,8 @@ export interface Outil {
   chemin: string;
   url?: string | null;
   version?: string | null;
+  /** Classe Font Awesome choisie (« fab fa-windows ») ; null : l'icône du type. */
+  icone?: string | null;
   espaceNom?: string | null;
   auteur?: User;
   dateCreation?: string;
@@ -123,4 +125,6 @@ export interface OutilSaisie {
   dossierId?: number | null;
   url?: string | null;
   version?: string | null;
+  /** Vide : l'icône du type. */
+  icone?: string | null;
 }

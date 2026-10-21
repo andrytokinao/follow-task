@@ -166,3 +166,37 @@
   border-color: #185FA5;
   background: #f5f9ff;
 }
+
+/* Icône de l'outil : un aperçu cliquable, puis « Changer » et « Icône du type ». */
+.od-icone {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.od-icone-apercu {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid #d0d5dd;
+  border-radius: 10px;
+  background: #fff;
+  font-size: 20px;
+  cursor: pointer;
+}
+.od-icone-apercu:hover {
+  border-color: #185FA5;
+}
+.od-lien {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 12px;
+  color: #185FA5;
+  cursor: pointer;
+}
+.od-lien:hover {
+  text-decoration: underline;
+}

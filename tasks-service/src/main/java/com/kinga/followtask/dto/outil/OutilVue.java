@@ -13,6 +13,7 @@ import java.util.List;
  *                   (« Sécurité › Antivirus ») ; vide a la racine du type
  * @param espaceNom  espace de creation ; null si partage avec tous
  * @param modifiable l'utilisateur connecte peut le modifier ou le supprimer
+ * @param icone      classe Font Awesome choisie ; null : l'icone du type
  */
 public record OutilVue(Long id,
                        String titre,
@@ -23,6 +24,7 @@ public record OutilVue(Long id,
                        String chemin,
                        String url,
                        String version,
+                       String icone,
                        String espaceNom,
                        UserApp auteur,
                        String dateCreation,

@@ -35,6 +35,7 @@ public class OutilService {
         outil.setTitre(validation.libelle(saisie.titre(), "Le titre", Outil.TITRE_MAX));
         outil.setDescription(validation.facultatif(saisie.description(), "La description", Outil.DESCRIPTION_MAX));
         outil.setVersion(validation.facultatif(saisie.version(), "La version", Outil.VERSION_MAX));
+        outil.setIcone(validation.icone(saisie.icone(), Outil.ICONE_MAX));
         outil.setUrl(validation.lien(saisie.url(), outil.getTypeOutil() == TypeOutil.LIEN, Outil.URL_MAX));
         appliquerPortee(outil, saisie.portee(), contexte);
         DossierOutil dossier = saisie.dossierId() == null ? null : dossierService.visible(contexte, saisie.dossierId());

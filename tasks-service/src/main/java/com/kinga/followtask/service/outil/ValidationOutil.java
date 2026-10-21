@@ -25,6 +25,21 @@ public class ValidationOutil {
         return borne(nettoye, champ, max);
     }
 
+    /** Classes Font Awesome (« fab fa-windows », « fa-solid fa-gear ») : lettres, chiffres, tirets, espaces. */
+    private static final java.util.regex.Pattern ICONE = java.util.regex.Pattern.compile("^(fa[a-z-]*)( +fa-[a-z0-9-]+)+$");
+
+    /**
+     * Icone facultative d'un outil ; null : celle de son type. Seules des
+     * classes Font Awesome passent : la valeur finit dans un attribut class.
+     */
+    public String icone(String valeur, int max) {
+        String nettoye = facultatif(valeur, "L'icône", max);
+        if (nettoye != null && !ICONE.matcher(nettoye).matches()) {
+            throw new IllegalArgumentException("L'icône n'est pas une icône Font Awesome");
+        }
+        return nettoye;
+    }
+
     /** Texte facultatif ; null s'il est vide. */
     public String facultatif(String valeur, String champ, int max) {
         if (valeur == null || valeur.isBlank()) {

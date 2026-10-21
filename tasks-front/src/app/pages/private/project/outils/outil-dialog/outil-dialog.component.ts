@@ -1,5 +1,7 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {ChooseDialogComponent} from '../../../../../common/icone-field/choose-dialog/choose-dialog.component';
 import {finalize} from 'rxjs/operators';
 import {
   definitionType,
@@ -45,6 +47,8 @@ export class OutilDialogComponent implements OnInit {
   protected description: string;
   protected version: string;
   protected url: string;
+  /** Icône choisie (classe Font Awesome) ; vide : celle du type. */
+  protected iconeChoisie: string;
   protected portee: PorteeOutil;
   protected regle?: RegleFichiersOutil;
   protected accept = '';
@@ -58,13 +62,15 @@ export class OutilDialogComponent implements OnInit {
 
   constructor(@Inject(MAT_DIALOG_DATA) protected readonly data: OutilDialogData,
               private readonly dialogRef: MatDialogRef<OutilDialogComponent, Outil>,
-              private readonly outilService: OutilService) {
+              private readonly outilService: OutilService,
+              private readonly modalService: NgbModal) {
     this.definition = definitionType(data.typeOutil)!;
     this.verrouille = data.dossier?.portee === 'ESPACE';
     this.titre = data.outil?.titre ?? '';
     this.description = data.outil?.description ?? '';
     this.version = data.outil?.version ?? '';
     this.url = data.outil?.url ?? '';
+    this.iconeChoisie = data.outil?.icone ?? '';
     this.portee = data.outil?.portee ?? 'ESPACE';
     this.envoi = new EnvoiFichiersOutil(outilService);
   }
@@ -87,6 +93,26 @@ export class OutilDialogComponent implements OnInit {
 
   protected icone(envoi: EnvoiFichier): string {
     return iconeFichier(extensionFichier(envoi.file.name));
+  }
+
+  /**
+   * Icône de l'outil (un logiciel : « fab fa-windows »…) : le sélecteur
+   * d'icônes de l'application (DT-010). Fermé sans choix : rien ne change.
+   */
+  choisirIcone(): void {
+    const fenetre = this.modalService.open(ChooseDialogComponent, {size: 'lg'});
+    fenetre.result.then(
+      resultat => {
+        if (resultat?.icone?.value) {
+          this.iconeChoisie = String(resultat.icone.value);
+        }
+      },
+      () => undefined);
+  }
+
+  /** Retour à l'icône du type. */
+  retirerIcone(): void {
+    this.iconeChoisie = '';
   }
 
   choisir(input: HTMLInputElement): void {
@@ -118,7 +144,8 @@ export class OutilDialogComponent implements OnInit {
       portee: this.portee,
       dossierId: this.data.outil ? this.data.outil.dossierId ?? null : this.data.dossier?.id ?? null,
       url: this.definition.lien === 'absent' ? null : this.url,
-      version: this.definition.version ? this.version : null
+      version: this.definition.version ? this.version : null,
+      icone: this.iconeChoisie || null
     }).subscribe({
       next: outil => this.envoyerFichiers(outil),
       error: e => {
