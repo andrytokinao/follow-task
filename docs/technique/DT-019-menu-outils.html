@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DT-019 — Menu Outils : logiciels, modèles, tutoriels et liens en dossiers</title>
+  <link rel="stylesheet" href="assets/doc.css">
+</head>
+<body>
+<div class="page">
+
+  <header class="doc-header">
+    <span class="doc-ref">DT-019</span>
+    <h1>Menu Outils : logiciels, modèles, tutoriels et liens en dossiers</h1>
+    <p class="subtitle">Chaque espace de travail a un menu <b>Outils</b> (<code>/working/:prefixe/outils</code>) où
+      les membres rangent des logiciels, des modèles de document, des tutoriels vidéo et des liens. Les types sont
+      les dossiers racines ; sous un type, chacun crée ses dossiers. Un élément reste dans l'espace où il est créé, ou
+      est partagé avec tous les espaces.</p>
+    <table class="meta">
+      <tr><td>Référence</td><td>DT-019 (Document Technique n° 019)</td></tr>
+      <tr><td>Statut</td><td><strong>Réalisé</strong></td></tr>
+      <tr><td>Version de l'application</td><td>2.0.40</td></tr>
+      <tr><td>Date</td><td>21 octobre 2026</td></tr>
+      <tr><td>Commits liés</td><td>titres contenant « (DT-019) » : <code>git log --grep "DT-019"</code></td></tr>
+      <tr><td>Migration</td><td><code>db/manual/2026-10-21-outils.sql</code> (tables créées aussi par Hibernate au démarrage)</td></tr>
+    </table>
+  </header>
+
+  <!-- ================================================================== -->
+  <h2 id="ecran">1. Écran</h2>
+  <svg viewBox="0 0 700 170" width="700" role="img" aria-label="Navigation : types, dossiers, outils">
+    <defs><marker id="f" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#475467"/></marker></defs>
+    <rect x="10" y="20" width="150" height="130" rx="8" fill="#eef4fc" stroke="#185FA5"/>
+    <text x="85" y="42" text-anchor="middle" font-size="12" font-weight="bold" fill="#101828">Outils</text>
+    <text x="25" y="66" font-size="11" fill="#101828">📁 Logiciels</text>
+    <text x="25" y="86" font-size="11" fill="#101828">📁 Modèles de document</text>
+    <text x="25" y="106" font-size="11" fill="#101828">📁 Tutoriels vidéo</text>
+    <text x="25" y="126" font-size="11" fill="#101828">📁 Liens</text>
+    <line x1="160" y1="62" x2="230" y2="62" stroke="#475467" marker-end="url(#f)"/>
+    <rect x="235" y="20" width="200" height="130" rx="8" fill="#fff" stroke="#d0d5dd"/>
+    <text x="335" y="42" text-anchor="middle" font-size="12" font-weight="bold" fill="#101828">Outils › Logiciels</text>
+    <text x="250" y="66" font-size="11" fill="#101828">📁 Bureautique 🌐</text>
+    <text x="250" y="86" font-size="11" fill="#101828">📁 Sécurité</text>
+    <text x="250" y="106" font-size="11" fill="#475467">💿 7-Zip v23 (à la racine)</text>
+    <text x="250" y="132" font-size="10" fill="#475467">dossiers puis outils</text>
+    <line x1="435" y1="86" x2="485" y2="86" stroke="#475467" marker-end="url(#f)"/>
+    <rect x="490" y="20" width="200" height="130" rx="8" fill="#fff" stroke="#d0d5dd"/>
+    <text x="590" y="42" text-anchor="middle" font-size="12" font-weight="bold" fill="#101828">… › Sécurité</text>
+    <text x="505" y="66" font-size="11" fill="#101828">📁 VPN (2e niveau)</text>
+    <text x="505" y="86" font-size="11" fill="#101828">💿 Antivirus v12  ⬇</text>
+    <text x="505" y="106" font-size="11" fill="#101828">💿 Client VPN v5.2 ⬇</text>
+    <text x="505" y="132" font-size="10" fill="#475467">clic : fiche · ⬇ : fichier unique</text>
+  </svg>
+  <ul>
+    <li><b>Dossiers racines fixes</b> : un par type (<code>TypeOutil</code>). Ni renommés, ni supprimés.</li>
+    <li><b>Dossiers des membres</b> sous un type, <b>deux niveaux au plus</b>. Tuile ou ligne ; menu ⋮ (Renommer,
+      Supprimer) pour qui en a le droit.</li>
+    <li><b>Outils</b> après les dossiers : icône (celle du fichier s'il n'y en a qu'un), titre, version, pastille
+      🌐 (tous les espaces) ou 💼 (cet espace). Clic : la fiche. Action directe : ouvrir le lien, ou télécharger le
+      fichier unique.</li>
+    <li><b>Vue dossiers ou liste</b>, retenue par navigateur (<code>localStorage « outils-vue »</code>).</li>
+    <li><b>Recherche</b> (2 caractères au moins) : tous types et dossiers confondus, à plat, avec le chemin
+      (« Logiciels › Sécurité »).</li>
+    <li>L'état est dans l'URL : <code>outils/logiciel/12?q=vpn</code>. Précédent, suivant et lien partagé rouvrent le
+      même dossier.</li>
+    <li><b>Fiche</b> : description (texte brut), lien, fichiers ; vidéo et son lus sur place, PDF et images dans un
+      onglet, le reste téléchargé. Ajout de fichiers par le trombone ou en les glissant sur la fiche.</li>
+  </ul>
+
+  <!-- ================================================================== -->
+  <h2 id="creation">2. Création : rester dans l'espace ou partager avec tous</h2>
+  <p>Créer un dossier ou un outil propose deux choix :</p>
+  <ul>
+    <li><b>Rester dans <i>nom de l'espace ouvert</i></b> (par défaut) — visible seulement depuis cet espace ;</li>
+    <li><b>Partager avec tous les espaces</b> — visible depuis tous les espaces de travail.</li>
+  </ul>
+  <p>Sous un dossier réservé à un espace, seul le premier choix est possible : un élément partagé y serait invisible
+    des autres espaces. Le formulaire suit le type : version (logiciel, modèle), lien obligatoire (lien) ou facultatif
+    (logiciel, tutoriel), fichiers joints, envoyés juste après l'enregistrement.</p>
+  <div class="note">Le partage est une colonne explicite (<code>portee</code>) et non « pas d'espace = partagé » :
+    un élément ne devient jamais visible de tous par accident.</div>
+
+  <!-- ================================================================== -->
+  <h2 id="droits">3. Droits (vérifiés par le serveur à chaque appel)</h2>
+  <table>
+    <tr><th>Action</th><th>Qui</th></tr>
+    <tr><td>Voir</td><td>Tout membre de l'espace (groupe <code>PREFIXE_GROUPE</code>), ou <code>CAN_ACCESS_ALL</code> ;
+      éléments partagés + éléments de l'espace.</td></tr>
+    <tr><td>Créer un dossier, un outil ; ajouter un fichier</td><td>Tout membre de l'espace.</td></tr>
+    <tr><td>Renommer / supprimer un dossier, modifier / supprimer un outil</td><td>Son auteur ; l'administrateur
+      de l'application ; l'administrateur de l'espace (rôle donnant <code>ADMIN</code>) pour un élément de son
+      espace. Un élément partagé n'appartient à aucun espace.</td></tr>
+    <tr><td>Changer le partage d'un outil</td><td>Son auteur ou l'administrateur de l'application.</td></tr>
+    <tr><td>Supprimer un fichier</td><td>Celui qui l'a ajouté, l'auteur de l'outil, l'administrateur.</td></tr>
+  </table>
+  <p>Le serveur rend <code>modifiable</code> / <code>supprimable</code> : l'écran n'affiche que les boutons utiles,
+    mais c'est <code>AccesOutilService</code> et <code>DroitsOutil</code> qui décident.</p>
+
+  <!-- ================================================================== -->
+  <h2 id="donnees">4. Données</h2>
+  <p>Trois tables ; chaque colonne porte son nom en toutes lettres (<code>@Table</code>, <code>@Column</code>,
+    <code>@JoinColumn</code>, clés étrangères et index nommés) : renommer un attribut Java ne renomme ni ne duplique
+    jamais une colonne.</p>
+  <table>
+    <tr><th>Table</th><th>Colonnes</th></tr>
+    <tr><td><code>dossier_outil</code></td><td>id, nom, type_outil, portee, parent_id, project_id, user_app_id,
+      date_creation, deleted</td></tr>
+    <tr><td><code>outil</code></td><td>id, titre, description, type_outil, portee, dossier_id, project_id, url,
+      version, user_app_id, date_creation, date_modification, deleted</td></tr>
+    <tr><td><code>outil_fichier</code></td><td>id, outil_id, nom_origine, nom_stockage, type_mime, taille,
+      user_app_id, date_ajout, deleted</td></tr>
+  </table>
+  <p><code>project_id</code> null ⇔ <code>portee = TOUS_LES_ESPACES</code>. Suppressions logiques
+    (<code>deleted</code>) : rien n'est perdu d'un clic.</p>
+
+  <h3>Règles de rangement (<code>RangementOutil</code>)</h3>
+  <ul>
+    <li>Un dossier ou un outil ne va que sous un dossier de son type.</li>
+    <li>Deux niveaux de dossiers au plus.</li>
+    <li>Un dossier partagé reçoit tout ; un dossier d'espace ne reçoit que des éléments de ce même espace.</li>
+    <li>Pas deux dossiers de même nom côte à côte (sans tenir compte de la casse).</li>
+    <li>Un dossier ne se supprime que vide.</li>
+    <li>Un outil dont le dossier n'est pas visible depuis l'espace s'affiche à la racine de son type : jamais perdu.</li>
+  </ul>
+
+  <!-- ================================================================== -->
+  <h2 id="fichiers">5. Fichiers</h2>
+  <ul>
+    <li>REST : <code>POST /api/outils/{outilId}/fichiers</code> (multipart, champ <code>file</code>),
+      <code>GET /api/outils/fichiers/{id}[?apercu=true]</code>. Suppression : mutation
+      <code>supprimerFichierOutil</code>.</li>
+    <li>Disque : <code>&lt;app.storage.base-path&gt;/outils/&lt;id outil&gt;/&lt;uuid&gt;.&lt;extension&gt;</code>.
+      Le nom envoyé par le navigateur n'entre jamais dans un chemin (pas de <code>../</code>) ; le chemin est
+      vérifié sous le dossier des outils.</li>
+    <li>Fichier écrit puis enregistré : si la base refuse, le fichier est effacé.</li>
+    <li>Type MIME déduit du nom, pas de l'en-tête du navigateur. Seuls vidéo, son, PNG, JPEG et PDF s'affichent
+      dans le navigateur ; tout le reste (HTML, SVG…) est téléchargé, avec <code>X-Content-Type-Options: nosniff</code>.</li>
+  </ul>
+  <h3>Extensions et tailles par défaut (réglables dans <code>application.properties</code>)</h3>
+  <table>
+    <tr><th>Type</th><th>Extensions (<code>outils.fichiers.extensions.*</code>)</th><th>Taille max. (<code>outils.fichiers.taille-max-mo.*</code>)</th></tr>
+    <tr><td>Logiciel</td><td>exe, msi, zip, 7z, rar, gz, tgz, tar, dmg, pkg, deb, rpm, apk, jar, iso, pdf, txt</td><td>1024 Mo</td></tr>
+    <tr><td>Modèle de document</td><td>doc(x), dot(x), xls(x), xlt(x), ppt(x), pot(x), odt, ods, odp, ott, pdf, txt, csv, rtf, md, png, jpg, jpeg, vsd(x)</td><td>50 Mo</td></tr>
+    <tr><td>Tutoriel vidéo</td><td>mp4, webm, ogv, mov, mkv, avi, m4v, mp3, pdf, ppt(x)</td><td>1024 Mo</td></tr>
+    <tr><td>Lien</td><td>pdf, png, jpg, jpeg, txt</td><td>20 Mo</td></tr>
+  </table>
+  <p>Le dossier se règle par <code>outils.fichiers.dossier</code>. La limite globale d'envoi reste
+    <code>spring.servlet.multipart.max-file-size</code> (2000 Mo). L'écran lit les mêmes règles
+    (<code>reglesFichiersOutil</code>) et refuse un fichier avant l'envoi.</p>
+
+  <!-- ================================================================== -->
+  <h2 id="code">6. Code</h2>
+  <table>
+    <tr><th>Couche</th><th>Fichiers</th></tr>
+    <tr><td>Entités</td><td><code>DossierOutil</code>, <code>Outil</code>, <code>FichierOutil</code>,
+      <code>RattachementOutil</code>, <code>enumapp/TypeOutil</code>, <code>enumapp/PorteeOutil</code></td></tr>
+    <tr><td>Règles pures (testées)</td><td><code>service/outil/DroitsOutil</code>, <code>RangementOutil</code>,
+      <code>ValidationOutil</code>, <code>PolitiqueFichiersOutil</code></td></tr>
+    <tr><td>Services</td><td><code>AccesOutilService</code> (contexte, membre, admin), <code>DossierOutilService</code>,
+      <code>OutilService</code>, <code>NavigationOutilService</code> (lecture), <code>FichierOutilService</code>,
+      <code>StockageFichiersOutil</code>, <code>VuesOutil</code></td></tr>
+    <tr><td>API</td><td><code>graphql/outils.graphqls</code>, <code>web/GQOutilController</code>,
+      <code>web/OutilFichierController</code></td></tr>
+    <tr><td>Front</td><td><code>type/outil.ts</code>, <code>outil.util.ts</code>, <code>outil.operations.ts</code>,
+      <code>services/outil.service.ts</code>, module <code>pages/private/project/outils</code> (page, choix du partage,
+      dialogues dossier / outil / fiche, envoi de fichiers)</td></tr>
+    <tr><td>Tests</td><td><code>DroitsOutilTest</code>, <code>RangementOutilTest</code>, <code>FichiersOutilTest</code></td></tr>
+  </table>
+
+  <!-- ================================================================== -->
+  <h2 id="evolutions">7. Évolutions prévues</h2>
+  <ul>
+    <li><b>Wiki</b> : un nouveau type <code>WIKI</code> (ajout à l'enum, stocké en texte) et des tables
+      <code>wiki_page</code> / <code>wiki_page_revision</code> rattachées à l'outil ; portée, dossiers et droits
+      réutilisés tels quels.</li>
+    <li><b>Partage avec plusieurs espaces choisis</b> : table de liaison <code>outil_espace</code> à côté de
+      <code>project_id</code>, sans changer les règles existantes.</li>
+    <li>Déplacer un outil ou un dossier par glisser-déposer (les règles de <code>RangementOutil</code> existent déjà).</li>
+    <li>Historique des actions et statistiques de téléchargement.</li>
+  </ul>
+
+  <footer>follow-task · documents techniques</footer>
+</div>
+</body>
+</html>
