@@ -46,9 +46,8 @@ export class IssueApercuDialogComponent implements OnInit, OnDestroy {
   /** Lien vers la page de l'issue courante ; null hors du projet ouvert. */
   lienPage: string | null = null;
 
-  /** Pièces jointes demandées pour l'issue affichée. */
-  piecesJointes = false;
-  chargementPiecesJointes = false;
+  /** Explorateur des pièces jointes en cours d'import (le code, pas encore les fichiers). */
+  private importPiecesJointes = false;
 
   @ViewChild('hotePiecesJointes', {read: ViewContainerRef}) private hotePiecesJointes?: ViewContainerRef;
 
@@ -73,17 +72,23 @@ export class IssueApercuDialogComponent implements OnInit, OnDestroy {
     this.explorateur?.destroy();
   }
 
-  /** Pièces jointes de l'issue affichée : l'explorateur est créé au premier clic, puis suit l'issue. */
-  async afficherPiecesJointes(): Promise<void> {
-    if (this.piecesJointes) {
-      return;
-    }
-    this.piecesJointes = true;
-    this.chargementPiecesJointes = true;
-    this.cdr.detectChanges();
+  /** Pièces jointes pas encore là : code de l'explorateur à importer, ou arborescence à recevoir. */
+  get piecesJointesEnCours(): boolean {
+    const explorateur = this.explorateur?.instance;
+    return this.importPiecesJointes || (!!explorateur && !explorateur.racine && !explorateur.erreur);
+  }
+
+  /**
+   * Pièces jointes de l'issue affichée, demandées juste après elle : l'aperçu
+   * ne les attend pas. L'explorateur suit ensuite l'issue (rafraîchir, envoyer).
+   */
+  private async chargerPiecesJointes(): Promise<void> {
+    this.importPiecesJointes = true;
     const {ExplorateurFichiersComponent} = await import('../explorateur-fichiers/explorateur-fichiers.component');
-    this.chargementPiecesJointes = false;
-    if (!this.piecesJointes || !this.hotePiecesJointes) {
+    this.importPiecesJointes = false;
+    // Déjà un explorateur, ou plus de popup : rien à faire. Une autre issue entre-temps : c'est la sienne.
+    if (this.explorateur || !this.hotePiecesJointes) {
+      this.cdr.markForCheck();
       return;
     }
     this.explorateur = this.hotePiecesJointes.createComponent(ExplorateurFichiersComponent);
@@ -94,8 +99,7 @@ export class IssueApercuDialogComponent implements OnInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
-  masquerPiecesJointes(): void {
-    this.piecesJointes = false;
+  private oublierPiecesJointes(): void {
     this.explorateur?.destroy();
     this.explorateur = undefined;
   }
@@ -140,15 +144,19 @@ export class IssueApercuDialogComponent implements OnInit, OnDestroy {
     this.souscription?.unsubscribe();
     this.chargement = true;
     this.erreur = false;
-    // Une autre issue : ses pièces jointes ne se chargent qu'à la demande, elles aussi.
+    // Une autre issue : l'explorateur de la précédente s'en va, le sien viendra après elle.
     if (this.explorateur && this.explorateur.instance.issueId !== this.issueId) {
-      this.masquerPiecesJointes();
+      this.oublierPiecesJointes();
     }
     this.souscription = this.apercuService.charger(this.issueId).subscribe({
       next: apercu => {
         this.apercu = apercu;
         this.lienPage = this.issueService.getIssueUrl(apercu.issue);
         this.chargement = false;
+        // Après le rendu de l'issue : la section des pièces jointes existe, et l'issue s'affiche sans les attendre.
+        if (!this.explorateur && !this.importPiecesJointes) {
+          setTimeout(() => this.chargerPiecesJointes());
+        }
       },
       error: () => {
         this.erreur = true;

@@ -149,21 +149,11 @@
         </ul>
       </section>
 
-      <!-- Pièces jointes : chargées à la demande, pas avec l'issue. L'explorateur envoie, rafraîchit, supprime. -->
+      <!-- Pièces jointes : demandées juste après l'issue, qui ne les attend pas. L'explorateur envoie,
+           rafraîchit, supprime. -->
       <section class="section">
-        <h3 class="section-title section-title-action">
-          Pièces jointes
-          <button type="button" class="btn btn-ghost btn-sm" *ngIf="!piecesJointes" (click)="afficherPiecesJointes()">
-            <i class="fas fa-paperclip"></i> Afficher
-          </button>
-          <button type="button" class="btn btn-ghost btn-sm" *ngIf="piecesJointes" (click)="masquerPiecesJointes()">
-            Masquer
-          </button>
-        </h3>
-        <ng-container *ngIf="piecesJointes">
-          <p class="empty" *ngIf="chargementPiecesJointes"><i class="fas fa-spinner fa-spin"></i> Chargement…</p>
-          <ng-container #hotePiecesJointes></ng-container>
-        </ng-container>
+        <p class="empty" *ngIf="piecesJointesEnCours"><i class="fas fa-spinner fa-spin"></i> Chargement des pièces jointes…</p>
+        <ng-container #hotePiecesJointes></ng-container>
       </section>
     </div>
 
