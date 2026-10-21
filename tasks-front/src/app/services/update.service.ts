@@ -4,6 +4,7 @@ import {NavigationEnd, Router} from '@angular/router';
 import {concat, filter, first, interval} from 'rxjs';
 import {ToastrService} from 'ngx-toastr';
 import {recharger} from './trace-rechargement';
+import {reinitialiserServiceWorker} from './reinitialiser-service-worker';
 
 /** Intervalle entre deux verifications de version. */
 const INTERVALLE_VERIFICATION = 30 * 60 * 1000;
@@ -64,7 +65,7 @@ export class UpdateService {
       filter(event => event instanceof NavigationEnd)
     ).subscribe(() => {
       if (this.raisonRechargement) {
-        recharger(this.raisonRechargement, 'changement de page');
+        this.rechargerSansCache(this.raisonRechargement, 'changement de page');
         return;
       }
       if (!this.versionPrete) {
@@ -104,8 +105,16 @@ export class UpdateService {
       this.raisonRechargement = `Cache irrecuperable : ${event.reason}`;
       this.toastr.warning('Cliquez ici pour recharger quand vous aurez terminé.',
         'Mise à jour nécessaire', {disableTimeOut: true, tapToDismiss: true})
-        .onTap.subscribe(() => recharger(this.raisonRechargement!, 'clic sur le message'));
+        .onTap.subscribe(() => this.rechargerSansCache(this.raisonRechargement!, 'clic sur le message'));
     });
+  }
+
+  /**
+   * Cache irrecuperable : recharger a travers le service worker resert la
+   * meme version cassee. On le retire d'abord, avec ses caches.
+   */
+  private rechargerSansCache(raison: string, detail: string): void {
+    reinitialiserServiceWorker().finally(() => recharger(raison, detail));
   }
 
   /** Active la version deja telechargee puis recharge la page. */

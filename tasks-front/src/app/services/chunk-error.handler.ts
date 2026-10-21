@@ -1,5 +1,6 @@
 import {ErrorHandler, Injectable} from '@angular/core';
 import {recharger} from './trace-rechargement';
+import {reinitialiserServiceWorker} from './reinitialiser-service-worker';
 
 /**
  * Rattrape les echecs de chargement des modules differes (lazy chunks).
@@ -49,8 +50,11 @@ export class ChunkErrorHandler implements ErrorHandler {
       return;
     }
     sessionStorage.setItem(ChunkErrorHandler.CLE_RECHARGEMENT, '1');
-    console.warn('[APP] Chunk introuvable : rechargement de l application.');
-    recharger('Chunk introuvable', error?.message ?? error?.rejection?.message);
+    console.warn('[APP] Chunk introuvable : service worker retire, rechargement de l application.');
+    // Sans cela, le rechargement repasse par le service worker, qui resert la
+    // version dont le chunk manque : la page revient toujours sur /working.
+    reinitialiserServiceWorker()
+      .finally(() => recharger('Chunk introuvable', error?.message ?? error?.rejection?.message));
   }
 
   /**
