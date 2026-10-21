@@ -41,19 +41,30 @@
 
 
 -- ---------------------------------------------------------------------
--- Definitions exactes des colonnes designees.
+-- Definitions exactes des colonnes designees. A executer avec le reste,
+-- en script (DBeaver : Alt+X), pas instruction par instruction : ces
+-- variables vivent le temps de la connexion.
+--
+-- Nom de table compare sans la casse (Project, USER_APP...). Colonne
+-- introuvable : le type d'Hibernate (BIGINT, VARCHAR(255)) plutot qu'un
+-- NULL, qui ferait echouer PREPARE (« near 'NULL' »).
 -- ---------------------------------------------------------------------
-SET @type_project := (
+SET @type_project := COALESCE((
     SELECT column_type
     FROM information_schema.columns
-    WHERE table_schema = DATABASE() AND table_name = 'project' AND column_name = 'id');
+    WHERE table_schema = DATABASE() AND LOWER(table_name) = 'project' AND LOWER(column_name) = 'id'
+    LIMIT 1), 'BIGINT');
 
-SET @type_utilisateur := (
+SET @type_utilisateur := COALESCE((
     SELECT CONCAT(column_type,
                   IF(character_set_name IS NULL, '',
                      CONCAT(' CHARACTER SET ', character_set_name, ' COLLATE ', collation_name)))
     FROM information_schema.columns
-    WHERE table_schema = DATABASE() AND table_name = 'user_app' AND column_name = 'id');
+    WHERE table_schema = DATABASE() AND LOWER(table_name) = 'user_app' AND LOWER(column_name) = 'id'
+    LIMIT 1), 'VARCHAR(255)');
+
+-- Ce qui va etre utilise : a lire si une cle etrangere est encore refusee.
+SELECT DATABASE() AS base, @type_project AS type_project_id, @type_utilisateur AS type_user_app_id;
 
 
 -- ---------------------------------------------------------------------
