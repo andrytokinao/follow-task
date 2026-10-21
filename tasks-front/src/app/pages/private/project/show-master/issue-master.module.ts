@@ -65,6 +65,7 @@ import {IconeViewComponent} from "../../../../common/icone-view/icone-view.compo
 import {TypeTacheComponent} from "../../../../common/type-tache/type-tache.component";
 import {StatutTacheComponent} from "../../../../common/statut-tache/statut-tache.component";
 import {AvatarComponent} from "../../../../common/avatar/avatar.component";
+import {ListeFichiersComponent} from "../../../../common/liste-fichiers/liste-fichiers.component";
 import {IssueHistoryComponent} from "../../../../common/action-history/issue-history/issue-history.component";
 
 
@@ -89,6 +90,8 @@ import {IssueHistoryComponent} from "../../../../common/action-history/issue-his
     imports: [
         IssueMasterRoutingModule,
         AvatarComponent,
+        // Fichiers sources à plat (page sources-files).
+        ListeFichiersComponent,
         MatTabsModule,
         MatCardModule,
         MatDialogModule,

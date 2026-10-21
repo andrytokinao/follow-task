@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DT-018 — Fichiers d'une issue à plat, en cache</title>
+  <link rel="stylesheet" href="assets/doc.css">
+</head>
+<body>
+<div class="page">
+
+  <header class="doc-header">
+    <span class="doc-ref">DT-018</span>
+    <h1>Fichiers d'une issue à plat, en cache</h1>
+    <p class="subtitle">Les fichiers sources d'un projet (<code>/issue/BATI-1/sources-files</code>) s'affichent directement,
+      sans passer par les dossiers, dans un composant réutilisable (<code>app-liste-fichiers</code>) qui sert aussi aux
+      pièces jointes de la popup d'aperçu. Les fichiers sont gardés en mémoire par issue ; « Rafraîchir » les redemande.</p>
+    <table class="meta">
+      <tr><td>Référence</td><td>DT-018 (Document Technique n° 018)</td></tr>
+      <tr><td>Statut</td><td><strong>Réalisé</strong></td></tr>
+      <tr><td>Version de l'application</td><td>2.0.36</td></tr>
+      <tr><td>Date</td><td>21 octobre 2026</td></tr>
+      <tr><td>Commits liés</td><td>titres contenant « (DT-018) » : <code>git log --grep "DT-018"</code></td></tr>
+      <tr><td>Migration</td><td>aucune</td></tr>
+    </table>
+  </header>
+
+  <!-- ================================================================== -->
+  <h2 id="ecran">1. Écran</h2>
+  <ul>
+    <li>Page sources-files : onglets <b>Fichiers</b> (par défaut) et <b>Dossiers</b> (l'explorateur, pour créer ou
+      supprimer des dossiers). Le choix est retenu (<code>localStorage</code>).</li>
+    <li>Liste : tous les fichiers de l'arborescence, le plus récent d'abord ; par fichier, icône du type, nom, dossier
+      (« Plans › Étage 1 »), auteur, date, téléchargement. Un clic sur le nom : aperçu (PDF, DOCX) ou téléchargement.</li>
+    <li>Recherche (nom, dossier, auteur, sans accents), envoi par bouton ou glisser-déposer (à la racine de l'issue,
+      avec la progression), « Rafraîchir », et l'heure de la liste (« à jour de 10:42 »).</li>
+  </ul>
+
+  <!-- ================================================================== -->
+  <h2 id="performance">2. Performance : ce qui est fait</h2>
+  <svg viewBox="0 0 700 150" width="700" role="img" aria-label="Lecture : cache mémoire, sinon serveur">
+    <defs><marker id="f" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#475467"/></marker></defs>
+    <rect x="10" y="50" width="140" height="44" rx="8" fill="#eef4fc" stroke="#185FA5"/>
+    <text x="80" y="76" text-anchor="middle" font-size="12" fill="#101828">Liste de fichiers</text>
+    <line x1="150" y1="72" x2="230" y2="72" stroke="#475467" marker-end="url(#f)"/>
+    <rect x="235" y="50" width="170" height="44" rx="8" fill="#fff" stroke="#d0d5dd"/>
+    <text x="320" y="70" text-anchor="middle" font-size="12" fill="#101828">FichiersIssueService</text>
+    <text x="320" y="86" text-anchor="middle" font-size="11" fill="#475467">cache par issue</text>
+    <line x1="405" y1="72" x2="485" y2="72" stroke="#475467" marker-end="url(#f)"/>
+    <text x="445" y="62" text-anchor="middle" font-size="10" fill="#475467">absent / ⟳</text>
+    <rect x="490" y="40" width="200" height="64" rx="8" fill="#fff" stroke="#d0d5dd"/>
+    <text x="590" y="62" text-anchor="middle" font-size="12" fill="#101828">api/load-directory</text>
+    <text x="590" y="78" text-anchor="middle" font-size="11" fill="#475467">disque + 1 requête</text>
+    <text x="590" y="94" text-anchor="middle" font-size="11" fill="#475467">(auteur, date)</text>
+  </svg>
+  <ul>
+    <li><b>Navigateur</b> — <code>FichiersIssueService</code> garde la liste de chaque issue en mémoire, le temps de la
+      session : revenir sur un projet, ou ouvrir l'aperçu d'une sous-tâche déjà vue, l'affiche sans requête. Deux
+      demandes simultanées partagent la même requête. « Rafraîchir » et chaque envoi la redemandent ; pendant un
+      rafraîchissement, l'ancienne liste reste affichée.</li>
+    <li><b>Serveur</b> — l'auteur et la date des fichiers venaient des entités <code>Uploaded</code>, qui chargent d'office
+      leur <code>Document</code> et leur auteur : une requête de plus par document. Ils sont lus maintenant en une requête,
+      sans entités (<code>UploadedRepository.metadonneesSous</code>, <code>MetaUpload</code>).</li>
+  </ul>
+
+  <!-- ================================================================== -->
+  <h2 id="recommandations">3. Recommandations, pour la suite</h2>
+  <ol>
+    <li><b>Mesurer d'abord.</b> Le parcours du dossier sur le disque (<code>new Dossier(File)</code>, récursif) est
+      probablement le plus gros coût d'un gros projet : chronométrer <code>api/load-directory</code> sur BATI-1 dit s'il
+      faut aller plus loin.</li>
+    <li><b>Cache serveur avec ETag</b> si le parcours est lent : garder l'arborescence d'une issue en mémoire
+      (Caffeine, quelques minutes), l'invalider à chaque envoi, suppression, création de dossier ; répondre
+      <code>304 Not Modified</code> à un navigateur qui a déjà la version (<code>If-None-Match</code>). Le bouton
+      « Rafraîchir » coûte alors presque rien.</li>
+    <li><b>Point d'accès à plat et paginé</b> au-delà de quelques milliers de fichiers : <code>api/fichiers?issueId=…</code>
+      rendant directement la liste (nom, dossier, auteur, date), sans l'arbre, par pages de 200 — avec
+      <code>Files.walk</code> et l'arrêt anticipé.</li>
+    <li><b>Ne pas</b> mettre ces listes dans le cache Apollo ni dans <code>localStorage</code> : elles changent
+      hors de l'application (dépôt direct dans le dossier) et peuvent être grosses ; le cache mémoire de session suffit.</li>
+  </ol>
+
+  <!-- ================================================================== -->
+  <h2 id="code">4. Fichiers</h2>
+  <table>
+    <tr><th>Fichier</th><th>Rôle</th></tr>
+    <tr><td><code>common/liste-fichiers/fichiers-issue.ts</code></td><td>Fonctions pures : <code>aplatir</code>, <code>filtrer</code>, <code>iconeFichier</code></td></tr>
+    <tr><td><code>common/liste-fichiers/fichiers-issue.service.ts</code></td><td>Cache par issue, requête partagée, rechargement forcé</td></tr>
+    <tr><td><code>common/liste-fichiers/liste-fichiers.component.*</code></td><td>Composant standalone réutilisable</td></tr>
+    <tr><td><code>show-master/dossier-sources/*</code></td><td>Onglets Fichiers / Dossiers</td></tr>
+    <tr><td><code>common/issue-apercu/issue-apercu-dialog.component.ts</code></td><td>Pièces jointes de la popup : la liste à plat</td></tr>
+    <tr><td><code>UploadedRepository</code> · <code>MetaUpload</code> · <code>DirectoryService</code></td><td>Auteur et date en une requête</td></tr>
+  </table>
+
+  <footer>follow-task · documents techniques</footer>
+</div>
+</body>
+</html>

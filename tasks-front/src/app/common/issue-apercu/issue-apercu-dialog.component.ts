@@ -45,16 +45,14 @@ export class IssueApercuDialogComponent implements OnInit, OnDestroy {
   /** Lien vers la page de l'issue courante ; null hors du projet ouvert. */
   lienPage: string | null = null;
 
-  /** Explorateur de fichiers de l'issue : envoi, rafraîchir, supprimer. Prêt quand l'arborescence est reçue. */
+  /**
+   * Fichiers de l'issue, à plat (app-liste-fichiers) : envoi, aperçu,
+   * rafraîchir ; gardés en mémoire par issue. Prête quand la liste est reçue.
+   */
   readonly piecesJointes = new SectionDifferee(
-    () => import('../explorateur-fichiers/explorateur-fichiers.component').then(m => m.ExplorateurFichiersComponent),
-    issue => ({
-      titre: 'Pièces jointes',
-      sousTitre: 'Glissez-déposez un fichier, ou envoyez-le avec le bouton.',
-      compact: true,
-      issueId: issue.id
-    }),
-    explorateur => !!explorateur.racine || !!explorateur.erreur);
+    () => import('../liste-fichiers/liste-fichiers.component').then(m => m.ListeFichiersComponent),
+    issue => ({titre: 'Pièces jointes', compact: true, issueId: issue.id}),
+    liste => !!liste.charges || !!liste.erreur);
 
   /**
    * Commentaires de l'issue, et en ajouter (texte, fichiers joints). Le

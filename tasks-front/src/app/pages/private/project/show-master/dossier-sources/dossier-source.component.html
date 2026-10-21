@@ -1,2 +1,17 @@
-<app-explorateur-fichiers [issueId]="parentIssue?.id" titre="Dossiers sources">
+<!-- Fichiers à plat par défaut ; par dossiers pour créer ou supprimer des dossiers. -->
+<div class="ds-vues" role="tablist" aria-label="Affichage des fichiers sources">
+  <button type="button" role="tab" class="ds-vue" [class.actif]="vue === 'fichiers'"
+          [attr.aria-selected]="vue === 'fichiers'" (click)="choisirVue('fichiers')">
+    <i class="fas fa-list"></i> Fichiers
+  </button>
+  <button type="button" role="tab" class="ds-vue" [class.actif]="vue === 'dossiers'"
+          [attr.aria-selected]="vue === 'dossiers'" (click)="choisirVue('dossiers')">
+    <i class="far fa-folder"></i> Dossiers
+  </button>
+</div>
+
+<app-liste-fichiers *ngIf="vue === 'fichiers'" [issueId]="parentIssue?.id" titre="Fichiers sources">
+</app-liste-fichiers>
+
+<app-explorateur-fichiers *ngIf="vue === 'dossiers'" [issueId]="parentIssue?.id" titre="Dossiers sources">
 </app-explorateur-fichiers>

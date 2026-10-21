@@ -3,6 +3,7 @@ package com.kinga.followtask.service;
 import com.kinga.followtask.config.CurrentUserProvider;
 import com.kinga.followtask.dto.Dossier;
 import com.kinga.followtask.dto.Fichier;
+import com.kinga.followtask.dto.MetaUpload;
 import com.kinga.followtask.dto.Repertoire;
 import com.kinga.followtask.dto.Response;
 import com.kinga.followtask.entity.Uploaded;
@@ -72,8 +73,22 @@ public class DirectoryService {
 
         Uploaded uploaded = tracer(fichier);
         Fichier resultat = new Fichier(fichier.toString(), fichier.getFileName().toString());
-        appliquer(resultat, uploaded);
+        appliquer(resultat, metaDe(uploaded));
         return resultat;
+    }
+
+    /** L'upload tout juste trace, sous la forme que lit l'arborescence ; null sans trace. */
+    private MetaUpload metaDe(Uploaded uploaded) {
+        if (uploaded == null) {
+            return null;
+        }
+        UserApp auteur = uploaded.getUserApp();
+        return new MetaUpload(uploaded.getPath(),
+                auteur == null ? null : auteur.getFirstName(),
+                auteur == null ? null : auteur.getLastName(),
+                auteur == null ? null : auteur.getUsername(),
+                auteur == null ? null : auteur.getPhoto(),
+                uploaded.getUploadDate());
     }
 
     /**
@@ -94,17 +109,19 @@ public class DirectoryService {
 
     /**
      * Renseigne auteur et date d'upload sur une arborescence deja construite,
-     * a partir des lignes enregistrees sous la racine.
+     * a partir des lignes enregistrees sous la racine. Une seule requete, sans
+     * entites (metadonneesSous) : Uploaded charge d'office son Document et son
+     * auteur, ce qui faisait une requete par document sur un gros projet.
      */
     public void appliquerMetadonnees(Repertoire racine) {
         if (racine == null || !StringUtils.hasText(racine.getAbsolutePath())) {
             return;
         }
         String base = KingaUtils.decodeText(racine.getAbsolutePath());
-        Map<String, Uploaded> parChemin = new HashMap<>();
-        for (Uploaded uploaded : uploadedRepository.findByPathStartingWith(base)) {
+        Map<String, MetaUpload> parChemin = new HashMap<>();
+        for (MetaUpload meta : uploadedRepository.metadonneesSous(base)) {
             // Le dernier enregistre gagne : un fichier remplace garde son auteur courant.
-            parChemin.put(uploaded.getPath(), uploaded);
+            parChemin.put(meta.path(), meta);
         }
         if (parChemin.isEmpty()) {
             return;
@@ -112,7 +129,7 @@ public class DirectoryService {
         enrichir(racine, parChemin);
     }
 
-    private void enrichir(Repertoire noeud, Map<String, Uploaded> parChemin) {
+    private void enrichir(Repertoire noeud, Map<String, MetaUpload> parChemin) {
         appliquer(noeud, parChemin.get(KingaUtils.decodeText(noeud.getAbsolutePath())));
         if (noeud instanceof Dossier dossier) {
             List<Repertoire> enfants = dossier.getRepertoires();
@@ -122,27 +139,26 @@ public class DirectoryService {
         }
     }
 
-    private void appliquer(Repertoire noeud, Uploaded uploaded) {
-        if (uploaded == null) {
+    private void appliquer(Repertoire noeud, MetaUpload meta) {
+        if (meta == null) {
             return;
         }
-        noeud.setUploadeur(nomAffiche(uploaded.getUserApp()));
-        if (uploaded.getUserApp() != null) {
-            noeud.setUploadeurUsername(uploaded.getUserApp().getUsername());
-            noeud.setUploadeurPhoto(uploaded.getUserApp().getPhoto());
-        }
-        if (uploaded.getUploadDate() != null) {
-            noeud.setDateUpload(dateTimeFormater.format(uploaded.getUploadDate()));
+        noeud.setUploadeur(nomAffiche(meta));
+        noeud.setUploadeurUsername(meta.username());
+        noeud.setUploadeurPhoto(meta.photo());
+        if (meta.uploadDate() != null) {
+            noeud.setDateUpload(dateTimeFormater.format(meta.uploadDate()));
         }
     }
 
-    private String nomAffiche(UserApp user) {
-        if (user == null) {
+    /** Prenom et nom, sinon l'identifiant ; null sans auteur connu. */
+    private String nomAffiche(MetaUpload meta) {
+        if (meta.username() == null && meta.firstName() == null && meta.lastName() == null) {
             return null;
         }
-        String complet = ((user.getFirstName() == null ? "" : user.getFirstName()) + " "
-                + (user.getLastName() == null ? "" : user.getLastName())).trim();
-        return complet.isEmpty() ? user.getUsername() : complet;
+        String complet = ((meta.firstName() == null ? "" : meta.firstName()) + " "
+                + (meta.lastName() == null ? "" : meta.lastName())).trim();
+        return complet.isEmpty() ? meta.username() : complet;
     }
 
     private Path dossierExistant(String encodedPath) {

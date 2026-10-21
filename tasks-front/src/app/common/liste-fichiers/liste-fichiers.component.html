@@ -1,0 +1,64 @@
+<div class="lf" [class.compact]="compact" [class.sur-zone]="surZone"
+     (dragover)="survoler($event, true)" (dragleave)="survoler($event, false)" (drop)="deposer($event)">
+
+  <!-- En-tête : titre, nombre, date de la liste ; recherche, envoi, rafraîchir. -->
+  <div class="lf-entete">
+    <div class="lf-titre">
+      <strong>{{ titre }}</strong>
+      <small *ngIf="charges">
+        {{ charges.fichiers.length }} fichier(s) · à jour de {{ charges.recuLe | date:'HH:mm' }}
+      </small>
+    </div>
+    <div class="lf-actions">
+      <input class="lf-recherche" type="search" placeholder="Rechercher un fichier" aria-label="Rechercher un fichier"
+             [(ngModel)]="recherche" (ngModelChange)="chercher()" *ngIf="charges?.fichiers?.length">
+      <button type="button" class="lf-btn" [disabled]="!charges" title="Envoyer des fichiers" (click)="choix.click()">
+        <i class="fas fa-upload"></i> Envoyer
+      </button>
+      <button type="button" class="lf-btn lf-icone" [disabled]="chargement" title="Rafraîchir depuis le serveur"
+              aria-label="Rafraîchir" (click)="rafraichir()">
+        <i class="fas fa-sync" [class.fa-spin]="chargement"></i>
+      </button>
+      <input type="file" multiple hidden #choix (change)="choisir($event)">
+    </div>
+  </div>
+
+  <p class="lf-etat" *ngIf="chargement && !charges"><i class="fas fa-spinner fa-spin"></i> Chargement des fichiers…</p>
+  <p class="lf-etat lf-erreur" *ngIf="erreur"><i class="fas fa-exclamation-triangle"></i> {{ erreur }}</p>
+
+  <!-- Envois en cours ou en échec. -->
+  <ul class="lf-envois" *ngIf="envois.length">
+    <li *ngFor="let e of envois" [class]="'lf-envoi ' + e.statut">
+      <i class="fas" [ngClass]="e.statut === 'erreur' ? 'fa-times-circle' : e.statut === 'ok' ? 'fa-check-circle' : 'fa-arrow-up'"></i>
+      <span class="lf-nom">{{ e.file.name }}</span>
+      <span class="lf-progression" *ngIf="e.statut === 'envoi'">{{ e.progression }} %</span>
+      <span *ngIf="e.statut === 'erreur'">échec</span>
+    </li>
+  </ul>
+
+  <ng-container *ngIf="charges">
+    <p class="lf-etat" *ngIf="!charges.fichiers.length">
+      Aucun fichier. Glissez-déposez des fichiers ici, ou utilisez « Envoyer ».
+    </p>
+    <p class="lf-etat" *ngIf="charges.fichiers.length && !visibles.length">Aucun fichier ne correspond à « {{ recherche }} ».</p>
+
+    <!-- Un fichier : icône, nom (aperçu ou téléchargement), dossier, auteur, date ; téléchargement. -->
+    <ul class="lf-liste" *ngIf="visibles.length">
+      <li class="lf-fichier" *ngFor="let f of visibles; trackBy: parChemin">
+        <i class="lf-type" [ngClass]="icone(f)"></i>
+        <button type="button" class="lf-corps" (click)="ouvrir(f)" (mouseenter)="precharger(f)"
+                [title]="aApercu(f) ? 'Aperçu de ' + f.nom : 'Télécharger ' + f.nom">
+          <span class="lf-nom">{{ f.nom }}</span>
+          <span class="lf-dossier" *ngIf="f.dossier"><i class="far fa-folder"></i> {{ f.dossier }}</span>
+        </button>
+        <span class="lf-auteur" *ngIf="f.uploadeur" [title]="f.uploadeur">
+          <app-avatar class="lf-avatar" [url]="photo(f)" [displayName]="f.uploadeur"></app-avatar>
+        </span>
+        <span class="lf-date">{{ f.date ? (f.date | date:'dd/MM/yyyy') : '' }}</span>
+        <a class="lf-telecharger" [href]="lienTelechargement(f)" title="Télécharger" aria-label="Télécharger">
+          <i class="fas fa-download"></i>
+        </a>
+      </li>
+    </ul>
+  </ng-container>
+</div>
