@@ -9,8 +9,21 @@ import {Issue} from '../../type/issue';
 import {AvatarComponent} from '../avatar/avatar.component';
 import {FileViewerService} from '../file-viewer/file-viewer.service';
 import {TypeTacheComponent} from '../type-tache/type-tache.component';
-import {FichierIssue, filtrer, iconeFichier, TacheFichier, tacheDuFichier} from './fichiers-issue';
+import {
+  contenuDossier,
+  DossierVue,
+  FichierIssue,
+  filtrer,
+  iconeFichier,
+  repertoireA,
+  TacheFichier,
+  tacheDuFichier
+} from './fichiers-issue';
 import {FichiersCharges, FichiersIssueService} from './fichiers-issue.service';
+
+type VueFichiers = 'dossiers' | 'fichiers';
+
+const CLE_VUE = 'liste-fichiers-vue';
 
 /** Une ligne de la liste : le fichier, sa sous-tâche s'il en a une, et son dossier dans celle-ci. */
 interface LigneFichier {
@@ -57,7 +70,18 @@ export class ListeFichiersComponent implements OnChanges, OnDestroy {
   @Output() tacheChoisie = new EventEmitter<Issue>();
 
   charges: FichiersCharges | null = null;
-  /** Fichiers affichés : tous, ou ceux de la recherche. */
+  /**
+   * Par dossiers : les sous-dossiers du dossier ouvert, puis ses fichiers. À plat :
+   * tous les fichiers. Une recherche montre toujours les résultats à plat. Retenu.
+   */
+  vue: VueFichiers = localStorage.getItem(CLE_VUE) === 'fichiers' ? 'fichiers' : 'dossiers';
+  /** Dossier ouvert, depuis la racine de l'issue ; vide : la racine. */
+  chemin: string[] = [];
+  /** Fil d'Ariane du dossier ouvert, racine comprise. */
+  fil: { nom: string; chemin: string[] }[] = [];
+  /** Sous-dossiers du dossier ouvert (vue par dossiers, sans recherche). */
+  dossiers: DossierVue[] = [];
+  /** Fichiers affichés : ceux du dossier ouvert, tous, ou ceux de la recherche. */
   visibles: LigneFichier[] = [];
   private tachesParCle = new Map<string, TacheFichier>();
   recherche = '';
@@ -85,6 +109,7 @@ export class ListeFichiersComponent implements OnChanges, OnDestroy {
     if (changes['issueId']) {
       this.recherche = '';
       this.envois = [];
+      this.chemin = [];
       this.charger(false);
     }
   }
@@ -98,12 +123,52 @@ export class ListeFichiersComponent implements OnChanges, OnDestroy {
     this.charger(true);
   }
 
+  /** Recalcule ce qui est affiché : après une réponse, une recherche, un changement de vue ou de dossier. */
   chercher(): void {
-    this.visibles = filtrer(this.charges?.fichiers ?? [], this.recherche, this.tachesParCle).map(fichier => {
-      const tache = tacheDuFichier(fichier, this.tachesParCle);
-      // Rangé dans le dossier de sa sous-tâche : on montre la tâche, et le dossier dans celle-ci.
-      return {fichier, tache, dossier: tache ? fichier.dossiers.slice(1).join(' › ') : fichier.dossier};
-    });
+    const fichiers = this.charges?.fichiers ?? [];
+    this.fil = [{nom: this.titre, chemin: []},
+      ...this.chemin.map((nom, i) => {
+        const chemin = this.chemin.slice(0, i + 1);
+        const tache = i === 0 ? this.tachesParCle.get(nom) : undefined;
+        return {nom: tache ? `${tache.cle} · ${tache.titre}` : nom, chemin};
+      })];
+    if (this.aPlat) {
+      this.dossiers = [];
+      this.visibles = filtrer(fichiers, this.recherche, this.tachesParCle).map(fichier => {
+        const tache = tacheDuFichier(fichier, this.tachesParCle);
+        // Rangé dans le dossier de sa sous-tâche : on montre la tâche, et le dossier dans celle-ci.
+        return {fichier, tache, dossier: tache ? fichier.dossiers.slice(1).join(' › ') : fichier.dossier};
+      });
+      return;
+    }
+    const contenu = contenuDossier(fichiers, this.chemin, this.tachesParCle);
+    this.dossiers = contenu.dossiers;
+    // Dans le dossier ouvert : ni tâche ni dossier à rappeler, le fil d'Ariane les dit.
+    this.visibles = contenu.fichiers.map(fichier => ({fichier, tache: null, dossier: ''}));
+  }
+
+  /** Liste à plat : choisie, ou le temps d'une recherche. */
+  get aPlat(): boolean {
+    return this.vue === 'fichiers' || !!this.recherche.trim();
+  }
+
+  choisirVue(vue: VueFichiers): void {
+    this.vue = vue;
+    localStorage.setItem(CLE_VUE, vue);
+    this.chercher();
+  }
+
+  ouvrirDossier(dossier: DossierVue): void {
+    this.allerA(dossier.chemin);
+  }
+
+  allerA(chemin: string[]): void {
+    this.chemin = chemin;
+    this.chercher();
+  }
+
+  parDossier(_: number, dossier: DossierVue): unknown {
+    return dossier.chemin.join('/');
   }
 
   choisirTache(tache: TacheFichier): void {
@@ -167,9 +232,13 @@ export class ListeFichiersComponent implements OnChanges, OnDestroy {
     this.envoyer(event.dataTransfer?.files ?? null);
   }
 
-  /** Envoie les fichiers un par un à la racine de l'issue, puis redemande la liste. */
+  /**
+   * Envoie les fichiers un par un, puis redemande la liste : dans le dossier
+   * ouvert (vue par dossiers), sinon à la racine de l'issue.
+   */
   private envoyer(fichiers: FileList | null): void {
-    const racine = this.charges?.racine.absolutePath;
+    const racine = (this.aPlat ? null : repertoireA(this.charges?.racine, this.chemin)?.absolutePath)
+      ?? this.charges?.racine.absolutePath;
     if (!fichiers?.length || !racine || this.issueId == null) {
       return;
     }
@@ -238,6 +307,10 @@ export class ListeFichiersComponent implements OnChanges, OnDestroy {
 
   private afficher(charges: FichiersCharges): void {
     this.charges = charges;
+    // Le dossier ouvert a pu disparaître (supprimé ailleurs) : retour à la racine.
+    if (this.chemin.length && !repertoireA(charges.racine, this.chemin)) {
+      this.chemin = [];
+    }
     this.chercher();
   }
 }

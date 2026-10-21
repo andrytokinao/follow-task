@@ -10,6 +10,17 @@
       </small>
     </div>
     <div class="lf-actions">
+      <!-- Par dossiers (puis leurs fichiers), ou tous les fichiers à plat. -->
+      <span class="lf-vues" role="tablist" aria-label="Affichage des fichiers" *ngIf="charges?.fichiers?.length">
+        <button type="button" role="tab" class="lf-vue" [class.actif]="vue === 'dossiers'" [attr.aria-selected]="vue === 'dossiers'"
+                title="Par dossiers" aria-label="Par dossiers" (click)="choisirVue('dossiers')">
+          <i class="far fa-folder"></i>
+        </button>
+        <button type="button" role="tab" class="lf-vue" [class.actif]="vue === 'fichiers'" [attr.aria-selected]="vue === 'fichiers'"
+                title="Tous les fichiers" aria-label="Tous les fichiers" (click)="choisirVue('fichiers')">
+          <i class="fas fa-list"></i>
+        </button>
+      </span>
       <input class="lf-recherche" type="search" placeholder="Rechercher un fichier" aria-label="Rechercher un fichier"
              [(ngModel)]="recherche" (ngModelChange)="chercher()" *ngIf="charges?.fichiers?.length">
       <button type="button" class="lf-btn" [disabled]="!charges" title="Envoyer des fichiers" (click)="choix.click()">
@@ -40,7 +51,38 @@
     <p class="lf-etat" *ngIf="!charges.fichiers.length">
       Aucun fichier. Glissez-déposez des fichiers ici, ou utilisez « Envoyer ».
     </p>
-    <p class="lf-etat" *ngIf="charges.fichiers.length && !visibles.length">Aucun fichier ne correspond à « {{ recherche }} ».</p>
+    <p class="lf-etat" *ngIf="charges.fichiers.length && recherche.trim() && !visibles.length">
+      Aucun fichier ne correspond à « {{ recherche }} ».
+    </p>
+
+    <!-- Par dossiers : le fil d'Ariane, les sous-dossiers du dossier ouvert, puis ses fichiers. -->
+    <ng-container *ngIf="!aPlat && charges.fichiers.length">
+      <nav class="lf-fil" aria-label="Dossier ouvert">
+        <ng-container *ngFor="let etape of fil; let derniere = last">
+          <button type="button" class="lf-etape" [class.courante]="derniere" [disabled]="derniere"
+                  (click)="allerA(etape.chemin)">{{ etape.nom }}</button>
+          <i class="fas fa-chevron-right lf-sep" *ngIf="!derniere"></i>
+        </ng-container>
+      </nav>
+
+      <ul class="lf-liste" *ngIf="dossiers.length">
+        <li class="lf-fichier lf-ligne-dossier" *ngFor="let d of dossiers; trackBy: parDossier">
+          <i class="lf-type fas fa-folder"></i>
+          <button type="button" class="lf-corps" (click)="ouvrirDossier(d)" [title]="'Ouvrir ' + d.nom">
+            <span class="lf-nom">
+              <ng-container *ngIf="d.tache as t; else nomDossier">
+                <app-type-tache [type]="t.issue.issueType"></app-type-tache> {{ t.cle }} · {{ t.titre }}
+              </ng-container>
+              <ng-template #nomDossier>{{ d.nom }}</ng-template>
+            </span>
+          </button>
+          <span class="lf-nombre">{{ d.nombre }} fichier{{ d.nombre > 1 ? 's' : '' }}</span>
+          <i class="fas fa-chevron-right lf-ouvrir"></i>
+        </li>
+      </ul>
+
+      <p class="lf-etat" *ngIf="!dossiers.length && !visibles.length">Ce dossier est vide.</p>
+    </ng-container>
 
     <!-- Un fichier : icône, nom (aperçu ou téléchargement), dossier ; sa sous-tâche ; qui l'a envoyé, quand ; téléchargement. -->
     <ul class="lf-liste" *ngIf="visibles.length">

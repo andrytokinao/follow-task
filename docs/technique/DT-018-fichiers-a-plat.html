@@ -99,7 +99,21 @@
   </ul>
 
   <!-- ================================================================== -->
-  <h2 id="code">5. Fichiers</h2>
+  <h2 id="dossiers">5. Vue par dossiers, puis fichiers (2.0.41)</h2>
+  <ul>
+    <li><code>app-liste-fichiers</code> s'ouvre désormais <b>par dossiers</b> : le fil d'Ariane, les sous-dossiers du
+      dossier ouvert (avec leur nombre de fichiers), puis ses propres fichiers. Au premier niveau d'un projet, le dossier
+      d'une sous-tâche porte son type, sa clé et son titre. La bascule <i>Tous les fichiers</i> garde la liste à plat ;
+      le choix est retenu (<code>localStorage</code>), et une recherche montre toujours ses résultats à plat.</li>
+    <li>Tout se calcule dans le navigateur à partir de la même réponse et du même cache (<code>contenuDossier</code>,
+      <code>repertoireA</code>) : changer de dossier ne coûte aucune requête.</li>
+    <li>Un fichier déposé ou envoyé va dans le dossier ouvert (vue par dossiers), sinon à la racine.</li>
+    <li>La requête des auteurs (<code>metadonneesSous</code>) est vérifiée sur H2 en mode MySQL
+      (<code>RequetesUploadedTest</code>).</li>
+  </ul>
+
+  <!-- ================================================================== -->
+  <h2 id="code">6. Fichiers</h2>
   <table>
     <tr><th>Fichier</th><th>Rôle</th></tr>
     <tr><td><code>common/liste-fichiers/fichiers-issue.ts</code></td><td>Fonctions pures : <code>aplatir</code>, <code>filtrer</code>, <code>iconeFichier</code></td></tr>

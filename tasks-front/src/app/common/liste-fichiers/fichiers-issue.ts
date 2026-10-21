@@ -75,6 +75,66 @@ export function filtrer(fichiers: FichierIssue[], recherche: string,
   });
 }
 
+/** Un sous-dossier du dossier ouvert : son nom, ses fichiers (sous-dossiers compris), sa sous-tâche s'il est le sien. */
+export interface DossierVue {
+  nom: string;
+  /** Chemin depuis la racine de l'issue, ce dossier compris. */
+  chemin: string[];
+  nombre: number;
+  tache: TacheFichier | null;
+}
+
+/** Ce que montre un dossier ouvert : ses sous-dossiers, puis ses propres fichiers. */
+export interface ContenuDossier {
+  dossiers: DossierVue[];
+  fichiers: FichierIssue[];
+}
+
+/**
+ * Contenu du dossier `chemin` (vide : la racine), tiré de la liste à plat :
+ * les fichiers dont le dossier est exactement celui-là, et les sous-dossiers
+ * qui en contiennent, avec leur nombre. Un dossier vide n'apparaît pas.
+ * Au premier niveau, un dossier nommé d'après la clé d'une sous-tâche porte son nom.
+ */
+export function contenuDossier(fichiers: FichierIssue[], chemin: string[],
+                               taches: Map<string, TacheFichier> = new Map()): ContenuDossier {
+  const sousDossiers = new Map<string, number>();
+  const ici: FichierIssue[] = [];
+  for (const f of fichiers) {
+    if (!commencePar(f.dossiers, chemin)) {
+      continue;
+    }
+    if (f.dossiers.length === chemin.length) {
+      ici.push(f);
+    } else {
+      const nom = f.dossiers[chemin.length];
+      sousDossiers.set(nom, (sousDossiers.get(nom) ?? 0) + 1);
+    }
+  }
+  const dossiers = [...sousDossiers.entries()]
+    .map(([nom, nombre]) => ({
+      nom,
+      chemin: [...chemin, nom],
+      nombre,
+      tache: chemin.length === 0 ? taches.get(nom) ?? null : null
+    }))
+    .sort((a, b) => a.nom.localeCompare(b.nom, 'fr', {numeric: true}));
+  return {dossiers, fichiers: ici};
+}
+
+/** Le répertoire du dossier `chemin` dans l'arborescence ; null s'il n'existe plus. */
+export function repertoireA(racine: Repertoire | null | undefined, chemin: string[]): Repertoire | null {
+  let noeud: Repertoire | null | undefined = racine;
+  for (const nom of chemin) {
+    noeud = (noeud?.repertoires ?? []).find(r => r.type === 'directory' && String(r.fileName ?? '') === nom);
+  }
+  return noeud ?? null;
+}
+
+function commencePar(dossiers: string[], chemin: string[]): boolean {
+  return chemin.length <= dossiers.length && chemin.every((nom, i) => dossiers[i] === nom);
+}
+
 /** Icône Font Awesome d'un fichier, d'après son extension. */
 export function iconeFichier(extension: string): string {
   switch (extension) {
