@@ -365,6 +365,15 @@
   font-size: 12px;
   color: var(--c-text-muted);
 }
+
+/* Commentaires de la page du projet, dans la popup : sans la marge ni l'ombre de la page. */
+.commentaires ::ng-deep .task-page {
+  padding: 0;
+}
+.commentaires ::ng-deep .comments-section {
+  box-shadow: none;
+  border: 1px solid var(--c-border);
+}
 /* =========================================================================
    Sous-tâches
    ========================================================================= */

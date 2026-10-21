@@ -16,6 +16,7 @@ import { UserService } from '../../../../../services/user.service';
 import { AuthService } from '../../../../../services/auth.service';
 import { CustomFieldComponent } from '../../../../../common/custom-field/custom-field.component';
 import { ProjectGuard } from '../../../../../services/ProjectGuard';
+import { IssueApercuPopupService } from '../../../../../common/issue-apercu/issue-apercu-popup.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { MatMenuTrigger } from '@angular/material/menu';
@@ -189,6 +190,7 @@ export class IssueDetailsComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private authService: AuthService,
     protected projectGuard: ProjectGuard,
+    private apercuPopup: IssueApercuPopupService,
   ) {}
 
   // ─────────────────────────────────────────────
@@ -275,6 +277,13 @@ export class IssueDetailsComponent implements OnInit, OnDestroy {
 
   trackBySubtask(_index: number, sub: Issue): unknown {
     return sub?.id;
+  }
+
+  /** Clic sur une sous-tâche : son aperçu en popup (pièces jointes, commentaires), sans quitter le tableau de bord. */
+  ouvrirApercu(sub: Issue): void {
+    if (sub?.id != null) {
+      this.apercuPopup.ouvrir(sub);
+    }
   }
 
   /**

@@ -89,9 +89,10 @@
         <div class="subtasks-list" *ngIf="subtasks?.length > 0">
           <!-- trackBy : un rechargement de la liste (création, retour) garde les
                lignes en place au lieu de les reconstruire, avatars compris. -->
-          <div class="subtask-item"
+          <!-- Clic : l'aperçu de la sous-tâche en popup (IssueApercuPopupService) ; sa page reste à un clic, depuis la popup. -->
+          <div class="subtask-item" role="button" tabindex="0"
                *ngFor="let sub of subtasks; trackBy: trackBySubtask"
-               [routerLink]="['../subtask', sub.issueKey]"
+               (click)="ouvrirApercu(sub)" (keydown.enter)="ouvrirApercu(sub)"
                [ngClass]="'status-' + sub?.status?.displayName?.toLowerCase()?.replace(' ', '-')">
             <div class="subtask-left">
               <span class="subtask-type-icon"><app-type-tache [type]="sub.issueType"></app-type-tache></span>

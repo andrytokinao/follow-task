@@ -28,6 +28,7 @@ export const APERCU_ISSUE = gql`
       summary
       description
       creationDate
+      encodedPath
       currentCompletionPercent
       elapsedDurationMinutes
       status {

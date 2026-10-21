@@ -152,8 +152,14 @@
       <!-- Pièces jointes : demandées juste après l'issue, qui ne les attend pas. L'explorateur envoie,
            rafraîchit, supprime. -->
       <section class="section">
-        <p class="empty" *ngIf="piecesJointesEnCours"><i class="fas fa-spinner fa-spin"></i> Chargement des pièces jointes…</p>
+        <p class="empty" *ngIf="piecesJointes.enCours"><i class="fas fa-spinner fa-spin"></i> Chargement des pièces jointes…</p>
         <ng-container #hotePiecesJointes></ng-container>
+      </section>
+
+      <!-- Commentaires : demandés juste après l'issue, eux aussi. On y commente, fichiers joints compris. -->
+      <section class="section commentaires">
+        <p class="empty" *ngIf="commentaires.enCours"><i class="fas fa-spinner fa-spin"></i> Chargement des commentaires…</p>
+        <ng-container #hoteCommentaires></ng-container>
       </section>
     </div>
 

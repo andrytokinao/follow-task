@@ -80,6 +80,19 @@ this.apercuPopup.ouvrir(issue);      // ou ouvrir(issueId)</code></pre>
     <li>Passer à une autre issue dans la popup remplace l'explorateur : celui de la nouvelle issue vient après elle.</li>
   </ul>
 
+  <!-- ================================================================== -->
+  <h2 id="commentaires">6. Commentaires, et tableau de bord du projet</h2>
+  <ul>
+    <li>La popup montre aussi les commentaires de l'issue et permet d'en ajouter (texte, fichiers joints) : c'est le
+      composant de la page du projet (<code>comments-componets</code>), demandé juste après l'issue avec
+      « Chargement des commentaires… ». L'issue de l'aperçu porte désormais son <code>encodedPath</code>, où vont les fichiers joints.</li>
+    <li>Pièces jointes et commentaires passent par <code>SectionDifferee</code> (<code>common/issue-apercu/section-differee.ts</code>) :
+      import à la volée, création dans un emplacement de la popup, indication de chargement. Le composant des
+      commentaires est déclaré dans le module du projet, chargé à la demande : on importe le module avec lui.</li>
+    <li>Tableau de bord d'un projet (<code>/details</code>, <code>IssueDetailsComponent</code>) : un clic sur une
+      sous-tâche de la liste ouvre son aperçu en popup au lieu de mener à sa page ; la page reste accessible depuis la popup.</li>
+  </ul>
+
   <footer>follow-task · documents techniques</footer>
 </div>
 </body>
