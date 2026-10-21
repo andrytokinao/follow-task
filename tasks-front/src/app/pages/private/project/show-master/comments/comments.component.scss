@@ -243,8 +243,36 @@ p {
 }
 }
 
+/* Fichiers glissés au-dessus des commentaires : toute la zone les accepte. */
+.task-page.sur-zone .comments-section {
+  outline: 2px dashed #185FA5;
+  outline-offset: 2px;
+  background: #f5f9ff;
+}
+
+/* Trombone : joindre des fichiers, sans la grande zone de dépôt. Plus précis que
+   « .comment-actions-bar button », qui donne au bouton Commenter sa marge. */
+.comment-actions-bar .btn-joindre {
+  width: 32px;
+  height: 32px;
+  margin-right: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  font-size: 15px;
+  color: #667085;
+  cursor: pointer;
+
+  &:hover {
+    background: #f2f4f7;
+    color: #185FA5;
+  }
+}
+
 .comment-actions-bar {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
 
 button {

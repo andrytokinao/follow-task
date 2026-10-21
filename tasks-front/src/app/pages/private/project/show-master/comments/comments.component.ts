@@ -127,13 +127,25 @@ export class CommentsComponent {
   removeFile(index: number) {
     this.uploadings.splice(index, 1);
   }
+  /** Des fichiers survolent les commentaires : tout le composant s'éclaire. */
+  surZone = false;
+
   onDragOver(event: DragEvent): void {
     event.preventDefault();
-    console.log('Fichier au-dessus de la zone');
+    this.surZone = true;
+  }
+
+  /** Sortie du composant, pas d'un de ses enfants : le survol d'un enfant déclenche aussi dragleave. */
+  onDragLeave(event: DragEvent): void {
+    const cible = event.relatedTarget as Node | null;
+    if (!cible || !(event.currentTarget as HTMLElement).contains(cible)) {
+      this.surZone = false;
+    }
   }
 
   onDrop(event: DragEvent): void {
     event.preventDefault();
+    this.surZone = false;
     if (event.dataTransfer?.files) {
       this.filesToUploads = event.dataTransfer?.files;
       for (let i = 0; i < event.dataTransfer?.files.length; i++) {
