@@ -39,6 +39,7 @@ import {PlanningComponent} from "./planning/planning.component";
 import {PlanningModule} from "../planning/planning.module";
 import {FileListComponent} from "./file-list/file-list.component";
 import {DossierSourceComponent} from "./dossier-sources/dossier-source.component";
+import {PiecesJointesComponent} from "./pieces-jointes/pieces-jointes.component";
 import {CommentsComponent} from "./comments/comments.component";
 import {IssueChatsComponent} from "./issue-chats/issue-chats.component";
 import {QuillEditorComponent} from "ngx-quill";
@@ -78,6 +79,7 @@ import {IssueHistoryComponent} from "../../../../common/action-history/issue-his
     PlanningComponent,
     FileListComponent,
     DossierSourceComponent,
+    PiecesJointesComponent,
     CommentsComponent,
     IssueChatsComponent,
     DocumentsComponent,
@@ -90,7 +92,7 @@ import {IssueHistoryComponent} from "../../../../common/action-history/issue-his
     imports: [
         IssueMasterRoutingModule,
         AvatarComponent,
-        // Fichiers sources à plat (page sources-files).
+        // Fichiers à plat (menu Pièces jointes).
         ListeFichiersComponent,
         MatTabsModule,
         MatCardModule,

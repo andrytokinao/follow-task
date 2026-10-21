@@ -1,0 +1,4 @@
+<!-- Fichiers du projet et de ses sous-tâches : déposer un fichier ici l'envoie à la racine du projet. -->
+<app-liste-fichiers [issueId]="projet?.id" [taches]="taches" titre="Pièces jointes"
+                    (tacheChoisie)="ouvrirTache($event)">
+</app-liste-fichiers>

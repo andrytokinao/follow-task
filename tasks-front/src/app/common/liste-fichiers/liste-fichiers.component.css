@@ -144,6 +144,44 @@
 .lf-avatar {
   --avatar-size: 22px;
 }
+.lf-sans-auteur {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: 1px dashed #d0d5dd;
+  border-radius: 50%;
+  font-size: 10px;
+  color: #98a2b3;
+}
+
+/* Sous-tâche du fichier : une pastille, ouvre son aperçu. */
+.lf-tache {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 4px;
+  max-width: 180px;
+  height: 22px;
+  padding: 0 8px;
+  border: 1px solid #eaecf0;
+  border-radius: 11px;
+  background: #f9fafb;
+  font: inherit;
+  font-size: 11px;
+  color: #344054;
+  cursor: pointer;
+}
+.lf-tache:hover {
+  border-color: #185FA5;
+  color: #185FA5;
+}
+.lf-tache-titre {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .lf-date {
   flex-shrink: 0;
   width: 72px;

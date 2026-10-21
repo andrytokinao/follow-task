@@ -81,13 +81,32 @@
   </ol>
 
   <!-- ================================================================== -->
-  <h2 id="code">4. Fichiers</h2>
+  <h2 id="menu">4. Menu « Pièces jointes » du projet (2.0.37)</h2>
+  <ul>
+    <li>Nouveau menu <b>Pièces jointes</b> (<code>/issue/BATI-1/pieces-jointes</code>, <code>PiecesJointesComponent</code>) :
+      les fichiers du projet <i>et</i> de ses sous-tâches, à plat. Il remplace le menu « Dossier » ;
+      l'ancienne adresse <code>sources-files</code> y redirige, et le graphique des pièces jointes du tableau de bord y mène.</li>
+    <li>Le dossier d'une sous-tâche est rangé dans celui du projet, sous sa clé (<code>BATI-1/PLAN-19/…</code>) :
+      le premier dossier d'un fichier dit sa tâche (<code>tacheDuFichier</code>). La liste montre la tâche en pastille
+      (type et titre ; clic : son aperçu en popup) et le dossier dans celle-ci.</li>
+    <li>Par fichier : icône du type (PDF, Word, Excel, image…), photo de qui l'a envoyé (pointillé si déposé hors de
+      l'application), date ; clic sur le nom : la visionneuse en cours (<code>FileViewerService</code>).</li>
+    <li>Glisser-déposer ou « Envoyer » : à la racine du projet, l'auteur retenu par le serveur à l'envoi.</li>
+    <li><code>app-liste-fichiers</code> reste réutilisable : l'entrée <code>taches</code> est facultative, la sortie
+      <code>(tacheChoisie)</code> laisse l'hôte décider quoi ouvrir.</li>
+    <li>La vue par dossiers (créer, supprimer un dossier) reste dans l'onglet Pièces jointes d'une sous-tâche
+      (<code>app-explorateur-fichiers</code>).</li>
+  </ul>
+
+  <!-- ================================================================== -->
+  <h2 id="code">5. Fichiers</h2>
   <table>
     <tr><th>Fichier</th><th>Rôle</th></tr>
     <tr><td><code>common/liste-fichiers/fichiers-issue.ts</code></td><td>Fonctions pures : <code>aplatir</code>, <code>filtrer</code>, <code>iconeFichier</code></td></tr>
     <tr><td><code>common/liste-fichiers/fichiers-issue.service.ts</code></td><td>Cache par issue, requête partagée, rechargement forcé</td></tr>
     <tr><td><code>common/liste-fichiers/liste-fichiers.component.*</code></td><td>Composant standalone réutilisable</td></tr>
-    <tr><td><code>show-master/dossier-sources/*</code></td><td>Onglets Fichiers / Dossiers</td></tr>
+    <tr><td><code>show-master/pieces-jointes/*</code></td><td>Menu Pièces jointes du projet, avec ses sous-tâches</td></tr>
+    <tr><td><code>show-master/dossier-sources/*</code></td><td>Ancienne page (Fichiers / Dossiers), plus au menu</td></tr>
     <tr><td><code>common/issue-apercu/issue-apercu-dialog.component.ts</code></td><td>Pièces jointes de la popup : la liste à plat</td></tr>
     <tr><td><code>UploadedRepository</code> · <code>MetaUpload</code> · <code>DirectoryService</code></td><td>Auteur et date en une requête</td></tr>
   </table>

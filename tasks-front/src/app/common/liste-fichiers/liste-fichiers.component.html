@@ -42,20 +42,27 @@
     </p>
     <p class="lf-etat" *ngIf="charges.fichiers.length && !visibles.length">Aucun fichier ne correspond à « {{ recherche }} ».</p>
 
-    <!-- Un fichier : icône, nom (aperçu ou téléchargement), dossier, auteur, date ; téléchargement. -->
+    <!-- Un fichier : icône, nom (aperçu ou téléchargement), dossier ; sa sous-tâche ; qui l'a envoyé, quand ; téléchargement. -->
     <ul class="lf-liste" *ngIf="visibles.length">
-      <li class="lf-fichier" *ngFor="let f of visibles; trackBy: parChemin">
-        <i class="lf-type" [ngClass]="icone(f)"></i>
-        <button type="button" class="lf-corps" (click)="ouvrir(f)" (mouseenter)="precharger(f)"
-                [title]="aApercu(f) ? 'Aperçu de ' + f.nom : 'Télécharger ' + f.nom">
-          <span class="lf-nom">{{ f.nom }}</span>
-          <span class="lf-dossier" *ngIf="f.dossier"><i class="far fa-folder"></i> {{ f.dossier }}</span>
+      <li class="lf-fichier" *ngFor="let l of visibles; trackBy: parChemin">
+        <i class="lf-type" [ngClass]="icone(l.fichier)"></i>
+        <button type="button" class="lf-corps" (click)="ouvrir(l.fichier)" (mouseenter)="precharger(l.fichier)"
+                [title]="aApercu(l.fichier) ? 'Aperçu de ' + l.fichier.nom : 'Télécharger ' + l.fichier.nom">
+          <span class="lf-nom">{{ l.fichier.nom }}</span>
+          <span class="lf-dossier" *ngIf="l.dossier"><i class="far fa-folder"></i> {{ l.dossier }}</span>
         </button>
-        <span class="lf-auteur" *ngIf="f.uploadeur" [title]="f.uploadeur">
-          <app-avatar class="lf-avatar" [url]="photo(f)" [displayName]="f.uploadeur"></app-avatar>
+        <!-- Rangé chez une sous-tâche : la tâche, cliquable ; sinon, le projet lui-même. -->
+        <button type="button" class="lf-tache" *ngIf="l.tache as t" [title]="t.cle + ' · ' + t.titre" (click)="choisirTache(t)">
+          <app-type-tache [type]="t.issue.issueType"></app-type-tache>
+          <span class="lf-tache-titre">{{ t.titre || t.cle }}</span>
+        </button>
+        <span class="lf-auteur" [title]="l.fichier.uploadeur ? 'Envoyé par ' + l.fichier.uploadeur : 'Déposé hors de l\'application'">
+          <app-avatar class="lf-avatar" *ngIf="l.fichier.uploadeur; else sansAuteur"
+                      [url]="photo(l.fichier)" [displayName]="l.fichier.uploadeur"></app-avatar>
+          <ng-template #sansAuteur><span class="lf-sans-auteur"><i class="far fa-user"></i></span></ng-template>
         </span>
-        <span class="lf-date">{{ f.date ? (f.date | date:'dd/MM/yyyy') : '' }}</span>
-        <a class="lf-telecharger" [href]="lienTelechargement(f)" title="Télécharger" aria-label="Télécharger">
+        <span class="lf-date">{{ l.fichier.date ? (l.fichier.date | date:'dd/MM/yyyy') : '' }}</span>
+        <a class="lf-telecharger" [href]="lienTelechargement(l.fichier)" title="Télécharger" aria-label="Télécharger">
           <i class="fas fa-download"></i>
         </a>
       </li>

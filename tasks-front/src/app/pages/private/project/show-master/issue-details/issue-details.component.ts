@@ -350,9 +350,9 @@ export class IssueDetailsComponent implements OnInit, OnDestroy {
     this.renderFilesChart();
   }
 
-  /** Le graphique des pièces jointes mène au menu Dossier de cette issue. */
+  /** Le graphique des pièces jointes mène au menu Pièces jointes de cette issue. */
   openDossier(): void {
-    this.router.navigate(['../sources-files'], { relativeTo: this.route });
+    this.router.navigate(['../pieces-jointes'], { relativeTo: this.route });
   }
 
   /** Load per-user work hours */

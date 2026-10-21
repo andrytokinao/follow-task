@@ -6,7 +6,7 @@ import {UploadedFilesComponent} from "./uploaded-file/uploaded-files.component";
 import {IssueDetailsComponent} from "./issue-details/issue-details.component";
 import {PlanningComponent} from "./planning/planning.component";
 import {FileListComponent} from "./file-list/file-list.component";
-import {DossierSourceComponent} from "./dossier-sources/dossier-source.component";
+import {PiecesJointesComponent} from "./pieces-jointes/pieces-jointes.component";
 import {CommentsComponent} from "./comments/comments.component";
 import {IssueChatsComponent} from "./issue-chats/issue-chats.component";
 import {ExchangeDocumentsComponent} from "../exchange-documents/exchange-documents.component";
@@ -27,7 +27,10 @@ const masterRoute: Routes = [
         path: '',
         children: [
           { path: 'details', component: IssueDetailsComponent },
-          { path: 'sources-files', component: DossierSourceComponent },
+          // Fichiers du projet et de ses sous-tâches, à plat : remplace le menu « Dossier ».
+          { path: 'pieces-jointes', component: PiecesJointesComponent },
+          // Ancienne adresse du menu « Dossier » : les liens déjà partagés mènent aux pièces jointes.
+          { path: 'sources-files', redirectTo: 'pieces-jointes', pathMatch: 'full' },
           // Lien direct vers une sous-issue précise :
           // /working/{prefix}/issue/{parentKey}/subtask/{subtaskKey}
           // Enfants sans composant : passer d'une sous-tâche à l'autre ne
