@@ -1,0 +1,83 @@
+<form class="od" (ngSubmit)="enregistrer()">
+  <header class="od-entete">
+    <i [ngClass]="definition.icone" [style.color]="definition.couleur"></i>
+    <div>
+      <h2>{{ modification ? 'Modifier ' + definition.unOutil : 'Ajouter ' + definition.unOutil }}</h2>
+      <small>{{ definition.libelle }}<ng-container *ngIf="data.dossier && !modification"> › {{ data.dossier.nom }}</ng-container></small>
+    </div>
+  </header>
+
+  <div class="od-ligne" *ngIf="definition.version; else titreSeul">
+    <label class="od-champ">
+      <span>Titre</span>
+      <input name="titre" [(ngModel)]="titre" maxlength="200" required autocomplete="off" cdkFocusInitial
+             placeholder="Ex. Modèle de rapport PAR">
+    </label>
+    <label class="od-champ">
+      <span>Version <em>(facultatif)</em></span>
+      <input name="version" [(ngModel)]="version" maxlength="50" autocomplete="off" placeholder="Ex. 2.1">
+    </label>
+  </div>
+  <ng-template #titreSeul>
+    <label class="od-champ">
+      <span>Titre</span>
+      <input name="titre" [(ngModel)]="titre" maxlength="200" required autocomplete="off" cdkFocusInitial>
+    </label>
+  </ng-template>
+
+  <label class="od-champ" *ngIf="definition.lien !== 'absent'">
+    <span>Lien <em *ngIf="definition.lien === 'facultatif'">(facultatif)</em></span>
+    <input name="url" type="url" [(ngModel)]="url" maxlength="2000" autocomplete="off"
+           [required]="definition.lien === 'obligatoire'" placeholder="https://…">
+  </label>
+
+  <label class="od-champ">
+    <span>Description <em>(facultatif)</em></span>
+    <textarea name="description" [(ngModel)]="description" maxlength="10000"
+              placeholder="À quoi il sert, comment l'installer ou le remplir…"></textarea>
+  </label>
+
+  <div class="od-champ" *ngIf="!modification">
+    <span>Partage</span>
+    <app-choix-portee [(portee)]="portee" [espaceNom]="data.espaceNom" [verrouille]="verrouille"
+                      [desactive]="enCours || !!enregistre"></app-choix-portee>
+  </div>
+  <p class="od-aide" *ngIf="modification">
+    <i class="fas" [ngClass]="data.outil?.portee === 'ESPACE' ? 'fa-briefcase' : 'fa-globe'"></i>
+    {{ data.outil?.portee === 'ESPACE' ? 'Visible seulement depuis ' + (data.outil?.espaceNom || data.espaceNom) : 'Partagé avec tous les espaces' }}
+  </p>
+
+  <!-- Fichiers joints à la création, envoyés juste après l'enregistrement. -->
+  <div class="od-champ" *ngIf="definition.fichiers && !modification">
+    <span>Fichiers <em *ngIf="regle">({{ regle.extensions.join(', ') }} · {{ tailleLisible(regle.tailleMax) }} max.)</em></span>
+    <ul class="od-fichiers" *ngIf="envoi.envois.length">
+      <li class="od-fichier" *ngFor="let e of envoi.envois" [class.erreur]="e.statut === 'erreur'">
+        <i [ngClass]="icone(e)"></i>
+        <span class="od-nom" [title]="e.file.name">{{ e.file.name }}</span>
+        <small *ngIf="e.statut === 'attente'">{{ tailleLisible(e.file.size) }}</small>
+        <small *ngIf="e.statut === 'envoi'">{{ e.progression }} %</small>
+        <small *ngIf="e.statut === 'ok'"><i class="fas fa-check" style="color:#079455"></i></small>
+        <small *ngIf="e.statut === 'erreur'" [title]="e.message || ''">{{ e.message }}</small>
+        <button type="button" class="od-retirer" *ngIf="e.statut === 'attente' || e.statut === 'erreur'"
+                [disabled]="enCours" title="Retirer" aria-label="Retirer" (click)="envoi.retirer(e)">
+          <i class="fas fa-times"></i>
+        </button>
+      </li>
+    </ul>
+    <div class="od-depot" [class.sur-zone]="surZone" *ngIf="!enregistre" (click)="choix.click()"
+         (dragover)="survoler($event, true)" (dragleave)="survoler($event, false)" (drop)="deposer($event)">
+      <i class="fas fa-paperclip"></i> Joindre des fichiers, ou les glisser ici
+    </div>
+    <input type="file" multiple hidden #choix [accept]="accept" (change)="choisir(choix)">
+  </div>
+
+  <p class="od-erreur" *ngIf="erreur"><i class="fas fa-exclamation-triangle"></i> {{ erreur }}</p>
+
+  <footer class="od-pied">
+    <button type="button" class="od-btn" [disabled]="enCours" (click)="fermer()">{{ enregistre ? 'Fermer' : 'Annuler' }}</button>
+    <button type="submit" class="od-btn od-principal" *ngIf="!enregistre" [disabled]="!valide || enCours">
+      <i class="fas fa-spinner fa-spin" *ngIf="enCours"></i>
+      {{ modification ? 'Enregistrer' : 'Ajouter' }}
+    </button>
+  </footer>
+</form>
