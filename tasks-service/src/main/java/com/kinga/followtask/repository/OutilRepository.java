@@ -45,10 +45,14 @@ public interface OutilRepository extends JpaRepository<Outil, Long> {
     List<Outil> visiblesALaRacine(@Param("projectId") Long projectId,
                                   @Param("typeOutil") TypeOutil typeOutil);
 
-    /** Recherche a plat, tous types et dossiers confondus, sur le titre, la description et la version. */
+    /**
+     * Recherche a plat, tous types et dossiers confondus, sur le titre, la
+     * description et la version. La description est un LONGTEXT : Hibernate
+     * refuse lower() sur un @Lob, d'ou le cast en texte.
+     */
     @Query("select o" + DEPUIS + "where" + VISIBLE
             + " and (lower(o.titre) like lower(concat('%', :texte, '%'))"
-            + "      or lower(o.description) like lower(concat('%', :texte, '%'))"
+            + "      or lower(cast(o.description as String)) like lower(concat('%', :texte, '%'))"
             + "      or lower(o.version) like lower(concat('%', :texte, '%')))"
             + " order by lower(o.titre)")
     List<Outil> rechercher(@Param("projectId") Long projectId, @Param("texte") String texte);
