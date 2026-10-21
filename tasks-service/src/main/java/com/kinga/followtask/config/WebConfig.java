@@ -57,7 +57,16 @@ public class WebConfig implements WebMvcConfigurer {
 
         // Ressources statiques au nom stable : on les cache, mais sans
         // "immutable", pour qu'un remplacement soit repris apres expiration.
-        registry.addResourceHandler("/assets/**", "/*.woff2", "/*.woff", "/*.ttf", "/*.eot")
+        //
+        // Avec un motif en « /** », Spring ne cherche que la partie qui suit
+        // le prefixe : /assets/js/x.js devient js/x.js. L'emplacement de
+        // /assets/** doit donc etre static/assets/, et non static/ — sinon
+        // tout /assets repond 404, et le service worker, qui exige ces
+        // fichiers, ne s'installe plus (prod, 21/10/2026).
+        registry.addResourceHandler("/assets/**")
+                .addResourceLocations(STATIC + "assets/")
+                .setCacheControl(CacheControl.maxAge(30, TimeUnit.DAYS).cachePublic());
+        registry.addResourceHandler("/*.woff2", "/*.woff", "/*.ttf", "/*.eot")
                 .addResourceLocations(STATIC)
                 .setCacheControl(CacheControl.maxAge(30, TimeUnit.DAYS).cachePublic());
 
