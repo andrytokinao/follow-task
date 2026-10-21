@@ -19,6 +19,8 @@ import reset = _default.reset;
 })
 export class StatusFieldComponent implements OnInit , AfterViewInit{
   @Input() issue: Issue;
+  /** Faux : l'icône du statut seule, son nom au survol ; pour les listes serrées. */
+  @Input() afficherLibelle = true;
   @Output() onUpdateIssue = new EventEmitter<any>();
   statusDispo: Status[] = [];
   protected issueType: IssueType;

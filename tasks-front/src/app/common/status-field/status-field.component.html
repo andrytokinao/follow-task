@@ -1,8 +1,11 @@
-<span class="controle" [matMenuTriggerFor]="menu2" mat-icon-button [ngStyle]="statusStyle()">
-  <span  *ngIf="issue.status != null "><app-icone-view [icon]="issue.status.icone" [color]="issue.status.color"></app-icone-view> {{issue.status.displayName}} </span>
-<span *ngIf="issue.status == null " >No status </span>
-<i class="fas fa-chevron-down"></i>
+<span class="controle" [class.icone-seule]="!afficherLibelle" [matMenuTriggerFor]="menu2" mat-icon-button [ngStyle]="statusStyle()"
+      [title]="issue.status?.displayName || 'No status'">
+  <span  *ngIf="issue.status != null "><app-icone-view [icon]="issue.status.icone" [color]="issue.status.color"></app-icone-view><ng-container *ngIf="afficherLibelle"> {{issue.status.displayName}}</ng-container> </span>
+<span *ngIf="issue.status == null " ><ng-container *ngIf="afficherLibelle; else sansStatut">No status</ng-container></span>
+<i class="fas fa-chevron-down" *ngIf="afficherLibelle"></i>
 </span>
+<!-- Icône seule, sans statut : un rond vide plutôt qu'un texte. -->
+<ng-template #sansStatut><i class="far fa-circle"></i></ng-template>
 
 <mat-menu #menu2="matMenu">
   <div *ngIf="peutChangerStatut$ | async">

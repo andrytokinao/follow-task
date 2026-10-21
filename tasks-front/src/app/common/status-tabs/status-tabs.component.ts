@@ -23,6 +23,8 @@ export class StatusTabsComponent implements OnChanges {
   @Input() statuses: Status[] = [];
   @Input() issues: Issue[] = [];
   @Input() selectedId: number | null = null;
+  /** Vrai : l'icône et le nombre de chaque statut, son nom au survol ; un statut sans icône garde son nom. */
+  @Input() iconesSeules = false;
   @Output() selectedIdChange = new EventEmitter<number | null>();
 
   tabs: StatusTab[] = [];

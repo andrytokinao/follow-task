@@ -1,0 +1,9 @@
+<svg class="anneau" [class.termine]="pourcentage >= 100" [attr.width]="taille" [attr.height]="taille"
+     viewBox="0 0 24 24" role="img" [attr.aria-label]="'Avancement ' + pourcentage + ' %'">
+  <title>Avancement : {{ pourcentage }} %</title>
+  <circle class="fond" cx="12" cy="12" [attr.r]="rayon"></circle>
+  <!-- Le trait part du haut (rotation de -90°) et tourne dans le sens des aiguilles d'une montre. -->
+  <circle class="trait" cx="12" cy="12" [attr.r]="rayon"
+          [attr.stroke-dasharray]="circonference" [attr.stroke-dashoffset]="reste"></circle>
+  <text x="12" y="12">{{ pourcentage }}</text>
+</svg>

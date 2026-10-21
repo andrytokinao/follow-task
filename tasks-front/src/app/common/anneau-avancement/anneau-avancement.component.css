@@ -1,0 +1,36 @@
+:host {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.anneau {
+  display: block;
+}
+
+.fond,
+.trait {
+  fill: none;
+  stroke-width: 3;
+}
+.fond {
+  stroke: #eaecf0;
+}
+.trait {
+  stroke: #185FA5;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: 12px 12px;
+  transition: stroke-dashoffset .3s ease;
+}
+.termine .trait {
+  stroke: #067647;
+}
+
+text {
+  font-size: 8px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  fill: #344054;
+  text-anchor: middle;
+  dominant-baseline: central;
+}

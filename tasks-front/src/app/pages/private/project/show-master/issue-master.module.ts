@@ -67,6 +67,7 @@ import {TypeTacheComponent} from "../../../../common/type-tache/type-tache.compo
 import {StatutTacheComponent} from "../../../../common/statut-tache/statut-tache.component";
 import {AvatarComponent} from "../../../../common/avatar/avatar.component";
 import {ListeFichiersComponent} from "../../../../common/liste-fichiers/liste-fichiers.component";
+import {AnneauAvancementComponent} from "../../../../common/anneau-avancement/anneau-avancement.component";
 import {IssueHistoryComponent} from "../../../../common/action-history/issue-history/issue-history.component";
 
 
@@ -92,6 +93,8 @@ import {IssueHistoryComponent} from "../../../../common/action-history/issue-his
     imports: [
         IssueMasterRoutingModule,
         AvatarComponent,
+        // Avancement en anneau dans la liste des sous-tâches.
+        AnneauAvancementComponent,
         // Fichiers à plat (menu Pièces jointes).
         ListeFichiersComponent,
         MatTabsModule,

@@ -75,7 +75,7 @@
 
       <!-- Statuts : liste compacte seulement, le board les montrant déjà en colonnes -->
       <div class="sw-filters" *ngIf="!loadingSubtask && subtasks?.length > 0 && !showBoard">
-        <app-status-tabs [statuses]="statuses"
+        <app-status-tabs [statuses]="statuses" [iconesSeules]="true"
                          [issues]="assigneeFilteredTasks"
                          [selectedId]="statusFilter"
                          (selectedIdChange)="onStatusFilterChange($event)">
@@ -113,7 +113,8 @@
             <div class="task-row__status" [ngClass]="'task-row__status--' + getStatusKey(task)"
                  [style.background]="task.status?.color || null"
                  [style.border-color]="task.status?.color || null"></div>
-            <!-- Deux lignes : type, clé et titre ; puis les photos des assignés (sans libellé), l'avancement et le statut. -->
+            <!-- Une ligne : clé et titre ; au bout, statut (icône), avancement (anneau) et assignés.
+                 Un titre trop long passe sur une seconde ligne, pas plus. -->
             <div class="task-row__body">
               <div class="task-row__title">
                 <span class="task-row__key"><app-type-tache [type]="task.issueType"></app-type-tache> {{ task.issueKey }}</span>
@@ -123,12 +124,9 @@
                 </span>
               </div>
               <div class="task-row__meta">
+                <app-status-field [issue]="task" [afficherLibelle]="false" (onUpdateIssue)="onTaskStatusUpdated(task, $event)"></app-status-field>
+                <app-anneau-avancement [valeur]="task.currentCompletionPercent" [taille]="22"></app-anneau-avancement>
                 <app-assign-field [issue]="task" [maxAvatars]="2" (save)="refreshTasks()"></app-assign-field>
-                <span class="task-row__avancement" [title]="'Avancement : ' + (task.currentCompletionPercent || 0 | number:'1.0-0') + ' %'">
-                  <span class="task-row__barre"><span [style.width.%]="task.currentCompletionPercent || 0"></span></span>
-                  {{ task.currentCompletionPercent || 0 | number:'1.0-0' }} %
-                </span>
-                <app-status-field [issue]="task" (onUpdateIssue)="onTaskStatusUpdated(task, $event)"></app-status-field>
               </div>
             </div>
             <svg class="task-row__chevron" *ngIf="isMobile" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

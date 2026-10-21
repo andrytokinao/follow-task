@@ -367,33 +367,10 @@ app-issue-board {
   &--todo     { background: transparent; border: 1.5px solid #9ca3af; }
 }
 
-// Avancement de la tâche : petite barre et pourcentage, entre assignés et statut.
-.task-row__avancement {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  flex: 1;
-  min-width: 0;
-  max-width: 110px;
-  font-size: 10.5px;
-  font-variant-numeric: tabular-nums;
-  color: $c-muted;
-  white-space: nowrap;
-}
-.task-row__barre {
-  flex: 1;
-  height: 4px;
-  border-radius: 2px;
-  background: $c-border-lt;
-  overflow: hidden;
-
-  span {
-    display: block;
-    height: 100%;
-    max-width: 100%;
-    border-radius: 2px;
-    background: $c-success;
-  }
+// Le point de couleur s'aligne sur la rangée, plus sur la première de trois lignes.
+.task-row .task-row__status {
+  align-self: center;
+  margin-top: 0;
 }
 
 // Avatars de la liste : plus petits que dans le détail.
@@ -401,8 +378,16 @@ app-issue-board {
   --avatar-size: 20px;
 }
 
+// Une seule rangée : le titre prend la place, le bloc statut · avancement · assignés reste au bout.
 .task-row__body {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   min-width: 0;
+  flex: 1;
+}
+
+.task-row__title {
   flex: 1;
 }
 
@@ -417,21 +402,24 @@ app-issue-board {
   white-space: nowrap;
 }
 
+// Une ligne si le titre tient ; sinon deux, coupées au bout de la seconde.
 .task-row__sum {
   font-size: 12.5px;
   color: $c-text;
   font-weight: 500;
   line-height: 1.38;
-  white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  word-break: break-word;
 }
 
 .task-row__meta {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
-  justify-content: space-between;
-  margin-top: 2px;
   gap: 6px;
   font-size: 11px;
   color: $c-muted;

@@ -1,0 +1,10 @@
+/* Icône seule (afficherLibelle faux) : un bouton rond, le nom du statut au survol. */
+.controle.icone-seule {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 3px;
+  cursor: pointer;
+}
