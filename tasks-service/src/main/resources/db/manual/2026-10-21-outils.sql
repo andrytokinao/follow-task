@@ -12,6 +12,14 @@
 -- ce menu n'avait encore ete passe). Une table outil deja creee par la
 -- 2.0.40 la recoit d'Hibernate au demarrage (ddl-auto=update).
 --
+-- Cles etrangeres vers project et user_app : une cle etrangere exige une
+-- colonne identique a celle qu'elle designe (type, signe, et pour un
+-- VARCHAR jeu de caracteres et collation), sinon MariaDB refuse la table
+-- (« errno: 150 Foreign key constraint is incorrectly formed »). Sur une
+-- base ancienne, user_app.id peut etre en utf8mb3 quand la base est en
+-- utf8mb4 : les colonnes project_id et user_app_id reprennent donc la
+-- definition exacte lue dans information_schema.
+--
 -- Fichiers sur le disque : <app.storage.base-path>/outils/<id outil>/ ;
 -- le dossier est cree au premier envoi. Pensez a l'inclure dans les
 -- sauvegardes.
@@ -19,17 +27,48 @@
 
 
 -- ---------------------------------------------------------------------
+-- 0. Diagnostic, si une erreur 150 revient malgre tout : les deux tables
+--    designees doivent etre en InnoDB (MyISAM n'a pas de cles etrangeres).
+-- ---------------------------------------------------------------------
+-- SELECT table_name, engine, table_collation
+-- FROM information_schema.tables
+-- WHERE table_schema = DATABASE() AND table_name IN ('project', 'user_app');
+--
+-- SELECT table_name, column_name, column_type, character_set_name, collation_name
+-- FROM information_schema.columns
+-- WHERE table_schema = DATABASE() AND column_name = 'id'
+--   AND table_name IN ('project', 'user_app');
+
+
+-- ---------------------------------------------------------------------
+-- Definitions exactes des colonnes designees.
+-- ---------------------------------------------------------------------
+SET @type_project := (
+    SELECT column_type
+    FROM information_schema.columns
+    WHERE table_schema = DATABASE() AND table_name = 'project' AND column_name = 'id');
+
+SET @type_utilisateur := (
+    SELECT CONCAT(column_type,
+                  IF(character_set_name IS NULL, '',
+                     CONCAT(' CHARACTER SET ', character_set_name, ' COLLATE ', collation_name)))
+    FROM information_schema.columns
+    WHERE table_schema = DATABASE() AND table_name = 'user_app' AND column_name = 'id');
+
+
+-- ---------------------------------------------------------------------
 -- 1. Dossiers (sous un type d'outil, deux niveaux au plus).
 --    project_id null <=> portee = 'TOUS_LES_ESPACES'.
 -- ---------------------------------------------------------------------
+SET @sql := CONCAT('
 CREATE TABLE IF NOT EXISTS dossier_outil (
     id            BIGINT       NOT NULL AUTO_INCREMENT PRIMARY KEY,
     nom           VARCHAR(120) NOT NULL,
     type_outil    VARCHAR(30)  NOT NULL,
     portee        VARCHAR(20)  NOT NULL,
     parent_id     BIGINT       NULL,
-    project_id    BIGINT       NULL,
-    user_app_id   VARCHAR(255) NOT NULL,
+    project_id    ', @type_project, ' NULL,
+    user_app_id   ', @type_utilisateur, ' NOT NULL,
     date_creation DATETIME(6)  NOT NULL,
     deleted       BIT          NOT NULL DEFAULT 0,
     CONSTRAINT fk_dossier_outil_parent  FOREIGN KEY (parent_id)   REFERENCES dossier_outil (id),
@@ -37,7 +76,10 @@ CREATE TABLE IF NOT EXISTS dossier_outil (
     CONSTRAINT fk_dossier_outil_auteur  FOREIGN KEY (user_app_id) REFERENCES user_app (id),
     INDEX ix_dossier_outil_rangement (type_outil, parent_id),
     INDEX ix_dossier_outil_project (project_id)
-);
+) ENGINE = InnoDB');
+PREPARE creation FROM @sql;
+EXECUTE creation;
+DEALLOCATE PREPARE creation;
 
 
 -- ---------------------------------------------------------------------
@@ -45,6 +87,7 @@ CREATE TABLE IF NOT EXISTS dossier_outil (
 --    icone : classe Font Awesome choisie (« fab fa-windows ») ; null :
 --    l'icone du type.
 -- ---------------------------------------------------------------------
+SET @sql := CONCAT('
 CREATE TABLE IF NOT EXISTS outil (
     id                BIGINT        NOT NULL AUTO_INCREMENT PRIMARY KEY,
     titre             VARCHAR(200)  NOT NULL,
@@ -52,11 +95,11 @@ CREATE TABLE IF NOT EXISTS outil (
     type_outil        VARCHAR(30)   NOT NULL,
     portee            VARCHAR(20)   NOT NULL,
     dossier_id        BIGINT        NULL,
-    project_id        BIGINT        NULL,
+    project_id        ', @type_project, ' NULL,
     url               VARCHAR(2000) NULL,
     version           VARCHAR(50)   NULL,
     icone             VARCHAR(100)  NULL,
-    user_app_id       VARCHAR(255)  NOT NULL,
+    user_app_id       ', @type_utilisateur, ' NOT NULL,
     date_creation     DATETIME(6)   NOT NULL,
     date_modification DATETIME(6)   NULL,
     deleted           BIT           NOT NULL DEFAULT 0,
@@ -65,13 +108,17 @@ CREATE TABLE IF NOT EXISTS outil (
     CONSTRAINT fk_outil_auteur  FOREIGN KEY (user_app_id) REFERENCES user_app (id),
     INDEX ix_outil_rangement (type_outil, dossier_id),
     INDEX ix_outil_project (project_id)
-);
+) ENGINE = InnoDB');
+PREPARE creation FROM @sql;
+EXECUTE creation;
+DEALLOCATE PREPARE creation;
 
 
 -- ---------------------------------------------------------------------
 -- 3. Fichiers des outils. nom_stockage : nom genere sur le disque ;
 --    nom_origine : nom affiche et propose au telechargement.
 -- ---------------------------------------------------------------------
+SET @sql := CONCAT('
 CREATE TABLE IF NOT EXISTS outil_fichier (
     id           BIGINT       NOT NULL AUTO_INCREMENT PRIMARY KEY,
     outil_id     BIGINT       NOT NULL,
@@ -79,14 +126,17 @@ CREATE TABLE IF NOT EXISTS outil_fichier (
     nom_stockage VARCHAR(80)  NOT NULL,
     type_mime    VARCHAR(150) NULL,
     taille       BIGINT       NOT NULL,
-    user_app_id  VARCHAR(255) NOT NULL,
+    user_app_id  ', @type_utilisateur, ' NOT NULL,
     date_ajout   DATETIME(6)  NOT NULL,
     deleted      BIT          NOT NULL DEFAULT 0,
     CONSTRAINT uk_outil_fichier_nom_stockage UNIQUE (nom_stockage),
     CONSTRAINT fk_outil_fichier_outil  FOREIGN KEY (outil_id)    REFERENCES outil (id),
     CONSTRAINT fk_outil_fichier_auteur FOREIGN KEY (user_app_id) REFERENCES user_app (id),
     INDEX ix_outil_fichier_outil (outil_id)
-);
+) ENGINE = InnoDB');
+PREPARE creation FROM @sql;
+EXECUTE creation;
+DEALLOCATE PREPARE creation;
 
 
 -- ---------------------------------------------------------------------
