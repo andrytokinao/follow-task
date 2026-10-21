@@ -1,0 +1,291 @@
+.ou {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 16px;
+  padding: 16px;
+  border: 1px solid #eaecf0;
+  border-radius: 10px;
+  background: #fff;
+  font-size: 13px;
+  color: #101828;
+}
+
+/* ---- en-tête ---- */
+.ou-entete {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.ou-ariane {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+.ou-miette {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  color: #475467;
+  cursor: pointer;
+}
+.ou-miette:hover:not(.courante) {
+  background: #f2f4f7;
+  color: #185FA5;
+}
+.ou-miette.courante {
+  color: #101828;
+  cursor: default;
+}
+.ou-sep {
+  font-size: 10px;
+  color: #98a2b3;
+}
+.ou-partage {
+  font-size: 11px;
+  color: #175cd3;
+}
+.ou-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.ou-recherche {
+  width: 230px;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  font: inherit;
+}
+.ou-vues {
+  display: inline-flex;
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.ou-vues button {
+  width: 32px;
+  height: 30px;
+  border: 0;
+  background: #fff;
+  color: #667085;
+  cursor: pointer;
+}
+.ou-vues button.actif {
+  background: #f2f4f7;
+  color: #185FA5;
+}
+.ou-btn {
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+  font-weight: 600;
+  color: #344054;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.ou-btn:hover {
+  background: #f9fafb;
+}
+.ou-principal {
+  border-color: #185FA5;
+  background: #185FA5;
+  color: #fff;
+}
+.ou-principal:hover {
+  background: #144f8a;
+}
+
+.ou-etat {
+  margin: 0;
+  padding: 8px 0;
+  color: #667085;
+}
+.ou-erreur {
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #fef3f2;
+  color: #b42318;
+}
+
+/* ---- tuiles (vue dossiers) ---- */
+.ou-grille {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+.ou-tuile {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid #eaecf0;
+  border-radius: 10px;
+  background: #fff;
+  font: inherit;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+  transition: border-color .15s, box-shadow .15s;
+}
+.ou-tuile:hover,
+.ou-tuile:focus-visible {
+  border-color: #b2ccff;
+  box-shadow: 0 2px 6px rgba(16, 24, 40, .06);
+  outline: none;
+}
+.ou-grille .ou-tuile {
+  flex-direction: column;
+  justify-content: center;
+  min-height: 118px;
+  padding: 14px 10px 10px;
+  text-align: center;
+}
+.ou-nom {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+/* Dossier : l'icône dossier, avec l'emblème du type ou du partage. */
+.ou-icone-dossier {
+  position: relative;
+  display: inline-flex;
+  font-size: 22px;
+  color: #f4b740;
+}
+.ou-grille .ou-icone-dossier {
+  font-size: 46px;
+}
+.ou-embleme {
+  position: absolute;
+  right: -4px;
+  bottom: -2px;
+  padding: 2px;
+  border-radius: 50%;
+  background: #fff;
+  font-size: 10px;
+  color: #175cd3;
+}
+.ou-grille .ou-embleme {
+  font-size: 16px;
+}
+.ou-racine .ou-nom {
+  white-space: normal;
+}
+
+.ou-menu {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: #98a2b3;
+  cursor: pointer;
+  opacity: 0;
+}
+.ou-tuile:hover .ou-menu,
+.ou-menu:focus {
+  opacity: 1;
+}
+.ou-menu:hover {
+  background: #f2f4f7;
+  color: #344054;
+}
+
+/* Outil. */
+.ou-icone-outil {
+  display: inline-flex;
+  font-size: 22px;
+}
+.ou-grille .ou-icone-outil {
+  font-size: 36px;
+}
+.ou-texte {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  max-width: 100%;
+}
+.ou-detail,
+.ou-chemin {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  color: #667085;
+}
+.ou-portee {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: #667085;
+  white-space: nowrap;
+}
+.ou-portee.partage {
+  color: #175cd3;
+}
+.ou-grille .ou-outil .ou-portee {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+}
+.ou-direct {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  color: #475467;
+}
+.ou-direct:hover {
+  background: #f2f4f7;
+  color: #185FA5;
+}
+.ou-grille .ou-direct {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+}
+
+/* ---- lignes (vue liste) ---- */
+.ou-lignes {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.ou-lignes .ou-texte {
+  flex: 1;
+}
+.ou-lignes .ou-dossier .ou-nom {
+  flex: 1;
+}
+.ou-lignes .ou-menu {
+  position: static;
+  opacity: 1;
+}

@@ -1,0 +1,136 @@
+<div class="ou">
+
+  <!-- En-tête : fil d'Ariane, recherche, vue, création. -->
+  <header class="ou-entete">
+    <nav class="ou-ariane" aria-label="Emplacement">
+      <button type="button" class="ou-miette" [class.courante]="!type" (click)="type && remonter(null)">
+        <i class="fas fa-toolbox"></i> Outils
+      </button>
+      <ng-container *ngIf="type">
+        <i class="fas fa-chevron-right ou-sep"></i>
+        <button type="button" class="ou-miette" [class.courante]="!contenu?.dossier" (click)="remonter(undefined)">
+          {{ type.libelle }}
+        </button>
+        <ng-container *ngFor="let d of contenu?.chemin; let dernier = last; trackBy: parId">
+          <i class="fas fa-chevron-right ou-sep"></i>
+          <button type="button" class="ou-miette" [class.courante]="dernier" (click)="!dernier && remonter(d)">
+            <i class="fas fa-globe ou-partage" *ngIf="d.portee === 'TOUS_LES_ESPACES'" title="Partagé avec tous les espaces"></i>
+            {{ d.nom }}
+          </button>
+        </ng-container>
+      </ng-container>
+    </nav>
+
+    <div class="ou-actions">
+      <input class="ou-recherche" type="search" placeholder="Rechercher dans tous les outils" aria-label="Rechercher un outil"
+             [(ngModel)]="recherche" (ngModelChange)="chercher($event)">
+      <div class="ou-vues" role="group" aria-label="Affichage" *ngIf="type || resultats">
+        <button type="button" [class.actif]="vue === 'grille'" title="Dossiers" aria-label="Affichage en dossiers"
+                (click)="changerVue('grille')"><i class="fas fa-grip"></i></button>
+        <button type="button" [class.actif]="vue === 'liste'" title="Liste" aria-label="Affichage en liste"
+                (click)="changerVue('liste')"><i class="fas fa-list"></i></button>
+      </div>
+      <ng-container *ngIf="type && !resultats">
+        <button type="button" class="ou-btn" *ngIf="contenu?.peutCreerDossier" (click)="nouveauDossier()">
+          <i class="fas fa-folder-plus"></i> Nouveau dossier
+        </button>
+        <button type="button" class="ou-btn ou-principal" (click)="nouvelOutil()">
+          <i class="fas fa-plus"></i> Ajouter {{ type.unOutil }}
+        </button>
+      </ng-container>
+    </div>
+  </header>
+
+  <p class="ou-etat ou-erreur" *ngIf="erreur"><i class="fas fa-exclamation-triangle"></i> {{ erreur }}</p>
+
+  <!-- Recherche : tout à plat, avec le chemin. -->
+  <ng-container *ngIf="resultats; else navigation">
+    <p class="ou-etat" *ngIf="!resultats.length">Aucun outil ne correspond à « {{ recherche }} ».</p>
+    <ng-container *ngTemplateOutlet="listeOutils; context: {outils: resultats, avecChemin: true}"></ng-container>
+  </ng-container>
+
+  <ng-template #navigation>
+    <!-- Racine du menu : un dossier par type. -->
+    <div class="ou-grille" *ngIf="!type">
+      <button type="button" class="ou-tuile ou-dossier ou-racine" *ngFor="let t of types" (click)="ouvrirType(t)">
+        <span class="ou-icone-dossier">
+          <i class="fas fa-folder"></i>
+          <i class="ou-embleme" [ngClass]="t.icone" [style.color]="t.couleur"></i>
+        </span>
+        <span class="ou-nom">{{ t.libelle }}</span>
+      </button>
+    </div>
+
+    <ng-container *ngIf="type">
+      <p class="ou-etat" *ngIf="chargement && !contenu"><i class="fas fa-spinner fa-spin"></i> Ouverture du dossier…</p>
+      <p class="ou-etat" *ngIf="contenu && !contenu.dossiers.length && !contenu.outils.length">
+        Ce dossier est vide. Ajoutez {{ type.unOutil }}<ng-container *ngIf="contenu.peutCreerDossier"> ou créez un dossier</ng-container>.
+      </p>
+
+      <ng-container *ngIf="contenu">
+        <!-- Dossiers en tuiles, ou en lignes en vue liste. -->
+        <div [ngClass]="vue === 'grille' ? 'ou-grille' : 'ou-lignes'" *ngIf="contenu.dossiers.length">
+          <div class="ou-tuile ou-dossier" *ngFor="let d of contenu.dossiers; trackBy: parId"
+               (click)="ouvrirDossier(d)" (keydown.enter)="ouvrirDossier(d)" tabindex="0" role="button">
+            <span class="ou-icone-dossier">
+              <i class="fas fa-folder"></i>
+              <i class="fas fa-globe ou-embleme" *ngIf="d.portee === 'TOUS_LES_ESPACES'" title="Partagé avec tous les espaces"></i>
+            </span>
+            <span class="ou-nom" [title]="d.nom">{{ d.nom }}</span>
+            <span class="ou-portee" *ngIf="vue === 'liste'">
+              {{ d.portee === 'TOUS_LES_ESPACES' ? 'Tous les espaces' : d.espaceNom }}
+            </span>
+            <button type="button" class="ou-menu" *ngIf="d.modifiable" [matMenuTriggerFor]="menuDossier"
+                    title="Actions" aria-label="Actions sur le dossier" (click)="$event.stopPropagation()">
+              <i class="fas fa-ellipsis-vertical"></i>
+            </button>
+            <mat-menu #menuDossier="matMenu">
+              <button mat-menu-item (click)="renommerDossier(d)"><i class="fas fa-pen"></i>&nbsp; Renommer</button>
+              <button mat-menu-item (click)="supprimerDossier(d)"><i class="fas fa-trash-can"></i>&nbsp; Supprimer</button>
+            </mat-menu>
+          </div>
+        </div>
+
+        <ng-container *ngTemplateOutlet="listeOutils; context: {outils: contenu.outils, avecChemin: false}"></ng-container>
+      </ng-container>
+    </ng-container>
+  </ng-template>
+
+  <!-- Outils : tuiles ou lignes ; clic pour la fiche, action directe à droite. -->
+  <ng-template #listeOutils let-outils="outils" let-avecChemin="avecChemin">
+    <div [ngClass]="vue === 'grille' ? 'ou-grille' : 'ou-lignes'" *ngIf="outils.length">
+      <div class="ou-tuile ou-outil" *ngFor="let o of outils; trackBy: parId"
+           (click)="ouvrirFiche(o)" (keydown.enter)="ouvrirFiche(o)" tabindex="0" role="button">
+        <span class="ou-icone-outil" [style.color]="definitionDe(o)?.couleur">
+          <i [ngClass]="iconeOutil(o)"></i>
+        </span>
+        <span class="ou-texte">
+          <span class="ou-nom" [title]="o.titre">{{ o.titre }}</span>
+          <small class="ou-detail">
+            <ng-container *ngIf="o.version">v{{ o.version }}</ng-container>
+            <ng-container *ngIf="o.version && o.fichiers.length > 1"> · </ng-container>
+            <ng-container *ngIf="o.fichiers.length > 1">{{ o.fichiers.length }} fichiers</ng-container>
+          </small>
+          <small class="ou-chemin" *ngIf="avecChemin">
+            <i class="far fa-folder"></i> {{ libelleType(o) }}<ng-container *ngIf="o.chemin"> › {{ o.chemin }}</ng-container>
+          </small>
+        </span>
+        <span class="ou-portee" [class.partage]="o.portee === 'TOUS_LES_ESPACES'"
+              [title]="o.portee === 'TOUS_LES_ESPACES' ? 'Partagé avec tous les espaces' : 'Visible seulement depuis ' + o.espaceNom">
+          <i class="fas" [ngClass]="o.portee === 'TOUS_LES_ESPACES' ? 'fa-globe' : 'fa-briefcase'"></i>
+          <span *ngIf="vue === 'liste'">{{ o.portee === 'TOUS_LES_ESPACES' ? 'Tous les espaces' : o.espaceNom }}</span>
+        </span>
+        <ng-container [ngSwitch]="actionDirecte(o)">
+          <a class="ou-direct" *ngSwitchCase="'lien'" [href]="o.url" target="_blank" rel="noopener noreferrer"
+             title="Ouvrir le lien" aria-label="Ouvrir le lien" (click)="$event.stopPropagation()">
+            <i class="fas fa-arrow-up-right-from-square"></i>
+          </a>
+          <a class="ou-direct" *ngSwitchCase="'fichier'" [href]="urlFichierUnique(o)"
+             title="Télécharger" aria-label="Télécharger" (click)="$event.stopPropagation()">
+            <i class="fas fa-download"></i>
+          </a>
+        </ng-container>
+      </div>
+    </div>
+  </ng-template>
+</div>

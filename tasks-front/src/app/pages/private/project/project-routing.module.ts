@@ -50,6 +50,8 @@ const projectRoute: Routes = [
             path:'planning',data:{order:7, title:'Planning'},
             loadChildren:()=> import('./planning/planning.module').then(m=>m.PlanningModule),
           },
+          // Outils de l'espace (DT-019) : logiciels, modèles, tutoriels, liens, rangés en dossiers.
+          { path: 'outils', loadChildren: () => import('./outils/outils.module').then(m => m.OutilsModule), data:{order:9, title:'Outils'} },
           { path: 'document', component: DocumentComponent , resolve: { breadcrumb: ProjectBreadcrumbResolverService ,data:{order:8}  }, data:{title:'Documents'}},
           { path: 'config', loadChildren:()=> import("./config-project/config-project.module") .then(m=>m.ConfigProjectModule), data:{order:10, title:'Configuration'}},
           { path: 'issue/:parrentIssue', component: ShowMasterComponent , resolve:{parrentIssue:IssueResolverService , breadcrumb: ProjectBreadcrumbResolverService},data:{order:11}},
