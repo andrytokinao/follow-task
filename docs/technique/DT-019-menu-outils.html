@@ -185,8 +185,8 @@
     <li>Chaque outil, un logiciel surtout, peut avoir son icône : champ « Icône » du dialogue d'ajout et de
       modification, qui ouvre le sélecteur d'icônes de l'application (DT-010, toutes les icônes Font Awesome).
       « Icône du type » revient à celle de son type.</li>
-    <li>Colonne <code>outil.icone</code> (VARCHAR 100, nullable), ajoutée par Hibernate au démarrage ; script rejouable
-      <code>db/manual/2026-10-21-outil-icone.sql</code>. Champ <code>icone</code> de <code>Outil</code> et de
+    <li>Colonne <code>outil.icone</code> (VARCHAR 100, nullable), ajoutée par Hibernate au démarrage ; elle figure dans
+      le seul script du menu, <code>db/manual/2026-10-21-outils.sql</code>. Champ <code>icone</code> de <code>Outil</code> et de
       <code>OutilSaisie</code> (GraphQL).</li>
     <li>Le serveur n'accepte que des classes Font Awesome (<code>ValidationOutil.icone</code>, <code>IconeOutilTest</code>) :
       la valeur finit dans un attribut <code>class</code>.</li>

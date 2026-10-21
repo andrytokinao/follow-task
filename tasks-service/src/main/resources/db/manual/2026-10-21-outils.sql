@@ -8,6 +8,10 @@
 --
 -- Rejouable : CREATE TABLE IF NOT EXISTS.
 --
+-- 2.0.41 : colonne outil.icone, dans la table ci-dessous (aucun script de
+-- ce menu n'avait encore ete passe). Une table outil deja creee par la
+-- 2.0.40 la recoit d'Hibernate au demarrage (ddl-auto=update).
+--
 -- Fichiers sur le disque : <app.storage.base-path>/outils/<id outil>/ ;
 -- le dossier est cree au premier envoi. Pensez a l'inclure dans les
 -- sauvegardes.
@@ -38,6 +42,8 @@ CREATE TABLE IF NOT EXISTS dossier_outil (
 
 -- ---------------------------------------------------------------------
 -- 2. Outils (logiciel, modele de document, tutoriel video, lien).
+--    icone : classe Font Awesome choisie (« fab fa-windows ») ; null :
+--    l'icone du type.
 -- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS outil (
     id                BIGINT        NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -49,6 +55,7 @@ CREATE TABLE IF NOT EXISTS outil (
     project_id        BIGINT        NULL,
     url               VARCHAR(2000) NULL,
     version           VARCHAR(50)   NULL,
+    icone             VARCHAR(100)  NULL,
     user_app_id       VARCHAR(255)  NOT NULL,
     date_creation     DATETIME(6)   NOT NULL,
     date_modification DATETIME(6)   NULL,
