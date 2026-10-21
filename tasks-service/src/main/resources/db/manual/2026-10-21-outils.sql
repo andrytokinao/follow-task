@@ -1,16 +1,16 @@
 -- =====================================================================
 -- Menu Outils (DT-019) : dossiers, outils et fichiers des outils.
 --
--- Au demarrage de la 2.0.40, Hibernate (ddl-auto=update) cree ces tables,
--- VIDES : le menu Outils s'ouvre sur ses quatre dossiers racines (types).
--- Ce script sert aux bases ou ddl-auto est desactive (profils Liquibase),
--- ou pour verifier la structure attendue.
+-- A PASSER AVANT LE DEMARRAGE de la version qui apporte le menu Outils :
+-- sur le serveur, Hibernate (ddl-auto=update) ne cree pas ces tables (la
+-- raison n'est pas encore connue). Sans elles, le menu Outils echoue.
+-- Les tables sont creees VIDES : le menu s'ouvre sur ses quatre dossiers
+-- racines (types).
 --
 -- Rejouable : CREATE TABLE IF NOT EXISTS.
 --
 -- 2.0.41 : colonne outil.icone, dans la table ci-dessous (aucun script de
--- ce menu n'avait encore ete passe). Une table outil deja creee par la
--- 2.0.40 la recoit d'Hibernate au demarrage (ddl-auto=update).
+-- ce menu n'avait encore ete passe).
 --
 -- Cles etrangeres vers project et user_app : une cle etrangere exige une
 -- colonne identique a celle qu'elle designe (type, signe, et pour un

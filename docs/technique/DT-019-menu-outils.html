@@ -22,7 +22,8 @@
       <tr><td>Version de l'application</td><td>2.0.40</td></tr>
       <tr><td>Date</td><td>21 octobre 2026</td></tr>
       <tr><td>Commits liés</td><td>titres contenant « (DT-019) » : <code>git log --grep "DT-019"</code></td></tr>
-      <tr><td>Migration</td><td><code>db/manual/2026-10-21-outils.sql</code> (tables créées aussi par Hibernate au démarrage)</td></tr>
+      <tr><td>Migration</td><td><code>db/manual/2026-10-21-outils.sql</code>, <b>à passer avant le démarrage</b> : sur le serveur,
+        Hibernate (<code>ddl-auto=update</code>) ne crée pas les tables</td></tr>
     </table>
   </header>
 
@@ -185,8 +186,10 @@
     <li>Chaque outil, un logiciel surtout, peut avoir son icône : champ « Icône » du dialogue d'ajout et de
       modification, qui ouvre le sélecteur d'icônes de l'application (DT-010, toutes les icônes Font Awesome).
       « Icône du type » revient à celle de son type.</li>
-    <li>Colonne <code>outil.icone</code> (VARCHAR 100, nullable), ajoutée par Hibernate au démarrage ; elle figure dans
-      le seul script du menu, <code>db/manual/2026-10-21-outils.sql</code>. Champ <code>icone</code> de <code>Outil</code> et de
+    <li>Colonne <code>outil.icone</code> (VARCHAR 100, nullable), dans le seul script du menu,
+      <code>db/manual/2026-10-21-outils.sql</code> (Hibernate ne l'ajoute pas sur le serveur). Ses colonnes
+      <code>project_id</code> et <code>user_app_id</code> reprennent la définition exacte de <code>project.id</code> et
+      <code>user_app.id</code>, collation comprise : sinon MariaDB refuse les clés étrangères (erreur 150). Champ <code>icone</code> de <code>Outil</code> et de
       <code>OutilSaisie</code> (GraphQL).</li>
     <li>Le serveur n'accepte que des classes Font Awesome (<code>ValidationOutil.icone</code>, <code>IconeOutilTest</code>) :
       la valeur finit dans un attribut <code>class</code>.</li>
