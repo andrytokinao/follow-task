@@ -1,0 +1,30 @@
+<form class="od" (ngSubmit)="enregistrer()">
+  <header class="od-entete">
+    <i class="fas fa-folder-plus"></i>
+    <div>
+      <h2>{{ renommage ? 'Renommer le dossier' : 'Nouveau dossier' }}</h2>
+      <small>{{ typeLibelle }}<ng-container *ngIf="data.parent"> › {{ data.parent.nom }}</ng-container></small>
+    </div>
+  </header>
+
+  <label class="od-champ">
+    <span>Nom</span>
+    <input name="nom" [(ngModel)]="nom" maxlength="120" required autocomplete="off" cdkFocusInitial
+           placeholder="Ex. Bureautique, Sécurité…">
+  </label>
+
+  <div class="od-champ" *ngIf="!renommage">
+    <span>Partage</span>
+    <app-choix-portee [(portee)]="portee" [espaceNom]="data.espaceNom" [verrouille]="verrouille"></app-choix-portee>
+  </div>
+
+  <p class="od-erreur" *ngIf="erreur"><i class="fas fa-exclamation-triangle"></i> {{ erreur }}</p>
+
+  <footer class="od-pied">
+    <button type="button" class="od-btn" (click)="annuler()">Annuler</button>
+    <button type="submit" class="od-btn od-principal" [disabled]="!nom.trim() || enCours">
+      <i class="fas fa-spinner fa-spin" *ngIf="enCours"></i>
+      {{ renommage ? 'Renommer' : 'Créer le dossier' }}
+    </button>
+  </footer>
+</form>

@@ -1,0 +1,21 @@
+<div class="cp" role="radiogroup" aria-label="Partage">
+  <button type="button" class="cp-option" role="radio" [attr.aria-checked]="portee === 'ESPACE'"
+          [class.actif]="portee === 'ESPACE'" [disabled]="desactive" (click)="choisir('ESPACE')">
+    <i class="fas fa-briefcase"></i>
+    <span class="cp-texte">
+      <strong>Rester dans <em>{{ espaceNom }}</em></strong>
+      <small>Visible seulement depuis cet espace de travail</small>
+    </span>
+  </button>
+  <button type="button" class="cp-option" role="radio" [attr.aria-checked]="portee === 'TOUS_LES_ESPACES'"
+          [class.actif]="portee === 'TOUS_LES_ESPACES'" [disabled]="desactive || verrouille"
+          [title]="verrouille ? 'Le dossier parent est réservé à ' + espaceNom : ''"
+          (click)="choisir('TOUS_LES_ESPACES')">
+    <i class="fas fa-globe"></i>
+    <span class="cp-texte">
+      <strong>Partager avec tous les espaces</strong>
+      <small *ngIf="!verrouille">Visible depuis tous les espaces de travail</small>
+      <small *ngIf="verrouille">Impossible ici : le dossier parent est réservé à {{ espaceNom }}</small>
+    </span>
+  </button>
+</div>
