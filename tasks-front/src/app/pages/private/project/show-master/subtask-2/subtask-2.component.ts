@@ -412,7 +412,10 @@ export class Subtask2Component implements OnInit, AfterViewInit, OnDestroy {
     const trimmed = this.editSummaryValue.trim();
     if (!trimmed) { this.cancelEditSummary(); return; }
     this.selectedTask.summary = trimmed;
-    this.editingSummary = false;
+    this.selectedTask.summary = this.editSummaryValue;
+    this.issueService.saveIssue(this.selectedTask).subscribe( issue => {
+      this.editingSummary = false;
+    } )
   }
 
   cancelEditSummary(): void {
@@ -430,7 +433,9 @@ export class Subtask2Component implements OnInit, AfterViewInit, OnDestroy {
   saveDescription(): void {
     if (!this.selectedTask) return;
     this.selectedTask.description = this.editDescriptionValue;
-    this.editingDescription = false;
+    this.issueService.saveIssue(this.selectedTask).subscribe(resule => {
+      this.editingDescription = false;
+    } )
   }
 
   cancelEditDescription(): void {
