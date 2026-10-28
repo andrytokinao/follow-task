@@ -23,6 +23,10 @@ $r-xl: 16px;
 
 $mobile: 768px;
 
+// Largeur par défaut de la liste (desktop) et hauteur occupée par le reste de la page
+$list-width:     340px;
+$list-min-width: 260px;
+
 // ─── Scrollbar mixin (réutilisée partout : liste, détail, description) ──
 @mixin thin-scrollbar {
   scrollbar-width: thin;
@@ -49,6 +53,7 @@ $mobile: 768px;
 
 // ─── Wrapper ─────────────────────────────────────────────────────
 .sw {
+  --sw-page-offset: 120px; // ajuster selon la hauteur de l'en-tête de la page
   display: flex;
   flex: 1;
   min-height: 0;
@@ -61,6 +66,11 @@ $mobile: 768px;
   overflow: hidden;
   position: relative;
 
+  // Desktop : le composant remplit l'écran, plus de zone vide en bas
+  @media (min-width: $mobile) {
+    min-height: calc(100dvh - var(--sw-page-offset));
+  }
+
   @media (max-width: $mobile) {
     border-radius: 0;
     flex-direction: column;
@@ -69,8 +79,8 @@ $mobile: 768px;
 
 // ─── Liste ───────────────────────────────────────────────────────
 .sw-list {
-  width: 280px;
-  min-width: 200px;
+  width: $list-width;
+  min-width: $list-min-width;
   max-width: 50%;
   display: flex;
   flex-direction: column;
@@ -286,11 +296,12 @@ app-issue-board {
 }
 
 // ─── Scroll : LISTE des tâches (indépendant du détail) ────────────
+// Plus de max-height : la liste occupe toute la hauteur restante
+// et ne défile que si les tâches dépassent.
 .sw-list__scroll {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  max-height: 480px;
   -webkit-overflow-scrolling: touch;
   @include thin-scrollbar;
 }
