@@ -288,6 +288,7 @@ export class NewIssueFormComponent implements OnInit, AfterViewInit{
 
 
   loadNextKey() {
+    this.issueKey = "";
     this.issueService.getNextKeyParent(this.issueType.id,this.project.id).subscribe(key => {
       this.issueKey = key;
       this.isDesable = false;
