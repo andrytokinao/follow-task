@@ -12,11 +12,19 @@ import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
-
+import org.springframework.web.client.RestClientResponseException;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.MediaType;
+import org.springframework.web.client.RestClientResponseException;
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -179,10 +187,54 @@ public class WhatsAppMessagingService implements MessagingService, DirectMessage
 
     @Override
     public MessageDto sendMessage(String canalExternalId, SendMessageRequestDto request) {
-        throw new UnsupportedOperationException(
-                "sendMessage non encore implémenté pour WhatsApp — endpoint à confirmer côté app externe");
+        // canalExternalId = numéro WhatsApp du destinataire (ex: 261340000000)
+        if (request == null || request.getText() == null || request.getText().isBlank()) {
+            throw new IllegalArgumentException("Le texte du message est obligatoire");
+        }
+
+        if (request.getMediaUrl() != null && !request.getMediaUrl().isBlank()) {
+            throw new UnsupportedOperationException(
+                    "L'envoi de média n'est pas encore supporté pour WhatsApp");
+        }
+
+        WhatsAppSendRequest body = WhatsAppSendRequest.builder()
+                .to(canalExternalId)
+                .txt(request.getText())
+                .build();
+
+        try {
+            // Réponse brute (Map) car sa structure exacte n'est pas confirmée
+            Map<String, Object> response = client().post()
+                    .uri("/api/whatsapp/envoyer")
+                    .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                    .body(body)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<Map<String, Object>>() {});
+
+            return MessageDto.builder()
+                    .externalMessageId(extractMessageId(response))
+                    .canalExternalId(canalExternalId)
+                    .text(request.getText())
+                    .fromMe(true)
+                    .hasAttachment(false)
+                    .createdAt(LocalDateTime.now())
+                    .build();
+
+        } catch (RestClientResponseException e) {
+            throw new IllegalStateException(
+                    "Échec de l'envoi WhatsApp (HTTP " + e.getStatusCode().value() + ") : "
+                            + e.getResponseBodyAsString(), e);
+        }
     }
 
+    private String extractMessageId(Map<String, Object> response) {
+        if (response == null) return null;
+        for (String key : List.of("messageId", "id", "message_id")) {
+            Object value = response.get(key);
+            if (value != null) return value.toString();
+        }
+        return null;
+    }
     // ---------- Webhook ----------
 
     @Override
@@ -275,7 +327,7 @@ public class WhatsAppMessagingService implements MessagingService, DirectMessage
     }
 
     private void persistMessage(MessageDto dto) {
-        if (dto.getMediaType() == MediaType.SYSTEM) return;
+        if (dto.getMediaType() == com.kinga.followtask.service.messaging.dto.MediaType.SYSTEM) return;
         if (messageAppRepository.existsByExternalMessageId(dto.getExternalMessageId())) return;
 
         Canall canall = canallRepository.findByExternalId(dto.getCanalExternalId())
