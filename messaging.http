@@ -36,7 +36,7 @@ Accept: application/json
 ### 5. Envoyer un message texte
 ### (non supporté par le provider WhatsApp actuel -> attend 501 Not Implemented)
 ### =====================================================
-POST http://localhost:8081/api/messaging/WHATSAPP/canaux/120363427933097506@g.us/messages
+POST https://teams.thebest.mg/api/messaging/WHATSAPP/canaux/261341981972/messages
 Content-Type: application/json
 
 {
