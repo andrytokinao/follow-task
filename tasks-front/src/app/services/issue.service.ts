@@ -334,7 +334,6 @@ export class IssueService implements OnInit {
 
 
   saveIssue(issue:Issue) {
-    delete issue.completionPercent;
     delete issue.currentCompletionPercent;
     delete issue.attachments;
     delete issue.comments;
