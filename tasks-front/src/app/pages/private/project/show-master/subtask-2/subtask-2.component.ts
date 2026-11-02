@@ -39,6 +39,13 @@ interface DotColors { ring: string; track: string; text: string; }
 
 type TabKey = 'comments' | 'attachments' | 'planning' | 'history';
 
+/** Critères de tri proposés pour les sous-tâches. */
+export type SortKey = 'number' | 'type' | 'summary' | 'date';
+export type SortDir = 'asc' | 'desc';
+
+interface SortOption { key: SortKey; label: string; }
+interface SortPreference { key: SortKey; dir: SortDir; }
+
 @Component({
   selector: 'app-subtask-2',
   standalone: false,
@@ -108,10 +115,30 @@ export class Subtask2Component implements OnInit, AfterViewInit, OnDestroy {
   assigneeFilter: string[] = [];
   /** statut retenu dans la liste compacte ; null = tous */
   statusFilter: number | null = null;
-  /** sous-tâches passées au filtre d'assignés : alimente le board et les compteurs de statut */
+  /** sous-tâches passées au filtre d'assignés puis triées : alimente le board et les compteurs de statut */
   assigneeFilteredTasks: Issue[] = [];
-  /** puis au filtre de statut : lignes de la liste compacte */
+  /** puis au filtre de statut (l'ordre trié est conservé) : lignes de la liste compacte */
   visibleTasks: Issue[] = [];
+
+  // ── Tri ──────────────────────────────────────────────────────────
+  sortKey: SortKey = 'number';
+  sortDir: SortDir = 'asc';
+
+  readonly sortOptions: ReadonlyArray<SortOption> = [
+    { key: 'number',  label: 'Numéro' },
+    { key: 'type',    label: 'Type de tâche' },
+    { key: 'summary', label: 'Résumé' },
+    { key: 'date',    label: 'Date' },
+  ];
+
+  /** Comparateur partagé : insensible à la casse et aux accents, "2" < "10". */
+  private static readonly COLLATOR = new Intl.Collator('fr', { sensitivity: 'base', numeric: true });
+  private static readonly SORT_STORAGE_KEY = 'subtask2.sort';
+  /**
+   * Champs de date possibles sur Issue, du plus probable au moins probable.
+   * À réduire au seul nom réel une fois le type Issue confirmé.
+   */
+  private static readonly DATE_FIELDS = ['createdDate', 'creationDate', 'createdAt', 'created'] as const;
 
   // ── UI state ─────────────────────────────────────────────────────
   showDetail    = false;
@@ -169,6 +196,7 @@ export class Subtask2Component implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
     this.checkMobile();
+    this.restoreSortPreference();
     this.issueService.project$.subscribe(project => this.project = project);
     this.authService.getProfile().subscribe(res => this.profile = res);
     this.issueService.issueMaster$.subscribe(issue => {
@@ -180,6 +208,7 @@ export class Subtask2Component implements OnInit, AfterViewInit, OnDestroy {
       this.statuses = [];
       this.assigneeFilter = [];
       this.statusFilter = null;
+      // Le tri, lui, est conservé d'une demande à l'autre : c'est un choix d'affichage.
       this.applyFilters();
       this.events = [];
       this.groupedEvents = [];
@@ -412,10 +441,11 @@ export class Subtask2Component implements OnInit, AfterViewInit, OnDestroy {
     const trimmed = this.editSummaryValue.trim();
     if (!trimmed) { this.cancelEditSummary(); return; }
     this.selectedTask.summary = trimmed;
-    this.selectedTask.summary = this.editSummaryValue;
-    this.issueService.saveIssue(this.selectedTask).subscribe( issue => {
+    this.issueService.saveIssue(this.selectedTask).subscribe(() => {
       this.editingSummary = false;
-    } )
+      // Le résumé peut être le critère de tri : la ligne doit changer de place.
+      this.refreshTasks();
+    });
   }
 
   cancelEditSummary(): void {
@@ -433,9 +463,9 @@ export class Subtask2Component implements OnInit, AfterViewInit, OnDestroy {
   saveDescription(): void {
     if (!this.selectedTask) return;
     this.selectedTask.description = this.editDescriptionValue;
-    this.issueService.saveIssue(this.selectedTask).subscribe(resule => {
+    this.issueService.saveIssue(this.selectedTask).subscribe(() => {
       this.editingDescription = false;
-    } )
+    });
   }
 
   cancelEditDescription(): void {
@@ -497,9 +527,123 @@ export class Subtask2Component implements OnInit, AfterViewInit, OnDestroy {
     this.applyFilters();
   }
 
+  // ── Tri ──────────────────────────────────────────────────────────
+  onSortKeyChange(key: SortKey): void {
+    if (key === this.sortKey) return;
+    this.sortKey = key;
+    this.persistSortPreference();
+    this.applyFilters();
+  }
+
+  toggleSortDir(): void {
+    this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
+    this.persistSortPreference();
+    this.applyFilters();
+  }
+
+  /** Libellé du sens courant, pour le menu de tri. */
+  get sortDirLabel(): string {
+    return this.sortDir === 'asc' ? 'Ordre croissant' : 'Ordre décroissant';
+  }
+
+  /** Libellé du critère courant, pour l'infobulle du bouton de tri. */
+  get sortLabel(): string {
+    return this.sortOptions.find(option => option.key === this.sortKey)?.label ?? '';
+  }
+
+  /**
+   * Tri stable et sans effet de bord sur la liste source. Le numéro de la clé
+   * puis l'id servent de départage : deux tâches de même type, ou de même
+   * résumé, gardent toujours le même ordre d'un affichage à l'autre.
+   *
+   * Pour la date, les tâches sans date restent en fin de liste quel que soit
+   * le sens : les placer en tête en ordre décroissant n'aide personne.
+   */
+  private sortTasks(tasks: Issue[]): Issue[] {
+    const dir = this.sortDir === 'asc' ? 1 : -1;
+    const collator = Subtask2Component.COLLATOR;
+
+    return [...tasks].sort((a, b) => {
+      let result = 0;
+      switch (this.sortKey) {
+        case 'type':
+          result = dir * collator.compare(this.typeLabel(a), this.typeLabel(b));
+          break;
+        case 'summary':
+          result = dir * collator.compare(this.text(a.summary), this.text(b.summary));
+          break;
+        case 'date': {
+          const da = this.dateOf(a);
+          const db = this.dateOf(b);
+          if (da === null && db !== null) return 1;
+          if (da !== null && db === null) return -1;
+          result = da !== null && db !== null ? dir * (da - db) : 0;
+          break;
+        }
+        case 'number':
+        default:
+          result = dir * (this.keyNumber(a) - this.keyNumber(b));
+          break;
+      }
+      return result
+        || (this.keyNumber(a) - this.keyNumber(b))
+        || (Number(a.id) - Number(b.id))
+        || 0;
+    });
+  }
+
+  private text(value: unknown): string {
+    return (value ?? '').toString();
+  }
+
+  /** Nom du type de la tâche, avec repli sur displayName selon ce que renvoie l'API. */
+  private typeLabel(task: Issue): string {
+    const type = task.issueType as any;
+    return this.text(type?.name ?? type?.displayName);
+  }
+
+  /** "PRJ-42" → 42 : tri numérique, "PRJ-9" doit passer avant "PRJ-10". */
+  private keyNumber(task: Issue): number {
+    const match = /(\d+)\s*$/.exec(this.text(task.issueKey));
+    return match ? Number(match[1]) : 0;
+  }
+
+  /** Date de la tâche en millisecondes, null si absente ou invalide. */
+  private dateOf(task: Issue): number | null {
+    const source = task as any;
+    for (const field of Subtask2Component.DATE_FIELDS) {
+      const raw = source[field];
+      if (!raw) continue;
+      const time = new Date(raw).getTime();
+      if (!Number.isNaN(time)) return time;
+    }
+    return null;
+  }
+
+  private restoreSortPreference(): void {
+    try {
+      const raw = localStorage.getItem(Subtask2Component.SORT_STORAGE_KEY);
+      if (!raw) return;
+      const saved = JSON.parse(raw) as Partial<SortPreference>;
+      if (this.sortOptions.some(option => option.key === saved.key)) this.sortKey = saved.key as SortKey;
+      if (saved.dir === 'asc' || saved.dir === 'desc') this.sortDir = saved.dir;
+    } catch {
+      // stockage indisponible ou contenu illisible : on garde le tri par défaut
+    }
+  }
+
+  private persistSortPreference(): void {
+    try {
+      const preference: SortPreference = { key: this.sortKey, dir: this.sortDir };
+      localStorage.setItem(Subtask2Component.SORT_STORAGE_KEY, JSON.stringify(preference));
+    } catch {
+      // mode privé ou quota atteint : le tri reste valable pour la session
+    }
+  }
+
   /**
    * À appeler après une modification sur place d'une sous-tâche (statut,
-   * assignés) : le board et les compteurs ne se recalculent que sur un
+   * assignés, résumé) : le board et les compteurs ne se recalculent que sur un
    * changement de référence de la liste.
    */
   refreshTasks(): void {
@@ -526,8 +670,14 @@ export class Subtask2Component implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  /**
+   * Chaîne d'affichage : filtre d'assignés → tri → filtre de statut.
+   * Le filtre de statut ne fait que retirer des lignes, l'ordre trié est donc conservé.
+   */
   private applyFilters(): void {
-    this.assigneeFilteredTasks = filterByAssignees(this.subtasks, this.assigneeFilter);
+    this.assigneeFilteredTasks = this.sortTasks(
+      filterByAssignees(this.subtasks, this.assigneeFilter)
+    );
     this.visibleTasks = this.statusFilter == null
       ? this.assigneeFilteredTasks
       : this.assigneeFilteredTasks.filter(task => task.status?.id === this.statusFilter);
@@ -653,58 +803,58 @@ export class Subtask2Component implements OnInit, AfterViewInit, OnDestroy {
 
   // ── Grouped events ────────────────────────────────────────────────
   private buildGroupedEvents(events: EventApp[]): typeof this.groupedEvents {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const map = new Map<string, EventApp[]>();
-  for (const ev of events) {
-  const key = ev.start ? new Date(ev.start).toISOString().slice(0, 10) : 'no-date';
-  if (!map.has(key)) map.set(key, []);
-  map.get(key).push(ev);
-}
-return Array.from(map.entries()).map(([dateKey, evs]) => {
-  let label: string;
-  let isToday = false, isPast = false, isFuture = false;
-  if (dateKey === 'no-date') { label = 'Sans date'; isFuture = true; }
-  else {
-    const d = new Date(dateKey);
-    d.setHours(0, 0, 0, 0);
-    const diff = Math.round((d.getTime() - today.getTime()) / 86400000);
-    if (diff === 0)       { label = "Aujourd'hui"; isToday = true; }
-    else if (diff === 1)  { label = 'Demain';      isFuture = true; }
-    else if (diff === -1) { label = 'Hier';        isPast = true; }
-    else if (diff > 1)    { label = this.formatDateLabel(d); isFuture = true; }
-    else                  { label = this.formatDateLabel(d); isPast = true; }
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const map = new Map<string, EventApp[]>();
+    for (const ev of events) {
+      const key = ev.start ? new Date(ev.start).toISOString().slice(0, 10) : 'no-date';
+      if (!map.has(key)) map.set(key, []);
+      map.get(key).push(ev);
+    }
+    return Array.from(map.entries()).map(([dateKey, evs]) => {
+      let label: string;
+      let isToday = false, isPast = false, isFuture = false;
+      if (dateKey === 'no-date') { label = 'Sans date'; isFuture = true; }
+      else {
+        const d = new Date(dateKey);
+        d.setHours(0, 0, 0, 0);
+        const diff = Math.round((d.getTime() - today.getTime()) / 86400000);
+        if (diff === 0)       { label = "Aujourd'hui"; isToday = true; }
+        else if (diff === 1)  { label = 'Demain';      isFuture = true; }
+        else if (diff === -1) { label = 'Hier';        isPast = true; }
+        else if (diff > 1)    { label = this.formatDateLabel(d); isFuture = true; }
+        else                  { label = this.formatDateLabel(d); isPast = true; }
+      }
+      return { label, dateKey, events: evs, isToday, isPast, isFuture };
+    });
   }
-  return { label, dateKey, events: evs, isToday, isPast, isFuture };
-});
-}
 
-private formatDateLabel(d: Date): string {
-  return d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
-}
+  private formatDateLabel(d: Date): string {
+    return d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+  }
 
-// ── Resize ───────────────────────────────────────────────────────
-startResizing(event: MouseEvent): void {
-  if (this.isMobile) return;
-this.resizing = true;
-document.body.style.cursor = 'col-resize';
-}
+  // ── Resize ───────────────────────────────────────────────────────
+  startResizing(event: MouseEvent): void {
+    if (this.isMobile) return;
+    this.resizing = true;
+    document.body.style.cursor = 'col-resize';
+  }
 
-@HostListener('window:mousemove', ['$event'])
-onMouseMove(event: MouseEvent): void {
-  if (!this.resizing || this.isMobile) return;
-const list      = document.querySelector('.sw-list') as HTMLElement;
-const container = document.querySelector('.sw') as HTMLElement;
-if (!list || !container) return;
-const newWidth = event.clientX - container.getBoundingClientRect().left;
-if (newWidth > 200 && newWidth < container.getBoundingClientRect().width * 0.6) {
-  list.style.width = `${newWidth}px`;
-}
-}
+  @HostListener('window:mousemove', ['$event'])
+  onMouseMove(event: MouseEvent): void {
+    if (!this.resizing || this.isMobile) return;
+    const list      = document.querySelector('.sw-list') as HTMLElement;
+    const container = document.querySelector('.sw') as HTMLElement;
+    if (!list || !container) return;
+    const newWidth = event.clientX - container.getBoundingClientRect().left;
+    if (newWidth > 200 && newWidth < container.getBoundingClientRect().width * 0.6) {
+      list.style.width = `${newWidth}px`;
+    }
+  }
 
-@HostListener('window:mouseup')
-stopResizing(): void {
-  this.resizing = false;
-  document.body.style.cursor = 'default';
-}
+  @HostListener('window:mouseup')
+  stopResizing(): void {
+    this.resizing = false;
+    document.body.style.cursor = 'default';
+  }
 }
