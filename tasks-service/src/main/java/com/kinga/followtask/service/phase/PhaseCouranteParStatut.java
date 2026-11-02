@@ -34,7 +34,7 @@ public class PhaseCouranteParStatut implements ResolveurPhaseCourante {
         Issue projet = racine(tache);
         if (projet == null || projet.getStatus() == null || projet.getStatus().getId() == null)
             return Optional.empty();
-       if (projet.getPhase())
+       if (projet.getPhase() != null)
            projet.getPhase();
         Long projectId = projectId(projet);
         if (projectId == null)
