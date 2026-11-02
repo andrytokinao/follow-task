@@ -340,7 +340,6 @@ input  IssueInput {
     observerIds:[String]
     activeMemberships:[IssueMembershipInput]
     children:[IssueInput]
-    currentCompletionPercent
 }
 
 input IssueLabelsInput {

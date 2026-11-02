@@ -35,7 +35,7 @@ export class Issue {
   labels?:IssueLabels[];
   comments? :Comment[] = [];
   project?:Project;
-  completionPercent?:number;
+  CurrentCompletionPercent?:number;
   observerIds?:String[];
     attachments?: NgIterable<unknown> & NgIterable<any>;
   planning?: NgIterable<any> & NgIterable<any>;

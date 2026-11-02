@@ -464,16 +464,16 @@
         </div>
         <div
           class="issue-progress"
-          *ngIf="issue.completionPercent !== null && issue.completionPercent !== undefined"
+          *ngIf="issue.currentCompletionPercent !== null && issue.currentCompletionPercent !== undefined"
         >
           <div class="progress-track small">
             <div
               class="progress-fill"
-              [ngClass]="progressClass(issue.completionPercent)"
-              [style.width.%]="issue.completionPercent"
+              [ngClass]="progressClass(issue.currentCompletionPercent)"
+              [style.width.%]="issue.currentCompletionPercent"
             ></div>
           </div>
-          <span class="progress-label">{{ issue.completionPercent }}%</span>
+          <span class="progress-label">{{ issue.currentCompletionPercent }}%</span>
         </div>
         <i class="fas fa-spinner fa-spin" *ngIf="linkingIssueKey === issue.issueKey"></i>
         <i class="fas fa-plus" *ngIf="linkingIssueKey !== issue.issueKey"></i>
