@@ -45,6 +45,18 @@
         </app-assignee-filter>
 
         <div class="sw-list__actions">
+          <!-- Tri : agit sur le board comme sur la liste compacte -->
+          <button class="btn-icon btn-icon--ghost"
+                  *ngIf="!loadingSubtask && subtasks?.length > 1"
+                  [matMenuTriggerFor]="sortMenu"
+                  [attr.title]="'Trier — ' + sortLabel + ' (' + sortDirLabel.toLowerCase() + ')'"
+                  aria-label="Trier les tâches">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <line x1="4" y1="6" x2="20" y2="6"/>
+              <line x1="4" y1="12" x2="15" y2="12"/>
+              <line x1="4" y1="18" x2="10" y2="18"/>
+            </svg>
+          </button>
           <button class="btn-icon"
                   [matMenuTriggerFor]="createSubtask"
                   #createSubtaskTrigger="matMenuTrigger"
@@ -492,6 +504,15 @@
 </div>
 
 <!-- Menus -->
+<mat-menu #sortMenu="matMenu">
+  <button mat-menu-item *ngFor="let option of sortOptions" (click)="onSortKeyChange(option.key)">
+    <span>{{ option.label }}</span>
+    <span *ngIf="option.key === sortKey" aria-hidden="true"> ✓</span>
+  </button>
+  <button mat-menu-item (click)="toggleSortDir()">
+    <span>{{ sortDir === 'asc' ? '↑' : '↓' }} {{ sortDirLabel }}</span>
+  </button>
+</mat-menu>
 <mat-menu #createSubtask="matMenu">
   <app-new-issue-form [parentIssue]="parentIssue" [isMaster]="false" #newIssueForm (saved)="loadSubtask()" (termine)="closeCreateSubtaskMenu()"></app-new-issue-form>
 </mat-menu>
