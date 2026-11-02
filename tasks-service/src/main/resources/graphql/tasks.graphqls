@@ -638,6 +638,7 @@ input EventInput {
     issue: IssueInput
     project:ProjectInput,
     completionPercentage:Int
+    completionPercent:Int
     dateValue:CustomFieldValueInput
 
 }
