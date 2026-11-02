@@ -75,7 +75,6 @@ type  Issue {
     labels:[IssueLabels]
     observerIds:[String]
     elapsedDurationMinutes:Int
-    currentCompletionPercent:Int
     memberships:[IssueMembership]
     activeMemberships:[IssueMembership]
     assignes:[UserApp]
