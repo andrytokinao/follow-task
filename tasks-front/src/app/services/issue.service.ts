@@ -333,8 +333,18 @@ export class IssueService implements OnInit {
   }
 
 
-  saveIssue(issue: any) {
+  saveIssue(issue: Issue) {
     delete issue.encodedPath;
+      delete issue.completionPercent;
+      delete issue.currentCompletionPercent;
+      delete issue.attachments;
+      delete issue.comments;
+      delete  issue.activeMemberships;
+      delete issue.canalLinks;
+      delete issue.children;
+      delete issue.labels;
+      delete issue.assignes;
+      delete issue.messageLinks;
     if (issue.issueType.project == null || !issue.project) {
       issue.issueType.project = {
         id: this.projectSubject.value.id,
