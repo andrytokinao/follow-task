@@ -5,7 +5,8 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.3</version>
+        <!-- MIGRATION : 3.2.3 -> 3.5.x (requis par Spring AI 1.1.x) -->
+        <version>3.5.7</version>
         <relativePath/>
     </parent>
     <groupId>com.kinga</groupId>
@@ -15,14 +16,41 @@
     <description>paikady</description>
 
     <properties>
-        <java.version>19</java.version>
+        <!-- MIGRATION : 19 -> 21 (LTS) -->
+        <java.version>21</java.version>
         <spqr-starter.version>0.0.4</spqr-starter.version>
         <graphql-java-annotations.version>3.0.2</graphql-java-annotations.version>
+        <!-- Spring AI : branche 1.1.x compatible Spring Boot 3.5 -->
+        <spring-ai.version>1.1.2</spring-ai.version>
         <!-- Version de l'app mobile : changer ICI uniquement pour chaque release -->
         <app.version>1.1</app.version>
     </properties>
 
+    <!-- AJOUT : BOM Spring AI -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-bom</artifactId>
+                <version>${spring-ai.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
+        <!-- AJOUT : Spring AI (fournisseur Anthropic / Claude) -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-starter-model-anthropic</artifactId>
+        </dependency>
+        <!-- AJOUT : validation des requetes du controleur IA -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -43,33 +71,27 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-        <!-- Apache POI : lecture/ecriture des classeurs .xlsx (voir ExcelUtils).
-             La version est explicite, Spring Boot ne gere pas POI dans sa
-             nomenclature. poi-ooxml tire poi, xmlbeans et commons-compress. -->
+        <!-- Apache POI : lecture/ecriture des classeurs .xlsx (voir ExcelUtils). -->
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
             <version>5.2.5</version>
         </dependency>
-        <!-- Thymeleaf : rendu serveur du rapport par projet (templates/rapport-projet.html).
-             Le meme template alimente la page HTML et le PDF, ce qui garantit que les
-             deux restent identiques sans avoir a maintenir deux mises en page. -->
+        <!-- Thymeleaf : rendu serveur du rapport par projet (templates/rapport-projet.html). -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
-        <!-- OpenHTMLtoPDF : conversion du HTML rendu par Thymeleaf en PDF.
-             Le moteur attend du XHTML bien forme, d'ou les balises auto-fermantes
-             et le CSS sans flexbox ni degrade dans rapport-projet.html. -->
+        <!-- OpenHTMLtoPDF : conversion du HTML rendu par Thymeleaf en PDF. -->
         <dependency>
             <groupId>com.openhtmltopdf</groupId>
             <artifactId>openhtmltopdf-pdfbox</artifactId>
             <version>1.0.10</version>
         </dependency>
+        <!-- MIGRATION : version retiree, geree par le parent -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.30</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -85,10 +107,10 @@
             <groupId>io.r2dbc</groupId>
             <artifactId>r2dbc-h2</artifactId>
         </dependency>
+        <!-- MIGRATION : mysql:mysql-connector-java -> com.mysql:mysql-connector-j -->
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.33</version>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
         </dependency>
         <dependency>
             <groupId>io.asyncer</groupId>
@@ -100,11 +122,8 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-webflux</artifactId>
-            <scope>test</scope>
-        </dependency>
+        <!-- MIGRATION : spring-webflux (scope test) SUPPRIME : il aurait ecrase le scope
+             apporte par Spring AI et retire webflux de l'execution (streaming casse). -->
         <dependency>
             <groupId>org.springframework.graphql</groupId>
             <artifactId>spring-graphql-test</artifactId>
@@ -113,6 +132,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+            <version>4.13.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -137,6 +157,8 @@
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
         </dependency>
+        <!-- ATTENTION : Boot 3.5 embarque un graphql-java plus recent. Si erreur de
+             compatibilite au demarrage, monter cette version. -->
         <dependency>
             <groupId>com.graphql-java</groupId>
             <artifactId>graphql-java-extended-scalars</artifactId>
@@ -159,7 +181,7 @@
             <groupId>com.github.javafaker</groupId>
             <artifactId>javafaker</artifactId>
             <version>1.0.2</version>
-         <exclusions>
+            <exclusions>
                 <exclusion>
                     <groupId>org.yaml</groupId>
                     <artifactId>snakeyaml</artifactId>
@@ -185,7 +207,7 @@
     <build>
         <plugins>
 
-            <!-- 1. Resources plugin avec filtering pour injecter app.version dans application.properties -->
+            <!-- 1. Resources plugin avec filtering pour injecter app.version -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
@@ -202,11 +224,10 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
 
-            <!-- 3. Surefire tests -->
+            <!-- 3. Surefire : MIGRATION, version 2.22.0 retiree (geree par le parent) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.0</version>
             </plugin>
 
             <!-- 4. Frontend : install Node + npm install + ng build -->
@@ -220,8 +241,6 @@
                     <workingDirectory>../tasks-front</workingDirectory>
                 </configuration>
                 <executions>
-
-                    <!-- 4a. Installe Node et npm -->
                     <execution>
                         <id>install node and npm</id>
                         <goals>
@@ -229,8 +248,6 @@
                         </goals>
                         <phase>generate-resources</phase>
                     </execution>
-
-                    <!-- 4b. npm install avec legacy-peer-deps (pour compatibilite apollo-angular) -->
                     <execution>
                         <id>npm install</id>
                         <goals>
@@ -241,8 +258,6 @@
                         </configuration>
                         <phase>generate-resources</phase>
                     </execution>
-
-                    <!-- 4c. ng build -> genere les fichiers dans static/ -->
                     <execution>
                         <id>npm build</id>
                         <goals>
@@ -254,21 +269,15 @@
                         </configuration>
                         <phase>generate-resources</phase>
                     </execution>
-
-                    <!-- 4d. Capacitor sync Android : à faire manuellement en local
-                         avant chaque release Android (npx cap sync android) -->
-
                 </executions>
             </plugin>
 
-            <!-- 5. Antrun : zipper le build Angular pour OTA + générer l'APK Android -->
+            <!-- 5. Antrun : zipper le build Angular pour OTA -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>3.1.0</version>
                 <executions>
-
-                    <!-- 5a. Créer le ZIP OTA pour les mises à jour mobiles -->
                     <execution>
                         <id>zip-angular-for-ota</id>
                         <phase>prepare-package</phase>
@@ -282,27 +291,6 @@
                             </target>
                         </configuration>
                     </execution>
-
-                    <!-- 5b. Générer l'APK Android debug via Gradle (commenté) -->
-                    <!--<execution>
-                        <id>build-android-apk</id>
-                        <phase>package</phase>
-                        <goals><goal>run</goal></goals>
-                        <configuration>
-                            <target>
-                                <echo message="[Android] Generation APK debug..."/>
-                                <exec executable="cmd"
-                                      dir="${project.basedir}/../tasks-front/android"
-                                      failonerror="true">
-                                    <arg value="/c"/>
-                                    <arg value="gradlew.bat assembleDebug"/>
-                                </exec>
-                                <echo message="[Android] APK disponible dans :"/>
-                                <echo message="tasks-front/android/app/build/outputs/apk/debug/app-debug.apk"/>
-                            </target>
-                        </configuration>
-                    </execution>-->
-
                 </executions>
             </plugin>
 
@@ -333,16 +321,11 @@
             </build>
         </profile>
 
-        <!--
-            Profile pour générer uniquement le JAR sans APK ni Capacitor sync (CI/CD serveur).
-            Usage : mvn package -P server-only
-        -->
+        <!-- Usage : mvn package -P server-only (JAR sans APK ni Capacitor sync) -->
         <profile>
             <id>server-only</id>
             <build>
                 <plugins>
-
-                    <!-- Désactive le cap sync Android -->
                     <plugin>
                         <groupId>com.github.eirslett</groupId>
                         <artifactId>frontend-maven-plugin</artifactId>
@@ -353,8 +336,6 @@
                             </execution>
                         </executions>
                     </plugin>
-
-                    <!-- Désactive la génération de l'APK Android -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-antrun-plugin</artifactId>
@@ -365,10 +346,8 @@
                             </execution>
                         </executions>
                     </plugin>
-
                 </plugins>
             </build>
         </profile>
-
     </profiles>
 </project>
