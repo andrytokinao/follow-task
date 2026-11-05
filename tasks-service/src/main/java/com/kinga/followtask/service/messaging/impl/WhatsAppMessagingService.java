@@ -403,17 +403,22 @@ public class WhatsAppMessagingService implements MessagingService, DirectMessage
             upsertCanalContact(canall, contact);
         });
     }
-
-    private Contact upsertContact(MemberDto dto) {
+    @Override
+    public Contact upsertContact(MemberDto dto) {
         Contact contact = contactRepository
-                .findByTypeContactAndValue(TypeContact.WHATSAPP, dto.getExternalUserId())
+                .findByTypeContactAndExternalId(TypeContact.WHATSAPP, dto.getExternalUserId())
                 .orElseGet(Contact::new);
 
         contact.setTypeContact(TypeContact.WHATSAPP);
-        contact.setValue(dto.getExternalUserId());
+        contact.setExternalId(dto.getExternalUserId());
+        contact.setValue(extractPhone(dto.getExternalUserId()));
         contact.setDisplayName(dto.getDisplayName());
-        // userApp reste null tant qu'aucune résolution n'a été faite (numéro connu, etc.)
         return contactRepository.save(contact);
+    }
+
+    private String extractPhone(String jid) {
+        int at = jid.indexOf('@');
+        return at > 0 ? jid.substring(0, at) : jid;
     }
 
     private void upsertCanalContact(Canall canall, Contact contact) {

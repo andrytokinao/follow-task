@@ -8,7 +8,8 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "contact", indexes = {
-        @Index(name = "idx_contact_type_value", columnList = "type_contact, contact_value", unique = true)
+        @Index(name = "uk_contact_type_external", columnList = "type_contact, external_id", unique = true),
+        @Index(name = "idx_contact_value", columnList = "type_contact, contact_value")
 })
 @Data
 public class Contact {
@@ -17,18 +18,19 @@ public class Contact {
     private String id;
 
     @ManyToOne
-    @JoinColumn(name = "user_app_id", nullable = true)
+    @JoinColumn(name = "user_app_id")
     private UserApp userApp;
 
-    @Enumerated(value = EnumType.STRING)
+    @Enumerated(EnumType.STRING)
     @Column(name = "type_contact", nullable = false)
     private TypeContact typeContact;
 
-    /** Identifiant externe : jid WhatsApp, email, numéro de téléphone... */
-    @Column(name = "contact_value", nullable = false)
+    @Column(name = "external_id", nullable = false)
+    private String externalId;
+
+    @Column(name = "contact_value")
     private String value;
 
-    /** Nom affiché tel que renvoyé par le provider (pushName, nom du contact WhatsApp...). */
     @Column(name = "display_name")
     private String displayName;
 
@@ -42,13 +44,6 @@ public class Contact {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
+    @PrePersist protected void onCreate() { createdAt = LocalDateTime.now(); }
+    @PreUpdate  protected void onUpdate() { updatedAt = LocalDateTime.now(); }
 }

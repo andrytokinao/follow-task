@@ -11,7 +11,7 @@ import java.util.Optional;
 
 public interface ContactRepository extends JpaRepository<Contact, String> {
     Optional<Contact> findByTypeContactAndValue(TypeContact typeContact, String value);
-
+    Optional<Contact> findByTypeContactAndExternalId(TypeContact type, String externalId);
     /**
      * Contacts verifies d'un utilisateur pour un canal donne, du plus recent au
      * plus ancien. Requete ecrite plutot que derivee du nom : le champ

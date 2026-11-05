@@ -1,5 +1,6 @@
 package com.kinga.followtask.service.messaging;
 
+import com.kinga.followtask.entity.Contact;
 import com.kinga.followtask.entity.TypeCanal;
 import com.kinga.followtask.service.messaging.dto.*;
 
@@ -10,28 +11,44 @@ import java.util.List;
  */
 public interface MessagingService {
 
-    /** Type de canal géré par cette implémentation. */
+    /**
+     * Type de canal géré par cette implémentation.
+     */
     TypeCanal getType();
 
-    /** Liste les groupes/canaux disponibles côté provider externe. */
+    /**
+     * Liste les groupes/canaux disponibles côté provider externe.
+     */
     List<CanalDto> listCanaux();
 
-    /** Détail d'un canal (description, propriétaire, membres inclus). */
+    /**
+     * Détail d'un canal (description, propriétaire, membres inclus).
+     */
     CanalDto getCanal(String canalExternalId);
 
-    /** Liste des messages d'un canal, avec pagination/filtre date. */
+    /**
+     * Liste des messages d'un canal, avec pagination/filtre date.
+     */
     List<MessageDto> listMessages(String canalExternalId, MessageQueryDto query);
 
-    /** Récupère un message précis. */
+    /**
+     * Récupère un message précis.
+     */
     MessageDto getMessage(String externalMessageId);
 
-    /** Liste toutes les pièces jointes échangées dans un canal. */
+    /**
+     * Liste toutes les pièces jointes échangées dans un canal.
+     */
     List<AttachmentDto> listAttachments(String canalExternalId);
 
-    /** Télécharge le binaire d'une pièce jointe (déclenche le téléchargement si besoin). */
+    /**
+     * Télécharge le binaire d'une pièce jointe (déclenche le téléchargement si besoin).
+     */
     byte[] downloadAttachment(String externalAttachmentId);
 
-    /** Envoie un message sur le canal. */
+    /**
+     * Envoie un message sur le canal.
+     */
     MessageDto sendMessage(String canalExternalId, SendMessageRequestDto request);
 
     /**
@@ -45,5 +62,8 @@ public interface MessagingService {
      * externe et les upsert en base locale (Canall / MessageApp / CanalMember).
      */
     void syncAll();
+
     String getAvatarUrl(String externalId);
+
+    public Contact upsertContact(MemberDto dto);
 }
