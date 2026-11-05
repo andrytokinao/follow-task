@@ -130,4 +130,27 @@ public class WhatsAppMapper {
         if (epochSeconds == null) return null;
         return LocalDateTime.ofInstant(Instant.ofEpochSecond(epochSeconds), ZoneOffset.UTC);
     }
+    public WhatsAppRawMessage toRawMessage(WhatsAppIncomingWebhook w) {
+        WhatsAppRawMessage raw = new WhatsAppRawMessage();
+        raw.setId(w.messageId());
+        // En groupe, l'expéditeur réel est "participant" ; sinon c'est "expediteur".
+        raw.setDe(Boolean.TRUE.equals(w.estGroupe()) && w.participant() != null
+                ? w.participant() : w.expediteur());
+        raw.setDeMoi(false);                       // le gateway n'envoie jamais ses propres messages
+        raw.setNomExpediteur(w.nomExpediteur());
+        raw.setPushName(w.nomExpediteur());
+        raw.setTexte(w.texte());
+        raw.setType(w.type());
+        raw.setHorodatage(w.horodatage());
+
+        if (w.media() != null) {
+            WhatsAppRawMedia media = new WhatsAppRawMedia();   // adapte le nom de ta classe
+            media.setDisponible(true);
+            media.setTelecharge(Boolean.TRUE.equals(w.media().telecharge()));
+            media.setUrl(w.media().url());
+            media.setMimetype(w.media().mimetype());
+            raw.setMedia(media);
+        }
+        return raw;
+    }
 }

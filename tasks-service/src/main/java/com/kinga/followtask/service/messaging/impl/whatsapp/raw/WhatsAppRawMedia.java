@@ -6,4 +6,6 @@ import lombok.Data;
 public class WhatsAppRawMedia {
     private boolean disponible;
     private boolean telecharge;
+    private String url;
+    private String mimetype;
 }

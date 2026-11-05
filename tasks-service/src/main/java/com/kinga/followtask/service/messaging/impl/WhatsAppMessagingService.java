@@ -1,5 +1,8 @@
 package com.kinga.followtask.service.messaging.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kinga.followtask.entity.*;
 import com.kinga.followtask.entity.enumapp.TypeContact;
 import com.kinga.followtask.repository.*;
@@ -7,6 +10,7 @@ import com.kinga.followtask.service.messaging.DirectMessageReader;
 import com.kinga.followtask.service.messaging.MessagingService;
 import com.kinga.followtask.service.messaging.dto.*;
 import com.kinga.followtask.service.messaging.impl.whatsapp.WhatsAppMapper;
+import com.kinga.followtask.service.messaging.impl.whatsapp.WhatsAppWebhookAdapter;
 import com.kinga.followtask.service.messaging.impl.whatsapp.raw.*;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
@@ -16,12 +20,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientResponseException;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.MediaType;
-import org.springframework.web.client.RestClientResponseException;
-import java.time.Instant;
-import java.util.List;
-import java.util.Map;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +29,8 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class WhatsAppMessagingService implements MessagingService, DirectMessageReader {
-
+    private final ObjectMapper objectMapper;
+    private final WhatsAppWebhookAdapter adapter;
     private final CanalRepository canallRepository;
     private final MessagesRepository messageAppRepository;
     private final CanalMemberRepository canalMemberRepository;
@@ -40,6 +40,14 @@ public class WhatsAppMessagingService implements MessagingService, DirectMessage
     private final CanalContactRepository canalContactRepository;
     @Value("${messaging.whatsapp.base-url}")
     private String whatsAppListenerBaseUrl;
+
+    /**
+     * Si true, les messages des conversations privées sont aussi enregistrés (un canal est
+     * créé à la volée). Par défaut false : listCanaux() ne garde que les groupes, et les
+     * messages privés sont lus à la demande via recentDirectMessages().
+     */
+    @Value("${messaging.whatsapp.persist-direct-messages:false}")
+    private boolean persistDirectMessages;
 
     private RestClient client() {
         return RestClient.builder().baseUrl(whatsAppListenerBaseUrl).build();
@@ -66,7 +74,7 @@ public class WhatsAppMessagingService implements MessagingService, DirectMessage
 
         return response.getDonnees().stream()
                 .map(mapper::toCanalDto)
-                .filter(m->m.isGroup())
+                .filter(m -> m.isGroup())
                 .toList();
     }
 
@@ -229,19 +237,109 @@ public class WhatsAppMessagingService implements MessagingService, DirectMessage
 
     private String extractMessageId(Map<String, Object> response) {
         if (response == null) return null;
-        for (String key : List.of("messageId", "id", "message_id")) {
+        for (String key : List.of("messageId", "id", "message_id", "whatsappId")) {
             Object value = response.get(key);
             if (value != null) return value.toString();
         }
+        // /envoyer renvoie { succes, donnees: { whatsappId, ... } }
+        Object donnees = response.get("donnees");
+        if (donnees instanceof Map<?, ?> map) {
+            Object whatsappId = map.get("whatsappId");
+            if (whatsappId != null) return whatsappId.toString();
+        }
         return null;
     }
+
     // ---------- Webhook ----------
 
+    /**
+     * Le gateway envoie deux familles de payloads :
+     * <ul>
+     *   <li>{@code evenement} = message.recu / message.envoye : le webhook détaillé (canalId,
+     *       messageId WhatsApp, deMoi, traiteLe...). C'est le seul traité ici.</li>
+     *   <li>{@code event} = message.created / media.created : relais temps réel avec un
+     *       compteur interne et le JID téléphone. Doublon du précédent : ignoré, sinon chaque
+     *       message serait enregistré deux fois sous un canal qui n'existe pas.</li>
+     * </ul>
+     * Ne lève jamais d'exception vers le contrôleur : le gateway ne rejoue pas les webhooks.
+     */
     @Override
     public void handleIncomingEvent(Object rawPayload) {
-        log.info("Webhook WhatsApp reçu : {}", rawPayload);
-        // TODO: parser rawPayload -> WhatsAppRawMessage (ou format webhook dédié)
-        // puis mapper.toMessageDto(...) + persistMessage(dto)
+        try {
+            JsonNode node = objectMapper.valueToTree(rawPayload);
+
+            if (node.has("evenement")) {
+                WhatsAppIncomingWebhook webhook =
+                        objectMapper.treeToValue(node, WhatsAppIncomingWebhook.class);
+                handleWebhookMessage(webhook);
+            } else if (node.has("event")) {
+                log.debug("Événement temps réel ignoré (doublon du webhook détaillé) : {}",
+                        node.path("event").asText());
+            } else {
+                log.warn("Webhook WhatsApp : format inconnu : {}", node);
+            }
+        } catch (JsonProcessingException e) {
+            log.error("Webhook WhatsApp : payload invalide : {}", rawPayload, e);
+        } catch (RuntimeException e) {
+            log.error("Webhook WhatsApp : échec du traitement : {}", e.getMessage(), e);
+        }
+    }
+
+    private void handleWebhookMessage(WhatsAppIncomingWebhook w) {
+        if (StringUtils.isBlank(w.canalId()) || StringUtils.isBlank(w.messageId())) {
+            log.warn("Webhook WhatsApp ignoré : canalId ou messageId manquant ({})", w.evenement());
+            return;
+        }
+
+        boolean groupe = w.canalGroupe();
+        if (!groupe && !persistDirectMessages) {
+            log.debug("Message privé non enregistré (messaging.whatsapp.persist-direct-messages=false) : {}",
+                    w.messageId());
+            return;
+        }
+
+        // canalExternalId = canalId (clé réelle de la conversation dans le gateway),
+        // et non "expediteur" qui est le numéro de téléphone du contact.
+        trouverOuCreerCanal(w, groupe);
+
+        WhatsAppRawMessage raw = adapter.toRawMessage(w);
+        MessageDto dto = mapper.toMessageDto(raw, w.canalId());
+        persistMessage(dto);
+    }
+
+    /**
+     * Retrouve le canal par sa clé gateway, ou le crée. Synchronisé : deux webhooks
+     * simultanés d'un nouveau canal ne doivent pas le créer deux fois.
+     */
+    private synchronized Canall trouverOuCreerCanal(WhatsAppIncomingWebhook w, boolean groupe) {
+        return canallRepository.findByExternalId(w.canalId()).orElseGet(() -> {
+            CanalDto dto = null;
+
+            if (groupe) {
+                try {
+                    dto = getCanal(w.canalId());   // nom réel du groupe + membres
+                } catch (Exception e) {
+                    log.debug("Détail du groupe {} indisponible : {}", w.canalId(), e.getMessage());
+                }
+            }
+
+            if (dto == null) {
+                dto = CanalDto.builder()
+                        .externalId(w.canalId())
+                        .pseudo(groupe || StringUtils.isBlank(w.nomExpediteur()) ? w.canalId() : w.nomExpediteur())
+                        .typeCanal(TypeCanal.WHATSAPP.name())
+                        .isGroup(groupe)
+                        .build();
+            }
+
+            Canall canall = persistCanal(dto);
+            try {
+                persistMembers(dto);
+            } catch (Exception e) {
+                log.debug("Membres du canal {} non enregistrés : {}", w.canalId(), e.getMessage());
+            }
+            return canall;
+        });
     }
 
     // ---------- Synchronisation complète ----------
@@ -282,6 +380,7 @@ public class WhatsAppMessagingService implements MessagingService, DirectMessage
             return null;
         }
     }
+
     // ---------- Persistance locale (upsert) ----------
 
     private Canall persistCanal(CanalDto dto) {
@@ -292,7 +391,6 @@ public class WhatsAppMessagingService implements MessagingService, DirectMessage
         canall.setTypeCanal(TypeCanal.WHATSAPP);
         return canallRepository.save(canall);
     }
-
 
     private void persistMembers(CanalDto dto) {
         if (dto.getMembers() == null || dto.getMembers().isEmpty()) return;

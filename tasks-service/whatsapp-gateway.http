@@ -1,7 +1,7 @@
 ### ==============================================
 ### Variables d'environnement
 ### ==============================================
-@baseUrl = http://localhost:5000
+@baseUrl = http://10.66.66.12:5000
 @expediteur = 261340000000@s.whatsapp.net
 @numeroTest = 261340000000
 @groupeTest = 120363421247792703@g.us
@@ -188,17 +188,20 @@ GET {{baseUrl}}/api/whatsapp/conversations-history
 ###
 
 ### Lister les messages d'une conversation individuelle (limite par défaut = 50)
-GET {{baseUrl}}/api/whatsapp/conversations-history/120363427933097506@g.us/messages
+GET {{baseUrl}}/api/whatsapp/conversations-history/234243909275700@lid/messages
+
+###
+GET {{baseUrl}}/api/whatsapp/conversations-history/234243909275700@lid/messages
 
 ###
 
 ### Lister les messages avec une limite personnalisée
 GET {{baseUrl}}/api/whatsapp/conversations-history/120363427933097506@g.us/messages?limite=100
 
-###
+### 
 
 ### Lister les messages d'un groupe
-GET {{baseUrl}}/api/whatsapp/conversations-history/120363427933097506@g.us/messages
+GET {{baseUrl}}/api/whatsapp/conversations-history/234243909275700@lid/messages
 
 ###
 
@@ -227,7 +230,7 @@ GET {{baseUrl}}/api/whatsapp/groupes-history/000000000000-0000000000@g.us/membre
 
 ### Lister tous les fichiers/médias d'une conversation individuelle
 ### (mimetype, taille, nom original, légende, statut téléchargé) - aucun téléchargement déclenché
-GET {{baseUrl}}/api/whatsapp/conversations-history/120363427933097506@g.us/fichiers
+GET {{baseUrl}}/api/whatsapp/conversations-history/234243909275700@lid/fichiers
 
 ###
 
