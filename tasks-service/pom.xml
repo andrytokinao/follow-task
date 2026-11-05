@@ -13,7 +13,7 @@
     <artifactId>follow-task</artifactId>
     <version>3.0.1</version>
     <name>paikady</name>
-    <description>paikady</description>
+    <description>paikady</description>k
 
     <properties>
         <!-- MIGRATION : 19 -> 21 (LTS) -->
