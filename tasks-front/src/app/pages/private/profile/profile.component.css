@@ -846,9 +846,9 @@
 /* Idem pour la position haute du label : Material calcule
    translateY(-34.75px) pour 56 px, soit -(hauteur/2 + 6.75). */
 :host ::ng-deep .mat-mdc-text-field-wrapper.mdc-text-field--outlined
-  .mdc-notched-outline--upgraded .mdc-floating-label--float-above {
+.mdc-notched-outline--upgraded .mdc-floating-label--float-above {
   --mat-mdc-form-field-label-transform: translateY(calc(-1 * (var(--field-height) / 2 + 6.75px)))
-    scale(0.75);
+  scale(0.75);
 }
 
 /* Fond blanc + anneau de focus discret : le contour seul (1 px) manque de
@@ -862,7 +862,7 @@
   box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.12);
 }
 :host ::ng-deep .mat-mdc-form-field.mat-form-field-invalid.mat-focused
-  .mat-mdc-text-field-wrapper {
+.mat-mdc-text-field-wrapper {
   box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.12);
 }
 
@@ -1049,6 +1049,10 @@
 }
 
 .wa-expire { margin: 6px 0 0; }
+.wa-expire b {
+  color: var(--c-text, #111827);
+  font-variant-numeric: tabular-nums;
+}
 
 .wa-pending {
   display: flex;
@@ -1108,6 +1112,22 @@
 }
 
 .wa-code__copy mat-icon { font-size: 17px; width: 17px; height: 17px; }
+
+/* Lien wa.me : ouvre WhatsApp avec le code déjà saisi. C'est un <a>
+   stylé comme .btn-outline : on neutralise le soulignement et la couleur
+   de lien par défaut. */
+.wa-open {
+  align-self: flex-start;
+  text-decoration: none;
+  color: var(--c-text);
+}
+.wa-open:hover {
+  text-decoration: none;
+  color: var(--c-text);
+  background: var(--c-surface-muted);
+  border-color: var(--c-text-faint);
+}
+.wa-open mat-icon { font-size: 14px; width: 14px; height: 14px; }
 
 .wa-pending__actions {
   display: flex;

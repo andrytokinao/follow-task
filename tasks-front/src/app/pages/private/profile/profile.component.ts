@@ -6,6 +6,7 @@ import { supprimerTypename } from '../../../type/graphql.operations';
 import { environment } from '../../../../environments/environment';
 import { Observable } from 'rxjs';
 import { WhatsAppLinkState } from '../../../type/whatsapp-link';
+import { ContactsService, LinkCodeResponse } from '../../../services/contacts.service';
 
 function passwordMatchValidator(form: AbstractControl): ValidationErrors | null {
   const nw = form.get('newPassword')?.value;
@@ -39,7 +40,11 @@ type AddContactStep = 'search' | 'verify' | 'success';
 })
 export class ProfileComponent implements OnInit, OnDestroy {
 
-  constructor(private userService: UserService, private fb: FormBuilder) {}
+  constructor(
+    private userService: UserService,
+    private fb: FormBuilder,
+    private contactService: ContactsService
+  ) {}
 
   @ViewChild('photoInput') photoInputRef!: ElementRef<HTMLInputElement>;
 
@@ -128,6 +133,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     if (this.cooldownTimer) clearInterval(this.cooldownTimer);
     if (this.passwordStatusTimer) clearTimeout(this.passwordStatusTimer);
     this.stopWhatsAppWatch();
+    this.stopCodeCountdown();
   }
 
   // -----------------------------------------------------------------
@@ -145,6 +151,12 @@ export class ProfileComponent implements OnInit, OnDestroy {
   /** Nombre de vérifications automatiques restantes. */
   private whatsAppWatchLeft = 0;
 
+  /** Code de liaison renvoyé par le serveur (null = aucun code en cours). */
+  linkCode: LinkCodeResponse | null = null;
+  /** Secondes restantes avant l'expiration du code. */
+  codeSecondsLeft = 0;
+  private codeTimer: ReturnType<typeof setInterval> | null = null;
+
   /** Une vérification toutes les 5 s, pendant 2 min : au delà, bouton manuel. */
   private static readonly WATCH_INTERVAL_MS = 5000;
   private static readonly WATCH_MAX = 24;
@@ -156,11 +168,24 @@ export class ProfileComponent implements OnInit, OnDestroy {
     });
   }
 
-  /** Demande le code que l'utilisateur enverra lui-même au numéro du système. */
+  /**
+   * Demande le code (ou récupère celui encore valide) que l'utilisateur
+   * enverra lui-même au numéro du système.
+   */
   startWhatsAppLink(): void {
-    this.runWhatsApp(this.userService.startWhatsAppLink(), state => {
-      if (state.pendingCode) {
+    if (this.whatsAppBusy) return;
+    this.whatsAppBusy = true;
+    this.whatsAppError = null;
+    this.contactService.generateWhatsAppLinkCode().subscribe({
+      next: res => {
+        this.whatsAppBusy = false;
+        this.linkCode = res;
+        this.startCodeCountdown(res.expiresInSeconds);
         this.startWhatsAppWatch();
+      },
+      error: err => {
+        this.whatsAppBusy = false;
+        this.whatsAppError = this.messageErreur(err);
       }
     });
   }
@@ -179,7 +204,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Enchaînement commun aux trois actions : un seul appel en vol, l'état rendu
+   * Enchaînement commun aux actions : un seul appel en vol, l'état rendu
    * remplace l'état courant, l'erreur est affichée telle que le serveur la
    * formule.
    */
@@ -193,7 +218,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
         this.whatsAppBusy = false;
         this.whatsAppLink = state;
         if (state.linked) {
-          this.stopWhatsAppWatch();
+          this.onWhatsAppLinked();
         }
         apres?.(state);
       },
@@ -202,6 +227,14 @@ export class ProfileComponent implements OnInit, OnDestroy {
         this.whatsAppError = this.messageErreur(err);
       }
     });
+  }
+
+  /** Liaison terminée : on arrête surveillance et compte à rebours, le code n'a plus d'objet. */
+  private onWhatsAppLinked(): void {
+    this.stopWhatsAppWatch();
+    this.stopCodeCountdown();
+    this.linkCode = null;
+    this.codeSecondsLeft = 0;
   }
 
   /**
@@ -222,7 +255,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
       this.userService.verifyWhatsAppLink().subscribe({
         next: state => {
           this.whatsAppLink = state;
-          if (state.linked) this.stopWhatsAppWatch();
+          if (state.linked) this.onWhatsAppLinked();
         },
         // Une panne passagère ne doit pas afficher d'erreur pendant une
         // surveillance de fond : le bouton manuel reste disponible.
@@ -237,8 +270,54 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.whatsAppWatching = false;
   }
 
+  // ----- Compte à rebours du code -----
+
+  /**
+   * Le serveur renvoie une durée restante (et non une date) : le serveur et le
+   * navigateur n'ont pas le même fuseau, une date sans fuseau serait décalée.
+   */
+  private startCodeCountdown(seconds: number): void {
+    this.stopCodeCountdown();
+    const deadline = Date.now() + seconds * 1000;
+    const tick = () => {
+      if (this.whatsAppLink?.linked) { this.stopCodeCountdown(); return; }
+      const left = Math.ceil((deadline - Date.now()) / 1000);
+      if (left <= 0) { this.expireCode(); return; }
+      this.codeSecondsLeft = left;
+    };
+    tick();
+    this.codeTimer = setInterval(tick, 1000);
+  }
+
+  private stopCodeCountdown(): void {
+    if (this.codeTimer) clearInterval(this.codeTimer);
+    this.codeTimer = null;
+  }
+
+  private expireCode(): void {
+    this.stopCodeCountdown();
+    this.stopWhatsAppWatch();
+    this.linkCode = null;
+    this.codeSecondsLeft = 0;
+    this.whatsAppError = 'Le code a expiré. Générez-en un nouveau.';
+  }
+
+  /** "+261340568013", extrait du lien wa.me renvoyé par le serveur. */
+  get whatsAppServiceNumber(): string {
+    const m = this.linkCode?.link.match(/wa\.me\/(\d+)/);
+    return m ? '+' + m[1] : '';
+  }
+
+  /** "4:32" */
+  get codeCountdownLabel(): string {
+    const m = Math.floor(this.codeSecondsLeft / 60);
+    const s = this.codeSecondsLeft % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  }
+
+  /** Copie le code sans l'espace d'affichage ("483 921" devient "483921"). */
   copyWhatsAppCode(): void {
-    const code = this.whatsAppLink?.pendingCode;
+    const code = this.linkCode?.code.replace(/\s/g, '');
     if (!code || !navigator.clipboard) return;
     navigator.clipboard.writeText(code).then(() => {
       this.whatsAppCodeCopied = true;
@@ -248,8 +327,12 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   private messageErreur(err: any): string {
     const graphQl = err?.graphQLErrors?.length ? err.graphQLErrors[0].message : null;
-    return graphQl || err?.message || "L'opération a échoué.";
+    return graphQl || err?.error?.message || err?.message || "L'opération a échoué.";
   }
+
+  // -----------------------------------------------------------------
+  // Mot de passe
+  // -----------------------------------------------------------------
 
   get passwordStrength(): number {
     const pw: string = this.passwordForm.get('newPassword')?.value || '';

@@ -31,6 +31,7 @@ public interface LinkCodeRepository extends JpaRepository<LinkCode, String> {
     @Modifying
     @Query("update LinkCode l set l.usedAt = :now where l.id = :id and l.usedAt is null")
     int consumeById(@Param("id") String id, @Param("now") LocalDateTime now);
-
+    Optional<LinkCode> findFirstByUserApp_IdAndTypeContactAndUsedAtIsNullAndExpiresAtAfterOrderByExpiresAtDesc(
+            String userId, TypeContact type, LocalDateTime now);
     boolean existsByCodeAndUsedAtIsNullAndExpiresAtAfter(String code, LocalDateTime now);
 }

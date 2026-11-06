@@ -74,6 +74,7 @@ public class WebSecurityConfig {
                         .frameOptions(frameOptions -> frameOptions.sameOrigin())
                 )
                 .authorizeHttpRequests((requests) -> requests
+                        .requestMatchers(new AntPathRequestMatcher("/**", HttpMethod.OPTIONS.name())).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/ws/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/graphql")).authenticated()
                         .requestMatchers(new AntPathRequestMatcher("/api/init-user")).permitAll()
@@ -99,7 +100,6 @@ public class WebSecurityConfig {
                         .requestMatchers(new AntPathRequestMatcher("/new-password")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("//**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/working/**")).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher("/**", HttpMethod.OPTIONS.name())).permitAll()
                         .anyRequest().permitAll())
                 .formLogin(form -> form
                         .loginProcessingUrl(LOGIN_PROCESSING_URL)

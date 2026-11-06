@@ -158,7 +158,7 @@
             <ng-container *ngIf="!whatsAppLink.linked">
 
               <!-- Aucun code en cours -->
-              <div class="wa-start" *ngIf="!whatsAppLink.pendingCode">
+              <div class="wa-start" *ngIf="!linkCode">
                 <p class="wa-start__text">
                   Pour lier votre compte, vous enverrez vous-même un code depuis
                   votre WhatsApp. Nous ne vous écrirons jamais en premier.
@@ -170,20 +170,25 @@
               </div>
 
               <!-- Code en cours : la consigne d'envoi -->
-              <div class="wa-pending" *ngIf="whatsAppLink.pendingCode">
+              <div class="wa-pending" *ngIf="linkCode">
                 <p class="wa-pending__step">
                   <span class="wa-step-num">1</span>
                   Depuis votre WhatsApp, envoyez ce code au numéro
-                  <b class="wa-number">{{ whatsAppLink.serviceNumber }}</b>
+                  <b class="wa-number">{{ whatsAppServiceNumber }}</b>
                 </p>
 
                 <div class="wa-code">
-                  <code>{{ whatsAppLink.pendingCode }}</code>
+                  <code>{{ linkCode.code }}</code>
                   <button class="wa-code__copy" (click)="copyWhatsAppCode()"
                           [title]="whatsAppCodeCopied ? 'Copié' : 'Copier le code'">
                     <mat-icon>{{ whatsAppCodeCopied ? 'check' : 'content_copy' }}</mat-icon>
                   </button>
                 </div>
+
+                <!-- Ouvre WhatsApp avec le code déjà saisi (lien wa.me du serveur) -->
+                <a class="btn-outline wa-open" [href]="linkCode.link" target="_blank" rel="noopener">
+                  <mat-icon>open_in_new</mat-icon> Ouvrir WhatsApp avec le code
+                </a>
 
                 <p class="wa-pending__step">
                   <span class="wa-step-num">2</span>
@@ -199,8 +204,8 @@
                   </button>
                 </div>
 
-                <p class="wa-expire" *ngIf="whatsAppLink.codeValidityMinutes">
-                  Ce code est valable {{ whatsAppLink.codeValidityMinutes }} minutes.
+                <p class="wa-expire">
+                  Code valable encore <b>{{ codeCountdownLabel }}</b>.
                 </p>
               </div>
             </ng-container>

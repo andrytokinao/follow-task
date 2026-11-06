@@ -33,7 +33,7 @@ public class ContactLinkService {
     /** Le message doit contenir uniquement le code : "483921", "483 921" ou "483-921". */
     private static final Pattern CODE = Pattern.compile("^\\s*(\\d{3})[\\s-]?(\\d{3})\\s*$");
     private static final Duration TTL = Duration.ofMinutes(5);
-
+    private static final Duration RESTANT_MIN = Duration.ofSeconds(30);
     private static final int MAX_ECHECS = 5;
     private static final Duration FENETRE_ECHECS = Duration.ofHours(1);
     private static final int PURGE_SEUIL = 10_000;
@@ -91,9 +91,21 @@ public class ContactLinkService {
 
     // ---------- Génération ----------
 
+
+
     @Transactional
     public LinkCodeResponse generate(String userId, TypeContact type) {
         LocalDateTime now = LocalDateTime.now();
+
+        // Réutilise le code actif (non utilisé, non expiré) de cet utilisateur
+        Optional<LinkCode> existing = linkCodeRepository
+                .findFirstByUserApp_IdAndTypeContactAndUsedAtIsNullAndExpiresAtAfterOrderByExpiresAtDesc(
+                        userId, type, now.plus(RESTANT_MIN));
+        if (existing.isPresent()) {
+            return toResponse(existing.get());
+        }
+
+        // Sinon : invalide les restes (code presque expiré) et en crée un nouveau
         linkCodeRepository.invalidateActive(userId, type, now);
 
         String code;
@@ -109,8 +121,14 @@ public class ContactLinkService {
         lc.setExpiresAt(now.plus(TTL));
         linkCodeRepository.save(lc);
 
+        return toResponse(lc);
+    }
+
+    private LinkCodeResponse toResponse(LinkCode lc) {
+        String code = lc.getCode();
         String affichage = code.substring(0, 3) + " " + code.substring(3);   // "483 921"
-        String link = "https://wa.me/" + systemNumberProvider.get() + "?text=" + code;        return new LinkCodeResponse(affichage, lc.getExpiresAt(), link);
+        String link = "https://wa.me/" + systemNumberProvider.get() + "?text=" + code;
+        return new LinkCodeResponse(affichage, lc.getExpiresAt(), link);
     }
 
     // ---------- Consommation ----------
