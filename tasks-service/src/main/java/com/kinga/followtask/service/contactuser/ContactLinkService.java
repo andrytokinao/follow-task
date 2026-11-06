@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
 @Service
 @RequiredArgsConstructor
 public class ContactLinkService {
-
+    private final WhatsAppSystemNumberProvider systemNumberProvider;
     /** Le message doit contenir uniquement le code : "483921", "483 921" ou "483-921". */
     private static final Pattern CODE = Pattern.compile("^\\s*(\\d{3})[\\s-]?(\\d{3})\\s*$");
     private static final Duration TTL = Duration.ofMinutes(5);
@@ -51,8 +51,7 @@ public class ContactLinkService {
     private final ContactRepository contactRepository;
     private final UserAppRepository userAppRepository;
 
-    @Value("${messaging.whatsapp.system-number}")
-    private String systemNumber;
+
 
     // ---------- Détection ----------
 
@@ -111,8 +110,7 @@ public class ContactLinkService {
         linkCodeRepository.save(lc);
 
         String affichage = code.substring(0, 3) + " " + code.substring(3);   // "483 921"
-        String link = "https://wa.me/" + systemNumber + "?text=" + code;
-        return new LinkCodeResponse(affichage, lc.getExpiresAt(), link);
+        String link = "https://wa.me/" + systemNumberProvider.get() + "?text=" + code;        return new LinkCodeResponse(affichage, lc.getExpiresAt(), link);
     }
 
     // ---------- Consommation ----------
