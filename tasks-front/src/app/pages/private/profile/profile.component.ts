@@ -304,7 +304,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   /** "+261340568013", extrait du lien wa.me renvoyé par le serveur. */
   get whatsAppServiceNumber(): string {
-    const m = this.linkCode?.link.match(/wa\.me\/(\d+)/);
+    const m = this.linkCode?.link?.match(/wa\.me\/(\d+)/);
     return m ? '+' + m[1] : '';
   }
 

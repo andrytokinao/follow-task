@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import {map, Observable} from 'rxjs';
 import { environment } from '../../environments/environment';
 
 export interface LinkCodeResponse {
@@ -18,11 +18,20 @@ export class ContactsService {
 
   private readonly baseUrl: string = environment.apiURL;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+  }
 
   /** Génère le code de liaison, ou renvoie celui encore valide. */
   generateWhatsAppLinkCode(): Observable<LinkCodeResponse> {
-    return this.http.post<LinkCodeResponse>(
-      `${this.baseUrl}api/contacts/link-code`, null, { params: { type: 'WHATSAPP' } });
+    return this.http.post<any>(
+      `${this.baseUrl}api/contacts/link-code`, null, {params: {type: 'WHATSAPP'}}
+    ).pipe(
+      map(r => ({
+        code: r.code ?? r.affichage ?? '',
+        expiresAt: r.expiresAt ?? '',
+        link: r.waLink ?? '',
+        expiresInSeconds: Number(r.expiresInSeconds ?? 300),
+      }))
+    );
   }
 }
