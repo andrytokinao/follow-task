@@ -69,6 +69,7 @@ public class WebSecurityConfig {
                     }
                 });
         http
+                .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .headers(headers -> headers
                         .frameOptions(frameOptions -> frameOptions.sameOrigin())
