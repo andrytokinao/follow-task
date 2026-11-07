@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kinga.followtask.entity.*;
 import com.kinga.followtask.entity.enumapp.TypeContact;
 import com.kinga.followtask.repository.*;
+import com.kinga.followtask.service.contactuser.ContactDejaLieException;
+import com.kinga.followtask.service.contactuser.ContactLinkService;
 import com.kinga.followtask.service.messaging.DirectMessageReader;
 import com.kinga.followtask.service.messaging.MessagingService;
 import com.kinga.followtask.service.messaging.dto.*;
@@ -24,6 +26,7 @@ import org.springframework.web.client.RestClientResponseException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -35,7 +38,7 @@ public class WhatsAppMessagingService implements MessagingService, DirectMessage
     private final MessagesRepository messageAppRepository;
     private final CanalMemberRepository canalMemberRepository;
     private final WhatsAppMapper mapper;
-
+    private final ContactLinkService contactLinkService;
     private final ContactRepository contactRepository;
     private final CanalContactRepository canalContactRepository;
     @Value("${messaging.whatsapp.base-url}")
@@ -292,20 +295,25 @@ public class WhatsAppMessagingService implements MessagingService, DirectMessage
         }
 
         boolean groupe = w.canalGroupe();
+
+        // Liaison de compte : uniquement en message privé, jamais dans un groupe
+        if (!groupe && tryLinkAccount(w)) {
+            return;   // message de liaison : traité, ni enregistré ni transmis plus loin
+        }
+
         if (!groupe && !persistDirectMessages) {
             log.debug("Message privé non enregistré (messaging.whatsapp.persist-direct-messages=false) : {}",
                     w.messageId());
             return;
         }
 
-        // canalExternalId = canalId (clé réelle de la conversation dans le gateway),
-        // et non "expediteur" qui est le numéro de téléphone du contact.
         trouverOuCreerCanal(w, groupe);
 
         WhatsAppRawMessage raw = adapter.toRawMessage(w);
         MessageDto dto = mapper.toMessageDto(raw, w.canalId());
         persistMessage(dto);
     }
+
 
     /**
      * Retrouve le canal par sa clé gateway, ou le crée. Synchronisé : deux webhooks
@@ -446,5 +454,46 @@ public class WhatsAppMessagingService implements MessagingService, DirectMessage
         message.setCreated(dto.getCreatedAt() != null ? dto.getCreatedAt() : LocalDateTime.now());
         message.setFallbackSenderName(dto.getSenderDisplayName());
         messageAppRepository.save(message);
+    }
+    private boolean tryLinkAccount(WhatsAppIncomingWebhook w) {
+        String texte = w.texte();                       // à adapter au nom réel de l'accesseur
+        if (!contactLinkService.looksLikeCode(texte)) {
+            return false;
+        }
+
+        String externalId = w.canalId();
+        if (contactLinkService.tropDEchecs(externalId)) {
+            log.warn("Liaison WhatsApp : trop d'échecs pour {}, message ignoré", externalId);
+            return true;                                // ignoré sans réponse
+        }
+
+        try {
+            Optional<Contact> lie = contactLinkService.consumeFromMessage(
+                    TypeContact.WHATSAPP,
+                    texte,
+                    externalId,
+                    w.expediteur(),                     // numéro de téléphone du contact
+                    w.nomExpediteur());                 // nom affiché, à adapter
+
+            if (lie.isPresent()) {
+                log.info("Compte WhatsApp lié : {}", externalId);
+                repondre(externalId, "✅ Compte lié. Vous recevrez désormais vos notifications ici.");
+            } else {
+                repondre(externalId, "Code invalide ou expiré. Générez-en un nouveau depuis votre profil.");
+            }
+        } catch (ContactDejaLieException e) {
+            repondre(externalId, "Ce numéro WhatsApp est déjà lié à un autre compte.");
+        } catch (Exception e) {
+            log.error("Erreur de liaison WhatsApp pour {}", externalId, e);
+        }
+        return true;
+    }
+
+    private void repondre(String externalId, String s) {
+        SendMessageRequestDto request;
+        SendMessageRequestDto body = SendMessageRequestDto.builder()
+                .text(s)
+                .build();
+        sendMessage(externalId,body);
     }
 }
