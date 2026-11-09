@@ -78,9 +78,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   // ---------------------------------------------------------------------
 
   contacts: Contact[] = [
-    { id: 'c1', typeContact: 'WHATSAPP', value: '+261 34 12 345 67', label: 'Numéro principal', isVerified: true },
-    { id: 'c2', typeContact: 'EMAIL', value: 'rakoto.jean@example.com', label: 'Email professionnel', isVerified: true },
-    { id: 'c3', typeContact: 'WHATSAPP', value: '+261 32 98 765 43', label: null, isVerified: false },
+
   ];
 
   // Base fictive utilisée pour simuler l'autocomplétion
