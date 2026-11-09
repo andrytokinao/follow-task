@@ -35,8 +35,10 @@ public class Contact {
     private String displayName;
 
     private String label;
-    private boolean isPrimary;
-    private boolean isVerified;
+    @Column(name = "is_primary")
+    private boolean isPrimary = false;
+    @Column(name = "is_verified")
+    private boolean isVerified = false;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
