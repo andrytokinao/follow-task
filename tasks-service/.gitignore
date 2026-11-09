@@ -33,3 +33,4 @@ build/
 .vscode/
 /src/main/resources/static/3rdpartylicenses.txt
 /src/main/resources/static/
+/.env
