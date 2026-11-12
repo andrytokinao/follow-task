@@ -238,12 +238,14 @@ public class WhatsAppAssistantListener {
 
     private String helpNotLinked() {
         return "👋 Bonjour ! Je suis l'assistant de Paikady, mais je ne reconnais pas encore ce numéro.\n\n"
-                + "Pour lier votre WhatsApp à votre compte :\n"
-                + "1. Connectez-vous à Paikady : " + appUrl + "\n"
-                + "2. Dans l'application, demandez un code de liaison WhatsApp.\n"
-                + "3. Envoyez ce code ici, dans ce chat.\n\n"
-                + "Le code est valable peu de temps. Une fois lié, vous pourrez me poser vos questions "
-                + "et demander des actions directement ici.";
+                + "Pour lier votre WhatsApp à votre compte, c'est simple :\n\n"
+                + "1️⃣ Connectez-vous à l'application Paikady :\n"
+                + appUrl + "\n\n"
+                + "2️⃣ Ouvrez votre *Profil* (menu en haut à droite).\n\n"
+                + "3️⃣ Cliquez sur le bouton *Générer le code*.\n\n"
+                + "4️⃣ Envoyez-moi ici le code à 6 chiffres qui s'affiche (exemple : 483 921).\n\n"
+                + "⏱️ Le code est valable 5 minutes. S'il expire, générez-en simplement un nouveau.\n\n"
+                + "Une fois lié, vous pourrez me poser vos questions et demander des actions directement ici. ✅";
     }
 
     private String helpInactive() {
