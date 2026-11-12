@@ -32,6 +32,7 @@ public class MessagingDataServiceImpl implements MessagingDataService {
     private final IssueCanalLinkRepository canalLinkRepository;
     private final IssueMessageLinkRepository messageLinkRepository;
     private final IssueRepository issueRepository;
+    private final MessagingServiceRegistry messagingServiceRegistry;
 
     @Override
     public List<CanalDto> listCanaux(TypeCanal type) {
@@ -84,10 +85,7 @@ public class MessagingDataServiceImpl implements MessagingDataService {
 
     @Override
     public List<AttachmentDto> listAttachments(TypeCanal type, String canalExternalId) {
-        // métadonnées d'attachments non persistées pour l'instant (cf. décision précédente) :
-        // déléguer au provider live plutôt que renvoyer une liste vide trompeuse.
-        throw new UnsupportedOperationException(
-                "listAttachments doit encore passer par MessagingServiceRegistry.get(type) tant que les pièces jointes ne sont pas persistées");
+      return   messagingServiceRegistry.get(type).listAttachments(canalExternalId);
     }
 
     // ---------- Issue <-> Message ----------
