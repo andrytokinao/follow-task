@@ -13,12 +13,18 @@ import com.kinga.followtask.service.messaging.MessagingService;
 import com.kinga.followtask.service.messaging.dto.SendMessageRequestDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Component
@@ -28,31 +34,45 @@ public class WhatsAppAssistantListener {
     private static final Set<String> OUI = Set.of("oui", "eny", "ok", "confirmer", "yes");
     private static final Set<String> NON = Set.of("non", "tsia", "annuler", "no");
     private static final int MAX_LEN = 3500;
+    private static final int MAX_TRACKED = 5000;
 
     private final ContactRepository contactRepository;
     private final AssistantService assistant;
     private final PendingActionService pending;
-    private final java.util.List<MessagingService> messagingServices;
+    private final List<MessagingService> messagingServices;
+
+    @Value("${assistant.whatsapp.help-cooldown-hours:6}")
+    private long helpCooldownHours;
+
+    @Value("${app.public-url}")
+    private String appUrl;
+
+    /** Dernier message d'aide envoyé, par numéro. En mémoire : réinitialisé au redémarrage. */
+    private final Map<String, Instant> lastHelp = new ConcurrentHashMap<>();
 
     @Async
     @EventListener
     public void onDirectMessage(DirectMessageReceivedEvent e) {
         if (e.text() == null || e.text().isBlank()) return;
 
-        // 1. Qui est-ce ? Contact lié à un compte, sinon on reste silencieux
-        Optional<UserApp> user = contactRepository
-                .findByTypeContactAndExternalId(TypeContact.WHATSAPP, e.canalExternalId())
-                .map(Contact::getUserApp);
+        Optional<Contact> contact = contactRepository
+                .findByTypeContactAndExternalId(TypeContact.WHATSAPP, e.canalExternalId());
+        Optional<UserApp> user = contact.map(Contact::getUserApp);
 
-        if (user.isEmpty() || !user.get().estActif()) {
-            log.debug("Message WhatsApp ignoré : contact non lié ou compte inactif ({})", e.canalExternalId());
+        // Numéro inconnu, ou connu mais non lié à un compte : guider, sans appeler l'IA
+        if (user.isEmpty()) {
+            sendHelpOnce(e.canalExternalId(), helpNotLinked());
             return;
         }
-        String userId = user.get().getId();
+        // Compte désactivé : message neutre, sans détail
+        if (!user.get().estActif()) {
+            sendHelpOnce(e.canalExternalId(), helpInactive());
+            return;
+        }
 
+        String userId = user.get().getId();
         try {
-            String reply = handle(userId, e.text().trim());
-            send(e.canalExternalId(), reply);
+            send(e.canalExternalId(), handle(userId, e.text().trim()));
         } catch (Exception ex) {
             log.error("Assistant WhatsApp : échec pour user={}", userId, ex);
             send(e.canalExternalId(), "Désolé, une erreur est survenue. Réessayez dans un instant.");
@@ -62,7 +82,6 @@ public class WhatsAppAssistantListener {
     private String handle(String userId, String text) {
         String normalized = text.toLowerCase().replaceAll("[.!\\s]+$", "");
 
-        // 2. Réponse à un brouillon en attente (OUI / NON)
         var draft = pending.latestFor(userId);
         if (draft.isPresent() && OUI.contains(normalized)) {
             return assistant.confirm(userId, draft.get().id()).reply();
@@ -72,7 +91,6 @@ public class WhatsAppAssistantListener {
             return "D'accord, action annulée.";
         }
 
-        // 3. Conversation normale : mémoire propre à cet utilisateur sur WhatsApp
         ChatResponse r = assistant.chat(userId, "whatsapp", text);
         String reply = r.reply();
         if (r.pendingAction() != null) {
@@ -80,6 +98,42 @@ public class WhatsAppAssistantListener {
                     + "\nRépondez OUI pour confirmer ou NON pour annuler.";
         }
         return reply;
+    }
+
+    // ---------- Aide aux numéros non liés ----------
+
+    private String helpNotLinked() {
+        return "👋 Bonjour ! Je suis l'assistant de Paikady, mais je ne reconnais pas encore ce numéro.\n\n"
+                + "Pour lier votre WhatsApp à votre compte :\n"
+                + "1. Connectez-vous à Paikady : " + appUrl + "\n"
+                + "2. Dans l'application, demandez un code de liaison WhatsApp.\n"
+                + "3. Envoyez ce code ici, dans ce chat.\n\n"
+                + "Le code est valable peu de temps. Une fois lié, vous pourrez me poser vos questions "
+                + "et demander des actions directement ici.";
+    }
+
+    private String helpInactive() {
+        return "Ce compte n'est pas actif pour le moment. "
+                + "Contactez l'administrateur de l'application.";
+    }
+
+    /** Envoie le message d'aide au plus une fois par période et par numéro. */
+    private void sendHelpOnce(String canalExternalId, String message) {
+        Instant now = Instant.now();
+        Instant previous = lastHelp.get(canalExternalId);
+        if (previous != null
+                && Duration.between(previous, now).toHours() < helpCooldownHours) {
+            log.debug("Aide déjà envoyée récemment à {}, message ignoré", canalExternalId);
+            return;
+        }
+        if (lastHelp.size() > MAX_TRACKED) {
+            // Garde-fou mémoire : purge des entrées expirées
+            lastHelp.entrySet().removeIf(en ->
+                    Duration.between(en.getValue(), now).toHours() >= helpCooldownHours);
+        }
+        lastHelp.put(canalExternalId, now);
+        send(canalExternalId, message);
+        log.info("Message d'aide à la liaison envoyé à {}", canalExternalId);
     }
 
     private void send(String canalExternalId, String text) {
