@@ -191,7 +191,7 @@ GET {{baseUrl}}/api/whatsapp/conversations-history
 GET {{baseUrl}}/api/whatsapp/conversations-history/234243909275700@lid/messages
 
 ###
-GET {{baseUrl}}/api/whatsapp/conversations-history/234243909275700@lid/messages
+GET {{baseUrl}}/api/whatsapp/conversations-history/120363426841520639@g.us/messages
 
 ###
 
@@ -211,7 +211,7 @@ GET {{baseUrl}}/api/whatsapp/conversations-history/120363427933097506@g.us/messa
 ###
 
 ### Lister les membres d'un groupe
-GET {{baseUrl}}/api/whatsapp/groupes-history/120363427933097506@g.us/membres
+GET {{baseUrl}}/api/whatsapp/groupes-history/120363426841520639@g.us/membres
 
 ###
 
@@ -230,7 +230,7 @@ GET {{baseUrl}}/api/whatsapp/groupes-history/000000000000-0000000000@g.us/membre
 
 ### Lister tous les fichiers/médias d'une conversation individuelle
 ### (mimetype, taille, nom original, légende, statut téléchargé) - aucun téléchargement déclenché
-GET {{baseUrl}}/api/whatsapp/conversations-history/234243909275700@lid/fichiers
+GET {{baseUrl}}/api/whatsapp/conversations-history/120363426841520639@g.us/fichiers
 
 ###
 

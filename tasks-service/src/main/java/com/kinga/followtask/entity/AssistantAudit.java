@@ -1,0 +1,26 @@
+package com.kinga.followtask.entity;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+
+import java.time.Instant;
+
+@Entity
+@AllArgsConstructor
+@NoArgsConstructor
+public class AssistantAudit {
+    @Id
+    @GeneratedValue
+    private Long id;
+    private String userId;
+    private String tool;
+    private String projetId;
+    @Column(length = 2000) private String details;
+    private boolean success;
+    private Instant createdAt;
+
+}

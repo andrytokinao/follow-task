@@ -3,6 +3,7 @@ package com.kinga.followtask.service.messaging.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kinga.followtask.assistant.whatsapp.dto.DirectMessageReceivedEvent;
 import com.kinga.followtask.entity.*;
 import com.kinga.followtask.entity.enumapp.TypeContact;
 import com.kinga.followtask.repository.*;
@@ -18,6 +19,7 @@ import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -41,6 +43,7 @@ public class WhatsAppMessagingService implements MessagingService, DirectMessage
     private final ContactLinkService contactLinkService;
     private final ContactRepository contactRepository;
     private final CanalContactRepository canalContactRepository;
+    private final ApplicationEventPublisher publisher;
     @Value("${messaging.whatsapp.base-url}")
     private String whatsAppListenerBaseUrl;
 
@@ -301,6 +304,12 @@ public class WhatsAppMessagingService implements MessagingService, DirectMessage
             return;   // message de liaison : traité, ni enregistré ni transmis plus loin
         }
 
+        // Assistant : message privé reçu, jamais un message envoyé par nous
+        if (!groupe && estMessageEntrant(w)) {
+            publisher.publishEvent(new DirectMessageReceivedEvent(
+                    w.canalId(), w.texte(), w.nomExpediteur()));
+        }
+
         if (!groupe && !persistDirectMessages) {
             log.debug("Message privé non enregistré (messaging.whatsapp.persist-direct-messages=false) : {}",
                     w.messageId());
@@ -314,6 +323,13 @@ public class WhatsAppMessagingService implements MessagingService, DirectMessage
         persistMessage(dto);
     }
 
+
+    private boolean estMessageEntrant(WhatsAppIncomingWebhook w) {
+        if (w.deMoi()) {                                   // adapter : nom réel de l'accesseur
+            return false;
+        }
+        return !"message.envoye".equals(w.evenement());
+    }
 
     /**
      * Retrouve le canal par sa clé gateway, ou le crée. Synchronisé : deux webhooks
@@ -460,7 +476,6 @@ public class WhatsAppMessagingService implements MessagingService, DirectMessage
         if (!contactLinkService.looksLikeCode(texte)) {
             return false;
         }
-
         String externalId = w.canalId();
         if (contactLinkService.tropDEchecs(externalId)) {
             log.warn("Liaison WhatsApp : trop d'échecs pour {}, message ignoré", externalId);
