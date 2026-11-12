@@ -17,7 +17,7 @@ public class AssistantAuditService {
     private final AssistantAuditRepository repo; // table assistant_audit
 
     public void log(String userId, String tool, String projetId, String details, boolean success) {
-        repo.save(new AssistantAudit(null,userId, tool, projetId, details, success, Instant.now()));
+        repo.save(new AssistantAudit(userId, tool, projetId, details, success, Instant.now()));
         log.info("assistant user={} tool={} projet={} ok={}", userId, tool, projetId, success);
     }
 }
