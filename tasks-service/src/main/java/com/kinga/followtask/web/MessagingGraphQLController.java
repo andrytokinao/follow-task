@@ -27,7 +27,9 @@ public class MessagingGraphQLController {
 
     @QueryMapping
     public List<CanalDto> listCanaux(@Argument TypeCanal type) {
-        return readService.listCanaux(type);
+        String userId = currentUserProvider.getCurrentUser().getId();
+
+        return readService.listCanaux(type,userId);
     }
 
     @QueryMapping

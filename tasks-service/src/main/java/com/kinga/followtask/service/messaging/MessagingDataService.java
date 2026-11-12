@@ -10,7 +10,7 @@ import org.springframework.data.domain.Page;
 import java.util.List;
 
 public interface MessagingDataService {
-    List<CanalDto> listCanaux(TypeCanal type);
+    List<CanalDto> listCanaux(TypeCanal type,String userId);
     CanalDto getCanal(TypeCanal type, String externalId);
     Page<MessageDto> listMessages(TypeCanal type, String canalExternalId, MessageQueryDto query);
     Page<MessageApp> listMessagesEntity(TypeCanal type, String canalExternalId, MessageQueryDto query);

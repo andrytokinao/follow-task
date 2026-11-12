@@ -1,5 +1,6 @@
 package com.kinga.followtask.web;
 
+import com.kinga.followtask.config.CurrentUserProvider;
 import com.kinga.followtask.entity.TypeCanal;
 import com.kinga.followtask.service.messaging.MessagingDataService;
 import com.kinga.followtask.service.messaging.MessagingServiceRegistry;
@@ -15,6 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api/messaging")
 public class MessagingController {
+    private final CurrentUserProvider currentUserProvider;
 
     private final MessagingServiceRegistry registry;   // sync, send, webhook, download
     private final MessagingDataService readService;     // toute la lecture (DB)
@@ -23,7 +25,8 @@ public class MessagingController {
 
     @GetMapping("/{type}/canaux")
     public List<CanalDto> listCanaux(@PathVariable TypeCanal type) {
-        return readService.listCanaux(type);
+        String userId = currentUserProvider.getCurrentUser().getId();
+        return readService.listCanaux(type,userId);
     }
 
     @GetMapping("/{type}/canaux/{externalId}")

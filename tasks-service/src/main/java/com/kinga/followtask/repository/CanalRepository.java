@@ -45,4 +45,15 @@ public interface CanalRepository extends JpaRepository<Canall, Long> {
     Optional<Canall> findByExternalIdAfterAndTypeCanal(String canalExternalId, TypeCanal type);
 
     Optional<Canall> findByExternalIdAndTypeCanal(String canalExternalId, TypeCanal type);
+    @Query("""
+    SELECT DISTINCT c FROM Canall c
+    JOIN c.members cc
+    JOIN cc.contact ct
+    WHERE c.typeCanal = :type
+      AND ct.userApp.id = :userId
+""")
+    List<Canall> findByTypeCanalAndMemberUserId(
+            @Param("type") TypeCanal type,
+            @Param("userId") String userId
+    );
 }

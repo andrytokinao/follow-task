@@ -35,8 +35,8 @@ public class MessagingDataServiceImpl implements MessagingDataService {
     private final MessagingServiceRegistry messagingServiceRegistry;
 
     @Override
-    public List<CanalDto> listCanaux(TypeCanal type) {
-        return canallRepository.findByTypeCanal(type).stream()
+    public List<CanalDto> listCanaux(TypeCanal type, String userId) {
+        return canallRepository.findByTypeCanalAndMemberUserId(type, userId).stream()
                 .map(mapper::toCanalDto)
                 .toList();
     }
