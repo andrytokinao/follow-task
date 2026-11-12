@@ -4,6 +4,7 @@ import com.kinga.followtask.assistant.dto.ChatResponse;
 import com.kinga.followtask.assistant.tools.DocumentTools;
 import com.kinga.followtask.assistant.tools.ProjectTools;
 import com.kinga.followtask.assistant.tools.TaskTools;
+import com.kinga.followtask.assistant.tools.UserTools;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.memory.ChatMemory;
@@ -19,12 +20,13 @@ public class AssistantService {
     private final TaskTools taskTools;
     private final ProjectTools projectTools;
     private final DocumentTools documentTools;
+    private final UserTools userTools;
     private final PendingActionService pending;
 
     public ChatResponse chat(String userId, String conversationId, String message) {
         String reply = client.prompt()
                 .user(message)
-                .tools(taskTools, projectTools, documentTools)
+                .tools(taskTools, projectTools, documentTools,userTools)
                 .toolContext(Map.of("userId", userId))   // identité transmise aux outils
                 .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, userId + ":" + conversationId))
                 .call()

@@ -3,6 +3,7 @@ package com.kinga.followtask.assistant.tools;
 import com.kinga.followtask.assistant.security.AssistantAuditService;
 import com.kinga.followtask.assistant.security.ToolPermissionGuard;
 import com.kinga.followtask.repository.UserRepository;
+import com.kinga.followtask.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.model.ToolContext;
 import org.springframework.ai.tool.annotation.Tool;
@@ -18,6 +19,7 @@ import java.util.List;
 public class UserTools {
 
     private final UserRepository userRepository;
+    private final UserService userService;
     private final ToolPermissionGuard guard;
     private final AssistantAuditService audit;
 
