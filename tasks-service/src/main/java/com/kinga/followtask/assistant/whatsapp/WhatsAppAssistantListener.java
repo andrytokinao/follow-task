@@ -10,6 +10,8 @@ import com.kinga.followtask.entity.UserApp;
 import com.kinga.followtask.entity.enumapp.TypeContact;
 import com.kinga.followtask.repository.ContactRepository;
 import com.kinga.followtask.repository.UserAppRepository;
+import com.kinga.followtask.service.contactuser.ContactDejaLieException;
+import com.kinga.followtask.service.contactuser.ContactLinkService;
 import com.kinga.followtask.service.messaging.MessagingService;
 import com.kinga.followtask.service.messaging.dto.SendMessageRequestDto;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +20,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -42,6 +43,7 @@ public class WhatsAppAssistantListener {
 
     private final ContactRepository contactRepository;
     private final UserAppRepository userAppRepository;
+    private final ContactLinkService contactLinkService;
     private final AssistantService assistant;
     private final PendingActionService pending;
     private final List<MessagingService> messagingServices;
@@ -78,7 +80,7 @@ public class WhatsAppAssistantListener {
 
         // Numéro inconnu, ou connu mais non lié à un compte
         if (user.isEmpty()) {
-            handleUnlinked(canalId, text, contact);
+            handleUnlinked(canalId, text);
             return;
         }
         // Compte désactivé : message neutre, sans détail
@@ -98,7 +100,7 @@ public class WhatsAppAssistantListener {
 
     // ---------- Liaison automatique par numéro ----------
 
-    private void handleUnlinked(String canalId, String text, Optional<Contact> existingContact) {
+    private void handleUnlinked(String canalId, String text) {
         String normalized = normalizeAnswer(text);
 
         // 1. Une confirmation est-elle en attente pour ce numéro ?
@@ -110,7 +112,7 @@ public class WhatsAppAssistantListener {
         if (link != null) {
             if (OUI.contains(normalized)) {
                 pendingLinks.remove(canalId);
-                confirmLink(canalId, link, existingContact);
+                executeLink(canalId, link);
                 return;
             }
             if (NON.contains(normalized)) {
@@ -141,23 +143,27 @@ public class WhatsAppAssistantListener {
         sendHelpOnce(canalId, helpNotLinked());
     }
 
-    @Transactional
-    protected void confirmLink(String canalId, PendingLink link, Optional<Contact> existingContact) {
+    /** Exécute la liaison via ContactLinkService (transaction gérée par le service). */
+    private void executeLink(String canalId, PendingLink link) {
         try {
-            UserApp u = userAppRepository.findById(link.userId()).orElse(null);
-            if (u == null || !u.estActif()) {
+            Optional<Contact> linked = contactLinkService.linkConfirmed(
+                    TypeContact.WHATSAPP,
+                    link.userId(),
+                    canalId,
+                    toLocalNumber(canalId),   // value : numéro au format local, ou null si format inconnu
+                    null);                    // displayName : le service prend le nom complet du compte
+
+            if (linked.isEmpty()) {
                 send(canalId, helpNotLinked());
                 return;
             }
-            Contact c = existingContact.orElseGet(Contact::new);
-            c.setTypeContact(TypeContact.WHATSAPP);
-            c.setExternalId(canalId);
-            c.setUserApp(u);
-            contactRepository.save(c);
-
-            log.info("WhatsApp {} lié au compte {}", canalId, u.getId());
+            log.info("WhatsApp {} lié au compte {}", canalId, link.userId());
             send(canalId, "✅ Merci ! Votre WhatsApp est maintenant lié à votre compte Paikady.\n"
                     + "Vous pouvez me poser vos questions ici.");
+        } catch (ContactDejaLieException ex) {
+            log.warn("Liaison refusée : {} est déjà lié à un autre compte", canalId);
+            send(canalId, "Ce WhatsApp est déjà lié à un autre compte. "
+                    + "Contactez l'administrateur de l'application.");
         } catch (Exception ex) {
             log.error("Échec de la liaison WhatsApp {}", canalId, ex);
             send(canalId, "Désolé, la liaison a échoué. Réessayez dans un instant.");

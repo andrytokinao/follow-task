@@ -2,12 +2,12 @@ package com.kinga.followtask.service.contactuser;
 
 import com.kinga.followtask.entity.Contact;
 import com.kinga.followtask.entity.LinkCode;
+import com.kinga.followtask.entity.UserApp;
 import com.kinga.followtask.entity.enumapp.TypeContact;
 import com.kinga.followtask.repository.ContactRepository;
 import com.kinga.followtask.repository.LinkCodeRepository;
 import com.kinga.followtask.repository.UserAppRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,9 +22,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Liaison d'un contact (WhatsApp...) à un compte par code à 6 chiffres.
- * L'utilisateur génère le code dans son profil puis l'envoie lui-même au numéro du système :
- * le système n'écrit jamais en premier (pas de risque de spam).
+ * Liaison d'un contact (WhatsApp...) à un compte :
+ *  - par code à 6 chiffres (l'utilisateur génère le code dans son profil puis l'envoie lui-même) ;
+ *  - par confirmation directe quand le numéro correspond déjà à userapp.contact.
+ * Le système n'écrit jamais en premier dans le flux par code (pas de risque de spam).
  */
 @Service
 @RequiredArgsConstructor
@@ -50,8 +51,6 @@ public class ContactLinkService {
     private final LinkCodeRepository linkCodeRepository;
     private final ContactRepository contactRepository;
     private final UserAppRepository userAppRepository;
-
-
 
     // ---------- Détection ----------
 
@@ -91,8 +90,6 @@ public class ContactLinkService {
 
     // ---------- Génération ----------
 
-
-
     @Transactional
     public LinkCodeResponse generate(String userId, TypeContact type) {
         LocalDateTime now = LocalDateTime.now();
@@ -131,7 +128,7 @@ public class ContactLinkService {
         return new LinkCodeResponse(affichage, lc.getExpiresAt(), link);
     }
 
-    // ---------- Consommation ----------
+    // ---------- Consommation d'un code ----------
 
     /**
      * Valide le code reçu et rattache le contact au compte.
@@ -157,10 +154,41 @@ public class ContactLinkService {
         }
         LinkCode lc = active.get();
 
+        return Optional.of(upsertContact(type, externalId, phone, displayName, lc.getUserApp(), true));
+    }
+
+    // ---------- Liaison par confirmation directe (numéro déjà présent dans userapp.contact) ----------
+
+    /**
+     * Lie un contact à un compte après confirmation « OUI » de l'utilisateur, sans code.
+     * Lève {@link ContactDejaLieException} si le contact appartient déjà à un autre compte.
+     *
+     * @return le contact lié, ou vide si le compte est introuvable ou inactif
+     */
+    @Transactional
+    public Optional<Contact> linkConfirmed(TypeContact type, String userId,
+                                           String externalId, String phone, String displayName) {
+        Optional<UserApp> user = userAppRepository.findById(userId);
+        if (user.isEmpty() || !user.get().estActif()) {
+            return Optional.empty();
+        }
+        String name = (displayName != null && !displayName.isBlank())
+                ? displayName
+                : user.get().getFullName();
+
+        // verified = false : un simple OUI prouve moins qu'un code envoyé depuis le profil.
+        // Passez à true si votre code métier exige verified pour utiliser l'assistant.
+        return Optional.of(upsertContact(type, externalId, phone, name, user.get(), false));
+    }
+
+    // ---------- Commun ----------
+
+    private Contact upsertContact(TypeContact type, String externalId, String phone,
+                                  String displayName, UserApp owner, boolean verified) {
         Contact contact = contactRepository.findByTypeContactAndExternalId(type, externalId)
                 .orElseGet(Contact::new);
         if (contact.getUserApp() != null
-                && !contact.getUserApp().getId().equals(lc.getUserApp().getId())) {
+                && !contact.getUserApp().getId().equals(owner.getId())) {
             throw new ContactDejaLieException();
         }
 
@@ -168,8 +196,8 @@ public class ContactLinkService {
         contact.setExternalId(externalId);
         contact.setValue(phone);
         contact.setDisplayName(displayName);
-        contact.setUserApp(lc.getUserApp());
-        contact.setVerified(true);   // adapter au nom réel du champ (is_verified)
-        return Optional.of(contactRepository.save(contact));
+        contact.setUserApp(owner);
+        contact.setVerified(verified);   // adapter au nom réel du champ (is_verified)
+        return contactRepository.save(contact);
     }
 }
