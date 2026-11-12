@@ -17,7 +17,11 @@ public class AssistantAuditService {
     private final AssistantAuditRepository repo; // table assistant_audit
 
     public void log(String userId, String tool, String projetId, String details, boolean success) {
-        repo.save(new AssistantAudit(userId, tool, projetId, details, success, Instant.now()));
+        try {
+            repo.save(new AssistantAudit(userId, tool, projetId, details, success, Instant.now()));
+        } catch (Exception e) {
+            log.error("Audit non enregistré (user={}, tool={}) : {}", userId, tool, e.getMessage());
+        }
         log.info("assistant user={} tool={} projet={} ok={}", userId, tool, projetId, success);
     }
 }
