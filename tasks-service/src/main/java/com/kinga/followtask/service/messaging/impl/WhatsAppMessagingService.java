@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientResponseException;
 
@@ -638,11 +639,17 @@ public class WhatsAppMessagingService implements MessagingService, DirectMessage
                 .orElseThrow(() -> new IllegalStateException("Canal introuvable : " + dto.getExternalId()));
 
         log.debug("[WA-DB] persistMembers : {} membre(s) à enregistrer pour {}", dto.getMembers().size(), dto.getExternalId());
+        if (dto.getMemberCount() == 0)
+            return;
+        if (!CollectionUtils.isEmpty(dto.getMembers())) {
+            dto.getMembers().forEach(memberDto -> {
+                Contact contact = upsertContact(memberDto);
+                upsertCanalContact(canall, contact);
+            });
+            return;
+        }
 
-        dto.getMembers().forEach(memberDto -> {
-            Contact contact = upsertContact(memberDto);
-            upsertCanalContact(canall, contact);
-        });
+
 
         log.info("[WA-DB] persistMembers : {} membre(s) enregistré(s) pour {}", dto.getMembers().size(), dto.getExternalId());
     }
