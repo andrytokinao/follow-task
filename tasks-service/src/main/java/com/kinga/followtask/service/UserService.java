@@ -459,46 +459,69 @@ public class UserService {
         user.setPass(encodeText(newPassword));
         userRepository.save(user);
     }
+    /** Indicatifs pays acceptés. Ajouter ici les autres pays si besoin (ex. "33"). */
+    private static final List<String> INDICATIFS_PAYS = List.of("261");
+
+    /** Nombre de chiffres du numéro national, sans le 0 ni l'indicatif (340658179). */
+    private static final int LONGUEUR_NUMERO_NATIONAL = 9;
+
     /**
      * Retrouve un utilisateur à partir d'un numéro de téléphone, quel que soit
-     * le format : 0344555555, 261344555555, +261344555555, avec ou sans espaces.
+     * le format : 0340658179, 261340658179, +261 34 06 581 79, 340658179.
      *
-     * <p>Seuls les numéros malgaches (9 chiffres après le 0 ou le 261) sont
-     * cherchés. Un identifiant WhatsApp de type « lid » (15 chiffres) n'est pas
-     * un numéro : il ne doit surtout pas être rapproché d'un compte.</p>
+     * <p>La comparaison porte sur le numéro national (9 chiffres) : le 0 ou
+     * l'indicatif ne comptent pas. Un identifiant WhatsApp « lid » (15 chiffres)
+     * n'est pas un numéro et n'est jamais rapproché d'un compte.</p>
      *
      * @return l'utilisateur, ou null si le numéro est inexploitable ou inconnu
      */
     public UserApp findByPhone(String phone) {
-        String local = versFormatLocal(phone);
-        if (local == null) {
+        String national = versNumeroNational(phone);
+        if (national == null) {
+            logger.info("[PHONE] Recherche ignorée : '{}' n'est pas un numéro exploitable", phone);
             return null;
         }
-        String sansZero = local.substring(1);
-        // Les contacts sont enregistrés en 034..., mais on tolère les autres formes en base.
-        for (String candidat : List.of(local, "261" + sansZero, "+261" + sansZero)) {
-            UserApp user = userRepository.findByContact(candidat);
-            if (user != null) {
-                return user;
-            }
+
+        List<UserApp> trouves = userRepository.findByContactTermineePar(national);
+        logger.info("[PHONE] Recherche de '{}' (national={}) : {} utilisateur(s) trouvé(s)",
+                phone, national, trouves.size());
+
+        if (trouves.isEmpty()) {
+            return null;
         }
-        return null;
+        if (trouves.size() > 1) {
+            logger.warn("[PHONE] Plusieurs utilisateurs pour {} : {}", national,
+                    trouves.stream().map(UserApp::getUsername).toList());
+        }
+        // En cas de doublon, on préfère un compte actif.
+        UserApp choisi = trouves.stream().filter(UserApp::estActif).findFirst().orElse(trouves.get(0));
+        logger.info("[PHONE] {} -> utilisateur {} (contact en base : {})",
+                national, choisi.getUsername(), choisi.getContact());
+        return choisi;
     }
 
-    /** 261344555555 / +261 34 45 555 55 / 344555555 -> 0344555555 ; null si pas un numéro malgache. */
-    private String versFormatLocal(String phone) {
+    /**
+     * Réduit un numéro à ses 9 chiffres nationaux.
+     * 261340658179 / +261 34 06 581 79 / 0340658179 / 340658179 -> 340658179 ;
+     * null si ce n'est pas un numéro (lid de 15 chiffres, trop court...).
+     */
+    private String versNumeroNational(String phone) {
         if (StringUtils.isEmpty(phone)) {
             return null;
         }
         String chiffres = phone.replaceAll("\\D", "");
-        if (chiffres.startsWith("261") && chiffres.length() == 12) {
-            return "0" + chiffres.substring(3);
+
+        for (String indicatif : INDICATIFS_PAYS) {
+            if (chiffres.startsWith(indicatif)
+                    && chiffres.length() == indicatif.length() + LONGUEUR_NUMERO_NATIONAL) {
+                return chiffres.substring(indicatif.length());
+            }
         }
-        if (chiffres.startsWith("0") && chiffres.length() == 10) {
+        if (chiffres.startsWith("0") && chiffres.length() == LONGUEUR_NUMERO_NATIONAL + 1) {
+            return chiffres.substring(1);
+        }
+        if (chiffres.length() == LONGUEUR_NUMERO_NATIONAL) {
             return chiffres;
-        }
-        if (chiffres.length() == 9) {
-            return "0" + chiffres;
         }
         return null;
     }

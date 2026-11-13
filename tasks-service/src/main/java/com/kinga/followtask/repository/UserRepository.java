@@ -49,4 +49,11 @@ public interface UserRepository extends JpaRepository<UserApp,String> {
     /** Comptes actifs ; `null` vaut actif. */
     @Query("select u from UserApp u where coalesce(u.active, true) = true")
     List<UserApp> findAllActifs();
+
+    @Query("""
+        select u from UserApp u
+        where replace(replace(replace(replace(u.contact, ' ', ''), '+', ''), '-', ''), '.', '')
+              like concat('%', :national)
+        """)
+    List<UserApp> findByContactTermineePar(@Param("national") String national);
 }
