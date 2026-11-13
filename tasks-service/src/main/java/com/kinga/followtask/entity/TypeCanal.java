@@ -1,5 +1,10 @@
 package com.kinga.followtask.entity;
 
+import com.kinga.followtask.service.messaging.MessagingService;
+
+import java.util.List;
+
+
 public enum TypeCanal {
     PROJECT,
     ISSUE,
@@ -7,5 +12,8 @@ public enum TypeCanal {
     WHATSAPP,
     FACEBOOK,
     TELEGRAM,
-    INSTAGRAM
+    INSTAGRAM;
+    public static List<TypeCanal> getImplemented(){
+        return List.of(TypeCanal.WHATSAPP);
+    }
 }

@@ -23,7 +23,7 @@ public class MessagingSyncScheduler {
 
     @Scheduled(fixedDelayString = "${messaging.sync.interval-ms:300000}")
     public void syncAllProviders() {
-        for (TypeCanal type : TypeCanal.values()) {
+        for (TypeCanal type : TypeCanal.getImplemented()) {
             try {
                 registry.get(type).syncAll();
             } catch (Exception e) {
