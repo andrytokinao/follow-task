@@ -373,11 +373,11 @@ export class EventsService {
       })
     }
 
-  getByEventById(id: number | string): Observable<EventApp> {
+  getByEventById(id: number | string | Number): Observable<EventApp> {
     return this.apollo
       .query<any>({
         query: operation.EVENT_BY_ID,
-        variables: { eventId: Number(id) },   // envoie 898 et non "898"
+        variables: { eventId: Number(id) },
         fetchPolicy: 'network-only',
         errorPolicy: 'all'
       })
