@@ -26,8 +26,8 @@ public class AssistantService {
     public ChatResponse chat(String userId, String conversationId, String message) {
         String reply = client.prompt()
                 .user(message)
-                .tools(taskTools, projectTools, documentTools,userTools,client,taskTools)
-                .toolContext(Map.of("userId", userId))   // identité transmise aux outils
+                .tools(taskTools, projectTools, documentTools, userTools)
+                .toolContext(Map.of("userId", userId))
                 .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, userId + ":" + conversationId))
                 .call()
                 .content();
