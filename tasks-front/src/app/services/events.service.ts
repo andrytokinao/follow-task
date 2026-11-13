@@ -377,7 +377,7 @@ export class EventsService {
     return new Observable<EventApp>(observer => {
       this.apollo.query({
         query:operation.EVENT_BY_ID,
-        variables:{eventId:id}
+          variables: { eventId: Number(id) },
         }
       ).subscribe((res:any)=> {
         observer.next(supprimerTypename(res.data.getByEventId));

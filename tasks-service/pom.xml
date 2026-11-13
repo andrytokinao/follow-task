@@ -5,7 +5,6 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <!-- MIGRATION : 3.2.3 -> 3.5.x (requis par Spring AI 1.1.x) -->
         <version>3.5.7</version>
         <relativePath/>
     </parent>
