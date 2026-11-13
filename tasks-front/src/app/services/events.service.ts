@@ -1,5 +1,5 @@
 import {Injectable} from "@angular/core";
-import {BehaviorSubject, Observable} from "rxjs";
+import {BehaviorSubject, map, Observable} from "rxjs";
 import {DayPilot} from "@daypilot/daypilot-lite-angular";
 import {HttpClient} from "@angular/common/http";
 import CalendarColumnData = DayPilot.CalendarColumnData;
@@ -373,17 +373,22 @@ export class EventsService {
       })
     }
 
-  getByEventById(id) {
-    return new Observable<EventApp>(observer => {
-      this.apollo.query({
-        query:operation.EVENT_BY_ID,
-          variables: { eventId: Number(id) },
-        }
-      ).subscribe((res:any)=> {
-        observer.next(supprimerTypename(res.data.getByEventId));
-        observer.complete();
+  getByEventById(id: number | string): Observable<EventApp> {
+    return this.apollo
+      .query<any>({
+        query: operation.EVENT_BY_ID,
+        variables: { eventId: Number(id) },   // envoie 898 et non "898"
+        fetchPolicy: 'network-only',
+        errorPolicy: 'all'
       })
-    })
+      .pipe(
+        map((res: any) => {
+          if (res.errors?.length) {
+            throw new Error(res.errors.map((e: any) => e.message).join(' | '));
+          }
+          return supprimerTypename(res.data.getByEventId) as EventApp;
+        })
+      );
   }
   loadEventTypes() {
     this.allEventType().subscribe(res=> {
