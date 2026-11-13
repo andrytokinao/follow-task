@@ -196,9 +196,15 @@
           (keyup.enter)="sendMessage()"
           [disabled]="sending"
         />
-        <button class="send-btn" (click)="sendMessage()" [disabled]="sending || !draftText.trim()">
+        <button
+          class="send-btn"
+          (click)="sendMessage()"
+          [disabled]="true"
+          title="L'envoi de messages est désactivé"
+        >
           <i class="fas fa-paper-plane"></i>
         </button>
+      </div>
       </div>
 
     </ng-container>
