@@ -670,6 +670,8 @@ public class WhatsAppMessagingService implements MessagingService, DirectMessage
         // pour ne jamais écraser une liaison faite par code.
         if (contact.getUserApp() == null) {
             UserApp user = userService.findByPhone(contact.getValue());
+            if (user == null)
+                user = userService.findByPhone(contact.getDisplayName());
             if (user != null) {
                 contact.setUserApp(user);
                 log.info("[WA-DB] Contact {} rattaché à l'utilisateur {}", contact.getValue(), user.getUsername());
