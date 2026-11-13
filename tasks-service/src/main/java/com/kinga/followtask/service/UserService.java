@@ -459,4 +459,47 @@ public class UserService {
         user.setPass(encodeText(newPassword));
         userRepository.save(user);
     }
+    /**
+     * Retrouve un utilisateur à partir d'un numéro de téléphone, quel que soit
+     * le format : 0344555555, 261344555555, +261344555555, avec ou sans espaces.
+     *
+     * <p>Seuls les numéros malgaches (9 chiffres après le 0 ou le 261) sont
+     * cherchés. Un identifiant WhatsApp de type « lid » (15 chiffres) n'est pas
+     * un numéro : il ne doit surtout pas être rapproché d'un compte.</p>
+     *
+     * @return l'utilisateur, ou null si le numéro est inexploitable ou inconnu
+     */
+    public UserApp findByPhone(String phone) {
+        String local = versFormatLocal(phone);
+        if (local == null) {
+            return null;
+        }
+        String sansZero = local.substring(1);
+        // Les contacts sont enregistrés en 034..., mais on tolère les autres formes en base.
+        for (String candidat : List.of(local, "261" + sansZero, "+261" + sansZero)) {
+            UserApp user = userRepository.findByContact(candidat);
+            if (user != null) {
+                return user;
+            }
+        }
+        return null;
+    }
+
+    /** 261344555555 / +261 34 45 555 55 / 344555555 -> 0344555555 ; null si pas un numéro malgache. */
+    private String versFormatLocal(String phone) {
+        if (StringUtils.isEmpty(phone)) {
+            return null;
+        }
+        String chiffres = phone.replaceAll("\\D", "");
+        if (chiffres.startsWith("261") && chiffres.length() == 12) {
+            return "0" + chiffres.substring(3);
+        }
+        if (chiffres.startsWith("0") && chiffres.length() == 10) {
+            return chiffres;
+        }
+        if (chiffres.length() == 9) {
+            return "0" + chiffres;
+        }
+        return null;
+    }
 }

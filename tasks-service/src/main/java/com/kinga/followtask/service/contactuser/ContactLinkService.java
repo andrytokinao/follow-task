@@ -7,6 +7,7 @@ import com.kinga.followtask.entity.enumapp.TypeContact;
 import com.kinga.followtask.repository.ContactRepository;
 import com.kinga.followtask.repository.LinkCodeRepository;
 import com.kinga.followtask.repository.UserAppRepository;
+import com.kinga.followtask.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +32,7 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 public class ContactLinkService {
     private final WhatsAppSystemNumberProvider systemNumberProvider;
+    private final UserService userService;
     /** Le message doit contenir uniquement le code : "483921", "483 921" ou "483-921". */
     private static final Pattern CODE = Pattern.compile("^\\s*(\\d{3})[\\s-]?(\\d{3})\\s*$");
     private static final Duration TTL = Duration.ofMinutes(5);

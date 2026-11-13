@@ -7,6 +7,7 @@ import com.kinga.followtask.assistant.whatsapp.dto.DirectMessageReceivedEvent;
 import com.kinga.followtask.entity.*;
 import com.kinga.followtask.entity.enumapp.TypeContact;
 import com.kinga.followtask.repository.*;
+import com.kinga.followtask.service.UserService;
 import com.kinga.followtask.service.contactuser.ContactDejaLieException;
 import com.kinga.followtask.service.contactuser.ContactLinkService;
 import com.kinga.followtask.service.messaging.DirectMessageReader;
@@ -49,6 +50,7 @@ public class WhatsAppMessagingService implements MessagingService, DirectMessage
     private final ContactRepository contactRepository;
     private final CanalContactRepository canalContactRepository;
     private final ApplicationEventPublisher publisher;
+    private final UserService userService;
     @Value("${messaging.whatsapp.base-url}")
     private String whatsAppListenerBaseUrl;
 
@@ -663,6 +665,17 @@ public class WhatsAppMessagingService implements MessagingService, DirectMessage
         contact.setExternalId(dto.getExternalUserId());
         contact.setValue(extractPhone(dto.getExternalUserId()));
         contact.setDisplayName(dto.getDisplayName());
+
+        // Rattachement automatique : seulement si le contact n'a pas déjà d'utilisateur,
+        // pour ne jamais écraser une liaison faite par code.
+        if (contact.getUserApp() == null) {
+            UserApp user = userService.findByPhone(contact.getValue());
+            if (user != null) {
+                contact.setUserApp(user);
+                log.info("[WA-DB] Contact {} rattaché à l'utilisateur {}", contact.getValue(), user.getUsername());
+            }
+        }
+
         Contact sauve = contactRepository.save(contact);
         log.trace("[WA-DB] Contact {} {} (nom={})",
                 dto.getExternalUserId(), existant.isPresent() ? "mis à jour" : "créé", dto.getDisplayName());
