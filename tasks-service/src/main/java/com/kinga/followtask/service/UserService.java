@@ -482,7 +482,7 @@ public class UserService {
             return null;
         }
 
-        List<UserApp> trouves = userRepository.findByContactTermineePar(national);
+        List<UserApp> trouves = userRepository.findAllByContactLike("%"+national);
         logger.info("[PHONE] Recherche de '{}' (national={}) : {} utilisateur(s) trouvé(s)",
                 phone, national, trouves.size());
 
