@@ -66,4 +66,5 @@ public interface MessagingService {
     String getAvatarUrl(String externalId);
 
     public Contact upsertContact(MemberDto dto);
+    public void sentToUser(String userId,SendMessageRequestDto messageDto);
 }

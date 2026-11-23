@@ -3,11 +3,12 @@ package com.kinga.followtask.service;
 import com.kinga.followtask.config.StatutsFinaux;
 import com.kinga.followtask.dto.OutputNotification;
 import com.kinga.followtask.dto.Response;
-import com.kinga.followtask.entity.ActionGroupe;
-import com.kinga.followtask.entity.Issue;
-import com.kinga.followtask.entity.Notification;
-import com.kinga.followtask.entity.Project;
+import com.kinga.followtask.entity.*;
 import com.kinga.followtask.repository.NotificationRepository;
+import com.kinga.followtask.service.messaging.MessagingMapper;
+import com.kinga.followtask.service.messaging.MessagingService;
+import com.kinga.followtask.service.messaging.MessagingServiceRegistry;
+import com.kinga.followtask.service.messaging.dto.SendMessageRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +55,7 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final StatutsFinaux statutsFinaux;
+    private final MessagingServiceRegistry messagingServiceRegistry;
 
     // -----------------------------------------------------------------
     // Création
@@ -156,6 +158,7 @@ public class NotificationService {
         notification = notificationRepository.save(notification);
 
         OutputNotification charge = new OutputNotification(notification);
+        pushSocialContact(destinataires,charge);
         pushApresCommit(destinataires, NEW_NOTIFICATION, charge);
         return notification;
     }
@@ -355,6 +358,17 @@ public class NotificationService {
                 // la donnée est en base, le client la retrouvera au rechargement.
                 logger.warn("Notification non distribuée à {} : {}", userId, e.getMessage());
             }
+        }
+    }
+    public void pushSocialContact(Set<String> destinataires, OutputNotification charge){
+        // WHATSAPP DISPONIBLE POUR LE MOMENT , JUSTE AJOUTER ICI APRÈS L'IMPLEMENTATION DES AUTRE SOCIAL
+        MessagingService messagingService = messagingServiceRegistry.get(TypeCanal.WHATSAPP);
+
+        for (String destinataire : destinataires) {
+            String message = charge.getMessage();
+            SendMessageRequestDto messageDto = new SendMessageRequestDto();
+            messageDto.setText(message);
+            messagingService.sentToUser(destinataire,messageDto);
         }
     }
 }

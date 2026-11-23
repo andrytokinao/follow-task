@@ -684,6 +684,31 @@ public class WhatsAppMessagingService implements MessagingService, DirectMessage
         return sauve;
     }
 
+    @Override
+    public void sentToUser(String userId, SendMessageRequestDto messageDto) {
+        List<Contact> contacts = contactRepository.findVerifiedByUser(userId, TypeContact.WHATSAPP);
+
+        if (CollectionUtils.isEmpty(contacts)) {
+            log.warn("No verified WhatsApp contacts found for userId={}", userId);
+            return;
+        }
+
+        log.info("Starting WhatsApp message delivery for userId={}. Number of recipients: {}",
+                userId, contacts.size());
+
+        for (Contact contact : contacts) {
+            log.info("Sending WhatsApp message to recipient='{}', externalId={}, user='{}'",
+                    contact.getDisplayName(),
+                    contact.getExternalId(),
+                    contact.getUserApp().getUsername());
+
+            sendMessage(contact.getExternalId(), messageDto);
+        }
+
+        log.info("WhatsApp message delivery process completed for userId={}. Total recipients: {}",
+                userId, contacts.size());
+    }
+
     private String extractPhone(String jid) {
         int at = jid.indexOf('@');
         return at > 0 ? jid.substring(0, at) : jid;
